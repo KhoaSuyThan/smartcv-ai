@@ -1,0 +1,35 @@
+<h2>Đăng nhập</h2>
+
+<form asp-controller="Account" asp-action="Login" method="post">
+
+    <div class="mb-3">
+
+        <label>Email</label>
+
+        <input type="email" name="email" class="form-control" placeholder="Nhập email">
+
+    </div>
+
+    <div class="mb-3">
+
+        <label>Mật khẩu</label>
+
+        <input type="password" name="password" class="form-control" placeholder="Nhập mật khẩu">
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Đăng nhập
+    </button>
+
+</form>
+
+<p class="mt-3">
+    Chưa có tài khoản?
+    <a href="/Account/Register">Đăng ký ngay</a>
+</p>
+
+@if (ViewBag.Error != null)
+{
+    <p style="color:red">@ViewBag.Error</p>
+}
