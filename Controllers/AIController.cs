@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTWeb.Controllers
 {
-    public class AIController : Controller
+    public class AIController : BaseController
     {
         public IActionResult Index()
         {

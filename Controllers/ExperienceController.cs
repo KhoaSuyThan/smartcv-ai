@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTWeb.Controllers
 {
-    public class ExperienceController : Controller
+    public class ExperienceController : BaseController
     {
         public IActionResult Index()
         {

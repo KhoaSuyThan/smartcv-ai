@@ -16,6 +16,9 @@ namespace DoAnLTWeb.Controllers
         [HttpPost]
         public IActionResult Login(string email, string password)
         {
+
+            // Lưu trạng thái đăng nhập
+            HttpContext.Session.SetString("User", email);
             // TEST đăng nhập (sau này sẽ check database)
 
             if (email == "admin@gmail.com" && password == "123456")
@@ -47,6 +50,12 @@ namespace DoAnLTWeb.Controllers
 
             ViewBag.Message = "Đăng ký thành công (Test)";
             return View();
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Account");
         }
     }
 }

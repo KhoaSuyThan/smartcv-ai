@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DoAnLTWeb.Controllers
 {
-    public class SkillsController : Controller
+    public class SkillsController : BaseController
     {
         public IActionResult Index()
         {

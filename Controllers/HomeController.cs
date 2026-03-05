@@ -13,7 +13,11 @@ public class HomeController : Controller
 
         public IActionResult Dashboard()
         {
-            return View();
+            if (HttpContext.Session.GetString("User") == null)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+        return View();
         }
     }
 

@@ -95,3 +95,4 @@ C:\Users\ADMIN\source\DoAnLTWeb\obj\Debug\net10.0\refint\DoAnLTWeb.dll
 C:\Users\ADMIN\source\DoAnLTWeb\obj\Debug\net10.0\DoAnLTWeb.pdb
 C:\Users\ADMIN\source\DoAnLTWeb\obj\Debug\net10.0\DoAnLTWeb.genruntimeconfig.cache
 C:\Users\ADMIN\source\DoAnLTWeb\obj\Debug\net10.0\ref\DoAnLTWeb.dll
+C:\Users\ADMIN\source\DoAnLTWeb\obj\Debug\net10.0\DoAnLTWeb.sourcelink.json
