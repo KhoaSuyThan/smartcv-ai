@@ -4,7 +4,7 @@ namespace DoAnLTWeb.Controllers
 {
     public class ProjectsController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult Index() // Trả về trang Projects
         {
             return View();
         }

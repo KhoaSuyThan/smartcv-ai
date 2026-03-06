@@ -6,16 +6,16 @@ namespace DoAnLTWeb.Controllers;
 
 public class HomeController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index() // Trả về trang Home
         {
             return View();
         }
 
-        public IActionResult Dashboard()
+        public IActionResult Dashboard() // Trả về trang Dashboard
         {
-            if (HttpContext.Session.GetString("User") == null)
+            if (HttpContext.Session.GetString("User") == null) 
         {
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "Account");// Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
         }
         return View();
         }

@@ -4,7 +4,7 @@ namespace DoAnLTWeb.Controllers
 {
     public class SkillsController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult Index() // Trả về trang Skills
         {
             return View();
         }

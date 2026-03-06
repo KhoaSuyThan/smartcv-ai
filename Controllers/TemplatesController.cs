@@ -4,7 +4,7 @@ namespace DoAnLTWeb.Controllers
 {
     public class TemplatesController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult Index()// Trả về trang Templates
         {
             return View();
         }

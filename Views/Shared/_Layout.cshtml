@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,36 +15,46 @@
 
 <body>
 
+    @{
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var action = ViewContext.RouteData.Values["action"]?.ToString();
+    }
+
     <div class="container-fluid">
         <div class="row">
+            @if (!(
+        (controller == "Home" && action == "Index") ||
+        (controller == "Account" && action == "Login") ||
+        (controller == "Account" && action == "Register"))) // Ẩn sidebar trên trang chủ, đăng nhập và đăng ký
+            {
+                <!-- SIDEBAR -->
+                <div class="col-2 bg-dark text-white vh-100">
 
-            <!-- SIDEBAR -->
-            <div class="col-2 bg-dark text-white vh-100">
+                    <h4 class="p-3">AI CV Builder</h4>
 
-                <h4 class="p-3">AI CV Builder</h4>
+                    <a class="d-block text-white p-2" asp-controller="Home" asp-action="Dashboard">Trang tổng quan</a>
 
-                <a class="d-block text-white p-2" asp-controller="Home" asp-action="Dashboard">Trang tổng quan</a>
+                    <a class="d-block text-white p-2" asp-controller="Profile" asp-action="Index">Thông tin cá nhân</a>
 
-                <a class="d-block text-white p-2" asp-controller="Profile" asp-action="Index">Thông tin cá nhân</a>
+                    <a class="d-block text-white p-2" asp-controller="Resume" asp-action="Index">CV của tôi</a>
 
-                <a class="d-block text-white p-2" asp-controller="Resume" asp-action="Index">CV của tôi</a>
+                    <a class="d-block text-white p-2" asp-controller="Experience" asp-action="Index">Kinh nghiệm làm
+                        việc</a>
 
-                <a class="d-block text-white p-2" asp-controller="Experience" asp-action="Index">Kinh nghiệm làm việc</a>
+                    <a class="d-block text-white p-2" asp-controller="Education" asp-action="Index">Học vấn</a>
 
-                <a class="d-block text-white p-2" asp-controller="Education" asp-action="Index">Học vấn</a>
+                    <a class="d-block text-white p-2" asp-controller="Skills" asp-action="Index">Kỹ năng</a>
 
-                <a class="d-block text-white p-2" asp-controller="Skills" asp-action="Index">Kỹ năng</a>
+                    <a class="d-block text-white p-2" asp-controller="Projects" asp-action="Index">Dự án</a>
 
-                <a class="d-block text-white p-2" asp-controller="Projects" asp-action="Index">Dự án</a>
+                    <a class="d-block text-white p-2" asp-controller="Templates" asp-action="Index">Mẫu CV</a>
 
-                <a class="d-block text-white p-2" asp-controller="Templates" asp-action="Index">Mẫu CV</a>
+                    <a class="d-block text-white p-2" asp-controller="AI" asp-action="Index">Gợi ý AI</a>
 
-                <a class="d-block text-white p-2" asp-controller="AI" asp-action="Index">Gợi ý AI</a>
-
-                <a class="d-block text-danger p-2" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
+                    <a class="d-block text-danger p-2" asp-controller="Account" asp-action="Logout">Đăng xuất</a>
 
                 </div>
-
+            }
                 <!-- CONTENT -->
                 <div class="col-10 p-4">
 

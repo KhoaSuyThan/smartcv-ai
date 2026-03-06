@@ -9,7 +9,7 @@ namespace DoAnLTWeb.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            return View(); // Trả về trang Login
         }
 
         // Xử lý khi bấm Login
@@ -41,7 +41,7 @@ namespace DoAnLTWeb.Controllers
 
         // Xử lý khi bấm nút Register
         [HttpPost]
-        public IActionResult Register(RegisterViewModel model)
+        public IActionResult Register(RegisterViewModel model) // Nhận dữ liệu từ form đăng ký
         {
             if (!ModelState.IsValid)
             {
@@ -52,7 +52,7 @@ namespace DoAnLTWeb.Controllers
             return View();
         }
 
-        public IActionResult Logout()
+        public IActionResult Logout() // Xử lý khi bấm Logout
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Login", "Account");

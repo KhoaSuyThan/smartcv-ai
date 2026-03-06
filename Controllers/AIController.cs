@@ -4,7 +4,7 @@ namespace DoAnLTWeb.Controllers
 {
     public class AIController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult Index() //Gọi view Index.cshtml trong Views/AI
         {
             return View();
         }

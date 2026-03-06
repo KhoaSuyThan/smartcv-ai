@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DoAnLTWeb.Models
 {
-    public class RegisterViewModel
+    public class RegisterViewModel // Model dùng để nhận dữ liệu từ form đăng ký
     {
         [Required(ErrorMessage = "Không được để trống họ tên")]
         public string? FullName { get; set; }

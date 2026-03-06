@@ -4,7 +4,7 @@ namespace DoAnLTWeb.Controllers
 {
     public class ExperienceController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult Index() // Trả về trang Experience
         {
             return View();
         }

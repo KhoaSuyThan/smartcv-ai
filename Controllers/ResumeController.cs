@@ -4,7 +4,7 @@ namespace DoAnLTWeb.Controllers
 {
     public class ResumeController : BaseController
     {
-        public IActionResult Index()
+        public IActionResult Index()// Trả về trang Resume
         {
             return View();
         }
