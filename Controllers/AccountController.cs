@@ -74,11 +74,11 @@ namespace DoAnCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(AuthVM model)
         {
-            ModelState.Remove("Register.FullName");
+            ModelState.Remove("Register.FullName"); 
             ModelState.Remove("Register.Email");
             ModelState.Remove("Register.Password");
             ModelState.Remove("Register.ConfirmPassword");
-            
+
             if (ModelState.IsValid)
             {
                 var user = await _context.Users
