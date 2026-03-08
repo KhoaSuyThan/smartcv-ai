@@ -221,3 +221,5 @@ C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnCS\obj\Debug\net10.0\compressed\ywc81znnx9-
 C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnCS\obj\Debug\net10.0\compressed\ofgmxkqq1d-{0}-kqesxdshxt-kqesxdshxt.gz
 C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnCS\obj\Debug\net10.0\compressed\cyw913aa4y-{0}-0xfkz84o3u-0xfkz84o3u.gz
 C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnCS\bin\Debug\net10.0\BCrypt.Net-Next.dll
+C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnCS\obj\Debug\net10.0\DoAnCS.sourcelink.json
+C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnCS\obj\Debug\net10.0\compressed\zcag1a42qw-{0}-ncnun33axs-ncnun33axs.gz

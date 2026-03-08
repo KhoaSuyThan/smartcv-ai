@@ -1,0 +1,76 @@
+@model IEnumerable<DoAnCS.Models.Template>
+@{
+    ViewData["Title"] = "Thư viện mẫu CV chuyên nghiệp";
+}
+
+<style>
+    .template-card { transition: all 0.3s ease; border-radius: 15px; overflow: hidden; position: relative; }
+    .template-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    .filter-btn.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
+    
+    /* Đảm bảo overlay ẩn đi mặc định */
+    .hover-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+    }
+    .template-card:hover .hover-overlay { opacity: 1; }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold mb-3 text-primary">Chọn mẫu CV để bắt đầu</h1>
+        <p class="text-muted mx-auto" style="max-width: 600px;">
+            Hệ thống BetterCV cung cấp các mẫu thiết kế chuẩn ATS, phù hợp cho sinh viên CNTT.
+        </p>
+    </div>
+
+    <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap">
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn active">Tất cả mẫu</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn">Lập trình viên</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn">Kinh tế</button>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm template-card">
+                    <div class="position-relative">
+                        <img src="@item.PreviewImageUrl" class="card-img-top p-2 bg-light" alt="@item.Name" 
+                             style="height: 350px; object-fit: cover;"
+                             onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
+                        
+                        <div class="hover-overlay">
+                            <a asp-controller="Resume" 
+                               asp-action="Create" 
+                               asp-route-id="@item.TemplateID" 
+                               class="btn btn-primary rounded-pill px-4 shadow fw-bold">
+                               Sử dụng mẫu này
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h6 class="fw-bold mb-1">@item.Name</h6>
+                        <p class="small text-muted mb-0">Chuẩn thiết kế @DateTime.Now.Year</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 border-0 shadow-sm template-card border-primary" style="border-style: dashed !important; border-width: 2px !important;">
+                <div class="card-body d-flex flex-column align-items-center justify-content-center text-muted">
+                    <i class="fas fa-plus-circle fa-3x mb-3 text-primary opacity-50"></i>
+                    <h6 class="fw-bold">Đang thiết kế thêm...</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

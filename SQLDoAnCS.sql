@@ -1,153 +1,202 @@
 ﻿USE master;
 GO
--- Tạo Database nếu chưa có
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'DoAnWebCS')
+
+-- 1. XÓA VÀ TẠO MỚI DATABASE (Đảm bảo môi trường sạch)
+IF EXISTS (SELECT * FROM sys.databases WHERE name = 'DoAnWebCS')
 BEGIN
-    CREATE DATABASE DoAnWebCS;
+    ALTER DATABASE DoAnWebCS SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE DoAnWebCS;
 END
+GO
+
+CREATE DATABASE DoAnWebCS;
 GO
 
 USE DoAnWebCS;
 GO
 
--- 1. Bảng Người dùng
+-- 2. BẢNG NGƯỜI DÙNG
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
     Email NVARCHAR(255) UNIQUE NOT NULL,
     PasswordHash NVARCHAR(MAX) NOT NULL,
     Phone VARCHAR(20),
-    Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')),
+    Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')) DEFAULT 'User',
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 
--- 2. Bảng Mẫu CV (Template)
+-- 3. BẢNG MẪU CV (Lưu trữ cấu trúc giao diện)
 CREATE TABLE Templates (
     TemplateID INT PRIMARY KEY IDENTITY(1,1),
     Name NVARCHAR(50) NOT NULL,
-    HtmlContent NVARCHAR(MAX), -- Lưu cấu trúc HTML mẫu
-    CssContent NVARCHAR(MAX),  -- Lưu style mẫu
+    HtmlContent NVARCHAR(MAX), 
+    CssContent NVARCHAR(MAX),  
     PreviewImageUrl NVARCHAR(500),
     IsActive BIT DEFAULT 1
 );
 
--- 3. Bảng CV chính
+-- 4. BẢNG CV CHÍNH (Chứa thông tin cá nhân "tĩnh" - Khớp Editor)
 CREATE TABLE Resumes (
     ResumeID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES Users(UserID),
-    TemplateID INT FOREIGN KEY REFERENCES Templates(TemplateID),
-    Title NVARCHAR(200) NOT NULL, -- Ví dụ: CV Thực tập Backend
-    Summary NVARCHAR(MAX),        -- Professional Summary do AI tạo
-    ThemeColor VARCHAR(10),       -- Mã màu Hex (ví dụ: #3498db)
+    UserID INT NOT NULL,
+    TemplateID INT NOT NULL,
+    Title NVARCHAR(200) NOT NULL,    -- Tiêu đề bản CV (ví dụ: CV .NET Intern)
+    
+    -- Thông tin cá nhân (Theo mẫu Quynh My)
+    FullName NVARCHAR(100),         -- Tên hiển thị to nhất
+    JobTitle NVARCHAR(100),         -- Vị trí ứng tuyển
+    Email VARCHAR(100),             -- Email liên hệ riêng
+    Phone VARCHAR(20),              -- Số điện thoại riêng
+    Address NVARCHAR(500),          -- Địa chỉ cư trú
+    BirthDate DATETIME,             -- Ngày tháng năm sinh
+    AvatarUrl NVARCHAR(500),        -- Link ảnh chân dung
+    
+    Summary NVARCHAR(MAX),          -- Mục tiêu nghề nghiệp (Summary)
+    ThemeColor VARCHAR(10) DEFAULT '#0d6efd',
     CreatedAt DATETIME DEFAULT GETDATE(),
-    UpdatedAt DATETIME DEFAULT GETDATE()
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
+    FOREIGN KEY (TemplateID) REFERENCES Templates(TemplateID)
 );
 
--- 4. Bảng Nội dung chi tiết CV (Học vấn, Kinh nghiệm, Dự án...)
+-- 5. BẢNG NỘI DUNG CHI TIẾT (Lưu danh sách "động" như Experience, Education dạng JSON)
 CREATE TABLE ResumeSections (
     SectionID INT PRIMARY KEY IDENTITY(1,1),
-    ResumeID INT FOREIGN KEY REFERENCES Resumes(ResumeID) ON DELETE CASCADE,
-    SectionType NVARCHAR(50), -- Experience, Education, Project, Certification
-    ContentJSON NVARCHAR(MAX), -- Lưu dữ liệu động dạng JSON để linh hoạt
-    SortOrder INT DEFAULT 0
+    ResumeID INT NOT NULL,
+    SectionType NVARCHAR(50), -- 'Experience', 'Education', 'Projects', 'Other'
+    ContentJSON NVARCHAR(MAX), -- Lưu mảng đối tượng JSON để linh hoạt cao
+    SortOrder INT DEFAULT 0,
+    FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
 );
 
--- 5. Danh mục Kỹ năng hệ thống
+-- 6. HỆ THỐNG KỸ NĂNG VÀ VIỆC LÀM (Phục vụ Matching AI)
 CREATE TABLE Skills (
     SkillID INT PRIMARY KEY IDENTITY(1,1),
     SkillName NVARCHAR(100) UNIQUE NOT NULL
 );
 
--- 6. Liên kết Kỹ năng vào CV
 CREATE TABLE ResumeSkills (
-    ResumeID INT FOREIGN KEY REFERENCES Resumes(ResumeID) ON DELETE CASCADE,
-    SkillID INT FOREIGN KEY REFERENCES Skills(SkillID),
+    ResumeID INT NOT NULL,
+    SkillID INT NOT NULL,
     Proficiency NVARCHAR(50), -- Beginner, Intermediate, Advanced
-    PRIMARY KEY (ResumeID, SkillID)
+    PRIMARY KEY (ResumeID, SkillID),
+    FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE,
+    FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
 );
 
--- 7. Bảng Tin tuyển dụng
 CREATE TABLE Jobs (
     JobID INT PRIMARY KEY IDENTITY(1,1),
-    RecruiterID INT FOREIGN KEY REFERENCES Users(UserID),
+    RecruiterID INT NOT NULL,
     Title NVARCHAR(200) NOT NULL,
     Description NVARCHAR(MAX),
-    Requirements NVARCHAR(MAX), -- Chứa text để AI phân tích
+    Requirements NVARCHAR(MAX), 
     Salary NVARCHAR(100),
     Deadline DATETIME,
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (RecruiterID) REFERENCES Users(UserID)
 );
 
--- 8. Bảng Ứng tuyển
 CREATE TABLE Applications (
     ApplicationID INT PRIMARY KEY IDENTITY(1,1),
-    JobID INT FOREIGN KEY REFERENCES Jobs(JobID),
-    ResumeID INT FOREIGN KEY REFERENCES Resumes(ResumeID),
+    JobID INT NOT NULL,
+    ResumeID INT NOT NULL,
     AppliedAt DATETIME DEFAULT GETDATE(),
-    Status NVARCHAR(50) DEFAULT 'Pending' -- Pending, Interview, Accepted, Rejected
+    Status NVARCHAR(50) DEFAULT 'Pending', -- Pending, Reviewing, Accepted, Rejected
+    FOREIGN KEY (JobID) REFERENCES Jobs(JobID),
+    FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE NO ACTION -- Tránh vòng lặp Cascade
 );
 
--- 9. Log lịch sử dùng AI
+-- 7. LOG HỆ THỐNG AI
 CREATE TABLE AILogs (
     LogID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES Users(UserID),
-    RequestType NVARCHAR(50), -- Rewrite, SuggestSkill, MatchScore
+    UserID INT NOT NULL,
+    RequestType NVARCHAR(50), -- 'OptimizeSummary', 'SuggestSkills'
     InputText NVARCHAR(MAX),
     OutputText NVARCHAR(MAX),
-    UsedTokens INT,            -- Theo dõi chi phí
-    CreatedAt DATETIME DEFAULT GETDATE()
+    UsedTokens INT,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
-
-USE DoAnWebCS;
 GO
 
--- 1. Chèn dữ liệu Người dùng (Mật khẩu '123' đã hash mẫu)
-INSERT INTO Users (FullName, Email, PasswordHash, Phone, Role) VALUES
-(N'Nguyễn Quản Trị', 'admin@bettercv.com', 'hashed_pass_1', '090111222', 'Admin'),
-(N'Công ty Công nghệ ABC', 'hr@abc-tech.com', 'hashed_pass_2', '090333444', 'Recruiter'),
-(N'Trần Văn Sinh Viên', 'sinhvien@gmail.com', 'hashed_pass_3', '090555666', 'User'),
-(N'Lê Thị Ứng Viên', 'levien@gmail.com', 'hashed_pass_4', '090777888', 'User');
+-- Chèn mẫu CV Modern Blue với đầy đủ tính năng
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Modern Blue Sidebar', 
+    -- 1. HtmlContent: Khung xương đầy đủ 10 Token
+    N'<div class="cv-container">
+        <div class="cv-sidebar">
+            <div class="profile-header">
+                <img src="{{AvatarUrl}}" class="profile-pic">
+            </div>
+            <ul class="contact-info">
+                <li><i class="fas fa-phone"></i> {{Phone}}</li>
+                <li><i class="fas fa-envelope"></i> {{Email}}</li>
+                <li><i class="fas fa-calendar-alt"></i> {{BirthDate}}</li>
+                <li><i class="fas fa-map-marker-alt"></i> {{Address}}</li>
+            </ul>
+            
+            <div class="sidebar-section">
+                <h3>HỌC VẤN</h3>
+                {{Education}}
+            </div>
 
--- 2. Chèn mẫu CV (Templates)
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl) VALUES
-(N'Modern Blue', '<div>HTML Structure here...</div>', '.cv-container { color: blue; }', 'https://example.com/modern-blue.png'),
-(N'Classic Black', '<div>HTML Structure here...</div>', '.cv-container { font-family: Serif; }', 'https://example.com/classic.png');
+            <div class="sidebar-section">
+                <h3>TIN HỌC</h3>
+                {{Skills}}
+            </div>
 
--- 3. Chèn Kỹ năng hệ thống
-INSERT INTO Skills (SkillName) VALUES 
-('C#'), ('.NET Core'), ('SQL Server'), ('ReactJS'), ('HTML/CSS'), ('JavaScript'), ('AI Prompting');
+            <div class="sidebar-section">
+                <h3>NGOẠI NGỮ</h3>
+                {{Languages}}
+            </div>
 
--- 4. Chèn CV của người dùng
-INSERT INTO Resumes (UserID, TemplateID, Title, Summary, ThemeColor) VALUES
-(3, 1, N'CV Thực tập Backend', N'Sinh viên năm cuối ngành CNTT, đam mê lập trình C# và hệ thống.', '#2980b9'),
-(3, 2, N'CV Freelance Web Design', N'Chuyên thiết kế giao diện web hiện đại với ReactJS.', '#2c3e50');
+            <div class="sidebar-section">
+                <h3>KỸ NĂNG KHÁC</h3>
+                {{OtherSkills}}
+            </div>
+        </div>
 
--- 5. Chèn nội dung chi tiết cho CV (Dữ liệu JSON)
-INSERT INTO ResumeSections (ResumeID, SectionType, ContentJSON, SortOrder) VALUES
-(1, 'Education', N'[{"School":"Đại học Công nghệ","Major":"CNTT","Year":"2022-2026"}]', 1),
-(1, 'Experience', N'[{"Company":"FPT Software","Role":"Intern","Duration":"3 months"}]', 2),
-(2, 'Project', N'[{"Name":"E-commerce Website","Tech":"React, Nodejs","Desc":"Bán hàng trực tuyến"}]', 1);
+        <div class="cv-main">
+            <div class="main-header">
+                <h1>{{FullName}}</h1>
+                <h2>{{JobTitle}}</h2>
+            </div>
+            <div class="main-section">
+                <h3>MỤC TIÊU NGHỀ NGHIỆP</h3>
+                <p>{{Summary}}</p>
+            </div>
+            <div class="main-section">
+                <h3>KINH NGHIỆM LÀM VIỆC</h3>
+                {{Experience}}
+            </div>
+        </div>
+    </div>',
 
--- 6. Gán kỹ năng vào CV
-INSERT INTO ResumeSkills (ResumeID, SkillID, Proficiency) VALUES
-(1, 1, 'Intermediate'), -- CV 1 có C#
-(1, 2, 'Beginner'),     -- CV 1 có .NET
-(1, 3, 'Intermediate'), -- CV 1 có SQL
-(2, 4, 'Advanced'),     -- CV 2 có ReactJS
-(2, 5, 'Advanced');     -- CV 2 có HTML/CSS
+    -- 2. CssContent: Tối ưu khoảng cách cho các mục sidebar
+    N'.cv-container { display: flex; background: white; min-height: 297mm; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; } 
+    .cv-sidebar { flex: 3; background: #f7f9fc; padding: 25px; border-right: 1px solid #eee; } 
+    .profile-pic { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
+    .cv-main { flex: 7; padding: 40px; }
+    .sidebar-section h3, .main-section h3 { font-size: 15px; border-bottom: 1px solid #0d6efd; color: #0d6efd; padding-bottom: 5px; margin-top: 22px; text-transform: uppercase; font-weight: bold; }
+    .contact-info { list-style: none; padding: 0; font-size: 13px; margin-bottom: 20px; }
+    .contact-info li { margin-bottom: 12px; display: flex; align-items: center; }
+    .contact-info i { width: 22px; color: #0d6efd; margin-right: 10px; text-align: center; }
+    .main-header h1 { margin: 0; font-size: 32px; text-transform: uppercase; color: #333; }
+    .main-header h2 { margin: 5px 0 20px 0; font-size: 18px; color: #666; font-weight: normal; }
+    .sidebar-section p, .sidebar-section ul { font-size: 13px; line-height: 1.6; color: #444; margin-top: 10px; }
+    .main-section p { font-size: 14px; line-height: 1.6; color: #333; }',
 
--- 7. Chèn Tin tuyển dụng
-INSERT INTO Jobs (RecruiterID, Title, Description, Requirements, Salary, Deadline) VALUES
-(2, N'Lập trình viên .NET Junior', N'Làm việc tại Quận 1, hỗ trợ dự án ngân hàng.', N'Yêu cầu C#, SQL Server, hiểu biết về MVC.', '10-15 Million', '2026-05-30'),
-(2, N'Frontend Developer (React)', N'Làm việc Remote, thiết kế UI/UX.', N'Thành thạo ReactJS, HTML/CSS.', 'Negotiable', '2026-06-15');
+    -- 3. Ảnh xem trước
+    '/images/templates/modern-blue.jpg',
 
--- 8. Chèn dữ liệu Ứng tuyển
-INSERT INTO Applications (JobID, ResumeID, Status) VALUES
-(1, 1, 'Reviewing'),
-(2, 2, 'Pending');
+    -- 4. Trạng thái hoạt động
+    1
+);
+GO
 
--- 9. Log mẫu AI
-INSERT INTO AILogs (UserID, RequestType, InputText, OutputText, UsedTokens) VALUES
-(3, 'Rewrite', 'I know C# and SQL', 'Expert in developing backend systems using C# and SQL Server...', 50);
-
+-- Nạp Kỹ năng IT
+INSERT INTO Skills (SkillName) VALUES ('.NET'), ('SQL Server'), ('C#'), ('Flutter'), ('React');
 GO

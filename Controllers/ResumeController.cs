@@ -5,10 +5,10 @@ using DoAnCS.Models;
 using DoAnCS.Data; 
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using DoAnCS.Models.ViewModels;
 
 namespace DoAnCS.Controllers
 {
-    // [Authorize] // Tạm thời comment lại để bạn test giao diện không cần đăng nhập
     public class ResumeController : Controller
     {
         private readonly AppDbContext _context;
@@ -18,59 +18,62 @@ namespace DoAnCS.Controllers
             _context = context;
         }
 
-        // ============================================================
-        // 1. PHƯƠNG THỨC GET: Hiển thị trang tạo CV (Sửa lỗi 404)
-        // ============================================================
-        [AllowAnonymous]
-        public IActionResult Create()
+        // 1. Hiển thị danh sách mẫu CV
+        public async Task<IActionResult> Templates()
         {
-            return View();
+            var templates = await _context.Templates
+                                .Where(t => t.IsActive == true)
+                                .ToListAsync();
+            return View(templates);
         }
 
-        // ============================================================
-        // 2. PHƯƠNG THỨC POST: Lưu dữ liệu từ AJAX
-        // ============================================================
+        // 2. Hiển thị trình biên tập CV (Trang Create)
+        [HttpGet]
+        public async Task<IActionResult> Create(int id) 
+        {
+            if (id <= 0) return RedirectToAction("Templates");
+
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null) return RedirectToAction("Templates");
+
+            return View(template);
+        }
+
+        // 3. PHƯƠNG THỨC POST: Lưu toàn bộ thông tin CV
         [HttpPost]
-        [AllowAnonymous] // Cho phép gửi dữ liệu lên khi chưa có hệ thống Login
         public async Task<IActionResult> SaveResume([FromBody] ResumeViewModel model)
         {
-            if (model == null)
-                return Json(new { success = false, message = "Dữ liệu gửi lên trống!" });
+            if (model == null) return Json(new { success = false, message = "Dữ color liệu không hợp lệ." });
 
-            if (!ModelState.IsValid)
-                return Json(new { success = false, message = "Dữ liệu không hợp lệ!" });
+            try {
+                // Lấy UserID từ Claims người dùng đang đăng nhập
+                var userIdClaim = User.FindFirst("UserID")?.Value;
+                int userId = string.IsNullOrEmpty(userIdClaim) ? 1 : int.Parse(userIdClaim);
 
-            try
-            {
-                // 1. Lấy UserID (Mặc định lấy UserID = 1 từ Database mẫu nếu chưa Login)
-                int userId = 1; 
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim != null) 
-                {
-                    userId = int.Parse(userIdClaim.Value);
-                }
-
-                // 2. Tạo đối tượng Resume chính
-                var resume = new Resume
-                {
+                // A. Lưu vào bảng Resumes (Thông tin cá nhân chính)
+                var resume = new Resume {
                     UserID = userId,
-                    TemplateID = model.TemplateID > 0 ? model.TemplateID : 1, // Mặc định template 1
-                    Title = string.IsNullOrEmpty(model.Title) ? "CV Mới" : model.Title,
+                    TemplateID = model.TemplateID,
+                    Title = model.Title ?? "CV Mới",
+                    FullName = model.FullName,
+                    JobTitle = model.JobTitle,
+                    Email = model.Email,
+                    Phone = model.Phone,
+                    Address = model.Address,
+                    BirthDate = DateTime.TryParse(model.BirthDate, out var dt) ? dt : (DateTime?)null,
                     Summary = model.Summary,
-                    ThemeColor = model.ThemeColor ?? "#3498db",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
 
                 _context.Resumes.Add(resume);
-                await _context.SaveChangesAsync(); // Lưu để sinh ra ResumeID
+                await _context.SaveChangesAsync(); // Lưu để lấy ResumeID
 
-                // 3. Tạo danh sách các Section (Kinh nghiệm, Học vấn) để lưu vào DB
+                // B. Lưu các Section chi tiết vào ResumeSections (Dạng JSON)
                 var sections = new List<ResumeSection>();
 
-                // Xử lý lưu Kinh nghiệm (Experience)
-                if (model.Experiences != null && model.Experiences.Any())
-                {
+                // 1. Lưu Kinh nghiệm
+                if (model.Experiences != null && model.Experiences.Any()) {
                     sections.Add(new ResumeSection {
                         ResumeID = resume.ResumeID,
                         SectionType = "Experience",
@@ -79,9 +82,8 @@ namespace DoAnCS.Controllers
                     });
                 }
 
-                // Xử lý lưu Học vấn (Education)
-                if (model.Educations != null && model.Educations.Any())
-                {
+                // 2. Lưu Học vấn
+                if (model.Educations != null && model.Educations.Any()) {
                     sections.Add(new ResumeSection {
                         ResumeID = resume.ResumeID,
                         SectionType = "Education",
@@ -90,20 +92,18 @@ namespace DoAnCS.Controllers
                     });
                 }
 
-                // Nếu có section thì mới lưu
-                if (sections.Any())
-                {
+                // 3. Lưu Kỹ năng (Nếu bạn đã cập nhật ViewModel có Skills)
+                // if (model.Skills != null) { ... }
+
+                if (sections.Any()) {
                     _context.ResumeSections.AddRange(sections);
                     await _context.SaveChangesAsync();
                 }
 
                 return Json(new { success = true, resumeId = resume.ResumeID, message = "Lưu CV thành công!" });
             }
-            catch (Exception ex)
-            {
-                // Ghi log lỗi ra console để debug dễ hơn
-                Console.WriteLine("Error: " + ex.Message);
-                return Json(new { success = false, message = "Lỗi hệ thống: " + (ex.InnerException?.Message ?? ex.Message) });
+            catch (Exception ex) {
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
     }
