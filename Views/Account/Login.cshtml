@@ -14,7 +14,7 @@
         <div class="form-box login"> 
             <form asp-controller="Account" asp-action="Login" method="post"> 
                 @Html.AntiForgeryToken()
-                <h1>Login</h1> 
+                <h1>Đăng nhập</h1> 
                 <div class="input-box"> 
                     <input asp-for="Login.Email" placeholder="Email"> 
                     <i class='bx bxs-user'></i> 
@@ -24,10 +24,10 @@
                     <i class='bx bxs-lock-alt' ></i> 
                 </div> 
                 <div class="forgot-link"> 
-                    <a href="#">Forgot Password?</a> 
+                    <a href="#">Bạn quên mật khẩu?</a> 
                 </div> 
-                <button type="submit" class="btn">Login</button> 
-                <p>or login with social platforms</p> 
+                <button type="submit" class="btn">Đăng nhập</button> 
+                <p>Hoặc đăng nhập với các nền tảng xã hội</p> 
                 <div class="social-icons"> 
                     <a href="#"><i class='bx bxl-google' ></i></a> 
                     <a href="#"><i class='bx bxl-facebook' ></i></a> 
@@ -40,7 +40,7 @@
         <div class="form-box register"> 
             <form asp-controller="Account" asp-action="Register" method="post"> 
                 @Html.AntiForgeryToken()
-                <h1>Registration</h1> 
+                <h1>Đăng ký</h1> 
                 <div class="input-box"> 
                     <input asp-for="Register.FullName" placeholder="Full Name" required> 
                     <i class='bx bxs-user'></i> 
@@ -59,8 +59,8 @@
                     <i class='bx bxs-lock-alt' ></i>
                 </div>
 
-                <button type="submit" class="btn">Register</button> 
-                <p>or register with social platforms</p> 
+                <button type="submit" class="btn">Đăng ký</button> 
+                <p>Hoặc đăng nhập với các nền tảng xã hội</p> 
                 <div class="social-icons"> 
                     <a href="#"><i class='bx bxl-google' ></i></a> 
                     <a href="#"><i class='bx bxl-facebook' ></i></a> 
@@ -72,14 +72,14 @@
 
         <div class="toggle-box"> 
             <div class="toggle-panel toggle-left"> 
-                <h1>Hello, Welcome!</h1> 
-                <p>Don't have an account?</p> 
-                <button class="btn register-btn">Register</button> 
+                <h1>Xin chào!</h1> 
+                <p>Bạn chưa có tài khoản?</p> 
+                <button class="btn register-btn">Hãy đăng ký</button> 
             </div> 
             <div class="toggle-panel toggle-right"> 
-                <h1>Welcome Back!</h1> 
-                <p>Already have an account?</p> 
-                <button class="btn login-btn">Login</button> 
+                <h1>Chào mừng!</h1> 
+                <p>Bạn đã có tài khoản?</p> 
+                <button class="btn login-btn">Đăng nhập ngay</button> 
             </div> 
         </div> 
     </div> 
