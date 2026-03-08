@@ -1,0 +1,45 @@
+@{ ViewData["Title"] = "Chào mừng trở lại"; Layout = "_Layout"; }
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-lg rounded-4 p-4">
+                <div class="text-center mb-4">
+                    <h3 class="fw-bold text-primary">Đăng nhập</h3>
+                    <p class="text-muted">Chào mừng bạn quay trở lại với CVBuilder</p>
+                </div>
+
+                @if (ViewBag.Error != null) {
+                    <div class="alert alert-danger small p-2">@ViewBag.Error</div>
+                }
+                
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email</label>
+                        <input type="email" name="email" class="form-control border-0 bg-light py-2" placeholder="Email của bạn">
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <label class="form-label small fw-bold">Mật khẩu</label>
+                            <a href="#" class="small text-decoration-none">Quên mật khẩu?</a>
+                        </div>
+                        <input type="password" name="password" class="form-control border-0 bg-light py-2" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">ĐĂNG NHẬP</button>
+                </form>
+
+                <div class="divider d-flex align-items-center my-4">
+                    <hr class="flex-grow-1 text-muted">
+                    <span class="mx-2 small text-muted">Hoặc đăng nhập với</span>
+                    <hr class="flex-grow-1 text-muted">
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-dark rounded-pill py-2 small fw-bold">
+                        <i class="fab fa-google me-2 text-danger"></i> Google Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+.editor-container {
+    display: flex;
+    height: 100vh;
+}
+.form-side {
+    width: 50%;
+    padding: 20px;
+    overflow-y: auto;
+    background: #f8f9fa;
+}
+.preview-side {
+    width: 50%;
+    padding: 40px;
+    background: #525659; /* Màu nền tối để nổi bật tờ giấy CV */
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+}
+#cv-document {
+    width: 210mm; /* Chuẩn khổ A4 */
+    min-height: 297mm;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+/* Hiệu ứng cho Card Mẫu CV */
+.template-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.template-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+}
+
+.template-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(13, 110, 253, 0.1); /* Màu xanh nhạt mờ */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.template-card:hover .template-overlay {
+    opacity: 1;
+}
+
+/* Các badge màu nhạt kiểu hiện đại */
+.bg-info-soft { background-color: #e0f7fa; }
+.bg-success-soft { background-color: #e8f5e9; }
+.bg-warning-soft { background-color: #fffde7; }

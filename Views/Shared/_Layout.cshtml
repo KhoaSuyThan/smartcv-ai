@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CVBuilder Pro</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+        .navbar-brand { font-weight: 800; color: #0d6efd !important; }
+        .nav-link { font-weight: 500; color: #444 !important; }
+        .nav-link:hover { color: #0d6efd !important; }
+        footer { background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 40px 0; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-file-invoice me-2"></i>CVBuilder
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Resume" asp-action="Templates">Mẫu CV</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Jobs">Việc làm</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="/Account/Login" class="btn btn-outline-primary px-4 rounded-pill">Đăng nhập</a>
+                        <a href="/Account/Register" class="btn btn-primary px-4 rounded-pill shadow-sm">Đăng ký</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content-wrapper">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        @if (User.Identity.IsAuthenticated) {
+            <div class="dropdown">
+                <button class="btn btn-light dropdown-toggle rounded-pill" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="/Resume/MyResumes">CV của tôi</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">Đăng xuất</a></li>
+                </ul>
+            </div>
+        } else {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary px-4 rounded-pill">Đăng nhập</a>
+            <a asp-controller="Account" asp-action="Register" class="btn btn-primary px-4 rounded-pill shadow-sm">Đăng ký</a>
+        }
+    </div>
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold text-primary mb-3">CVBuilder Pro</h5>
+                    <p class="text-muted">Nền tảng hỗ trợ tạo CV chuyên nghiệp và kết nối cơ hội việc làm nhanh chóng cho sinh viên CNTT.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold">Khám phá</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-muted">Mẫu CV</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Việc làm mới</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6 class="fw-bold">Hỗ trợ</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-decoration-none text-muted">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#" class="text-decoration-none text-muted">Liên hệ chúng tôi</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold">Kết nối</h6>
+                    <div class="d-flex gap-3 fs-4">
+                        <a href="#" class="text-primary"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-info"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-dark"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center text-muted small">
+                &copy; @DateTime.Now.Year - Đồ án Công nghệ Thông tin - Phát triển bởi @User.Identity?.Name
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

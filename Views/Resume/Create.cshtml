@@ -1,0 +1,59 @@
+@{
+    ViewData["Title"] = "Tạo CV chuyên nghiệp";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/resume-editor.css" asp-append-version="true" />
+}
+
+<div class="resume-wrapper">
+    <div class="editor-column">
+        <div class="form-section">
+            <h4 class="section-title">Thông tin cơ bản</h4>
+            <div class="mb-3">
+                <label class="form-label">Tiêu đề CV</label>
+                <input type="text" id="ResumeTitle" class="form-control" placeholder="Ví dụ: CV Thực tập .NET">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Họ và tên</label>
+                <input type="text" id="FullNameInput" class="form-control" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mục tiêu nghề nghiệp</label>
+                <textarea id="SummaryInput" class="form-control" rows="4" placeholder="Giới thiệu ngắn gọn về bản thân..."></textarea>
+            </div>
+        </div>
+
+        <div class="form-section mt-4">
+            <h4 class="section-title">Kinh nghiệm làm việc</h4>
+            <div id="experience-editor-list">
+                </div>
+            <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addExperience()">
+                <i class="fas fa-plus"></i> Thêm kinh nghiệm
+            </button>
+        </div>
+
+        <div class="editor-footer mt-5 pb-5">
+            <button type="button" class="btn btn-success w-100 py-2" onclick="saveResume()">
+                <i class="fas fa-save"></i> LƯU CV VÀO HỆ THỐNG
+            </button>
+        </div>
+    </div> <div class="preview-column">
+        <div class="a4-page shadow-lg">
+            <div class="cv-header text-center">
+                <h1 id="preview-name" class="text-uppercase">HỌ VÀ TÊN</h1>
+                <p class="text-muted">Mục tiêu: <span id="preview-summary">Giới thiệu bản thân...</span></p>
+            </div>
+            
+            <hr />
+
+            <div class="cv-section">
+                <h5 class="cv-section-title">KINH NGHIỆM LÀM VIỆC</h5>
+                <div id="experience-preview-list">
+                    </div>
+            </div>
+        </div>
+    </div> </div>
+
+@section Scripts {
+    <script src="~/js/resume-editor.js" asp-append-version="true"></script>
+}

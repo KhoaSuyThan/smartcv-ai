@@ -1,0 +1,177 @@
+@{
+    ViewData["Title"] = "Thị trường việc làm IT";
+}
+
+<style>
+    .job-filter-sidebar {
+        background: #fff;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        position: sticky;
+        top: 20px;
+    }
+    .job-item-row {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+    .job-item-row:hover {
+        border-color: #0d6efd;
+        box-shadow: 0 10px 25px rgba(13, 110, 253, 0.1);
+        transform: translateX(5px);
+    }
+    .company-logo-placeholder {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-size: 24px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <div class="job-filter-sidebar">
+                <h5 class="fw-bold mb-4">Bộ lọc tìm kiếm</h5>
+                
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-uppercase">Từ khóa</label>
+                    <input type="text" class="form-control" placeholder="C#, AI, Flutter...">
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-uppercase">Chuyên môn</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" checked id="net">
+                        <label class="form-check-label" for="net">.NET Developer</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="ai">
+                        <label class="form-check-label" for="ai">Artificial Intelligence</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="flutter">
+                        <label class="form-check-label" for="flutter">Flutter/Mobile</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="security">
+                        <label class="form-check-label" for="security">Information Security</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary w-100 rounded-pill">Áp dụng bộ lọc</button>
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">Tìm thấy 6 cơ hội việc làm</h4>
+                <select class="form-select form-select-sm w-auto border-0 bg-light">
+                    <option>Mới nhất</option>
+                    <option>Lương cao nhất</option>
+                </select>
+            </div>
+
+            <div id="job-list">
+                
+                <div class="job-item-row d-md-flex align-items-center">
+                    <div class="company-logo-placeholder bg-primary text-white me-4 mb-3 mb-md-0">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">Thực tập sinh .NET (Backend)</h5>
+                        <p class="text-muted small mb-2">Hà Nội • C# • ASP.NET MVC</p>
+                        <p class="mb-0 text-secondary small">Xây dựng ứng dụng quản lý khách sạn và các hệ thống TodoList chuẩn MVC.</p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0 ms-md-4">
+                        <div class="text-primary fw-bold mb-2">7 - 12 Triệu</div>
+                        <button class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</button>
+                    </div>
+                </div>
+
+                <div class="job-item-row d-md-flex align-items-center">
+                    <div class="company-logo-placeholder bg-success text-white me-4 mb-3 mb-md-0">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">Lập trình viên Flutter & Dart</h5>
+                        <p class="text-muted small mb-2">TP. HCM • Mobile Developer</p>
+                        <p class="mb-0 text-secondary small">Phát triển ứng dụng di động đa nền tảng kết hợp với Web API.</p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0 ms-md-4">
+                        <div class="text-primary fw-bold mb-2">15 - 25 Triệu</div>
+                        <button class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</button>
+                    </div>
+                </div>
+
+                <div class="job-item-row d-md-flex align-items-center">
+                    <div class="company-logo-placeholder bg-info text-white me-4 mb-3 mb-md-0">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">AI Specialist (Computer Vision)</h5>
+                        <p class="text-muted small mb-2">Remote • Emgu CV • Image Generation</p>
+                        <p class="mb-0 text-secondary small">Nghiên cứu nhận diện khuôn mặt bằng Emgu CV và thuật toán PCA.</p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0 ms-md-4">
+                        <div class="text-primary fw-bold mb-2">Thỏa thuận</div>
+                        <button class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</button>
+                    </div>
+                </div>
+
+                <div class="job-item-row d-md-flex align-items-center">
+                    <div class="company-logo-placeholder bg-warning text-dark me-4 mb-3 mb-md-0">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">Quản trị viên Database (SQL Server)</h5>
+                        <p class="text-muted small mb-2">Đà Nẵng • ERD Design • SQL Optimization</p>
+                        <p class="mb-0 text-secondary small">Thiết kế sơ đồ thực thể mối quan hệ (ERD) và quản lý dữ liệu SQL phức tạp.</p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0 ms-md-4">
+                        <div class="text-primary fw-bold mb-2">18 - 30 Triệu</div>
+                        <button class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</button>
+                    </div>
+                </div>
+
+                <div class="job-item-row d-md-flex align-items-center">
+                    <div class="company-logo-placeholder bg-danger text-white me-4 mb-3 mb-md-0">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">Chuyên viên An toàn thông tin</h5>
+                        <p class="text-muted small mb-2">Hà Nội • Network Security • Pentest</p>
+                        <p class="mb-0 text-secondary small">Bảo mật hệ thống và xử lý các vấn đề liên quan đến an ninh mạng.</p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0 ms-md-4">
+                        <div class="text-primary fw-bold mb-2">20 - 40 Triệu</div>
+                        <button class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</button>
+                    </div>
+                </div>
+
+                <div class="job-item-row d-md-flex align-items-center">
+                    <div class="company-logo-placeholder bg-secondary text-white me-4 mb-3 mb-md-0">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="fw-bold mb-1">Web Frontend Developer</h5>
+                        <p class="text-muted small mb-2">TP. HCM • HTML/CSS • JavaScript</p>
+                        <p class="mb-0 text-secondary small">Cắt giao diện Web và tối ưu trải nghiệm người dùng (UX).</p>
+                    </div>
+                    <div class="text-md-end mt-3 mt-md-0 ms-md-4">
+                        <div class="text-primary fw-bold mb-2">12 - 20 Triệu</div>
+                        <button class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
