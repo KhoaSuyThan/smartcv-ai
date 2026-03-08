@@ -8,7 +8,7 @@ namespace DoAnCS.Models.ViewModels
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập Email")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]

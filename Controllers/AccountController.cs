@@ -9,80 +9,102 @@ using DoAnCS.Models.ViewModels;
 
 namespace DoAnCS.Controllers
 {
-    public class AccountController : Controller 
+    public class AccountController : Controller
     {
         private readonly AppDbContext _context;
         public AccountController(AppDbContext context) => _context = context;
 
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
-        // ==========================================
-        [HttpGet] 
-        public IActionResult Register() => View();
+            // ==========================================
+
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View("Login", new AuthVM());
+        }
 
         [HttpPost]
-        [ValidateAntiForgeryToken] // Bảo mật chống giả mạo yêu cầu
-        public async Task<IActionResult> Register(DoAnCS.Models.ViewModels.RegisterVM model)
+        [ValidateAntiForgeryToken] // Bảo vệ chống tấn công CSRF
+        public async Task<IActionResult> Register(AuthVM model)
         {
+            ModelState.Remove("Login.Email"); 
+            ModelState.Remove("Login.Password");
             if (ModelState.IsValid)
             {
-                // 1. Kiểm tra Email bất đồng bộ để tránh treo hệ thống
-                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+                // 1. Kiểm tra xem Email đã tồn tại chưa
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Register.Email);
                 if (existingUser != null)
                 {
-                    ModelState.AddModelError("Email", "Email này đã được đăng ký.");
-                    return View(model);
+                    ModelState.AddModelError("Register.Email", "Email này đã được đăng ký.");
+                    return View("Login", model);
                 }
 
-                // 2. Tạo User và băm mật khẩu
+                // 2. Tạo đối tượng User mới từ dữ liệu người dùng nhập
                 var user = new User
                 {
-                    FullName = model.FullName,
-                    Email = model.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                    Role = "User",
+                    FullName = model.Register.FullName,
+                    Email = model.Register.Email,
+                    // Băm mật khẩu bằng BCrypt để lưu vào cột PasswordHash
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Register.Password),
+                    Role = "User", // Mặc định là User bình thường
                     CreatedAt = DateTime.Now
                 };
 
+                // 3. Lưu vào SQL Server
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
+                // Đăng ký xong thì chuyển sang trang Đăng nhập
                 return RedirectToAction("Login");
             }
-            return View(model);
+            return View("Login", model);
         }
 
         // ==========================================
         // ĐĂNG NHẬP (LOGIN)
         // ==========================================
-        [HttpGet] 
-        public IActionResult Login() => View();
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View(new AuthVM());
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginVM model) 
+        public async Task<IActionResult> Login(AuthVM model)
         {
+            ModelState.Remove("Register.FullName");
+            ModelState.Remove("Register.Email");
+            ModelState.Remove("Register.Password");
+            ModelState.Remove("Register.ConfirmPassword");
+            
             if (ModelState.IsValid)
             {
-                // SỬA LỖI CS0411: Sử dụng FirstOrDefaultAsync<User> với await
-                var user = await _context.Users.FirstOrDefaultAsync<User>(u => u.Email == model.Email);
-                
-                if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.PasswordHash)) 
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Email == model.Login.Email);
+
+                if (user != null && BCrypt.Net.BCrypt.Verify(model.Login.Password, user.PasswordHash))
                 {
-                    // Thiết lập các quyền (Claims) cho người dùng
-                    var claims = new List<Claim> {
-                        new Claim(ClaimTypes.Name, user.FullName),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim(ClaimTypes.Role, user.Role),
-                        new Claim("UserID", user.UserID.ToString())
+                    var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim("UserID", user.UserID.ToString())
+            };
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true
                     };
 
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties { IsPersistent = true }; // Ghi nhớ đăng nhập
-
                     await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme, 
-                        new ClaimsPrincipal(claimsIdentity), 
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
                     return RedirectToAction("Index", "Home");
@@ -96,7 +118,7 @@ namespace DoAnCS.Controllers
         // ==========================================
         // ĐĂNG XUẤT (LOGOUT)
         // ==========================================
-        public async Task<IActionResult> Logout() 
+        public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
