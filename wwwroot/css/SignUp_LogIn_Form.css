@@ -70,7 +70,7 @@ form {
 
 .input-box {
   position: relative;
-  margin: 30px 0;
+  margin: 15px 0;
 }
 
 .input-box input {
@@ -99,11 +99,19 @@ form {
 }
 
 .forgot-link {
-  margin: -15px 0 15px;
+  text-align: right;      /* Đẩy chữ sang bên phải */
+  margin-top: 5px;       /* Cách thanh mật khẩu đúng 10px */
+  margin-bottom: 15px;    /* Khoảng cách với nút Đăng nhập phía dưới */
 }
 .forgot-link a {
-  font-size: 14.5px;
+  font-size: 14px;
   color: #333;
+  text-decoration: underline; /* Thêm dấu gạch dưới */
+  transition: 0.3s;
+}
+/* Hiệu ứng khi di chuột vào (tùy chọn để đẹp hơn) */
+.forgot-link a:hover {
+    color: #4b70e2; /* Đổi màu nhẹ khi hover */
 }
 
 .btn {

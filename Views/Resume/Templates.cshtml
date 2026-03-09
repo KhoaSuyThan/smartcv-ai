@@ -4,8 +4,38 @@
 }
 
 <style>
-    .template-card { transition: all 0.3s ease; border-radius: 15px; overflow: hidden; position: relative; }
+    /* Điều chỉnh tỷ lệ khung hình của thẻ Card để cao hơn, phù hợp với CV dọc */
+    .template-card {
+        position: relative; 
+        transition: transform 0.3s ease; 
+        border: 1px solid #eee !important;
+    }
+
+    /* Sửa đổi CSS của thẻ ảnh để hiển thị phần trên cùng của CV rõ ràng */
+    .template-card img {
+        object-fit: contain !important; 
+        padding: 10px;
+    }
+
+    /* Thêm hiệu ứng bóng đổ khi di chuột để ảnh xem trước trông nổi bật hơn */
     .template-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+
+    /* Đảm bảo lớp phủ (nút bấm) luôn nằm trên */
+    .template-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.05); /* Làm tối nhẹ khi hover */
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+    }
+
+    .template-card:hover .template-overlay {
+        opacity: 1;
+    }
     .filter-btn.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
     
     /* Đảm bảo overlay ẩn đi mặc định */
@@ -14,7 +44,7 @@
         top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.4);
         display: flex;
-        align-items: center;
+        align-items: flex-end;
         justify-content: center;
         opacity: 0;
         transition: opacity 0.3s ease;

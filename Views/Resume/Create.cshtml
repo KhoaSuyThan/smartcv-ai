@@ -16,8 +16,25 @@
         .section-title { font-weight: 700; color: #0d6efd; border-bottom: 2px solid #0d6efd; padding-bottom: 5px; margin-bottom: 20px; text-transform: uppercase; font-size: 0.9rem; }
         .form-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         
+        .main-section p, 
+        .exp-entry p, 
+        .main-section {
+            width: 100%;             /* Đảm bảo chiều rộng không vượt quá cha */
+            word-wrap: break-word;   /* Ép xuống dòng với các từ quá dài */
+            overflow-wrap: break-word;
+            word-break: break-word;  /* Ưu tiên ngắt ở khoảng trắng, nếu không có mới ngắt từ */
+            white-space: pre-line;   /* Giữ lại các dấu xuống dòng khi bạn gõ Enter */
+            text-align: justify;     /* Giúp văn bản căn đều hai bên cho đẹp */
+        }
         .cv-preview-wrapper { 
-            background: white; width: 210mm; min-height: 297mm; padding: 0; box-shadow: 0 0 15px rgba(0,0,0,0.3); transform-origin: top center;
+            background: white; 
+            width: 210mm; /* Bề ngang bạn thấy OK */
+            height: 297mm; /* Khóa cứng chiều cao đúng chuẩn A4 */
+            aspect-ratio: 210 / 297; /* Đảm bảo tỷ lệ luôn là 0.707 */
+            padding: 0; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.3); 
+            transform-origin: top center;
+            overflow: hidden; /* Ngăn nội dung tràn ra ngoài tờ giấy */
         }
 
         /* Style cho các item trong list */
@@ -69,7 +86,16 @@
             <h4 class="section-title"><i class="fas fa-bullseye me-2"></i>Mục tiêu nghề nghiệp</h4>
             <textarea id="SummaryInput" class="form-control" rows="4" placeholder="Tôi là một người đam mê..."></textarea>
         </div>
-
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-certificate me-2"></i>Chứng chỉ</h4>
+            <div id="certifications-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('cert')">+ Thêm chứng chỉ</button>
+        </div>
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-users-cog me-2"></i>Hoạt động</h4>
+            <div id="activities-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('activity')">+ Thêm hoạt động</button>
+        </div>
         <div class="form-section">
             <h4 class="section-title"><i class="fas fa-graduation-cap me-2"></i>Học vấn</h4>
             <div id="education-container">
@@ -77,6 +103,7 @@
                     <input type="text" class="form-control mb-2 edu-school" placeholder="Tên trường (Borcelle University)">
                     <input type="text" class="form-control mb-2 edu-major" placeholder="Ngành học (Bachelor of Science)">
                     <input type="text" class="form-control edu-year" placeholder="Thời gian (2012 - 2016)">
+                    <input type="text" class="form-control edu-gradtype" placeholder="Loại tốt nghiệp (Xuất sắc, Giỏi...)">
                 </div>
             </div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('education')">+ Thêm học vấn</button>
@@ -96,6 +123,12 @@
         </div>
 
         <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-trophy me-2"></i>Giải thưởng</h4>
+            <div id="awards-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('award')">+ Thêm giải thưởng</button>
+        </div>
+
+        <div class="form-section">
             <h4 class="section-title"><i class="fas fa-laptop me-2"></i>Tin học</h4>
             <div id="it-skills-container"></div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('it-skill')">+ Thêm tin học</button>
@@ -111,6 +144,12 @@
             <h4 class="section-title"><i class="fas fa-lightbulb me-2"></i>Kỹ năng khác</h4>
             <div id="other-skills-container"></div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm kỹ năng khác</button>
+        </div>
+
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-users me-2"></i>Người tham chiếu</h4>
+            <div id="references-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('reference')">+ Thêm người tham chiếu</button>
         </div>
 
         <div class="editor-footer mt-4 mb-5">
@@ -169,7 +208,8 @@
                                 <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
                                 <input type="text" class="form-control mb-1 edu-school" placeholder="Tên trường học">
                                 <input type="text" class="form-control mb-1 edu-major" placeholder="Ngành học">
-                                <input type="text" class="form-control edu-year" placeholder="Thời gian">
+                                <input type="text" class="form-control mb-1 edu-year" placeholder="Thời gian">
+                                <input type="text" class="form-control edu-gradtype" placeholder="Loại tốt nghiệp (Xuất sắc, Giỏi...)">
                             </div>`;
                 $('#education-container').append(html);
             } else if (type === 'experience') {
@@ -182,14 +222,45 @@
                             </div>`;
                 $('#experience-container').append(html);
             }
+            if (type === 'award') {
+                let html = `<div class="dynamic-item award-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control award-name" placeholder="Tên giải thưởng (Sinh viên 5 tốt...)">
+                            </div>`;
+                $('#awards-container').append(html);
+            } else if (type === 'reference') {
+                let html = `<div class="dynamic-item reference-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control ref-info" placeholder="Họ tên, chức vụ, SĐT người tham chiếu">
+                            </div>`;
+                $('#references-container').append(html);
+            }
+            if (type === 'cert') {
+                html = `<div class="dynamic-item cert-item mb-2 p-2 border rounded">
+                            <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                            <input type="text" class="form-control mb-1 cert-year" placeholder="Năm (2019)">
+                            <input type="text" class="form-control cert-name" placeholder="Tên chứng chỉ (IELTS 7.0)">
+                        </div>`;
+                $('#certifications-container').append(html);
+            } else if (type === 'activity') {
+                html = `<div class="dynamic-item activity-item mb-3 p-2 border rounded">
+                            <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                            <input type="text" class="form-control mb-1 act-name" placeholder="Tên tổ chức/CLB">
+                            <input type="text" class="form-control mb-1 act-time" placeholder="Thời gian (2017 - 2019)">
+                            <textarea class="form-control act-desc" rows="2" placeholder="Mô tả hoạt động..."></textarea>
+                        </div>`;
+                $('#activities-container').append(html);
+            }
             $('.form-control').on('input', updatePreview);
         }
 
         // 5. Hàm cập nhật Preview (Mỗi Token chỉ được xử lý 1 lần duy nhất)
         function updatePreview() {
+            // 1. Luôn bắt đầu từ mã HTML gốc để đảm bảo các Token không bị mất sau lần thay thế đầu tiên
             let currentHtml = originalHtml;
             let avatarSrc = $('#AvatarBase64').val() || 'https://i.imgur.com/8Km9tLL.png';  
 
+            // 2. Bản đồ Token cho các thông tin cố định
             const map = {
                 '{{FullName}}': $('#FullNameInput').val() || 'HỌ VÀ TÊN ỨNG VIÊN',
                 '{{JobTitle}}': $('#JobTitleInput').val() || 'VỊ TRÍ ỨNG TUYỂN',
@@ -199,10 +270,55 @@
                 '{{AvatarUrl}}': avatarSrc,
                 '{{BirthDate}}': $('#BirthDateInput').val() || '27/01/1998',
                 '{{Address}}': $('#AddressInput').val() || 'TP. Hồ Chí Minh',
+                '{{GraduationType}}': $('.edu-gradtype').val() || 'Chưa cập nhật' //
             };
 
-            // Quét TIN HỌC
-            let itHtml = '<ul style="list-style:none; padding:0;">';
+            // 3. Xử lý các danh sách động (Học vấn, Kinh nghiệm, Kỹ năng...)
+
+            // --- HỌC VẤN ---
+            let eduHtml = '';
+                $('.education-item').each(function() {
+                    let school = $(this).find('.edu-school').val();
+                    let major = $(this).find('.edu-major').val();
+                    let year = $(this).find('.edu-year').val();
+                    let grad = $(this).find('.edu-gradtype').val();
+                    
+                    if(school) {
+                        eduHtml += `<div class="exp-item">
+                            <div class="exp-header">
+                                <span class="company-name">${school}</span>
+                                <span class="date-badge">${year}</span>
+                            </div>
+                            <span class="job-pos">${major}</span>
+                            ${grad ? `<p style="font-size:11px; margin:2px 0;">• Xếp loại: ${grad}</p>` : ''}
+                        </div>`;
+                    }
+                });
+            map['{{Education}}'] = eduHtml;
+
+            // --- KINH NGHIỆM LÀM VIỆC ---
+            let expHtml = '';
+                $('.experience-item').each(function() {
+                    let company = $(this).find('.exp-company').val();
+                    let role = $(this).find('.exp-role').val();
+                    let time = $(this).find('.exp-time').val();
+                    let desc = $(this).find('.exp-desc').val();
+                    
+                    if(company) {
+                        expHtml += `<div class="exp-item">
+                            <div class="exp-header">
+                                <span class="company-name">${company}</span>
+                                <span class="date-badge">${time || '2022 - Nay'}</span>
+                            </div>
+                            <span class="job-pos">${role}</span>
+                            <div class="exp-desc">${desc ? '• ' + desc.split('\n').join('<br>• ') : ''}</div>
+                        </div>`;
+                    }
+                });
+            map['{{Experience}}'] = expHtml;
+
+            // --- TIN HỌC ---
+            let itHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.it-skill-item').each(function() {
                 let name = $(this).find('.it-skill-name').val();
                 let level = $(this).find('.it-skill-level').val();
@@ -210,17 +326,17 @@
             });
             map['{{Skills}}'] = itHtml + '</ul>';
 
-            // Quét NGOẠI NGỮ
-            let langHtml = '<ul style="list-style:none; padding:0;">';
+            // --- NGOẠI NGỮ ---
+            let langHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.language-item').each(function() {
                 let name = $(this).find('.lang-name').val();
                 let level = $(this).find('.lang-level').val();
-                if(name) langHtml += `<li style="display:flex; justify-content:space-between;"><span>• ${name}</span><span class="text-muted italic">${level}</span></li>`;
+                if(name) langHtml += `<li style="display:flex; justify-content:space-between;"><span>• ${name}</span><span style="font-style:italic; opacity:0.8;">${level}</span></li>`;
             });
             map['{{Languages}}'] = langHtml + '</ul>';
 
-            // Quét KỸ NĂNG KHÁC (Đã sửa lỗi không hiện)
-            let otherHtml = '<ul style="list-style:none; padding:0;">';
+            // --- KỸ NĂNG KHÁC ---
+            let otherHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.other-skill-item').each(function() {
                 let name = $(this).find('.other-name').val();
                 let level = $(this).find('.other-level').val();
@@ -228,31 +344,60 @@
             });
             map['{{OtherSkills}}'] = otherHtml + '</ul>';
 
-            // Quét HỌC VẤN
-            let eduHtml = '';
-            $('.education-item').each(function() {
-                let school = $(this).find('.edu-school').val();
-                let major = $(this).find('.edu-major').val();
-                let year = $(this).find('.edu-year').val();
-                if(school) eduHtml += `<div class="mb-2"><strong>${major}</strong><br><small>${year} | ${school}</small></div>`;
+            // --- GIẢI THƯỞNG ---
+            let awardHtml = '<ul style="padding-left:15px; margin:0;">';
+            $('.award-item').each(function() {
+                let name = $(this).find('.award-name').val();
+                if(name) awardHtml += `<li>${name}</li>`;
             });
-            map['{{Education}}'] = eduHtml;
+            map['{{Awards}}'] = awardHtml + '</ul>';
 
-            // Quét KINH NGHIỆM
-            let expHtml = '';
-            $('.experience-item').each(function() {
-                let company = $(this).find('.exp-company').val();
-                let role = $(this).find('.exp-role').val();
-                let time = $(this).find('.exp-time').val();
-                let desc = $(this).find('.exp-desc').val();
-                if(company) expHtml += `<div class="mb-2"><strong>${company}</strong> - ${role}<br><small>${time}</small><p style="font-size:12px;">${desc}</p></div>`;
+            // --- NGƯỜI THAM CHIẾU ---
+            let refHtml = '';
+            $('.reference-item').each(function() {
+                let info = $(this).find('.ref-info').val();
+                if(info) refHtml += `<p style="margin-bottom:5px; font-size:12px;">• ${info}</p>`;
             });
-            map['{{Experience}}'] = expHtml;
+            map['{{References}}'] = refHtml;
 
-            // Tiến hành thay thế Token
+            // Quét CHỨNG CHỈ (Sidebar CV 2)
+            let certHtml = '';
+            $('.cert-item').each(function() {
+                let year = $(this).find('.cert-year').val();
+                let name = $(this).find('.cert-name').val();
+                if(name) {
+                    certHtml += `<div style="margin-bottom:8px;">
+                                    <div style="font-weight:bold; font-size:11px; color:#634c46;">${year}</div>
+                                    <div style="font-size:12.5px;">${name}</div>
+                                </div>`;
+                }
+            });
+            map['{{Certifications}}'] = certHtml;
+
+            // Quét HOẠT ĐỘNG (Main Body CV 2)
+            let actHtml = '';
+            $('.activity-item').each(function() {
+                let name = $(this).find('.act-name').val();
+                let time = $(this).find('.act-time').val();
+                let desc = $(this).find('.act-desc').val();
+                if(name) {
+                    actHtml += `<div class="exp-item">
+                                    <div class="exp-header">
+                                        <span class="company-name">${name}</span>
+                                        <span class="date-badge">${time}</span>
+                                    </div>
+                                    <div class="exp-desc">${desc}</div>
+                                </div>`;
+                }
+            });
+            map['{{Activities}}'] = actHtml;
+            // 4. Tiến hành thay thế hàng loạt Token bằng Regex
             for (let token in map) {
-                currentHtml = currentHtml.replaceAll(token, map[token]);
+                let regex = new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                currentHtml = currentHtml.replace(regex, map[token]);
             }
+
+            // 5. Cập nhật vùng Preview
             $('#resume-preview').html(currentHtml);
         }
 
@@ -282,6 +427,12 @@
                 }).get(),
                 OtherSkills: $('.other-skill-item').map(function() {
                     return { Name: $(this).find('.other-name').val(), Level: $(this).find('.other-level').val() };
+                }).get(),
+                Awards: $('.award-item').map(function() {
+                    return { Name: $(this).find('.award-name').val() };
+                }).get(),
+                References: $('.reference-item').map(function() {
+                    return { Info: $(this).find('.ref-info').val() };
                 }).get()
             };
 

@@ -29,5 +29,10 @@ namespace DoAnCS.Controllers
             };
             return View(viewModel);
         }
+        public IActionResult Jobs()
+        {
+            // Vì chưa có DB Jobs, chúng ta chỉ trả về View mà không có dữ liệu
+            return View();
+        }
     }
 }

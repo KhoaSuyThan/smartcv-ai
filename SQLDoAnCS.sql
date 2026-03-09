@@ -122,10 +122,15 @@ CREATE TABLE AILogs (
 GO
 
 -- Chèn mẫu CV Modern Blue với đầy đủ tính năng
+
+-- 1. Xóa mẫu cũ nếu tồn tại
+DELETE FROM Templates WHERE Name = N'Modern Blue Sidebar';
+GO
+
+-- 2. Chèn mẫu CV với các khoảng cách đã được tối ưu (giảm ~50%)
 INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
 VALUES (
     N'Modern Blue Sidebar', 
-    -- 1. HtmlContent: Khung xương đầy đủ 10 Token
     N'<div class="cv-container">
         <div class="cv-sidebar">
             <div class="profile-header">
@@ -139,23 +144,27 @@ VALUES (
             </ul>
             
             <div class="sidebar-section">
-                <h3>HỌC VẤN</h3>
-                {{Education}}
+                <h3>Học vấn</h3>
+                <div class="edu-item">
+                    {{Education}}
+                </div>
             </div>
 
             <div class="sidebar-section">
-                <h3>TIN HỌC</h3>
+                <h3>Tin học</h3>
                 {{Skills}}
             </div>
 
             <div class="sidebar-section">
-                <h3>NGOẠI NGỮ</h3>
+                <h3>Ngoại ngữ</h3>
                 {{Languages}}
             </div>
 
             <div class="sidebar-section">
-                <h3>KỸ NĂNG KHÁC</h3>
-                {{OtherSkills}}
+                <h3>Người tham chiếu</h3>
+                <div class="ref-content">
+                    {{References}}
+                </div>
             </div>
         </div>
 
@@ -165,34 +174,176 @@ VALUES (
                 <h2>{{JobTitle}}</h2>
             </div>
             <div class="main-section">
-                <h3>MỤC TIÊU NGHỀ NGHIỆP</h3>
+                <h3>Mục tiêu nghề nghiệp</h3>
                 <p>{{Summary}}</p>
             </div>
             <div class="main-section">
-                <h3>KINH NGHIỆM LÀM VIỆC</h3>
-                {{Experience}}
+                <h3>Kinh nghiệm làm việc</h3>
+                <div class="exp-container">
+                    {{Experience}}
+                </div>
+            </div>
+            <div class="main-section">
+                <h3>Giải thưởng</h3>
+                <div class="award-container">
+                    {{Awards}}
+                </div>
+            </div>
+            <div class="main-section">
+                <h3>Kỹ năng khác</h3>
+                <div class="other-skills">
+                    {{OtherSkills}}
+                </div>
             </div>
         </div>
     </div>',
 
-    -- 2. CssContent: Tối ưu khoảng cách cho các mục sidebar
-    N'.cv-container { display: flex; background: white; min-height: 297mm; font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; } 
-    .cv-sidebar { flex: 3; background: #f7f9fc; padding: 25px; border-right: 1px solid #eee; } 
-    .profile-pic { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto; }
-    .cv-main { flex: 7; padding: 40px; }
-    .sidebar-section h3, .main-section h3 { font-size: 15px; border-bottom: 1px solid #0d6efd; color: #0d6efd; padding-bottom: 5px; margin-top: 22px; text-transform: uppercase; font-weight: bold; }
-    .contact-info { list-style: none; padding: 0; font-size: 13px; margin-bottom: 20px; }
-    .contact-info li { margin-bottom: 12px; display: flex; align-items: center; }
-    .contact-info i { width: 22px; color: #0d6efd; margin-right: 10px; text-align: center; }
-    .main-header h1 { margin: 0; font-size: 32px; text-transform: uppercase; color: #333; }
-    .main-header h2 { margin: 5px 0 20px 0; font-size: 18px; color: #666; font-weight: normal; }
-    .sidebar-section p, .sidebar-section ul { font-size: 13px; line-height: 1.6; color: #444; margin-top: 10px; }
-    .main-section p { font-size: 14px; line-height: 1.6; color: #333; }',
+    -- CSS ĐÃ THU GỌN KHOẢNG CÁCH
+    N'/* Reset và cấu trúc chung */
+    .cv-container { display: flex; background: white; height: 297mm; font-family: "Segoe UI", sans-serif; line-height: 1.3; } 
+    .cv-sidebar { flex: 3.2; background: #f7f9fc; padding: 15px; border-right: 1px solid #eee; } 
+    .cv-main { flex: 6.8; padding: 15px 35px; overflow: hidden; }
 
-    -- 3. Ảnh xem trước
-    '/images/templates/modern-blue.jpg',
+    /* Ảnh đại diện */
+    .profile-pic { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; }
 
-    -- 4. Trạng thái hoạt động
+    /* Header: Tên cực to và sát vị trí */
+    .main-header h1 { margin: 0; font-size: 42px; text-transform: uppercase; color: #333; line-height: 1; font-weight: 800; }
+    .main-header h2 { margin: 0 0 8px 0; font-size: 18px; color: #666; font-weight: normal; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Tiêu đề các mục: margin-top tạo khoảng cách "1 dòng", margin-bottom sát nội dung */
+    .sidebar-section h3, .main-section h3 { 
+        font-size: 14px; border-bottom: 1px solid #0d6efd; color: #0d6efd; 
+        padding-bottom: 1px; 
+        margin: 10px 0 2px 0 !important; /* 10px trên tạo khoảng cách, 2px dưới sát chữ */
+        text-transform: uppercase; font-weight: bold; 
+    }
+
+    /* Nội dung: Triệt tiêu hoàn toàn margin mặc định */
+    .main-section p, .exp-container, .award-container, .other-skills,
+    .sidebar-section p, .sidebar-section ul, .sidebar-section li, .ref-content { 
+        font-size: 12.5px; color: #333; 
+        margin: 0 !important; /* Ép sát vào tiêu đề bên trên */
+        padding: 0;
+        word-wrap: break-word; overflow-wrap: break-word; 
+        white-space: pre-line; text-align: justify;
+    }
+
+    /* Tối ưu Sidebar */
+    .contact-info { list-style: none; padding: 0; font-size: 11.5px; margin-bottom: 10px; }
+    .contact-info li { margin-bottom: 3px; display: flex; align-items: center; }
+    .contact-info i { width: 18px; color: #0d6efd; margin-right: 6px; text-align: center; }
+    .grad-type { color: #0d6efd; font-weight: 500; font-size: 11px; margin-top: 1px !important; }',
+
+    '/images/templates/templatesCV_1.jpg',
+    1
+);
+GO
+
+
+DELETE FROM Templates WHERE Name = N'Modern Brown Professional';
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Modern Brown Professional', 
+    N'<div class="brown-cv">
+        <div class="sidebar">
+            <div class="avatar-box">
+                <img src="{{AvatarUrl}}" class="avatar">
+            </div>
+            
+            <div class="contact-list">
+                <div class="contact-item"><i class="fas fa-phone"></i> {{Phone}}</div>
+                <div class="contact-item"><i class="fas fa-envelope"></i> {{Email}}</div>
+                <div class="contact-item"><i class="fas fa-map-marker-alt"></i> {{Address}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="side-title">Kỹ năng</h3>
+                <div class="side-content">{{Skills}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="side-title">Chứng chỉ</h3>
+                <div class="side-content">{{Certifications}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="side-title">Giải thưởng</h3>
+                <div class="side-content">{{Awards}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="side-title">Học vấn</h3>
+                <div class="side-content">{{Education}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="side-title">Người tham chiếu</h3>
+                <div class="side-content">{{References}}</div>
+            </div>
+        </div>
+
+        <div class="main-body">
+            <div class="header-brown">
+                <h1>{{FullName}}</h1>
+                <h2>{{JobTitle}}</h2>
+                <div class="summary-text">{{Summary}}</div>
+            </div>
+
+            <div class="content-padding">
+                <div class="main-section">
+                    <h3 class="main-title">Kinh nghiệm làm việc</h3>
+                    <div class="exp-list">{{Experience}}</div>
+                </div>
+
+                <div class="main-section">
+                    <h3 class="main-title">Hoạt động</h3>
+                    <div class="activity-list">{{Activities}}</div>
+                </div>
+            </div>
+        </div>
+    </div>',
+
+    -- CSS ĐỊNH DẠNG MÀU NÂU TÂY SANG TRỌNG
+    N'/* Cấu trúc Layout */
+    .brown-cv { display: flex; background: white; height: 297mm; font-family: "Segoe UI", sans-serif; }
+    .sidebar { flex: 3.5; background: #e5ddd5; padding: 30px 20px; display: flex; flex-direction: column; gap: 20px; }
+    .main-body { flex: 6.5; display: flex; flex-direction: column; }
+
+    /* Avatar tròn */
+    .avatar { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 20px; border: 5px solid #d6cdc4; }
+
+    /* Contact & Sidebar Title */
+    .contact-list { font-size: 12px; border-top: 1px solid #c9beae; border-bottom: 1px solid #c9beae; padding: 10px 0; }
+    .contact-item { margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .contact-item i { width: 24px; height: 24px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #634c46; }
+
+    .side-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 10px; border-bottom: 1px solid #c9beae; padding-bottom: 5px; }
+    .side-content { font-size: 12px; line-height: 1.5; color: #444; }
+
+    /* Header màu nâu đậm */
+    .header-brown { background: #634c46; color: white; padding: 40px 35px; }
+    .header-brown h1 { margin: 0; font-size: 36px; text-transform: capitalize; font-weight: 800; letter-spacing: 1px; }
+    .header-brown h2 { margin: 5px 0 15px 0; font-size: 16px; text-transform: uppercase; font-weight: normal; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 10px; }
+    .summary-text { font-size: 12.5px; line-height: 1.6; opacity: 0.9; text-align: justify; }
+
+    /* Nội dung chính */
+    .content-padding { padding: 30px 35px; }
+    .main-title { font-size: 18px; font-weight: bold; color: #333; border-bottom: 2px solid #634c46; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; }
+    
+    /* Style cho các item kinh nghiệm (có badge ngày tháng) */
+    .exp-item { margin-bottom: 15px; position: relative; }
+    .exp-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+    .date-badge { background: #9b8a7e; color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+    
+    .company-name { font-weight: bold; font-size: 14px; color: #333; }
+    .job-pos { font-style: italic; font-size: 13px; color: #555; display: block; margin-top: 2px; }
+    .exp-desc { font-size: 12.5px; line-height: 1.5; margin-top: 5px; color: #444; }
+    .exp-desc li { margin-bottom: 4px; padding-left: 5px; }',
+
+    N'/images/templates/templatesCV_2.jpg',
     1
 );
 GO

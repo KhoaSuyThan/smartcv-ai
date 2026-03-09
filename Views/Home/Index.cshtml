@@ -206,8 +206,8 @@
                     <div class="col-md-3">
                         <div class="card border-0 shadow-sm h-100 template-card">
                             <div class="position-relative overflow-hidden bg-light rounded-top">
-                                <img src="@template.PreviewImageUrl" class="card-img-top p-3" alt="@template.Name" 
-                                     style="height: 350px; object-fit: cover;"
+                                <img src="@template.PreviewImageUrl" class="card-img-top p-2" alt="@template.Name" 
+                                     style="height: 400px; object-fit: contain; background-color: #f8f9fa;"
                                      onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
                                 
                                 <div class="template-overlay">
@@ -250,14 +250,23 @@
         .template-card { 
             position: relative; 
             transition: transform 0.3s ease; 
+            border: 1px solid #eee !important;
         }
         .template-overlay {
             position: absolute; 
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.05);
             display: flex; 
             align-items: flex-end; 
             justify-content: center;
+            opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 2;
+        }
+        .template-card img {
+            /* Ép toàn bộ tờ giấy A4 hiện ra, không bị cắt */
+            object-fit: contain !important; 
+            padding: 10px;
         }
         .template-card:hover .template-overlay { 
             opacity: 1; 
