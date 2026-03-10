@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DoAnCS")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f9f6be7a38b78c58bb25dd31028d819d21e91b53")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+492260ca945bf6d6ec5eeca54a597336484da763")]
 [assembly: System.Reflection.AssemblyProductAttribute("DoAnCS")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DoAnCS")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

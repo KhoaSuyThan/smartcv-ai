@@ -131,72 +131,43 @@ GO
 INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
 VALUES (
     N'Modern Blue Sidebar', 
-    N'<div class="cv-container">
-        <div class="cv-sidebar">
-            <div class="profile-header">
-                <img src="{{AvatarUrl}}" class="profile-pic">
-            </div>
-            <ul class="contact-info">
-                <li><i class="fas fa-phone"></i> {{Phone}}</li>
-                <li><i class="fas fa-envelope"></i> {{Email}}</li>
-                <li><i class="fas fa-calendar-alt"></i> {{BirthDate}}</li>
-                <li><i class="fas fa-map-marker-alt"></i> {{Address}}</li>
-            </ul>
-            
-            <div class="sidebar-section">
-                <h3>Học vấn</h3>
-                <div class="edu-item">
-                    {{Education}}
-                </div>
-            </div>
+    N'<div class="cv-container"><div class="cv-sidebar">
 
-            <div class="sidebar-section">
-                <h3>Tin học</h3>
-                {{Skills}}
-            </div>
+	<div class="profile-header"><img src="{{AvatarUrl}}" class="profile-pic"></div>
 
-            <div class="sidebar-section">
-                <h3>Ngoại ngữ</h3>
-                {{Languages}}
-            </div>
+	<ul class="contact-info">
+	<li><i class="fas fa-phone"></i> {{Phone}}</li>
+	<li><i class="fas fa-envelope"></i> {{Email}}</li>
+	<li><i class="fas fa-calendar-alt"></i> {{BirthDate}}</li>
+	<li><i class="fas fa-map-marker-alt"></i> {{Address}}</li>
+	</ul>
 
-            <div class="sidebar-section">
-                <h3>Người tham chiếu</h3>
-                <div class="ref-content">
-                    {{References}}
-                </div>
-            </div>
-        </div>
+	<div class="sidebar-section"><h3>Học vấn</h3><div class="edu-item">{{Education}}</div></div>
 
-        <div class="cv-main">
-            <div class="main-header">
-                <h1>{{FullName}}</h1>
-                <h2>{{JobTitle}}</h2>
-            </div>
-            <div class="main-section">
-                <h3>Mục tiêu nghề nghiệp</h3>
-                <p>{{Summary}}</p>
-            </div>
-            <div class="main-section">
-                <h3>Kinh nghiệm làm việc</h3>
-                <div class="exp-container">
-                    {{Experience}}
-                </div>
-            </div>
-            <div class="main-section">
-                <h3>Giải thưởng</h3>
-                <div class="award-container">
-                    {{Awards}}
-                </div>
-            </div>
-            <div class="main-section">
-                <h3>Kỹ năng khác</h3>
-                <div class="other-skills">
-                    {{OtherSkills}}
-                </div>
-            </div>
-        </div>
-    </div>',
+	<div class="sidebar-section"><h3>Tin học</h3><div>{{Skills}}</div></div>
+
+	<div class="sidebar-section"><h3>Ngoại ngữ</h3><div>{{Languages}}</div></div>
+
+	<div class="sidebar-section"><h3>Người tham chiếu</h3><div class="ref-content">{{References}}</div></div>
+
+	</div>
+
+	<div class="cv-main">
+
+	<div class="main-header">
+	<h1>{{FullName}}</h1>
+	<h2>{{JobTitle}}</h2>
+	</div>
+
+	<div class="main-section"><h3>Mục tiêu nghề nghiệp</h3><p>{{Summary}}</p></div>
+
+	<div class="main-section"><h3>Kinh nghiệm làm việc</h3><div class="exp-container">{{Experience}}</div></div>
+
+	<div class="main-section"><h3>Giải thưởng</h3><div class="award-container">{{Awards}}</div></div>
+
+	<div class="main-section"><h3>Kỹ năng khác</h3><div class="other-skills">{{OtherSkills}}</div></div>
+
+	</div></div>',
 
     -- CSS ĐÃ THU GỌN KHOẢNG CÁCH
     N'/* Reset và cấu trúc chung */
@@ -248,63 +219,48 @@ INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
 VALUES (
     N'Modern Brown Professional', 
     N'<div class="brown-cv">
-        <div class="sidebar">
-            <div class="avatar-box">
-                <img src="{{AvatarUrl}}" class="avatar">
-            </div>
-            
-            <div class="contact-list">
-                <div class="contact-item"><i class="fas fa-phone"></i> {{Phone}}</div>
-                <div class="contact-item"><i class="fas fa-envelope"></i> {{Email}}</div>
-                <div class="contact-item"><i class="fas fa-map-marker-alt"></i> {{Address}}</div>
-            </div>
 
-            <div class="sidebar-section">
-                <h3 class="side-title">Kỹ năng</h3>
-                <div class="side-content">{{Skills}}</div>
-            </div>
+	<div class="sidebar">
 
-            <div class="sidebar-section">
-                <h3 class="side-title">Chứng chỉ</h3>
-                <div class="side-content">{{Certifications}}</div>
-            </div>
+	<div class="avatar-box"><img src="{{AvatarUrl}}" class="avatar"></div>
 
-            <div class="sidebar-section">
-                <h3 class="side-title">Giải thưởng</h3>
-                <div class="side-content">{{Awards}}</div>
-            </div>
+	<div class="contact-list">
+	<div class="contact-item"><i class="fas fa-phone"></i> {{Phone}}</div>
+	<div class="contact-item"><i class="fas fa-envelope"></i> {{Email}}</div>
+	<div class="contact-item"><i class="fas fa-map-marker-alt"></i> {{Address}}</div>
+	</div>
 
-            <div class="sidebar-section">
-                <h3 class="side-title">Học vấn</h3>
-                <div class="side-content">{{Education}}</div>
-            </div>
+	<div class="sidebar-section"><h3 class="side-title">Kỹ năng</h3><div class="side-content">{{Skills}}</div></div>
 
-            <div class="sidebar-section">
-                <h3 class="side-title">Người tham chiếu</h3>
-                <div class="side-content">{{References}}</div>
-            </div>
-        </div>
+	<div class="sidebar-section"><h3 class="side-title">Chứng chỉ</h3><div class="side-content">{{Certifications}}</div></div>
 
-        <div class="main-body">
-            <div class="header-brown">
-                <h1>{{FullName}}</h1>
-                <h2>{{JobTitle}}</h2>
-                <div class="summary-text">{{Summary}}</div>
-            </div>
+	<div class="sidebar-section"><h3 class="side-title">Giải thưởng</h3><div class="side-content">{{Awards}}</div></div>
 
-            <div class="content-padding">
-                <div class="main-section">
-                    <h3 class="main-title">Kinh nghiệm làm việc</h3>
-                    <div class="exp-list">{{Experience}}</div>
-                </div>
+	<div class="sidebar-section"><h3 class="side-title">Học vấn</h3><div class="side-content">{{Education}}</div></div>
 
-                <div class="main-section">
-                    <h3 class="main-title">Hoạt động</h3>
-                    <div class="activity-list">{{Activities}}</div>
-                </div>
-            </div>
-        </div>
-    </div>',
+	<div class="sidebar-section"><h3 class="side-title">Người tham chiếu</h3><div class="side-content">{{References}}</div></div>
+
+	</div>
+
+	<div class="main-body">
+
+	<div class="header-brown">
+	<h1>{{FullName}}</h1>
+	<h2>{{JobTitle}}</h2>
+	<div class="summary-text">{{Summary}}</div>
+	</div>
+
+	<div class="content-padding">
+
+	<div class="main-section"><h3 class="main-title">Kinh nghiệm làm việc</h3><div class="exp-list">{{Experience}}</div></div>
+
+	<div class="main-section"><h3 class="main-title">Hoạt động</h3><div class="activity-list">{{Activities}}</div></div>
+
+	</div>
+
+	</div>
+
+	</div>',
 
     -- CSS ĐỊNH DẠNG MÀU NÂU TÂY SANG TRỌNG
     N'/* Cấu trúc Layout */
@@ -348,6 +304,117 @@ VALUES (
 );
 GO
 
+DELETE FROM Templates WHERE Name = N'Elegant Accountant';
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Elegant Accountant', 
+    N'<div class="accountant-cv">
+
+	<div class="decor-top-right"></div>
+
+	<div class="header-section">
+
+	<div class="header-left">
+	<h1 class="name-display">{{FullName}}</h1>
+	<div class="personal-details">
+	<p><strong>Ngày sinh:</strong> {{BirthDate}}</p>
+	<p><strong>Địa chỉ:</strong> {{Address}}</p>
+	<p><strong>Email:</strong> {{Email}}</p>
+	<p><strong>Số điện thoại:</strong> {{Phone}}</p>
+	</div>
+	</div>
+
+	<div class="header-center">
+	<div class="avatar-container"><img src="{{AvatarUrl}}" class="avatar-img"></div>
+	</div>
+
+	<div class="header-right">
+	<h2 class="job-display">{{JobTitle}}</h2>
+	<div class="job-line"></div>
+	</div>
+
+	</div>
+
+	<div class="body-section">
+
+	<div class="cv-block">
+	<h3 class="block-title">KINH NGHIỆM LÀM VIỆC</h3>
+	<div class="experience-grid">{{Experience}}</div>
+	</div>
+
+	<div class="cv-block">
+	<h3 class="block-title">TRÌNH ĐỘ HỌC VẤN</h3>
+	<div class="education-list">{{Education}}</div>
+	</div>
+
+	<div class="cv-block">
+	<h3 class="block-title">KỸ NĂNG</h3>
+	<div class="skills-flex">{{Skills}}</div>
+	</div>
+
+	</div>
+
+	<div class="decor-bottom-right"></div>
+
+	</div>',
+
+    -- CSS TỐI ƯU KHOẢNG CÁCH VÀ KÍCH THƯỚC CHỮ
+    N'/* Cấu trúc Layout */
+    .accountant-cv { background: white; height: 297mm; padding: 50px; font-family: "Segoe UI", sans-serif; color: #333; position: relative; overflow: hidden; }
+    
+    /* Header (Neil Tran Style) */
+    .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+    .header-left { flex: 1.5; border-top: 1px solid #ddd; padding-top: 15px; }
+    .header-center { flex: 1; display: flex; justify-content: center; }
+    .header-right { flex: 1; text-align: right; border-top: 1px solid #333; padding-top: 15px; }
+
+    .name-display { font-size: 55px; color: #556b8d; margin: 0; font-family: Georgia, serif; line-height: 1; font-weight: normal; }
+    .job-display { font-size: 28px; color: #333; line-height: 1.1; margin: 0; }
+    
+    .personal-details { font-size: 14.5px; margin-top: 20px; line-height: 1.8; }
+    .avatar-img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; background: #eee; }
+
+    /* Nội dung các mục (Tăng cỡ chữ) */
+    .block-title { font-size: 24px; font-weight: bold; margin: 35px 0 15px 0; color: #222; }
+    
+    /* CHIA 2 CỘT KINH NGHIỆM - TRIỆT TIÊU LỖI ĐÈ NHAU */
+    .experience-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 1fr; /* Chia đều 50% cho mỗi bên */
+        column-gap: 50px; 
+        row-gap: 25px; 
+        align-items: flex-start;
+    }
+    
+    /* Xử lý khi người dùng nhập chuỗi liên tục (như aaaaaa...) */
+    .exp-item { 
+        font-size: 15px; 
+        word-wrap: break-word; 
+        overflow-wrap: anywhere; 
+        white-space: pre-line;
+    }
+    
+    .exp-year { font-weight: bold; font-size: 17px; margin-bottom: 5px; display: block; }
+    .exp-content { line-height: 1.6; text-align: justify; }
+
+    /* Học vấn và Kỹ năng */
+    .education-list { font-size: 15.5px; line-height: 1.7; }
+    .skills-flex { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 60px; }
+    .skill-label { font-size: 15.5px; font-style: italic; margin-bottom: 8px; display: block; }
+    .progress-bg { height: 10px; background: #e0e6ed; border-radius: 5px; }
+    .progress-fill { height: 100%; background: #556b8d; border-radius: 5px; }
+
+    /* Họa tiết trang trí (Scribbles) */
+    .decor-top-right { position: absolute; top: 10px; right: 20px; width: 100px; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns=''http://www.w3.org/2000/svg'' width=''100'' height=''100''%3E%3Cpath d=''M10 10 Q 50 10 90 90'' fill=''none'' stroke=''black'' stroke-width=''1''/%3E%3C/svg%3E") no-repeat; opacity: 0.5; }
+',
+    N'/images/templates/templatesCV_3.jpg',
+    1
+);
+GO
 -- Nạp Kỹ năng IT
 INSERT INTO Skills (SkillName) VALUES ('.NET'), ('SQL Server'), ('C#'), ('Flutter'), ('React');
 GO
+
+

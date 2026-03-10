@@ -40,6 +40,7 @@
         /* Style cho các item trong list */
         .dynamic-item { position: relative; background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
         .btn-remove { position: absolute; top: 5px; right: 5px; color: #dc3545; cursor: pointer; }
+        
     </style>
 }
 
@@ -284,14 +285,15 @@
                     let grad = $(this).find('.edu-gradtype').val();
                     
                     if(school) {
-                        eduHtml += `<div class="exp-item">
-                            <div class="exp-header">
-                                <span class="company-name">${school}</span>
-                                <span class="date-badge">${year}</span>
-                            </div>
-                            <span class="job-pos">${major}</span>
-                            ${grad ? `<p style="font-size:11px; margin:2px 0;">• Xếp loại: ${grad}</p>` : ''}
-                        </div>`;
+                        eduHtml += `
+                            <div class="exp-item">
+                                <span class="exp-year">• ${year || '2020 - 2024'}</span>
+                                <div class="exp-content">
+                                    <strong>${school}</strong><br>
+                                    ${major}<br>
+                                    ${grad ? `Xếp loại: ${grad}` : ''}
+                                </div>
+                            </div>`;
                     }
                 });
             map['{{Education}}'] = eduHtml;
@@ -304,15 +306,19 @@
                     let time = $(this).find('.exp-time').val();
                     let desc = $(this).find('.exp-desc').val();
                     
-                    if(company) {
-                        expHtml += `<div class="exp-item">
-                            <div class="exp-header">
-                                <span class="company-name">${company}</span>
-                                <span class="date-badge">${time || '2022 - Nay'}</span>
-                            </div>
-                            <span class="job-pos">${role}</span>
-                            <div class="exp-desc">${desc ? '• ' + desc.split('\n').join('<br>• ') : ''}</div>
-                        </div>`;
+                    let formattedDesc = desc ? desc.split('\n').join('<br>') : 'Mô tả chi tiết...';
+
+                    if(company || role) {
+                        expHtml += `
+                            <div class="exp-item">
+                                <span class="exp-year">• ${time || '2022 - 2024'}</span>
+                                <div class="exp-content">
+                                    <div class="info-line"><strong>Công ty:</strong> ${company || 'Tên công ty'}</div>
+                                    <div class="info-line"><strong>Vị trí:</strong> ${role || 'Vị trí công việc'}</div>
+                                    <div class="desc-label"><strong>Mô tả:</strong></div>
+                                    <div class="desc-text">${formattedDesc}</div>
+                                </div>
+                            </div>`;
                     }
                 });
             map['{{Experience}}'] = expHtml;
@@ -391,6 +397,7 @@
                 }
             });
             map['{{Activities}}'] = actHtml;
+
             // 4. Tiến hành thay thế hàng loạt Token bằng Regex
             for (let token in map) {
                 let regex = new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
