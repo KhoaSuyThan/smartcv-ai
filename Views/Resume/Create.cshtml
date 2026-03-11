@@ -83,10 +83,22 @@
             </div>
         </div>
 
-        <div class="form-section">
-            <h4 class="section-title"><i class="fas fa-bullseye me-2"></i>Mục tiêu nghề nghiệp</h4>
-            <textarea id="SummaryInput" class="form-control" rows="4" placeholder="Tôi là một người đam mê..."></textarea>
+        <div class="card mb-3 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h6 class="mb-0 text-primary fw-bold">
+                    <i class="fas fa-bullseye me-2"></i>MỤC TIÊU NGHỀ NGHỆP
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-primary border-0" onclick="callAI('summary', this)">
+                    ✨ AI viết hộ
+                </button>
+            </div>
+            <div class="card-body">
+                <textarea id="SummaryInput" class="form-control border-0 bg-light" 
+                        rows="4" placeholder="Tôi là một người đam mê..." 
+                        oninput="updatePreview()"></textarea>
+            </div>
         </div>
+
         <div class="form-section">
             <h4 class="section-title"><i class="fas fa-certificate me-2"></i>Chứng chỉ</h4>
             <div id="certifications-container"></div>
@@ -117,7 +129,16 @@
                     <input type="text" class="form-control mb-2 exp-company" placeholder="Công ty (Larana Studios)">
                     <input type="text" class="form-control mb-2 exp-role" placeholder="Chức vụ (Marketing Manager)">
                     <input type="text" class="form-control mb-2 exp-time" placeholder="Thời gian (Jun 2019 - Jan 2020)">
-                    <textarea class="form-control exp-desc" rows="3" placeholder="Mô tả công việc..."></textarea>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold">Mô tả chi tiết</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary border-0" 
+                                    onclick="callAI('optimize', this)">
+                                ✨ Tối ưu bằng AI (STAR)
+                            </button>
+                        </div>
+                        <textarea class="form-control exp-desc" rows="3" placeholder="Ví dụ: Em làm code web bán hàng..."></textarea>
+                    </div>
                 </div>
             </div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('experience')">+ Thêm kinh nghiệm</button>
@@ -143,8 +164,16 @@
 
         <div class="form-section">
             <h4 class="section-title"><i class="fas fa-lightbulb me-2"></i>Kỹ năng khác</h4>
+            <div class="mb-3">
+                <div class="input-group">
+                    <button class="btn btn-primary btn-sm w-100 mb-2" type="button" onclick="callAI('suggest_skills', this)">
+                        🪄 AI gợi ý kỹ năng theo vị trí ứng tuyển
+                    </button>
+                </div>
+                <small class="text-muted">Hệ thống sẽ dựa vào "Vị trí ứng tuyển" phía trên để gợi ý.</small>
+            </div>
             <div id="other-skills-container"></div>
-            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm kỹ năng khác</button>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm thủ công</button>
         </div>
 
         <div class="form-section">
@@ -216,10 +245,21 @@
             } else if (type === 'experience') {
                 let html = `<div class="dynamic-item experience-item mb-3 p-2 border rounded">
                                 <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                
                                 <input type="text" class="form-control mb-1 exp-company" placeholder="Công ty">
                                 <input type="text" class="form-control mb-1 exp-role" placeholder="Chức vụ">
                                 <input type="text" class="form-control mb-1 exp-time" placeholder="Thời gian">
-                                <textarea class="form-control exp-desc" rows="2" placeholder="Mô tả công việc..."></textarea>
+                                
+                                <div class="mb-2 mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold">Mô tả chi tiết</label>
+                                        <button type="button" class="btn btn-sm btn-outline-primary border-0" 
+                                                onclick="callAI('optimize', this)">
+                                            ✨ Tối ưu bằng AI (STAR)
+                                        </button>
+                                    </div>
+                                    <textarea class="form-control exp-desc" rows="3" placeholder="Mô tả công việc..."></textarea>
+                                </div>
                             </div>`;
                 $('#experience-container').append(html);
             }
@@ -255,6 +295,72 @@
             $('.form-control').on('input', updatePreview);
         }
 
+        function callAI(actionType, element = null) {
+            let textToProcess = "";
+            let jobTitle = $('#JobTitleInput').val(); 
+            let targetElement = null;
+
+            // Phân loại yêu cầu
+            if (actionType === 'summary') {
+                textToProcess = $('#SummaryInput').val();
+                targetElement = $('#SummaryInput');
+                if (!textToProcess) { alert("Hãy nhập vài ý về mục tiêu của bạn!"); return; }
+            } 
+            else if (actionType === 'optimize') {
+                // Tìm ô textarea trong cùng một khối kinh nghiệm với nút bấm
+                targetElement = $(element).closest('.mb-3').find('.exp-desc');
+                textToProcess = targetElement.val();
+                if (!textToProcess) { alert("Hãy nhập mô tả công việc trước khi tối ưu!"); return; }
+            } 
+            else if (actionType === 'suggest_skills') {
+                textToProcess = jobTitle; // Gợi ý dựa trên chức danh
+                if (!textToProcess) { alert("Vui lòng nhập 'Vị trí ứng tuyển' ở trên cùng trước!"); return; }
+            }
+
+            // Hiệu ứng Loading
+            const originalHtml = $(element).html();
+            $(element).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>...');
+
+            $.ajax({
+                url: '/AI/ProcessText',
+                type: 'POST',
+                data: { type: actionType, content: textToProcess, context: jobTitle },
+                success: function(res) {
+                    if (res.success) {
+                        if (actionType === 'suggest_skills') {
+                            // AI trả về: "HTML, CSS, JavaScript..." -> Tách ra và thêm vào danh sách
+                            let skills = res.data.split(',');
+                            skills.forEach(skill => {
+                                let cleanName = skill.trim().replace(/[.*-]/g, ""); // Dọn rác AI trả về
+                                if(cleanName) addSkillAI(cleanName); 
+                            });
+                        } else {
+                            // Điền văn bản vào ô textarea
+                            targetElement.val(res.data);
+                        }
+                        updatePreview(); 
+                    } else {
+                        alert(res.data);
+                    }
+                },
+                error: function() { alert("Không thể kết nối với server AI!"); },
+                complete: function() {
+                    $(element).prop('disabled', false).html(originalHtml);
+                }
+            });
+        }
+
+        // Hàm bổ trợ để AI tự động thêm các dòng Kỹ năng khác
+        function addSkillAI(name) {
+            let html = `<div class="dynamic-item other-skill-item mb-2 p-2 border rounded">
+                            <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                            <div class="row">
+                                <div class="col-7"><input type="text" class="form-control other-name" value="${name}"></div>
+                                <div class="col-5"><input type="text" class="form-control other-level" placeholder="Mức độ"></div>
+                            </div>
+                        </div>`;
+            $('#other-skills-container').append(html);
+        }
         // 5. Hàm cập nhật Preview (Mỗi Token chỉ được xử lý 1 lần duy nhất)
         function updatePreview() {
             // 1. Luôn bắt đầu từ mã HTML gốc để đảm bảo các Token không bị mất sau lần thay thế đầu tiên
@@ -459,5 +565,43 @@
             $(document).on('input', '.form-control', updatePreview);
             updatePreview(); 
         });
+        // 1. Hàm tối ưu Kinh nghiệm làm việc
+        function optimizeExperience(btn) {
+            const $btn = $(btn);
+            const $textarea = $btn.closest('.mb-3').find('textarea'); // Tìm ô textarea tương ứng
+            const content = $textarea.val();
+            const jobTitle = $('#JobTitle').val(); // Lấy vị trí ứng tuyển làm ngữ cảnh
+
+            if (!content) { alert("Vui lòng nhập vài ý về công việc của bạn!"); return; }
+
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang tối ưu...');
+
+            $.post('/AI/ProcessText', { type: 'optimize_exp', content: content, context: jobTitle }, function(res) {
+                if (res.success) {
+                    $textarea.val(res.data);
+                    updatePreview(); // Cập nhật bản xem trước CV
+                }
+                $btn.prop('disabled', false).html('✨ Tối ưu bằng AI (STAR)');
+            });
+        }
+
+        // 2. Hàm gợi ý Kỹ năng
+        function suggestSkills() {
+            const jobTitle = $('#JobTitle').val(); // Người dùng nhập "Web Developer" chẳng hạn
+            if (!jobTitle) { alert("Vui lòng nhập Vị trí ứng tuyển trước!"); return; }
+
+            const $btn = $('.btn-primary:contains("Gợi ý kỹ năng")');
+            $btn.prop('disabled', true).text('Đang tìm...');
+
+            $.post('/AI/ProcessText', { type: 'suggest_skills', content: jobTitle }, function(res) {
+                if (res.success) {
+                    // Cộng dồn vào các kỹ năng đã có
+                    let currentSkills = $('#SkillsInput').val();
+                    $('#SkillsInput').val(currentSkills ? currentSkills + ", " + res.data : res.data);
+                    updatePreview();
+                }
+                $btn.prop('disabled', false).text('🪄 Gợi ý kỹ năng');
+            });
+        }
     </script>
 }

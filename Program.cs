@@ -1,6 +1,7 @@
 using DoAnCS.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using DoAnCS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddScoped<IAIService, GeminiService>(); // Hoặc OpenAIService
 
 var app = builder.Build();
 
