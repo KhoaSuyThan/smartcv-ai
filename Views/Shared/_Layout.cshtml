@@ -15,6 +15,9 @@
         .nav-link { font-weight: 500; color: #444 !important; }
         .nav-link:hover { color: #0d6efd !important; }
         footer { background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 40px 0; }
+        /* Tinh chỉnh dropdown cho đẹp */
+        .user-dropdown-btn { border: 1.5px solid #0d6efd; color: #0d6efd; font-weight: 600; }
+        .user-dropdown-btn:hover { background-color: #0d6efd; color: white; }
     </style>
 </head>
 <body>
@@ -42,8 +45,37 @@
                     </ul>
                     
                     <div class="d-flex align-items-center gap-2">
-                        <a href="/Account/Login" class="btn btn-outline-primary px-4 rounded-pill">Đăng nhập</a>
-                        <a href="/Account/Register" class="btn btn-primary px-4 rounded-pill shadow-sm">Đăng ký</a>
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            <div class="dropdown">
+                                <button class="btn user-dropdown-btn dropdown-toggle rounded-pill px-4 shadow-sm" 
+                                        type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-2"></i> Chào, @User.Identity.Name
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item py-2" href="/Resume/MyResumes">
+                                            <i class="fas fa-file-invoice me-2 text-primary"></i> CV của tôi
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="/Account/Profile">
+                                            <i class="fas fa-user-cog me-2 text-primary"></i> Thông tin cá nhân
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item py-2 text-danger" asp-controller="Account" asp-action="Logout">
+                                            <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary px-4 rounded-pill">Đăng nhập / Đăng ký</a>
+                        }
                     </div>
                 </div>
             </div>
@@ -56,23 +88,6 @@
         </main>
     </div>
 
-    <div class="d-flex align-items-center gap-2">
-        @if (User.Identity.IsAuthenticated) {
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle rounded-pill" data-bs-toggle="dropdown">
-                    <i class="fas fa-user-circle me-1"></i> @User.Identity.Name
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="/Resume/MyResumes">CV của tôi</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">Đăng xuất</a></li>
-                </ul>
-            </div>
-        } else {
-            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary px-4 rounded-pill">Đăng nhập</a>
-            <a asp-controller="Account" asp-action="Register" class="btn btn-primary px-4 rounded-pill shadow-sm">Đăng ký</a>
-        }
-    </div>
     <footer class="mt-5">
         <div class="container">
             <div class="row">
@@ -83,8 +98,8 @@
                 <div class="col-md-2 mb-4">
                     <h6 class="fw-bold">Khám phá</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-decoration-none text-muted">Mẫu CV</a></li>
-                        <li><a href="#" class="text-decoration-none text-muted">Việc làm mới</a></li>
+                        <li><a asp-controller="Resume" asp-action="Templates" class="text-decoration-none text-muted">Mẫu CV</a></li>
+                        <li><a asp-controller="Home" asp-action="Jobs" class="text-decoration-none text-muted">Việc làm mới</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3 mb-4">
@@ -105,7 +120,7 @@
             </div>
             <hr class="my-4">
             <div class="text-center text-muted small">
-                &copy; @DateTime.Now.Year - Đồ án Công nghệ Thông tin - Phát triển bởi @User.Identity?.Name
+                &copy; @DateTime.Now.Year - Đồ án Công nghệ Thông tin - Phát triển bởi @(User.Identity?.Name ?? "Nguyễn Võ Lê Khoa")
             </div>
         </div>
     </footer>

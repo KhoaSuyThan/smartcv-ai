@@ -10,6 +10,6 @@ namespace DoAnCS.Models {
         public string? Phone { get; set; }
         public string? Role { get; set; } = "User"; // Mặc định là User
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public ICollection<Resume> Resumes { get; set; }
+        public virtual ICollection<Resume> Resumes { get; set; }
     }
 }

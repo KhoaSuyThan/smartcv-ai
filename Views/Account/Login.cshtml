@@ -1,45 +1,89 @@
-@{ ViewData["Title"] = "Chào mừng trở lại"; Layout = "_Layout"; }
+@model DoAnCS.Models.ViewModels.AuthVM 
+@{ Layout = null; } 
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card border-0 shadow-lg rounded-4 p-4">
-                <div class="text-center mb-4">
-                    <h3 class="fw-bold text-primary">Đăng nhập</h3>
-                    <p class="text-muted">Chào mừng bạn quay trở lại với CVBuilder</p>
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Login/Signup Form</title> 
+    <link rel="stylesheet" href="/css/SignUp_LogIn_Form.css"> 
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
+</head> 
+<body> 
+    <div class="container"> 
+        <div class="form-box login"> 
+            <form asp-controller="Account" asp-action="Login" method="post"> 
+                @Html.AntiForgeryToken()
+                <h1>Đăng nhập</h1> 
+                <div class="input-box"> 
+                    <input asp-for="Login.Email" placeholder="Email"> 
+                    <i class='bx bxs-user'></i> 
+                </div> 
+                <div class="input-box"> 
+                    <input asp-for="Login.Password" type="password" placeholder="Password"> 
+                    <i class='bx bxs-lock-alt' ></i> 
+                </div> 
+                <div class="forgot-link"> 
+                    <a href="#">Bạn quên mật khẩu?</a> 
+                </div> 
+                <button type="submit" class="btn">Đăng nhập</button> 
+                <p>Hoặc đăng nhập với các nền tảng xã hội</p> 
+                <div class="social-icons"> 
+                    <a href="#"><i class='bx bxl-google' ></i></a> 
+                    <a href="#"><i class='bx bxl-facebook' ></i></a> 
+                    <a href="#"><i class='bx bxl-github' ></i></a> 
+                    <a href="#"><i class='bx bxl-linkedin' ></i></a> 
+                </div> 
+            </form> 
+        </div> 
+
+        <div class="form-box register"> 
+            <form asp-controller="Account" asp-action="Register" method="post"> 
+                @Html.AntiForgeryToken()
+                <h1>Đăng ký</h1> 
+                <div class="input-box"> 
+                    <input asp-for="Register.FullName" placeholder="Full Name" required> 
+                    <i class='bx bxs-user'></i> 
+                </div> 
+                <div class="input-box"> 
+                    <input asp-for="Register.Email" type="email" placeholder="Email" required> 
+                    <i class='bx bxs-envelope' ></i> 
+                </div> 
+                <div class="input-box"> 
+                    <input asp-for="Register.Password" type="password" placeholder="Password"> 
+                    <i class='bx bxs-lock-alt' ></i> 
+                </div> 
+
+                <div class="input-box"> 
+                    <input asp-for="Register.ConfirmPassword" type="password" placeholder="Confirm Password"> 
+                    <i class='bx bxs-lock-alt' ></i>
                 </div>
 
-                @if (ViewBag.Error != null) {
-                    <div class="alert alert-danger small p-2">@ViewBag.Error</div>
-                }
-                
-                <form asp-action="Login" method="post">
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold">Email</label>
-                        <input type="email" name="email" class="form-control border-0 bg-light py-2" placeholder="Email của bạn">
-                    </div>
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <label class="form-label small fw-bold">Mật khẩu</label>
-                            <a href="#" class="small text-decoration-none">Quên mật khẩu?</a>
-                        </div>
-                        <input type="password" name="password" class="form-control border-0 bg-light py-2" placeholder="••••••••">
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm">ĐĂNG NHẬP</button>
-                </form>
+                <button type="submit" class="btn">Đăng ký</button> 
+                <p>Hoặc đăng nhập với các nền tảng xã hội</p> 
+                <div class="social-icons"> 
+                    <a href="#"><i class='bx bxl-google' ></i></a> 
+                    <a href="#"><i class='bx bxl-facebook' ></i></a> 
+                    <a href="#"><i class='bx bxl-github' ></i></a> 
+                    <a href="#"><i class='bx bxl-linkedin' ></i></a> 
+                </div> 
+            </form> 
+        </div> 
 
-                <div class="divider d-flex align-items-center my-4">
-                    <hr class="flex-grow-1 text-muted">
-                    <span class="mx-2 small text-muted">Hoặc đăng nhập với</span>
-                    <hr class="flex-grow-1 text-muted">
-                </div>
+        <div class="toggle-box"> 
+            <div class="toggle-panel toggle-left"> 
+                <h1>Xin chào!</h1> 
+                <p>Bạn chưa có tài khoản?</p> 
+                <button class="btn register-btn">Hãy đăng ký</button> 
+            </div> 
+            <div class="toggle-panel toggle-right"> 
+                <h1>Chào mừng!</h1> 
+                <p>Bạn đã có tài khoản?</p> 
+                <button class="btn login-btn">Đăng nhập ngay</button> 
+            </div> 
+        </div> 
+    </div> 
 
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-dark rounded-pill py-2 small fw-bold">
-                        <i class="fab fa-google me-2 text-danger"></i> Google Account
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <script src="/js/script.js"></script> 
+</body> 
+</html>

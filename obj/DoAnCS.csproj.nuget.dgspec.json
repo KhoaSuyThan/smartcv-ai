@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnCS\\DoAnCS.csproj": {}
+    "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnWeb\\DoAnCS.csproj": {}
   },
   "projects": {
-    "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnCS\\DoAnCS.csproj": {
+    "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnWeb\\DoAnCS.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnCS\\DoAnCS.csproj",
+        "projectUniqueName": "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnWeb\\DoAnCS.csproj",
         "projectName": "DoAnCS",
-        "projectPath": "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnCS\\DoAnCS.csproj",
+        "projectPath": "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnWeb\\DoAnCS.csproj",
         "packagesPath": "C:\\Users\\aaa\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnCS\\obj\\",
+        "outputPath": "C:\\Users\\aaa\\Pictures\\DoAnWeb_CS\\DoAnWeb\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -69,6 +69,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[10.0.3, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.4, )"
             }
           },
           "imports": [
