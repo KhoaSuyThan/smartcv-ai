@@ -26,8 +26,7 @@ namespace DoAnCS.Services
                     return "Lỗi: Hệ thống chưa lấy được mã API!";
                 }
 
-                string url =
-$"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
 
                 // 2. Đảm bảo Prompt không rỗng
                 if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";

@@ -36,8 +36,8 @@ namespace DoAnCS.Controllers
                             $"YÊU CẦU BẮT BUỘC: Chỉ trả về nội dung đoạn văn. KHÔNG lời chào, KHÔNG tiêu đề, KHÔNG giải thích thêm.";
                     break;
 
-                case "optimize": // Tối ưu kinh nghiệm (Bạn đã hỏi ở câu trước)
-                    prompt = $"Tối ưu mô tả công việc sau cho vị trí {context} theo chuẩn STAR: {content}. " +
+                case "optimize": // Tối ưu kinh nghiệm 
+                    prompt = $"Viết duy nhất một đoạn văn mô tả công việc (3-4 câu) sau cho vị trí {context} theo chuẩn STAR: {content}. " +
                             $"YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu 'Dưới đây là...', không tiêu đề.";
                     break;
 
@@ -47,6 +47,15 @@ namespace DoAnCS.Controllers
                             $"KHÔNG đánh số, KHÔNG lời dẫn, KHÔNG giải thích.";
                     break;
 
+                case "cover_letter":
+                // context ở đây sẽ chứa: "Tên công ty | Vị trí ứng tuyển"
+                // content ở đây sẽ chứa: Tóm tắt kinh nghiệm/kỹ năng của người dùng
+                prompt = $"Bạn là chuyên gia viết thư xin việc. Hãy viết một bức thư xin việc ấn tượng, chuyên nghiệp " +
+                        $"gửi đến công ty {context}. " +
+                        $"Dựa trên thông tin ứng viên: {content}. " +
+                        $"Yêu cầu: Văn phong thuyết phục, độ dài khoảng 250-300 chữ, có đầy đủ phần mở đầu, nội dung chính và kết bài. " +
+                        $"Chỉ trả về nội dung bức thư, không kèm lời chào của AI.";
+                break;
                 default:
                     return Json(new { success = false, data = "Loại yêu cầu không hợp lệ!" });
             }
