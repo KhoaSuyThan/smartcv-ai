@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -16,7 +17,7 @@ namespace DoAnCS.Controllers
 
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
-            // ==========================================
+        // ==========================================
 
         [HttpGet]
         public IActionResult Register()
@@ -28,7 +29,7 @@ namespace DoAnCS.Controllers
         [ValidateAntiForgeryToken] // Bảo vệ chống tấn công CSRF
         public async Task<IActionResult> Register(AuthVM model)
         {
-            ModelState.Remove("Login.Email"); 
+            ModelState.Remove("Login.Email");
             ModelState.Remove("Login.Password");
             if (ModelState.IsValid)
             {
@@ -74,7 +75,7 @@ namespace DoAnCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(AuthVM model)
         {
-            ModelState.Remove("Register.FullName"); 
+            ModelState.Remove("Register.FullName");
             ModelState.Remove("Register.Email");
             ModelState.Remove("Register.Password");
             ModelState.Remove("Register.ConfirmPassword");
@@ -122,6 +123,84 @@ namespace DoAnCS.Controllers
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
+        }
+
+        // ==========================================
+        // ĐĂNG NHẬP MẠNG XÃ HỘI (EXTERNAL LOGIN)
+        // ==========================================
+
+        [HttpPost]
+        [AllowAnonymous]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            // Yêu cầu chuyển hướng đến trang đăng nhập của bên thứ 3 (Google, Facebook...)
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { returnUrl });
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, provider);
+        }
+
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            returnUrl = returnUrl ?? Url.Content("~/");
+
+            if (remoteError != null)
+            {
+                ViewBag.Error = $"Lỗi từ nhà cung cấp: {remoteError}";
+                return View("Login", new AuthVM());
+            }
+
+            // Lấy thông tin xác thực từ cookie tạm thời của bên thứ 3
+            var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            if (!info.Succeeded) return RedirectToAction("Login");
+
+            // Trích xuất các Claims (Email, Name)
+            var claims = info.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            if (string.IsNullOrEmpty(email))
+            {
+                ViewBag.Error = "Không thể lấy Email từ tài khoản mạng xã hội.";
+                return View("Login", new AuthVM());
+            }
+
+            // 1. Kiểm tra xem User này đã tồn tại trong DB chưa
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+            {
+                // 2. Nếu chưa có tài khoản -> Tự động tạo mới (Đăng ký tự động)
+                user = new User
+                {
+                    FullName = name ?? "Social User",
+                    Email = email,
+                    PasswordHash = "EXTERNAL_LOGIN", // Đánh dấu không dùng mật khẩu thường
+                    Role = "User",
+                    CreatedAt = DateTime.Now
+                };
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+
+            // 3. Thiết lập Claims cho hệ thống của bạn
+            var userClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.FullName),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("UserID", user.UserID.ToString())
+    };
+
+            var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // 4. Đăng nhập người dùng vào hệ thống của bạn
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            return LocalRedirect(returnUrl);
         }
     }
 }

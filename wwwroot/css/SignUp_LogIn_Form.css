@@ -132,14 +132,25 @@ form {
   justify-content: center;
 }
 
-.social-icons a {
-  display: inline-flex;
-  padding: 10px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  font-size: 24px;
-  color: #333;
-  margin: 0 8px;
+.social-icons a, 
+.social-icons button {
+    display: inline-flex;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 24px;
+    color: #333;
+    margin: 0 8px;
+    background: transparent;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.social-icons a:hover,
+.social-icons button:hover {
+  background: #f0f0f0;
+  border-color: #7494ec;
+  color: #7494ec;
 }
 
 .toggle-box {

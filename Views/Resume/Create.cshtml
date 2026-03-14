@@ -16,13 +16,79 @@
         .section-title { font-weight: 700; color: #0d6efd; border-bottom: 2px solid #0d6efd; padding-bottom: 5px; margin-bottom: 20px; text-transform: uppercase; font-size: 0.9rem; }
         .form-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         
+        .main-section p, 
+        .exp-entry p, 
+        .main-section {
+            width: 100%;             /* Đảm bảo chiều rộng không vượt quá cha */
+            word-wrap: break-word;   /* Ép xuống dòng với các từ quá dài */
+            overflow-wrap: break-word;
+            word-break: break-word;  /* Ưu tiên ngắt ở khoảng trắng, nếu không có mới ngắt từ */
+            white-space: pre-line;   /* Giữ lại các dấu xuống dòng khi bạn gõ Enter */
+            text-align: justify;     /* Giúp văn bản căn đều hai bên cho đẹp */
+        }
         .cv-preview-wrapper { 
-            background: white; width: 210mm; min-height: 297mm; padding: 0; box-shadow: 0 0 15px rgba(0,0,0,0.3); transform-origin: top center;
+            background: white; 
+            width: 210mm; /* Bề ngang bạn thấy OK */
+            height: 297mm; /* Khóa cứng chiều cao đúng chuẩn A4 */
+            aspect-ratio: 210 / 297; /* Đảm bảo tỷ lệ luôn là 0.707 */
+            padding: 0; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.3); 
+            transform-origin: top center;
+            overflow: hidden; /* Ngăn nội dung tràn ra ngoài tờ giấy */
         }
 
         /* Style cho các item trong list */
         .dynamic-item { position: relative; background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
         .btn-remove { position: absolute; top: 5px; right: 5px; color: #dc3545; cursor: pointer; }
+        
+        .ai-floating-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1050; /* Đảm bảo nằm trên các thành phần khác */
+        }
+
+        .btn-ai-float {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(102, 16, 242, 0.4);
+        }
+
+        .btn-ai-float:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 16, 242, 0.5);
+            color: white;
+        }
+
+        /* Hiệu ứng nhấp nháy thu hút sự chú ý */
+        @@keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(102, 16, 242, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 16, 242, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 16, 242, 0); }
+        }
+        .btn-ai-float {
+            animation: pulse-animation 2s infinite;
+        }
+
+        .btn-danger {
+            background-color: #dc3545; /* Màu đỏ đặc trưng của PDF */
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px); /* Bay nhẹ khi di chuột vào */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        }
     </style>
 }
 
@@ -65,11 +131,32 @@
             </div>
         </div>
 
-        <div class="form-section">
-            <h4 class="section-title"><i class="fas fa-bullseye me-2"></i>Mục tiêu nghề nghiệp</h4>
-            <textarea id="SummaryInput" class="form-control" rows="4" placeholder="Tôi là một người đam mê..."></textarea>
+        <div class="card mb-3 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                <h6 class="mb-0 text-primary fw-bold">
+                    <i class="fas fa-bullseye me-2"></i>MỤC TIÊU NGHỀ NGHỆP
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-primary border-0" onclick="callAI('summary', this)">
+                    ✨ AI viết hộ
+                </button>
+            </div>
+            <div class="card-body">
+                <textarea id="SummaryInput" class="form-control border-0 bg-light" 
+                        rows="4" placeholder="Tôi là một người đam mê..." 
+                        oninput="updatePreview()"></textarea>
+            </div>
         </div>
 
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-certificate me-2"></i>Chứng chỉ</h4>
+            <div id="certifications-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('cert')">+ Thêm chứng chỉ</button>
+        </div>
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-users-cog me-2"></i>Hoạt động</h4>
+            <div id="activities-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('activity')">+ Thêm hoạt động</button>
+        </div>
         <div class="form-section">
             <h4 class="section-title"><i class="fas fa-graduation-cap me-2"></i>Học vấn</h4>
             <div id="education-container">
@@ -77,6 +164,7 @@
                     <input type="text" class="form-control mb-2 edu-school" placeholder="Tên trường (Borcelle University)">
                     <input type="text" class="form-control mb-2 edu-major" placeholder="Ngành học (Bachelor of Science)">
                     <input type="text" class="form-control edu-year" placeholder="Thời gian (2012 - 2016)">
+                    <input type="text" class="form-control edu-gradtype" placeholder="Loại tốt nghiệp (Xuất sắc, Giỏi...)">
                 </div>
             </div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('education')">+ Thêm học vấn</button>
@@ -89,10 +177,25 @@
                     <input type="text" class="form-control mb-2 exp-company" placeholder="Công ty (Larana Studios)">
                     <input type="text" class="form-control mb-2 exp-role" placeholder="Chức vụ (Marketing Manager)">
                     <input type="text" class="form-control mb-2 exp-time" placeholder="Thời gian (Jun 2019 - Jan 2020)">
-                    <textarea class="form-control exp-desc" rows="3" placeholder="Mô tả công việc..."></textarea>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-bold">Mô tả chi tiết</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary border-0" 
+                                    onclick="callAI('optimize', this)">
+                                ✨ Tối ưu bằng AI (STAR)
+                            </button>
+                        </div>
+                        <textarea class="form-control exp-desc" rows="3" placeholder="Ví dụ: Em làm code web bán hàng..."></textarea>
+                    </div>
                 </div>
             </div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('experience')">+ Thêm kinh nghiệm</button>
+        </div>
+
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-trophy me-2"></i>Giải thưởng</h4>
+            <div id="awards-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('award')">+ Thêm giải thưởng</button>
         </div>
 
         <div class="form-section">
@@ -109,13 +212,31 @@
 
         <div class="form-section">
             <h4 class="section-title"><i class="fas fa-lightbulb me-2"></i>Kỹ năng khác</h4>
+            <div class="mb-3">
+                <div class="input-group">
+                    <button class="btn btn-primary btn-sm w-100 mb-2" type="button" onclick="callAI('suggest_skills', this)">
+                        🪄 AI gợi ý kỹ năng theo vị trí ứng tuyển
+                    </button>
+                </div>
+                <small class="text-muted">Hệ thống sẽ dựa vào "Vị trí ứng tuyển" phía trên để gợi ý.</small>
+            </div>
             <div id="other-skills-container"></div>
-            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm kỹ năng khác</button>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm thủ công</button>
         </div>
 
-        <div class="editor-footer mt-4 mb-5">
-            <button type="button" class="btn btn-success btn-lg w-100 shadow" onclick="saveResume()">
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-users me-2"></i>Người tham chiếu</h4>
+            <div id="references-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('reference')">+ Thêm người tham chiếu</button>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success w-100 mb-3 py-2 fw-bold shadow-sm">
                 <i class="fas fa-save me-2"></i>LƯU CV VÀO HỆ THỐNG
+            </button>
+
+            <button type="button" class="btn btn-danger w-100 py-2 fw-bold shadow-sm" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf me-2"></i>XUẤT FILE PDF CHUYÊN NGHIỆP
             </button>
         </div>
     </div>
@@ -125,9 +246,49 @@
             @Html.Raw(Model.HtmlContent)
         </div>
     </div>
+
+    <div class="ai-floating-container">
+        <button type="button" class="btn-ai-float shadow-lg" data-bs-toggle="modal" data-bs-target="#coverLetterModal">
+            <i class="fas fa-magic"></i>
+            <span class="btn-text">Cover Letter AI</span>
+        </button>
+    </div>
+
+    <div class="modal fade" id="coverLetterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">🪄 Trình tạo Thư xin việc AI</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Bạn đang muốn ứng tuyển vào đâu?</label>
+                        <input type="text" id="TargetCompany" class="form-control" placeholder="Ví dụ: FPT Software - Vị trí .NET Developer">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold d-flex justify-content-between">
+                            Kết quả thư xin việc:
+                            <small class="text-primary cursor-pointer" onclick="copyCoverLetter()"><i class="fas fa-copy"></i> Sao chép</small>
+                        </label>
+                        <textarea id="CoverLetterResult" class="form-control" rows="12" placeholder="Thư xin việc sẽ hiện ra ở đây..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" onclick="generateCoverLetter(this)">✨ Bắt đầu viết</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script>
         // 1. Khởi tạo dữ liệu gốc từ Database
         let originalHtml = `@Html.Raw(Model.HtmlContent)`;
@@ -169,27 +330,136 @@
                                 <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
                                 <input type="text" class="form-control mb-1 edu-school" placeholder="Tên trường học">
                                 <input type="text" class="form-control mb-1 edu-major" placeholder="Ngành học">
-                                <input type="text" class="form-control edu-year" placeholder="Thời gian">
+                                <input type="text" class="form-control mb-1 edu-year" placeholder="Thời gian">
+                                <input type="text" class="form-control edu-gradtype" placeholder="Loại tốt nghiệp (Xuất sắc, Giỏi...)">
                             </div>`;
                 $('#education-container').append(html);
             } else if (type === 'experience') {
                 let html = `<div class="dynamic-item experience-item mb-3 p-2 border rounded">
                                 <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                
                                 <input type="text" class="form-control mb-1 exp-company" placeholder="Công ty">
                                 <input type="text" class="form-control mb-1 exp-role" placeholder="Chức vụ">
                                 <input type="text" class="form-control mb-1 exp-time" placeholder="Thời gian">
-                                <textarea class="form-control exp-desc" rows="2" placeholder="Mô tả công việc..."></textarea>
+                                
+                                <div class="mb-2 mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold">Mô tả chi tiết</label>
+                                        <button type="button" class="btn btn-sm btn-outline-primary border-0" 
+                                                onclick="callAI('optimize', this)">
+                                            ✨ Tối ưu bằng AI (STAR)
+                                        </button>
+                                    </div>
+                                    <textarea class="form-control exp-desc" rows="3" placeholder="Mô tả công việc..."></textarea>
+                                </div>
                             </div>`;
                 $('#experience-container').append(html);
+            }
+            if (type === 'award') {
+                let html = `<div class="dynamic-item award-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control award-name" placeholder="Tên giải thưởng (Sinh viên 5 tốt...)">
+                            </div>`;
+                $('#awards-container').append(html);
+            } else if (type === 'reference') {
+                let html = `<div class="dynamic-item reference-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control ref-info" placeholder="Họ tên, chức vụ, SĐT người tham chiếu">
+                            </div>`;
+                $('#references-container').append(html);
+            }
+            if (type === 'cert') {
+                html = `<div class="dynamic-item cert-item mb-2 p-2 border rounded">
+                            <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                            <input type="text" class="form-control mb-1 cert-year" placeholder="Năm (2019)">
+                            <input type="text" class="form-control cert-name" placeholder="Tên chứng chỉ (IELTS 7.0)">
+                        </div>`;
+                $('#certifications-container').append(html);
+            } else if (type === 'activity') {
+                html = `<div class="dynamic-item activity-item mb-3 p-2 border rounded">
+                            <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                            <input type="text" class="form-control mb-1 act-name" placeholder="Tên tổ chức/CLB">
+                            <input type="text" class="form-control mb-1 act-time" placeholder="Thời gian (2017 - 2019)">
+                            <textarea class="form-control act-desc" rows="2" placeholder="Mô tả hoạt động..."></textarea>
+                        </div>`;
+                $('#activities-container').append(html);
             }
             $('.form-control').on('input', updatePreview);
         }
 
+        function callAI(actionType, element = null) {
+            let textToProcess = "";
+            let jobTitle = $('#JobTitleInput').val(); 
+            let targetElement = null;
+
+            // Phân loại yêu cầu
+            if (actionType === 'summary') {
+                textToProcess = $('#SummaryInput').val();
+                targetElement = $('#SummaryInput');
+                if (!textToProcess) { alert("Hãy nhập vài ý về mục tiêu của bạn!"); return; }
+            } 
+            else if (actionType === 'optimize') {
+                // Tìm ô textarea trong cùng một khối kinh nghiệm với nút bấm
+                targetElement = $(element).closest('.mb-3').find('.exp-desc');
+                textToProcess = targetElement.val();
+                if (!textToProcess) { alert("Hãy nhập mô tả công việc trước khi tối ưu!"); return; }
+            } 
+            else if (actionType === 'suggest_skills') {
+                textToProcess = jobTitle; // Gợi ý dựa trên chức danh
+                if (!textToProcess) { alert("Vui lòng nhập 'Vị trí ứng tuyển' ở trên cùng trước!"); return; }
+            }
+
+            // Hiệu ứng Loading
+            const originalHtml = $(element).html();
+            $(element).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>...');
+
+            $.ajax({
+                url: '/AI/ProcessText',
+                type: 'POST',
+                data: { type: actionType, content: textToProcess, context: jobTitle },
+                success: function(res) {
+                    if (res.success) {
+                        if (actionType === 'suggest_skills') {
+                            // AI trả về: "HTML, CSS, JavaScript..." -> Tách ra và thêm vào danh sách
+                            let skills = res.data.split(',');
+                            skills.forEach(skill => {
+                                let cleanName = skill.trim().replace(/[.*-]/g, ""); // Dọn rác AI trả về
+                                if(cleanName) addSkillAI(cleanName); 
+                            });
+                        } else {
+                            // Điền văn bản vào ô textarea
+                            targetElement.val(res.data);
+                        }
+                        updatePreview(); 
+                    } else {
+                        alert(res.data);
+                    }
+                },
+                error: function() { alert("Không thể kết nối với server AI!"); },
+                complete: function() {
+                    $(element).prop('disabled', false).html(originalHtml);
+                }
+            });
+        }
+
+        // Hàm bổ trợ để AI tự động thêm các dòng Kỹ năng khác
+        function addSkillAI(name) {
+            let html = `<div class="dynamic-item other-skill-item mb-2 p-2 border rounded">
+                            <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                            <div class="row">
+                                <div class="col-7"><input type="text" class="form-control other-name" value="${name}"></div>
+                                <div class="col-5"><input type="text" class="form-control other-level" placeholder="Mức độ"></div>
+                            </div>
+                        </div>`;
+            $('#other-skills-container').append(html);
+        }
         // 5. Hàm cập nhật Preview (Mỗi Token chỉ được xử lý 1 lần duy nhất)
         function updatePreview() {
+            // 1. Luôn bắt đầu từ mã HTML gốc để đảm bảo các Token không bị mất sau lần thay thế đầu tiên
             let currentHtml = originalHtml;
             let avatarSrc = $('#AvatarBase64').val() || 'https://i.imgur.com/8Km9tLL.png';  
 
+            // 2. Bản đồ Token cho các thông tin cố định
             const map = {
                 '{{FullName}}': $('#FullNameInput').val() || 'HỌ VÀ TÊN ỨNG VIÊN',
                 '{{JobTitle}}': $('#JobTitleInput').val() || 'VỊ TRÍ ỨNG TUYỂN',
@@ -199,10 +469,60 @@
                 '{{AvatarUrl}}': avatarSrc,
                 '{{BirthDate}}': $('#BirthDateInput').val() || '27/01/1998',
                 '{{Address}}': $('#AddressInput').val() || 'TP. Hồ Chí Minh',
+                '{{GraduationType}}': $('.edu-gradtype').val() || 'Chưa cập nhật' //
             };
 
-            // Quét TIN HỌC
-            let itHtml = '<ul style="list-style:none; padding:0;">';
+            // 3. Xử lý các danh sách động (Học vấn, Kinh nghiệm, Kỹ năng...)
+
+            // --- HỌC VẤN ---
+            let eduHtml = '';
+                $('.education-item').each(function() {
+                    let school = $(this).find('.edu-school').val();
+                    let major = $(this).find('.edu-major').val();
+                    let year = $(this).find('.edu-year').val();
+                    let grad = $(this).find('.edu-gradtype').val();
+                    
+                    if(school) {
+                        eduHtml += `
+                            <div class="exp-item">
+                                <span class="exp-year">• ${year || '2020 - 2024'}</span>
+                                <div class="exp-content">
+                                    <strong>${school}</strong><br>
+                                    ${major}<br>
+                                    ${grad ? `Xếp loại: ${grad}` : ''}
+                                </div>
+                            </div>`;
+                    }
+                });
+            map['{{Education}}'] = eduHtml;
+
+            // --- KINH NGHIỆM LÀM VIỆC ---
+            let expHtml = '';
+                $('.experience-item').each(function() {
+                    let company = $(this).find('.exp-company').val();
+                    let role = $(this).find('.exp-role').val();
+                    let time = $(this).find('.exp-time').val();
+                    let desc = $(this).find('.exp-desc').val();
+                    
+                    let formattedDesc = desc ? desc.split('\n').join('<br>') : 'Mô tả chi tiết...';
+
+                    if(company || role) {
+                        expHtml += `
+                            <div class="exp-item">
+                                <span class="exp-year">• ${time || '2022 - 2024'}</span>
+                                <div class="exp-content">
+                                    <div class="info-line"><strong>Công ty:</strong> ${company || 'Tên công ty'}</div>
+                                    <div class="info-line"><strong>Vị trí:</strong> ${role || 'Vị trí công việc'}</div>
+                                    <div class="desc-label"><strong>Mô tả:</strong></div>
+                                    <div class="desc-text">${formattedDesc}</div>
+                                </div>
+                            </div>`;
+                    }
+                });
+            map['{{Experience}}'] = expHtml;
+
+            // --- TIN HỌC ---
+            let itHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.it-skill-item').each(function() {
                 let name = $(this).find('.it-skill-name').val();
                 let level = $(this).find('.it-skill-level').val();
@@ -210,17 +530,17 @@
             });
             map['{{Skills}}'] = itHtml + '</ul>';
 
-            // Quét NGOẠI NGỮ
-            let langHtml = '<ul style="list-style:none; padding:0;">';
+            // --- NGOẠI NGỮ ---
+            let langHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.language-item').each(function() {
                 let name = $(this).find('.lang-name').val();
                 let level = $(this).find('.lang-level').val();
-                if(name) langHtml += `<li style="display:flex; justify-content:space-between;"><span>• ${name}</span><span class="text-muted italic">${level}</span></li>`;
+                if(name) langHtml += `<li style="display:flex; justify-content:space-between;"><span>• ${name}</span><span style="font-style:italic; opacity:0.8;">${level}</span></li>`;
             });
             map['{{Languages}}'] = langHtml + '</ul>';
 
-            // Quét KỸ NĂNG KHÁC (Đã sửa lỗi không hiện)
-            let otherHtml = '<ul style="list-style:none; padding:0;">';
+            // --- KỸ NĂNG KHÁC ---
+            let otherHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.other-skill-item').each(function() {
                 let name = $(this).find('.other-name').val();
                 let level = $(this).find('.other-level').val();
@@ -228,32 +548,165 @@
             });
             map['{{OtherSkills}}'] = otherHtml + '</ul>';
 
-            // Quét HỌC VẤN
-            let eduHtml = '';
-            $('.education-item').each(function() {
-                let school = $(this).find('.edu-school').val();
-                let major = $(this).find('.edu-major').val();
-                let year = $(this).find('.edu-year').val();
-                if(school) eduHtml += `<div class="mb-2"><strong>${major}</strong><br><small>${year} | ${school}</small></div>`;
+            // --- GIẢI THƯỞNG ---
+            let awardHtml = '<ul style="padding-left:15px; margin:0;">';
+            $('.award-item').each(function() {
+                let name = $(this).find('.award-name').val();
+                if(name) awardHtml += `<li>${name}</li>`;
             });
-            map['{{Education}}'] = eduHtml;
+            map['{{Awards}}'] = awardHtml + '</ul>';
 
-            // Quét KINH NGHIỆM
-            let expHtml = '';
-            $('.experience-item').each(function() {
-                let company = $(this).find('.exp-company').val();
-                let role = $(this).find('.exp-role').val();
-                let time = $(this).find('.exp-time').val();
-                let desc = $(this).find('.exp-desc').val();
-                if(company) expHtml += `<div class="mb-2"><strong>${company}</strong> - ${role}<br><small>${time}</small><p style="font-size:12px;">${desc}</p></div>`;
+            // --- NGƯỜI THAM CHIẾU ---
+            let refHtml = '';
+            $('.reference-item').each(function() {
+                let info = $(this).find('.ref-info').val();
+                if(info) refHtml += `<p style="margin-bottom:5px; font-size:12px;">• ${info}</p>`;
             });
-            map['{{Experience}}'] = expHtml;
+            map['{{References}}'] = refHtml;
 
-            // Tiến hành thay thế Token
+            // Quét CHỨNG CHỈ (Sidebar CV 2)
+            let certHtml = '';
+            $('.cert-item').each(function() {
+                let year = $(this).find('.cert-year').val();
+                let name = $(this).find('.cert-name').val();
+                if(name) {
+                    certHtml += `<div style="margin-bottom:8px;">
+                                    <div style="font-weight:bold; font-size:11px; color:#634c46;">${year}</div>
+                                    <div style="font-size:12.5px;">${name}</div>
+                                </div>`;
+                }
+            });
+            map['{{Certifications}}'] = certHtml;
+
+            // Quét HOẠT ĐỘNG (Main Body CV 2)
+            let actHtml = '';
+            $('.activity-item').each(function() {
+                let name = $(this).find('.act-name').val();
+                let time = $(this).find('.act-time').val();
+                let desc = $(this).find('.act-desc').val();
+                if(name) {
+                    actHtml += `<div class="exp-item">
+                                    <div class="exp-header">
+                                        <span class="company-name">${name}</span>
+                                        <span class="date-badge">${time}</span>
+                                    </div>
+                                    <div class="exp-desc">${desc}</div>
+                                </div>`;
+                }
+            });
+            map['{{Activities}}'] = actHtml;
+
+            // 4. Tiến hành thay thế hàng loạt Token bằng Regex
             for (let token in map) {
-                currentHtml = currentHtml.replaceAll(token, map[token]);
+                let regex = new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                currentHtml = currentHtml.replace(regex, map[token]);
             }
+
+            // 5. Cập nhật vùng Preview
             $('#resume-preview').html(currentHtml);
+        }
+
+        function generateCoverLetter(btn) {
+            const target = $('#TargetCompany').val();
+            if (!target) { alert("Vui lòng nhập Công ty và Vị trí bạn muốn ứng tuyển!"); return; }
+
+            // Gom dữ liệu từ các ô đã nhập để làm nguyên liệu cho AI
+            let fullName = $('#FullNameInput').val();
+            let jobTitle = $('#JobTitleInput').val();
+            let summary = $('#SummaryInput').val();
+            
+            // Lấy nhanh kinh nghiệm làm việc
+            let experiences = "";
+            $('.experience-item').each(function() {
+                experiences += $(this).find('.exp-company').val() + " (" + $(this).find('.exp-role').val() + "); ";
+            });
+
+            const fullInfo = `Ứng viên: ${fullName}. Vị trí: ${jobTitle}. Mục tiêu: ${summary}. Kinh nghiệm: ${experiences}`;
+
+            const $btn = $(btn);
+            const originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> AI đang suy nghĩ...');
+
+            $.ajax({
+                url: '/AI/ProcessText',
+                type: 'POST',
+                data: { 
+                    type: 'cover_letter', 
+                    content: fullInfo, 
+                    context: target 
+                },
+                success: function(res) {
+                    if (res.success) {
+                        $('#CoverLetterResult').val(res.data);
+                    } else {
+                        alert(res.data);
+                    }
+                },
+                error: function() { alert("Lỗi kết nối AI!"); },
+                complete: function() {
+                    $btn.prop('disabled', false).html('✨ Viết lại bản khác');
+                }
+            });
+        }
+
+        function copyCoverLetter() {
+            const text = document.getElementById("CoverLetterResult");
+            text.select();
+            document.execCommand("copy");
+            alert("Đã sao chép thư xin việc vào bộ nhớ tạm!");
+        }
+
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // Chọn đúng phần "tờ giấy trắng" chứa CV
+            const element = document.querySelector('.cv-document') || document.querySelector('.preview-column > div'); 
+
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo 1 trang PDF...';
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: "#ffffff"
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Khởi tạo PDF khổ A4
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = 210;
+                const pageHeight = 297;
+                
+                // Tính toán tỷ lệ để ảnh vừa khít chiều rộng trang A4
+                const imgWidth = pageWidth;
+                const imgHeight = (canvas.height * pageWidth) / canvas.width;
+                
+                // Nếu nội dung dài hơn trang A4, chúng ta sẽ thu nhỏ nó lại một chút để vừa 1 trang
+                let finalHeight = imgHeight;
+                if (finalHeight > pageHeight) {
+                    // Tùy chọn 1: Thu nhỏ lại để vừa 1 trang duy nhất
+                    // finalHeight = pageHeight; 
+                    
+                    // Tùy chọn 2: Cắt bỏ phần dư (thường dùng nếu phần dư chỉ là khoảng trắng)
+                    console.log("Nội dung hơi dài, đang ép vào 1 trang...");
+                }
+
+                // CHỈ VẼ 1 LẦN DUY NHẤT (Không dùng vòng lặp while)
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, finalHeight);
+                
+                pdf.save(`CV_${new Date().getTime()}.pdf`);
+
+            } catch (error) {
+                alert("Lỗi xuất PDF!");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // 6. Hàm Lưu CV (Gửi đầy đủ JSON)
@@ -282,6 +735,12 @@
                 }).get(),
                 OtherSkills: $('.other-skill-item').map(function() {
                     return { Name: $(this).find('.other-name').val(), Level: $(this).find('.other-level').val() };
+                }).get(),
+                Awards: $('.award-item').map(function() {
+                    return { Name: $(this).find('.award-name').val() };
+                }).get(),
+                References: $('.reference-item').map(function() {
+                    return { Info: $(this).find('.ref-info').val() };
                 }).get()
             };
 
@@ -301,5 +760,43 @@
             $(document).on('input', '.form-control', updatePreview);
             updatePreview(); 
         });
+        // 1. Hàm tối ưu Kinh nghiệm làm việc
+        function optimizeExperience(btn) {
+            const $btn = $(btn);
+            const $textarea = $btn.closest('.mb-3').find('textarea'); // Tìm ô textarea tương ứng
+            const content = $textarea.val();
+            const jobTitle = $('#JobTitle').val(); // Lấy vị trí ứng tuyển làm ngữ cảnh
+
+            if (!content) { alert("Vui lòng nhập vài ý về công việc của bạn!"); return; }
+
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang tối ưu...');
+
+            $.post('/AI/ProcessText', { type: 'optimize_exp', content: content, context: jobTitle }, function(res) {
+                if (res.success) {
+                    $textarea.val(res.data);
+                    updatePreview(); // Cập nhật bản xem trước CV
+                }
+                $btn.prop('disabled', false).html('✨ Tối ưu bằng AI (STAR)');
+            });
+        }
+
+        // 2. Hàm gợi ý Kỹ năng
+        function suggestSkills() {
+            const jobTitle = $('#JobTitle').val(); // Người dùng nhập "Web Developer" chẳng hạn
+            if (!jobTitle) { alert("Vui lòng nhập Vị trí ứng tuyển trước!"); return; }
+
+            const $btn = $('.btn-primary:contains("Gợi ý kỹ năng")');
+            $btn.prop('disabled', true).text('Đang tìm...');
+
+            $.post('/AI/ProcessText', { type: 'suggest_skills', content: jobTitle }, function(res) {
+                if (res.success) {
+                    // Cộng dồn vào các kỹ năng đã có
+                    let currentSkills = $('#SkillsInput').val();
+                    $('#SkillsInput').val(currentSkills ? currentSkills + ", " + res.data : res.data);
+                    updatePreview();
+                }
+                $btn.prop('disabled', false).text('🪄 Gợi ý kỹ năng');
+            });
+        }
     </script>
 }
