@@ -8,13 +8,33 @@
     ".NETCoreApp,Version=v10.0": {
       "DoAnCS/1.0.0": {
         "dependencies": {
+          "AspNet.Security.OAuth.GitHub": "10.0.0",
+          "AspNet.Security.OAuth.LinkedIn": "10.0.0",
           "BCrypt.Net-Next": "4.1.0",
+          "Microsoft.AspNetCore.Authentication.Facebook": "10.0.5",
+          "Microsoft.AspNetCore.Authentication.Google": "10.0.5",
           "Microsoft.EntityFrameworkCore.Design": "10.0.3",
           "Microsoft.EntityFrameworkCore.SqlServer": "10.0.3",
           "Newtonsoft.Json": "13.0.4"
         },
         "runtime": {
           "DoAnCS.dll": {}
+        }
+      },
+      "AspNet.Security.OAuth.GitHub/10.0.0": {
+        "runtime": {
+          "lib/net10.0/AspNet.Security.OAuth.GitHub.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.56155"
+          }
+        }
+      },
+      "AspNet.Security.OAuth.LinkedIn/10.0.0": {
+        "runtime": {
+          "lib/net10.0/AspNet.Security.OAuth.LinkedIn.dll": {
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.56155"
+          }
         }
       },
       "Azure.Core/1.47.1": {
@@ -56,6 +76,22 @@
           "lib/net6.0/Humanizer.dll": {
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Facebook/10.0.5": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Authentication.Facebook.dll": {
+            "assemblyVersion": "10.0.5.0",
+            "fileVersion": "10.0.526.15411"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Authentication.Google/10.0.5": {
+        "runtime": {
+          "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.dll": {
+            "assemblyVersion": "10.0.5.0",
+            "fileVersion": "10.0.526.15411"
           }
         }
       },
@@ -764,6 +800,20 @@
       "serviceable": false,
       "sha512": ""
     },
+    "AspNet.Security.OAuth.GitHub/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-PbOrAso/hlCS2p3YHHq94C5W/6851xyMT8ZEkAc3eGQNlsu3Siwu/D98nzCKyOKmB+KNu9MirWpmO66PmEIexQ==",
+      "path": "aspnet.security.oauth.github/10.0.0",
+      "hashPath": "aspnet.security.oauth.github.10.0.0.nupkg.sha512"
+    },
+    "AspNet.Security.OAuth.LinkedIn/10.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-i8f8MAvIrmoUPrXUwcOSKuZ5pC6ByCCTQU9pWEQRQMmdc5YEttk1tMbK8M8tJBC9ysc7WRVrYYtxIL4tm4P18w==",
+      "path": "aspnet.security.oauth.linkedin/10.0.0",
+      "hashPath": "aspnet.security.oauth.linkedin.10.0.0.nupkg.sha512"
+    },
     "Azure.Core/1.47.1": {
       "type": "package",
       "serviceable": true,
@@ -791,6 +841,20 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Authentication.Facebook/10.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-V7/ZXXH11Zu+IspWWNrT9svjSAMElEeM2XmtxbaidSsaPa+I38fgbuvvxRuGt7AzKl7EdNOcDByj+M/RkbZoUg==",
+      "path": "microsoft.aspnetcore.authentication.facebook/10.0.5",
+      "hashPath": "microsoft.aspnetcore.authentication.facebook.10.0.5.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Authentication.Google/10.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-y0Y04EYL1VwhuIQvnpjD5XoECl8EEPeXtBiveDXpsh9q3TnWDAfDuLJDp+LrCmOx9jbp23b6SAEBMmVO7zRtNQ==",
+      "path": "microsoft.aspnetcore.authentication.google/10.0.5",
+      "hashPath": "microsoft.aspnetcore.authentication.google.10.0.5.nupkg.sha512"
     },
     "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
       "type": "package",

@@ -373,7 +373,6 @@ C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\scopedcss\bundle\DoAnCS.styles.css
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\zcag1a42qw-{0}-ncnun33axs-ncnun33axs.gz
-C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\ywc81znnx9-{0}-l6asjglcmz-l6asjglcmz.gz
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\cyw913aa4y-{0}-0xfkz84o3u-0xfkz84o3u.gz
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\36q080nw9b-{0}-61n19gt1b8-61n19gt1b8.gz
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\ofgmxkqq1d-{0}-kqesxdshxt-kqesxdshxt.gz
@@ -448,7 +447,6 @@ C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\refint\DoAnCS.dll
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\DoAnCS.pdb
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\DoAnCS.genruntimeconfig.cache
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\ref\DoAnCS.dll
-C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\3m4edjkns8-{0}-mlep0rolii-mlep0rolii.gz
 C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\90vz49g0rj-{0}-q426cgt8ts-q426cgt8ts.gz
 C:\Users\aaa\Pictures\DoAnMobile\DoAnWeb\bin\Debug\net10.0\appsettings.Development.json
 C:\Users\aaa\Pictures\DoAnMobile\DoAnWeb\bin\Debug\net10.0\appsettings.json
@@ -904,3 +902,9 @@ C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnWeb\obj\Debug\net10.0\DoAnCS.genruntimeconf
 C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnWeb\obj\Debug\net10.0\ref\DoAnCS.dll
 C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnWeb\obj\Debug\net10.0\compressed\ywc81znnx9-{0}-40ddz9vrjp-40ddz9vrjp.gz
 C:\Users\aaa\Pictures\DoAnWeb_CS\DoAnWeb\obj\Debug\net10.0\compressed\ofgmxkqq1d-{0}-kqesxdshxt-kqesxdshxt.gz
+C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\ywc81znnx9-{0}-40ddz9vrjp-40ddz9vrjp.gz
+C:\Users\ADMIN\source\DoAnWeb\bin\Debug\net10.0\AspNet.Security.OAuth.GitHub.dll
+C:\Users\ADMIN\source\DoAnWeb\bin\Debug\net10.0\AspNet.Security.OAuth.LinkedIn.dll
+C:\Users\ADMIN\source\DoAnWeb\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.Facebook.dll
+C:\Users\ADMIN\source\DoAnWeb\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.Google.dll
+C:\Users\ADMIN\source\DoAnWeb\obj\Debug\net10.0\compressed\3m4edjkns8-{0}-twapq6haoq-twapq6haoq.gz

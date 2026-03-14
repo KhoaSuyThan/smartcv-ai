@@ -5,7 +5,7 @@ using DoAnCS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = @"Server=LAPTOP-V23SMM4O;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+var connectionString = @"Server=localhost\SQLEXPRESS01;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -15,13 +15,37 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString) 
 );
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Account/Login"; // Đường dẫn trang đăng nhập
-        options.AccessDeniedPath = "/Account/AccessDenied"; // Trang khi không có quyền
-        options.ExpireTimeSpan = TimeSpan.FromHours(24); // Ghi nhớ đăng nhập trong 24h
-    });
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options => 
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.ExpireTimeSpan = TimeSpan.FromHours(24);
+})
+.AddGoogle(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+})
+.AddFacebook(options =>
+{
+    options.AppId = builder.Configuration["Authentication:Facebook:AppId"] ?? "";
+    options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"] ?? "";
+})
+.AddGitHub(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "";
+    options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "";
+    options.Scope.Add("user:email");
+})
+.AddLinkedIn(options =>
+{
+    options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"] ?? "";
+    options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"] ?? "";
+});
 
 // Session
 builder.Services.AddSession(options =>

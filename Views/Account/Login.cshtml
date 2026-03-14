@@ -1,89 +1,100 @@
-@model DoAnCS.Models.ViewModels.AuthVM 
-@{ Layout = null; } 
+    @model DoAnCS.Models.ViewModels.AuthVM
+    @{
+        Layout = null;
+    }
 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Login/Signup Form</title> 
-    <link rel="stylesheet" href="/css/SignUp_LogIn_Form.css"> 
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'> 
-</head> 
-<body> 
-    <div class="container"> 
-        <div class="form-box login"> 
-            <form asp-controller="Account" asp-action="Login" method="post"> 
-                @Html.AntiForgeryToken()
-                <h1>Đăng nhập</h1> 
-                <div class="input-box"> 
-                    <input asp-for="Login.Email" placeholder="Email"> 
-                    <i class='bx bxs-user'></i> 
-                </div> 
-                <div class="input-box"> 
-                    <input asp-for="Login.Password" type="password" placeholder="Password"> 
-                    <i class='bx bxs-lock-alt' ></i> 
-                </div> 
-                <div class="forgot-link"> 
-                    <a href="#">Bạn quên mật khẩu?</a> 
-                </div> 
-                <button type="submit" class="btn">Đăng nhập</button> 
-                <p>Hoặc đăng nhập với các nền tảng xã hội</p> 
-                <div class="social-icons"> 
-                    <a href="#"><i class='bx bxl-google' ></i></a> 
-                    <a href="#"><i class='bx bxl-facebook' ></i></a> 
-                    <a href="#"><i class='bx bxl-github' ></i></a> 
-                    <a href="#"><i class='bx bxl-linkedin' ></i></a> 
-                </div> 
-            </form> 
-        </div> 
+    <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Signup Form</title>
+    <link rel="stylesheet" href="/css/SignUp_LogIn_Form.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="container">
+        <div class="form-box login">
+            <div style="width: 100%;"> <form asp-controller="Account" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+                    <h1>Đăng nhập</h1>
+                    <div class="input-box">
+                        <input asp-for="Login.Email" placeholder="Email">
+                        <i class='bx bxs-user'></i>
+                    </div>
+                    <div class="input-box">
+                        <input asp-for="Login.Password" type="password" placeholder="Password">
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                    <div class="forgot-link">
+                        <a href="#">Bạn quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" class="btn">Đăng nhập</button>
+                </form>
 
-        <div class="form-box register"> 
-            <form asp-controller="Account" asp-action="Register" method="post"> 
-                @Html.AntiForgeryToken()
-                <h1>Đăng ký</h1> 
-                <div class="input-box"> 
-                    <input asp-for="Register.FullName" placeholder="Full Name" required> 
-                    <i class='bx bxs-user'></i> 
-                </div> 
-                <div class="input-box"> 
-                    <input asp-for="Register.Email" type="email" placeholder="Email" required> 
-                    <i class='bx bxs-envelope' ></i> 
-                </div> 
-                <div class="input-box"> 
-                    <input asp-for="Register.Password" type="password" placeholder="Password"> 
-                    <i class='bx bxs-lock-alt' ></i> 
-                </div> 
+                <p style="margin-top: 15px;">Hoặc đăng nhập với mạng xã hội</p>
+                
+                <form asp-controller="Account" asp-action="ExternalLogin" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="social-icons">
+                        <button type="submit" name="provider" value="Google"><i class='bx bxl-google'></i></button>
+                        <button type="submit" name="provider" value="Facebook"><i class='bx bxl-facebook'></i></button>
+                        <button type="submit" name="provider" value="GitHub"><i class='bx bxl-github'></i></button>
+                        <button type="submit" name="provider" value="LinkedIn"><i class='bx bxl-linkedin'></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-                <div class="input-box"> 
-                    <input asp-for="Register.ConfirmPassword" type="password" placeholder="Confirm Password"> 
-                    <i class='bx bxs-lock-alt' ></i>
-                </div>
+        <div class="form-box register">
+            <div style="width: 100%;">
+                <form asp-controller="Account" asp-action="Register" method="post">
+                    @Html.AntiForgeryToken()
+                    <h1>Đăng ký</h1>
+                    <div class="input-box">
+                        <input asp-for="Register.FullName" placeholder="Full Name" required>
+                        <i class='bx bxs-user'></i>
+                    </div>
+                    <div class="input-box">
+                        <input asp-for="Register.Email" type="email" placeholder="Email" required>
+                        <i class='bx bxs-envelope'></i>
+                    </div>
+                    <div class="input-box">
+                        <input asp-for="Register.Password" type="password" placeholder="Password">
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                    <div class="input-box">
+                        <input asp-for="Register.ConfirmPassword" type="password" placeholder="Confirm Password">
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                    <button type="submit" class="btn">Đăng ký</button>
+                </form>
 
-                <button type="submit" class="btn">Đăng ký</button> 
-                <p>Hoặc đăng nhập với các nền tảng xã hội</p> 
-                <div class="social-icons"> 
-                    <a href="#"><i class='bx bxl-google' ></i></a> 
-                    <a href="#"><i class='bx bxl-facebook' ></i></a> 
-                    <a href="#"><i class='bx bxl-github' ></i></a> 
-                    <a href="#"><i class='bx bxl-linkedin' ></i></a> 
-                </div> 
-            </form> 
-        </div> 
+                <p style="margin-top: 15px;">Hoặc đăng ký với mạng xã hội</p>
+                
+                <form asp-controller="Account" asp-action="ExternalLogin" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="social-icons">
+                        <button type="submit" name="provider" value="Google"><i class='bx bxl-google'></i></button>
+                        <button type="submit" name="provider" value="Facebook"><i class='bx bxl-facebook'></i></button>
+                        <button type="submit" name="provider" value="GitHub"><i class='bx bxl-github'></i></button>
+                        <button type="submit" name="provider" value="LinkedIn"><i class='bx bxl-linkedin'></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-        <div class="toggle-box"> 
-            <div class="toggle-panel toggle-left"> 
-                <h1>Xin chào!</h1> 
-                <p>Bạn chưa có tài khoản?</p> 
-                <button class="btn register-btn">Hãy đăng ký</button> 
-            </div> 
-            <div class="toggle-panel toggle-right"> 
-                <h1>Chào mừng!</h1> 
-                <p>Bạn đã có tài khoản?</p> 
-                <button class="btn login-btn">Đăng nhập ngay</button> 
-            </div> 
-        </div> 
-    </div> 
-
-    <script src="/js/script.js"></script> 
-</body> 
+        <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <h1>Xin chào!</h1>
+                <p>Bạn chưa có tài khoản?</p>
+                <button class="btn register-btn">Hãy đăng ký</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>Chào mừng!</h1>
+                <p>Bạn đã có tài khoản?</p>
+                <button class="btn login-btn">Đăng nhập ngay</button>
+            </div>
+        </div>
+    </div> <script src="/js/script.js"></script>
+</body>
 </html>
