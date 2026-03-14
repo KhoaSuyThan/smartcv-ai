@@ -96,6 +96,22 @@
           }
         }
       },
+      "Microsoft.AspNetCore/2.3.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNetCore.Server.Kestrel.Https": "2.3.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.AspNetCore.Authentication.Facebook/10.0.5": {
         "type": "package",
         "compile": {
@@ -127,6 +143,19 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "Microsoft.AspNetCore.Server.Kestrel.Https/2.3.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/_._": {
+            "related": ".xml"
+          }
+        }
       },
       "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
         "type": "package",
@@ -1226,6 +1255,19 @@
         "logo.png"
       ]
     },
+    "Microsoft.AspNetCore/2.3.9": {
+      "sha512": "AIeuKxwW84P9H0isRs2rwee15M2Gl4sPH3GWBJdzQnOovcXqZtytYjarxDdCW3QZSxewgjHHldsVy0m5+4KFXQ==",
+      "type": "package",
+      "path": "microsoft.aspnetcore/2.3.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Microsoft.AspNetCore.dll",
+        "lib/netstandard2.0/Microsoft.AspNetCore.xml",
+        "microsoft.aspnetcore.2.3.9.nupkg.sha512",
+        "microsoft.aspnetcore.nuspec"
+      ]
+    },
     "Microsoft.AspNetCore.Authentication.Facebook/10.0.5": {
       "sha512": "V7/ZXXH11Zu+IspWWNrT9svjSAMElEeM2XmtxbaidSsaPa+I38fgbuvvxRuGt7AzKl7EdNOcDByj+M/RkbZoUg==",
       "type": "package",
@@ -1256,6 +1298,19 @@
         "lib/net10.0/Microsoft.AspNetCore.Authentication.Google.xml",
         "microsoft.aspnetcore.authentication.google.10.0.5.nupkg.sha512",
         "microsoft.aspnetcore.authentication.google.nuspec"
+      ]
+    },
+    "Microsoft.AspNetCore.Server.Kestrel.Https/2.3.0": {
+      "sha512": "jwgIow32LzyTM2dTakZlNZVe0ZsHneo3IYvmJjMU81vNzwf+RGafj3quX+uJjyunziX0rPaGl5F2hjaJrE8h1g==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.server.kestrel.https/2.3.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Microsoft.AspNetCore.Server.Kestrel.Https.dll",
+        "lib/netstandard2.0/Microsoft.AspNetCore.Server.Kestrel.Https.xml",
+        "microsoft.aspnetcore.server.kestrel.https.2.3.0.nupkg.sha512",
+        "microsoft.aspnetcore.server.kestrel.https.nuspec"
       ]
     },
     "Microsoft.Bcl.AsyncInterfaces/8.0.0": {
@@ -3246,6 +3301,7 @@
       "AspNet.Security.OAuth.GitHub >= 10.0.0",
       "AspNet.Security.OAuth.LinkedIn >= 10.0.0",
       "BCrypt.Net-Next >= 4.1.0",
+      "Microsoft.AspNetCore >= 2.3.9",
       "Microsoft.AspNetCore.Authentication.Facebook >= 10.0.5",
       "Microsoft.AspNetCore.Authentication.Google >= 10.0.5",
       "Microsoft.EntityFrameworkCore.Design >= 10.0.3",
@@ -3255,24 +3311,31 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ADMIN\\.nuget\\packages\\": {}
+    "C:\\Users\\duchu\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ADMIN\\source\\DoAnWeb\\DoAnCS.csproj",
+      "projectUniqueName": "C:\\Users\\duchu\\DoAnWeb\\DoAnCS.csproj",
       "projectName": "DoAnCS",
-      "projectPath": "C:\\Users\\ADMIN\\source\\DoAnWeb\\DoAnCS.csproj",
-      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ADMIN\\source\\DoAnWeb\\obj\\",
+      "projectPath": "C:\\Users\\duchu\\DoAnWeb\\DoAnCS.csproj",
+      "packagesPath": "C:\\Users\\duchu\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\duchu\\DoAnWeb\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\duchu\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3308,6 +3371,10 @@
           "BCrypt.Net-Next": {
             "target": "Package",
             "version": "[4.1.0, )"
+          },
+          "Microsoft.AspNetCore": {
+            "target": "Package",
+            "version": "[2.3.9, )"
           },
           "Microsoft.AspNetCore.Authentication.Facebook": {
             "target": "Package",
@@ -3357,7 +3424,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
@@ -3774,5 +3841,17 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1510",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "PackageReference Microsoft.AspNetCore will not be pruned. Consider removing this package from your dependencies, as it is likely unnecessary.",
+      "libraryId": "Microsoft.AspNetCore",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }

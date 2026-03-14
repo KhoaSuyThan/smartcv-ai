@@ -5,7 +5,7 @@ using DoAnCS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = @"Server=LAPTOP-V23SMM4O;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+var connectionString = @"Server=DESKTOP-Q9U2V6U;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -29,22 +29,74 @@ builder.Services.AddAuthentication(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            // Bắt lỗi khi người dùng nhấn Hủy (Access Denied)
+            context.Response.Redirect("/Account/Login?error=ExternalLoginCancelled");
+            
+            // Đánh dấu là lỗi đã được xử lý để không hiện trang báo lỗi hệ thống
+            context.HandleResponse();
+            
+            return Task.CompletedTask;
+        }
+    };
 })
 .AddFacebook(options =>
 {
     options.AppId = builder.Configuration["Authentication:Facebook:AppId"] ?? "";
     options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"] ?? "";
+    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            // Bắt lỗi khi người dùng nhấn Hủy (Access Denied)
+            context.Response.Redirect("/Account/Login?error=ExternalLoginCancelled");
+            
+            // Đánh dấu là lỗi đã được xử lý để không hiện trang báo lỗi hệ thống
+            context.HandleResponse();
+            
+            return Task.CompletedTask;
+        }
+    };
 })
 .AddGitHub(options =>
 {
     options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "";
     options.Scope.Add("user:email");
+    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            // Bắt lỗi khi người dùng nhấn Hủy (Access Denied)
+            context.Response.Redirect("/Account/Login?error=ExternalLoginCancelled");
+            
+            // Đánh dấu là lỗi đã được xử lý để không hiện trang báo lỗi hệ thống
+            context.HandleResponse();
+            
+            return Task.CompletedTask;
+        }
+    };
 })
 .AddLinkedIn(options =>
 {
     options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"] ?? "";
+    options.Events = new Microsoft.AspNetCore.Authentication.OAuth.OAuthEvents
+    {
+        OnRemoteFailure = context =>
+        {
+            // Bắt lỗi khi người dùng nhấn Hủy (Access Denied)
+            context.Response.Redirect("/Account/Login?error=ExternalLoginCancelled");
+            
+            // Đánh dấu là lỗi đã được xử lý để không hiện trang báo lỗi hệ thống
+            context.HandleResponse();
+            
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // Session
