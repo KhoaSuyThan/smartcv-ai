@@ -41,6 +41,54 @@
         .dynamic-item { position: relative; background: white; padding: 10px; border-radius: 5px; margin-bottom: 10px; border: 1px solid #ddd; }
         .btn-remove { position: absolute; top: 5px; right: 5px; color: #dc3545; cursor: pointer; }
         
+        .ai-floating-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1050; /* Đảm bảo nằm trên các thành phần khác */
+        }
+
+        .btn-ai-float {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(102, 16, 242, 0.4);
+        }
+
+        .btn-ai-float:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(102, 16, 242, 0.5);
+            color: white;
+        }
+
+        /* Hiệu ứng nhấp nháy thu hút sự chú ý */
+        @@keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(102, 16, 242, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 16, 242, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 16, 242, 0); }
+        }
+        .btn-ai-float {
+            animation: pulse-animation 2s infinite;
+        }
+
+        .btn-danger {
+            background-color: #dc3545; /* Màu đỏ đặc trưng của PDF */
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px); /* Bay nhẹ khi di chuột vào */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        }
     </style>
 }
 
@@ -182,9 +230,13 @@
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('reference')">+ Thêm người tham chiếu</button>
         </div>
 
-        <div class="editor-footer mt-4 mb-5">
-            <button type="button" class="btn btn-success btn-lg w-100 shadow" onclick="saveResume()">
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success w-100 mb-3 py-2 fw-bold shadow-sm">
                 <i class="fas fa-save me-2"></i>LƯU CV VÀO HỆ THỐNG
+            </button>
+
+            <button type="button" class="btn btn-danger w-100 py-2 fw-bold shadow-sm" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf me-2"></i>XUẤT FILE PDF CHUYÊN NGHIỆP
             </button>
         </div>
     </div>
@@ -194,9 +246,49 @@
             @Html.Raw(Model.HtmlContent)
         </div>
     </div>
+
+    <div class="ai-floating-container">
+        <button type="button" class="btn-ai-float shadow-lg" data-bs-toggle="modal" data-bs-target="#coverLetterModal">
+            <i class="fas fa-magic"></i>
+            <span class="btn-text">Cover Letter AI</span>
+        </button>
+    </div>
+
+    <div class="modal fade" id="coverLetterModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">🪄 Trình tạo Thư xin việc AI</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="fw-bold">Bạn đang muốn ứng tuyển vào đâu?</label>
+                        <input type="text" id="TargetCompany" class="form-control" placeholder="Ví dụ: FPT Software - Vị trí .NET Developer">
+                    </div>
+                    <div class="mb-3">
+                        <label class="fw-bold d-flex justify-content-between">
+                            Kết quả thư xin việc:
+                            <small class="text-primary cursor-pointer" onclick="copyCoverLetter()"><i class="fas fa-copy"></i> Sao chép</small>
+                        </label>
+                        <textarea id="CoverLetterResult" class="form-control" rows="12" placeholder="Thư xin việc sẽ hiện ra ở đây..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-success" onclick="generateCoverLetter(this)">✨ Bắt đầu viết</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script>
         // 1. Khởi tạo dữ liệu gốc từ Database
         let originalHtml = `@Html.Raw(Model.HtmlContent)`;
@@ -512,6 +604,109 @@
 
             // 5. Cập nhật vùng Preview
             $('#resume-preview').html(currentHtml);
+        }
+
+        function generateCoverLetter(btn) {
+            const target = $('#TargetCompany').val();
+            if (!target) { alert("Vui lòng nhập Công ty và Vị trí bạn muốn ứng tuyển!"); return; }
+
+            // Gom dữ liệu từ các ô đã nhập để làm nguyên liệu cho AI
+            let fullName = $('#FullNameInput').val();
+            let jobTitle = $('#JobTitleInput').val();
+            let summary = $('#SummaryInput').val();
+            
+            // Lấy nhanh kinh nghiệm làm việc
+            let experiences = "";
+            $('.experience-item').each(function() {
+                experiences += $(this).find('.exp-company').val() + " (" + $(this).find('.exp-role').val() + "); ";
+            });
+
+            const fullInfo = `Ứng viên: ${fullName}. Vị trí: ${jobTitle}. Mục tiêu: ${summary}. Kinh nghiệm: ${experiences}`;
+
+            const $btn = $(btn);
+            const originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> AI đang suy nghĩ...');
+
+            $.ajax({
+                url: '/AI/ProcessText',
+                type: 'POST',
+                data: { 
+                    type: 'cover_letter', 
+                    content: fullInfo, 
+                    context: target 
+                },
+                success: function(res) {
+                    if (res.success) {
+                        $('#CoverLetterResult').val(res.data);
+                    } else {
+                        alert(res.data);
+                    }
+                },
+                error: function() { alert("Lỗi kết nối AI!"); },
+                complete: function() {
+                    $btn.prop('disabled', false).html('✨ Viết lại bản khác');
+                }
+            });
+        }
+
+        function copyCoverLetter() {
+            const text = document.getElementById("CoverLetterResult");
+            text.select();
+            document.execCommand("copy");
+            alert("Đã sao chép thư xin việc vào bộ nhớ tạm!");
+        }
+
+        async function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // Chọn đúng phần "tờ giấy trắng" chứa CV
+            const element = document.querySelector('.cv-document') || document.querySelector('.preview-column > div'); 
+
+            const btn = event.currentTarget;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo 1 trang PDF...';
+            btn.disabled = true;
+
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2, 
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: "#ffffff"
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                
+                // Khởi tạo PDF khổ A4
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = 210;
+                const pageHeight = 297;
+                
+                // Tính toán tỷ lệ để ảnh vừa khít chiều rộng trang A4
+                const imgWidth = pageWidth;
+                const imgHeight = (canvas.height * pageWidth) / canvas.width;
+                
+                // Nếu nội dung dài hơn trang A4, chúng ta sẽ thu nhỏ nó lại một chút để vừa 1 trang
+                let finalHeight = imgHeight;
+                if (finalHeight > pageHeight) {
+                    // Tùy chọn 1: Thu nhỏ lại để vừa 1 trang duy nhất
+                    // finalHeight = pageHeight; 
+                    
+                    // Tùy chọn 2: Cắt bỏ phần dư (thường dùng nếu phần dư chỉ là khoảng trắng)
+                    console.log("Nội dung hơi dài, đang ép vào 1 trang...");
+                }
+
+                // CHỈ VẼ 1 LẦN DUY NHẤT (Không dùng vòng lặp while)
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, finalHeight);
+                
+                pdf.save(`CV_${new Date().getTime()}.pdf`);
+
+            } catch (error) {
+                alert("Lỗi xuất PDF!");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
         }
 
         // 6. Hàm Lưu CV (Gửi đầy đủ JSON)
