@@ -37,7 +37,7 @@ namespace DoAnCS.Controllers
                     break;
 
                 case "optimize": // Tối ưu kinh nghiệm 
-                    prompt = $"Viết duy nhất một đoạn văn mô tả công việc (3-4 câu) sau cho vị trí {context} theo chuẩn STAR: {content}. " +
+                    prompt = $"Viết duy nhất một đoạn văn mô tả công việc (2-3 câu) sau cho vị trí {context} theo chuẩn STAR: {content}. " +
                             $"YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu 'Dưới đây là...', không tiêu đề.";
                     break;
 

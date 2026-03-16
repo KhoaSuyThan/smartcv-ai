@@ -16,6 +16,7 @@ namespace DoAnCS.Data
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Application> Applications { get; set; }
         public DbSet<AILog> AILogs { get; set; }
+        public DbSet<ResumeExport> ResumeExports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

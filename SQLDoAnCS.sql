@@ -15,6 +15,16 @@ GO
 USE DoAnWebCS;
 GO
 
+-- 1. LƯU LỊCH SỬ XUẤT PDF
+CREATE TABLE ResumeExports (
+    ExportID INT PRIMARY KEY IDENTITY(1,1),
+    ResumeID INT NOT NULL,
+    ExportDate DATETIME DEFAULT GETDATE(),
+    FileUrl NVARCHAR(500), -- Đường dẫn file PDF trên server (nếu có)
+    DownloadCount INT DEFAULT 0,
+    FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
+);
+
 -- 2. BẢNG NGƯỜI DÙNG
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
@@ -54,6 +64,10 @@ CREATE TABLE Resumes (
     
     Summary NVARCHAR(MAX),          -- Mục tiêu nghề nghiệp (Summary)
     ThemeColor VARCHAR(10) DEFAULT '#0d6efd',
+
+	IsDraft BIT DEFAULT 1,       -- 1: Bản nháp (Auto-save), 0: Bản chính thức
+    Version INT DEFAULT 1,       -- Số phiên bản để sau này làm Undo/Redo
+
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE(),
 

@@ -9,6 +9,7 @@ using DoAnCS.Models.ViewModels;
 
 namespace DoAnCS.Controllers
 {
+    [Authorize]
     public class ResumeController : Controller
     {
         private readonly AppDbContext _context;
@@ -29,14 +30,50 @@ namespace DoAnCS.Controllers
 
         // 2. Hiển thị trình biên tập CV (Trang Create)
         [HttpGet]
-        public async Task<IActionResult> Create(int id) 
+        public async Task<IActionResult> Create(int id) // id là TemplateID (ví dụ: 39)
         {
-            if (id <= 0) return RedirectToAction("Templates");
+            // 1. Sử dụng hàm hỗ trợ để lấy ID người dùng
+            int userId = GetCurrentUserId();
 
-            var template = await _context.Templates.FindAsync(id);
-            if (template == null) return RedirectToAction("Templates");
+            // Nếu không lấy được ID (chưa đăng nhập hoặc session hết hạn)
+            if (userId == 0) 
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            return View(template);
+            // 2. TÌM BẢN NHÁP CŨ: Kiểm tra xem User đã có bản nháp nào cho mẫu này chưa
+            var resume = await _context.Resumes
+                .Include(r => r.Template)        // Load HTML/CSS của mẫu
+                .Include(r => r.ResumeSections)  // Load các phần JSON đã lưu
+                .FirstOrDefaultAsync(r => r.UserID == userId && r.TemplateID == id && r.IsDraft == true);
+
+            // 3. NẾU CHƯA CÓ THÌ MỚI TẠO MỚI
+            if (resume == null)
+            {
+                resume = new Resume
+                {
+                    UserID = userId,
+                    TemplateID = id,
+                    Title = "Bản nháp CV",
+                    IsDraft = true,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now
+                };
+                
+                _context.Resumes.Add(resume);
+                await _context.SaveChangesAsync();
+
+                // Nạp lại để đảm bảo đối tượng Template đi kèm không bị null
+                resume = await _context.Resumes
+                    .Include(r => r.Template)
+                    .FirstOrDefaultAsync(r => r.ResumeID == resume.ResumeID);
+            }
+
+            // 4. Gán ID vào ViewBag để dùng cho các script AutoSave
+            ViewBag.ResumeId = resume.ResumeID; 
+
+            // Trả về View cùng với Model là bản Resume (đầy đủ nội dung cũ nếu có)
+            return View("Create", resume); 
         }
 
         // 3. PHƯƠNG THỨC POST: Lưu toàn bộ thông tin CV
@@ -105,6 +142,108 @@ namespace DoAnCS.Controllers
             catch (Exception ex) {
                 return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AutoSave([FromBody] ResumeViewModel model)
+        {
+            try
+            {
+                // 1. Lấy UserID từ hàm helper (đảm bảo lấy từ Session/Cookie sạch)
+                int userId = GetCurrentUserId();
+                if (userId == 0) 
+                {
+                    return Json(new { success = false, message = "Phiên đăng nhập đã hết hạn." });
+                }
+
+                // 2. Tìm CV: Phải khớp ResumeID VÀ phải thuộc về UserID đang đăng nhập
+                var resume = await _context.Resumes
+                    .FirstOrDefaultAsync(r => r.ResumeID == model.ResumeID && r.UserID == userId);
+
+                // 3. Chốt chặn bảo mật: Nếu không tìm thấy (do sai ID hoặc sai chủ sở hữu)
+                if (resume == null) 
+                {
+                    return Json(new { success = false, message = "Bạn không có quyền chỉnh sửa bản ghi này!" });
+                }
+
+                // 4. Cập nhật các thông tin cơ bản
+                resume.FullName = model.FullName;
+                resume.JobTitle = model.JobTitle;
+                resume.Summary = model.Summary;
+                resume.AvatarUrl = model.AvatarUrl; // Lưu Base64 ảnh đại diện
+                resume.UpdatedAt = DateTime.Now;
+                resume.IsDraft = true; 
+
+                // 5. Lưu các phần nội dung động (JSON) qua hàm bổ trợ
+                // Lưu ý: Đảm bảo model.Experiences, model.Educations... không bị null để tránh lỗi Serialize
+                await SaveSectionJson(resume.ResumeID, "Experience", model.Experiences ?? new List<ExperienceItem>());
+                await SaveSectionJson(resume.ResumeID, "Education", model.Educations ?? new List<EducationItem>());
+                await SaveSectionJson(resume.ResumeID, "Skills", model.Skills ?? new List<SkillItem>());
+
+                // 6. Thực thi lưu vào Database
+                await _context.SaveChangesAsync();
+
+                return Json(new { 
+                    success = true, 
+                    lastSaved = DateTime.Now.ToString("HH:mm:ss"),
+                    message = "Đã tự động lưu nháp." 
+                });
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi chi tiết để dễ debug trong quá trình làm đồ án
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            }
+        }
+
+        // Hàm bổ trợ xử lý JSON cho gọn code
+        private async Task SaveSectionJson(int resumeId, string type, object data)
+        {
+            var section = await _context.ResumeSections
+                .FirstOrDefaultAsync(s => s.ResumeID == resumeId && s.SectionType == type);
+
+            string json = System.Text.Json.JsonSerializer.Serialize(data);
+
+            if (section == null) {
+                _context.ResumeSections.Add(new ResumeSection { 
+                    ResumeID = resumeId, SectionType = type, ContentJSON = json 
+                });
+            } else {
+                section.ContentJSON = json;
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogExport(int resumeId)
+        {
+            try
+            {
+                // Ghi lại lịch sử xuất file
+                var exportLog = new ResumeExport
+                {
+                    ResumeID = resumeId,
+                    ExportDate = DateTime.Now,
+                    FileUrl = "Local Download" // Bạn có thể lưu tên file hoặc link nếu có
+                };
+
+                _context.ResumeExports.Add(exportLog);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch
+            {
+                return Json(new { success = false });
+            }
+        }
+
+        private int GetCurrentUserId()
+        {
+            // Lấy ID từ Claims lúc người dùng đăng nhập
+            var userIdClaim = User.FindFirst("UserID")?.Value 
+                            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            return int.TryParse(userIdClaim, out int id) ? id : 0;
         }
     }
 }
