@@ -46,7 +46,21 @@
 .template-card:hover .template-overlay {
     opacity: 1;
 }
+/* Ép toàn bộ nền web và các vùng mặc định sang xanh nhạt */
+body, 
+.bg-light, 
+.bg-white,
+section, 
+.container-fluid {
+    background-color: #f0f7ff !important;
+}
 
+/* Giữ nguyên màu trắng cho các "tấm thẻ" (Cards) để tạo độ nổi khối */
+.card {
+    background-color: #ffffff !important;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 /* Các badge màu nhạt kiểu hiện đại */
 .bg-info-soft { background-color: #e0f7fa; }
 .bg-success-soft { background-color: #e8f5e9; }

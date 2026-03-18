@@ -105,8 +105,8 @@
                 <div class="col-md-3 mb-4">
                     <h6 class="fw-bold">Hỗ trợ</h6>
                     <ul class="list-unstyled">
-                        <li><a href="#" class="text-decoration-none text-muted">Hướng dẫn sử dụng</a></li>
-                        <li><a href="#" class="text-decoration-none text-muted">Liên hệ chúng tôi</a></li>
+                        <li><a asp-controller="Support" asp-action="Guide" class="text-decoration-none text-muted">Hướng dẫn sử dụng</a></li>
+                        <li><a asp-controller="Support" asp-action="Contact" class="text-decoration-none text-muted">Liên hệ chúng tôi</a></li>
                     </ul>
                 </div>
                 <div class="col-md-3">
@@ -120,7 +120,7 @@
             </div>
             <hr class="my-4">
             <div class="text-center text-muted small">
-                &copy; @DateTime.Now.Year - Đồ án Công nghệ Thông tin - Phát triển bởi @(User.Identity?.Name ?? "Nguyễn Võ Lê Khoa")
+                &copy; @DateTime.Now.Year - Đồ án Công nghệ Thông tin - Phát triển bởi Nguyễn Võ Lê Khoa và đồng bọn
             </div>
         </div>
     </footer>

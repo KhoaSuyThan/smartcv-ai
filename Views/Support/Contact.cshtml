@@ -1,0 +1,41 @@
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 p-4">
+                <h3 class="fw-bold text-primary mb-3">Liên hệ với chúng tôi</h3>
+                <form asp-controller="Support" asp-action="Contact" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["Success"]</div>
+                    }
+
+                    <div class="mb-3">
+                        <label>Họ tên</label>
+                        <input type="text" name="Name" class="form-control" required /> </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        <input type="email" name="Email" class="form-control" required /> </div>
+
+                    <div class="mb-3">
+                        <label>Tiêu đề</label>
+                        <input type="text" name="Subject" class="form-control" /> </div>
+
+                    <div class="mb-3">
+                        <label>Nội dung</label>
+                        <textarea name="Message" class="form-control" rows="4" placeholder="Mô tả vấn đề hoặc yêu cầu của bạn tại đây..."></textarea> </div>
+
+                    <div class="mb-3">
+                            <label class="form-label fw-bold">Đính kèm ảnh hoặc file (Nếu có)</label>
+                            <input type="file" name="Attachment" class="form-control" accept="image/*,.pdf,.doc,.docx" />
+                            <small class="text-muted">Chấp nhận ảnh, PDF hoặc file Word (Dưới 5MB).</small>
+                        </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">GỬI TIN NHẮN</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
