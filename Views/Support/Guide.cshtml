@@ -1,0 +1,85 @@
+<div class="container my-5 py-5 text-center">
+    <h1 class="fw-bold mb-5" style="color: #2c3e50;">Cách tạo CV chuyên nghiệp trong 3 bước</h1>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 p-4 custom-card">
+                <div class="card-body">
+                    <div class="icon-circle bg-primary-light mb-4">
+                        <i class="fas fa-layer-group fa-2x text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold">1. Chọn mẫu</h5>
+                    <p class="text-muted small">Kho mẫu đa dạng, phù hợp mọi ngành nghề từ IT đến Marketing.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 p-4 custom-card">
+                <div class="card-body">
+                    <div class="icon-circle bg-success-light mb-4">
+                        <i class="fas fa-magic fa-2x text-success"></i>
+                    </div>
+                    <h5 class="fw-bold">2. Dùng AI hỗ trợ</h5>
+                    <p class="text-muted small">Sử dụng tính năng "AI viết hộ" để tối ưu mục tiêu và kinh nghiệm.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 p-4 custom-card">
+                <div class="card-body">
+                    <div class="icon-circle bg-danger-light mb-4">
+                        <i class="fas fa-file-pdf fa-2x text-danger"></i>
+                    </div>
+                    <h5 class="fw-bold">3. Xuất file PDF</h5>
+                    <p class="text-muted small">Tải ngay bản PDF sắc nét để gửi cho nhà tuyển dụng.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <a asp-controller="Resume" asp-action="Templates" class="btn btn-primary btn-lg px-5 py-3 fw-bold rounded-pill shadow pulse-button">
+            BẮT ĐẦU NGAY <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Hiệu ứng cho các ô (Cards) */
+    .custom-card {
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: #ffffff;
+    }
+
+    .custom-card:hover {
+        transform: translateY(-10px); /* Bay lên một chút khi di chuột */
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        border: 1px solid #0d6efd; /* Hiện viền xanh nhẹ */
+    }
+
+    /* Vòng tròn chứa Icon */
+    .icon-circle {
+        width: 70px;
+        height: 70px;
+        line-height: 70px;
+        margin: 0 auto;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Màu nền nhạt cho Icon */
+    .bg-primary-light { background-color: #e7f1ff; }
+    .bg-success-light { background-color: #e6fcf5; }
+    .bg-danger-light { background-color: #fff5f5; }
+
+    /* Hiệu ứng nút bấm (Nhịp đập nhẹ) */
+    .pulse-button:hover {
+        transform: scale(1.05);
+        transition: 0.2s;
+    }
+</style>

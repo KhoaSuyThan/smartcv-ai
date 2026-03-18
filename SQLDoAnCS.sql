@@ -135,6 +135,26 @@ CREATE TABLE AILogs (
 );
 GO
 
+-- 8. Liên hệ hỗ trợ
+CREATE TABLE [ContactMessages] (
+    [Id]            INT IDENTITY(1,1) NOT NULL,    -- ID tự tăng
+    [Name]          NVARCHAR(200) NOT NULL,      -- Họ tên người gửi
+    [Email]         NVARCHAR(255) NOT NULL,     -- Email liên hệ
+    [Subject]       NVARCHAR(500) NULL,         -- Tiêu đề tin nhắn
+    [Message]       NVARCHAR(MAX) NOT NULL,     -- Nội dung chi tiết
+    [AttachmentUrl] NVARCHAR(MAX) NULL,         -- ĐƯỜNG DẪN FILE ĐÍNH KÈM (Mới thêm)
+    [SentAt]        DATETIME2 DEFAULT GETDATE(),-- Thời gian gửi
+    
+    CONSTRAINT [PK_ContactMessages] PRIMARY KEY ([Id])
+);
+GO
+
+-- 1. Thêm thử 1 dòng
+INSERT INTO ContactMessages (Name, Email, Subject, Message)
+VALUES (N'Nguyễn Văn Test', 'test@gmail.com', N'Hỏi về cách tạo CV', N'Em muốn hỏi cách chỉnh sửa ảnh đại diện ạ');
+
+-- 2. Xem kết quả
+SELECT * FROM ContactMessages;
 -- Chèn mẫu CV Modern Blue với đầy đủ tính năng
 
 -- 1. Xóa mẫu cũ nếu tồn tại
@@ -424,6 +444,223 @@ VALUES (
     .decor-top-right { position: absolute; top: 10px; right: 20px; width: 100px; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns=''http://www.w3.org/2000/svg'' width=''100'' height=''100''%3E%3Cpath d=''M10 10 Q 50 10 90 90'' fill=''none'' stroke=''black'' stroke-width=''1''/%3E%3C/svg%3E") no-repeat; opacity: 0.5; }
 ',
     N'/images/templates/templatesCV_3.jpg',
+    1
+);
+GO
+
+-- 1. Xóa bản cũ để cập nhật bản mới có "Kỹ năng khác"
+DELETE FROM Resumes 
+WHERE TemplateID IN (SELECT TemplateID FROM Templates WHERE Name = N'Đảo Phú Quý - Vieclam24h');
+
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Đảo Phú Quý - Vieclam24h', 
+    N'<div class="cv-wrapper">
+        <div class="cv-sidebar">
+            <div class="cv-avatar-section">
+                <img src="{{AvatarUrl}}" class="cv-avatar">
+            </div>
+            <div class="cv-sidebar-content">
+                <div class="cv-info-block">
+                    <h3 class="cv-side-title">THÔNG TIN LIÊN HỆ</h3>
+                    <p><i class="fas fa-phone"></i> {{Phone}}</p>
+                    <p><i class="fas fa-envelope"></i> {{Email}}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{Address}}</p>
+                </div>
+
+                <div class="cv-info-block">
+                    <h3 class="cv-side-title">HỌC VẤN</h3>
+                    <div class="cv-edu-sidebar">{{Education}}</div>
+                </div>
+
+                <div class="cv-info-block">
+                    <h3 class="cv-side-title">TIN HỌC</h3>
+                    <div class="cv-skill-list">{{Skills}}</div>
+                </div>
+                <div class="cv-info-block">
+                    <h3 class="cv-side-title">NGOẠI NGỮ</h3>
+                    <div class="cv-lang-list">{{Languages}}</div>
+                </div>
+                <div class="cv-info-block">
+                    <h3 class="cv-side-title">KỸ NĂNG KHÁC</h3>
+                    <div class="cv-other-skills">{{OtherSkills}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cv-main">
+            <div class="cv-header">
+                <h1 class="cv-name">{{FullName}}</h1>
+                <h2 class="cv-job">{{JobTitle}}</h2>
+            </div>
+            <div class="cv-section">
+                <h3 class="cv-section-title"><i class="fas fa-user"></i> MỤC TIÊU NGHỀ NGHIỆP</h3>
+                <div class="cv-section-content">{{Summary}}</div>
+            </div>
+            <div class="cv-section">
+                <h3 class="cv-section-title"><i class="fas fa-briefcase"></i> KINH NGHIỆM LÀM VIỆC</h3>
+                <div class="cv-section-content">{{Experience}}</div>
+            </div>
+
+            <div class="cv-section">
+                <h3 class="cv-section-title"><i class="fas fa-users"></i> NGƯỜI THAM CHIẾU</h3>
+                <div class="cv-section-content">{{References}}</div>
+            </div>
+        </div>
+    </div>',
+
+    N'/* Layout chung */
+    .cv-wrapper { display: flex; width: 210mm; min-height: 297mm; background: white; font-family: "Segoe UI", sans-serif; }
+    .cv-sidebar { flex: 3.5; background: #004C82; color: white; padding: 30px 20px; }
+    .cv-main { flex: 6.5; padding: 40px; background: #ffffff; }
+
+    .cv-avatar-section { text-align: center; margin-bottom: 30px; }
+    .cv-avatar { width: 160px; height: 160px; border-radius: 50%; border: 5px solid rgba(255,255,255,0.2); object-fit: cover; }
+
+    .cv-side-title { font-size: 16px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 5px; margin-bottom: 10px; margin-top: 20px; text-transform: uppercase; }
+    
+    /* STYLE CHO SIDEBAR VÀ CHỐNG TRÀN */
+    .cv-info-block p, .cv-other-skills, .cv-edu-sidebar, .cv-lang-list, .cv-skill-list { 
+        font-size: 13px; 
+        margin-bottom: 8px; 
+        line-height: 1.5;
+        word-wrap: break-word; 
+        overflow-wrap: break-word; 
+        word-break: break-all; 
+    }
+    .cv-info-block i { width: 20px; text-align: center; }
+
+    /* MAIN CONTENT */
+    .cv-header { border-bottom: 3px solid #004C82; padding-bottom: 15px; margin-bottom: 30px; }
+    .cv-name { font-size: 40px; font-weight: 800; color: #004C82; margin: 0; text-transform: uppercase; }
+    .cv-job { font-size: 18px; color: #555; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px; }
+
+    .cv-section { margin-bottom: 25px; }
+    .cv-section-title { font-size: 17px; font-weight: bold; color: #004C82; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+
+    /* NỘI DUNG CHÍNH: CHỐNG TRÀN VÀ CÓ KHUNG */
+    .cv-section-content { 
+        font-size: 14px; 
+        line-height: 1.6; 
+        color: #333; 
+        text-align: justify; 
+        white-space: pre-line; 
+        word-wrap: break-word; 
+        overflow-wrap: break-word; 
+        word-break: break-word; 
+    }',
+
+    '/images/templates/dao_phu_quy.jpg',
+    1
+);
+GO
+-- 1. Xóa mẫu cũ nếu trùng tên
+DELETE FROM Resumes 
+WHERE TemplateID IN (SELECT TemplateID FROM Templates WHERE Name = N'Mẫu CV Professional Blue - Ngô Hải Yến');
+
+-- 2. Chèn mẫu mới
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Mẫu CV Professional Blue - Ngô Hải Yến', 
+    N'<div class="cv-yens-wrapper">
+        <div class="cv-sidebar">
+            <div class="avatar-box">
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">LIÊN HỆ VỚI TÔI</h3>
+                <div class="contact-list">
+                    <div class="contact-item"><i class="fas fa-map-marker-alt"></i> {{Address}}</div>
+                    <div class="contact-item"><i class="fas fa-envelope"></i> {{Email}}</div>
+                    <div class="contact-item"><i class="fas fa-phone"></i> {{Phone}}</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">TÓM TẮT KỸ NĂNG</h3>
+                <div class="skill-group">
+                    <p class="skill-label">TIN HỌC</p>
+                    <div class="skill-content">{{Skills}}</div>
+                </div>
+                <div class="skill-group">
+                    <p class="skill-label">NGOẠI NGỮ</p>
+                    <div class="skill-content">{{Languages}}</div>
+                </div>
+                <div class="skill-group">
+                    <p class="skill-label">KỸ NĂNG KHÁC</p>
+                    <div class="skill-content">{{OtherSkills}}</div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">GIẢI THƯỞNG</h3>
+                <div class="award-list">{{Awards}}</div>
+            </div>
+        </div>
+
+        <div class="cv-main">
+            <div class="header-info">
+                <h1 class="fullname">{{FullName}}</h1>
+                <h2 class="job-title">{{JobTitle}}</h2>
+            </div>
+
+            <div class="main-section">
+                <h3 class="section-title">MỤC TIÊU NGHỀ NGHIỆP</h3>
+                <div class="section-content">{{Summary}}</div>
+            </div>
+
+            <div class="main-section">
+                <h3 class="section-title">KINH NGHIỆM LÀM VIỆC</h3>
+                <div class="section-content">{{Experience}}</div>
+            </div>
+
+            <div class="main-section">
+                <h3 class="section-title">QUÁ TRÌNH HỌC VẤN</h3>
+                <div class="section-content">{{Education}}</div>
+            </div>
+        </div>
+    </div>',
+
+    N'/* Layout và màu sắc chủ đạo */
+    .cv-yens-wrapper { display: flex; width: 210mm; min-height: 297mm; background: white; font-family: "Segoe UI", Arial, sans-serif; }
+    .cv-sidebar { flex: 3.5; background-color: #32507d; color: white; padding: 40px 25px; }
+    .cv-main { flex: 6.5; padding: 50px 40px; }
+
+    /* Avatar tròn */
+    .avatar-box { text-align: center; margin-bottom: 40px; }
+    .avatar-img { width: 160px; height: 160px; border-radius: 50%; border: 6px solid rgba(255,255,255,0.1); object-fit: cover; }
+
+    /* Sidebar Styles */
+    .sidebar-title { font-size: 16px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 8px; margin-bottom: 15px; margin-top: 30px; letter-spacing: 1px; }
+    .contact-item { font-size: 13px; margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px; line-height: 1.4; word-break: break-word; }
+    .contact-item i { margin-top: 3px; width: 15px; }
+    
+    .skill-label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #a5b8d4; text-transform: uppercase; }
+    .skill-content { font-size: 13px; margin-bottom: 15px; white-space: pre-line; word-break: break-all; }
+    .award-list { font-size: 13px; line-height: 1.6; }
+
+    /* Main Content Styles */
+    .fullname { font-size: 48px; color: #32507d; margin: 0; font-weight: 800; text-transform: uppercase; }
+    .job-title { font-size: 20px; color: #5fb4c4; margin: 5px 0 40px 0; letter-spacing: 3px; font-weight: bold; text-transform: uppercase; }
+
+    .section-title { font-size: 16px; font-weight: bold; color: #5fb4c4; margin-bottom: 15px; margin-top: 35px; letter-spacing: 2px; }
+    .section-content { 
+        font-size: 14px; 
+        line-height: 1.8; 
+        color: #444; 
+        text-align: justify; 
+        white-space: pre-line; 
+        word-break: break-word;
+        border-left: 1px solid #eee;
+        padding-left: 15px;
+    }
+
+    /* Đảm bảo nội dung không tràn khi nhập chuỗi dài */
+    p, div, span { word-wrap: break-word; overflow-wrap: break-word; }',
+
+    'https://images.careerviet.vn/content/images/tai-mau-cv-xin-viec-file-pdf-careerbuilder-5.jpg',
     1
 );
 GO
