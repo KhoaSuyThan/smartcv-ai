@@ -1,12 +1,14 @@
-@model DoAnCS.Models.Template
+@using Microsoft.AspNetCore.Routing.Template
+@model DoAnCS.Models.Resume
 @{
-    ViewData["Title"] = "Thiết kế CV - " + (Model?.Name ?? "Mẫu mới");
+    var temp = Model.Template;
+    ViewData["Title"] = "Thiết kế CV - " + (temp?.Name ?? "Mẫu mới");
 }
 
 @section Styles {
     <style>
         /* 1. Đổ CSS đặc thù của mẫu CV từ Database */
-        @Html.Raw(Model.CssContent)
+        @Html.Raw(temp?.CssContent)
 
         /* 2. CSS quản lý bố cục trình biên tập */
         .resume-container { display: flex; height: calc(100vh - 70px); overflow: hidden; background: #f4f7f6; }
@@ -23,7 +25,7 @@
             word-wrap: break-word;   /* Ép xuống dòng với các từ quá dài */
             overflow-wrap: break-word;
             word-break: break-word;  /* Ưu tiên ngắt ở khoảng trắng, nếu không có mới ngắt từ */
-            white-space: pre-line;   /* Giữ lại các dấu xuống dòng khi bạn gõ Enter */
+            white-space: normal;   /* Giữ lại các dấu xuống dòng khi bạn gõ Enter */
             text-align: justify;     /* Giúp văn bản căn đều hai bên cho đẹp */
         }
         .cv-preview-wrapper { 
@@ -89,11 +91,17 @@
             transform: translateY(-2px); /* Bay nhẹ khi di chuột vào */
             box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
         }
+
+        .side-content:empty, .exp-list:empty {
+            display: none;
+        }
     </style>
 }
 
 <div class="resume-container">
     <div class="editor-column">
+        <input type="hidden" id="ResumeID" value="@Model.ResumeID" />
+        <input type="hidden" id="TemplateID" value="@Model.TemplateID" />
         <h3 class="mb-4 fw-bold">Trình tạo CV Pro</h3>
 
         <div class="form-section">
@@ -105,21 +113,22 @@
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-bold">Họ và tên</label>
-                <input type="text" id="FullNameInput" class="form-control" placeholder="Nguyễn Trúc Quỳnh My">
+                <input type="text" id="FullNameInput" class="form-control" value="@Model.FullName" placeholder="Họ và tên">
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-bold">Vị trí ứng tuyển</label>
-                <input type="text" id="JobTitleInput" class="form-control" placeholder="Nhân viên bán hàng">
+                <input type="text" id="JobTitleInput" class="form-control" value="@Model.JobTitle" placeholder="Vị trí ứng tuyển">
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label class="form-label small fw-bold">Email</label>
-                    <input type="email" id="EmailInput" class="form-control" placeholder="nguyenvana@gmail.com">
+                    <input type="email" id="EmailInput" class="form-control" value="@Model.Email" placeholder="nguyenvana@gmail.com">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label small fw-bold">Số điện thoại</label>
-                    <input type="text" id="PhoneInput" class="form-control" placeholder="0123.456.789">
+                    <input type="text" id="PhoneInput" class="form-control" value="@Model.Phone" placeholder="0123.456.789">
                 </div>
+
                 <div class="col-md-6 mb-3">
                     <label class="form-label small fw-bold">Ngày sinh</label>
                     <input type="text" id="BirthDateInput" class="form-control" placeholder="27/01/1998">
@@ -231,7 +240,7 @@
         </div>
 
         <div class="mt-4">
-            <button type="submit" class="btn btn-success w-100 mb-3 py-2 fw-bold shadow-sm">
+            <button type="button" class="btn btn-success w-100 mb-3 py-2 fw-bold shadow-sm" onclick="manualSave(this)">
                 <i class="fas fa-save me-2"></i>LƯU CV VÀO HỆ THỐNG
             </button>
 
@@ -239,15 +248,25 @@
                 <i class="fas fa-file-pdf me-2"></i>XUẤT FILE PDF CHUYÊN NGHIỆP
             </button>
         </div>
-    </div>
 
-    <div class="preview-column">
-        <div class="cv-preview-wrapper" id="resume-preview">
-            @Html.Raw(Model.HtmlContent)
+        <div class="mt-3 p-2 bg-light border-top d-flex justify-content-between align-items-center" style="font-size: 0.8rem; position: sticky; bottom: 0; z-index: 10;">
+            <span class="text-muted">Trạng thái hệ thống:</span>
+            <span id="autosave-status" class="fw-bold text-primary">
+                <i class="fas fa-check-circle"></i> Sẵn sàng
+            </span>
         </div>
+
     </div>
 
-    <div class="ai-floating-container">
+    <div class="preview-column"> 
+        <div class="cv-preview-wrapper" id="resume-preview">
+            @Html.Raw(temp?.HtmlContent)
+        </div>
+    </div
+
+    
+</div>
+<div class="ai-floating-container">
         <button type="button" class="btn-ai-float shadow-lg" data-bs-toggle="modal" data-bs-target="#coverLetterModal">
             <i class="fas fa-magic"></i>
             <span class="btn-text">Cover Letter AI</span>
@@ -282,16 +301,13 @@
         </div>
     </div>
 
-    
-</div>
-
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         // 1. Khởi tạo dữ liệu gốc từ Database
-        let originalHtml = `@Html.Raw(Model.HtmlContent)`;
+        let originalHtml = `@Html.Raw(Model.Template?.HtmlContent)`;
 
         // 2. Xử lý ảnh đại diện
         function previewImage(input) {
@@ -504,19 +520,11 @@
                     let time = $(this).find('.exp-time').val();
                     let desc = $(this).find('.exp-desc').val();
                     
-                    let formattedDesc = desc ? desc.split('\n').join('<br>') : 'Mô tả chi tiết...';
+                    let formattedDesc = desc ? desc.trim().split('\n').filter(line => line.trim() !== "").join('<br>') : 'Mô tả chi tiết...';
 
                     if(company || role) {
-                        expHtml += `
-                            <div class="exp-item">
-                                <span class="exp-year">• ${time || '2022 - 2024'}</span>
-                                <div class="exp-content">
-                                    <div class="info-line"><strong>Công ty:</strong> ${company || 'Tên công ty'}</div>
-                                    <div class="info-line"><strong>Vị trí:</strong> ${role || 'Vị trí công việc'}</div>
-                                    <div class="desc-label"><strong>Mô tả:</strong></div>
-                                    <div class="desc-text">${formattedDesc}</div>
-                                </div>
-                            </div>`;
+                        // Thay đoạn cũ bằng đoạn này (viết sát các thẻ div lại với nhau)
+                        expHtml += `<div class="exp-item"><span class="exp-year">• ${time || '2022 - 2025'}</span><div class="exp-content"><div class="info-line"><strong>Công ty:</strong> ${company || ''}</div><div class="info-line"><strong>Vị trí:</strong> ${role || ''}</div><div class="desc-text">${formattedDesc}</div></div></div>`;
                     }
                 });
             map['{{Experience}}'] = expHtml;
@@ -659,15 +667,41 @@
         async function exportToPDF() {
             const { jsPDF } = window.jspdf;
             
-            // Chọn đúng phần "tờ giấy trắng" chứa CV
-            const element = document.querySelector('.cv-document') || document.querySelector('.preview-column > div'); 
+            // 1. Lấy ResumeID từ input ẩn
+            const resumeId = parseInt($('#ResumeID').val()) || 0;
+            if (resumeId === 0) {
+                alert("Lỗi: Không tìm thấy ID bản ghi để lưu dữ liệu!");
+                return;
+            }
 
+            // 2. Thiết lập trạng thái nút bấm
             const btn = event.currentTarget;
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo 1 trang PDF...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu & tạo PDF...';
             btn.disabled = true;
 
             try {
+                // --- BƯỚC A: ÉP LƯU DỮ LIỆU MỚI NHẤT VÀO DATABASE ---
+                // Sử dụng hàm gatherResumeData() để gom dữ liệu hiện tại trên form
+                const currentData = gatherResumeData(); 
+                
+                const saveRes = await $.ajax({
+                    url: '/Resume/AutoSave',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(currentData)
+                });
+
+                if (!saveRes.success) {
+                    throw new Error("Không thể lưu bản nháp trước khi xuất PDF.");
+                }
+
+                // --- BƯỚC B: GHI LOG LỊCH SỬ XUẤT FILE ---
+                $.post('/Resume/LogExport', { resumeId: resumeId });
+
+                // --- BƯỚC C: TẠO FILE PDF (GIỮ NGUYÊN LOGIC CỦA BẠN) ---
+                const element = document.querySelector('.cv-preview-wrapper') || document.querySelector('.preview-column > div'); 
+
                 const canvas = await html2canvas(element, {
                     scale: 2, 
                     useCORS: true,
@@ -676,37 +710,51 @@
                 });
 
                 const imgData = canvas.toDataURL('image/png');
-                
-                // Khởi tạo PDF khổ A4
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pageWidth = 210;
                 const pageHeight = 297;
-                
-                // Tính toán tỷ lệ để ảnh vừa khít chiều rộng trang A4
                 const imgWidth = pageWidth;
                 const imgHeight = (canvas.height * pageWidth) / canvas.width;
-                
-                // Nếu nội dung dài hơn trang A4, chúng ta sẽ thu nhỏ nó lại một chút để vừa 1 trang
-                let finalHeight = imgHeight;
-                if (finalHeight > pageHeight) {
-                    // Tùy chọn 1: Thu nhỏ lại để vừa 1 trang duy nhất
-                    // finalHeight = pageHeight; 
-                    
-                    // Tùy chọn 2: Cắt bỏ phần dư (thường dùng nếu phần dư chỉ là khoảng trắng)
-                    console.log("Nội dung hơi dài, đang ép vào 1 trang...");
-                }
 
-                // CHỈ VẼ 1 LẦN DUY NHẤT (Không dùng vòng lặp while)
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, finalHeight);
-                
-                pdf.save(`CV_${new Date().getTime()}.pdf`);
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`CV_${resumeId}_${new Date().getTime()}.pdf`);
+
+                // Thông báo thành công trên thanh trạng thái (nếu có)
+                $('#autosave-status').html('<i class="fas fa-check-circle text-success"></i> Đã lưu và xuất PDF thành công!');
 
             } catch (error) {
-                alert("Lỗi xuất PDF!");
+                console.error(error);
+                alert("Lỗi: " + error.message);
             } finally {
+                // Hoàn tác trạng thái nút
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
+        }
+
+        function gatherResumeData() {
+            return {
+                ResumeID: parseInt($('#ResumeID').val()) || 0,
+                TemplateID: parseInt($('#TemplateID').val() || "1"), // Đảm bảo bạn có ID mẫu
+                FullName: $('#FullNameInput').val(),
+                JobTitle: $('#JobTitleInput').val(),
+                Email: $('#EmailInput').val(),
+                Phone: $('#PhoneInput').val(),
+                Address: $('#AddressInput').val(),
+                BirthDate: $('#BirthDateInput').val(),
+                Summary: $('#SummaryInput').val(),
+                AvatarUrl: $('#AvatarBase64').val(),
+                Educations: $('.education-item').map(function() {
+                    return { School: $(this).find('.edu-school').val(), Major: $(this).find('.edu-major').val(), Year: $(this).find('.edu-year').val() };
+                }).get(),
+                Experiences: $('.experience-item').map(function() {
+                    return { Company: $(this).find('.exp-company').val(), Role: $(this).find('.exp-role').val(), Duration: $(this).find('.exp-time').val(), Description: $(this).find('.exp-desc').val() };
+                }).get(),
+                Skills: $('.it-skill-item').map(function() {
+                    return { Name: $(this).find('.it-skill-name').val(), Level: $(this).find('.it-skill-level').val() };
+                }).get(),
+                // ... các phần khác bạn copy từ hàm saveResume cũ qua đây
+            };
         }
 
         // 6. Hàm Lưu CV (Gửi đầy đủ JSON)
@@ -757,9 +805,107 @@
         }
 
         $(document).ready(function() {
-            $(document).on('input', '.form-control', updatePreview);
+            // 1. Lấy dữ liệu JSON từ Model gửi từ C# sang
+            const experiencesJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Experience")?.ContentJSON ?? "[]")`;
+            const educationJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Education")?.ContentJSON ?? "[]")`;
+            const skillsJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Skills")?.ContentJSON ?? "[]")`;
+
+            // 2. Khôi phục Kinh nghiệm
+            JSON.parse(experiencesJson).forEach(item => {
+                addItemWithData('experience', item);
+            });
+
+            // 3. Khôi phục Học vấn
+            JSON.parse(educationJson).forEach(item => {
+                addItemWithData('education', item);
+            });
+
+            // 4. Khôi phục Kỹ năng (IT Skills)
+            JSON.parse(skillsJson).forEach(item => {
+                addItemWithData('it-skill', item);
+            });
             updatePreview(); 
+            $(document).on('input', '.form-control', updatePreview);
         });
+
+        function addItemWithData(type, data) {
+            if (type === 'experience') {
+                let html = `<div class="dynamic-item experience-item mb-3 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 exp-company" value="${data.Company || ''}" placeholder="Công ty">
+                                <input type="text" class="form-control mb-1 exp-role" value="${data.Role || ''}" placeholder="Chức vụ">
+                                <input type="text" class="form-control mb-1 exp-time" value="${data.Duration || ''}" placeholder="Thời gian">
+                                <textarea class="form-control exp-desc" rows="3">${data.Description || ''}</textarea>
+                            </div>`;
+                $('#experience-container').append(html);
+            } else if (type === 'education') {
+                let html = `<div class="dynamic-item education-item mb-3 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 edu-school" value="${data.School || ''}" placeholder="Tên trường học">
+                                <input type="text" class="form-control mb-1 edu-major" value="${data.Major || ''}" placeholder="Ngành học">
+                                <input type="text" class="form-control mb-1 edu-year" value="${data.Year || ''}" placeholder="Thời gian">
+                            </div>`;
+                $('#education-container').append(html);
+            } else if (type === 'it-skill') {
+                let html = `<div class="dynamic-item it-skill-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <div class="row">
+                                    <div class="col-7"><input type="text" class="form-control it-skill-name" value="${data.Name || ''}" placeholder="Kỹ năng"></div>
+                                    <div class="col-5"><input type="text" class="form-control it-skill-level" value="${data.Level || ''}" placeholder="Mức độ"></div>
+                                </div>
+                            </div>`;
+                $('#it-skills-container').append(html);
+            }
+        }
+
+        async function manualSave(btn) {
+            const $btn = $(btn);
+            const originalHtml = $btn.html();
+            const resumeId = parseInt($('#ResumeID').val()) || 0;
+
+            if (resumeId === 0) {
+                alert("Không tìm thấy ID bản ghi để lưu!");
+                return;
+            }
+
+            // 1. Hiệu ứng đang lưu
+            $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+            $('#autosave-status').html('<i class="fas fa-sync fa-spin"></i> Đang xử lý lệnh lưu thủ công...');
+
+            try {
+                // 2. Gom dữ liệu
+                const data = gatherResumeData();
+
+                // 3. Gửi Ajax (Dùng chung Action AutoSave vì logic lưu là như nhau)
+                const res = await $.ajax({
+                    url: '/Resume/AutoSave',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data)
+                });
+
+                if (res.success) {
+                    isDirty = false; // Reset cờ thay đổi
+                    
+                    // 4. Hiệu ứng thành công: Đổi màu nút xanh lá đậm trong 2 giây
+                    $btn.removeClass('btn-success').addClass('btn-primary').html('<i class="fas fa-check"></i> Đã lưu thành công!');
+                    $('#autosave-status').html('<i class="fas fa-check-circle text-success"></i> Hệ thống đã cập nhật lúc ' + res.lastSaved);
+
+                    setTimeout(() => {
+                        $btn.removeClass('btn-primary').addClass('btn-success').html(originalHtml);
+                        $btn.prop('disabled', false);
+                    }, 2000);
+                } else {
+                    alert("Lỗi: " + res.message);
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Không thể kết nối đến máy chủ!");
+                $btn.prop('disabled', false).html(originalHtml);
+            }
+        }
+
         // 1. Hàm tối ưu Kinh nghiệm làm việc
         function optimizeExperience(btn) {
             const $btn = $(btn);
@@ -796,6 +942,53 @@
                     updatePreview();
                 }
                 $btn.prop('disabled', false).text('🪄 Gợi ý kỹ năng');
+            });
+        }
+
+        let isDirty = false; // Biến cờ: Chỉ lưu khi có thay đổi thực sự
+        let currentResumeId = $('#ResumeID').val(); // Đảm bảo bạn có input ẩn lưu ResumeID
+
+        // Theo dõi mọi thay đổi trên các ô nhập liệu
+        $(document).on('input change', '.form-control', function() {
+            isDirty = true;
+        });
+
+        // Vòng lặp tự động lưu mỗi 30 giây
+        setInterval(function() {
+            let resumeId = parseInt($('#ResumeID').val()) || 0;
+            if (isDirty && currentResumeId > 0) {
+                performAutoSave();
+            }
+        }, 30000); // 30000ms = 30s
+
+        function performAutoSave() {
+            // 1. Gom dữ liệu (Sử dụng hàm gom dữ liệu bạn đã có)
+            const data = gatherResumeData(); 
+            console.log("Dữ liệu chuẩn bị gửi đi:", data);
+
+            if(data.ResumeID === 0) {
+                console.error("LỖI: ResumeID đang bằng 0, Server sẽ từ chối lưu!");
+                return;
+            }
+
+            // 2. Hiện thông báo "Đang lưu..." nhỏ ở góc
+            $('#autosave-status').html('<i class="fas fa-sync fa-spin"></i> Đang lưu nháp...');
+
+            $.ajax({
+                url: '/Resume/AutoSave',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(res) {
+                    if (res.success) {
+                        isDirty = false;
+                        // Hiển thị thời gian lưu cuối cùng
+                        $('#autosave-status').html('<i class="fas fa-check-circle text-success"></i> Đã lưu lúc ' + res.lastSaved);
+                    }
+                },
+                error: function() {
+                    $('#autosave-status').html('<i class="fas fa-exclamation-triangle text-danger"></i> Lỗi lưu tự động');
+                }
             });
         }
     </script>

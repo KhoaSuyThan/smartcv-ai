@@ -4,7 +4,7 @@ namespace DoAnCS.Models.ViewModels
     {
         public int TemplateID { get; set; }
         public string Title { get; set; }
-        
+        public int ResumeID { get; set; }
         // Thông tin cá nhân (Đầy đủ theo mẫu)
         public string FullName { get; set; }
         public string JobTitle { get; set; }

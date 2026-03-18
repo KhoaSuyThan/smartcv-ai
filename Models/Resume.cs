@@ -18,11 +18,14 @@ namespace DoAnCS.Models
         
         public string? Summary { get; set; }
         public string? ThemeColor { get; set; }
+        public bool IsDraft { get; set; } = true;
+        public int Version { get; set; } = 1;
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
         public virtual User User { get; set; } 
         public virtual Template Template { get; set; }
+        public virtual ICollection<ResumeSection> ResumeSections { get; set; } = new List<ResumeSection>();
 
     }
 }
