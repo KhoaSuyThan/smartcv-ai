@@ -1,0 +1,30 @@
+@model DoAnCS.Models.JobDto
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
+                <div class="d-flex align-items-center mb-4">
+                    <img src="@Model.employer_logo" class="me-3" style="width: 80px; border-radius: 12px; border: 1px solid #eee;">
+                    <div>
+                        <h2 class="fw-bold mb-1">@Model.job_title</h2>
+                        <p class="text-primary mb-0">@Model.employer_name • @Model.job_city</p>
+                    </div>
+                </div>
+
+                <hr class="text-muted opacity-25">
+
+                <h5 class="fw-bold mb-3">Mô tả công việc</h5>
+                <div class="job-description text-secondary" style="line-height: 1.8;">
+                    @Model.job_description
+                </div>
+
+                <div class="mt-5 d-grid">
+                    <a href="@Model.job_apply_link" target="_blank" class="btn btn-primary btn-lg rounded-pill fw-bold">
+                        Ứng tuyển ngay bây giờ <i class="fas fa-external-link-alt ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

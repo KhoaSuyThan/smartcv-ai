@@ -54,7 +54,9 @@ form {
   text-align: center;
   padding: 40px;
   z-index: 1;
-  transition: 0.6s ease-in-out 1.2s, visibility 0s 1s;
+  transition:
+    0.6s ease-in-out 1.2s,
+    visibility 0s 1s;
 }
 
 .container.active .form-box {
@@ -99,9 +101,9 @@ form {
 }
 
 .forgot-link {
-  text-align: right;      /* Đẩy chữ sang bên phải */
-  margin-top: 5px;       /* Cách thanh mật khẩu đúng 10px */
-  margin-bottom: 15px;    /* Khoảng cách với nút Đăng nhập phía dưới */
+  text-align: right; /* Đẩy chữ sang bên phải */
+  margin-top: 5px; /* Cách thanh mật khẩu đúng 10px */
+  margin-bottom: 15px; /* Khoảng cách với nút Đăng nhập phía dưới */
 }
 .forgot-link a {
   font-size: 14px;
@@ -111,7 +113,7 @@ form {
 }
 /* Hiệu ứng khi di chuột vào (tùy chọn để đẹp hơn) */
 .forgot-link a:hover {
-    color: #4b70e2; /* Đổi màu nhẹ khi hover */
+  color: #4b70e2; /* Đổi màu nhẹ khi hover */
 }
 
 .btn {
@@ -132,18 +134,18 @@ form {
   justify-content: center;
 }
 
-.social-icons a, 
+.social-icons a,
 .social-icons button {
-    display: inline-flex;
-    padding: 10px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    font-size: 24px;
-    color: #333;
-    margin: 0 8px;
-    background: transparent;
-    cursor: pointer;
-    transition: 0.3s;
+  display: inline-flex;
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 24px;
+  color: #333;
+  margin: 0 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 .social-icons a:hover,

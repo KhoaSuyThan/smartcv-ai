@@ -64,114 +64,45 @@
             </div>
 
             <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-primary text-white p-2 rounded me-3 shadow-sm"><i class="fas fa-code"></i></div>
-                                <h5 class="card-title mb-0">Thực tập sinh .NET</h5>
+            @if (Model.RealJobs != null && Model.RealJobs.Any())
+            {
+                @foreach (var job in Model.RealJobs.Take(6))
+                {
+                    <div class="col-md-4">
+                        <div class="card job-card h-100 p-3 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="@(string.IsNullOrEmpty(job.employer_logo) ? "https://via.placeholder.com/50" : job.employer_logo)" 
+                                         class="employer-logo rounded me-3" alt="Logo">
+                                    <div>
+                                        <h6 class="card-title mb-0 fw-bold">@job.job_title</h6>
+                                        <small class="text-primary">@job.employer_name</small>
+                                    </div>
+                                </div>
+                                <p class="small text-muted mb-2">
+                                    <i class="fas fa-map-marker-alt me-2"></i>@job.job_city 
+                                    <span class="badge bg-light text-dark border ms-2">@job.job_employment_type</span>
+                                </p>
+                                <p class="card-text text-secondary small">
+                                    @(job.job_description?.Length > 120 ? job.job_description.Substring(0, 120) + "..." : job.job_description)
+                                </p>
+                                <a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
+                                class="btn btn-primary w-100 rounded-pill mt-3">
+                                Xem chi tiết & Ứng tuyển
+                                </a>
                             </div>
-                            <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>Hà Nội (Full-time)</p>
-                            <p class="card-text text-secondary small">Yêu cầu kiến thức cơ bản về C#, SQL Server và ASP.NET MVC...</p>
-                            <div class="mt-3">
-                                <span class="badge bg-light text-primary border me-1">C#</span>
-                                <span class="badge bg-light text-primary border">SQL</span>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-primary w-100 mt-3">Xem chi tiết</a>
                         </div>
                     </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary mb-3"></div>
+                    <p class="text-muted">Đang kết nối dữ liệu việc làm thực tế...</p>
                 </div>
-
-                <div class="col-md-4">
-                    <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-success text-white p-2 rounded me-3 shadow-sm"><i class="fas fa-mobile-alt"></i></div>
-                                <h5 class="card-title mb-0">Lập trình viên Flutter</h5>
-                            </div>
-                            <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>TP. Hồ Chí Minh</p>
-                            <p class="card-text text-secondary small">Xây dựng ứng dụng di động đa nền tảng bằng Dart. Ưu tiên có sản phẩm mẫu...</p>
-                            <div class="mt-3">
-                                <span class="badge bg-light text-success border me-1">Dart</span>
-                                <span class="badge bg-light text-success border">Mobile</span>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-primary w-100 mt-3">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-info text-white p-2 rounded me-3 shadow-sm"><i class="fas fa-brain"></i></div>
-                                <h5 class="card-title mb-0">AI/Image Specialist</h5>
-                            </div>
-                            <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>Đà Nẵng (Remote)</p>
-                            <p class="card-text text-secondary small">Nghiên cứu và phát triển các mô hình tạo hình ảnh bằng AI (Stable Diffusion, GANs)...</p>
-                            <div class="mt-3">
-                                <span class="badge bg-light text-info border me-1">Python</span>
-                                <span class="badge bg-light text-info border">AI Image</span>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-primary w-100 mt-3">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-warning text-dark p-2 rounded me-3 shadow-sm"><i class="fas fa-database"></i></div>
-                                <h5 class="card-title mb-0">Quản trị viên Database</h5>
-                            </div>
-                            <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>Đà Nẵng (Remote)</p>
-                            <p class="card-text text-secondary small">Tối ưu hóa các câu lệnh SQL phức tạp và thiết kế sơ đồ ERD chuyên nghiệp...</p>
-                            <div class="mt-3">
-                                <span class="badge bg-light text-warning border text-dark me-1">SQL Server</span>
-                                <span class="badge bg-light text-warning border text-dark">ERD</span>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-primary w-100 mt-3">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-danger text-white p-2 rounded me-3 shadow-sm"><i class="fas fa-shield-alt"></i></div>
-                                <h5 class="card-title mb-0">Bảo mật hệ thống</h5>
-                            </div>
-                            <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>Hà Nội (Hybrid)</p>
-                            <p class="card-text text-secondary small">Giám sát an ninh mạng, phát hiện lỗ hổng và triển khai các giải pháp bảo mật...</p>
-                            <div class="mt-3">
-                                <span class="badge bg-light text-danger border me-1">Security</span>
-                                <span class="badge bg-light text-danger border">Network</span>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-primary w-100 mt-3">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-secondary text-white p-2 rounded me-3 shadow-sm"><i class="fas fa-laptop-code"></i></div>
-                                <h5 class="card-title mb-0">Frontend Developer</h5>
-                            </div>
-                            <p class="small text-muted mb-2"><i class="fas fa-map-marker-alt me-2"></i>TP. Hồ Chí Minh</p>
-                            <p class="card-text text-secondary small">Phát triển giao diện web mượt mà bằng HTML, CSS và JavaScript...</p>
-                            <div class="mt-3">
-                                <span class="badge bg-light text-secondary border me-1">HTML/CSS</span>
-                                <span class="badge bg-light text-secondary border">JS</span>
-                            </div>
-                            <a href="#" class="btn btn-sm btn-primary w-100 mt-3">Xem chi tiết</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            }
+        </div>
         </div>
     </section>
 

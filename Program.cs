@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = @"Server=LAPTOP-V23SMM4O;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+// Đăng ký JobApiService để có thể inject vào Controller
+builder.Services.AddScoped<JobApiService>();
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -46,7 +47,6 @@ builder.Services.AddAuthentication(options =>
     options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"] ?? "";
 });
-
 // Session
 builder.Services.AddSession(options =>
 {
