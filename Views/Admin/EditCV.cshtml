@@ -1,0 +1,100 @@
+@model DoAnCS.Models.Template
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="admin-dashboard-wrapper py-5" style="background-color: #f4f7f6; min-height: 100vh;">
+    <div class="container">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="card-header bg-primary text-white p-4">
+                <h4 class="m-0 fw-bold"><i class='bx bxs-edit-alt'></i> Hiệu chỉnh: @Model.Name</h4>
+            </div>
+            
+            <div class="card-body p-5">
+                <form asp-action="EditCV" method="post">
+                    <input type="hidden" asp-for="TemplateID" />
+
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên hiển thị</label>
+                                <input asp-for="Name" class="form-control form-control-lg border-2" required />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">URL Ảnh xem trước</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='bx bx-link'></i></span>
+                                    <input asp-for="PreviewImageUrl" id="previewUrlInput" class="form-control border-2" placeholder="Nhập URL hoặc chọn file bên dưới..." />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-primary">Hoặc tải lên ảnh mới</label>
+                                <input type="file" name="uploadImage" id="fileInput" class="form-control border-2" accept="image/*" />
+                            </div>
+
+                            <div class="form-check form-switch mt-4">
+                                <input class="form-check-input" type="checkbox" asp-for="IsActive" id="activeSwitch">
+                                <label class="form-check-label fw-bold ms-2" for="activeSwitch">Kích hoạt mẫu này</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 text-center border-start">
+                            <p class="text-muted small fw-bold text-uppercase">Ảnh xem trước hiện tại</p>
+                            <img src="@Model.PreviewImageUrl" id="imgPreview" class="img-fluid rounded shadow-sm border" 
+                                 style="max-height: 280px; aspect-ratio: 1/1.41; object-fit: cover;" />
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold text-primary"><i class='bx bxs-file-html'></i> Mã nguồn HTML</label>
+                            <textarea asp-for="HtmlContent" class="form-control code-area html-theme"></textarea>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <label class="form-label fw-bold text-info"><i class='bx bxs-file-css'></i> Định dạng CSS</label>
+                            <textarea asp-for="CssContent" class="form-control code-area css-theme"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                        <a asp-action="Index" class="btn btn-light rounded-pill px-4">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .code-area { 
+        height: 350px; 
+        font-family: 'Consolas', 'Monaco', monospace; 
+        font-size: 13px; 
+        padding: 20px; 
+        border-radius: 12px; 
+    }
+    .html-theme { background: #1e1e1e; color: #9cdcfe; border: 1px solid #333; }
+    .css-theme { background: #1e1e1e; color: #ce9178; border: 1px solid #333; }
+    .form-check-input:checked { background-color: #0d6efd; border-color: #0d6efd; }
+</style>
+
+<script>
+    // Live preview khi đổi URL ảnh
+    document.getElementById('previewUrlInput').addEventListener('input', function() {
+        document.getElementById('imgPreview').src = this.value;
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imgPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

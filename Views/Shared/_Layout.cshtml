@@ -12,12 +12,13 @@
 
     <style>
         .navbar-brand { font-weight: 800; color: #0d6efd !important; }
-        .nav-link { font-weight: 500; color: #444 !important; }
-        .nav-link:hover { color: #0d6efd !important; }
-        footer { background: #f8f9fa; border-top: 1px solid #dee2e6; padding: 40px 0; }
-        /* Tinh chỉnh dropdown cho đẹp */
-        .user-dropdown-btn { border: 1.5px solid #0d6efd; color: #0d6efd; font-weight: 600; }
+        .nav-link { font-weight: 500; color: #444 !important; transition: 0.3s; }
+        .nav-link:hover { color: #0d6efd !important; transform: translateY(-1px); }
+        footer { background: #ffffff; border-top: 1px solid #eee; padding: 50px 0 20px 0; }
+        .user-dropdown-btn { border: 1.5px solid #0d6efd; color: #0d6efd; font-weight: 600; transition: 0.3s; }
         .user-dropdown-btn:hover { background-color: #0d6efd; color: white; }
+        .footer-link { color: #6c757d; text-decoration: none; transition: 0.3s; }
+        .footer-link:hover { color: #0d6efd; padding-left: 5px; }
     </style>
 </head>
 <body>
@@ -36,12 +37,43 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
+                        
+                        @* Quyền hạn chung cho khách và Ứng viên *@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Resume" asp-action="Templates">Mẫu CV</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Jobs">Việc làm</a>
                         </li>
+
+                        @* PHÂN QUYỀN TRÊN MENU CHÍNH *@
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-bold" asp-controller="Admin" asp-action="Index">
+                                        <i class="fas fa-user-shield me-1"></i> Quản trị hệ thống
+                                    </a>
+                                </li>
+                            }
+                            
+                            @if (User.IsInRole("Recruiter"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-primary fw-bold" asp-controller="Jobs" asp-action="Manage">
+                                        <i class="fas fa-briefcase me-1"></i> Tuyển dụng
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("User")) // Chỉ ứng viên mới thấy menu CV của tôi
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Resume" asp-action="MyResumes">CV của tôi</a>
+                                </li>
+                            }
+                        }
                     </ul>
                     
                     <div class="d-flex align-items-center gap-2">
@@ -50,17 +82,12 @@
                             <div class="dropdown">
                                 <button class="btn user-dropdown-btn dropdown-toggle rounded-pill px-4 shadow-sm" 
                                         type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle me-2"></i> Chào, @User.Identity.Name
+                                    <i class="fas fa-user-circle me-2"></i> @User.Identity.Name
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
                                     <li>
-                                        <a class="dropdown-item py-2" href="/Resume/MyResumes">
-                                            <i class="fas fa-file-invoice me-2 text-primary"></i> CV của tôi
-                                        </a>
-                                    </li>
-                                    <li>
                                         <a class="dropdown-item py-2" href="/Account/Profile">
-                                            <i class="fas fa-user-cog me-2 text-primary"></i> Thông tin cá nhân
+                                            <i class="fas fa-id-card me-2 text-primary"></i> Hồ sơ cá nhân
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
@@ -74,7 +101,9 @@
                         }
                         else
                         {
-                            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary px-4 rounded-pill">Đăng nhập / Đăng ký</a>
+                            <a asp-controller="Account" asp-action="Login" class="btn btn-primary px-4 rounded-pill shadow-sm">
+                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                            </a>
                         }
                     </div>
                 </div>
@@ -88,39 +117,53 @@
         </main>
     </div>
 
-    <footer class="mt-5">
+    @* FOOTER CẢI THIỆN *@
+    <footer>
         <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5 class="fw-bold text-primary mb-3">CVBuilder Pro</h5>
-                    <p class="text-muted">Nền tảng hỗ trợ tạo CV chuyên nghiệp và kết nối cơ hội việc làm nhanh chóng cho sinh viên CNTT.</p>
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold text-primary mb-3">
+                        <i class="fas fa-file-invoice me-2"></i>CVBuilder Pro
+                    </h5>
+                    <p class="text-muted" style="text-align: justify;">
+                        Nền tảng tiên phong tích hợp trí tuệ nhân tạo (AI) giúp tối ưu hóa CV và kết nối nhân tài với các doanh nghiệp hàng đầu trong ngành Công nghệ thông tin.
+                    </p>
                 </div>
-                <div class="col-md-2 mb-4">
-                    <h6 class="fw-bold">Khám phá</h6>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold mb-3">Dịch vụ</h6>
                     <ul class="list-unstyled">
-                        <li><a asp-controller="Resume" asp-action="Templates" class="text-decoration-none text-muted">Mẫu CV</a></li>
-                        <li><a asp-controller="Home" asp-action="Jobs" class="text-decoration-none text-muted">Việc làm mới</a></li>
+                        <li><a asp-controller="Resume" asp-action="Templates" class="footer-link">Kho mẫu CV</a></li>
+                        <li><a asp-controller="Home" asp-action="Jobs" class="footer-link">Tìm việc làm</a></li>
+                        <li><a href="#" class="footer-link">Tư vấn nghề nghiệp</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3 mb-4">
-                    <h6 class="fw-bold">Hỗ trợ</h6>
+                <div class="col-lg-2 col-md-6">
+                    <h6 class="fw-bold mb-3">Hỗ trợ</h6>
                     <ul class="list-unstyled">
-                        <li><a asp-controller="Support" asp-action="Guide" class="text-decoration-none text-muted">Hướng dẫn sử dụng</a></li>
-                        <li><a asp-controller="Support" asp-action="Contact" class="text-decoration-none text-muted">Liên hệ chúng tôi</a></li>
+                        <li><a asp-controller="Support" asp-action="Guide" class="footer-link">Hướng dẫn</a></li>
+                        <li><a asp-controller="Support" asp-action="Contact" class="footer-link">Liên hệ</a></li>
+                        <li><a href="#" class="footer-link">Điều khoản sử dụng</a></li>
                     </ul>
                 </div>
-                <div class="col-md-3">
-                    <h6 class="fw-bold">Kết nối</h6>
-                    <div class="d-flex gap-3 fs-4">
+                <div class="col-lg-4 col-md-6 text-lg-end">
+                    <h6 class="fw-bold mb-3">Theo dõi chúng tôi</h6>
+                    <div class="d-flex gap-3 justify-content-lg-end fs-4 mb-4">
                         <a href="#" class="text-primary"><i class="fab fa-facebook"></i></a>
                         <a href="#" class="text-info"><i class="fab fa-linkedin"></i></a>
                         <a href="#" class="text-dark"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-danger"><i class="fab fa-youtube"></i></a>
                     </div>
+                    <p class="small text-muted mb-0">Hỗ trợ 24/7 qua hệ thống Ticket</p>
                 </div>
             </div>
-            <hr class="my-4">
-            <div class="text-center text-muted small">
-                &copy; @DateTime.Now.Year - Đồ án Công nghệ Thông tin - Phát triển bởi Nguyễn Võ Lê Khoa và đồng bọn
+            <hr class="my-4 text-muted opacity-25">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start text-muted small">
+                    &copy; @DateTime.Now.Year - CVBuilder Pro. All rights reserved.
+                </div>
+                <div class="col-md-6 text-center text-md-end text-muted small">
+                    Phát triển bởi <strong>Nguyễn Võ Lê Khoa</strong> và Đội ngũ cộng tác
+                </div>
             </div>
         </div>
     </footer>

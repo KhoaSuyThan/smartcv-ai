@@ -1,0 +1,65 @@
+@model IEnumerable<DoAnCS.Models.Job>
+
+<div class="container-fluid py-4 px-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class='bx bxs-briefcase-alt-2 text-warning'></i> Quản lý Tin Tuyển dụng</h3>
+        <a asp-action="CreateJob" class="btn btn-primary rounded-pill px-4 shadow-sm">
+            <i class='bx bx-plus'></i> Đăng tin mới
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Vị trí tuyển dụng</th>
+                        <th>Mức lương</th>
+                        <th>Hạn nộp</th>
+                        <th>Ngày đăng</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="job-row-@item.JobID">
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">@item.Title</div>
+                                <small class="text-muted">ID: #@item.JobID</small>
+                            </td>
+                            <td><span class="badge bg-success-soft text-success px-3">@item.Salary</span></td>
+                            <td><span class="text-danger fw-bold">@item.Deadline?.ToString("dd/MM/yyyy")</span></td>
+                            <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                <div class="btn-group">
+                                    <a asp-action="EditJob" asp-route-id="@item.JobID" class="btn btn-sm btn-outline-primary">
+                                        <i class='bx bxs-edit'></i>
+                                    </a>
+                                    <button onclick="deleteJob(@item.JobID)" class="btn btn-sm btn-outline-danger">
+                                        <i class='bx bxs-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteJob(id) {
+        if(confirm("Xác nhận gỡ tin tuyển dụng này?")) {
+            $.post('/Admin/DeleteJob/' + id, function() {
+                $('#job-row-' + id).fadeOut();
+            });
+        }
+    }
+</script>
+
+<style>
+    .bg-success-soft { background-color: #e8f5e9; border-radius: 10px; }
+    .table thead th { border: none; font-size: 0.8rem; text-transform: uppercase; color: #666; }
+</style>

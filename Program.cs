@@ -6,24 +6,29 @@ using DoAnCS.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = @"Server=LAPTOP-V23SMM4O;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
-// Add services to the container.
-builder.Services.AddControllersWithViews();
 
+// --- 1. ĐĂNG KÝ SERVICES ---
+builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<JobApiService>();
+builder.Services.AddScoped<IAIService, GeminiService>(); 
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString) 
 );
 
+// --- 2. CẤU HÌNH AUTHENTICATION (CHỈ GỘP VÀO 1 CHỖ NÀY) ---
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 })
 .AddCookie(options => 
 {
     options.LoginPath = "/Account/Login";
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(24);
+    options.Cookie.Name = "CVBuilder_Auth"; // Đặt tên riêng cho Cookie
 })
 .AddGoogle(options =>
 {
@@ -47,6 +52,14 @@ builder.Services.AddAuthentication(options =>
     options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"] ?? "";
 });
 
+// --- 3. CẤU HÌNH AUTHORIZATION (PHÂN QUYỀN) ---
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RecruiterOnly", policy => policy.RequireRole("Recruiter"));
+    options.AddPolicy("CandidateOnly", policy => policy.RequireRole("User"));
+});
+
 // Session
 builder.Services.AddSession(options =>
 {
@@ -55,12 +68,9 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-builder.Services.AddScoped<IAIService, GeminiService>(); // Hoặc OpenAIService
-
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
+// --- 4. CẤU HÌNH PIPELINE (MIDDLEWARE) ---
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -72,15 +82,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-
-// Session middleware
-app.UseSession();
+app.UseSession(); // Session phải nằm trước Authentication
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-// Route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

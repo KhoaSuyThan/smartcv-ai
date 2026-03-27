@@ -1,114 +1,113 @@
 /* Layout chính */
 .resume-wrapper {
-    display: flex;
-    height: calc(100vh - 56px); /* Trừ đi chiều cao của Navbar */
-    overflow: hidden;
+  display: flex;
+  height: calc(100vh - 56px); /* Trừ đi chiều cao của Navbar */
+  overflow: hidden;
 }
 
 /* Cột nhập liệu */
 .editor-column {
-    width: 45%;
-    padding: 2rem;
-    overflow-y: auto;
-    background-color: #ffffff;
-    border-right: 1px solid #dee2e6;
+  width: 45%;
+  padding: 2rem;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border-right: 1px solid #dee2e6;
 }
 
 /* Cột xem trước */
 .preview-column {
-    width: 55%;
-    padding: 3rem;
-    background-color: #525659; /* Màu xám đặc trưng của các trình đọc PDF */
-    overflow-y: auto;
-    display: flex;
-    justify-content: center;
+  width: 55%;
+  padding: 3rem;
+  background-color: #525659; /* Màu xám đặc trưng của các trình đọc PDF */
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
 }
 
 /* Tờ giấy A4 giả lập */
 .a4-page {
-    width: 210mm;
-    min-height: 297mm;
-    padding: 20mm;
-    background: white;
-    font-family: 'Arial', sans-serif;
-    color: #333;
-    line-height: 1.6;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  background: white;
+  font-family: "Arial", sans-serif;
+  color: #333;
+  line-height: 1.6;
 }
 
 /* Kiểu chữ trong CV */
 #preview-name {
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: #2c3e50;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #2c3e50;
 }
 
 .section-title {
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 5px;
-    margin-top: 20px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+  margin-top: 20px;
 }
 .cv-section-title {
-    border-bottom: 2px solid #2c3e50;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-top: 1.5rem;
-    margin-bottom: 1rem;
-    color: #2c3e50;
+  border-bottom: 2px solid #2c3e50;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
 }
 
 .cv-item strong {
-    color: #333;
-    font-size: 1rem;
+  color: #333;
+  font-size: 1rem;
 }
 
 .experience-item {
-    background: #fdfdfd;
-    padding: 10px;
-    border-radius: 5px;
+  background: #fdfdfd;
+  padding: 10px;
+  border-radius: 5px;
 }
 /* Tràn màn hình để làm giao diện giống BetterCV */
 .resume-wrapper {
-    display: flex;
-    height: calc(100vh - 56px); /* Trừ đi chiều cao Navbar */
-    background-color: #f4f4f4;
+  display: flex;
+  height: calc(100vh - 56px); /* Trừ đi chiều cao Navbar */
+  background-color: #f4f4f4;
 }
 
 .editor-column {
-    width: 40%;
-    background: white;
-    padding: 30px;
-    overflow-y: auto; /* Tự cuộn nếu form dài */
-    border-right: 2px solid #e0e0e0;
+  width: 40%;
+  background: white;
+  padding: 30px;
+  overflow-y: auto; /* Tự cuộn nếu form dài */
+  border-right: 2px solid #e0e0e0;
 }
 
 .preview-column {
-    width: 60%;
-    background: #525659; /* Màu nền tối cho PDF preview */
-    padding: 40px;
-    overflow-y: auto;
-    display: flex;
-    justify-content: center;
+  width: 60%;
+  background: #525659; /* Màu nền tối cho PDF preview */
+  padding: 40px;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
 }
 
 .a4-page {
-    width: 210mm;
-    min-height: 297mm;
-    background: white;
-    padding: 20mm;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  width: 210mm;
+  min-height: 297mm;
+  background: white;
+  padding: 20mm;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .section-title {
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 5px;
-    margin-bottom: 15px;
-    color: #007bff;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+  color: #007bff;
 }
 
 .cv-section-title {
-    background: #f0f0f0;
-    padding: 5px 10px;
-    font-weight: bold;
-    border-left: 4px solid #333;
+  background: #f0f0f0;
+  padding: 5px 10px;
+  font-weight: bold;
+  border-left: 4px solid #333;
 }
-

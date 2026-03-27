@@ -1,0 +1,105 @@
+/* --- BIẾN MÀU SẮC CHỦ ĐẠO --- */
+:root {
+    --primary-gradient: linear-gradient(45deg, #4e73df, #224abe);
+    --success-gradient: linear-gradient(45deg, #1cc88a, #13855c);
+    --warning-gradient: linear-gradient(45deg, #f6c23e, #dda20a);
+    --danger-gradient:  linear-gradient(45deg, #e74a3b, #be2617);
+    --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+/* --- TỔNG THỂ --- */
+body {
+    background-color: #f8f9fc;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- STYLE CHO CÁC THẺ THỐNG KÊ (DASHBOARD CARDS) --- */
+.card {
+    border: none;
+    border-radius: 15px !important;
+    transition: all 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2) !important;
+}
+
+/* Ép màu Gradient và chữ trắng */
+.bg-primary { background: var(--primary-gradient) !important; color: white !important; }
+.bg-success { background: var(--success-gradient) !important; color: white !important; }
+.bg-warning { background: var(--warning-gradient) !important; color: #212529 !important; }
+.bg-danger  { background: var(--danger-gradient) !important; color: white !important; }
+
+/* Icon nằm ẩn tinh tế bên góc */
+.card-body i {
+    position: absolute;
+    bottom: -10px;
+    right: 10px;
+    font-size: 4rem !important;
+    opacity: 0.2;
+    transform: rotate(-15deg);
+}
+
+.display-4 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 10px 0;
+    position: relative;
+    z-index: 2;
+}
+
+/* --- STYLE CHO BẢNG DANH SÁCH USER --- */
+.admin-table-container {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+}
+
+.table thead th {
+    background-color: #f8f9fc;
+    color: #4e73df;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    border-top: none;
+    padding: 15px;
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 15px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+/* --- BADGE (NHÃN) PHÂN LOẠI ROLE --- */
+.badge {
+    padding: 8px 12px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* --- FORM CHỈNH SỬA (EDIT USER) --- */
+.form-control, .form-select {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #d1d3e2;
+}
+
+.form-control:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+}

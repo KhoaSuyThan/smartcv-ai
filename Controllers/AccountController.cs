@@ -22,6 +22,7 @@ namespace DoAnCS.Controllers
         [HttpGet]
         public IActionResult Register()
         {
+            ViewBag.Companies = _context.Companies.ToList();
             return View("Login", new AuthVM());
         }
 
@@ -46,11 +47,35 @@ namespace DoAnCS.Controllers
                 {
                     FullName = model.Register.FullName,
                     Email = model.Register.Email,
-                    // Băm mật khẩu bằng BCrypt để lưu vào cột PasswordHash
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Register.Password),
-                    Role = "User", // Mặc định là User bình thường
+                    
+                    // 1. LẤY ROLE TỪ GIAO DIỆN (Bạn cần thêm 1 dropdown chọn Role ở View)
+                    // Nếu không chọn, mặc định là 'User' (Candidate)
+                    Role = !string.IsNullOrEmpty(model.Register.Role) ? model.Register.Role : "User",                    
                     CreatedAt = DateTime.Now
                 };
+
+                // XỬ LÝ TỰ ĐỘNG TẠO CÔNG TY
+                if (user.Role == "Recruiter" && !string.IsNullOrEmpty(model.Register.CompanyName))
+                {
+                    // Tìm xem tên công ty đã có trong database chưa
+                    var company = await _context.Companies
+                        .FirstOrDefaultAsync(c => c.Name == model.Register.CompanyName);
+
+                    if (company == null)
+                    {
+                        // Nếu chưa có thì tạo mới công ty
+                        company = new Company { 
+                            Name = model.Register.CompanyName,
+                            CreatedAt = DateTime.Now 
+                        };
+                        _context.Companies.Add(company);
+                        await _context.SaveChangesAsync(); // Lưu để lấy ID tự tăng
+                    }
+                    
+                    // Gán ID công ty cho User
+                    user.CompanyID = company.CompanyID;
+                }
 
                 // 3. Lưu vào SQL Server
                 _context.Users.Add(user);
@@ -68,6 +93,7 @@ namespace DoAnCS.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            ViewBag.Companies = _context.Companies.ToList();
             return View(new AuthVM());
         }
 
@@ -144,61 +170,49 @@ namespace DoAnCS.Controllers
         {
             returnUrl = returnUrl ?? Url.Content("~/");
 
-            if (remoteError != null)
-            {
-                ViewBag.Error = $"Lỗi từ nhà cung cấp: {remoteError}";
-                return View("Login", new AuthVM());
-            }
+            // LƯU Ý: Khi dùng External Login, ta dùng Scheme "External" (hoặc Identity.External)
+            // để lấy thông tin tạm thời từ Google/GitHub trước khi chuyển sang Cookie chính thức
+            var result = await HttpContext.AuthenticateAsync("ExternalCookies"); 
+            
+            if (!result.Succeeded) return RedirectToAction("Login");
 
-            // Lấy thông tin xác thực từ cookie tạm thời của bên thứ 3
-            var info = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            if (!info.Succeeded) return RedirectToAction("Login");
-
-            // Trích xuất các Claims (Email, Name)
-            var claims = info.Principal.Identities.FirstOrDefault()?.Claims;
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
-            if (string.IsNullOrEmpty(email))
-            {
-                ViewBag.Error = "Không thể lấy Email từ tài khoản mạng xã hội.";
-                return View("Login", new AuthVM());
-            }
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Login");
 
-            // 1. Kiểm tra xem User này đã tồn tại trong DB chưa
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
             if (user == null)
             {
-                // 2. Nếu chưa có tài khoản -> Tự động tạo mới (Đăng ký tự động)
+                // Tự động tạo tài khoản nếu chưa có
                 user = new User
                 {
                     FullName = name ?? "Social User",
                     Email = email,
-                    PasswordHash = "EXTERNAL_LOGIN", // Đánh dấu không dùng mật khẩu thường
-                    Role = "User",
+                    PasswordHash = "EXTERNAL_LOGIN_" + Guid.NewGuid().ToString(),
+                    Role = "User", // Mặc định tài khoản MXH là Candidate
                     CreatedAt = DateTime.Now
                 };
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
             }
 
-            // 3. Thiết lập Claims cho hệ thống của bạn
+            // THIẾT LẬP COOKIE CHÍNH THỨC CỦA HỆ THỐNG
             var userClaims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.FullName),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role, user.Role),
-        new Claim("UserID", user.UserID.ToString())
-    };
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role), // Quan trọng: Gán quyền từ DB
+                new Claim("UserID", user.UserID.ToString())
+            };
 
             var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-            // 4. Đăng nhập người dùng vào hệ thống của bạn
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties { IsPersistent = true });
+            // Xóa cookie tạm thời sau khi đã đăng nhập thành công
+            await HttpContext.SignOutAsync("ExternalCookies");
 
             return LocalRedirect(returnUrl);
         }

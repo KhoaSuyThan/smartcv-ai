@@ -17,5 +17,9 @@ namespace DoAnCS.Models.ViewModels
 
         [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
         public string ConfirmPassword { get; set; }
+
+        public string Role { get; set; } = "User"; 
+        public string? CompanyID { get; set; }
+        public string? CompanyName { get; set; }
     }
 }

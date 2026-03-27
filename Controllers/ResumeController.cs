@@ -9,7 +9,7 @@ using DoAnCS.Models.ViewModels;
 
 namespace DoAnCS.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "User,Admin")]
     public class ResumeController : Controller
     {
         private readonly AppDbContext _context;

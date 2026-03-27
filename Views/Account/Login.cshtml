@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login/Signup Form</title>
-    <link rel="stylesheet" href="/css/SignUp_LogIn_Form.css">
+    <link rel="stylesheet" href="/css/SignUp_LogIn_Form.css" asp-append-version="true">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
@@ -66,6 +66,23 @@
                         <input asp-for="Register.ConfirmPassword" type="password" placeholder="Confirm Password">
                         <i class='bx bxs-lock-alt'></i>
                     </div>
+                    <div class="role-container">
+                        <div class="input-box role-select-box">
+                            <select asp-for="Register.Role" id="roleSelect" class="form-control-select" 
+                                    onchange="toggleCompany(this.value)" required>
+                                <option value="User">Ứng viên (Tìm việc & làm CV)</option>
+                                <option value="Recruiter">Nhà tuyển dụng</option>
+                            </select>
+                            <i class='bx bxs-user'></i> 
+                        </div>
+                    </div>
+
+                    <div class="role-container" id="companyBox" style="display: none !important;">
+                        <div class="input-box">
+                            <input asp-for="Register.CompanyName" type="text" placeholder="Nhập tên công ty của bạn">
+                            <i class='bx bxs-business'></i>
+                        </div>
+                    </div>
                     <button type="submit" class="btn">Đăng ký</button>
                 </form>
 
@@ -98,3 +115,65 @@
     </div> <script src="/js/script.js"></script>
 </body>
 </html>
+<style>
+    .form-control-select {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    color: #333; /* Hoặc trắng tùy theo theme của bạn */
+    font-weight: 500;
+    padding: 0 45px 0 20px; 
+    appearance: none; /* Ẩn mũi tên mặc định của trình duyệt */
+    cursor: pointer;
+    }
+
+    /* Đảm bảo icon nằm đúng vị trí */
+    .input-box select + i {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 20px; 
+    }
+
+    /* Container tổng để tạo khoảng cách với ô Password phía trên và nút Đăng ký phía dưới */
+    .role-container {
+        margin: 20px 0; /* Tạo khoảng cách trên và dưới 20px */
+        text-align: left;
+        width: 100%;
+    }
+
+    /* Đảm bảo ô select có cùng style với các input khác */
+    .role-select-box {
+        margin-bottom: 0 !important; /* Reset margin mặc định của input-box nếu có */
+        background: #ebebeb; /* Màu nền nhạt giống các ô trên hình của bạn */
+        border-radius: 8px;
+        height: 45px;
+    }
+
+    .form-control-select {
+        background: transparent;
+        border: none;
+        outline: none;
+        width: 100%;
+        height: 100%;
+        padding: 0 15px; 
+        font-size: 15px;
+        cursor: pointer;
+    }
+</style>
+<script>
+    function toggleCompany(role) {
+        const box = document.getElementById('companyBox');
+        if (role === 'Recruiter') {
+            box.style.setProperty('display', 'block', 'important');
+            console.log("Đã hiện ô công ty");
+        } else {
+            box.style.setProperty('display', 'none', 'important');
+            console.log("Đã ẩn ô công ty");
+        }
+    }
+</script>

@@ -1,0 +1,63 @@
+@model DoAnCS.Models.User
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class='bx bxs-user-detail'></i> Chỉnh sửa thành viên</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditUser" method="post">
+                        <input type="hidden" name="id" value="@Model.UserID" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và tên</label>
+                            <input type="text" name="FullName" value="@Model.FullName" class="form-control" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Email (Không được sửa)</label>
+                            <input type="text" class="form-control bg-light" value="@Model.Email" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Vai trò hệ thống</label>
+                            <select name="Role" id="roleSelect" class="form-select">
+                                <option value="User" selected="@(Model.Role == "User")">Ứng viên</option>
+                                <option value="Recruiter" selected="@(Model.Role == "Recruiter")">Nhà tuyển dụng</option>
+                                <option value="Admin" selected="@(Model.Role == "Admin")">Quản trị viên</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="companySection" style="display: @(Model.Role == "Recruiter" ? "block" : "none")">
+                            <label class="form-label fw-bold">Thuộc Công ty</label>
+                            <select name="CompanyID" class="form-select">
+                                <option value="">-- Chọn công ty --</option>
+                                @foreach (var comp in ViewBag.Companies)
+                                {
+                                    <option value="@comp.CompanyID" selected="@(Model.CompanyID == comp.CompanyID)">
+                                        @comp.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a asp-action="Users" class="btn btn-secondary">Quay lại</a>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Hiện ô chọn công ty chỉ khi chọn vai trò là Nhà tuyển dụng
+    document.getElementById('roleSelect').addEventListener('change', function() {
+        var section = document.getElementById('companySection');
+        section.style.display = (this.value === 'Recruiter') ? 'block' : 'none';
+    });
+</script>
