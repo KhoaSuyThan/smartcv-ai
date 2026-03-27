@@ -1,0 +1,69 @@
+@model IEnumerable<DoAnCS.Models.User>
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class='bx bxs-group'></i> Quản lý người dùng</h2>
+        <span class="badge bg-info text-dark">Tổng cộng: @Model.Count() thành viên</span>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body">
+            <div class="admin-table-container"> 
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Công ty</th>
+                            <th>Ngày tham gia</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td><strong>@user.FullName</strong></td>
+                                <td>@user.Email</td>
+                                <td>
+                                    @if (user.Role == "Admin")
+                                    {
+                                        <span class="badge bg-danger">Quản trị viên</span>
+                                    }
+                                    else if (user.Role == "Recruiter")
+                                    {
+                                        <span class="badge bg-primary">Nhà tuyển dụng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Ứng viên</span>
+                                    }
+                                </td>
+                                <td>@(user.Company?.Name ?? "---")</td>
+                                <td>@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="text-center">
+                                    <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-sm btn-outline-warning">
+                                        <i class='bx bxs-edit'></i> Sửa
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@user.UserID)">
+                                        <i class='bx bxs-trash'></i> Khóa
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmDelete(id) {
+        if (confirm("Bạn có chắc chắn muốn khóa tài khoản này không?")) {
+            // Viết logic gọi API xóa/khóa ở đây
+            console.log("Khóa user ID: " + id);
+        }
+    }
+</script>

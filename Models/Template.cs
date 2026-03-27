@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations.Schema;
 namespace DoAnCS.Models
 {
+    [Table("Templates")]
     public class Template
     {
         public int TemplateID { get; set; }

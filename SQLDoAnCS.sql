@@ -32,8 +32,10 @@ CREATE TABLE Users (
     Email NVARCHAR(255) UNIQUE NOT NULL,
     PasswordHash NVARCHAR(MAX) NOT NULL,
     Phone VARCHAR(20),
+    CompanyID INT NULL, 
     Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')) DEFAULT 'User',
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
 -- 3. BẢNG MẪU CV (Lưu trữ cấu trúc giao diện)
@@ -109,7 +111,9 @@ CREATE TABLE Jobs (
     Salary NVARCHAR(100),
     Deadline DATETIME,
     CreatedAt DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (RecruiterID) REFERENCES Users(UserID)
+    CompanyID INT NOT NULL,
+    FOREIGN KEY (RecruiterID) REFERENCES Users(UserID),
+	FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID)
 );
 
 CREATE TABLE Applications (
@@ -148,6 +152,29 @@ CREATE TABLE [ContactMessages] (
     CONSTRAINT [PK_ContactMessages] PRIMARY KEY ([Id])
 );
 GO
+
+-- 9. Thông tin công ty
+CREATE TABLE Companies (
+    CompanyID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(255) NOT NULL,
+    LogoUrl NVARCHAR(500),
+    Website NVARCHAR(255),
+    Description NVARCHAR(MAX),
+    Address NVARCHAR(500),
+    Industry NVARCHAR(100), -- Ngành nghề (IT, Marketing,...)
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+-- 10. THÊM KỸ NĂNG YÊU CẦU CHO CÔNG VIỆC (DÀNH CHO AI MATCHING)
+CREATE TABLE JobSkills (
+    JobID INT NOT NULL,
+    SkillID INT NOT NULL,
+    RequiredProficiency NVARCHAR(50), -- Mức độ yêu cầu (Junior, Senior,...)
+    PRIMARY KEY (JobID, SkillID),
+    FOREIGN KEY (JobID) REFERENCES Jobs(JobID) ON DELETE CASCADE,
+    FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
+);
+
 
 -- 1. Thêm thử 1 dòng
 INSERT INTO ContactMessages (Name, Email, Subject, Message)
@@ -668,5 +695,30 @@ GO
 INSERT INTO Skills (SkillName) VALUES ('.NET'), ('SQL Server'), ('C#'), ('Flutter'), ('React');
 GO
 
--- Test
+INSERT INTO Companies (Name, LogoUrl, Website, Address, Industry) VALUES 
+(N'Baxter and Woodman Inc', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/gnezDA5qkvM_3V23SGiDNMhfOjjqA_Wj4jT-kPPNvlM.jpeg', 'https://www.indeed.com/viewjob?jk=3e227540a546a37c', N'Chicago, IL', N'IT Consulting'),
+(N'Rsm Us Llp.', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/vLqbAgGTGajIdOCOXiWJPSgcVZX5T_Ohu_uq0wdzFUo.png', 'https://www.whatjobs.com/jobs/senior-project-manager-it/chicago-illinois?id=2570160112', N'Chicago, IL', N'Agile Delivery'),
+(N'Contemporary Staffing', NULL, 'https://careers.contemporarystaffing.com/jobs/37462', N'Elk Grove Village, IL', N'IT Support'),
+(N'McDonald''s Corporation', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/cM5DL5-_2HfX1X3jU9h2bwTwKIyXurvcAiKUJViuU3M.jpeg', 'https://www.jobzmall.com/mcdonald-s-corporation/job/analyst-penetration-testing', N'Chicago, IL', N'Cybersecurity'),
+(N'Kirkland & Ellis', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/P423na0BD2YiXEZGVgmm7l-9rwDrdMdraMSCYUtESJ0.png', 'https://us.jobrapido.com/jobpreview/5072755767732338688', N'Chicago, IL', N'FinOps'),
+(N'Lenovo', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/TkUNTkzdVjwXaTmgCkjX1Gad8pgzgHWHajnZnYymu7k.jpeg', 'https://www.indeed.com/viewjob?jk=9d95ff691e418663', N'Chicago, IL', N'Artificial Intelligence'),
+(N'U.S. Navy', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/RRLfWjenk0dMUZ4AKgPAWGeNn2kbcmLkmwHVRJ0DySI.png', 'https://www.adzuna.com/details/5655660238', N'South Holland, IL', N'Information Warfare'),
+(N'Motorola', NULL, 'https://www.ziprecruiter.com/c/Motorola-Solutions/Job/IT-Directory-Infrastructure-Lead-(Chicago-Schaumburg-Hybrid)/-in-Schaumburg,IL?jid=bc508c769e0fb0d8', N'Schaumburg, IL', N'Infrastructure'),
+(N'Nexzentek Solutions', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/MC0CnGAbtG01fQQrkYgeznkEPWV7a-5IvkFbQdGIyTw.png', 'https://www.optnation.com/aws-developer-job-in-chicago-il-view-jobid-25038', N'Chicago, IL', N'AWS Cloud'),
+(N'United Airlines', NULL, 'https://careers.united.com/us/en/job/WHQ00025769/Analyst-Identity-Access-Management', N'Chicago, IL', N'Aviation DT');
+
+INSERT INTO Jobs (Title, Description, Requirements, Salary, Deadline, CompanyID, RecruiterID) VALUES 
+(N'IT Consultant', N'Thiết kế, hỗ trợ và bảo trì các giải pháp CNTT cho khách hàng đô thị.', N'8+ năm kinh nghiệm, thạo Windows Server, Active Directory, ảo hóa.', N'90K - 120K / year', '2026-12-31', 1, 1),
+(N'Senior Project Manager: IT & Agile Delivery', N'Dẫn dắt các dự án phức tạp ngân sách > $200k.', N'8-10 năm PM, 3-5 năm Agile. Ưu tiên chứng chỉ PMI.', N'Thỏa thuận', '2026-11-20', 2, 1),
+(N'IT Support Specialist Tier 2', N'Hỗ trợ kỹ thuật nâng cao onsite và remote cho sản xuất linh kiện ô tô.', N'Troubleshoot Windows/Mac, thạo Google Workspace/O365.', N'Thỏa thuận', '2026-10-15', 3, 1),
+(N'Analyst, Penetration Testing', N'Kiểm tra xâm nhập hệ thống và mạng toàn cầu để tìm lỗ hổng bảo mật.', N'Nền tảng Pentest mạnh, kỹ năng phân tích độc lập tốt.', N'98K - 120K / year', '2026-12-05', 4, 1),
+(N'FinOps IT Finance Analyst', N'Đảm bảo minh bạch tài chính cho các sáng kiến công nghệ và Cloud spend.', N'4-6 năm kinh nghiệm, cử nhân tài chính, thạo Excel/Analytical.', N'Cạnh tranh', '2026-09-12', 5, 1),
+(N'AI QA - Engineer', N'Đảm bảo hệ thống AI (LLM, Vision) chính xác và an toàn quy mô lớn.', N'3+ năm QA AI/ML, thạo Python, ML model evaluation.', N'110K - 150K / year', '2026-08-30', 6, 1),
+(N'Information Systems Technician', N'Vận hành và bảo vệ mạng lưới hạm đội Navy toàn cầu.', N'Cần quốc tịch Mỹ, vượt qua bài kiểm tra năng khiếu quân đội (ASVAB).', N'Theo quy định', '2026-12-31', 7, 1),
+(N'IT Directory Infrastructure Lead', N'Quản trị toàn cầu môi trường Active Directory và email backbone.', N'8-10 năm kinh nghiệm AD/DNS, 3+ năm vị trí lãnh đạo.', N'145K - 170K / year', '2026-07-25', 8, 1),
+(N'AWS Developer', N'Phát triển Cloud cho dự án dài hạn của United Airlines.', N'8+ năm kinh nghiệm, nền tảng .NET mạnh, giao tiếp tốt.', N'Theo hợp đồng', '2026-06-10', 9, 1),
+(N'Analyst - Identity & Access Management', N'Bảo mật hệ thống IAM, quản lý xác thực hiện đại (OIDC, SAML, SSO).', N'3+ năm kinh nghiệm, thạo Okta/Entra/SailPoint.', N'87K - 114K / year', '2026-05-18', 10, 1);
+
+
+
 

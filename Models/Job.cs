@@ -6,7 +6,7 @@ namespace DoAnCS.Models
     public class Job
     {
         public int JobID { get; set; }
-        public int RecruiterID { get; set; }
+        public int? RecruiterID { get; set; }
         public User Recruiter { get; set; } // Liên kết với bảng Users
         public string Title { get; set; }
         public string Description { get; set; }
@@ -14,7 +14,8 @@ namespace DoAnCS.Models
         public string Salary { get; set; }
         public DateTime? Deadline { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-
+        public int? CompanyID { get; set; }
+        public virtual Company Company { get; set; } // Liên kết với bảng Companies
         public ICollection<Application> Applications { get; set; }
     }
 }

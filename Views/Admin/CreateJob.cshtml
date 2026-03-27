@@ -1,0 +1,46 @@
+@model DoAnCS.Models.Job
+
+<div class="container py-5">
+    <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white p-4">
+            <h4 class="m-0 fw-bold"><i class='bx bx-plus-circle'></i> Thêm mới Tin tuyển dụng</h4>
+        </div>
+        <div class="card-body p-5">
+            <form asp-action="CreateJob" method="post">
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">Vị trí tuyển dụng</label>
+                        <input asp-for="Title" class="form-control border-2" placeholder="Ví dụ: Backend Developer" required />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Mức lương</label>
+                        <input asp-for="Salary" class="form-control border-2" placeholder="Ví dụ: 15-20 Triệu" />
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Công ty tuyển dụng</label>
+                        <select asp-for="CompanyID" class="form-select border-2" 
+                                asp-items="@(new SelectList(ViewBag.Companies, "CompanyID", "Name"))" required>
+                            <option value="">-- Chọn công ty --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Hạn nộp</label>
+                        <input asp-for="Deadline" type="date" class="form-control border-2" required />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Mô tả công việc</label>
+                        <textarea asp-for="Description" class="form-control border-2" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-5 border-top pt-4 text-end">
+                    <a asp-action="Index" class="btn btn-light rounded-pill px-4 me-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu tin đăng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

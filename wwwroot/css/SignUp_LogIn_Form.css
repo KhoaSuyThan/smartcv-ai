@@ -13,14 +13,14 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: 100vh;  
   background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
 }
 
 .container {
   position: relative;
-  width: 850px;
-  height: 550px;
+  width: 1000px;  
+  height: 700px;
   background: #fff;
   margin: 20px;
   border-radius: 30px;
@@ -72,7 +72,7 @@ form {
 
 .input-box {
   position: relative;
-  margin: 15px 0;
+  margin: 15px 0; 
 }
 
 .input-box input {

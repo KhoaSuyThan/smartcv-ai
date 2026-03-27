@@ -8,8 +8,10 @@ namespace DoAnCS.Models {
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public string? Phone { get; set; }
+        public int? CompanyID { get; set; }
+        public virtual Company? Company { get; set; }
         public string? Role { get; set; } = "User"; // Mặc định là User
         public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public virtual ICollection<Resume> Resumes { get; set; }
+        public virtual ICollection<Resume> Resumes { get; set; }   
     }
 }
