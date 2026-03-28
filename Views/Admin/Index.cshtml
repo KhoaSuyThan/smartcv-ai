@@ -123,54 +123,81 @@
             </div>
 
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="ps-4 py-3">Vị trí tuyển dụng</th>
-                                <th>Mức lương</th>
-                                <th>Hạn nộp</th>
-                                <th>Trạng thái</th>
-                                <th class="text-center">Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var job in Model.Jobs)
-                            {
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-bold text-dark">@job.Title</div>
-                                        <div class="extra-small text-muted">Ngày đăng: @job.CreatedAt.ToString("dd/MM/yyyy")</div>
-                                    </td>
-                                    <td><span class="badge bg-success-soft text-success">@job.Salary</span></td>
-                                    <td>
-                                        <span class="@(job.Deadline < DateTime.Now ? "text-danger" : "text-dark") fw-bold">
-                                            @job.Deadline?.ToString("dd/MM/yyyy")
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if (job.Deadline >= DateTime.Now) {
-                                            <span class="badge bg-info-soft text-info">Đang tuyển</span>
-                                        } else {
-                                            <span class="badge bg-secondary-soft text-secondary">Hết hạn</span>
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group">
-                                            <a asp-action="EditJob" asp-route-id="@job.JobID" class="btn btn-sm btn-outline-primary border-0">
-                                                <i class='bx bxs-edit-alt fs-5'></i>
-                                            </a>
-                                            <button onclick="confirmDeleteJob(@job.JobID)" class="btn btn-sm btn-outline-danger border-0">
-                                                <i class='bx bxs-trash fs-5'></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4 py-3" style="width: 80px"></th> @* Cột Logo *@
+                    <th>Vị trí tuyển dụng</th>
+                    <th>Mức lương</th>
+                    <th>Hạn nộp</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in Model.Jobs)
+                {
+                    <tr>
+                        <td class="ps-4">
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobID" class="text-decoration-none">
+                                @if (job.Company != null && !string.IsNullOrEmpty(job.Company.LogoUrl))
+                                {
+                                    <div class="p-1 bg-white rounded shadow-sm border d-inline-block">
+                                        <img src="@job.Company.LogoUrl" 
+                                            alt="Logo" 
+                                            class="rounded"
+                                            style="height: 40px; width: 40px; object-fit: contain;" 
+                                            onerror="this.src='/images/default-company.png'; this.parentElement.innerHTML='<i class=\'bx bx-building text-muted fs-3\'></i>';" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center border" 
+                                        style="height: 48px; width: 48px;">
+                                        <i class='bx bx-building text-muted fs-4'></i>
+                                    </div>
+                                }
+                            </a>    
+                        </td>
+                        <td>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobID" class="text-decoration-none text-dark">
+                                <div class="fw-bold hover-primary">@job.Title</div>
+                            </a>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobID" class="text-decoration-none">
+                                <div class="text-primary small fw-semibold">@job.Company?.Name</div>
+                            </a>
+                            <div class="extra-small text-muted">Đăng ngày: @job.CreatedAt.ToString("dd/MM/yyyy")</div>
+                        </td>
+                        <td><span class="badge bg-success-soft text-success px-3 py-2">@job.Salary</span></td>
+                        <td>
+                            <span class="@(job.Deadline < DateTime.Now ? "text-danger" : "text-dark") fw-bold small">
+                                <i class='bx bx-calendar me-1'></i>@job.Deadline?.ToString("dd/MM/yyyy")
+                            </span>
+                        </td>
+                        <td>
+                            @if (job.Deadline >= DateTime.Now) {
+                                <span class="badge bg-info-soft text-info rounded-pill px-3">Đang tuyển</span>
+                            } else {
+                                <span class="badge bg-secondary-soft text-secondary rounded-pill px-3">Hết hạn</span>
                             }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group shadow-sm rounded-3">
+                                <a asp-action="EditJob" asp-route-id="@job.JobID" class="btn btn-sm btn-white border">
+                                    <i class='bx bxs-edit-alt text-primary'></i>
+                                </a>
+                                <button onclick="confirmDeleteJob(@job.JobID)" class="btn btn-sm btn-white border">
+                                    <i class='bx bxs-trash text-danger'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
         </div>
 
         <div class="mt-5 p-4 bg-white rounded-4 shadow-sm border border-light">

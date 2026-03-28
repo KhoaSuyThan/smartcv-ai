@@ -64,45 +64,69 @@
             </div>
 
             <div class="row g-4">
-            @if (Model.RealJobs != null && Model.RealJobs.Any())
-            {
-                @foreach (var job in Model.RealJobs.Take(6))
+                @if (Model.LatestJobs != null && Model.LatestJobs.Any())
                 {
-                    <div class="col-md-4">
-                        <div class="card job-card h-100 p-3 border-0 shadow-sm">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="@(string.IsNullOrEmpty(job.employer_logo) ? "https://via.placeholder.com/50" : job.employer_logo)" 
-                                         class="employer-logo rounded me-3" alt="Logo">
+                    @foreach (var job in Model.LatestJobs)
+                    {
+                        <div class="col-md-4">
+                            <div class="card h-100 border-0 shadow-sm p-3" style="border-radius: 15px;">
+                                <div class="d-flex align-items-start mb-3">
+                                    @* 1. Sửa: Hiển thị Logo từ employer_logo của JobDto *@
+                                    @if (!string.IsNullOrEmpty(job.employer_logo))
+                                    {
+                                        <img src="@job.employer_logo" 
+                                            alt="Logo @job.employer_name"
+                                            class="me-3" 
+                                            style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px;"
+                                            onerror="this.src='/images/default-company.png';">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class='bx bx-building text-muted fs-3'></i>
+                                        </div>
+                                    }
+                                    
                                     <div>
-                                        <h6 class="card-title mb-0 fw-bold">@job.job_title</h6>
-                                        <small class="text-primary">@job.employer_name</small>
+                                        @* 2. Sửa: Dùng job_title và employer_name *@
+                                        <h6 class="fw-bold mb-1 text-truncate" style="max-width: 180px;">@job.job_title</h6>
+                                        <p class="text-primary small mb-0">@job.employer_name</p>
                                     </div>
                                 </div>
-                                <p class="small text-muted mb-2">
-                                    <i class="fas fa-map-marker-alt me-2"></i>@job.job_city 
-                                    <span class="badge bg-light text-dark border ms-2">@job.job_employment_type</span>
+
+                                @* 3. Sửa: Dùng job_city thay cho Address *@
+                                <p class="text-muted small mb-2 text-truncate">
+                                    <i class='bx bxs-map me-1'></i> @(string.IsNullOrEmpty(job.job_city) ? "Toàn quốc" : job.job_city)
                                 </p>
-                                <p class="card-text text-secondary small">
-                                    @(job.job_description?.Length > 120 ? job.job_description.Substring(0, 120) + "..." : job.job_description)
+
+                                @* 4. Sửa: Dùng job_description và cắt ngắn 3 dòng *@
+                                <p class="text-secondary small mb-4" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">
+                                    @job.job_description
                                 </p>
-                                <a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
-                                class="btn btn-primary w-100 rounded-pill mt-3">
-                                Xem chi tiết & Ứng tuyển
-                                </a>
+
+                                @* 5. Sửa: Gắn ID vào link chi tiết *@
+                                <div class="mt-auto">
+                                    @* Lưu ý: Đảm bảo JobDto của bạn có thuộc tính job_id chứa ID của Job *@
+                                    <a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
+                                    class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
+                                    Xem chi tiết & Ứng tuyển
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5">
+                        <div class="mb-3">
+                            <i class='bx bx-search-alt text-muted' style="font-size: 4rem;"></i>
+                        </div>
+                        <h5 class="text-muted">Hiện chưa có cơ hội việc làm nào mới.</h5>
+                        <p class="small text-secondary">Vui lòng quay lại sau hoặc đăng nhập trang Admin để nạp dữ liệu.</p>
                     </div>
                 }
-            }
-            else
-            {
-                <div class="col-12 text-center py-5">
-                    <div class="spinner-border text-primary mb-3"></div>
-                    <p class="text-muted">Đang kết nối dữ liệu việc làm thực tế...</p>
-                </div>
-            }
-        </div>
+            </div>
         </div>
     </section>
 

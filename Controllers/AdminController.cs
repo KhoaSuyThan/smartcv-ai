@@ -63,7 +63,7 @@ namespace DoAnCS.Controllers
                 .ToListAsync();
 
             // Lấy thêm danh sách 5-10 việc làm mới nhất để hiện ở Dashboard
-            var jobs = await _context.Jobs
+            var jobs = await _context.Jobs.Include(j => j.Company)
                 .OrderByDescending(j => j.CreatedAt)
                 .Take(10) // Lấy 10 tin mới nhất
                 .ToListAsync();
@@ -249,7 +249,7 @@ namespace DoAnCS.Controllers
         // [GET] Danh sách việc làm
         public async Task<IActionResult> ManageJobs()
         {
-            var jobs = await _context.Jobs.OrderByDescending(j => j.CreatedAt).ToListAsync();
+            var jobs = await _context.Jobs.Include(j => j.Company).OrderByDescending(j => j.CreatedAt).ToListAsync();
             return View(jobs);
         }
 

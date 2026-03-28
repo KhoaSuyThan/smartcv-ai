@@ -53,6 +53,11 @@
     /* Style cho phân trang */
     .pagination { margin-bottom: 0; }
     .page-item.active .page-link { background-color: #0d6efd; border-color: #0d6efd; }
+    
+    #btnClearFilters:hover {
+        background-color: #fff5f5; /* Màu nền đỏ cực nhẹ */
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1); /* Đổ bóng nhẹ */
+    }
 </style>
 
 <div class="container py-5">
@@ -60,36 +65,62 @@
         <div class="col-lg-3 mb-4">
             <form asp-action="Jobs" method="get" class="job-filter-sidebar">
                 <h5 class="fw-bold mb-4">Bộ lọc tìm kiếm</h5>
-                
+
                 <div class="mb-4">
-                    <label class="form-label small fw-bold text-uppercase">Từ khóa</label>
-                    @* Thêm value="@Model.SearchQuery" để không bị mất chữ đã gõ *@
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label small fw-bold text-uppercase text-secondary mb-0">Từ khóa</label>
+                        
+                        <a href="@Url.Action("Jobs", "Home")" id="btnClearFilters" 
+                        class="text-danger small text-decoration-none d-none border border-danger rounded px-2 py-1" 
+                        style="font-weight: 600; transition: all 0.2s ease;">
+                            <i class='bx bx-refresh'></i> Xóa bộ lọc
+                        </a>
+                    </div>
                     <input type="text" name="searchQuery" class="form-control" 
                         placeholder="C#, AI, Flutter..." value="@Model.SearchQuery">
                 </div>
 
                 <div class="mb-4">
-                    <label class="form-label small fw-bold text-uppercase">Chuyên môn</label>
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" name="specialties" value=".NET" id="net"
-                            @(Model.SelectedSpecialties.Contains(".NET") ? "checked" : "")>
-                        <label class="form-check-label" for="net">.NET Developer</label>
-                    </div>
-
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" name="specialties" value="AI" id="ai"
-                            @(Model.SelectedSpecialties.Contains("AI") ? "checked" : "")>
-                        <label class="form-check-label" for="ai">Artificial Intelligence</label>
-                    </div>
-
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" name="specialties" value="Flutter" id="flutter"
-                            @(Model.SelectedSpecialties.Contains("Flutter") ? "checked" : "")>
-                        <label class="form-check-label" for="flutter">Flutter/Mobile</label>
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Vị trí công việc</label>
+                    <input type="text" id="filterSearch" class="form-control form-control-sm mb-2" placeholder="Tìm vị trí nhanh...">
+                    
+                    <div class="filter-scroll-container border rounded-3 p-2 bg-white" style="max-height: 250px; overflow-y: auto;">
+                        @foreach (var spec in Model.AllSpecialties)
+                        {
+                            <div class="form-check mb-1 specialty-item">
+                                @* Sửa ID để tránh trùng lặp hoặc ký tự đặc biệt *@
+                                <input class="form-check-input" type="checkbox" name="specialties" value="@spec" 
+                                    id="spec-@spec.GetHashCode()" 
+                                    @(Model.SelectedSpecialties.Contains(spec) ? "checked" : "")>
+                                <label class="form-check-label small" for="spec-@spec.GetHashCode()">@spec</label>
+                            </div>
+                        }
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 rounded-pill">Áp dụng bộ lọc</button>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-uppercase text-secondary">Doanh nghiệp</label>
+                    <input type="text" id="companySearch" class="form-control form-control-sm mb-2" placeholder="Tìm tên công ty...">
+                    
+                    <div class="filter-scroll-container border rounded-3 p-2 bg-white" style="max-height: 200px; overflow-y: auto;">
+                        @if (Model.AllCompanies != null)
+                        {
+                            @foreach (var comName in Model.AllCompanies)
+                            {
+                                <div class="form-check mb-1 company-item">
+                                    <input class="form-check-input" type="checkbox" name="selectedCompanies" value="@comName" 
+                                        id="com-@comName.GetHashCode()" 
+                                        @(Model.SelectedCompanies.Contains(comName) ? "checked" : "")>
+                                    <label class="form-check-label small" for="com-@comName.GetHashCode()">@comName</label>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm mt-2">
+                    <i class='bx bx-filter-alt me-1'></i> Áp dụng bộ lọc
+                </button>
             </form>
         </div>
 
@@ -185,3 +216,50 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('filterSearch').addEventListener('keyup', function() {
+        let value = this.value.toLowerCase();
+        document.querySelectorAll('.specialty-item').forEach(function(item) {
+            let text = item.innerText.toLowerCase();
+            item.style.display = text.includes(value) ? 'block' : 'none';
+        });
+    });
+
+    document.getElementById('companySearch').addEventListener('keyup', function() {
+        let value = this.value.toLowerCase();
+        document.querySelectorAll('.company-item').forEach(function(item) {
+            let text = item.innerText.toLowerCase();
+            item.style.display = text.includes(value) ? 'block' : 'none';
+        });
+    });
+
+    function toggleClearButton() {
+        const btnClear = document.getElementById('btnClearFilters');
+        const searchInput = document.querySelector('input[name="searchQuery"]');
+        // Lấy tất cả các checkbox có trong 2 bộ lọc
+        const checkboxes = document.querySelectorAll('.form-check-input');
+        
+        let isAnyChecked = Array.from(checkboxes).some(cb => cb.checked);
+        let isSearchFilled = searchInput.value.trim() !== "";
+
+        if (isAnyChecked || isSearchFilled) {
+            btnClear.classList.remove('d-none');
+        } else {
+            btnClear.classList.add('d-none');
+        }
+    }
+
+    // Gán sự kiện lắng nghe
+    document.addEventListener('DOMContentLoaded', () => {
+        toggleClearButton();
+        
+        // Theo dõi ô search chính
+        document.querySelector('input[name="searchQuery"]').addEventListener('input', toggleClearButton);
+        
+        // Theo dõi tất cả checkbox
+        document.querySelectorAll('.form-check-input').forEach(cb => {
+            cb.addEventListener('change', toggleClearButton);
+        });
+    });
+</script>
