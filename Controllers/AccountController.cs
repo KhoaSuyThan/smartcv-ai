@@ -216,5 +216,63 @@ namespace DoAnCS.Controllers
 
             return LocalRedirect(returnUrl);
         }
+
+        // ==========================================
+        // HỒ SƠ CÁ NHÂN (PROFILE)
+        // ==========================================
+
+        [HttpGet]
+        [Authorize] // Bắt buộc đăng nhập mới được vào
+        public async Task<IActionResult> Profile()
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return NotFound();
+
+            return View(user); // Truyền thẳng Model User ra View
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Profile([Bind("FullName,Phone")] User model)
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.FullName = model.FullName;
+                user.Phone = model.Phone; 
+             //Không gán user.Role hay user.PasswordHash ở đây
+
+                await _context.SaveChangesAsync();
+                var currentNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
+                if (currentNameClaim != user.FullName)
+                {
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.FullName),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim("UserID", user.UserID.ToString())
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                    var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+                    // Ghi đè lại Cookie đăng nhập
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+                }
+                TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
+                return RedirectToAction("Profile");
+            }
+            return View(user);
+        }
     }
 }

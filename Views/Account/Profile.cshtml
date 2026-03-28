@@ -1,0 +1,60 @@
+@model DoAnCS.Models.User
+@{
+    ViewData["Title"] = "Hồ sơ cá nhân";
+}
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0 text-center p-4">
+                <img src="/images/default-avatar.png" alt="Avatar" class="rounded-circle mx-auto mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #0d6efd;">
+                <h4 class="fw-bold">@Model.FullName</h4>
+                <p class="text-muted">@Model.Email</p>
+                <button class="btn btn-outline-primary btn-sm">Đổi ảnh đại diện</button>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 p-4">
+                <h4 class="fw-bold text-primary mb-4">Thông tin cá nhân</h4>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-controller="Account" asp-action="Profile" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FullName" class="form-label fw-semibold">Họ và Tên</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label fw-semibold">Số điện thoại</label>
+                            <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold">Email</label>
+                            <input asp-for="Email" class="form-control bg-light" readonly title="Không thể đổi Email" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

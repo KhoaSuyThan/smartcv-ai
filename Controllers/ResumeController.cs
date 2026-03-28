@@ -218,6 +218,7 @@ namespace DoAnCS.Controllers
         {
             try
             {
+                int userId = GetCurrentUserId();
                 // Ghi lại lịch sử xuất file
                 var exportLog = new ResumeExport
                 {
@@ -227,6 +228,12 @@ namespace DoAnCS.Controllers
                 };
 
                 _context.ResumeExports.Add(exportLog);
+                // 2. CẬP NHẬT TRẠNG THÁI CV: Đã xuất PDF -> Không còn là bản nháp
+                var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == resumeId && r.UserID == userId);
+                if (resume != null)
+                {
+                    resume.IsDraft = false; 
+                }
                 await _context.SaveChangesAsync();
 
                 return Json(new { success = true });
@@ -244,6 +251,49 @@ namespace DoAnCS.Controllers
                             ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             
             return int.TryParse(userIdClaim, out int id) ? id : 0;
+        }
+
+        // 5. Hiển thị trang "CV của tôi"
+        [HttpGet]
+        public async Task<IActionResult> MyResumes()
+        {
+            int userId = GetCurrentUserId();
+            if (userId == 0) 
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Lấy danh sách CV của User, Include thêm Template để sau này lấy ảnh Thumbnail mẫu
+            var myResumes = await _context.Resumes
+                .Include(r => r.Template) 
+                .Where(r => r.UserID == userId)
+                .OrderByDescending(r => r.UpdatedAt)
+                .ToListAsync();
+
+            return View(myResumes);
+        }
+
+        // 6. Đổi tên CV (Dùng Ajax)
+        [HttpPost]
+        public async Task<IActionResult> UpdateName(int id, string newName)
+        {
+            int userId = GetCurrentUserId();
+            if (userId == 0) return Json(new { success = false, message = "Chưa đăng nhập." });
+
+            // Tìm CV chính xác của User này
+            var resume = await _context.Resumes
+                .FirstOrDefaultAsync(r => r.ResumeID == id && r.UserID == userId);
+
+            if (resume != null && !string.IsNullOrWhiteSpace(newName))
+            {
+                resume.Title = newName;
+                resume.UpdatedAt = DateTime.Now; // Cập nhật luôn thời gian sửa
+                await _context.SaveChangesAsync();
+                
+                return Json(new { success = true });
+            }
+            
+            return Json(new { success = false, message = "Không tìm thấy bản ghi hoặc tên không hợp lệ." });
         }
     }
 }

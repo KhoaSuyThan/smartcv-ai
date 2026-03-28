@@ -1,0 +1,79 @@
+@model IEnumerable<DoAnCS.Models.Resume>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">CV của tôi</h2>
+        <a href="@Url.Action("Templates", "Resume")" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo CV mới</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">Bạn chưa tạo bản CV nào. Hãy bắt đầu ngay nhé!</div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var cv in Model)
+            {
+                <div class="col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm border-0 bg-light">
+                        <img src="/images/templates/default-template.jpg" class="card-img-top" style="height: 250px; object-fit: cover; object-position: top;">
+                        
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="card-title mb-0 fw-bold" id="cv-name-@cv.ResumeID">@cv.Title</h6>
+                                <button class="btn btn-sm text-secondary p-0" onclick="renameCV(@cv.ResumeID, '@cv.Title')" title="Đổi tên CV">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                            </div>
+                            
+                            <p class="text-muted small mb-2">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                            
+                            @if (cv.IsDraft)
+                            {
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock-history"></i> Đang làm</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã xuất PDF</span>
+                            }
+                        </div>
+                        
+                        <div class="card-footer bg-white border-top-0 d-flex gap-2">
+                            <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-outline-primary btn-sm w-100">Tiếp tục chỉnh sửa</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function renameCV(cvId, oldName) {
+            let newName = prompt("Nhập tên mới cho CV của bạn:", oldName);
+            
+            if (newName && newName.trim() !== "" && newName !== oldName) {
+                // Gọi sang Action UpdateName
+                $.ajax({
+                    url: '@Url.Action("UpdateName", "Resume")',
+                    type: 'POST',
+                    data: { id: cvId, newName: newName },
+                    success: function(res) {
+                        if (res.success) {
+                            // Cập nhật text trên giao diện ngay lập tức
+                            $('#cv-name-' + cvId).text(newName);
+                            alert("Đã đổi tên CV thành công!");
+                        } else {
+                            alert(res.message || "Có lỗi xảy ra.");
+                        }
+                    },
+                    error: function() {
+                        alert("Lỗi kết nối đến máy chủ.");
+                    }
+                });
+            }
+        }
+    </script>
+}
