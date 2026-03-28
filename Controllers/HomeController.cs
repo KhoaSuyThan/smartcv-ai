@@ -54,41 +54,135 @@ namespace DoAnCS.Controllers
         }
 
         // SỬA: Thêm tham số int? page
-        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties)
+        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies)
         {
-            // 1. Lấy tất cả việc làm từ file JSON
-            var allJobs = await _jobApiService.GetRealTimeJobsAsync("IT Jobs Vietnam");
+            // 1. Khởi tạo Query lấy từ Database
+            IQueryable<Job> query = _context.Jobs.Include(j => j.Company);
 
-            // 2. Thực hiện LỌC nếu có từ khóa tìm kiếm
+            // 2. Bộ lọc tìm kiếm theo từ khóa (Tiêu đề hoặc Mô tả)
             if (!string.IsNullOrEmpty(searchQuery))
             {
-                searchQuery = searchQuery.ToLower();
-                allJobs = allJobs.Where(j => 
-                    j.job_title.ToLower().Contains(searchQuery) || 
-                    j.employer_name.ToLower().Contains(searchQuery) ||
-                    j.job_description.ToLower().Contains(searchQuery)
-                ).ToList();
+                query = query.Where(j => j.Title.Contains(searchQuery) || j.Description.Contains(searchQuery));
             }
-            // 2. Lọc theo CHUYÊN MÔN (nếu có tích checkbox)
+
+            // 3. Bộ lọc theo Chuyên môn (Checkboxes)
             if (specialties != null && specialties.Any())
             {
-                // Chỉ lấy những việc làm mà tiêu đề chứa bất kỳ chuyên môn nào được chọn
-                allJobs = allJobs.Where(j => 
-                    specialties.Any(s => j.job_title.Contains(s, StringComparison.OrdinalIgnoreCase))
-                ).ToList();
+                // Lọc những Job mà Tiêu đề hoặc Mô tả có chứa các từ khóa chuyên môn
+                query = query.Where(j => specialties.Any(s => j.Title.Contains(s) || j.Description.Contains(s)));
             }
-            // 3. Cấu hình phân trang
-            int pageSize = 10; // 10 việc làm mỗi trang
-            int pageNumber = page ?? 1; // Nếu page null thì mặc định là trang 1
-            
+            // 4. Bộ lọc theo Công ty (Checkboxes)
+            if (selectedCompanies != null && selectedCompanies.Any())
+            {
+                query = query.Where(j => selectedCompanies.Contains(j.Company.Name));
+            }
 
-            // 4. Tạo ViewModel và thực hiện phân trang
+            // 4. Sắp xếp mới nhất lên đầu
+            query = query.OrderByDescending(j => j.CreatedAt);
+
+            // 5. Mapping sang JobDto để View không bị lỗi
+            var jobDtos = await query.Select(j => new JobDto
+            {
+                job_id = j.JobID.ToString(),
+                job_title = j.Title,
+                employer_name = j.Company != null ? j.Company.Name : "N/A",
+                employer_logo = j.Company != null ? j.Company.LogoUrl : null,
+                job_salary = j.Salary,
+                job_city = j.Company != null ? j.Company.Address : "Toàn quốc",
+                job_description = j.Description,
+                job_apply_link = j.Company != null ? j.Company.Website : "#"
+            }).ToListAsync();
+
+            // 6. Cấu hình phân trang
+            int pageSize = 10; // Mỗi trang hiện 5 tin
+            int pageNumber = page ?? 1;
+
+            var allSpecs = new List<string>{".NET Engineer",
+                "Accounting Intern",
+                "Administrative Intern",
+                "Agriculture Technician / Farm Intern",
+                "AI Developer",
+                "AI Prompt Engineering",
+                "AI Team Lead",
+                "Android Developer",
+                "Backend Developer",
+                "BI Database Developer Intern",
+                "Bridge System Engineer",
+                "Business Analyst",
+                "Business Development Specialist",
+                "Business Intern",
+                "Business Support Intern",
+                "Category Manager",
+                "Cloud Engineer",
+                "Cobol Developer",
+                "Communication / Marketing Intern",
+                "Cybersecurity Engineer",
+                "Data Analyst",
+                "Data Engineer",
+                "Database Administrator",
+                "Deputy Head of Customer Applications",
+                "Deputy Head of Internal Applications",
+                "Developer Intern",
+                "DevOps Engineer",
+                "Digital Marketing Specialist",
+                "ERP Consultant",
+                "Flutter Developer Intern",
+                "Fresher Developer",
+                "Frontend Developer",
+                "Fullstack Developer",
+                "Graphic Designer",
+                "Head of Application Development",
+                "Head of Data & AI",
+                "Head of Information Security",
+                "Head of Infrastructure & Platform",
+                "Head of IT Governance & Compliance / PMO",
+                "HR Intern (Recruitment)",
+                "HR Specialist / HRBP",
+                "Implementation Consultant",
+                "Import-Export / Logistics Intern",
+                "IoT Engineer",
+                "IT & Product Designer",
+                "IT Governance Specialist",
+                "IT Helpdesk Specialist",
+                "IT Operations Specialist",
+                "IT Service Quality",
+                "Java Developer",
+                "JS Engineer",
+                "Lead Cybersecurity Engineer",
+                "Lead Data Engineer",
+                "Mobile Developer",
+                "Network Engineer",
+                "Operations Executive",
+                "Platform Engineer",
+                "PMO Specialist",
+                "Production / Manufacturing Staff",
+                "QA/QC Automation Engineer",
+                "QC/Tester",
+                "R&D Specialist (Product/Food/Bio)",
+                "Senior IT Operations Engineer",
+                "Senior IT System Engineer",
+                "Senior Platform Engineer",
+                "Service Desk Consultant",
+                "Social Media",
+                "STEM Instructor / Teacher",
+                "System Operations Specialist",
+                "Technical Architect",
+                "UI/UX Designer"};
+
+            var companyNames = await _context.Companies
+                .Select(c => c.Name)
+                .Distinct()
+                .OrderBy(n => n)
+                .ToListAsync();
+
             var viewModel = new HomeViewModel
             {
-                // Chuyển danh sách thường thành danh sách có phân trang
-                RealJobs = allJobs.ToPagedList(pageNumber, pageSize),
+                RealJobs = jobDtos.ToPagedList(pageNumber, pageSize),
                 SearchQuery = searchQuery,
-                SelectedSpecialties = specialties
+                SelectedSpecialties = specialties ?? new List<string>(), // Lưu lại các checkbox đã chọn
+                SelectedCompanies = selectedCompanies ?? new List<string>(),
+                AllSpecialties = allSpecs.OrderBy(s => s).ToList(),
+                AllCompanies = await _context.Companies.Select(c => c.Name).Distinct().ToListAsync()
             };
 
             return View(viewModel);
