@@ -10,6 +10,8 @@ namespace DoAnCS.Models
         //public List<Job> LatestJobs { get; set; } = new List<Job>();
         // Thuộc tính để lưu từ khóa tìm kiếm
         public string SearchQuery { get; set; }
+        public IPagedList<JobDto> LatestJobs { get; set; }
+        public int TotalJobCount { get; set; }
         // Thuộc tính để lưu các chuyên ngành đã chọn (nếu có)
         public List<string> SelectedSpecialties { get; set; } = new List<string>();
         // Danh sách lấy từ API

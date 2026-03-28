@@ -21,18 +21,35 @@ namespace DoAnCS.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var realJobsData = await _jobApiService.GetRealTimeJobsAsync("IT Developer Vietnam");
-            
+            // 1. Lấy Job từ Database
+            var jobsFromDb = await _context.Jobs
+                .Include(j => j.Company)
+                .OrderByDescending(j => j.CreatedAt)
+                .Take(6)
+                .ToListAsync();
+
+            // 2. Mapping sang JobDto
+            var mappedJobs = jobsFromDb.Select(j => new JobDto
+            {
+                job_id = j.JobID.ToString(),
+                job_title = j.Title,
+                employer_name = j.Company?.Name,
+                employer_logo = j.Company?.LogoUrl,
+                job_city = j.Company?.Address,
+                job_description = j.Description,
+                job_apply_link = j.Company?.Website ?? "#"
+            }).ToList();
+
+            // 3. Nạp vào đúng thuộc tính LatestJobs
             var viewModel = new HomeViewModel
             {
+                LatestJobs = mappedJobs.ToPagedList(1, 6), // Đổ vào đây nè Khoa!
                 PopularTemplates = await _context.Templates
                     .Where(t => t.IsActive == true)
                     .Take(4)
-                    .ToListAsync(),
-
-                // Trang chủ chỉ hiện 6 cái đầu tiên, không cần phân trang 1 2 3
-                RealJobs = realJobsData.ToPagedList(1, 6) 
+                    .ToListAsync()
             };
+
             return View(viewModel);
         }
 
@@ -77,15 +94,30 @@ namespace DoAnCS.Controllers
             return View(viewModel);
         }
 
-        public async Task<IActionResult> Details(string id)
+        // Đổi tham số từ string sang int vì JobID trong DB của Khoa là kiểu int
+        public async Task<IActionResult> Details(int id)
         {
-            if (string.IsNullOrEmpty(id)) return NotFound();
+            // 1. Tìm Job trong Database kèm theo thông tin Công ty (Include)
+            var jobDb = await _context.Jobs
+                .Include(j => j.Company)
+                .FirstOrDefaultAsync(m => m.JobID == id);
 
-            var job = await _jobApiService.GetJobByIdAsync(id);
-            
-            if (job == null) return NotFound();
+            // 2. Nếu không tìm thấy trong DB thì mới thử gọi API (hoặc báo lỗi)
+            if (jobDb == null) return NotFound();
 
-            return View(job); // Trả về Model là 1 đối tượng JobDto
+            // 3. Quan trọng nhất: Mapping dữ liệu từ Job (DB) sang JobDto (View)
+            var jobDto = new JobDto
+            {
+                job_title = jobDb.Title,
+                employer_name = jobDb.Company?.Name,
+                employer_logo = jobDb.Company?.LogoUrl, // Link ảnh SerpApi lưu ở đây
+                job_city = jobDb.Company?.Address,
+                job_description = jobDb.Description,
+                job_apply_link = jobDb.Company?.Website ?? "#" // Link ứng tuyển
+            };
+
+            // 4. Trả về View với Model là đối tượng JobDto đã được map xong
+            return View(jobDto);
         }
     }
 }
