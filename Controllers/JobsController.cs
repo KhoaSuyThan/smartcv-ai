@@ -35,18 +35,33 @@ namespace DoAnCS.Controllers
         [Authorize(Roles = "Recruiter,Admin")]
         public async Task<IActionResult> Manage()
         {
+            // 1. Khởi tạo Query lấy kèm thông tin Công ty
             IQueryable<Job> query = _context.Jobs.Include(j => j.Company);
 
-            // LOGIC PHÂN QUYỀN DỮ LIỆU:
-            if (CurrentRole == "Recruiter")
+            // 2. Kiểm tra quyền của người dùng đang đăng nhập
+            if (User.IsInRole("Recruiter"))
             {
-                // Nhà tuyển dụng chỉ thấy tin thuộc về CompanyID của mình
-                query = query.Where(j => j.CompanyID == CurrentCompanyId);
-            }
-            // Admin không bị lọc (thấy hết)
+                // Lấy CompanyID từ Claim (đã lưu lúc đăng nhập)
+                var companyIdClaim = User.FindFirst("CompanyID")?.Value;
 
-            var myJobs = await query.ToListAsync();
-            return View(myJobs);
+                if (companyIdClaim != null)
+                {
+                    int currentCompanyId = int.Parse(companyIdClaim);
+                    // CHỈ LẤY các tin thuộc công ty này
+                    query = query.Where(j => j.CompanyID == currentCompanyId);
+                }
+                else
+                {
+                    // Nếu không tìm thấy CompanyID, trả về danh sách rỗng để bảo mật
+                    return View(new List<Job>());
+                }
+            }
+            // Nếu là Admin thì không lọc (query giữ nguyên để thấy hết)
+
+            // 3. Sắp xếp và thực thi truy vấn
+            var jobs = await query.OrderByDescending(j => j.CreatedAt).ToListAsync();
+
+            return View(jobs);
         }
 
         // ==========================================
