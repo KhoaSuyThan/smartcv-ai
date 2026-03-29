@@ -24,6 +24,7 @@ namespace DoAnCS.Controllers
             // 1. Lấy Job từ Database
             var jobsFromDb = await _context.Jobs
                 .Include(j => j.Company)
+                .Where(j => j.Status == 1)
                 .OrderByDescending(j => j.CreatedAt)
                 .Take(6)
                 .ToListAsync();
@@ -57,7 +58,8 @@ namespace DoAnCS.Controllers
         public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies)
         {
             // 1. Khởi tạo Query lấy từ Database
-            IQueryable<Job> query = _context.Jobs.Include(j => j.Company);
+            IQueryable<Job> query = _context.Jobs.Include(j => j.Company)
+            .Where(j => j.Status == 1);
 
             // 2. Bộ lọc tìm kiếm theo từ khóa (Tiêu đề hoặc Mô tả)
             if (!string.IsNullOrEmpty(searchQuery))

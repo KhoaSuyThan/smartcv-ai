@@ -3,10 +3,20 @@
 <div class="container py-5">
     <div class="card border-0 shadow-lg rounded-4">
         <div class="card-header bg-primary text-white p-4">
-            <h4 class="m-0 fw-bold"><i class='bx bx-plus-circle'></i> Thêm mới Tin tuyển dụng</h4>
+            <h4 class="m-0 fw-bold">
+                <i class='bx @(Model?.JobID > 0 ? "bx-edit" : "bx-plus-circle")'></i> 
+                @(Model?.JobID > 0 ? "Cập nhật & Duyệt tin" : "Thêm mới Tin tuyển dụng")
+            </h4>
         </div>
         <div class="card-body p-5">
-            <form asp-action="CreateJob" method="post">
+            @* Giữ nguyên form, chỉ điều hướng Action dựa trên ID *@
+            <form asp-action="@(Model?.JobID > 0 ? "Edit" : "Create")" method="post">
+                @Html.AntiForgeryToken()
+                @if (Model?.JobID > 0)
+                {
+                    <input type="hidden" asp-for="JobID" />
+                }
+
                 <div class="row g-4">
                     <div class="col-md-8">
                         <label class="form-label fw-bold">Vị trí tuyển dụng</label>
@@ -19,15 +29,24 @@
                     
                     <div class="col-12">
                         <label class="form-label fw-bold">Công ty tuyển dụng</label>
-                        <select asp-for="CompanyID" class="form-select border-2" 
-                                asp-items="@(new SelectList(ViewBag.Companies, "CompanyID", "Name"))" required>
-                            <option value="">-- Chọn công ty --</option>
-                        </select>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <select asp-for="CompanyID" class="form-select border-2" 
+                                    asp-items="@(new SelectList(ViewBag.Companies, "CompanyID", "Name"))" required>
+                                <option value="">-- Chọn công ty --</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <input type="text" class="form-control border-2 bg-light" value="@(Model?.Company?.Name)" readonly />
+                            <input type="hidden" asp-for="CompanyID" />
+                        }
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Hạn nộp</label>
-                        <input asp-for="Deadline" type="date" class="form-control border-2" required />
+                        <input asp-for="Deadline" type="date" class="form-control border-2" 
+                               value="@(Model?.Deadline?.ToString("yyyy-MM-dd"))" required />
                     </div>
 
                     <div class="col-12">
@@ -36,11 +55,33 @@
                     </div>
                 </div>
 
+                @* Phần nút bấm: Giữ nguyên cấu trúc text-end, chỉ thêm các nút Duyệt/Từ chối *@
                 <div class="mt-5 border-top pt-4 text-end">
-                    <a asp-action="Index" class="btn btn-light rounded-pill px-4 me-2">Hủy bỏ</a>
-                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu tin đăng</button>
+                    <a asp-action="Manage" class="btn btn-light rounded-pill px-4 me-2">Hủy bỏ</a>
+
+                    @* Nút Duyệt/Từ chối dành riêng cho Admin khi tin đang chờ duyệt (Status = 0) *@
+                    @if (User.IsInRole("Admin") && Model?.Status == 0 && Model?.JobID > 0)
+                    {
+                        <a asp-action="Approve" asp-route-id="@Model.JobID" 
+                           class="btn btn-success rounded-pill px-4 me-2 shadow-sm fw-bold">
+                            <i class='bx bx-check'></i> Duyệt bài
+                        </a>
+                        
+                        <a asp-action="Reject" asp-route-id="@Model.JobID" 
+                           class="btn btn-danger rounded-pill px-4 me-2 shadow-sm fw-bold">
+                            <i class='bx bx-x'></i> Từ chối
+                        </a>
+                    }
+
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">
+                        @(Model?.JobID > 0 ? "Lưu thay đổi" : "Lưu tin đăng")
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

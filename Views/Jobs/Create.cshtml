@@ -1,0 +1,85 @@
+@model DoAnCS.Models.Job
+
+@{
+    ViewData["Title"] = "Đăng tin tuyển dụng";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-plus-square"></i> Đăng tin tuyển dụng mới</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Chọn công ty tuyển dụng</label>
+                                <select asp-for="CompanyID" class="form-select" 
+                                        asp-items="@(new SelectList(ViewBag.Companies, "CompanyID", "CompanyName"))">
+                                    <option value="">-- Chọn công ty --</option>
+                                </select>
+                                <span asp-validation-for="CompanyID" class="text-danger"></span>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề công việc</label>
+                            <input asp-for="Title" class="form-control" placeholder="Ví dụ: Tuyển lập trình viên .NET Core" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Salary" class="form-label fw-bold">Mức lương</label>
+                                <input asp-for="Salary" class="form-control" placeholder="Thỏa thuận, 10-15 triệu..." />
+                                <span asp-validation-for="Salary" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Deadline" class="form-label fw-bold">Hạn nộp hồ sơ</label>
+                                <input asp-for="Deadline" type="date" class="form-control" />
+                                <span asp-validation-for="Deadline" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold">Mô tả công việc</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả các công việc cần làm..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Requirements" class="form-label fw-bold">Yêu cầu ứng viên</label>
+                            <textarea asp-for="Requirements" class="form-control" rows="4" placeholder="Kỹ năng, kinh nghiệm cần có..."></textarea>
+                            <span asp-validation-for="Requirements" class="text-danger"></span>
+                        </div>
+
+                        <hr />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Manage" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="bi bi-send"></i> Gửi bài đăng
+                            </button>
+                        </div>
+                    </form>
+                    <div asp-validation-summary="All" class="text-danger fw-bold"></div>
+                </div>
+            </div>
+            
+            <div class="mt-3 text-muted text-center">
+                <small><i class="bi bi-info-circle"></i> Tin đăng của bạn sẽ được chuyển đến Admin để duyệt trước khi hiển thị chính thức.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

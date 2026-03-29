@@ -176,20 +176,56 @@
                             </span>
                         </td>
                         <td>
-                            @if (job.Deadline >= DateTime.Now) {
-                                <span class="badge bg-info-soft text-info rounded-pill px-3">Đang tuyển</span>
-                            } else {
-                                <span class="badge bg-secondary-soft text-secondary rounded-pill px-3">Hết hạn</span>
+                            @if (job.Status == 0)
+                            {
+                                <span class="badge bg-warning-soft text-warning rounded-pill px-3 animate-pulse">
+                                    <i class='bx bx-time-five me-1'></i>Chờ duyệt
+                                </span>
+                            }
+                            else if (job.Status == 1)
+                            {
+                                @if (job.Deadline >= DateTime.Now)
+                                {
+                                    <span class="badge bg-info-soft text-info rounded-pill px-3">Đang tuyển</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-soft text-secondary rounded-pill px-3">Hết hạn</span>
+                                }
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger-soft text-danger rounded-pill px-3">Từ chối</span>
                             }
                         </td>
                         <td class="text-center">
-                            <div class="btn-group shadow-sm rounded-3">
-                                <a asp-action="EditJob" asp-route-id="@job.JobID" class="btn btn-sm btn-white border">
-                                    <i class='bx bxs-edit-alt text-primary'></i>
-                                </a>
-                                <button onclick="confirmDeleteJob(@job.JobID)" class="btn btn-sm btn-white border">
-                                    <i class='bx bxs-trash text-danger'></i>
-                                </button>
+                            <div class="d-flex justify-content-center gap-2">
+                                @if (job.Status == 0)
+                                {
+                                    @* Nhóm nút Duyệt nhanh cho Admin *@
+                                    <a asp-controller="Jobs" asp-action="Approve" asp-route-id="@job.JobID"
+                                       asp-route-returnUrl="@Context.Request.Path"
+                                       class="btn btn-sm btn-success rounded-3 shadow-sm px-3 fw-bold">
+                                        <i class='bx bx-check'></i> Duyệt
+                                    </a>
+                                    <a asp-controller="Jobs" asp-action="Reject" asp-route-id="@job.JobID"
+                                       asp-route-returnUrl="@Context.Request.Path"
+                                       class="btn btn-sm btn-outline-danger rounded-3 shadow-sm">
+                                        <i class='bx bx-x'></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    @* Nhóm nút Sửa/Xóa mặc định *@
+                                    <div class="btn-group shadow-sm rounded-3">
+                                        <a asp-controller="Jobs" asp-action="EditJob" asp-route-id="@job.JobID" class="btn btn-sm btn-white border">
+                                            <i class='bx bxs-edit-alt text-primary'></i>
+                                        </a>
+                                        <button onclick="confirmDeleteJob(@job.JobID)" class="btn btn-sm btn-white border">
+                                            <i class='bx bxs-trash text-danger'></i>
+                                        </button>
+                                    </div>
+                                }
                             </div>
                         </td>
                     </tr>

@@ -1,0 +1,107 @@
+@model IEnumerable<DoAnCS.Models.Job>
+
+@{
+    ViewData["Title"] = "Quản lý tin tuyển dụng";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="bi bi-list-ul"></i> Quản lý tin tuyển dụng</h2>
+        @if (User.IsInRole("Recruiter") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Đăng tin mới
+            </a>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Tiêu đề</th>
+                        <th>Công ty</th>
+                        <th>Ngày tạo</th>
+                        <th>Hạn nộp</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Title</td>
+                            <td>@(@item.Company.Name ?? "N/A")</td>
+                            <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>@(item.Deadline?.ToString("dd/MM/yyyy") ?? "Không thời hạn")</td>
+                            <td>
+                                @if (item.Status == 0)
+                                {
+                                    <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Chờ duyệt</span>
+                                }
+                                else if (item.Status == 1)
+                                {
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã đăng</span>
+                                }
+                                else if (item.Status == 2)
+                                {
+                                    <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Bị từ chối</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Edit" asp-route-id="@item.JobID" class="btn btn-outline-primary btn-sm" title="Sửa">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+
+                                    <form asp-action="Delete" asp-route-id="@item.JobID" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tin này?');" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Xóa">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+
+                                    @if (User.IsInRole("Admin") && item.Status == 0)
+                                    {
+                                        <div class="ms-2 border-start ps-2">
+                                            <a asp-action="Approve" asp-route-id="@item.JobID" class="btn btn-success btn-sm">
+                                                Duyệt
+                                            </a>
+                                            <a asp-action="Reject" asp-route-id="@item.JobID" class="btn btn-danger btn-sm">
+                                                Từ chối
+                                            </a>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge { font-weight: 500; padding: 0.5em 0.8em; }
+    .table thead th { border-top: none; }
+    .btn-group .btn { margin-right: 2px; }
+</style>

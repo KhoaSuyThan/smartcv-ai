@@ -87,7 +87,15 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
                                     <li>
                                         <a class="dropdown-item py-2" href="/Account/Profile">
-                                            <i class="fas fa-id-card me-2 text-primary"></i> Hồ sơ cá nhân
+                                            <i class="fas fa-id-card me-2 text-primary"></i> 
+                                            @if (User.IsInRole("Recruiter"))
+                                            {
+                                                <span>Hồ sơ doanh nghiệp</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Hồ sơ cá nhân</span>
+                                            }
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>

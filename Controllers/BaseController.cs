@@ -4,14 +4,21 @@ namespace DoAnCS.Controllers;
 
 public class BaseController : Controller
 {
-    // Lấy UserID từ Claims
-    protected int CurrentUserId => int.Parse(User.FindFirst("UserID")?.Value ?? "0");
+    protected int CurrentUserId => int.TryParse(User.FindFirst("UserID")?.Value, out var id) ? id : 0;
 
-    // Lấy Role từ Claims
     protected string CurrentRole => User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
 
-    // Lấy CompanyID từ Claims (dành cho Nhà tuyển dụng)
-    protected int? CurrentCompanyId => User.FindFirst("CompanyID")?.Value != null 
-        ? int.Parse(User.FindFirst("CompanyID").Value) 
-        : null;
+    // Sửa lại dòng này cho chắc chắn
+    protected int? CurrentCompanyId 
+    {
+        get 
+        {
+            var val = User.FindFirst("CompanyID")?.Value;
+            if (!string.IsNullOrEmpty(val) && int.TryParse(val, out var id) && id > 0)
+            {
+                return id;
+            }
+            return null;
+        }
+    }
 }
