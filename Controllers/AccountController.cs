@@ -118,7 +118,8 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
-                new Claim("UserID", user.UserID.ToString())
+                new Claim("UserID", user.UserID.ToString()),
+                new Claim("CompanyID", user.CompanyID.ToString())
             };
 
                     var claimsIdentity = new ClaimsIdentity(
@@ -205,7 +206,8 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Name, user.FullName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role), // Quan trọng: Gán quyền từ DB
-                new Claim("UserID", user.UserID.ToString())
+                new Claim("UserID", user.UserID.ToString()),
+                new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
             };
 
             var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);

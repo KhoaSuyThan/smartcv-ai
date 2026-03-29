@@ -17,5 +17,7 @@ namespace DoAnCS.Models
         public int? CompanyID { get; set; }
         public virtual Company Company { get; set; } // Liên kết với bảng Companies
         public ICollection<Application> Applications { get; set; }
+
+        public int Status { get; set; } = 0;
     }
 }

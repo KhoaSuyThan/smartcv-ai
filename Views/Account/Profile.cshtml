@@ -1,6 +1,7 @@
 @model DoAnCS.Models.User
 @{
-    ViewData["Title"] = "Hồ sơ cá nhân";
+    bool isRecruiter = User.IsInRole("Recruiter");
+    ViewData["Title"] = isRecruiter ? "Hồ sơ doanh nghiệp" : "Hồ sơ cá nhân";
 }
 
 <div class="container py-5">
@@ -16,7 +17,7 @@
 
         <div class="col-lg-8">
             <div class="card shadow-sm border-0 p-4">
-                <h4 class="fw-bold text-primary mb-4">Thông tin cá nhân</h4>
+                <h4 class="fw-bold text-primary mb-4">@(isRecruiter ? "Thông tin doanh nghiệp" : "Thông tin cá nhân")</h4>
 
                 @if (TempData["SuccessMessage"] != null)
                 {
@@ -29,8 +30,10 @@
                 <form asp-controller="Account" asp-action="Profile" method="post">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label asp-for="FullName" class="form-label fw-semibold">Họ và Tên</label>
-                            <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên" />
+                            <label asp-for="FullName" class="form-label fw-semibold">
+                                @(isRecruiter ? "Tên Doanh nghiệp" : "Họ và Tên")
+                            </label>
+                            <input asp-for="FullName" class="form-control" placeholder="@(isRecruiter ? "Nhập tên doanh nghiệp" : "Nhập họ và tên")" />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
 

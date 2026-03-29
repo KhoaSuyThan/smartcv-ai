@@ -23,6 +23,7 @@ namespace DoAnCS.Controllers
         {
             var jobs = await _context.Jobs
                 .Include(j => j.Company)
+                .Where(j => j.Status == 1)
                 .OrderByDescending(j => j.CreatedAt)
                 .ToListAsync();
             return View(jobs);
@@ -34,18 +35,33 @@ namespace DoAnCS.Controllers
         [Authorize(Roles = "Recruiter,Admin")]
         public async Task<IActionResult> Manage()
         {
+            // 1. Khởi tạo Query lấy kèm thông tin Công ty
             IQueryable<Job> query = _context.Jobs.Include(j => j.Company);
 
-            // LOGIC PHÂN QUYỀN DỮ LIỆU:
-            if (CurrentRole == "Recruiter")
+            // 2. Kiểm tra quyền của người dùng đang đăng nhập
+            if (User.IsInRole("Recruiter"))
             {
-                // Nhà tuyển dụng chỉ thấy tin thuộc về CompanyID của mình
-                query = query.Where(j => j.CompanyID == CurrentCompanyId);
-            }
-            // Admin không bị lọc (thấy hết)
+                // Lấy CompanyID từ Claim (đã lưu lúc đăng nhập)
+                var companyIdClaim = User.FindFirst("CompanyID")?.Value;
 
-            var myJobs = await query.ToListAsync();
-            return View(myJobs);
+                if (companyIdClaim != null)
+                {
+                    int currentCompanyId = int.Parse(companyIdClaim);
+                    // CHỈ LẤY các tin thuộc công ty này
+                    query = query.Where(j => j.CompanyID == currentCompanyId);
+                }
+                else
+                {
+                    // Nếu không tìm thấy CompanyID, trả về danh sách rỗng để bảo mật
+                    return View(new List<Job>());
+                }
+            }
+            // Nếu là Admin thì không lọc (query giữ nguyên để thấy hết)
+
+            // 3. Sắp xếp và thực thi truy vấn
+            var jobs = await query.OrderByDescending(j => j.CreatedAt).ToListAsync();
+
+            return View(jobs);
         }
 
         // ==========================================
@@ -69,34 +85,70 @@ namespace DoAnCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Job job)
         {
+            // Xóa validation cho các object liên kết
+            ModelState.Remove("Recruiter");
+            ModelState.Remove("Company");
+            ModelState.Remove("Applications");
+
             if (ModelState.IsValid)
             {
-                // 1. Tự động gán các thông tin hệ thống
-                job.CreatedAt = DateTime.Now;
-                job.RecruiterID = CurrentUserId; // Lấy từ BaseController
+                // Lấy User từ DB để lấy CompanyID chính xác nhất
+                var userInDb = await _context.Users.FindAsync(CurrentUserId);
 
-                // 2. Logic gán CompanyID
+                job.CreatedAt = DateTime.Now;
+                job.RecruiterID = CurrentUserId;
+                job.Status = (CurrentRole == "Admin") ? 1 : 0;
+
                 if (CurrentRole == "Recruiter")
                 {
-                    job.CompanyID = CurrentCompanyId ?? 0;
+                    // Lấy ID từ DB thay vì lấy từ CurrentCompanyId (Claims)
+                    job.CompanyID = userInDb?.CompanyID;
                 }
-                // Nếu là Admin thì CompanyID sẽ lấy từ dropdown trong Form gửi lên
 
-                if (job.CompanyID == 0)
+                if (job.CompanyID == null || job.CompanyID == 0)
                 {
-                    ModelState.AddModelError("", "Lỗi: Không xác định được công ty tuyển dụng.");
-                    if (CurrentRole == "Admin") ViewBag.Companies = await _context.Companies.ToListAsync();
+                    ModelState.AddModelError("", "Lỗi: Hệ thống không thấy ID công ty của bạn trong DB.");
                     return View(job);
                 }
 
                 _context.Add(job);
                 await _context.SaveChangesAsync();
-                
-                TempData["Success"] = "Đăng tin tuyển dụng thành công!";
-                return RedirectToAction("Index", "Admin"); // Quay về Dashboard
+                return RedirectToAction(nameof(Manage));
             }
+            return View(job);
+        }
+
+
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var job = await _context.Jobs.FindAsync(id);
+            if (job == null) return NotFound();
+
+            // Check quyền sở hữu
+            if (CurrentRole == "Recruiter" && job.CompanyID != CurrentCompanyId) return Forbid();
 
             if (CurrentRole == "Admin") ViewBag.Companies = await _context.Companies.ToListAsync();
+            return View(job);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Recruiter,Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Job job)
+        {
+            if (id != job.JobID) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                // Khi sửa bài, đẩy trạng thái về Chờ duyệt (0)
+                // Admin sửa thì có thể giữ nguyên trạng thái Đã duyệt (1)
+                job.Status = (CurrentRole == "Admin") ? 1 : 0;
+
+                _context.Update(job);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Manage));
+            }
             return View(job);
         }
 
@@ -118,6 +170,42 @@ namespace DoAnCS.Controllers
 
             _context.Jobs.Remove(job);
             await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Manage));
+        }
+
+        // ==========================================
+        // 5. CHỨC NĂNG DÀNH RIÊNG CHO ADMIN DUYỆT TIN
+        // ==========================================
+
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Approve(int id, string returnUrl = null)
+        {
+            var job = await _context.Jobs.FindAsync(id);
+            if (job != null)
+            {
+                job.Status = 1;
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã duyệt bài!";
+            }
+
+            // Nếu có địa chỉ quay lại (từ Admin Dashboard) thì về đó, không thì về Manage
+            if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);
+            return RedirectToAction(nameof(Manage));
+        }
+
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Reject(int id, string returnUrl = null)
+        {
+            var job = await _context.Jobs.FindAsync(id);
+            if (job != null)
+            {
+                job.Status = 2;
+                await _context.SaveChangesAsync();
+                TempData["Error"] = "Đã từ chối bài!";
+            }
+
+            if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);
             return RedirectToAction(nameof(Manage));
         }
     }
