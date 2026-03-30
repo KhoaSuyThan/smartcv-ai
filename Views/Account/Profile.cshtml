@@ -1,56 +1,99 @@
 @model DoAnCS.Models.User
 @{
+    // 1. FIX LỖI ROLE: Kiểm tra cả 3 vai trò
+    bool isAdmin = User.IsInRole("Admin");
     bool isRecruiter = User.IsInRole("Recruiter");
-    ViewData["Title"] = isRecruiter ? "Hồ sơ doanh nghiệp" : "Hồ sơ cá nhân";
+    
+    ViewData["Title"] = isAdmin ? "Quản trị hệ thống" : (isRecruiter ? "Hồ sơ doanh nghiệp" : "Hồ sơ cá nhân");
+    
+    // Logic hiển thị Badge
+    string roleName = isAdmin ? "Quản trị viên" : (isRecruiter ? "Nhà tuyển dụng" : "Ứng viên");
+    string badgeClass = isAdmin ? "bg-dark" : (isRecruiter ? "bg-info" : "bg-primary");
+    string roleIcon = isAdmin ? "bi-shield-lock-fill" : (isRecruiter ? "bi-building" : "bi-person-fill");
+
+    var defaultAvt = "https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg";
 }
 
 <div class="container py-5">
-    <div class="row">
+    <div class="row justify-content-center">
         <div class="col-lg-4 mb-4">
             <div class="card shadow-sm border-0 text-center p-4">
-                <img src="/images/default-avatar.png" alt="Avatar" class="rounded-circle mx-auto mb-3" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #0d6efd;">
-                <h4 class="fw-bold">@Model.FullName</h4>
-                <p class="text-muted">@Model.Email</p>
-                <button class="btn btn-outline-primary btn-sm">Đổi ảnh đại diện</button>
+                <div class="position-relative d-inline-block mx-auto mb-3 avatar-container">
+                    <img id="avatarPreview" 
+                         src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? defaultAvt : Model.AvatarUrl)" 
+                         alt="Avatar" class="rounded-circle shadow-sm main-avatar">
+                    
+                    <div class="avatar-actions">
+                        <label for="avatarInput" class="action-btn edit-btn" title="Thay đổi ảnh">
+                            <i class="bi bi-pencil-fill"></i>
+                        </label>
+
+                        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                        {
+                            <button type="button" class="action-btn delete-btn" onclick="deleteAvatar()" title="Xóa ảnh đại diện">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+                
+                <h4 class="fw-bold mb-1">@Model.FullName</h4>
+                <p class="text-muted small">@Model.Email</p>
+                <div class="d-flex justify-content-center">
+                    <span class="badge @badgeClass rounded-pill px-3 py-2 shadow-sm">
+                        <i class="bi @roleIcon me-1"></i> @roleName
+                    </span>
+                </div>
             </div>
         </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-7">
             <div class="card shadow-sm border-0 p-4">
-                <h4 class="fw-bold text-primary mb-4">@(isRecruiter ? "Thông tin doanh nghiệp" : "Thông tin cá nhân")</h4>
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h4 class="fw-bold text-primary mb-0">
+                        <i class="bi bi-person-lines-fill me-2"></i>Thông tin chi tiết
+                    </h4>
+                    <button type="button" id="btnEdit" class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="enableEditing()">
+                        <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa hồ sơ
+                    </button>
+                </div>
 
                 @if (TempData["SuccessMessage"] != null)
                 {
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
                         <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 }
 
-                <form asp-controller="Account" asp-action="Profile" method="post">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="FullName" class="form-label fw-semibold">
-                                @(isRecruiter ? "Tên Doanh nghiệp" : "Họ và Tên")
-                            </label>
-                            <input asp-for="FullName" class="form-control" placeholder="@(isRecruiter ? "Nhập tên doanh nghiệp" : "Nhập họ và tên")" />
-                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                <form id="profileForm" asp-controller="Account" asp-action="Profile" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="UserID" />
+                    <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="submitAvatar(this)">
+                    <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
+
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <label asp-for="FullName" class="form-label custom-label">Họ và Tên</label>
+                            <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Phone" class="form-label fw-semibold">Số điện thoại</label>
-                            <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại" />
-                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        <div class="col-md-12">
+                            <label asp-for="Phone" class="form-label custom-label">Số điện thoại</label>
+                            <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly />
                         </div>
 
-                        <div class="col-12 mb-3">
-                            <label asp-for="Email" class="form-label fw-semibold">Email</label>
-                            <input asp-for="Email" class="form-control bg-light" readonly title="Không thể đổi Email" />
+                        <div class="col-12">
+                            <label class="form-label custom-label text-muted">Email đăng nhập</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0 ps-0"><i class="bi bi-envelope-at text-muted"></i></span>
+                                <input asp-for="Email" class="form-control border-0 bg-transparent text-muted fw-bold" readonly />
+                            </div>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                    <div id="editActions" class="mt-5 pt-3 border-top justify-content-end gap-2" style="display: none !important;">
+                        <button type="button" class="btn btn-light px-4 border rounded-pill" onclick="disableEditing()">Hủy bỏ</button>
+                        <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold">Lưu thay đổi</button>
                     </div>
                 </form>
             </div>
@@ -58,6 +101,67 @@
     </div>
 </div>
 
+<style>
+    /* ... Giữ nguyên CSS cũ của bạn ... */
+    html { scrollbar-gutter: stable; }
+    .main-avatar { width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff; outline: 2px solid #0d6efd; padding: 2px; }
+    .avatar-actions { position: absolute; bottom: 5px; right: -10px; display: flex; flex-direction: column; gap: 5px; }
+    .action-btn { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); transition: transform 0.2s; cursor: pointer; }
+    .action-btn:hover { transform: scale(1.1); }
+    .edit-btn { background-color: #0d6efd; }
+    .delete-btn { background-color: #dc3545; border: 2px solid #fff; }
+    .custom-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6c757d; margin-bottom: 0.1rem; }
+    .edit-locked { background-color: transparent !important; border: none !important; padding-left: 0 !important; font-size: 1.15rem; font-weight: 600; color: #212529 !important; box-shadow: none !important; pointer-events: none; }
+    .form-control:not(.edit-locked) { background-color: #fff !important; border: 1px solid #ced4da !important; padding-left: 0.75rem !important; pointer-events: auto; }
+</style>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // FIX LỖI ENCODING: Dùng Html.Raw để lấy chuỗi tiếng Việt chuẩn, không bị mã hóa HTML
+        let oldName = "@Html.Raw(Model.FullName)";
+        let oldPhone = "@Html.Raw(Model.Phone)";
+
+        function enableEditing() {
+            document.getElementById('editActions').style.setProperty('display', 'flex', 'important');
+            document.getElementById('btnEdit').style.display = 'none';
+            ['FullName', 'Phone'].forEach(id => {
+                const el = document.getElementById(id);
+                el.readOnly = false;
+                el.classList.remove('edit-locked');
+            });
+            document.getElementById('FullName').focus();
+        }
+
+        function disableEditing() {
+            // Khi gán lại giá trị, nó sẽ là tiếng Việt thuần túy
+            document.getElementById('FullName').value = oldName;
+            document.getElementById('Phone').value = oldPhone;
+            document.getElementById('editActions').style.setProperty('display', 'none', 'important');
+            document.getElementById('btnEdit').style.display = 'block';
+            ['FullName', 'Phone'].forEach(id => {
+                const el = document.getElementById(id);
+                el.readOnly = true;
+                el.classList.add('edit-locked');
+            });
+        }
+
+        function submitAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                    document.getElementById('profileForm').submit();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function deleteAvatar() {
+            if (confirm("Bạn có chắc chắn muốn xóa ảnh đại diện và quay về ảnh mặc định?")) {
+                document.getElementById('isDeleteAvatar').value = "true";
+                document.getElementById('profileForm').submit();
+            }
+        }
+    </script>
 }

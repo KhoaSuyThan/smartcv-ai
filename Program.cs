@@ -5,7 +5,7 @@ using DoAnCS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = @"Server=localhost\SQLEXPRESS01;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+var connectionString = @"Server=LAPTOP-V23SMM4O;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
 
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
@@ -22,7 +22,9 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = "ExternalCookies";
 })
+
 .AddCookie(options => 
 {
     options.LoginPath = "/Account/Login";
@@ -30,26 +32,37 @@ builder.Services.AddAuthentication(options =>
     options.ExpireTimeSpan = TimeSpan.FromHours(24);
     options.Cookie.Name = "CVBuilder_Auth"; // Đặt tên riêng cho Cookie
 })
+
+.AddCookie("ExternalCookies", options => 
+{
+    options.Cookie.Name = "CVBuilder_ExternalAuth";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15); // Chỉ cần tồn tại trong thời gian ngắn
+})
+
 .AddGoogle(options =>
 {
     options.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+    options.SignInScheme = "ExternalCookies";
 })
 .AddFacebook(options =>
 {
     options.AppId = builder.Configuration["Authentication:Facebook:AppId"] ?? "";
     options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"] ?? "";
+    options.SignInScheme = "ExternalCookies";
 })
 .AddGitHub(options =>
 {
     options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"] ?? "";
+    options.SignInScheme = "ExternalCookies";
     options.Scope.Add("user:email");
 })
 .AddLinkedIn(options =>
 {
     options.ClientId = builder.Configuration["Authentication:LinkedIn:ClientId"] ?? "";
     options.ClientSecret = builder.Configuration["Authentication:LinkedIn:ClientSecret"] ?? "";
+    options.SignInScheme = "ExternalCookies";
 });
 
 // --- 3. CẤU HÌNH AUTHORIZATION (PHÂN QUYỀN) ---

@@ -1,0 +1,78 @@
+@model DoAnCS.Models.Job
+@{
+    ViewData["Title"] = "Chỉnh sửa tin tuyển dụng";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h4 class="fw-bold text-primary mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa tin tuyển dụng
+                    </h4>
+                    <a asp-action="Manage" class="btn btn-outline-secondary btn-sm rounded-pill">Quay lại</a>
+                </div>
+
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    
+                    @* Các trường ẩn để giữ ID và dữ liệu gốc *@
+                    <input type="hidden" asp-for="JobID" />
+                    <input type="hidden" asp-for="RecruiterID" />
+                    <input type="hidden" asp-for="CompanyID" />
+                    <input type="hidden" asp-for="CreatedAt" />
+
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <label asp-for="Title" class="form-label fw-bold small text-uppercase text-muted">Tiêu đề tin</label>
+                            <input asp-for="Title" class="form-control" placeholder="Ví dụ: Senior .NET Developer" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Salary" class="form-label fw-bold small text-uppercase text-muted">Mức lương</label>
+                            <input asp-for="Salary" class="form-control" placeholder="Ví dụ: 15 - 25 triệu" />
+                            <span asp-validation-for="Salary" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Deadline" class="form-label fw-bold small text-uppercase text-muted">Hạn cuối nộp hồ sơ</label>
+                            <input asp-for="Deadline" type="date" class="form-control" />
+                            <span asp-validation-for="Deadline" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Status" class="form-label fw-bold small text-uppercase text-muted">Trạng thái</label>
+                            <select asp-for="Status" class="form-select">
+                                <option value="1">Đang tuyển (Công khai)</option>
+                                <option value="0">Tạm dừng (Ẩn tin)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-bold small text-uppercase text-muted">Mô tả công việc</label>
+                            <textarea asp-for="Description" class="form-control" rows="6" placeholder="Mô tả các công việc chính..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Requirements" class="form-label fw-bold small text-uppercase text-muted">Yêu cầu ứng viên</label>
+                            <textarea asp-for="Requirements" class="form-control" rows="6" placeholder="Yêu cầu về kỹ năng, kinh nghiệm..."></textarea>
+                            <span asp-validation-for="Requirements" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-top d-flex justify-content-end gap-2">
+                        <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold">
+                            <i class="bi bi-save me-2"></i>Cập nhật tin ngay
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

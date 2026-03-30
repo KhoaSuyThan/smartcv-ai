@@ -57,7 +57,7 @@
 
                 @* Phần nút bấm: Giữ nguyên cấu trúc text-end, chỉ thêm các nút Duyệt/Từ chối *@
                 <div class="mt-5 border-top pt-4 text-end">
-                    <a asp-action="Manage" class="btn btn-light rounded-pill px-4 me-2">Hủy bỏ</a>
+                    <a asp-controller="Admin" asp-action="Index" class="btn btn-light rounded-pill px-4 me-2">Hủy bỏ</a>
 
                     @* Nút Duyệt/Từ chối dành riêng cho Admin khi tin đang chờ duyệt (Status = 0) *@
                     @if (User.IsInRole("Admin") && Model?.Status == 0 && Model?.JobID > 0)

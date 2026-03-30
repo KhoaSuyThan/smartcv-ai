@@ -102,7 +102,7 @@ namespace DoAnCS.Controllers
                 if (CurrentRole == "Recruiter")
                 {
                     // Lấy ID từ DB thay vì lấy từ CurrentCompanyId (Claims)
-                    job.CompanyID = userInDb?.CompanyID;
+                    job.CompanyID = userInDb?.CompanyID ?? 0;
                 }
 
                 if (job.CompanyID == null || job.CompanyID == 0)
@@ -118,7 +118,7 @@ namespace DoAnCS.Controllers
             return View(job);
         }
 
-
+        [HttpGet]
         [Authorize(Roles = "Recruiter,Admin")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -139,19 +139,65 @@ namespace DoAnCS.Controllers
         {
             if (id != job.JobID) return NotFound();
 
+            // 1. Tìm bản ghi gốc TRONG DATABASE (Không tin vào dữ liệu gửi từ View hoàn toàn)
+            var jobInDb = await _context.Jobs.FindAsync(id);
+            if (jobInDb == null) return NotFound();
+
+            // 2. Check quyền sở hữu (Security check lần 2)
+            if (User.IsInRole("Recruiter") && jobInDb.CompanyID != CurrentCompanyId) 
+                return Forbid();
+
+            // 3. Gỡ bỏ kiểm tra các trường không cần nhập từ Form để ModelState hợp lệ
+            ModelState.Remove("Recruiter");
+            ModelState.Remove("Company");
+            ModelState.Remove("Applications");
+            // Nếu vẫn lỗi, Khoa thêm đoạn này để debug xem trường nào đang 'hành' mình:
+            // var errors = ModelState.Values.SelectMany(v => v.Errors);
+
             if (ModelState.IsValid)
             {
-                // Khi sửa bài, đẩy trạng thái về Chờ duyệt (0)
-                // Admin sửa thì có thể giữ nguyên trạng thái Đã duyệt (1)
-                job.Status = (CurrentRole == "Admin") ? 1 : 0;
+                try
+                {
+                    // 4. Chỉ cập nhật những gì người dùng được phép sửa
+                    jobInDb.Title = job.Title;
+                    jobInDb.Description = job.Description;
+                    jobInDb.Requirements = job.Requirements;
+                    jobInDb.Salary = job.Salary;
+                    jobInDb.Deadline = job.Deadline;
 
-                _context.Update(job);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Manage));
+                    // Xử lý trạng thái theo Role
+                    if (User.IsInRole("Admin"))
+                    {
+                        jobInDb.Status = 1; // Admin sửa là duyệt luôn
+                    }
+                    else
+                    {
+                        jobInDb.Status = 0; // Recruiter sửa thì phải duyệt lại
+                    }
+
+                    _context.Update(jobInDb);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Cập nhật thành công!";
+                    return RedirectToAction(nameof(Manage));
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!JobExists(job.JobID)) return NotFound();
+                    else throw;
+                }
             }
+            
+            // Nếu lỗi, trả lại dữ liệu gốc từ DB để View không bị trắng các trường ẩn
             return View(job);
         }
 
+        // Hàm bổ trợ kiểm tra sự tồn tại của Job
+        private bool JobExists(int id)
+        {
+            // Kiểm tra xem trong bảng Jobs có bất kỳ dòng nào khớp với ID này không
+            return _context.Jobs.Any(e => e.JobID == id);
+        }
+        
         // ==========================================
         // 4. XÓA TIN (Chủ sở hữu hoặc Admin)
         // ==========================================

@@ -13,8 +13,11 @@ namespace DoAnCS.Controllers
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;
-        public AccountController(AppDbContext context) => _context = context;
-
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context) {
+            _webHostEnvironment = webHostEnvironment;
+            _context = context;
+        }
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
         // ==========================================
@@ -119,7 +122,7 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("UserID", user.UserID.ToString()),
-                new Claim("CompanyID", user.CompanyID.ToString())
+                new Claim("CompanyID", user.CompanyID.ToString()?? "")
             };
 
                     var claimsIdentity = new ClaimsIdentity(
@@ -222,9 +225,8 @@ namespace DoAnCS.Controllers
         // ==========================================
         // HỒ SƠ CÁ NHÂN (PROFILE)
         // ==========================================
-
         [HttpGet]
-        [Authorize] // Bắt buộc đăng nhập mới được vào
+        [Authorize]
         public async Task<IActionResult> Profile()
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
@@ -233,13 +235,14 @@ namespace DoAnCS.Controllers
             var user = await _context.Users.FindAsync(userId);
             if (user == null) return NotFound();
 
-            return View(user); // Truyền thẳng Model User ra View
+            return View(user);
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile([Bind("FullName,Phone")] User model)
+        // BỔ SUNG: Nhận thêm tham số IFormFile từ View gửi lên
+        public async Task<IActionResult> Profile([Bind("FullName,Phone")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false)
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -247,34 +250,71 @@ namespace DoAnCS.Controllers
             var user = await _context.Users.FindAsync(userId);
             if (user != null)
             {
+                // --- XỬ LÝ UPLOAD ẢNH ĐẠI DIỆN ---
+                // TRƯỜNG HỢP 1: NGƯỜI DÙNG NHẤN XÓA ẢNH
+                if (isDeleteAvatar)
+                {
+                    if (!string.IsNullOrEmpty(user.AvatarUrl))
+                    {
+                        // Xóa file vật lý trong wwwroot/avt
+                        string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, user.AvatarUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
+                        
+                        user.AvatarUrl = null; // Reset về null
+                    }
+                }
+                // TRƯỜNG HỢP 2: NGƯỜI DÙNG TẢI ẢNH MỚI
+                else if (avatarFile != null && avatarFile.Length > 0)
+                {
+                    string folder = "avt/";
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(avatarFile.FileName);
+                    string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+                    if (!Directory.Exists(serverFolder)) Directory.CreateDirectory(serverFolder);
+
+                    // Xóa ảnh cũ trước khi thay ảnh mới
+                    if (!string.IsNullOrEmpty(user.AvatarUrl))
+                    {
+                        string oldPath = Path.Combine(_webHostEnvironment.WebRootPath, user.AvatarUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
+                    }
+
+                    string filePath = Path.Combine(serverFolder, fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await avatarFile.CopyToAsync(fileStream);
+                    }
+                    user.AvatarUrl = "/" + folder + fileName;
+                }
+
+                // Cập nhật các thông tin khác
                 user.FullName = model.FullName;
-                user.Phone = model.Phone; 
-             //Không gán user.Role hay user.PasswordHash ở đây
+                user.Phone = model.Phone;
 
                 await _context.SaveChangesAsync();
-                var currentNameClaim = User.FindFirst(ClaimTypes.Name)?.Value;
-                if (currentNameClaim != user.FullName)
+
+                // Cập nhật lại Claims để Header/Sidebar hiện tên mới ngay lập tức
+                var claims = new List<Claim>
                 {
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.FullName),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim("UserID", user.UserID.ToString())
-                    };
+                    new Claim(ClaimTypes.Name, user.FullName),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim("UserID", user.UserID.ToString()),
+                    new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"), // Thêm cả Claim ảnh cho xịn
+                    new Claim(ClaimTypes.Role, user.Role ?? "User"),
+                    new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
+                };
 
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties { IsPersistent = true };
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    new AuthenticationProperties { IsPersistent = true });
 
-                    // Ghi đè lại Cookie đăng nhập
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
-                }
                 TempData["SuccessMessage"] = "Cập nhật hồ sơ thành công!";
                 return RedirectToAction("Profile");
             }
-            return View(user);
+
+            return View(model);
         }
     }
 }

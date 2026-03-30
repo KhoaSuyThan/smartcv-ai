@@ -2,45 +2,74 @@
 
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">CV của tôi</h2>
-        <a href="@Url.Action("Templates", "Resume")" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Tạo CV mới</a>
+        <div>
+            <h2 class="fw-bold text-primary mb-0">Hồ sơ của tôi</h2>
+            <p class="text-muted">Danh sách các bản CV đã tạo và bản nháp đang thực hiện</p>
+        </div>
+        <a href="@Url.Action("Templates", "Resume")" class="btn btn-primary shadow-sm px-4">
+            <i class="bi bi-plus-lg"></i> Tạo CV mới
+        </a>
     </div>
 
-    @if (!Model.Any())
+    @if (Model == null || !Model.Any())
     {
-        <div class="alert alert-info text-center">Bạn chưa tạo bản CV nào. Hãy bắt đầu ngay nhé!</div>
+        <div class="text-center py-5 border rounded-3 bg-light">
+            <i class="bi bi-file-earmark-person display-1 text-secondary mb-3"></i>
+            <h4 class="text-secondary">Bạn chưa có bản CV nào</h4>
+            <a href="@Url.Action("Templates", "Resume")" class="btn btn-primary mt-3">Bắt đầu ngay</a>
+        </div>
     }
     else
     {
         <div class="row g-4">
             @foreach (var cv in Model)
             {
-                <div class="col-md-4 col-lg-3">
-                    <div class="card h-100 shadow-sm border-0 bg-light">
-                        <img src="/images/templates/default-template.jpg" class="card-img-top" style="height: 250px; object-fit: cover; object-position: top;">
+                <div class="col-md-6 col-lg-4 col-xl-3" id="cv-card-@cv.ResumeID">
+                    <div class="card h-100 shadow-sm border-0 transition-hover">
                         
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="card-title mb-0 fw-bold" id="cv-name-@cv.ResumeID">@cv.Title</h6>
-                                <button class="btn btn-sm text-secondary p-0" onclick="renameCV(@cv.ResumeID, '@cv.Title')" title="Đổi tên CV">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                            </div>
+                        <div class="position-relative overflow-hidden bg-white border-bottom" 
+                             style="aspect-ratio: 1 / 1.4; width: 100%;">
                             
-                            <p class="text-muted small mb-2">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                            
-                            @if (cv.IsDraft)
+                            @if (cv.Template != null && !string.IsNullOrEmpty(cv.Template.PreviewImageUrl))
                             {
-                                <span class="badge bg-warning text-dark"><i class="bi bi-clock-history"></i> Đang làm</span>
+                                <img src="@cv.Template.PreviewImageUrl" class="card-img-top" 
+                                     style="height: 100%; width: 100%; object-fit: cover; object-position: top;" 
+                                     alt="Template Preview">
                             }
                             else
                             {
-                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Đã xuất PDF</span>
+                                <img src="~/images/templates/default-template.png" class="card-img-top" 
+                                     style="height: 100%; width: 100%; object-fit: cover;" 
+                                     alt="Default Preview">
                             }
+                            
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge @(cv.IsDraft ? "bg-warning text-dark" : "bg-success") shadow-sm">
+                                    <i class="bi @(cv.IsDraft ? "bi-pencil-fill" : "bi-check-circle-fill")"></i> 
+                                    @(cv.IsDraft ? "Bản nháp" : "Hoàn thiện")
+                                </span>
+                            </div>
                         </div>
                         
-                        <div class="card-footer bg-white border-top-0 d-flex gap-2">
-                            <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-outline-primary btn-sm w-100">Tiếp tục chỉnh sửa</a>
+                        <div class="card-body">
+                            <h6 class="card-title mb-1 fw-bold text-truncate" id="cv-name-@cv.ResumeID">@cv.Title</h6>
+                            <small class="text-muted d-block mb-3">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</small>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-primary">
+                                    Tiếp tục chỉnh sửa
+                                </a>
+                                
+                                <div class="d-flex gap-2">
+                                    <button onclick="renameCV(@cv.ResumeID)" class="btn btn-light border flex-grow-1">
+                                        <i class="bi bi-pencil-square"></i> Sửa tên
+                                    </button>
+                                    
+                                    <button onclick="deleteCV(@cv.ResumeID)" class="btn btn-outline-danger px-3">
+                                        <i class="bi bi-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -49,28 +78,57 @@
     }
 </div>
 
+<style>
+    /* Hiệu ứng hover card giống các trang tuyển dụng lớn */
+    .transition-hover { transition: all 0.3s ease; border: 1px solid #eee !important; }
+    .transition-hover:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1)!important; border-color: #0d6efd !important; }
+    
+    /* Đảm bảo nút Sửa tên có màu nền nhẹ nhàng */
+    .btn-light { background-color: #f8f9fa; color: #333; }
+    .btn-light:hover { background-color: #e2e6ea; }
+</style>
+
 @section Scripts {
     <script>
-        function renameCV(cvId, oldName) {
-            let newName = prompt("Nhập tên mới cho CV của bạn:", oldName);
+        // Hàm đổi tên CV qua AJAX
+        function renameCV(cvId) {
+            let currentTitle = $('#cv-name-' + cvId).text().trim();
+            let newName = prompt("Nhập tên mới cho bản CV này:", currentTitle);
             
-            if (newName && newName.trim() !== "" && newName !== oldName) {
-                // Gọi sang Action UpdateName
+            if (newName && newName.trim() !== "" && newName.trim() !== currentTitle) {
                 $.ajax({
                     url: '@Url.Action("UpdateName", "Resume")',
                     type: 'POST',
-                    data: { id: cvId, newName: newName },
+                    data: { id: cvId, newName: newName.trim() },
                     success: function(res) {
                         if (res.success) {
-                            // Cập nhật text trên giao diện ngay lập tức
-                            $('#cv-name-' + cvId).text(newName);
-                            alert("Đã đổi tên CV thành công!");
+                            $('#cv-name-' + cvId).text(newName.trim());
+                            $('#cv-name-' + cvId).fadeOut(100).fadeIn(100);
                         } else {
-                            alert(res.message || "Có lỗi xảy ra.");
+                            alert(res.message || "Lỗi khi đổi tên.");
                         }
                     },
-                    error: function() {
-                        alert("Lỗi kết nối đến máy chủ.");
+                    error: function() { alert("Lỗi kết nối máy chủ."); }
+                });
+            }
+        }
+
+        // Hàm xóa CV qua AJAX
+        function deleteCV(cvId) {
+            if (confirm("Bạn có chắc chắn muốn xóa bản hồ sơ này?")) {
+                $.ajax({
+                    url: '@Url.Action("Delete", "Resume")',
+                    type: 'POST',
+                    data: { id: cvId },
+                    success: function(res) {
+                        if (res.success) {
+                            $('#cv-card-' + cvId).fadeOut(400, function() { 
+                                $(this).remove(); 
+                                if ($('.card').length === 0) location.reload();
+                            });
+                        } else {
+                            alert(res.message || "Lỗi khi xóa.");
+                        }
                     }
                 });
             }

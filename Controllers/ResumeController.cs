@@ -9,7 +9,7 @@ using DoAnCS.Models.ViewModels;
 
 namespace DoAnCS.Controllers
 {
-    [Authorize(Roles = "User,Admin")]
+    [Authorize(Roles = "User,Admin, Recruiter")] // Chỉ cho phép các vai trò này truy cập vào ResumeController
     public class ResumeController : Controller
     {
         private readonly AppDbContext _context;
@@ -41,11 +41,20 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // 2. TÌM BẢN NHÁP CŨ: Kiểm tra xem User đã có bản nháp nào cho mẫu này chưa
+            // Kiểm tra xem Mẫu CV (TemplateID) có tồn tại trong Database không
+            // Nếu không tồn tại (ví dụ id = 0 do lỗi hoặc URL sai), điều hướng về trang danh sách mẫu
+            var templateExists = await _context.Templates.AnyAsync(t => t.TemplateID == id);
+            if (!templateExists)
+            {
+                return RedirectToAction("Templates");
+            }
+
+            // 2. TÌM BẢN NHÁP CŨ: Lấy bản sinh ra gần nhất cho mẫu ứng với TemplateID này (Bất kể đã xuất PDF hay chưa)
             var resume = await _context.Resumes
                 .Include(r => r.Template)        // Load HTML/CSS của mẫu
                 .Include(r => r.ResumeSections)  // Load các phần JSON đã lưu
-                .FirstOrDefaultAsync(r => r.UserID == userId && r.TemplateID == id && r.IsDraft == true);
+                .OrderByDescending(r => r.UpdatedAt)
+                .FirstOrDefaultAsync(r => r.UserID == userId && r.TemplateID == id);
 
             // 3. NẾU CHƯA CÓ THÌ MỚI TẠO MỚI
             if (resume == null)
@@ -139,8 +148,11 @@ namespace DoAnCS.Controllers
 
                 return Json(new { success = true, resumeId = resume.ResumeID, message = "Lưu CV thành công!" });
             }
-            catch (Exception ex) {
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+            catch (Exception ex) 
+            {
+                // Lấy thông báo lỗi chi tiết bên trong nếu có
+                string innerError = ex.InnerException != null ? ex.InnerException.Message : "";
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message + " | Chi tiết: " + innerError });
             }
         }
 
@@ -189,10 +201,11 @@ namespace DoAnCS.Controllers
                     message = "Đã tự động lưu nháp." 
                 });
             }
-            catch (Exception ex)
+            catch (Exception ex) 
             {
-                // Trả về lỗi chi tiết để dễ debug trong quá trình làm đồ án
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+                // Lấy thông báo lỗi chi tiết bên trong nếu có
+                string innerError = ex.InnerException != null ? ex.InnerException.Message : "";
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message + " | Chi tiết: " + innerError });
             }
         }
 
@@ -273,27 +286,58 @@ namespace DoAnCS.Controllers
             return View(myResumes);
         }
 
-        // 6. Đổi tên CV (Dùng Ajax)
+        // 6. Đổi tên CV
         [HttpPost]
         public async Task<IActionResult> UpdateName(int id, string newName)
         {
-            int userId = GetCurrentUserId();
-            if (userId == 0) return Json(new { success = false, message = "Chưa đăng nhập." });
-
-            // Tìm CV chính xác của User này
-            var resume = await _context.Resumes
-                .FirstOrDefaultAsync(r => r.ResumeID == id && r.UserID == userId);
-
-            if (resume != null && !string.IsNullOrWhiteSpace(newName))
+            if (string.IsNullOrWhiteSpace(newName))
             {
-                resume.Title = newName;
-                resume.UpdatedAt = DateTime.Now; // Cập nhật luôn thời gian sửa
+                return Json(new { success = false, message = "Tên CV không được để trống." });
+            }
+
+            var resume = await _context.Resumes.FindAsync(id);
+            if (resume == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy bản CV." });
+            }
+
+            // Cập nhật thông tin
+            resume.Title = newName.Trim();
+            resume.UpdatedAt = DateTime.Now;
+
+            try
+            {
+                _context.Resumes.Update(resume);
                 await _context.SaveChangesAsync();
-                
                 return Json(new { success = true });
             }
-            
-            return Json(new { success = false, message = "Không tìm thấy bản ghi hoặc tên không hợp lệ." });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+            }
+        }
+
+        // 2. Chức năng xóa bản nháp CV
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var resume = await _context.Resumes.FindAsync(id);
+            if (resume == null)
+            {
+                return Json(new { success = false, message = "Bản CV không tồn tại hoặc đã bị xóa." });
+            }
+
+            try
+            {
+                // Khi xóa Resume, nhờ vào CASCADE trong SQL, các bảng con như ResumeSections, ResumeSkills cũng sẽ mất theo
+                _context.Resumes.Remove(resume);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Không thể xóa CV: " + ex.Message });
+            }
         }
     }
 }

@@ -25,6 +25,7 @@ CREATE TABLE ResumeExports (
     FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
 );
 
+
 -- 2. BẢNG NGƯỜI DÙNG
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
@@ -33,6 +34,7 @@ CREATE TABLE Users (
     PasswordHash NVARCHAR(MAX) NOT NULL,
     Phone VARCHAR(20),
     CompanyID INT NULL, 
+	AvatarUrl NVARCHAR(MAX) NULL,
     Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')) DEFAULT 'User',
     CreatedAt DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
@@ -62,7 +64,7 @@ CREATE TABLE Resumes (
     Phone VARCHAR(20),              -- Số điện thoại riêng
     Address NVARCHAR(500),          -- Địa chỉ cư trú
     BirthDate DATETIME,             -- Ngày tháng năm sinh
-    AvatarUrl NVARCHAR(500),        -- Link ảnh chân dung
+    AvatarUrl NVARCHAR(MAX),        -- Link ảnh chân dung
     
     Summary NVARCHAR(MAX),          -- Mục tiêu nghề nghiệp (Summary)
     ThemeColor VARCHAR(10) DEFAULT '#0d6efd',
@@ -89,7 +91,7 @@ CREATE TABLE ResumeSections (
 
 -- 6. HỆ THỐNG KỸ NĂNG VÀ VIỆC LÀM (Phục vụ Matching AI)
 CREATE TABLE Skills (
-    SkillID INT PRIMARY KEY IDENTITY(1,1),
+    SkillID INT PRIMARY KEY IDENTITY(1,1),CREATE TABLE JobSkills (
     SkillName NVARCHAR(100) UNIQUE NOT NULL
 );
 
@@ -108,10 +110,11 @@ CREATE TABLE Jobs (
     Title NVARCHAR(200) NOT NULL,
     Description NVARCHAR(MAX),
     Requirements NVARCHAR(MAX), 
-    Salary NVARCHAR(100),
+    Salary NVARCHAR(100),	
     Deadline DATETIME,
     CreatedAt DATETIME DEFAULT GETDATE(),
     CompanyID INT NOT NULL,
+	Status INT NOT NULL DEFAULT 0,
     FOREIGN KEY (RecruiterID) REFERENCES Users(UserID),
 	FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID)
 );
@@ -180,9 +183,6 @@ CREATE TABLE JobSkills (
 INSERT INTO ContactMessages (Name, Email, Subject, Message)
 VALUES (N'Nguyễn Văn Test', 'test@gmail.com', N'Hỏi về cách tạo CV', N'Em muốn hỏi cách chỉnh sửa ảnh đại diện ạ');
 
--- 2. Xem kết quả
-SELECT * FROM ContactMessages;
--- Chèn mẫu CV Modern Blue với đầy đủ tính năng
 
 -- 1. Xóa mẫu cũ nếu tồn tại
 DELETE FROM Templates WHERE Name = N'Modern Blue Sidebar';
@@ -707,17 +707,17 @@ INSERT INTO Companies (Name, LogoUrl, Website, Address, Industry) VALUES
 (N'Nexzentek Solutions', 'https://serpapi.com/searches/69c69eec13f4b6286fa54fe0/images/MC0CnGAbtG01fQQrkYgeznkEPWV7a-5IvkFbQdGIyTw.png', 'https://www.optnation.com/aws-developer-job-in-chicago-il-view-jobid-25038', N'Chicago, IL', N'AWS Cloud'),
 (N'United Airlines', NULL, 'https://careers.united.com/us/en/job/WHQ00025769/Analyst-Identity-Access-Management', N'Chicago, IL', N'Aviation DT');
 
-INSERT INTO Jobs (Title, Description, Requirements, Salary, Deadline, CompanyID, RecruiterID) VALUES 
-(N'IT Consultant', N'Thiết kế, hỗ trợ và bảo trì các giải pháp CNTT cho khách hàng đô thị.', N'8+ năm kinh nghiệm, thạo Windows Server, Active Directory, ảo hóa.', N'90K - 120K / year', '2026-12-31', 1, 1),
-(N'Senior Project Manager: IT & Agile Delivery', N'Dẫn dắt các dự án phức tạp ngân sách > $200k.', N'8-10 năm PM, 3-5 năm Agile. Ưu tiên chứng chỉ PMI.', N'Thỏa thuận', '2026-11-20', 2, 1),
-(N'IT Support Specialist Tier 2', N'Hỗ trợ kỹ thuật nâng cao onsite và remote cho sản xuất linh kiện ô tô.', N'Troubleshoot Windows/Mac, thạo Google Workspace/O365.', N'Thỏa thuận', '2026-10-15', 3, 1),
-(N'Analyst, Penetration Testing', N'Kiểm tra xâm nhập hệ thống và mạng toàn cầu để tìm lỗ hổng bảo mật.', N'Nền tảng Pentest mạnh, kỹ năng phân tích độc lập tốt.', N'98K - 120K / year', '2026-12-05', 4, 1),
-(N'FinOps IT Finance Analyst', N'Đảm bảo minh bạch tài chính cho các sáng kiến công nghệ và Cloud spend.', N'4-6 năm kinh nghiệm, cử nhân tài chính, thạo Excel/Analytical.', N'Cạnh tranh', '2026-09-12', 5, 1),
-(N'AI QA - Engineer', N'Đảm bảo hệ thống AI (LLM, Vision) chính xác và an toàn quy mô lớn.', N'3+ năm QA AI/ML, thạo Python, ML model evaluation.', N'110K - 150K / year', '2026-08-30', 6, 1),
-(N'Information Systems Technician', N'Vận hành và bảo vệ mạng lưới hạm đội Navy toàn cầu.', N'Cần quốc tịch Mỹ, vượt qua bài kiểm tra năng khiếu quân đội (ASVAB).', N'Theo quy định', '2026-12-31', 7, 1),
-(N'IT Directory Infrastructure Lead', N'Quản trị toàn cầu môi trường Active Directory và email backbone.', N'8-10 năm kinh nghiệm AD/DNS, 3+ năm vị trí lãnh đạo.', N'145K - 170K / year', '2026-07-25', 8, 1),
-(N'AWS Developer', N'Phát triển Cloud cho dự án dài hạn của United Airlines.', N'8+ năm kinh nghiệm, nền tảng .NET mạnh, giao tiếp tốt.', N'Theo hợp đồng', '2026-06-10', 9, 1),
-(N'Analyst - Identity & Access Management', N'Bảo mật hệ thống IAM, quản lý xác thực hiện đại (OIDC, SAML, SSO).', N'3+ năm kinh nghiệm, thạo Okta/Entra/SailPoint.', N'87K - 114K / year', '2026-05-18', 10, 1);
+INSERT INTO Jobs (Title, Description, Requirements, Salary, Deadline, CompanyID, RecruiterID, Status) VALUES 
+(N'IT Consultant', N'Thiết kế, hỗ trợ và bảo trì các giải pháp CNTT cho khách hàng đô thị.', N'8+ năm kinh nghiệm, thạo Windows Server, Active Directory, ảo hóa.', N'90K - 120K / year', '2026-12-31', 1, 1, 1),
+(N'Senior Project Manager: IT & Agile Delivery', N'Dẫn dắt các dự án phức tạp ngân sách > $200k.', N'8-10 năm PM, 3-5 năm Agile. Ưu tiên chứng chỉ PMI.', N'Thỏa thuận', '2026-11-20', 2, 1, 1),
+(N'IT Support Specialist Tier 2', N'Hỗ trợ kỹ thuật nâng cao onsite và remote cho sản xuất linh kiện ô tô.', N'Troubleshoot Windows/Mac, thạo Google Workspace/O365.', N'Thỏa thuận', '2026-10-15', 3, 1, 1),
+(N'Analyst, Penetration Testing', N'Kiểm tra xâm nhập hệ thống và mạng toàn cầu để tìm lỗ hổng bảo mật.', N'Nền tảng Pentest mạnh, kỹ năng phân tích độc lập tốt.', N'98K - 120K / year', '2026-12-05', 4, 1, 1),
+(N'FinOps IT Finance Analyst', N'Đảm bảo minh bạch tài chính cho các sáng kiến công nghệ và Cloud spend.', N'4-6 năm kinh nghiệm, cử nhân tài chính, thạo Excel/Analytical.', N'Cạnh tranh', '2026-09-12', 5, 1, 1),
+(N'AI QA - Engineer', N'Đảm bảo hệ thống AI (LLM, Vision) chính xác và an toàn quy mô lớn.', N'3+ năm QA AI/ML, thạo Python, ML model evaluation.', N'110K - 150K / year', '2026-08-30', 6, 1, 1),
+(N'Information Systems Technician', N'Vận hành và bảo vệ mạng lưới hạm đội Navy toàn cầu.', N'Cần quốc tịch Mỹ, vượt qua bài kiểm tra năng khiếu quân đội (ASVAB).', N'Theo quy định', '2026-12-31', 7, 1, 1),
+(N'IT Directory Infrastructure Lead', N'Quản trị toàn cầu môi trường Active Directory và email backbone.', N'8-10 năm kinh nghiệm AD/DNS, 3+ năm vị trí lãnh đạo.', N'145K - 170K / year', '2026-07-25', 8, 1, 1),
+(N'AWS Developer', N'Phát triển Cloud cho dự án dài hạn của United Airlines.', N'8+ năm kinh nghiệm, nền tảng .NET mạnh, giao tiếp tốt.', N'Theo hợp đồng', '2026-06-10', 9, 1, 1),
+(N'Analyst - Identity & Access Management', N'Bảo mật hệ thống IAM, quản lý xác thực hiện đại (OIDC, SAML, SSO).', N'3+ năm kinh nghiệm, thạo Okta/Entra/SailPoint.', N'87K - 114K / year', '2026-05-18', 10, 1, 1);
 
 
 
