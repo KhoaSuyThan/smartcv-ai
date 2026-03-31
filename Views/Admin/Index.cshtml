@@ -3,66 +3,151 @@
     ViewData["Title"] = "Bảng điều khiển Admin";
 }
 
+@* Thêm thư viện Chart.js *@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-<div class="admin-dashboard-wrapper py-4" style="background-color: #f8fbff; min-height: 100vh;">
-    <div class="container-fluid px-5">
+<div class="admin-dashboard-wrapper py-4" style="background-color: #f0f4f8; min-height: 100vh;">
+    <div class="container-fluid px-lg-5">
         
-        @* Header với Nút Hamburger *@
+        @* --- 1. HEADER CHUYÊN NGHIỆP --- *@
         <div class="d-flex justify-content-between align-items-center mb-5">
             <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-white shadow-sm rounded-3 border-0 px-3 py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar">
+                <button class="btn btn-white shadow-sm rounded-pill border-0 px-3 py-2 btn-sidebar-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar">
                     <i class='bx bx-menu-alt-left fs-3 text-primary'></i>
                 </button>
-                <h2 class="fw-bold m-0 text-dark">Quản trị Hệ thống</h2>
+                <div>
+                    <h2 class="fw-bold m-0 text-dark">Quản trị Hệ thống</h2>
+                    <p class="text-muted small mb-0">Chào buổi chiều, Admin! Đây là tình hình hệ thống hôm nay.</p>
+                </div>
             </div>
-            <div class="text-muted small">Phiên bản 2026.1</div>
+            <div class="d-none d-md-block text-end">
+                <div class="fw-bold">Phiên bản 2026.1</div>
+                <div class="extra-small text-primary">Hệ thống đang ổn định <i class='bx bxs-circle fs-6'></i></div>
+            </div>
         </div>
         
-        @* 4 Ô KPI Thống kê *@
+        @* --- 2. 4 Ô KPI THỐNG KÊ (HIỆU ỨNG NÂNG CẤP) --- *@
         <div class="row g-4 mb-5">
             <div class="col-md-3">
-                <div class="stat-card bg-grad-primary shadow-sm">
+                <div class="stat-card-v2 bg-grad-primary shadow-sm">
                     <div class="stat-content"><h6>Người dùng</h6><h2>@Model.TotalUsers</h2></div>
                     <i class='bx bxs-user-account'></i>
+                    <div class="stat-footer">Tăng 5% tuần này</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card bg-grad-success shadow-sm">
+                <div class="stat-card-v2 bg-grad-success shadow-sm">
                     <div class="stat-content"><h6>Công ty</h6><h2>@Model.TotalCompanies</h2></div>
                     <i class='bx bxs-business'></i>
+                    <div class="stat-footer">12 đối tác mới</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card bg-grad-warning shadow-sm">
+                <div class="stat-card-v2 bg-grad-warning shadow-sm">
                     <div class="stat-content"><h6>Việc làm</h6><h2>@Model.TotalJobs</h2></div>
                     <i class='bx bxs-briefcase-alt-2'></i>
+                    <div class="stat-footer">8 tin chờ duyệt</div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="stat-card bg-grad-danger shadow-sm">
+                <div class="stat-card-v2 bg-grad-danger shadow-sm">
                     <div class="stat-content"><h6>CV đã lưu</h6><h2>@Model.TotalResumes</h2></div>
                     <i class='bx bxs-magic-wand'></i>
+                    <div class="stat-footer">45 lượt tải mới</div>
+                </div>
+            </div>
+        </div>
+
+        @* --- 3. KHU VỰC NỘI DUNG CHÍNH --- *@
+        <div class="row g-4">
+            @* Bên trái: Biểu đồ xu hướng *@
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold m-0 text-dark"><i class='bx bx-line-chart me-2 text-primary'></i>Xu hướng tuyển dụng</h5>
+                        <div class="btn-group btn-group-sm rounded-pill overflow-hidden border">
+                            <button class="btn btn-light active px-3">Tuần</button>
+                            <button class="btn btn-light px-3">Tháng</button>
+                        </div>
+                    </div>
+                    <div style="height: 320px;">
+                        <canvas id="recruitmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            @* Bên phải: Feed tin mới nhất từ Database *@
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
+                        @* --- HEADER MỚI: CÓ HIỆU ỨNG NHẤP NHÁY --- *@
+                        <div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="live-indicator">
+                                    <span class="dot"></span>
+                                    <span class="pulse"></span>
+                                </div>
+                                <h5 class="fw-bold m-0 text-dark" style="letter-spacing: -0.5px;">Tin mới nhất</h5>
+                            </div>
+                            <a href="/Admin/Jobs" class="btn btn-light btn-sm rounded-pill px-3 fw-bold text-primary shadow-sm" style="font-size: 0.75rem;">
+                                Xem tất cả <i class='bx bx-right-arrow-alt'></i>
+                            </a>
+                        </div>
+                    <div class="card-body p-4">
+                        <div class="job-feed-v2">
+                            @foreach (var job in Model.Jobs)
+                            {
+                                <div class="job-row-v2 d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 shadow-sm border-start border-4 border-primary bg-white">
+                                    @* CỘT 1: THÔNG TIN CHÍNH (Chiếm 75% chiều rộng) *@
+                                    <div class="d-flex align-items-center gap-3 overflow-hidden" style="flex: 1;">
+                                        <div class="job-icon-box bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 46px; height: 46px; flex-shrink: 0;">
+                                            <i class='bx bx-briefcase-alt-2 fs-4'></i>
+                                        </div>
+                                        <div class="text-truncate">
+                                            <h6 class="mb-0 fw-bold text-dark text-truncate" title="@job.Title">@job.Title</h6>
+                                            <small class="text-muted d-block text-truncate"><i class='bx bx-buildings me-1'></i>@job.Company?.Name</small>
+                                        </div>
+                                    </div>
+
+                                    @* CỘT 2: THÔNG TIN THỜI GIAN & TRẠNG THÁI (Chiếm 25% chiều rộng) *@
+                                    <div class="text-end ps-3 border-start ms-2" style="min-width: 90px;">
+                                        <div class="fw-bold text-primary mb-1" style="font-size: 0.9rem;">
+                                            <i class='bx bx-calendar-event me-1'></i>@job.CreatedAt.ToString("dd/MM")
+                                        </div>
+                                        @if (job.Status == 1)
+                                        {
+                                            <span class="badge bg-success-subtle text-success extra-small rounded-pill px-2">Đã duyệt</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning extra-small rounded-pill px-2">Chờ duyệt</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@* Sidebar Offcanvas *@
-<div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="adminSidebar" style="width: 280px; background: #111827;">
-    <div class="offcanvas-header border-bottom border-secondary p-4">
-        <h5 class="offcanvas-title text-white fw-bold"><i class='bx bxs-zap text-warning me-2'></i>Admin Panel</h5>
+@* --- SIDEBAR OFFCANVAS (GIỮ NGUYÊN NHƯNG TỐI ƯU CSS) --- *@
+<div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="adminSidebar" style="width: 280px; background: #0f172a;">
+    <div class="offcanvas-header border-bottom border-secondary border-opacity-25 p-4">
+        <h5 class="offcanvas-title text-white fw-bold"><i class='bx bxs-zap text-warning me-2'></i>ADMIN PANEL</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body p-0">
         <div class="list-group list-group-flush mt-3 px-3">
             <a href="/Admin" class="menu-item active"><i class='bx bxs-dashboard'></i> Tổng quan</a>
-            <div class="menu-label mt-4">QUẢN LÝ DỮ LIỆU</div>
+            <div class="menu-label mt-4 text-white-50">QUẢN LÝ DỮ LIỆU</div>
             <a href="/Admin/Templates" class="menu-item"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
             <a href="/Admin/Jobs" class="menu-item"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
             <a href="/Admin/Companies" class="menu-item"><i class='bx bxs-business'></i> Công ty</a>
-            <div class="menu-label mt-4">HỆ THỐNG</div>
+            <div class="menu-label mt-4 text-white-50">HỆ THỐNG</div>
             <a href="/Admin/Users" class="menu-item"><i class='bx bxs-group'></i> Người dùng</a>
             <a href="#" class="menu-item"><i class='bx bxs-bot'></i> Cấu hình Gemini</a>
         </div>
@@ -70,18 +155,118 @@
 </div>
 
 <style>
-    /* CSS cho Menu */
-    .menu-label { color: #4b5563; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; padding: 10px 15px; }
-    .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #9ca3af; text-decoration: none; border-radius: 12px; transition: all 0.2s; margin-bottom: 5px; }
-    .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
-    .menu-item.active { background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+    /* 1. Hiệu ứng nhấp nháy Real-time */
+    .live-indicator {
+        position: relative;
+        width: 10px;
+        height: 10px;
+    }
+    .live-indicator .dot {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #10b981; /* Màu xanh lá xịn */
+        border-radius: 50%;
+        z-index: 2;
+    }
+    .live-indicator .pulse {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #10b981;
+        border-radius: 50%;
+        animation: pulse-animation 2s infinite;
+        z-index: 1;
+    }
+    @@keyframes pulse-animation {
+        0% { transform: scale(1); opacity: 0.8; }
+        100% { transform: scale(3.5); opacity: 0; }
+    }
+
+    /* 2. Style cho hàng việc làm 2 cột */
+    .job-card-row {
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .job-card-row:hover {
+        background: white;
+        box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+        transform: translateY(-3px) scale(1.02);
+        border-color: #3b82f6;
+    }
+
+    .icon-avatar {
+        width: 48px;
+        height: 48px;
+        transition: 0.3s;
+    }
+    .job-card-row:hover .icon-avatar {
+        background-color: #3b82f6 !important;
+        color: white !important;
+        transform: rotate(10deg);
+    }
+
+    .extra-small { font-size: 0.75rem; }
+    /* 1. MENU SIDEBAR */
+    .menu-label { font-size: 0.7rem; font-weight: 800; letter-spacing: 1.5px; padding: 10px 15px; }
+    .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 18px; color: #94a3b8; text-decoration: none; border-radius: 12px; transition: 0.3s; margin-bottom: 5px; }
+    .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateX(5px); }
+    .menu-item.active { background: #3b82f6; color: #fff; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4); }
+
+    /* 2. STAT CARDS V2 */
+    .stat-card-v2 { padding: 25px; border-radius: 24px; color: white; position: relative; overflow: hidden; min-height: 155px; display: flex; flex-direction: column; justify-content: center; transition: 0.3s; }
+    .stat-card-v2:hover { transform: translateY(-10px); }
+    .stat-card-v2 i { position: absolute; right: -15px; bottom: -15px; font-size: 6.5rem; opacity: 0.15; transform: rotate(-10deg); }
+    .stat-card-v2 h2 { font-weight: 800; font-size: 2.8rem; margin: 0; }
+    .stat-footer { font-size: 0.75rem; margin-top: 10px; opacity: 0.8; font-weight: 500; }
+
+    /* 3. GRADIENTS */
+    .bg-grad-primary { background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); }
+    .bg-grad-success { background: linear-gradient(135deg, #10b981 0%, #065f46 100%); }
+    .bg-grad-warning { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); }
+    .bg-grad-danger  { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
+
+    /* 4. JOB FEED V2 */
+    .job-icon-v2 { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .bg-primary-subtle { background-color: #e0f2fe; }
+    .extra-small { font-size: 0.65rem; font-weight: bold; }
+    .btn-white { background: white; }
     
-    /* Copy lại các Class Stat-Card từ code cũ của Khoa vào đây */
-    .stat-card { padding: 25px; border-radius: 20px; color: white; position: relative; overflow: hidden; min-height: 140px; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s ease; }
-    .stat-card i { position: absolute; right: -10px; bottom: -10px; font-size: 5.5rem; opacity: 0.15; transform: rotate(-15deg); }
-    .stat-card h2 { font-weight: 800; font-size: 2.4rem; margin: 0; }
-    .bg-grad-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
-    .bg-grad-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
-    .bg-grad-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); color: #212529 !important; }
-    .bg-grad-danger  { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); }
+    /* Animation nhẹ */
+    .job-item-v2 { transition: 0.2s; padding: 10px; border-radius: 12px; }
+    .job-item-v2:hover { background-color: #f8fbff; transform: scale(1.02); }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('recruitmentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                datasets: [{
+                    label: 'Tin mới',
+                    data: [12, 19, 15, 25, 22, 30, 20],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { display: false } },
+                    x: { grid: { display: false }, border: { display: false } }
+                }
+            }
+        });
+    });
+</script>

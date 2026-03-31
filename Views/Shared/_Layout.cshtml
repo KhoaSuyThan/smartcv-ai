@@ -36,15 +36,22 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i> Trang chủ
+                            </a>
                         </li>
-                        
+
                         @* Quyền hạn chung cho khách và Ứng viên *@
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Resume" asp-action="Templates">Mẫu CV</a>
+                            <a class="nav-link" asp-controller="Resume" asp-action="Templates">
+                                <i class="fas fa-id-card me-1"></i> Mẫu CV
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Jobs">Việc làm</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Jobs">
+                                <i class="fas fa-briefcase me-1"></i> Việc làm
+                            </a>
                         </li>
 
                         @* PHÂN QUYỀN TRÊN MENU CHÍNH *@
