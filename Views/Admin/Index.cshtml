@@ -1,303 +1,87 @@
 @model DoAnCS.Models.ViewModels.AdminDashboardVM
+@{
+    ViewData["Title"] = "Bảng điều khiển Admin";
+}
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 <div class="admin-dashboard-wrapper py-4" style="background-color: #f8fbff; min-height: 100vh;">
     <div class="container-fluid px-5">
         
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold m-0 text-dark"><i class='bx bxs-dashboard text-primary'></i> Quản trị CV Smart AI</h2>
-            <div class="text-muted small">Phiên bản hệ thống 2026.1</div>
+        @* Header với Nút Hamburger *@
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-white shadow-sm rounded-3 border-0 px-3 py-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar">
+                    <i class='bx bx-menu-alt-left fs-3 text-primary'></i>
+                </button>
+                <h2 class="fw-bold m-0 text-dark">Quản trị Hệ thống</h2>
+            </div>
+            <div class="text-muted small">Phiên bản 2026.1</div>
         </div>
         
+        @* 4 Ô KPI Thống kê *@
         <div class="row g-4 mb-5">
             <div class="col-md-3">
                 <div class="stat-card bg-grad-primary shadow-sm">
-                    <div class="stat-content">
-                        <h6>Người dùng</h6>
-                        <h2>@Model.TotalUsers</h2>
-                    </div>
+                    <div class="stat-content"><h6>Người dùng</h6><h2>@Model.TotalUsers</h2></div>
                     <i class='bx bxs-user-account'></i>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-grad-success shadow-sm">
-                    <div class="stat-content">
-                        <h6>Công ty</h6>
-                        <h2>@Model.TotalCompanies</h2>
-                    </div>
+                    <div class="stat-content"><h6>Công ty</h6><h2>@Model.TotalCompanies</h2></div>
                     <i class='bx bxs-business'></i>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-grad-warning shadow-sm">
-                    <div class="stat-content">
-                        <h6>Việc làm</h6>
-                        <h2>@Model.TotalJobs</h2>
-                    </div>
+                    <div class="stat-content"><h6>Việc làm</h6><h2>@Model.TotalJobs</h2></div>
                     <i class='bx bxs-briefcase-alt-2'></i>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-grad-danger shadow-sm">
-                    <div class="stat-content">
-                        <h6>CV đã lưu</h6>
-                        <h2>@Model.TotalResumes</h2>
-                    </div>
+                    <div class="stat-content"><h6>CV đã lưu</h6><h2>@Model.TotalResumes</h2></div>
                     <i class='bx bxs-magic-wand'></i>
                 </div>
             </div>
         </div>
-
-        <hr class="my-5 opacity-25" />
-
-        <div class="d-flex justify-content-between align-items-end mb-4">
-            <div>
-                <h3 class="fw-bold text-dark mb-1">Quản lý Mẫu thiết kế CV</h3>
-                <p class="text-muted mb-0 small">Thiết kế chuẩn chỉnh 2026, tối ưu cho hệ thống lọc hồ sơ (ATS).</p>
-            </div>
-            <a asp-action="CreateTemplate" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                <i class='bx bx-plus-circle'></i> Thêm mẫu mới
-            </a>
-        </div>
-
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-            @foreach (var item in Model.Templates)
-            {
-                <div class="col">
-                    <div class="card h-100 border-0 shadow-sm template-card">
-                        <div class="img-container position-relative">
-                            <img src="@item.PreviewImageUrl" class="card-img-top" alt="@item.Name">
-                            @if (!item.IsActive)
-                            {
-                                <div class="inactive-label">Tạm ẩn</div>
-                            }
-                        </div>
-                        <div class="card-body text-center p-4">
-                            <div class="d-flex gap-2 mb-3">
-                                <a asp-action="EditCV" asp-route-id="@item.TemplateID" class="btn btn-outline-warning w-100 py-2 rounded-pill fw-bold">
-                                    <i class='bx bxs-edit'></i> Sửa
-                                </a>
-                                <button onclick="confirmDelete(@item.TemplateID, '@item.Name')" class="btn btn-outline-danger w-100 py-2 rounded-pill fw-bold">
-                                    <i class='bx bxs-trash'></i> Xóa
-                                </button>
-                            </div>
-
-                            <h5 class="fw-bold text-dark mb-1 text-truncate">@item.Name</h5>
-                            <p class="text-muted small mb-0">Mẫu thiết kế hiện đại</p>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-
-        @if (Model.TotalPages > 1)
-        {
-            <nav class="mt-5">
-                <ul class="pagination justify-content-center custom-pagination">
-                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
-                        <a class="page-link shadow-sm" href="?page=@(Model.CurrentPage - 1)">Trang trước</a>
-                    </li>
-                    @for (int i = 1; i <= Model.TotalPages; i++)
-                    {
-                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                            <a class="page-link shadow-sm" href="?page=@i">@i</a>
-                        </li>
-                    }
-                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
-                        <a class="page-link shadow-sm" href="?page=@(Model.CurrentPage + 1)">Trang sau</a>
-                    </li>
-                </ul>
-            </nav>
-        }
-
-        <div class="admin-job-section">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h4 class="fw-bold m-0"><i class='bx bxs-briefcase-alt-2 text-warning'></i> Quản lý Tin Tuyển dụng</h4>
-                    <p class="text-muted small mb-0">Danh sách các vị trí đang tuyển dụng trên hệ thống</p>
-                </div>
-                <a asp-action="CreateJob" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
-                    <i class='bx bx-plus'></i> Đăng tin mới
-                </a>
-            </div>
-
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="bg-light">
-                <tr>
-                    <th class="ps-4 py-3" style="width: 80px"></th> @* Cột Logo *@
-                    <th>Vị trí tuyển dụng</th>
-                    <th>Mức lương</th>
-                    <th>Hạn nộp</th>
-                    <th>Trạng thái</th>
-                    <th class="text-center">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var job in Model.Jobs)
-                {
-                    <tr>
-                        <td class="ps-4">
-                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobID" class="text-decoration-none">
-                                @if (job.Company != null && !string.IsNullOrEmpty(job.Company.LogoUrl))
-                                {
-                                    <div class="p-1 bg-white rounded shadow-sm border d-inline-block">
-                                        <img src="@job.Company.LogoUrl" 
-                                            alt="Logo" 
-                                            class="rounded"
-                                            style="height: 40px; width: 40px; object-fit: contain;" 
-                                            onerror="this.onerror=null; this.outerHTML='<div class=\'bg-light rounded d-flex align-items-center justify-content-center border\' style=\'height: 40px; width: 40px;\'><i class=\'bx bx-building text-muted fs-4\'></i></div>';" />
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="bg-light rounded d-flex align-items-center justify-content-center border" 
-                                        style="height: 48px; width: 48px;">
-                                        <i class='bx bx-building text-muted fs-4'></i>
-                                    </div>
-                                }
-                            </a>    
-                        </td>
-                        <td>
-                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobID" class="text-decoration-none text-dark">
-                                <div class="fw-bold hover-primary">@job.Title</div>
-                            </a>
-                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.JobID" class="text-decoration-none">
-                                <div class="text-primary small fw-semibold">@job.Company?.Name</div>
-                            </a>
-                            <div class="extra-small text-muted">Đăng ngày: @job.CreatedAt.ToString("dd/MM/yyyy")</div>
-                        </td>
-                        <td><span class="badge bg-success-soft text-success px-3 py-2">@job.Salary</span></td>
-                        <td>
-                            <span class="@(job.Deadline < DateTime.Now ? "text-danger" : "text-dark") fw-bold small">
-                                <i class='bx bx-calendar me-1'></i>@job.Deadline?.ToString("dd/MM/yyyy")
-                            </span>
-                        </td>
-                        <td>
-                            @if (job.Status == 0)
-                            {
-                                <span class="badge bg-warning-soft text-warning rounded-pill px-3 animate-pulse">
-                                    <i class='bx bx-time-five me-1'></i>Chờ duyệt
-                                </span>
-                            }
-                            else if (job.Status == 1)
-                            {
-                                @if (job.Deadline >= DateTime.Now)
-                                {
-                                    <span class="badge bg-info-soft text-info rounded-pill px-3">Đang tuyển</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary-soft text-secondary rounded-pill px-3">Hết hạn</span>
-                                }
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger-soft text-danger rounded-pill px-3">Từ chối</span>
-                            }
-                        </td>
-                        <td class="text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                @if (job.Status == 0)
-                                {
-                                    @* Nhóm nút Duyệt nhanh cho Admin *@
-                                    <a asp-controller="Jobs" asp-action="Approve" asp-route-id="@job.JobID"
-                                       asp-route-returnUrl="@Context.Request.Path"
-                                       class="btn btn-sm btn-success rounded-3 shadow-sm px-3 fw-bold">
-                                        <i class='bx bx-check'></i> Duyệt
-                                    </a>
-                                    <a asp-controller="Jobs" asp-action="Reject" asp-route-id="@job.JobID"
-                                       asp-route-returnUrl="@Context.Request.Path"
-                                       class="btn btn-sm btn-outline-danger rounded-3 shadow-sm">
-                                        <i class='bx bx-x'></i>
-                                    </a>
-                                }
-                                else
-                                {
-                                    @* Nhóm nút Sửa/Xóa mặc định *@
-                                    <div class="btn-group shadow-sm rounded-3">
-                                        <a asp-controller="Jobs" asp-action="EditJob" asp-route-id="@job.JobID" class="btn btn-sm btn-white border">
-                                            <i class='bx bxs-edit-alt text-primary'></i>
-                                        </a>
-                                        <button onclick="confirmDeleteJob(@job.JobID)" class="btn btn-sm btn-white border">
-                                            <i class='bx bxs-trash text-danger'></i>
-                                        </button>
-                                    </div>
-                                }
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
     </div>
 </div>
-        </div>
 
-        <div class="mt-5 p-4 bg-white rounded-4 shadow-sm border border-light">
-            <h6 class="fw-bold mb-3 text-secondary">Tác vụ quản trị nhanh</h6>
-            <div class="d-flex gap-3">
-                <a asp-action="Users" class="btn btn-outline-primary px-4 rounded-pill"><i class='bx bxs-group'></i> Người dùng</a>
-                <button class="btn btn-outline-secondary px-4 rounded-pill"><i class='bx bxs-bot'></i> Cấu hình Gemini</button>
-            </div>
+@* Sidebar Offcanvas *@
+<div class="offcanvas offcanvas-start border-0 shadow" tabindex="-1" id="adminSidebar" style="width: 280px; background: #111827;">
+    <div class="offcanvas-header border-bottom border-secondary p-4">
+        <h5 class="offcanvas-title text-white fw-bold"><i class='bx bxs-zap text-warning me-2'></i>Admin Panel</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div class="list-group list-group-flush mt-3 px-3">
+            <a href="/Admin" class="menu-item active"><i class='bx bxs-dashboard'></i> Tổng quan</a>
+            <div class="menu-label mt-4">QUẢN LÝ DỮ LIỆU</div>
+            <a href="/Admin/Templates" class="menu-item"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
+            <a href="/Admin/Jobs" class="menu-item"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
+            <a href="/Admin/Companies" class="menu-item"><i class='bx bxs-business'></i> Công ty</a>
+            <div class="menu-label mt-4">HỆ THỐNG</div>
+            <a href="/Admin/Users" class="menu-item"><i class='bx bxs-group'></i> Người dùng</a>
+            <a href="#" class="menu-item"><i class='bx bxs-bot'></i> Cấu hình Gemini</a>
         </div>
     </div>
 </div>
 
 <style>
-    /* KPI CARDS STYLE */
-    .stat-card {
-        padding: 25px; border-radius: 20px; color: white; position: relative;
-        overflow: hidden; min-height: 140px; display: flex; flex-direction: column;
-        justify-content: center; transition: all 0.3s ease;
-    }
+    /* CSS cho Menu */
+    .menu-label { color: #4b5563; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; padding: 10px 15px; }
+    .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #9ca3af; text-decoration: none; border-radius: 12px; transition: all 0.2s; margin-bottom: 5px; }
+    .menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .menu-item.active { background: #2563eb; color: #fff; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+    
+    /* Copy lại các Class Stat-Card từ code cũ của Khoa vào đây */
+    .stat-card { padding: 25px; border-radius: 20px; color: white; position: relative; overflow: hidden; min-height: 140px; display: flex; flex-direction: column; justify-content: center; transition: all 0.3s ease; }
     .stat-card i { position: absolute; right: -10px; bottom: -10px; font-size: 5.5rem; opacity: 0.15; transform: rotate(-15deg); }
-    .stat-card h6 { text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
     .stat-card h2 { font-weight: 800; font-size: 2.4rem; margin: 0; }
-
     .bg-grad-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
     .bg-grad-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
     .bg-grad-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); color: #212529 !important; }
     .bg-grad-danger  { background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%); }
-
-    /* CV TEMPLATES CARD STYLE */
-    .template-card { border-radius: 20px !important; transition: transform 0.3s ease; background: #fff; }
-    .template-card:hover { transform: translateY(-10px); }
-    .img-container { padding: 15px; }
-    .template-card img { aspect-ratio: 1 / 1.41; object-fit: cover; border-radius: 12px; border: 1px solid #f0f0f0; }
-    
-    .inactive-label {
-        position: absolute; top: 25px; right: 25px; background: rgba(220, 53, 69, 0.9);
-        color: white; padding: 4px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;
-    }
-
-    /* PAGINATION STYLE */
-    .custom-pagination .page-link { border: none; margin: 0 5px; border-radius: 12px !important; color: #555; padding: 10px 20px; font-weight: 600; }
-    .custom-pagination .page-item.active .page-link { background-color: #0d6efd; color: white; }
-
-    /* Màu Badge mềm cho bảng Job */
-    .bg-success-soft { background-color: #e8f5e9; color: #2e7d32; padding: 5px 12px; border-radius: 8px; font-size: 12px; }
-    .bg-info-soft { background-color: #e3f2fd; color: #1976d2; padding: 5px 12px; border-radius: 8px; font-size: 12px; }
-    .bg-secondary-soft { background-color: #f5f5f5; color: #757575; padding: 5px 12px; border-radius: 8px; font-size: 12px; }
-
-    .table thead th {
-        font-size: 12px;
-        letter-spacing: 0.5px;
-        color: #888;
-        border-bottom: 1px solid #eee;
-    }
-
-    .table tbody tr:hover {
-        background-color: #fcfdfe;
-    }
 </style>
-
-<script>
-    function confirmDelete(id, name) {
-        if (confirm(`Hệ thống xác nhận: Bạn có chắc muốn XÓA vĩnh viễn mẫu CV [${name}] không?`)) {
-            window.location.href = `/Admin/DeleteTemplate/${id}`;
-        }
-    }
-</script>

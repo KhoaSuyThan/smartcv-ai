@@ -1,18 +1,35 @@
 @model IEnumerable<DoAnCS.Models.User>
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
 
-<div class="container-fluid mt-4">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="container-fluid px-5 py-4" style="background-color: #f8fbff; min-height: 100vh;">
+    @* --- HEADER: Thêm nút Dashboard ở đây --- *@
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class='bx bxs-group'></i> Quản lý người dùng</h2>
-        <span class="badge bg-info text-dark">Tổng cộng: @Model.Count() thành viên</span>
+        <div>
+            <h2 class="fw-bold m-0">
+                <i class='bx bxs-group text-primary me-2'></i>Quản lý người dùng
+            </h2>
+            <p class="text-muted small mb-0">Hệ thống đang có <span class="badge bg-info text-dark rounded-pill">@Model.Count() thành viên</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            @* NÚT QUAY LẠI DASHBOARD QUAN TRỌNG *@
+            <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
+                <i class='bx bx-left-arrow-alt'></i> Dashboard
+            </a>
+        </div>
     </div>
 
-    <div class="card shadow border-0">
-        <div class="card-body">
-            <div class="admin-table-container"> 
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
+    @* --- BẢNG NGƯỜI DÙNG --- *@
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
                         <tr>
-                            <th>Họ tên</th>
+                            <th class="ps-4 py-3">Họ tên</th>
                             <th>Email</th>
                             <th>Vai trò</th>
                             <th>Công ty</th>
@@ -24,31 +41,49 @@
                         @foreach (var user in Model)
                         {
                             <tr>
-                                <td><strong>@user.FullName</strong></td>
-                                <td>@user.Email</td>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                                            @user.FullName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <strong class="text-dark">@user.FullName</strong>
+                                    </div>
+                                </td>
+                                <td class="text-muted">@user.Email</td>
                                 <td>
                                     @if (user.Role == "Admin")
                                     {
-                                        <span class="badge bg-danger">Quản trị viên</span>
+                                        <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle px-3">Quản trị viên</span>
                                     }
                                     else if (user.Role == "Recruiter")
                                     {
-                                        <span class="badge bg-primary">Nhà tuyển dụng</span>
+                                        <span class="badge rounded-pill bg-primary-subtle text-primary border border-primary-subtle px-3">Nhà tuyển dụng</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">Ứng viên</span>
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle px-3">Ứng viên</span>
                                     }
                                 </td>
-                                <td>@(user.Company?.Name ?? "---")</td>
-                                <td>@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    @if (user.Company != null)
+                                    {
+                                        <span class="text-dark fw-semibold"><i class='bx bx-buildings me-1'></i>@user.Company.Name</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">---</span>
+                                    }
+                                </td>
+                                <td class="text-muted small">@user.CreatedAt.ToString("dd/MM/yyyy")</td>
                                 <td class="text-center">
-                                    <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-sm btn-outline-warning">
-                                        <i class='bx bxs-edit'></i> Sửa
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(@user.UserID)">
-                                        <i class='bx bxs-trash'></i> Khóa
-                                    </button>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm">
+                                            <i class='bx bxs-edit text-warning'></i> Sửa
+                                        </a>
+                                        <button class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm" onclick="confirmDelete(@user.UserID, '@user.FullName')">
+                                            <i class='bx bxs-lock-alt text-danger'></i> Khóa
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -59,11 +94,22 @@
     </div>
 </div>
 
+<style>
+    .bg-light { background-color: #f8f9fa !important; }
+    .btn-white { background: white; transition: all 0.2s; }
+    .btn-white:hover { background: #f1f5f9; transform: translateY(-2px); }
+    
+    /* Màu sắc Badge theo chuẩn hiện đại */
+    .bg-danger-subtle { background-color: #fee2e2 !important; }
+    .bg-primary-subtle { background-color: #e0f2fe !important; }
+    .bg-secondary-subtle { background-color: #f3f4f6 !important; }
+</style>
+
 <script>
-    function confirmDelete(id) {
-        if (confirm("Bạn có chắc chắn muốn khóa tài khoản này không?")) {
-            // Viết logic gọi API xóa/khóa ở đây
-            console.log("Khóa user ID: " + id);
+    function confirmDelete(id, name) {
+        if (confirm(`Bạn có chắc chắn muốn KHÓA tài khoản của [${name}] không?\nNgười dùng này sẽ không thể đăng nhập vào hệ thống.`)) {
+            // Khoa dùng URL này để gọi action khóa nhé
+            window.location.href = `/Admin/LockUser/${id}`;
         }
     }
 </script>

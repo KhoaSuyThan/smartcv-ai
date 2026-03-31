@@ -1,62 +1,185 @@
-@model IEnumerable<DoAnCS.Models.Template>
+@model DoAnCS.Models.ViewModels.AdminDashboardVM
+@{
+    ViewData["Title"] = "Quản lý Mẫu CV";
+}
+@Html.AntiForgeryToken()
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary"><i class='bx bxs-layout'></i> Quản lý Mẫu thiết kế CV</h2>
-        <a asp-action="CreateTemplate" class="btn btn-primary rounded-pill px-4 shadow-sm">
-            <i class='bx bx-plus'></i> Thêm mẫu mới
-        </a>
-    </div>
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-    <div class="row">
-        @foreach (var item in Model)
-        {
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 15px; transition: 0.3s;">
-                    <div class="position-relative">
-                        <img src="@item.PreviewImageUrl" class="card-img-top" alt="@item.Name" style="height: 220px; object-fit: cover;">
-                        @if (!item.IsActive)
-                        {
-                            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5);">
-                                <span class="badge bg-danger">Tạm ẩn</span>
-                            </div>
-                        }
-                    </div>
+<div class="admin-template-page py-4" style="background-color: #f8fbff; min-height: 100vh;">
+    <div class="container-fluid px-5">
+        
+        @* Header Section *@
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h3 class="fw-bold text-dark m-0">
+                    <i class='bx bxs-layout text-primary me-2'></i>Quản lý Mẫu thiết kế CV
+                </h3>
+                <p class="text-muted small mb-0">Hiển thị tối ưu 80% kích thước chuẩn A4.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
+                    <i class='bx bx-left-arrow-alt'></i> Quay về Dashboard
+                </a>
+                <a asp-action="CreateTemplate" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
+                    <i class='bx bx-plus-circle'></i> Thêm mẫu mới
+                </a>
+            </div>
+        </div>
 
-                    <div class="card-body d-flex flex-column">
-                        <h6 class="fw-bold text-dark mb-3">@item.Name</h6>
-                        <div class="mb-auto">
-                            <span class="badge bg-light text-muted border">ID: #@item.TemplateID</span>
+        @* Grid hiển thị 4 mẫu *@
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            @foreach (var item in Model.Templates)
+            {
+                <div class="col">
+                    @* Thêm class template-card-wrapper để giới hạn 80% *@
+                    <div class="card h-100 border-0 shadow-sm template-card rounded-4 overflow-hidden mx-auto" style="max-width: 80%;">
+                        @* Tỉ lệ ảnh A4 *@
+                        <div class="cv-preview-box position-relative">
+                            <img src="@item.PreviewImageUrl" class="card-img-top" alt="@item.Name" 
+                                 onerror="this.src='https://via.placeholder.com/210x297?text=CV+Template';">
+                            
+                            @if (!item.IsActive)
+                            {
+                                <div class="status-overlay">Tạm ẩn</div>
+                            }
                         </div>
+                        
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-dark text-truncate mb-2" style="font-size: 0.9rem;">@item.Name</h6>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 0.65rem;">ID: #@item.TemplateID</span>
+                                
+                                <div class="d-flex gap-1 align-items-center">
+                                    @* Nút Sửa *@
+                                    <a asp-action="EditCV" asp-route-id="@item.TemplateID" 
+                                       class="btn btn-sm text-warning p-1" title="Chỉnh sửa">
+                                        <i class='bx bxs-edit-alt fs-5'></i>
+                                    </a>
 
-                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                            <div class="form-check form-switch" title="Bật/Tắt hiển thị">
-                                <input class="form-check-input" type="checkbox" role="switch" @(item.IsActive ? "checked" : "") 
-                                       onclick="toggleStatus(@item.TemplateID)">
-                            </div>
-                            <div class="btn-group">
-                                <a asp-action="EditTemplate" asp-route-id="@item.TemplateID" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa code">
-                                    <i class='bx bxs-edit'></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(@item.TemplateID)" title="Xóa mẫu">
-                                    <i class='bx bxs-trash'></i>
-                                </button>
+                                    @* Nút Xóa *@
+                                    <button onclick="confirmDelete(@item.TemplateID, '@item.Name')" 
+                                            class="btn btn-sm text-danger p-1" title="Xóa mẫu">
+                                        <i class='bx bxs-trash fs-5'></i>
+                                    </button>
+
+                                    @* Switch bật/tắt *@
+                                    <div class="form-check form-switch ms-1">
+                                        <input class="form-check-input cursor-pointer" type="checkbox" 
+                                            @(item.IsActive ? "checked" : "") 
+                                            onchange="toggleTemplateStatus(@item.TemplateID, this)">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            }
+        </div>
+
+        @* Phân trang *@
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center custom-pagination">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link shadow-sm" href="?page=@(Model.CurrentPage - 1)"><i class='bx bx-chevron-left'></i></a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link shadow-sm" href="?page=@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link shadow-sm" href="?page=@(Model.CurrentPage + 1)"><i class='bx bx-chevron-right'></i></a>
+                    </li>
+                </ul>
+            </nav>
         }
     </div>
 </div>
 
 <style>
-    .card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    /* ÉP TỈ LỆ A4 CHUẨN */
+    .cv-preview-box {
+        width: 100%;
+        aspect-ratio: 1 / 1.414;
+        overflow: hidden;
+        background: #f0f0f0;
     }
-    .form-check-input:checked {
-        background-color: #198754;
-        border-color: #198754;
+    .cv-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
     }
+
+    /* Hiệu ứng Card */
+    .template-card { 
+        transition: all 0.3s ease; 
+        border: 1px solid rgba(0,0,0,0.05) !important;
+    }
+    .template-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; 
+    }
+    .template-card:hover img { transform: scale(1.08); }
+
+    /* Overlay Trạng thái */
+    .status-overlay {
+        position: absolute; top: 10px; left: 10px;
+        background: rgba(220, 53, 69, 0.85); color: white;
+        padding: 2px 10px; border-radius: 15px;
+        font-size: 0.6rem; font-weight: bold;
+    }
+
+    /* Custom Phân trang */
+    .custom-pagination .page-link {
+        border: none; margin: 0 3px; border-radius: 8px !important;
+        color: #666; padding: 8px 16px; font-weight: 600;
+    }
+    .custom-pagination .page-item.active .page-link { background: #0d6efd; color: white; }
+
+    .btn-white { background: white; }
+    .cursor-pointer { cursor: pointer; }
 </style>
+
+<script>
+    function confirmDelete(id, name) {
+        if (confirm(`Bạn có chắc muốn XÓA vĩnh viễn mẫu CV [${name}]?`)) {
+            window.location.href = `/Admin/DeleteTemplate/${id}`;
+        }
+    }
+    function toggleTemplateStatus(id, checkbox) {
+        // Hiệu ứng mờ đi một chút để người dùng biết đang xử lý
+        checkbox.style.opacity = "0.5";
+        checkbox.disabled = true;
+
+        // Gửi yêu cầu AJAX bằng Fetch API
+        fetch(`/Admin/ToggleTemplateStatus/${id}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Nếu thành công, hiện thông báo nhỏ (Toast) hoặc đổi màu
+                console.log("Đã cập nhật trạng thái mẫu #" + id);
+            } else {
+                // Nếu lỗi thì gạt nút quay lại trạng thái cũ
+                checkbox.checked = !checkbox.checked;
+                alert("Lỗi: Không thể cập nhật trạng thái!");
+            }
+        })
+        .catch(error => {
+            checkbox.checked = !checkbox.checked;
+            console.error('Error:', error);
+        })
+        .finally(() => {
+            checkbox.style.opacity = "1";
+            checkbox.disabled = false;
+        });
+    }
+</script>

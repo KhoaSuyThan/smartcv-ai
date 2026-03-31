@@ -71,11 +71,10 @@ namespace DoAnCS.Controllers
         [Authorize(Roles = "Recruiter,Admin")]
         public async Task<IActionResult> Create()
         {
-            // Nếu là Admin, có thể cần chọn công ty. Nếu là Recruiter, lấy mặc định.
-            if (CurrentRole == "Admin")
-            {
-                ViewBag.Companies = await _context.Companies.ToListAsync();
-            }
+            // LUÔN LUÔN nạp danh sách, kể cả không dùng đến để tránh lỗi Null ở View
+            var companies = await _context.Companies.ToListAsync();
+            ViewBag.Companies = companies ?? new List<Company>(); 
+            
             return View();
         }
 
@@ -85,36 +84,49 @@ namespace DoAnCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Job job)
         {
-            // Xóa validation cho các object liên kết
+            // 1. Gỡ bỏ kiểm tra các trường không nhập từ Form
             ModelState.Remove("Recruiter");
             ModelState.Remove("Company");
             ModelState.Remove("Applications");
 
             if (ModelState.IsValid)
             {
-                // Lấy User từ DB để lấy CompanyID chính xác nhất
-                var userInDb = await _context.Users.FindAsync(CurrentUserId);
-
+                // 2. Thiết lập các thông tin mặc định
                 job.CreatedAt = DateTime.Now;
-                job.RecruiterID = CurrentUserId;
-                job.Status = (CurrentRole == "Admin") ? 1 : 0;
+                job.RecruiterID = CurrentUserId; // Giả định bạn đã có thuộc tính này trong BaseController
+                
+                // Admin đăng thì duyệt luôn (1), Recruiter đăng thì chờ duyệt (0)
+                job.Status = User.IsInRole("Admin") ? 1 : 0;
 
-                if (CurrentRole == "Recruiter")
+                // 3. Xử lý ID Công ty dựa trên Role
+                if (User.IsInRole("Recruiter"))
                 {
-                    // Lấy ID từ DB thay vì lấy từ CurrentCompanyId (Claims)
+                    // Lấy trực tiếp từ DB để đảm bảo an toàn dữ liệu
+                    var userInDb = await _context.Users.FindAsync(CurrentUserId);
                     job.CompanyID = userInDb?.CompanyID ?? 0;
                 }
+                // Nếu là Admin thì job.CompanyID đã được lấy từ Dropdown qua Model Binding
 
+                // 4. Kiểm tra ID công ty lần cuối trước khi lưu
                 if (job.CompanyID == null || job.CompanyID == 0)
                 {
-                    ModelState.AddModelError("", "Lỗi: Hệ thống không thấy ID công ty của bạn trong DB.");
-                    return View(job);
+                    ModelState.AddModelError("", "Lỗi: Không xác định được công ty. Vui lòng kiểm tra lại thông tin tài khoản.");
                 }
-
-                _context.Add(job);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Manage));
+                else
+                {
+                    _context.Add(job);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Đăng tin tuyển dụng thành công!";
+                    
+                    // FIX: Điều hướng về trang Quản trị hệ thống mới
+                    return RedirectToAction("Jobs", "Admin");
+                }
             }
+
+            // FIX: Nếu có lỗi (ModelState không hợp lệ), PHẢI nạp lại ViewBag trước khi trả về View
+            // Nếu không nạp lại, khi View load lại sẽ bị lỗi NullReferenceException ngay
+            ViewBag.Companies = await _context.Companies.ToListAsync();
+            
             return View(job);
         }
 
@@ -168,17 +180,20 @@ namespace DoAnCS.Controllers
                     // Xử lý trạng thái theo Role
                     if (User.IsInRole("Admin"))
                     {
-                        jobInDb.Status = 1; // Admin sửa là duyệt luôn
+                        // Admin chọn gì lưu nấy
+                        jobInDb.Status = job.Status; 
                     }
                     else
                     {
-                        jobInDb.Status = 0; // Recruiter sửa thì phải duyệt lại
+                        // Nếu là Recruiter sửa bài, ép về 0 để chờ Admin duyệt lại (nếu hệ thống yêu cầu)
+                        // Hoặc nếu muốn cho họ tự đóng/mở tin thì cũng dùng: jobInDb.Status = job.Status;
+                        jobInDb.Status = 0; 
                     }
 
                     _context.Update(jobInDb);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Cập nhật thành công!";
-                    return RedirectToAction(nameof(Manage));
+                    return RedirectToAction("Jobs", "Admin");
                 }
                 catch (DbUpdateConcurrencyException)
                 {

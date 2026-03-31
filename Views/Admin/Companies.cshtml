@@ -1,0 +1,249 @@
+@model IEnumerable<DoAnCS.Models.Company>
+@{
+    ViewData["Title"] = "Quản lý Công ty";
+}
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="container-fluid px-5 py-4" style="background-color: #f8fbff; min-height: 100vh;">
+    @* --- HEADER --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold m-0"><i class='bx bxs-business text-success me-2'></i>Quản lý đối tác Công ty</h2>
+            <p class="text-muted small mb-0">Hệ thống đang có @Model.Count() đơn vị liên kết</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
+                <i class='bx bx-left-arrow-alt'></i> Quay lại Dashboard
+            </a>
+            <button class="btn btn-success rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addCompanyModal">
+                <i class='bx bx-plus-circle'></i> Thêm công ty mới
+            </button>
+        </div>
+    </div>
+
+    @* --- THÔNG BÁO --- *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+            <div class="d-flex align-items-center">
+                <i class='bx bxs-check-circle fs-4 me-2'></i>
+                <span>@TempData["Success"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @* --- BẢNG DỮ LIỆU --- *@
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3">Logo</th>
+                        <th>Tên công ty</th>
+                        <th>Website</th>
+                        <th>Địa chỉ</th>
+                        <th>Ngày tham gia</th>
+                        <th class="text-center">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="me-3 d-flex align-items-center justify-content-center shadow-sm" 
+                                    style="width: 55px; height: 55px; background-color: #f0f7ff; border-radius: 12px; flex-shrink: 0; border: 1px solid #e2e8f0;">
+                                    
+                                    @* Kiểm tra LogoUrl từ Model Company liên kết với Job *@
+                                    @if (!string.IsNullOrEmpty(c.LogoUrl))
+                                    {
+                                        <img src="@c.LogoUrl" 
+                                            alt="Logo @c.Name"
+                                            style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px; padding: 5px;"
+                                            @* FIX: Nếu link từ database bị lỗi, tự động thay bằng icon tòa nhà *@
+                                            onerror="this.onerror=null; this.outerHTML='<i class=\'bx bx-building text-muted fs-3\'></i>';">
+                                    }
+                                    else
+                                    {
+                                        @* Trường hợp không có LogoUrl ngay từ đầu *@
+                                        <i class='bx bx-building text-muted fs-3'></i>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-dark">@c.Name</div>
+                                <div class="extra-small text-muted">ID: #@c.CompanyID</div>
+                            </td>
+                            <td>
+                                <a href="@c.Website" target="_blank" class="badge bg-light text-primary border text-decoration-none py-2 px-3 rounded-pill">
+                                    <i class='bx bx-link-external me-1'></i>Website
+                                </a>
+                            </td>
+                            <td class="small text-muted">
+                                <div class="text-truncate" style="max-width: 250px;" title="@c.Address">@c.Address</div>
+                            </td>
+                            <td class="small text-muted">@c.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    @* Nút Sửa *@
+                                    <button class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm btn-edit-company" 
+                                        data-id="@c.CompanyID"
+                                        data-name="@c.Name"
+                                        data-website="@c.Website"
+                                        data-logo="@c.LogoUrl"
+                                        data-address="@c.Address"
+                                        data-description="@c.Description"> @* Dữ liệu mô tả nằm an toàn ở đây, không sợ xuống dòng *@
+                                        <i class='bx bxs-edit text-warning me-1'></i>Sửa
+                                    </button>
+                                    
+                                    @* Nút Xóa *@
+                                    <form asp-action="DeleteCompany" asp-route-id="@c.CompanyID" method="post" 
+                                          onsubmit="return confirm('CẢNH BÁO: Xóa công ty sẽ xóa TẤT CẢ các Tin tuyển dụng liên quan. Bạn có chắc chắn không?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm">
+                                            <i class='bx bxs-trash text-danger me-1'></i>Xóa
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* ================================================================= *@
+@* MODAL THÊM CÔNG TY *@
+@* ================================================================= *@
+<div class="modal fade" id="addCompanyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <form asp-action="CreateCompany" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-success text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class='bx bx-plus-circle me-2'></i>Thêm đối tác mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Tên công ty</label>
+                            <input type="text" name="Name" class="form-control border-2 rounded-3" required placeholder="Ví dụ: Google LLC">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Website</label>
+                            <input type="url" name="Website" class="form-control border-2 rounded-3" placeholder="https://google.com">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Link Logo (Url)</label>
+                            <input type="text" name="LogoUrl" class="form-control border-2 rounded-3" placeholder="Dán URL ảnh logo tại đây">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Địa chỉ trụ sở</label>
+                            <input type="text" name="Address" class="form-control border-2 rounded-3" placeholder="Số 123, Đường ABC, Quận X...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Mô tả giới thiệu</label>
+                            <textarea name="Description" class="form-control border-2 rounded-3" rows="4" placeholder="Giới thiệu ngắn về công ty..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-5 fw-bold shadow-sm">Lưu dữ liệu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* ================================================================= *@
+@* MODAL SỬA CÔNG TY (FIXED) *@
+@* ================================================================= *@
+<div class="modal fade" id="editCompanyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <form asp-action="EditCompany" method="post">
+                @Html.AntiForgeryToken()
+                @* Cực kỳ quan trọng: Hidden ID *@
+                <input type="hidden" name="CompanyID" id="editCompanyId" />
+
+                <div class="modal-header bg-warning text-dark border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class='bx bxs-edit me-2'></i>Cập nhật thông tin đối tác</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Tên công ty</label>
+                            <input type="text" name="Name" id="editName" class="form-control border-2 rounded-3" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Website</label>
+                            <input type="url" name="Website" id="editWebsite" class="form-control border-2 rounded-3">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Link Logo (Url)</label>
+                            <input type="text" name="LogoUrl" id="editLogoUrl" class="form-control border-2 rounded-3">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Địa chỉ trụ sở</label>
+                            <input type="text" name="Address" id="editAddress" class="form-control border-2 rounded-3">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Mô tả giới thiệu</label>
+                            <textarea name="Description" id="editDescription" class="form-control border-2 rounded-3" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-warning rounded-pill px-5 fw-bold shadow-sm">Cập nhật ngay</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Tìm tất cả các nút có class 'btn-edit-company'
+        const editButtons = document.querySelectorAll('.btn-edit-company');
+
+        editButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                // 1. Lấy dữ liệu từ các thuộc tính data- của nút vừa bấm
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const web = this.getAttribute('data-website');
+                const logo = this.getAttribute('data-logo');
+                const addr = this.getAttribute('data-address');
+                const desc = this.getAttribute('data-description');
+
+                // 2. Điền chính xác vào các ô Input trong Modal Sửa (Dùng đúng ID của bạn)
+                document.getElementById('editCompanyId').value = id;
+                document.getElementById('editName').value = name;
+                document.getElementById('editWebsite').value = web;
+                document.getElementById('editLogoUrl').value = logo;
+                document.getElementById('editAddress').value = addr;
+                document.getElementById('editDescription').value = desc; // Giờ nó sẽ hiện đầy đủ!
+
+                // 3. Khởi tạo và hiển thị Modal
+                var editModal = new bootstrap.Modal(document.getElementById('editCompanyModal'));
+                editModal.show();
+            });
+        });
+    });
+</script>
+
+<style>
+    .bg-light { background-color: #f1f5f9 !important; }
+    .extra-small { font-size: 0.7rem; }
+    .btn-white { background: white; }
+    .btn-white:hover { background: #f8f9fa; border-color: #dee2e6 !important; }
+    .form-control:focus { border-color: #0d6efd; box-shadow: none; }
+</style>

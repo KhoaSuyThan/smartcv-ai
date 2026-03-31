@@ -4,77 +4,114 @@
     ViewData["Title"] = "Đăng tin tuyển dụng";
 }
 
-<div class="container mt-5">
+@* Nhúng thư viện Icon Boxicons *@
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-plus-square"></i> Đăng tin tuyển dụng mới</h4>
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                @* Header Card *@
+                <div class="card-header bg-primary p-4 border-0">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-25 rounded-circle p-3 me-3">
+                            <i class='bx bx-plus-circle fs-2 text-white'></i>
+                        </div>
+                        <div>
+                            <h4 class="text-white fw-bold mb-0">Đăng tin tuyển dụng mới</h4>
+                            <small class="text-white-50">Cung cấp thông tin chi tiết để thu hút ứng viên</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
+
+                <div class="card-body p-5">
                     <form asp-action="Create" method="post">
                         @Html.AntiForgeryToken()
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-4 p-3 bg-danger-soft rounded-3 small"></div>
 
-                        @if (User.IsInRole("Admin"))
-                        {
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Chọn công ty tuyển dụng</label>
-                                <select asp-for="CompanyID" class="form-select" 
-                                        asp-items="@(new SelectList(ViewBag.Companies, "CompanyID", "CompanyName"))">
+                        @* PHẦN CHỌN CÔNG TY - ĐÃ FIX LỖI NULL *@
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">
+                                <i class='bx bx-building-house me-1'></i>Đơn vị tuyển dụng
+                            </label>
+                            
+                            @if (User.IsInRole("Admin"))
+                            {
+                                @* Admin: Được chọn công ty từ danh sách *@
+                                <select asp-for="CompanyID" class="form-select border-2 py-2 px-3 rounded-3" 
+                                        asp-items="@(new SelectList(ViewBag.Companies ?? new List<DoAnCS.Models.Company>(), "CompanyID", "Name"))" required>
                                     <option value="">-- Chọn công ty --</option>
                                 </select>
-                                <span asp-validation-for="CompanyID" class="text-danger"></span>
-                            </div>
-                        }
+                            }
+                            else
+                            {
+                                @* Recruiter: Chỉ hiện thông báo (ID sẽ được xử lý tự động ở Controller) *@
+                                <div class="p-3 bg-light rounded-3 border d-flex align-items-center">
+                                    <i class='bx bx-info-circle text-primary fs-4 me-2'></i>
+                                    <span class="text-muted">Tin đăng sẽ được tự động gắn với công ty của bạn.</span>
+                                </div>
+                            }
+                            <span asp-validation-for="CompanyID" class="text-danger small"></span>
+                        </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Title" class="form-label fw-bold">Tiêu đề công việc</label>
-                            <input asp-for="Title" class="form-control" placeholder="Ví dụ: Tuyển lập trình viên .NET Core" />
-                            <span asp-validation-for="Title" class="text-danger"></span>
+                        @* TIÊU ĐỀ *@
+                        <div class="mb-4">
+                            <label asp-for="Title" class="form-label fw-bold text-dark">Vị trí tuyển dụng</label>
+                            <input asp-for="Title" class="form-control border-2 py-2 px-3 rounded-3" placeholder="Ví dụ: Backend Developer (.NET Core)" required />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Salary" class="form-label fw-bold">Mức lương</label>
-                                <input asp-for="Salary" class="form-control" placeholder="Thỏa thuận, 10-15 triệu..." />
-                                <span asp-validation-for="Salary" class="text-danger"></span>
+                            @* LƯƠNG *@
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Salary" class="form-label fw-bold text-dark">Mức lương</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-2 bg-light"><i class='bx bx-money'></i></span>
+                                    <input asp-for="Salary" class="form-control border-2 py-2 px-3 rounded-end-3" placeholder="Ví dụ: 15 - 20 triệu" />
+                                </div>
+                                <span asp-validation-for="Salary" class="text-danger small"></span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Deadline" class="form-label fw-bold">Hạn nộp hồ sơ</label>
-                                <input asp-for="Deadline" type="date" class="form-control" />
-                                <span asp-validation-for="Deadline" class="text-danger"></span>
+                            
+                            @* HẠN NỘP *@
+                            <div class="col-md-6 mb-4">
+                                <label asp-for="Deadline" class="form-label fw-bold text-dark">Hạn chót nộp hồ sơ</label>
+                                <input asp-for="Deadline" type="date" class="form-control border-2 py-2 px-3 rounded-3" required />
+                                <span asp-validation-for="Deadline" class="text-danger small"></span>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Description" class="form-label fw-bold">Mô tả công việc</label>
-                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả các công việc cần làm..."></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
+                        @* MÔ TẢ *@
+                        <div class="mb-4">
+                            <label asp-for="Description" class="form-label fw-bold text-dark">Mô tả chi tiết công việc</label>
+                            <textarea asp-for="Description" class="form-control border-2 rounded-3" rows="5" placeholder="Nêu rõ các đầu việc hàng ngày..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Requirements" class="form-label fw-bold">Yêu cầu ứng viên</label>
-                            <textarea asp-for="Requirements" class="form-control" rows="4" placeholder="Kỹ năng, kinh nghiệm cần có..."></textarea>
-                            <span asp-validation-for="Requirements" class="text-danger"></span>
+                        @* YÊU CẦU *@
+                        <div class="mb-5">
+                            <label asp-for="Requirements" class="form-label fw-bold text-dark">Yêu cầu đối với ứng viên</label>
+                            <textarea asp-for="Requirements" class="form-control border-2 rounded-3" rows="5" placeholder="Kỹ năng chuyên môn, kinh nghiệm, ngoại ngữ..."></textarea>
+                            <span asp-validation-for="Requirements" class="text-danger small"></span>
                         </div>
 
-                        <hr />
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Manage" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Quay lại
+                        @* NÚT BẤM *@
+                        <div class="d-flex justify-content-between align-items-center pt-4 border-top">
+                            <a href="/Admin/Jobs" class="btn btn-light rounded-pill px-4 fw-bold text-secondary">
+                                <i class='bx bx-chevron-left me-1'></i>Hủy bỏ
                             </a>
-                            <button type="submit" class="btn btn-success px-4">
-                                <i class="bi bi-send"></i> Gửi bài đăng
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow">
+                                <i class='bx bx-cloud-upload me-1'></i>Đăng tin tuyển dụng
                             </button>
                         </div>
                     </form>
-                    <div asp-validation-summary="All" class="text-danger fw-bold"></div>
                 </div>
             </div>
-            
-            <div class="mt-3 text-muted text-center">
-                <small><i class="bi bi-info-circle"></i> Tin đăng của bạn sẽ được chuyển đến Admin để duyệt trước khi hiển thị chính thức.</small>
+
+            <div class="mt-4 text-center">
+                <p class="text-muted small">
+                    <i class='bx bx-info-circle me-1'></i>
+                    Lưu ý: Sau khi đăng, tin của bạn sẽ ở trạng thái <strong>Chờ duyệt</strong> trước khi hiển thị công khai.
+                </p>
             </div>
         </div>
     </div>
@@ -83,3 +120,13 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<style>
+    /* Làm mượt Input */
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.1);
+    }
+    .bg-danger-soft { background-color: #fff5f5; border: 1px solid #feb2b2; }
+    .card { transition: none; }
+</style>

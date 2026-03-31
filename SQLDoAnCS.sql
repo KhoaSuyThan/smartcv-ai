@@ -719,6 +719,21 @@ INSERT INTO Jobs (Title, Description, Requirements, Salary, Deadline, CompanyID,
 (N'AWS Developer', N'Phát triển Cloud cho dự án dài hạn của United Airlines.', N'8+ năm kinh nghiệm, nền tảng .NET mạnh, giao tiếp tốt.', N'Theo hợp đồng', '2026-06-10', 9, 1, 1),
 (N'Analyst - Identity & Access Management', N'Bảo mật hệ thống IAM, quản lý xác thực hiện đại (OIDC, SAML, SSO).', N'3+ năm kinh nghiệm, thạo Okta/Entra/SailPoint.', N'87K - 114K / year', '2026-05-18', 10, 1, 1);
 
+-- Thêm 5 Công ty tiếp theo (ID từ 11 đến 15)
+INSERT INTO Companies (Name, LogoUrl, Website, Address, Industry) VALUES 
+(N'Google (Chicago Tower)', 'https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png', 'https://www.google.com/about/careers/applications/', N'Chicago, IL', N'Cloud & Search'),
+(N'Zebra Technologies', 'https://www.zebra.com/content/dam/zebra_new_ia/en-us/solutions-verticals/product-logos/Zebra_Logo_Tagline_Black.png', 'https://www.zebra.com/us/en/about-zebra/careers.html', N'Lincolnshire, IL', N'Enterprise Technology'),
+(N'Salesforce', 'https://a.sfdcstatic.com/shared/images/c360-nav/salesforce-with-type-logo.svg', 'https://careers.salesforce.com/en/jobs/', N'Chicago, IL', N'CRM & SaaS'),
+(N'Grubhub', 'https://pwa-cdn.grubhub.com/beta/grubhub-assets/images/grubhub-logo-red.svg', 'https://careers.grubhub.com/', N'Chicago, IL', N'FoodTech'),
+(N'Allstate', 'https://www.allstate.com/content/dam/allstate/allstate-logo-header.png', 'https://www.allstate.jobs/', N'Northbrook, IL', N'InsurTech');
+
+-- Thêm 5 Công việc tương ứng (Liên kết với CompanyID 11-15)
+INSERT INTO Jobs (Title, Description, Requirements, Salary, Deadline, CompanyID, RecruiterID, Status) VALUES 
+(N'Senior Software Engineer - Site Reliability', N'Đảm bảo hệ thống hạ tầng Cloud của Google hoạt động ổn định và có khả năng mở rộng cao.', N'5+ năm kinh nghiệm với C++, Java hoặc Go. Thạo hệ thống Linux và hạ tầng mạng Cloud.', N'145K - 195K / year', '2026-12-25', 11, 1, 1),
+(N'Embedded Software Engineer', N'Phát triển phần mềm nhúng cho các thiết bị quét mã vạch và máy tính di động công nghiệp.', N'Thạo C/C++, kiến trúc RTOS và vi điều khiển ARM. Hiểu biết về giao tiếp WiFi/Bluetooth.', N'95K - 135K / year', '2026-11-15', 12, 1, 1),
+(N'Technical Solutions Architect', N'Thiết kế giải pháp tích hợp hệ thống CRM Salesforce cho các doanh nghiệp tài chính lớn.', N'Chứng chỉ Salesforce Architect, 8+ năm kinh nghiệm phần mềm, thạo Apex và LWC.', N'160K - 210K / year', '2026-10-30', 13, 1, 1),
+(N'Senior Data Scientist', N'Phát triển các mô hình học máy để tối ưu hóa thời gian giao hàng và trải nghiệm thực khách.', N'Thạc sĩ/Tiến sĩ toán tin, 4+ năm kinh nghiệm Python/R, thạo SQL và các thư viện ML.', N'125K - 170K / year', '2026-09-20', 14, 1, 1),
+(N'Cloud Security Engineer', N'Bảo mật hạ tầng Azure cho hệ thống bảo hiểm toàn cầu, quản lý Identity và mã hóa dữ liệu.', N'3+ năm bảo mật Cloud, chứng chỉ AZ-500 hoặc tương đương. Thạo Terraform/Ansible.', N'115K - 155K / year', '2026-08-05', 15, 1, 1);
 
 
 
