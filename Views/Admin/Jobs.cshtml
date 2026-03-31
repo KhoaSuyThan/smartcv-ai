@@ -1,0 +1,179 @@
+@model IEnumerable<DoAnCS.Models.Job>
+@{
+    ViewData["Title"] = "Quản lý tin tuyển dụng";
+}
+
+@* Nhúng thư viện Icon *@
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="admin-job-page py-4" style="background-color: #f8fbff; min-height: 100vh;">
+    <div class="container-fluid px-5">
+        
+        @* Header *@
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark m-0">
+                    <i class='bx bxs-briefcase-alt-2 text-warning me-2'></i>Quản lý Tin Tuyển dụng
+                </h3>
+                <p class="text-muted small mb-0">Hệ thống có tổng cộng <span class="fw-bold text-primary">@Model.Count()</span> bản ghi.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
+                    <i class='bx bx-left-arrow-alt'></i> Quay lại Dashboard
+                </a>
+                <a asp-controller="Jobs" asp-action="Create" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
+                    <i class='bx bx-plus-circle'></i> Đăng tin mới
+                </a>
+            </div>
+        </div>
+
+        @* Bảng danh sách *@
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3" style="width: 80px">Logo</th>
+                            <th>Vị trí tuyển dụng</th>
+                            <th>Mức lương</th>
+                            <th>Hạn nộp</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var job in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="bg-white rounded p-1 border shadow-sm d-flex align-items-center justify-content-center" 
+                                         style="height: 50px; width: 50px;">
+                                        @if (job.Company != null && !string.IsNullOrEmpty(job.Company.LogoUrl))
+                                        {
+                                            <img src="@job.Company.LogoUrl" 
+                                                 class="rounded"
+                                                 style="height: 100%; width: 100%; object-fit: contain;" 
+                                                 onerror="this.onerror=null; this.outerHTML='<i class=\'bx bx-building text-muted fs-4\'></i>';" />
+                                        }
+                                        else
+                                        {
+                                            <i class='bx bx-building text-muted fs-4'></i>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold text-dark fs-6">@job.Title</div>
+                                    <div class="text-primary small fw-semibold">@job.Company?.Name</div>
+                                    <div class="extra-small text-muted" style="font-size: 0.7rem;">
+                                        ID: #@job.JobID | Đăng: @job.CreatedAt.ToString("dd/MM/yyyy")
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success-soft text-success px-3 py-2">
+                                        <i class='bx bx-dollar-circle me-1'></i>@job.Salary
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="@(job.Deadline < DateTime.Now ? "text-danger" : "text-dark") fw-bold small">
+                                        <i class='bx bx-calendar-event me-1'></i>@job.Deadline?.ToString("dd/MM/yyyy")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (job.Status == 0)
+                                    {
+                                        <span class="badge bg-warning-soft text-warning rounded-pill px-3 py-2 animate-pulse">
+                                            <i class='bx bx-time-five me-1'></i>Chờ duyệt
+                                        </span>
+                                    }
+                                    else if (job.Status == 1)
+                                    {
+                                        @if (job.Deadline >= DateTime.Now)
+                                        {
+                                            <span class="badge bg-info-soft text-info rounded-pill px-3 py-2">
+                                                <i class='bx bx-check-double me-1'></i>Đang tuyển
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary-soft text-secondary rounded-pill px-3 py-2">
+                                                <i class='bx bx-block me-1'></i>Hết hạn
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger-soft text-danger rounded-pill px-3 py-2">
+                                            <i class='bx bx-x-circle me-1'></i>Từ chối
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        @* Nếu đang chờ duyệt: Hiện nút Duyệt/Từ chối *@
+                                        @if (job.Status == 0)
+                                        {
+                                            <a asp-controller="Jobs" asp-action="Approve" asp-route-id="@job.JobID" 
+                                               asp-route-returnUrl="@Context.Request.Path"
+                                               class="btn btn-sm btn-success rounded-pill px-3 fw-bold shadow-sm">
+                                                Duyệt
+                                            </a>
+                                            <a asp-controller="Jobs" asp-action="Reject" asp-route-id="@job.JobID" 
+                                               asp-route-returnUrl="@Context.Request.Path"
+                                               class="btn btn-sm btn-outline-danger rounded-pill px-2">
+                                                <i class='bx bx-x'></i>
+                                            </a>
+                                        }
+                                        
+                                        @* Nút Sửa *@
+                                        <a asp-controller="Jobs" asp-action="Edit" asp-route-id="@job.JobID" 
+                                           class="btn btn-sm btn-light border rounded-circle" style="width: 32px; height: 32px;" title="Sửa">
+                                            <i class='bx bxs-edit-alt text-primary'></i>
+                                        </a>
+
+                                        @* Nút Xóa (Dùng form để bảo mật) *@
+                                        <form asp-controller="Jobs" asp-action="Delete" asp-route-id="@job.JobID" method="post" 
+                                              onsubmit="return confirm('Bạn có chắc muốn xóa tin này vĩnh viễn?');" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-light border rounded-circle" style="width: 32px; height: 32px;" title="Xóa">
+                                                <i class='bx bxs-trash text-danger'></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS MÀU BADGE SOFT - Đã tối ưu cho Khoa */
+    .bg-success-soft { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .bg-warning-soft { background-color: #fff8e1; color: #f57f17; border: 1px solid #ffecb3; }
+    .bg-info-soft    { background-color: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb; }
+    .bg-danger-soft  { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+    .bg-secondary-soft { background-color: #f5f5f5; color: #616161; border: 1px solid #e0e0e0; }
+
+    /* Hiệu ứng nhấp nháy cho tin chờ duyệt */
+    .animate-pulse { animation: pulse-animation 2s infinite; }
+    @@keyframes pulse-animation {
+        0% { opacity: 1; }
+        50% { opacity: 0.6; }
+        100% { opacity: 1; }
+    }
+
+    .table thead th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #718096;
+        border-bottom: 1px solid #edf2f7;
+    }
+
+    .table tbody tr:hover { background-color: #fcfdfe; }
+    .btn-white { background: white; }
+    .hover-primary:hover { color: #0d6efd !important; }
+</style>

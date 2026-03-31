@@ -2,7 +2,7 @@
     @{
         ViewData["Title"] = "Trang chủ - Hệ thống quản lý CV";
     }
-
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         .hero-section {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -21,6 +21,29 @@
         }
         .job-card:hover {
             transform: translateY(-5px);
+        }
+        /* Style cho khung chứa logo việc làm */
+        .job-logo-box {
+            width: 55px;
+            height: 55px;
+            background-color: #f0f7ff; /* Màu xanh nhạt cực nhẹ */
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        /* Hiệu ứng nhịp tim nhẹ cho các tin mới */
+        .animate-pulse {
+            animation: pulse-blue 2s infinite;
+        }
+
+        @@keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
         }
     </style>
 
@@ -69,47 +92,54 @@
                     @foreach (var job in Model.LatestJobs)
                     {
                         <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm p-3" style="border-radius: 15px;">
+                            <div class="card h-100 border-0 shadow-sm p-3 job-card" style="border-radius: 15px;">
                                 <div class="d-flex align-items-start mb-3">
-                                    @* 1. Sửa: Hiển thị Logo từ employer_logo của JobDto *@
-                                    @if (!string.IsNullOrEmpty(job.employer_logo))
-                                    {
-                                        <img src="@job.employer_logo" 
-                                            alt="Logo @job.employer_name"
-                                            class="me-3" 
-                                            style="width: 50px; height: 50px; object-fit: contain; border-radius: 8px;"
-                                            onerror="this.src='/images/default-company.png';">
-                                    }
-                                    else
-                                    {
-                                        <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                    @* 1. KHUNG LOGO: Nền xanh nhạt, bo góc, xử lý lỗi ảnh *@
+                                    <div class="me-3 d-flex align-items-center justify-content-center shadow-sm" 
+                                        style="width: 55px; height: 55px; background-color: #f0f7ff; border-radius: 12px; flex-shrink: 0; border: 1px solid #e2e8f0;">
+                                        
+                                        @if (!string.IsNullOrEmpty(job.employer_logo))
+                                        {
+                                            <img src="@job.employer_logo" 
+                                                alt="Logo @job.employer_name"
+                                                style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px; padding: 5px;"
+                                                @* FIX: Nếu ảnh lỗi, gọi hàm xử lý riêng cho sạch code *@
+                                                onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'bx bx-building text-muted fs-3\'></i>';">
+                                        }
+                                        else
+                                        {
                                             <i class='bx bx-building text-muted fs-3'></i>
-                                        </div>
-                                    }
-                                    
-                                    <div>
-                                        @* 2. Sửa: Dùng job_title và employer_name *@
-                                        <h6 class="fw-bold mb-1 text-truncate" style="max-width: 180px;">@job.job_title</h6>
-                                        <p class="text-primary small mb-0">@job.employer_name</p>
+                                        }
+                                    </div>
+
+                                    @* 2. TIÊU ĐỀ & CÔNG TY: Có giới hạn độ dài để không vỡ khung *@
+                                    <div class="overflow-hidden">
+                                        <h6 class="fw-bold mb-1 text-truncate" title="@job.job_title" style="color: #2d3748;">
+                                            @job.job_title
+                                        </h6>
+                                        <p class="text-primary small mb-0 text-truncate fw-semibold">
+                                            @job.employer_name
+                                        </p>
                                     </div>
                                 </div>
 
-                                @* 3. Sửa: Dùng job_city thay cho Address *@
+                                @* 3. ĐỊA ĐIỂM *@
                                 <p class="text-muted small mb-2 text-truncate">
-                                    <i class='bx bxs-map me-1'></i> @(string.IsNullOrEmpty(job.job_city) ? "Toàn quốc" : job.job_city)
+                                    <i class='bx bxs-map me-1 text-danger'></i> 
+                                    @(string.IsNullOrEmpty(job.job_city) ? "Toàn quốc" : job.job_city)
                                 </p>
 
-                                @* 4. Sửa: Dùng job_description và cắt ngắn 3 dòng *@
-                                <p class="text-secondary small mb-4" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">
+                                @* 4. MÔ TẢ: Cắt ngắn 3 dòng (Line-clamp) *@
+                                <p class="text-secondary small mb-4" 
+                                style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em; line-height: 1.5; color: #718096;">
                                     @job.job_description
                                 </p>
 
-                                @* 5. Sửa: Gắn ID vào link chi tiết *@
+                                @* 5. NÚT BẤM DƯỚI CÙNG *@
                                 <div class="mt-auto">
-                                    @* Lưu ý: Đảm bảo JobDto của bạn có thuộc tính job_id chứa ID của Job *@
                                     <a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
-                                    class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm">
-                                    Xem chi tiết & Ứng tuyển
+                                    class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm transition-all">
+                                        Xem chi tiết & Ứng tuyển
                                     </a>
                                 </div>
                             </div>

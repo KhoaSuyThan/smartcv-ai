@@ -26,46 +26,30 @@ namespace DoAnCS.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(int page = 1)
         {
-            // --- 1. THIẾT LẬP PHÂN TRANG ---
+            // --- 1. THIẾT LẬP PHÂN TRANG CHO TEMPLATES ---
             int pageSize = 4; // Số lượng mẫu CV hiện trên 1 trang
             var totalTemplatesCount = await _context.Templates.CountAsync();
 
-            // --- 2. ĐẾM DỮ LIỆU TỪ DATABASE ---
+            // --- 2. LẤY TẤT CẢ THỐNG KÊ TỪ DATABASE (BỎ JSON) ---
+            // Sử dụng await đồng thời giúp code gọn và dữ liệu chuẩn 100%
             var totalUsers = await _context.Users.CountAsync();
             var totalResumes = await _context.Resumes.CountAsync();
+            var totalJobs = await _context.Jobs.CountAsync();
+            var totalCompanies = await _context.Companies.CountAsync();
 
-            // --- 3. ĐẾM DỮ LIỆU TỪ FILE JSON (Jobs & Companies) ---
-            int totalJobs = await _context.Jobs.CountAsync();
-            int totalCompanies = await _context.Companies.CountAsync();
-
-            try 
-            {
-                string filePath = Path.Combine(_webHost.WebRootPath, "jobs.json");
-                if (System.IO.File.Exists(filePath))
-                {
-                    string jsonContent = await System.IO.File.ReadAllTextAsync(filePath);
-
-                    // Dùng Regex đếm số lượng dựa trên Key của JSON
-                    totalJobs = Regex.Matches(jsonContent, "\"job_id\"").Count;
-                    totalCompanies = Regex.Matches(jsonContent, "\"company_name\"").Count;
-                }
-            } 
-            catch (Exception ex) 
-            {
-                // Ghi log lỗi nếu cần: System.Diagnostics.Debug.WriteLine(ex.Message);
-            }
-
-            // --- 4. LẤY DANH SÁCH TEMPLATES THEO TRANG ---
+            // --- 3. LẤY DANH SÁCH TEMPLATES THEO TRANG ---
             var templates = await _context.Templates
-                .OrderByDescending(t => t.TemplateID) // Hoặc .OrderByDescending(t => t.CreatedAt)
+                .OrderByDescending(t => t.TemplateID)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Lấy thêm danh sách 5-10 việc làm mới nhất để hiện ở Dashboard
-            var jobs = await _context.Jobs.Include(j => j.Company)
+            // --- 4. LẤY DANH SÁCH 10 VIỆC LÀM MỚI NHẤT ĐỂ HIỂN THỊ ---
+            // Nhớ .Include(j => j.Company) để không bị lỗi Null khi gọi tên công ty ở View
+            var recentJobs = await _context.Jobs
+                .Include(j => j.Company)
                 .OrderByDescending(j => j.CreatedAt)
-                .Take(10) // Lấy 10 tin mới nhất
+                .Take(10) 
                 .ToListAsync();
 
             // --- 5. ĐỔ DỮ LIỆU VÀO VIEWMODEL ---
@@ -76,7 +60,7 @@ namespace DoAnCS.Controllers
                 TotalJobs = totalJobs,
                 TotalCompanies = totalCompanies,
                 Templates = templates,
-                Jobs = jobs,
+                Jobs = recentJobs, // Danh sách 10 tin mới nhất
                 CurrentPage = page,
                 TotalPages = (int)Math.Ceiling((double)totalTemplatesCount / pageSize)
             };
@@ -135,12 +119,6 @@ namespace DoAnCS.Controllers
         {
             public int job_id { get; set; }
             public string company_name { get; set; }
-        }
-        // Danh sách mẫu CV
-        public async Task<IActionResult> Templates()
-        {
-            var templates = await _context.Templates.ToListAsync();
-            return View(templates);
         }
 
         // [GET] Hiển thị form tạo mới
@@ -291,5 +269,114 @@ namespace DoAnCS.Controllers
             return Ok(); // Trả về Ok để xử lý AJAX cho mượt
         }
         
+        // 1. Trang quản lý Jobs
+        public async Task<IActionResult> Jobs()
+        {
+            var jobs = await _context.Jobs.Include(j => j.Company).ToListAsync();
+            return View(jobs);
+        }
+
+        // 2. Trang quản lý Mẫu CV (Templates)
+        public async Task<IActionResult> Templates(int page = 1)
+        {
+            // 1. Cấu hình phân trang (4 mẫu mỗi trang theo ý Khoa)
+            int pageSize = 4;
+            var query = _context.Templates.AsQueryable();
+
+            // 2. Tính toán tổng số trang
+            int totalTemplates = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalTemplates / pageSize);
+
+            // 3. Lấy dữ liệu của trang hiện tại
+            var templates = await query
+                .OrderByDescending(t => t.TemplateID) // Mới nhất hiện lên đầu
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // 4. ĐÓNG GÓI VÀO VM (Đây là bước fix lỗi InvalidOperationException)
+            var vm = new AdminDashboardVM
+            {
+                Templates = templates,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                
+                // Nạp thêm các chỉ số để Layout hoặc Sidebar không bị trống (nếu cần)
+                TotalUsers = await _context.Users.CountAsync(),
+                TotalCompanies = await _context.Companies.CountAsync(),
+                TotalJobs = await _context.Jobs.CountAsync(),
+                TotalResumes = await _context.Resumes.CountAsync()
+            };
+
+            // 5. Trả về đúng cái VM này
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleTemplateStatus(int id)
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null) return NotFound();
+
+            // Đảo trạng thái (True -> False, False -> True)
+            template.IsActive = !template.IsActive;
+            
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+        // 1. Danh sách công ty
+        public async Task<IActionResult> Companies()
+        {
+            var companies = await _context.Companies.OrderByDescending(c => c.CreatedAt).ToListAsync();
+            return View(companies);
+        }
+
+        // 2. Thêm công ty (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateCompany(Company company)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(company);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Thêm công ty thành công!";
+            }
+            return RedirectToAction(nameof(Companies));
+        }
+
+        // 3. Sửa công ty (POST)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditCompany(Company company)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Update(company);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Cập nhật thông tin thành công!";
+            }
+            return RedirectToAction(nameof(Companies));
+        }
+
+        // 4. Xóa công ty và tất cả Jobs liên quan
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCompany(int id)
+        {
+            var company = await _context.Companies.FindAsync(id);
+            if (company != null)
+            {
+                // Tìm và xóa tất cả Jobs thuộc về công ty này
+                var relatedJobs = _context.Jobs.Where(j => j.CompanyID == id);
+                _context.Jobs.RemoveRange(relatedJobs);
+
+                // Sau đó xóa công ty
+                _context.Companies.Remove(company);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa công ty và các tin tuyển dụng liên quan!";
+            }
+            return RedirectToAction(nameof(Companies));
+        }
     }
 }
