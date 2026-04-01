@@ -12,6 +12,33 @@
     @await RenderSectionAsync("Styles", required: false)
 
     <style>
+        html {
+            zoom: 80%; /* Ép toàn bộ trang về 80% */
+            height: 100%;
+        }
+        /* 1. Thiết lập cho toàn bộ trang */
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;   /* Ép body chiếm trọn không gian đã zoom */
+        }
+
+        /* 2. Ép phần nội dung chính giãn ra để đẩy footer xuống */
+        .content-wrapper {
+            flex: 1 0 auto; /* Tự động giãn ra để chiếm hết khoảng trống, đẩy footer xuống dưới */
+            display: flex;
+            flex-direction: column;
+        }
+
+        main[role="main"] {
+            flex: 1 0 auto;
+        }
+
+        /* 3. Đảm bảo footer không bị co lại */
+        footer {
+            flex-shrink: 0;
+        }
         .navbar-brand { font-weight: 800; color: #0d6efd !important; }
         .nav-link { font-weight: 500; color: #444 !important; transition: 0.3s; }
         .nav-link:hover { color: #0d6efd !important; transform: translateY(-1px); }
@@ -20,6 +47,17 @@
         .user-dropdown-btn:hover { background-color: #0d6efd; color: white; }
         .footer-link { color: #6c757d; text-decoration: none; transition: 0.3s; }
         .footer-link:hover { color: #0d6efd; padding-left: 5px; }
+
+        /* Styles cho Admin Sidebar cố định (Phiên bản sáng sủa có chia khối) */
+        .admin-sidebar-container { border-right: 2px solid #dee2e6; }
+        .sidebar-group { border-color: #e9ecef !important; background-color: #fcfcfc; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .admin-sidebar-container .menu-label { color: #043277ff; font-size: 0.75rem; font-weight: 900; letter-spacing: 1.2px; padding: 5px 10px; text-transform: uppercase; margin-bottom: 0; opacity: 0.9; }
+        .admin-sidebar-container .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #495057; text-decoration: none; border-radius: 8px; transition: 0.2s; font-weight: 600; margin: 2px 0; }
+        .admin-sidebar-container .menu-item i { font-size: 1.25rem; color: #6c757d; transition: 0.2s; }
+        .admin-sidebar-container .menu-item:hover { background: #e9ecef; color: #0d6efd; transform: translateX(2px); }
+        .admin-sidebar-container .menu-item:hover i { color: #0d6efd; }
+        .admin-sidebar-container .menu-item.active { background: #ffffff; color: #0d6efd; border-left: 4px solid #0d6efd; border-radius: 4px 8px 8px 4px; padding-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 1px solid #f1f3f5; border-right: 1px solid #f1f3f5; border-bottom: 1px solid #f1f3f5; }
+        .admin-sidebar-container .menu-item.active i { color: #0d6efd; }
     </style>
 </head>
 <body>
@@ -129,9 +167,87 @@
 
     <div class="content-wrapper">
         <main role="main">
-            @RenderBody()
+            @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Admin")
+            {
+                var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+                <div class="d-flex">
+                    <!-- Admin Sidebar Cố định dạng Sticky bản sáng -->
+                    <div class="admin-sidebar-container d-none d-lg-block bg-white shadow-sm" style="width: 280px; height: calc(100vh - 76px); position: sticky; top: 0; align-self: flex-start; overflow-y: auto;">
+                        <div class="p-4 border-bottom border-1 mb-3 text-center">
+                            <h5 class="text-primary fw-bolder m-0" style="letter-spacing: 1.5px;">
+                                <i class='fas fa-user-shield text-primary me-2 fs-4' style="vertical-align: middle;"></i>ADMIN PANEL
+                            </h5>
+                        </div>
+                        <div class="px-3 pb-4">
+                            <!-- Nhóm Tổng quan -->
+                            <div class="sidebar-group border rounded-3 p-2 mb-3">
+                                <a href="/Admin" class="menu-item @(currentAction == "Index" ? "active" : "")"><i class='bx bxs-dashboard'></i> Tổng quan</a>
+                            </div>
+                            
+                            <!-- Nhóm Dữ liệu -->
+                            <div class="sidebar-group border rounded-3 p-2 mb-3">
+                                <div class="menu-label mb-2 mt-1">QUẢN LÝ DỮ LIỆU</div>
+                                <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
+                                <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
+                                <a href="/Admin/Companies" class="menu-item @(currentAction == "Companies" ? "active" : "")"><i class='bx bxs-business'></i> Công ty</a>
+                            </div>
+
+                            <!-- Nhóm Hệ thống -->
+                            <div class="sidebar-group border rounded-3 p-2 mb-3">
+                                <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
+                                <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
+                                <a href="#" class="menu-item"><i class='bx bxs-bot'></i> Cấu hình Gemini</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content Panel (Có bề ngang là còn lại trừ Sidebar) -->
+                    <div class="flex-grow-1" style="width: calc(100% - 280px); overflow-x: hidden;">
+                        @RenderBody()
+                    </div>
+                </div>
+            }
+            else
+            {
+                @RenderBody()
+            }
         </main>
     </div>
+
+    @if (ViewContext.RouteData.Values["controller"]?.ToString() == "Admin")
+    {
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+        <!-- Mobile Offcanvas Sidebar bản sáng có khối -->
+        <div class="offcanvas offcanvas-start border-0 shadow admin-sidebar-container" tabindex="-1" id="adminSidebar" style="width: 280px; background: #ffffff;">
+            <div class="p-4 border-bottom border-1 d-flex justify-content-between align-items-center mb-3">
+                <h5 class="offcanvas-title text-primary fw-bolder m-0" style="letter-spacing: 1.5px;">
+                    <i class='fas fa-user-shield text-primary me-2 fs-4' style="vertical-align: middle;"></i>ADMIN PANEL
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+            <div class="offcanvas-body px-3 p-0 pb-4 border-0">
+                <!-- Nhóm Tổng quan -->
+                <div class="sidebar-group border rounded-3 p-2 mb-3">
+                    <a href="/Admin" class="menu-item @(currentAction == "Index" ? "active" : "")"><i class='bx bxs-dashboard'></i> Tổng quan</a>
+                </div>
+                
+                <!-- Nhóm Dữ liệu -->
+                <div class="sidebar-group border rounded-3 p-2 mb-3">
+                    <div class="menu-label mb-2 mt-1">QUẢN LÝ DỮ LIỆU</div>
+                    <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
+                    <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
+                    <a href="/Admin/Companies" class="menu-item @(currentAction == "Companies" ? "active" : "")"><i class='bx bxs-business'></i> Công ty</a>
+                </div>
+
+                <!-- Nhóm Hệ thống -->
+                <div class="sidebar-group border rounded-3 p-2 mb-3">
+                    <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
+                    <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
+                    <a href="#" class="menu-item"><i class='bx bxs-bot'></i> Cấu hình Gemini</a>
+                </div>
+            </div>
+        </div>
+    }
 
     @* FOOTER CẢI THIỆN *@
     <footer>
@@ -161,13 +277,18 @@
                         <li><a href="#" class="footer-link">Điều khoản sử dụng</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-4 col-md-6 text-lg-end">
+                <div class="col-lg-4 col-md-6 text-lg-center">
                     <h6 class="fw-bold mb-3">Theo dõi chúng tôi</h6>
-                    <div class="d-flex gap-3 justify-content-lg-end fs-4 mb-4">
-                        <a href="#" class="text-primary"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-info"><i class="fab fa-linkedin"></i></a>
-                        <a href="#" class="text-dark"><i class="fab fa-github"></i></a>
-                        <a href="#" class="text-danger"><i class="fab fa-youtube"></i></a>
+                    <div class="d-flex gap-3 justify-content-lg-center fs-4 mb-4">
+                        <a href="https://www.facebook.com/lekhoa.nguyenvo.7" target="_blank" rel="noopener noreferrer" class="text-primary hover-lift">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/in/nguyễn-võ-lê-khoa-7994823b5" target="_blank" rel="noopener noreferrer" class="text-info hover-lift">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="https://github.com/KhoaSuyThan" target="_blank" rel="noopener noreferrer" class="text-dark hover-lift">
+                            <i class="fab fa-github"></i>
+                        </a>
                     </div>
                     <p class="small text-muted mb-0">Hỗ trợ 24/7 qua hệ thống Ticket</p>
                 </div>
