@@ -1,0 +1,335 @@
+@model DoAnCS.Models.GeminiConfig
+@{
+    ViewData["Title"] = "Cấu hình AI (Gemini)";
+}
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="admin-ai-page py-4" style="background-color: #f8fbff; min-height: 100vh;">
+    <div class="container-fluid px-4">
+        
+        @* Header *@
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold text-dark m-0">
+                    <i class='bx bx-brain text-primary me-2'></i>Cấu Hình AI (Gemini)
+                </h3>
+                <p class="text-muted small mb-0">Quản lý API Key, Model, Personality và giám sát số lượng Token đã sử dụng.</p>
+            </div>
+            <div>
+                @if (TempData["Success"] != null)
+                {
+                    <span class="badge bg-success-soft text-success px-3 py-2 animate-pulse me-3">
+                        <i class='bx bx-check-circle me-1'></i> @TempData["Success"]
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div class="row g-4">
+            @* Cột Trái: Cấu hình *@
+            <div class="col-lg-8">
+                <form asp-controller="Admin" asp-action="UpdateConfig" method="post">
+                    @Html.AntiForgeryToken()
+                    
+                    @* Card 1: Core Settings *@
+                    <div class="card border-0 shadow-sm rounded-4 mb-4">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold text-dark"><i class='bx bx-cog text-muted me-2'></i>Cài đặt cốt lõi (Core)</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold text-secondary small">Gemini API Key</label>
+                                    <div class="input-group">
+                                        <input type="password" id="ApiKey" name="ApiKey" class="form-control rounded-start bg-light border-light" value="@Model.ApiKey" placeholder="Nhập API Key cung cấp bởi Google AI Studio">
+                                        <button class="btn btn-light border-light border-start-0" type="button" onclick="togglePassword()">
+                                            <i class='bx bx-show text-muted' id="toggleIcon"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-danger d-block mt-1">Lưu ý: Không chia sẻ mật mã này cho bất kỳ ai.</small>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-secondary small">Model AI</label>
+                                    <select name="ModelName" class="form-select bg-light border-light">
+                                        <!option value="gemini-2.5-flash" @(Model.ModelName == "gemini-2.5-flash" ? "selected" : "")>Gemini 2.5 Flash (Nhanh & Rẻ)</!option>
+                                        <!option value="gemini-2.5-pro" @(Model.ModelName == "gemini-2.5-pro" ? "selected" : "")>Gemini 2.5 Pro (Thông minh nhất)</!option>
+                                        <!option value="gemini-2.0-flash" @(Model.ModelName == "gemini-2.0-flash" ? "selected" : "")>Gemini 2.0 Flash (Siêu nhanh)</!option>
+                                        <!option value="gemini-2.0-flash-001" @(Model.ModelName == "gemini-2.0-flash-001" ? "selected" : "")>Gemini 2.0 Flash 001 (Bản ổn định 2025)</!option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-secondary small">Giới hạn User (Rate Limit)</label>
+                                    <div class="input-group">
+                                        <input type="number" name="UserRateLimit" class="form-control bg-light border-light" value="@Model.UserRateLimit" min="1">
+                                        <span class="input-group-text bg-light border-light text-muted">Lần / Ngày</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mt-4">
+                                    <label class="form-label fw-semibold text-secondary small d-flex justify-content-between">
+                                        <span>Độ sáng tạo (Temperature)</span>
+                                        <span id="tempValue" class="badge bg-primary rounded-pill">@Model.Temperature</span>
+                                    </label>
+                                    <input type="range" class="form-range" name="Temperature" min="0" max="2" step="0.1" value="@Model.Temperature" oninput="document.getElementById('tempValue').innerText = this.value">
+                                    <div class="d-flex justify-content-between very-small text-muted mt-1" style="font-size: 0.7rem;">
+                                        <span>Nghiêm túc 0.0</span>
+                                        <span>Phá cách 2.0</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 mt-4">
+                                    <label class="form-label fw-semibold text-secondary small">Giới hạn Output Tokens</label>
+                                    <input type="number" name="MaxOutputTokens" class="form-control bg-light border-light" value="@Model.MaxOutputTokens" min="100" max="8192">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Card 2: System Prompts *@
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold text-dark"><i class='bx bx-message-square-edit text-muted me-2'></i>Quản lý văn phong (System Prompts)</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-secondary small">Thiết lập Tính cách mặc định (System Instruction)</label>
+                                <textarea name="SystemInstruction" class="form-control bg-light border-light" rows="3" placeholder="Ví dụ: Bạn là một chuyên gia Tuyển dụng có trên 10 năm kinh nghiệm...">@Model.SystemInstruction</textarea>
+                            </div>
+                            
+                            <hr class="text-muted opacity-25" />
+
+                            <div class="mb-3 mt-4">
+                                <label class="form-label fw-semibold text-secondary small text-primary"><i class='bx bx-list-check me-1'></i> Prompt: Gợi ý kỹ năng</label>
+                                <textarea name="SkillTemplate" class="form-control bg-light border-light text-sm text-monospace" rows="2" placeholder="Dùng {{content}} làm tham số đầu vào của user.">@Model.SkillTemplate</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold text-secondary small text-success"><i class='bx bx-align-left me-1'></i> Prompt: Viết mục tiêu nghề nghiệp</label>
+                                <textarea name="SummaryTemplate" class="form-control bg-light border-light text-sm text-monospace" rows="2" placeholder="Dùng {{context}} cho vai trò, {{content}} cho kỹ năng.">@Model.SummaryTemplate</textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold text-secondary small text-warning"><i class='bx bx-slider-alt me-1'></i> Prompt: Tối ưu kinh nghiệm chuẩn STAR</label>
+                                <textarea name="GrammarTemplate" class="form-control bg-light border-light text-sm text-monospace" rows="2">@Model.GrammarTemplate</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold w-100 shadow-sm custom-gradient-btn">
+                                <i class='bx bx-save me-1'></i> Lưu Tất Cả Cấu Hình
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            @* Cột Phải: Tracker và Playground *@
+            <div class="col-lg-4">
+                
+                @* Usage Tracker *@
+                <div class="card border-0 shadow-sm rounded-4 bg-gradient-premium text-white mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-3 opacity-75"><i class='bx bx-trending-up me-2'></i>Hôm Nay (Usage)</h6>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-6 border-end border-white border-opacity-25">
+                                <h3 class="fw-bold mb-0">@ViewBag.CallsToday</h3>
+                                <p class="small mb-0 opacity-75">Tác vụ xử lý</p>
+                            </div>
+                            <div class="col-6">
+                                <h3 class="fw-bold mb-0">@ViewBag.TokensToday</h3>
+                                <p class="small mb-0 opacity-75">Token tiêu thụ</p>
+                            </div>
+                        </div>
+                        
+                        <div class="p-3 bg-white bg-opacity-10 rounded-3 text-center">
+                            <p class="small mb-1 opacity-75">Tổng thiết bị toàn hệ thống từ trước đến nay</p>
+                            <h4 class="fw-bold mb-0 text-warning">@Model.TotalTokensUsed.ToString("N0") <span class="fs-6 fw-normal text-white opacity-75">Tokens</span></h4>
+                        </div>
+                    </div>
+                </div>
+
+                @* AI Playground *@
+                <div class="card border-0 shadow-sm rounded-4" style="height: 520px; display: flex; flex-direction: column;">
+                    <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold text-dark m-0"><i class='bx bxs-bot text-primary me-2'></i>AI Playground (Test)</h6>
+                        <span class="badge bg-success-soft text-success rounded-pill px-2">Live</span>
+                    </div>
+                    
+                    <div class="card-body p-3 overflow-auto bg-light" id="chatBox" style="flex: 1;">
+                        <div class="text-center text-muted small my-3">
+                            <i class='bx bx-terminal fs-3 opacity-50 mb-2'></i><br />
+                            Gõ prompt để kiểm tra "Tính cách" của AI.
+                        </div>
+                        <!-- Chat content goes here -->
+                    </div>
+
+                    <div class="card-footer bg-white border-top-0 p-3">
+                        <div class="input-group align-items-end" style="background: #f1f5f9; border-radius: 1.5rem; padding: 4px;">
+                            <textarea id="playgroundInput" class="form-control border-0 bg-transparent text-sm resize-none" rows="1" placeholder="Gõ thử lệnh..." style="box-shadow: none;"></textarea>
+                            <button id="sendBtn" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="testAI()">
+                                <i class='bx bx-send'></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .bg-success-soft { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .animate-pulse { animation: pulse-animation 2s infinite; }
+    @@keyframes pulse-animation { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    
+    .bg-gradient-premium {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+
+    .custom-gradient-btn {
+        background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+        border: none;
+    }
+    .custom-gradient-btn:hover {
+        background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    .resize-none { resize: none; }
+    .text-monospace { font-family: 'Courier New', Courier, monospace; font-size: 0.85rem;}
+
+    .chat-msg {
+        max-width: 85%;
+        padding: 10px 14px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }
+    .msg-user {
+        background: #3b82f6;
+        color: white;
+        border-bottom-right-radius: 4px;
+        margin-left: auto;
+    }
+    .msg-ai {
+        background: white;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .chat-typing {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .dot {
+        width: 6px; height: 6px; background: #94a3b8; border-radius: 50%;
+        animation: blink 1.4s infinite both;
+    }
+    .dot:nth-child(1) { animation-delay: 0.2s; }
+    .dot:nth-child(2) { animation-delay: 0.4s; }
+    .dot:nth-child(3) { animation-delay: 0.6s; }
+    @@keyframes blink { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+</style>
+
+<script>
+    function togglePassword() {
+        var input = document.getElementById("ApiKey");
+        var icon = document.getElementById("toggleIcon");
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bx-show");
+            icon.classList.add("bx-hide");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bx-hide");
+            icon.classList.add("bx-show");
+        }
+    }
+
+    // Auto resize textarea
+    const tx = document.getElementById('playgroundInput');
+    tx.setAttribute('style', 'height:' + (tx.scrollHeight) + 'px;overflow-y:hidden; box-shadow: none;');
+    tx.addEventListener("input", OnInput, false);
+    function OnInput() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        if (this.scrollHeight > 100) { this.style.overflowY = 'auto'; }
+    }
+
+    // Enter to send
+    tx.addEventListener("keypress", function(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            testAI();
+        }
+    });
+
+    function appendMessage(text, isUser) {
+        const box = document.getElementById("chatBox");
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "chat-msg " + (isUser ? "msg-user" : "msg-ai");
+        
+        if (isUser) {
+            msgDiv.innerText = text;
+        } else {
+            // Đổi line break thành \n
+            msgDiv.innerHTML = text.replace(/\n/g, "<br/>");
+        }
+        
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function testAI() {
+        const input = document.getElementById("playgroundInput");
+        const promptInfo = input.value.trim();
+        if (!promptInfo) return;
+
+        appendMessage(promptInfo, true);
+        input.value = "";
+        input.style.height = 'auto'; // reset height
+
+        // Hiệu ứng typing
+        const box = document.getElementById("chatBox");
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "chat-msg msg-ai";
+        typingDiv.id = "typingIndicator";
+        typingDiv.innerHTML = `<div class="chat-typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+        box.appendChild(typingDiv);
+        box.scrollTop = box.scrollHeight;
+
+        // Xóa sạch trạng thái rỗng nếu có
+        const emptyState = document.querySelector('.text-center.text-muted.small.my-3');
+        if (emptyState) emptyState.style.display = 'none';
+
+        // Gọi Ajax tới API TestGemini của AdminController
+        fetch('/Admin/TestGemini', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            body: JSON.stringify({ prompt: promptInfo })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("typingIndicator").remove();
+            if (data.success) {
+                appendMessage(data.answer, false);
+            } else {
+                appendMessage("❌ Lỗi: " + data.answer, false);
+            }
+        })
+        .catch(err => {
+            document.getElementById("typingIndicator").remove();
+            appendMessage("❌ Mất kết nối tới máy chủ.", false);
+        });
+    }
+</script>

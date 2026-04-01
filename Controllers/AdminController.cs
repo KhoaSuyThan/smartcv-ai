@@ -7,6 +7,7 @@ using DoAnCS.Models.ViewModels;
 using System.Text.Json;
 using System.IO;
 using System.Text.RegularExpressions;
+using DoAnCS.Services;
 
 namespace DoAnCS.Controllers
 {
@@ -16,10 +17,13 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _webHost;
-        public AdminController(AppDbContext context, IWebHostEnvironment webHost)
+        private readonly IAIService _aiService;
+
+        public AdminController(AppDbContext context, IWebHostEnvironment webHost, IAIService aiService)
         {
             _context = context;
             _webHost = webHost;
+            _aiService = aiService;
         }
 
         // 1. Trang Dashboard của Admin
@@ -377,6 +381,82 @@ namespace DoAnCS.Controllers
                 TempData["Success"] = "Đã xóa công ty và các tin tuyển dụng liên quan!";
             }
             return RedirectToAction(nameof(Companies));
+        }
+
+        // ==========================================
+        //  Quản lý Cấu hình AI Gemini
+        // ==========================================
+        
+        [HttpGet]
+        public async Task<IActionResult> GeminiConfig()
+        {
+            var config = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == 1);
+            if (config == null) 
+            {
+                // Nếu chưa có, tạo mặc định (đề phòng Seed data chưa chạy)
+                config = new GeminiConfig();
+                _context.GeminiConfigs.Add(config);
+                await _context.SaveChangesAsync();
+            }
+
+            // Lấy thêm Usage Tracker cho View
+            var today = DateTime.Today;
+            var tokensToday = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today)
+                .SumAsync(l => (int?)l.UsedTokens) ?? 0;
+
+            var callsToday = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today)
+                .CountAsync();
+
+            ViewBag.TokensToday = tokensToday;
+            ViewBag.CallsToday = callsToday;
+
+            return View(config);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateConfig(GeminiConfig model)
+        {
+            var config = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == 1);
+            if (config != null)
+            {
+                // Cập nhật giá trị
+                config.ApiKey = model.ApiKey;
+                config.ModelName = model.ModelName;
+                config.Temperature = model.Temperature;
+                config.MaxOutputTokens = model.MaxOutputTokens;
+                config.SystemInstruction = model.SystemInstruction;
+                config.SkillTemplate = model.SkillTemplate;
+                config.SummaryTemplate = model.SummaryTemplate;
+                config.GrammarTemplate = model.GrammarTemplate;
+                config.UserRateLimit = model.UserRateLimit;
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã lưu cài đặt AI thành công!";
+            }
+            return RedirectToAction(nameof(GeminiConfig));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TestGemini([FromBody] dynamic payload)
+        {
+            try 
+            {
+                string prompt = payload.GetProperty("prompt").GetString();
+                if (string.IsNullOrWhiteSpace(prompt))
+                    return Json(new { success = false, answer = "Vui lòng nhập nội dung." });
+
+                // Dùng chung Pipeline AIController cho tiện hoặc gọi trực tiếp Service
+                var answer = await _aiService.GenerateContent(prompt);
+                
+                return Json(new { success = true, answer = answer });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, answer = "Lỗi: " + ex.Message });
+            }
         }
     }
 }

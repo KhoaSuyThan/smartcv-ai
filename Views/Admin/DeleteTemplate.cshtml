@@ -1,0 +1,38 @@
+@model DoAnCS.Models.Template
+
+@{
+    ViewData["Title"] = "Xác nhận xóa Template";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="bg-danger p-4 text-center text-white">
+                    <i class="bi bi-exclamation-triangle-fill display-1"></i>
+                    <h3 class="fw-bold mt-3">Xác nhận xóa?</h3>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <p class="text-muted">Bạn có chắc chắn muốn xóa mẫu giao diện:</p>
+                    <h4 class="text-dark fw-bold mb-4">"@Model.Name"</h4>
+                    
+                    <div class="alert alert-warning small border-0 shadow-sm">
+                        <i class="bi bi-info-circle-fill"></i> 
+                        Lưu ý: Hành động này sẽ làm mẫu không còn hiển thị cho người dùng mới. 
+                        Các CV đang sử dụng mẫu này vẫn được giữ nguyên.
+                    </div>
+
+                    <form asp-action="DeleteTemplate">
+                        <input type="hidden" asp-for="TemplateID" name="id" />
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a asp-action="ManageTemplates" class="btn btn-light rounded-pill px-4 fw-bold">Hủy bỏ</a>
+                            <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

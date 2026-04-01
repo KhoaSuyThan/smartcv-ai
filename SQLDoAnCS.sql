@@ -15,6 +15,28 @@ GO
 USE DoAnWebCS;
 GO
 
+-- 1. Tạo bảng GeminiConfigs
+CREATE TABLE [GeminiConfigs] (
+    [Id] int NOT NULL,
+    [ApiKey] nvarchar(max) NULL,
+    [ModelName] nvarchar(max) NOT NULL DEFAULT 'gemini-2.5-flash',
+    [Temperature] float NOT NULL DEFAULT 0.7,
+    [MaxOutputTokens] int NOT NULL DEFAULT 2048,
+    [SystemInstruction] nvarchar(max) NULL,
+    [SkillTemplate] nvarchar(max) NULL,
+    [SummaryTemplate] nvarchar(max) NULL,
+    [GrammarTemplate] nvarchar(max) NULL,
+    [UserRateLimit] int NOT NULL DEFAULT 10,
+    [TotalTokensUsed] bigint NOT NULL DEFAULT 0,
+    CONSTRAINT [PK_GeminiConfigs] PRIMARY KEY ([Id])
+);
+GO
+-- 2. Chèn dữ liệu cấu hình mặc định (Bắt buộc phải có 1 dòng Id = 1)
+INSERT INTO [GeminiConfigs] 
+([Id], [ApiKey], [ModelName], [Temperature], [MaxOutputTokens], [SystemInstruction], [UserRateLimit], [TotalTokensUsed])
+VALUES 
+(1, N'Bỏ API vào', N'gemini-2.5-flash', 0.7, 2048, N'Bạn là trợ lý ảo hỗ trợ đánh giá CV chuyên nghiệp.', 10, 0);
+GO
 -- 1. LƯU LỊCH SỬ XUẤT PDF
 CREATE TABLE ResumeExports (
     ExportID INT PRIMARY KEY IDENTITY(1,1),
