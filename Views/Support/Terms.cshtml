@@ -1,0 +1,309 @@
+@{
+    ViewData["Title"] = "Điều khoản sử dụng";
+}
+
+<div class="terms-page-wrapper py-5" style="background-color: #f8fbff; min-height: 100vh;">
+    <div class="container">
+        @* --- BREADCRUMB --- *@
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item active">Điều khoản</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+            @* --- CỘT TRÁI: MỤC LỤC ĐIỀU HƯỚNG --- *@
+            <div class="col-lg-3 d-none d-lg-block">
+                <div class="sticky-top" style="top: 100px;">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                        <h6 class="fw-bold mb-3 text-primary text-uppercase small">Mục lục nội dung</h6>
+                        <nav id="terms-nav" class="nav flex-column gap-2">
+                            <a class="nav-link-terms active" href="#section1">1. Chấp thuận</a>
+                            <a class="nav-link-terms" href="#section2">2. Tài khoản</a>
+                            <a class="nav-link-terms" href="#section3">3. Sở hữu trí tuệ</a>
+                            <a class="nav-link-terms" href="#section4">4. Dữ liệu & Bảo mật</a>
+                            <a class="nav-link-terms" href="#section5">5. Trách nhiệm</a>
+                        </nav>
+                        <hr class="my-3 opacity-25">
+                        <div class="text-center">
+                            <button id="btnDownloadPDF" class="btn btn-outline-primary btn-sm rounded-pill w-100 fw-bold">
+                                <i class='bx bx-printer me-1'></i> Tải bản PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* --- CỘT PHẢI: NỘI DUNG CHI TIẾT --- *@
+            <div class="col-lg-9">
+                <div id="termsContent" class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white overflow-hidden position-relative">
+                    @* Trang trí nhẹ ở góc *@
+                    <div class="bg-primary opacity-10 position-absolute rounded-circle" style="width: 200px; height: 200px; top: -100px; right: -100px;"></div>
+
+                    <div class="position-relative">
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 mb-3 fw-bold">Phiên bản 2.0</span>
+                        <h1 class="fw-bold text-dark display-6 mb-3">Điều khoản sử dụng</h1>
+                        <p class="text-muted small mb-5">
+                            Chào mừng bạn đến với <strong>CVBuilder Pro</strong>. Các điều khoản này nhằm bảo vệ quyền lợi của bạn và cộng đồng tuyển dụng IT. 
+                            <br><span class="text-primary fw-semibold">Cập nhật lần cuối: @DateTime.Now.ToString("dd MMMM, yyyy")</span>
+                        </p>
+
+                        @* SECTION 1: CẬP NHẬT CẤU TRÚC (Có khối nền xanh dương bao quanh toàn bộ) *@
+                        <section id="section1" class="terms-section mb-5">
+                            <div class="terms-block terms-block-primary rounded-4 p-4 shadow-sm border border-light">
+                                <div class="d-flex align-items-center gap-2 mb-3 icon-shape-box icon-shape-primary">
+                                    <div class="icon-shape rounded-3 p-2">
+                                        <i class='bx bx-check-double fs-4'></i>
+                                    </div>
+                                    <h4 class="fw-bold m-0 text-dark">1. Chấp thuận điều khoản</h4>
+                                </div>
+                                <div class="terms-content">
+                                    <p class="mb-0">Khi đăng ký hoặc sử dụng bất kỳ dịch vụ nào từ <strong>CVBuilder Pro</strong>, bạn thừa nhận đã đọc, hiểu và đồng ý bị ràng buộc bởi các quy định này. Hệ thống được phát triển nhằm mục đích phi thương mại phục vụ hỗ trợ cộng đồng sinh viên và ứng viên ngành CNTT.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        @* SECTION 2: CẬP NHẬT CẤU TRÚC (Có khối nền xanh lá bao quanh toàn bộ cả tiêu đề và list) *@
+                        <section id="section2" class="terms-section mb-5">
+                            <div class="terms-block terms-block-success rounded-4 p-4 shadow-sm border border-light">
+                                <div class="d-flex align-items-center gap-2 mb-3 icon-shape-box icon-shape-success">
+                                    <div class="icon-shape rounded-3 p-2">
+                                        <i class='bx bx-user-pin fs-4'></i>
+                                    </div>
+                                    <h4 class="fw-bold m-0 text-dark">2. Quản lý tài khoản</h4>
+                                </div>
+                                <div class="terms-content">
+                                    <ul class="list-group list-group-flush custom-list">
+                                        <li class="list-group-item border-0 px-0 pb-2">Người dùng phải cung cấp thông tin chính xác khi tạo hồ sơ.</li>
+                                        <li class="list-group-item border-0 px-0 pb-2">Tuyệt đối không chia sẻ mật khẩu hoặc cho mượn tài khoản trái phép.</li>
+                                        <li class="list-group-item border-0 px-0 pb-2">Chúng tôi có quyền tạm khóa tài khoản nếu phát hiện hành vi gian lận thông tin hoặc spam tin tuyển dụng.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
+
+                        @* SECTION 3: CẬP NHẬT CẤU TRÚC (Có khối nền vàng bao quanh toàn bộ) *@
+                        <section id="section3" class="terms-section mb-5">
+                            <div class="terms-block terms-block-warning rounded-4 p-4 shadow-sm border border-light">
+                                <div class="d-flex align-items-center gap-2 mb-3 icon-shape-box icon-shape-warning">
+                                    <div class="icon-shape rounded-3 p-2">
+                                        <i class='bx bx-shield-quarter fs-4'></i>
+                                    </div>
+                                    <h4 class="fw-bold m-0 text-dark">3. Quyền sở hữu trí tuệ</h4>
+                                </div>
+                                <div class="terms-content">
+                                    <p class="mb-0">Mã nguồn hệ thống, thuật toán gợi ý CV bằng AI và các thiết kế giao diện đều thuộc bản quyền của <strong>Nguyễn Võ Lê Khoa</strong>. Người dùng được phép tải xuống CV của chính mình nhưng không được phép sao chép mã nguồn website cho các mục đích thương mại khác.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        @* SECTION 4: CẬP NHẬT CẤU TRÚC (Có khối nền đỏ bao quanh toàn bộ) *@
+                        <section id="section4" class="terms-section mb-5">
+                            <div class="terms-block terms-block-danger rounded-4 p-4 shadow-sm border border-light">
+                                <div class="d-flex align-items-center gap-2 mb-3 icon-shape-box icon-shape-danger">
+                                    <div class="icon-shape rounded-3 p-2">
+                                        <i class='bx bx-lock-alt fs-4'></i>
+                                    </div>
+                                    <h4 class="fw-bold m-0 text-dark">4. Bảo mật dữ liệu cá nhân</h4>
+                                </div>
+                                <div class="terms-content">
+                                    <p>Dữ liệu của bạn được mã hóa an toàn. Chúng tôi chỉ sử dụng thông tin của bạn để:</p>
+                                    <div class="row g-3 mt-1">
+                                        <div class="col-md-6">
+                                            <div class="p-3 border rounded-3 bg-white h-100 shadow-sm border-light">
+                                                <i class='bx bx-bot text-primary me-2 fs-5'></i> Huấn luyện mô hình AI gợi ý kỹ năng.
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-3 border rounded-3 bg-white h-100 shadow-sm border-light">
+                                                <i class='bx bx-briefcase text-primary me-2 fs-5'></i> Gửi thông báo việc làm phù hợp.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        @* SECTION 5: ĐÃ BỔ SUNG NỘI DUNG (Có khối nền tối bao quanh toàn bộ) *@
+                        <section id="section5" class="terms-section mb-5">
+                            <div class="terms-block terms-block-dark rounded-4 p-4 shadow-sm border border-light">
+                                <div class="d-flex align-items-center gap-2 mb-3 icon-shape-box icon-shape-dark">
+                                    <div class="icon-shape rounded-3 p-2">
+                                        <i class='bx bx-error-alt fs-4'></i>
+                                    </div>
+                                    <h4 class="fw-bold m-0 text-dark">5. Giới hạn trách nhiệm</h4>
+                                </div>
+                                <div class="terms-content">
+                                    <p class="mb-0">Chúng tôi không chịu trách nhiệm cho bất kỳ tổn thất nào phát sinh từ việc sử dụng dịch vụ không đúng cách hoặc các gián đoạn dịch vụ ngoài tầm kiểm soát. <strong>CVBuilder Pro</strong> không đảm bảo 100% bạn sẽ nhận được việc làm, nhưng chúng tôi cam kết cung cấp các công cụ tốt nhất để hỗ trợ quá trình đó.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        @* FOOTER NỘI DUNG *@
+                        <div class="bg-primary text-white p-4 rounded-4 mt-5 d-flex align-items-center justify-content-between">
+                            <div class="small fw-medium">Bạn có thắc mắc về các điều khoản này?</div>
+                            <a href="/Support/Contact" class="btn btn-white btn-sm rounded-pill fw-bold px-4">Liên hệ ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* TYPOGRAPHY NÂNG CAO */
+    .terms-page-wrapper { font-family: 'Inter', sans-serif; }
+    p, .list-group-item { line-height: 1.8; color: #4b5563; text-align: justify; }
+    
+    /* MỤC LỤC NAVBAR */
+    .nav-link-terms {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #6b7280;
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 10px;
+        transition: all 0.25s ease;
+        display: block;
+    }
+    .nav-link-terms:hover { background: #f3f4f6; color: #0d6efd; transform: translateX(5px); }
+    .nav-link-terms.active { 
+        background: #e0f2fe !important; 
+        color: #0d6efd !important; 
+        font-weight: 700; 
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* 2. CẢI THIỆN BLOCK ĐIỀU KHOẢN THEO PHẢN HỒI (Phỏng theo image_4.png) */
+    .terms-block { transition: 0.3s; }
+    .terms-block:hover { box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1) !important; transform: translateY(-3px); border-color: #3b82f6 !important; }
+
+    .terms-block-primary { background-color: #e0f2fe; } /* Primary Subtle */
+    .terms-block-success { background-color: #d1fae5; } /* Success Subtle */
+    .terms-block-warning { background-color: #fef3c7; } /* Warning Subtle */
+    .terms-block-danger { background-color: #fee2e2; } /* Danger Subtle */
+    .terms-block-dark { background-color: #f1f5f9; } /* Dark/Light Subtle */
+
+    /* Icon Shape Colours - Phân tách màu gắt cho icon */
+    .icon-shape-primary { color: #0d6efd; }
+    .icon-shape-primary .icon-shape { background-color: #bfdbfe; }
+    
+    .icon-shape-success { color: #10b981; }
+    .icon-shape-success .icon-shape { background-color: #a7f3d0; }
+    
+    .icon-shape-warning { color: #f59e0b; }
+    .icon-shape-warning .icon-shape { background-color: #fde68a; }
+    
+    .icon-shape-danger { color: #ef4444; }
+    .icon-shape-danger .icon-shape { background-color: #fecaca; }
+    
+    .icon-shape-dark { color: #ffffff; }
+    .icon-shape-dark .icon-shape { background-color: #1f2937; } /* Nền tối cho mục dark */
+
+    .icon-shape { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+    .terms-block:hover .icon-shape { transform: rotate(10deg); }
+
+    /* CUSTOM LIST - Đảm bảo list hoạt động tốt trong khối nền */
+    .custom-list .list-group-item { background-color: transparent; padding-top: 10px; padding-bottom: 10px; }
+    .custom-list .list-group-item::before {
+        content: "•";
+        color: #0d6efd;
+        font-weight: bold;
+        display: inline-block; 
+        width: 1em;
+        margin-left: -1em;
+    }
+
+    .btn-white { background: white; color: #0d6efd; border: none; transition: 0.3s; }
+    .btn-white:hover { background: #f8f9fa; transform: translateY(-2px); }
+
+    /* Smooth Scroll */
+    html { scroll-behavior: smooth; }
+    section { scroll-margin-top: 100px; }
+</style>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('.terms-section');
+            const navLinks = document.querySelectorAll('.nav-link-terms');
+
+            // --- HÀM CẬP NHẬT TRẠNG THÁI ACTIVE KHI CUỘN (ScrollSpy) ---
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    // Kiểm tra xem vị trí cuộn hiện tại có nằm trong section không
+                    if (pageYOffset >= sectionTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // --- HÀM CẬP NHẬT KHI CLICK ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+
+        document.getElementById('btnDownloadPDF').addEventListener('click', function () {
+            const { jsPDF } = window.jspdf;
+            const element = document.getElementById('termsContent');
+            
+            this.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Đang xử lý...";
+            this.disabled = true;
+
+            // Kỹ thuật xử lý lỗi Zoom khi in PDF
+            html2canvas(element, {
+                scale: 2,           // Giữ độ nét cao
+                useCORS: true,
+                logging: false,
+                backgroundColor: "#ffffff",
+                // QUAN TRỌNG: Xóa hiệu ứng zoom khi đang chụp ảnh
+                onclone: (clonedDoc) => {
+                    clonedDoc.documentElement.style.zoom = "100%"; 
+                    // Đảm bảo vùng nội dung trong bản sao không bị bó hẹp
+                    const clonedElement = clonedDoc.getElementById('termsContent');
+                    clonedElement.style.width = "1100px"; // Cố định chiều rộng chuẩn để dàn trang đẹp
+                }
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                // Tính toán tỉ lệ để hình ảnh vừa khít trang A4
+                const imgProps = pdf.getImageProperties(imgData);
+                const ratio = imgProps.height / imgProps.width;
+                const finalImgHeight = pdfWidth * ratio;
+
+                pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, finalImgHeight);
+                pdf.save('Dieu-Khoan-Su-Dung-CVBuilder.pdf');
+
+                this.innerHTML = "<i class='bx bx-printer me-1'></i> Tải bản PDF";
+                this.disabled = false;
+            }).catch(err => {
+                console.error("Lỗi tạo PDF:", err);
+                alert("Có lỗi xảy ra khi tạo PDF. Vui lòng thử lại!");
+                this.innerHTML = "<i class='bx bx-printer me-1'></i> Tải bản PDF";
+                this.disabled = false;
+            });
+        });
+    </script>
+}

@@ -111,4 +111,8 @@ public class SupportController : Controller
             }
         }
     }
+    public IActionResult Terms()
+    {
+        return View();
+    }
 }
