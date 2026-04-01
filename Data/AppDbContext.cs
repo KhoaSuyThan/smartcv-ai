@@ -19,6 +19,8 @@ namespace DoAnCS.Data
         public DbSet<AILog> AILogs { get; set; }
         public DbSet<ResumeExport> ResumeExports { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
+        public DbSet<GeminiConfig> GeminiConfigs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -32,6 +34,19 @@ namespace DoAnCS.Data
                 .HasOne(r => r.User)
                 .WithMany(u => u.Resumes)
                 .HasForeignKey(r => r.UserID);
+
+            // Seed mặc định cho bảng cấu hình Gemini
+            modelBuilder.Entity<GeminiConfig>().HasData(new GeminiConfig
+            {
+                Id = 1,
+                ApiKey = "",
+                ModelName = "gemini-2.5-flash",
+                Temperature = 0.7,
+                MaxOutputTokens = 2048,
+                SystemInstruction = "Bạn là trợ lý ảo hỗ trợ đánh giá CV.",
+                UserRateLimit = 10,
+                TotalTokensUsed = 0
+            });
         }
     }
 }

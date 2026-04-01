@@ -10,6 +10,7 @@ var connectionString = @"Server=LAPTOP-V23SMM4O;Database=DoAnWebCS;Trusted_Conne
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<JobApiService>();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 
 // Database Connection
@@ -88,6 +89,40 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+}
+
+// AUTO-CREATE GeminiConfigs table to bypass Migration history corruption
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try 
+    {
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='GeminiConfigs' and xtype='U')
+        BEGIN
+            CREATE TABLE [GeminiConfigs] (
+                [Id] int NOT NULL,
+                [ApiKey] nvarchar(max) NULL,
+                [ModelName] nvarchar(max) NOT NULL DEFAULT 'gemini-2.5-flash',
+                [Temperature] float NOT NULL DEFAULT 0.7,
+                [MaxOutputTokens] int NOT NULL DEFAULT 2048,
+                [SystemInstruction] nvarchar(max) NULL,
+                [SkillTemplate] nvarchar(max) NULL,
+                [SummaryTemplate] nvarchar(max) NULL,
+                [GrammarTemplate] nvarchar(max) NULL,
+                [UserRateLimit] int NOT NULL DEFAULT 10,
+                [TotalTokensUsed] bigint NOT NULL DEFAULT 0,
+                CONSTRAINT [PK_GeminiConfigs] PRIMARY KEY ([Id])
+            );
+            INSERT INTO [GeminiConfigs] ([Id], [ApiKey], [ModelName], [Temperature], [MaxOutputTokens], [SystemInstruction], [UserRateLimit], [TotalTokensUsed])
+            VALUES (1, N'', N'gemini-2.5-flash', 0.7, 2048, N'Bạn là trợ lý ảo hỗ trợ đánh giá CV.', 10, 0);
+        END
+        ");
+    } 
+    catch(Exception ex) 
+    { 
+        Console.WriteLine("SQL Create Table Error: " + ex.Message); 
+    }
 }
 
 app.UseHttpsRedirection();

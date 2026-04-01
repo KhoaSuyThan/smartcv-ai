@@ -2,39 +2,54 @@ using System.Text;
 using DoAnCS.Services;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using DoAnCS.Data;
+using DoAnCS.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DoAnCS.Services 
 {
     public class GeminiService : IAIService
     {
-        private readonly IConfiguration _config;
+        private readonly AppDbContext _context;
         private readonly HttpClient _httpClient;
 
-        public GeminiService(IConfiguration config)
+        public GeminiService(AppDbContext context, IHttpClientFactory httpClientFactory)
         {
-            _config = config;
-            _httpClient = new HttpClient();
+            _context = context;
+            _httpClient = httpClientFactory.CreateClient();
         }
 
         public async Task<string> GenerateContent(string prompt)
         {
             try {
-                // 1. Kiểm tra API Key có lấy được không
-                string apiKey = _config["Gemini:ApiKey"]?.Trim();
-                if (string.IsNullOrEmpty(apiKey)) {
-                    Console.WriteLine("CRITICAL ERROR: API Key is NULL. Check appsettings.json!");
+                // 1. Lấy cấu hình - Thêm .AsNoTracking() để tăng tốc độ đọc dữ liệu
+                var config = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
+                
+                if (config == null || string.IsNullOrEmpty(config.ApiKey)) {
+                    Console.WriteLine("CRITICAL ERROR: API Key is NULL in Database!");
                     return "Lỗi: Hệ thống chưa lấy được mã API!";
                 }
 
-                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}";
+                // 2. Build URL (Sử dụng v1beta để dùng được tính năng System Instruction)
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/{config.ModelName}:generateContent?key={config.ApiKey}";
 
                 // 2. Đảm bảo Prompt không rỗng
                 if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";
 
                 var requestBody = new { 
+                    // Ngăn riêng cho "Cái tôi" của AI - Giúp AI bám sát vai trò chuyên gia CV
+                    system_instruction = new {
+                        parts = new { text = config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp." }
+                    },
                     contents = new[] { 
                         new { parts = new[] { new { text = prompt } } } 
-                    } 
+                    },
+                    generationConfig = new {
+                        temperature = config.Temperature,
+                        maxOutputTokens = config.MaxOutputTokens,
+                        topP = 0.95,
+                        topK = 64
+                    }
                 };
 
                 var json = JsonConvert.SerializeObject(requestBody);
