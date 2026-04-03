@@ -33,6 +33,7 @@ namespace DoAnCS.Models.ViewModels
         public string School { get; set; }
         public string Major { get; set; }
         public string Year { get; set; }
+        public string GraduationType { get; set; }
     }
 
     // Bổ sung Class để lưu Kỹ năng (có đánh giá sao)

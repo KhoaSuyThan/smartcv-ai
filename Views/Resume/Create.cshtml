@@ -11,9 +11,9 @@
         @Html.Raw(temp?.CssContent)
 
         /* 2. CSS quản lý bố cục trình biên tập */
-        .resume-container { display: flex; height: calc(100vh - 70px); overflow: hidden; background: #f4f7f6; }
-        .editor-column { flex: 4; padding: 30px; overflow-y: auto; background: white; border-right: 1px solid #dee2e6; }
-        .preview-column { flex: 6; padding: 40px; overflow-y: auto; display: flex; justify-content: center; background: #525659; }
+        .resume-container { display: flex; min-height: 80vh; background: #f4f7f6; margin-bottom: 50px; }
+        .editor-column { flex: 4; padding: 30px; background: white; border-right: 1px solid #dee2e6; height: 1000px; overflow-y: auto; }
+        .preview-column { flex: 6; padding: 40px; display: flex; justify-content: center; background: #525659; height: 1000px; overflow-y: auto; sticky; top: 0; }
         
         .section-title { font-weight: 700; color: #0d6efd; border-bottom: 2px solid #0d6efd; padding-bottom: 5px; margin-bottom: 20px; text-transform: uppercase; font-size: 0.9rem; }
         .form-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef; }
@@ -745,7 +745,7 @@
                 Summary: $('#SummaryInput').val(),
                 AvatarUrl: $('#AvatarBase64').val(),
                 Educations: $('.education-item').map(function() {
-                    return { School: $(this).find('.edu-school').val(), Major: $(this).find('.edu-major').val(), Year: $(this).find('.edu-year').val() };
+                    return { School: $(this).find('.edu-school').val(), Major: $(this).find('.edu-major').val(), Year: $(this).find('.edu-year').val(), GraduationType: $(this).find('.edu-gradtype').val() };
                 }).get(),
                 Experiences: $('.experience-item').map(function() {
                     return { Company: $(this).find('.exp-company').val(), Role: $(this).find('.exp-role').val(), Duration: $(this).find('.exp-time').val(), Description: $(this).find('.exp-desc').val() };
@@ -770,7 +770,7 @@
                 Summary: $('#SummaryInput').val(),
                 AvatarUrl: $('#AvatarBase64').val(),
                 Educations: $('.education-item').map(function() {
-                    return { School: $(this).find('.edu-school').val(), Major: $(this).find('.edu-major').val(), Year: $(this).find('.edu-year').val() };
+                    return { School: $(this).find('.edu-school').val(), Major: $(this).find('.edu-major').val(), Year: $(this).find('.edu-year').val(), GraduationType: $(this).find('.edu-gradtype').val() };
                 }).get(),
                 Experiences: $('.experience-item').map(function() {
                     return { Company: $(this).find('.exp-company').val(), Role: $(this).find('.exp-role').val(), Duration: $(this).find('.exp-time').val(), Description: $(this).find('.exp-desc').val() };
@@ -810,20 +810,33 @@
             const educationJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Education")?.ContentJSON ?? "[]")`;
             const skillsJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Skills")?.ContentJSON ?? "[]")`;
 
+            // Làm sạch container trước khi đổ dữ liệu
+            $('#experience-container').empty();
+            $('#education-container').empty();
+            $('#it-skills-container').empty();
+
             // 2. Khôi phục Kinh nghiệm
-            JSON.parse(experiencesJson).forEach(item => {
-                addItemWithData('experience', item);
-            });
+            const exps = JSON.parse(experiencesJson);
+            if (exps.length > 0) {
+                exps.forEach(item => addItemWithData('experience', item));
+            } else {
+                addItem('experience'); // Tự động tạo 1 ô trống nếu chưa có dữ liệu
+            }
 
             // 3. Khôi phục Học vấn
-            JSON.parse(educationJson).forEach(item => {
-                addItemWithData('education', item);
-            });
+            const edus = JSON.parse(educationJson);
+            if (edus.length > 0) {
+                edus.forEach(item => addItemWithData('education', item));
+            } else {
+                addItem('education'); // Tự động tạo 1 ô trống nếu chưa có dữ liệu
+            }
 
             // 4. Khôi phục Kỹ năng (IT Skills)
-            JSON.parse(skillsJson).forEach(item => {
-                addItemWithData('it-skill', item);
-            });
+            const skills = JSON.parse(skillsJson);
+            if (skills.length > 0) {
+                skills.forEach(item => addItemWithData('it-skill', item));
+            }
+
             updatePreview(); 
             $(document).on('input', '.form-control', updatePreview);
         });
@@ -835,7 +848,13 @@
                                 <input type="text" class="form-control mb-1 exp-company" value="${data.Company || ''}" placeholder="Công ty">
                                 <input type="text" class="form-control mb-1 exp-role" value="${data.Role || ''}" placeholder="Chức vụ">
                                 <input type="text" class="form-control mb-1 exp-time" value="${data.Duration || ''}" placeholder="Thời gian">
-                                <textarea class="form-control exp-desc" rows="3">${data.Description || ''}</textarea>
+                                <div class="mb-2 mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold">Mô tả chi tiết</label>
+                                        <button type="button" class="btn btn-sm btn-outline-primary border-0" onclick="callAI('optimize', this)">✨ Tối ưu AI</button>
+                                    </div>
+                                    <textarea class="form-control exp-desc" rows="3">${data.Description || ''}</textarea>
+                                </div>
                             </div>`;
                 $('#experience-container').append(html);
             } else if (type === 'education') {
@@ -844,6 +863,7 @@
                                 <input type="text" class="form-control mb-1 edu-school" value="${data.School || ''}" placeholder="Tên trường học">
                                 <input type="text" class="form-control mb-1 edu-major" value="${data.Major || ''}" placeholder="Ngành học">
                                 <input type="text" class="form-control mb-1 edu-year" value="${data.Year || ''}" placeholder="Thời gian">
+                                <input type="text" class="form-control mb-1 edu-gradtype" value="${data.GraduationType || ''}" placeholder="Loại tốt nghiệp">
                             </div>`;
                 $('#education-container').append(html);
             } else if (type === 'it-skill') {

@@ -168,7 +168,8 @@ namespace DoAnCS.Controllers
 
                 _context.Add(template);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = "Khởi tạo mẫu CV mới thành công!";
+                return RedirectToAction(nameof(Templates));
             }
             return View(template);
         }
@@ -218,7 +219,7 @@ namespace DoAnCS.Controllers
                     await _context.SaveChangesAsync();
                     
                     TempData["Success"] = "Cập nhật mẫu thiết kế thành công!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Templates));
                 }
                 catch (Exception ex)
                 {
@@ -328,6 +329,37 @@ namespace DoAnCS.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+        // [GET] Xác nhận xóa mẫu CV
+        [HttpGet]
+        public async Task<IActionResult> DeleteTemplate(int id)
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template == null) return NotFound();
+
+            return View(template);
+        }
+
+        [HttpPost, ActionName("DeleteTemplate")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTemplateConfirmed(int id)
+        {
+            var template = await _context.Templates.FindAsync(id);
+            if (template != null)
+            {
+                // Xóa tất cả Resume đang sử dụng mẫu này trước để tránh lỗi khóa ngoại (Foreign Key)
+                var relatedResumes = _context.Resumes.Where(r => r.TemplateID == id);
+                _context.Resumes.RemoveRange(relatedResumes);
+                
+                // Sau đó xóa mẫu CV
+                _context.Templates.Remove(template);
+                await _context.SaveChangesAsync();
+                
+                TempData["Success"] = "Đã xóa vĩnh viễn mẫu CV và các dữ liệu liên quan!";
+            }
+            return RedirectToAction(nameof(Templates));
+        }
+
         // 1. Danh sách công ty
         public async Task<IActionResult> Companies()
         {

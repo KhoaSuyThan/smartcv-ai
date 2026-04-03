@@ -80,9 +80,8 @@
             @* Bên phải: Feed tin mới nhất từ Database *@
             <div class="col-lg-4">
                 <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
-                        @* --- HEADER MỚI: CÓ HIỆU ỨNG NHẤP NHÁY --- *@
-                        <div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
+                    @* --- HEADER MỚI: CÓ HIỆU ỨNG NHẤP NHÁY --- *@
+                    <div class="card-header bg-white border-0 p-4 pb-2 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-2">
                                 <div class="live-indicator">
                                     <span class="dot"></span>
@@ -98,7 +97,7 @@
                         <div class="job-feed-v2">
                             @foreach (var job in Model.Jobs)
                             {
-                                <div class="job-row-v2 d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 shadow-sm border-start border-4 border-primary bg-white">
+                                <a href="/Home/Details/@job.JobID" class="job-row-v2 d-flex align-items-center justify-content-between p-3 mb-3 rounded-4 shadow-sm border-start border-4 border-primary bg-white text-decoration-none hover-shadow-lg transition-base">
                                     @* CỘT 1: THÔNG TIN CHÍNH (Chiếm 75% chiều rộng) *@
                                     <div class="d-flex align-items-center gap-3 overflow-hidden" style="flex: 1;">
                                         <div class="job-icon-box bg-primary-subtle text-primary rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 46px; height: 46px; flex-shrink: 0;">
@@ -124,7 +123,7 @@
                                             <span class="badge bg-warning-subtle text-warning extra-small rounded-pill px-2">Chờ duyệt</span>
                                         }
                                     </div>
-                                </div>
+                                </a>
                             }
                         </div>
                     </div>
@@ -210,14 +209,21 @@
     .bg-grad-danger  { background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%); }
 
     /* 4. JOB FEED V2 */
+    .job-row-v2 { 
+        transition: all 0.3s ease; 
+        display: flex; 
+        text-decoration: none;
+    }
+    .job-row-v2:hover { 
+        transform: translateX(10px); 
+        background-color: #f0f7ff !important; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    }
+    
     .job-icon-v2 { width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .bg-primary-subtle { background-color: #e0f2fe; }
     .extra-small { font-size: 0.65rem; font-weight: bold; }
     .btn-white { background: white; }
-    
-    /* Animation nhẹ */
-    .job-item-v2 { transition: 0.2s; padding: 10px; border-radius: 12px; }
-    .job-item-v2:hover { background-color: #f8fbff; transform: scale(1.02); }
 </style>
 
 <script>
