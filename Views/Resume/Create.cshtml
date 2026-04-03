@@ -702,12 +702,24 @@
                 // --- BƯỚC C: TẠO FILE PDF (GIỮ NGUYÊN LOGIC CỦA BẠN) ---
                 const element = document.querySelector('.cv-preview-wrapper') || document.querySelector('.preview-column > div'); 
 
+                // Tạm thời đưa zoom về 100% để tránh lỗi html2canvas làm dính chữ khi trang đang bị zoom
+                const htmlElement = document.documentElement;
+                const originalZoom = htmlElement.style.zoom;
+                htmlElement.style.zoom = "100%";
+
                 const canvas = await html2canvas(element, {
                     scale: 2, 
                     useCORS: true,
                     logging: false,
                     backgroundColor: "#ffffff"
                 });
+
+                // Khôi phục lại mức zoom ban đầu
+                if (originalZoom) {
+                    htmlElement.style.zoom = originalZoom;
+                } else {
+                    htmlElement.style.removeProperty('zoom');
+                }
 
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
