@@ -7,8 +7,8 @@ namespace DoAnCS.Models
     {
         [Key]
         public int LogID { get; set; }
-        public int UserID { get; set; }
-        public User User { get; set; }
+        public int? UserID { get; set; }
+        public User? User { get; set; }
 
         public string RequestType { get; set; }
         public string InputText { get; set; }

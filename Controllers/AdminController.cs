@@ -103,7 +103,8 @@ namespace DoAnCS.Controllers
             // Chỉ cập nhật các trường cần thiết, tuyệt đối không đụng vào PasswordHash
             userInDb.FullName = FullName;
             userInDb.Role = Role;
-            userInDb.CompanyID = (Role == "Recruiter") ? CompanyID : null; // Nếu không phải Recruiter thì bỏ CompanyID
+            userInDb.IsPro = Request.Form["IsPro"] == "true"; // Lấy từ checkbox
+            userInDb.CompanyID = (Role == "Recruiter") ? CompanyID : null;
 
             try
             {
@@ -444,6 +445,10 @@ namespace DoAnCS.Controllers
             ViewBag.TokensToday = tokensToday;
             ViewBag.CallsToday = callsToday;
 
+            // Tổng token tích lũy toàn thời gian (lấy từ AILogs cho chính xác)
+            var totalTokensAll = await _context.AILogs.SumAsync(l => (long?)l.UsedTokens) ?? 0L;
+            ViewBag.TotalTokensAll = totalTokensAll;
+
             return View(config);
         }
 
@@ -456,9 +461,17 @@ namespace DoAnCS.Controllers
             {
                 // Cập nhật giá trị
                 config.ApiKey = model.ApiKey;
+                config.ChatbotApiKey = model.ChatbotApiKey; // Key riêng cho chatbox
                 config.ModelName = model.ModelName;
                 config.Temperature = model.Temperature;
                 config.MaxOutputTokens = model.MaxOutputTokens;
+                
+                // Cập nhật cấu hình Pro
+                config.ProModelName = model.ProModelName;
+                config.ProTemperature = model.ProTemperature;
+                config.ProMaxOutputTokens = model.ProMaxOutputTokens;
+                config.ProUserRateLimit = model.ProUserRateLimit;
+
                 config.SystemInstruction = model.SystemInstruction;
                 config.SkillTemplate = model.SkillTemplate;
                 config.SummaryTemplate = model.SummaryTemplate;

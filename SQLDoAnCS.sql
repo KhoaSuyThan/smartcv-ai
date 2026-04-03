@@ -28,8 +28,17 @@ CREATE TABLE [GeminiConfigs] (
     [GrammarTemplate] nvarchar(max) NULL,
     [UserRateLimit] int NOT NULL DEFAULT 10,
     [TotalTokensUsed] bigint NOT NULL DEFAULT 0,
+	ProModelName NVARCHAR(MAX) NULL,
+	ProTemperature FLOAT NOT NULL DEFAULT 0.9,
+	ProMaxOutputTokens INT NOT NULL DEFAULT 4096,
+	ProUserRateLimit INT NOT NULL DEFAULT 50,
+	ChatbotApiKey nvarchar(max) NULL,
     CONSTRAINT [PK_GeminiConfigs] PRIMARY KEY ([Id])
 );
+GO
+
+INSERT INTO [GeminiConfigs] ([Id], [ModelName], [Temperature], [MaxOutputTokens], [ProModelName], [ProTemperature], [ProMaxOutputTokens], [ProUserRateLimit])
+VALUES (1, 'gemini-2.5-flash', 0.7, 2048, 'gemini-2.5-pro', 0.9, 4096, 50);
 GO
 -- 2. Chèn dữ liệu cấu hình mặc định (Bắt buộc phải có 1 dòng Id = 1)
 INSERT INTO [GeminiConfigs] 
@@ -59,6 +68,7 @@ CREATE TABLE Users (
 	AvatarUrl NVARCHAR(MAX) NULL,
     Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')) DEFAULT 'User',
     CreatedAt DATETIME DEFAULT GETDATE(),
+	IsPro BIT NOT NULL DEFAULT 0,
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
@@ -69,7 +79,9 @@ CREATE TABLE Templates (
     HtmlContent NVARCHAR(MAX), 
     CssContent NVARCHAR(MAX),  
     PreviewImageUrl NVARCHAR(500),
+	IsProOnly BIT NOT NULL DEFAULT 0,
     IsActive BIT DEFAULT 1
+
 );
 
 -- 4. BẢNG CV CHÍNH (Chứa thông tin cá nhân "tĩnh" - Khớp Editor)

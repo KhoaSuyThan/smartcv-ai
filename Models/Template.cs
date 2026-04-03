@@ -10,5 +10,6 @@ namespace DoAnCS.Models
         public string? CssContent { get; set; }
         public string? PreviewImageUrl { get; set; } //
         public bool IsActive { get; set; } = true;    //
+        public bool IsProOnly { get; set; } = false; // Chỉ dành cho Pro
     }
 }

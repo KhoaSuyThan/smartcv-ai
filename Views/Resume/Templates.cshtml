@@ -10,6 +10,7 @@
         transition: transform 0.3s ease; 
         border: 1px solid #eee !important;
     }
+    .border-pro { border: 2px solid #ffc107 !important; }
 
     /* Sửa đổi CSS của thẻ ảnh để hiển thị phần trên cùng của CV rõ ràng */
     .template-card img {
@@ -67,11 +68,27 @@
         <button class="btn btn-outline-primary rounded-pill px-4 filter-btn">Kinh tế</button>
     </div>
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-4 rounded-3" role="alert">
+            <i class="fas fa-crown me-2 text-warning"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="row g-4">
         @foreach (var item in Model)
         {
             <div class="col-md-4 col-lg-3">
-                <div class="card h-100 border-0 shadow-sm template-card">
+                <div class="card h-100 border-0 shadow-sm template-card @(item.IsProOnly ? "border-pro" : "")">
+                    @if (item.IsProOnly)
+                    {
+                        <div class="position-absolute top-0 end-0 m-2 z-3">
+                            <span class="badge bg-warning text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">
+                                <i class="fas fa-crown me-1"></i> PRO
+                            </span>
+                        </div>
+                    }
                     <div class="position-relative">
                         <img src="@item.PreviewImageUrl" class="card-img-top p-2 bg-light" alt="@item.Name" 
                              style="height: 350px; object-fit: cover;"
