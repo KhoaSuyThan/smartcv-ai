@@ -713,6 +713,296 @@ VALUES (
     1
 );
 GO
+
+-- 1. Xóa mẫu cũ để cập nhật bản mới
+DELETE FROM Templates WHERE Name = N'Mẫu CV Pink Elegant - Nguyễn Yên Nhi';
+
+-- 2. Chèn mẫu mới với phần Kỹ năng tổng hợp
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Mẫu CV Pink Elegant - Nguyễn Yên Nhi', 
+    N'<div class="pink-cv-container">
+        <div class="deco-star star-1">✦</div>
+        <div class="deco-star star-2">✦</div>
+
+        <div class="cv-header">
+            <div class="header-info">
+                <h1 class="fullname">{{FullName}}</h1>
+                <p class="job-title">{{JobTitle}}</p>
+            </div>
+            <div class="header-photo">
+                <div class="photo-bg-circle"></div>
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+        </div>
+
+        <div class="cv-body">
+            <div class="col-left">
+                <div class="section">
+                    <h1 class="section-title">MỤC TIÊU NGHỀ NGHIỆP</h1>
+                    <div class="content-text">{{Summary}}</div>
+                </div>
+
+                <div class="section">
+                    <h1 class="section-title">HỌC VẤN</h1>
+                    <div class="timeline">
+                        {{Education}}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h1 class="section-title">KỸ NĂNG & CHUYÊN MÔN</h1>
+                    
+                    <div class="skill-group mt-3">
+                        <p class="skill-sub-label">💻 TIN HỌC</p>
+                        <div class="skill-text-list">
+                            {{Skills}}
+                        </div>
+                    </div>
+
+                    <div class="skill-group mt-3">
+                        <p class="skill-sub-label">🌍 NGOẠI NGỮ</p>
+                        <div class="skill-text-list">
+                            {{Languages}}
+                        </div>
+                    </div>
+
+                    <div class="skill-group mt-3">
+                        <p class="skill-sub-label">🎨 KỸ NĂNG KHÁC</p>
+                        <div class="skill-text-list">
+                            {{OtherSkills}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-right">
+                <div class="section">
+                    <h1 class="section-title">LIÊN HỆ</h1>
+                    <div class="contact-list">
+                        <div class="contact-item"><span>📞</span> {{Phone}}</div>
+                        <div class="contact-item"><span>✉️</span> {{Email}}</div>
+                        <div class="contact-item"><span>📍</span> {{Address}}</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h1 class="section-title">KINH NGHIỆM LÀM VIỆC</h1>
+                    <div class="timeline">
+                        {{Experience}}
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h1 class="section-title">GIẢI THƯỞNG</h1>
+                    <div class="content-text">{{Awards}}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cv-footer">
+            <div class="deco-star star-footer">✦</div>
+        </div>
+    </div>',
+
+    N'/* Layout & Colors */
+    .pink-cv-container {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 60px;
+        background: #fff;
+        position: relative;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        box-sizing: border-box;
+    }
+
+    /* Header & Circle Avatar */
+    .cv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .fullname { font-size: 52px; font-family: "Georgia", serif; font-weight: bold; margin: 0; color: #111; line-height: 1.1; }
+    .job-title { font-size: 15px; text-transform: uppercase; letter-spacing: 4px; margin-top: 10px; color: #555; font-weight: 600; }
+    
+    .header-photo { position: relative; width: 200px; height: 200px; }
+    .photo-bg-circle { 
+        position: absolute; top: 0; right: -10px; 
+        width: 200px; height: 200px; 
+        background: radial-gradient(circle, #fcdde1 0%, #f497a9 100%); 
+        border-radius: 50%; 
+    }
+    .avatar-img { 
+        position: absolute; width: 180px; height: 180px; 
+        border-radius: 50%; object-fit: cover; 
+        top: 10px; right: 0; z-index: 2; 
+    }
+
+    /* Column System */
+    .cv-body { display: flex; gap: 50px; }
+    .col-left { flex: 1.1; }
+    .col-right { flex: 0.9; }
+
+    h1.section-title, 
+    h1.main-title, 
+    h1.side-title {
+       font-size: 18px; /* Giữ kích thước vừa phải, không được to như tên */
+       font-weight: 800;
+       margin-bottom: 15px;
+       margin-top: 25px;
+       display: block; /* Đảm bảo nó luôn nằm riêng 1 dòng */
+       /* Giữ nguyên các màu sắc/border cũ của Khoa */
+   }
+    .skill-sub-label { font-size: 12px; font-weight: bold; color: #f497a9; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Content Lists */
+    .content-text, .skill-text-list, .contact-list { font-size: 13px; line-height: 1.6; }
+    .skill-text-list { white-space: pre-line; margin-bottom: 15px; padding-left: 5px; border-left: 2px solid #fcdde1; }
+
+    /* Timeline Styling */
+    .timeline { border-left: 1px dashed #f497a9; padding-left: 20px; margin-left: 5px; }
+    .timeline-item { position: relative; margin-bottom: 20px; font-size: 13px; }
+    .timeline-item::before { content: "✦"; position: absolute; left: -28px; color: #f497a9; font-size: 14px; background: #fff; }
+
+    /* Skill Bars */
+    .skill-item { margin-bottom: 10px; }
+    .skill-bar-bg { width: 100%; height: 5px; background: #f0f0f0; border-radius: 10px; margin-top: 4px; }
+    .skill-bar-fill { height: 100%; background: #f497a9; border-radius: 10px; }
+
+    /* Decoration Sparkles */
+    .deco-star { position: absolute; color: #f497a9; opacity: 0.5; }
+    .star-1 { top: 30px; left: 45%; font-size: 25px; }
+    .star-2 { top: 120px; right: 40px; font-size: 18px; }
+    .star-footer { bottom: 50px; left: 40%; font-size: 20px; }
+
+    .cv-footer { position: absolute; bottom: 40px; right: 60px; font-size: 11px; color: #bbb; }',
+
+    'https://marketplace.canva.com/EAGSZ3G6wMw/2/0/1131w/canva-s%C6%A1-y%E1%BA%BFu-l%C3%BD-l%E1%BB%8Bch-chuy%C3%AAn-nghi%E1%BB%87p-hi%E1%BB%87n-%C4%91%E1%BA%A1i-n%E1%BB%AF-t%C3%ADnh-thanh-l%E1%BB%8Bch-h%E1%BB%93ng-tr%E1%BA%AFng-N3-BrRHpD_E.jpg',
+    1
+);
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+VALUES (
+    N'Mẫu CV Academic Brown - Nguyễn Minh An', 
+    N'<div class="academic-cv-wrapper">
+        <div class="cv-main-col">
+            <div class="header-area">
+                <h1 class="fullname">{{FullName}}</h1>
+                <p class="job-title">{{JobTitle}}</p>
+            </div>
+
+            <div class="section">
+                <h1 class="section-title">KINH NGHIỆM LÀM VIỆC</h1>
+                <div class="section-content">
+                    {{Experience}}
+                </div>
+            </div>
+
+            <div class="section">
+                <h1 class="section-title">HỌC VẤN</h1>
+                <div class="section-content">
+                    {{Education}}
+                </div>
+            </div>
+        </div>
+
+        <div class="cv-side-col">
+            <div class="avatar-box">
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+
+            <div class="side-section">
+                <h1 class="side-title">MỤC TIÊU LÀM VIỆC</h1>
+                <div class="side-content">{{Summary}}</div>
+            </div>
+
+            <div class="side-section">
+                <h1 class="side-title">GIẢI THƯỞNG</h1>
+                <div class="side-content">{{Awards}}</div>
+            </div>
+
+            <div class="side-section">
+                <h1 class="side-title">THÔNG TIN LIÊN HỆ</h1>
+                <div class="contact-info">
+                    <p>Di động: {{Phone}}</p>
+                    <p>Email: {{Email}}</p>
+                    <p>Địa chỉ: {{Address}}</p>
+                </div>
+            </div>
+
+            <div class="side-section">
+                <h1 class="side-title">KỸ NĂNG & CHUYÊN MÔN</h1>
+                
+                <div class="skill-group">
+                    <div class="skill-list-main">{{Skills}}</div>
+                </div>
+
+                <div class="skill-group-extra">
+                    <p class="extra-label">💻 TIN HỌC</p>
+                    <div class="extra-content">{{ComputerSkills}}</div>
+                </div>
+
+                <div class="skill-group-extra">
+                    <p class="extra-label">🌍 NGOẠI NGỮ</p>
+                    <div class="extra-content">{{Languages}}</div>
+                </div>
+
+                <div class="skill-group-extra">
+                    <p class="extra-label">🎨 KỸ NĂNG KHÁC</p>
+                    <div class="extra-content">{{OtherSkills}}</div>
+                </div>
+            </div>
+        </div>
+    </div>',
+
+    N'/* Layout chung */
+    .academic-cv-wrapper { 
+        display: flex; 
+        width: 210mm; 
+        min-height: 297mm; 
+        background: #fdf5e6; /* Màu kem nhạt */
+        font-family: "Arial", sans-serif;
+        box-sizing: border-box;
+    }
+
+    /* Cột chính (Trái) */
+    .cv-main-col { flex: 6; padding: 60px 40px; color: #4a3728; }
+    .header-area { margin-bottom: 50px; }
+    .fullname { font-size: 52px; font-weight: 900; color: #5d4e46; margin: 0; text-transform: uppercase; line-height: 1; }
+    .job-title { font-size: 20px; color: #8b7355; margin-top: 10px; font-weight: 500; }
+
+    h1.section-title { 
+        font-size: 18px; font-weight: 800; color: #8b7355; 
+        margin-bottom: 20px; margin-top: 40px; 
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+    .section-content { font-size: 14px; line-height: 1.7; text-align: justify; white-space: pre-line; }
+
+    /* Cột phụ (Phải) */
+    .cv-side-col { flex: 4; background: #5d4e46; color: #fff; padding: 60px 30px; }
+    .avatar-box { text-align: center; margin-bottom: 40px; }
+    .avatar-img { width: 180px; height: 180px; border-radius: 50%; border: 8px solid rgba(255,255,255,0.1); object-fit: cover; }
+
+    .side-section { margin-bottom: 35px; }
+    h1.side-title { 
+        font-size: 16px; font-weight: 700; color: #fdf5e6; 
+        margin-bottom: 15px; text-transform: uppercase; 
+        border-bottom: 1px solid rgba(253, 245, 230, 0.3); padding-bottom: 5px;
+    }
+    .side-content, .contact-info { font-size: 13px; line-height: 1.6; color: #e8e8e8; white-space: pre-line; }
+
+    /* Skill Group Extra */
+    .skill-group-extra { margin-top: 15px; }
+    .extra-label { font-size: 12px; font-weight: bold; color: #fdf5e6; margin-bottom: 5px; }
+    .extra-content { font-size: 12px; color: #ddd; line-height: 1.4; padding-left: 5px; }
+
+    /* Chống tràn văn bản */
+    * { box-sizing: border-box; }
+    .academic-cv-wrapper * { word-wrap: break-word; overflow-wrap: break-word; }',
+
+    'https://careers.langmaster.edu.vn/storage/images/2023/05/11/mau-cv-dep-25.webp',
+    1
+);
+GO
+
 -- Nạp Kỹ năng IT
 INSERT INTO Skills (SkillName) VALUES ('.NET'), ('SQL Server'), ('C#'), ('Flutter'), ('React');
 GO

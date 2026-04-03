@@ -117,9 +117,7 @@ namespace DoAnCS.Controllers
                     _context.Add(job);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Đăng tin tuyển dụng thành công!";
-                    
-                    // FIX: Điều hướng về trang Quản trị hệ thống mới
-                    return RedirectToAction("Jobs", "Admin");
+                    return RedirectToAction(nameof(Manage));
                 }
             }
 
@@ -193,7 +191,12 @@ namespace DoAnCS.Controllers
                     _context.Update(jobInDb);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Cập nhật thành công!";
-                    return RedirectToAction("Jobs", "Admin");
+                    
+                    if (User.IsInRole("Admin"))
+                    {
+                        return RedirectToAction("Jobs", "Admin");
+                    }
+                    return RedirectToAction(nameof(Manage));
                 }
                 catch (DbUpdateConcurrencyException)
                 {

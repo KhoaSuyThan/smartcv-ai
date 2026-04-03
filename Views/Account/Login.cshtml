@@ -12,11 +12,22 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
-    <div class="container">
+    @{
+        bool showRegister = !ViewData.ModelState.IsValid && ViewData.ModelState.Keys.Any(k => k.StartsWith("Register.") && ViewData.ModelState[k].Errors.Count > 0);
+    }
+    <div class="container @(showRegister ? "active" : "")">
         <div class="form-box login">
             <div style="width: 100%;"> <form asp-controller="Account" asp-action="Login" method="post">
                     @Html.AntiForgeryToken()
                     <h1>Đăng nhập</h1>
+                    
+                    @if (ViewBag.Error != null)
+                    {
+                        <div style="color: #d9534f; background: rgba(242, 222, 222, 0.8); border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
+                            @ViewBag.Error
+                        </div>
+                    }
+
                     <div class="input-box">
                         <input asp-for="Login.Email" placeholder="Email">
                         <i class='bx bxs-user'></i>
@@ -50,6 +61,18 @@
                 <form asp-controller="Account" asp-action="Register" method="post">
                     @Html.AntiForgeryToken()
                     <h1>Đăng ký</h1>
+                    
+                    @if (showRegister)
+                    {
+                        var registerErrors = ViewData.ModelState.Where(x => x.Key.StartsWith("Register.") && x.Value.Errors.Count > 0).SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage).ToList();
+                        if (registerErrors.Any())
+                        {
+                            <div style="color: #d9534f; background: rgba(242, 222, 222, 0.8); border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
+                                @Html.Raw(string.Join("<br />", registerErrors))
+                            </div>
+                        }
+                    }
+
                     <div class="input-box">
                         <input asp-for="Register.FullName" placeholder="Full Name" required>
                         <i class='bx bxs-user'></i>
@@ -116,6 +139,10 @@
 </body>
 </html>
 <style>
+    html {
+        zoom: 80%; /* Ép toàn bộ trang về 80% */
+        height: 100%;
+    }
     .form-control-select {
     width: 100%;
     height: 100%;

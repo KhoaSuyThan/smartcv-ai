@@ -316,5 +316,14 @@ namespace DoAnCS.Controllers
 
             return View(model);
         }
+
+        // ==========================================
+        // TRANG BÁO LỖI QUYỀN TRUY CẬP (ACCESS DENIED)
+        // ==========================================
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
     }
 }

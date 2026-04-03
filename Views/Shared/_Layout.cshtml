@@ -14,14 +14,16 @@
     <style>
         html {
             zoom: 80%; /* Ép toàn bộ trang về 80% */
-            height: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        /* 1. Thiết lập cho toàn bộ trang */
         body {
             margin: 0;
             display: flex;
             flex-direction: column;
-            height: 100%;   /* Ép body chiếm trọn không gian đã zoom */
+            min-height: 100vh;
+            flex: 1;
         }
 
         /* 2. Ép phần nội dung chính giãn ra để đẩy footer xuống */
@@ -58,6 +60,16 @@
         .admin-sidebar-container .menu-item:hover i { color: #0d6efd; }
         .admin-sidebar-container .menu-item.active { background: #ffffff; color: #0d6efd; border-left: 4px solid #0d6efd; border-radius: 4px 8px 8px 4px; padding-left: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-top: 1px solid #f1f3f5; border-right: 1px solid #f1f3f5; border-bottom: 1px solid #f1f3f5; }
         .admin-sidebar-container .menu-item.active i { color: #0d6efd; }
+        /* Sửa lỗi lệch Modal khi dùng CSS Zoom */
+        .modal-backdrop {
+            width: 150vw !important;  /* Tăng bề rộng lớp nền */
+            height: 150vh !important; /* Tăng chiều cao lớp nền */
+        }
+
+        .modal {
+            /* Đảm bảo vị trí modal luôn chuẩn */
+            perspective: none !important;
+        }
     </style>
 </head>
 <body>
@@ -308,6 +320,23 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Tự động ẩn các thông báo thành công sau 3 giây (Toàn cục)
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Xử lý Bootstrap Alerts (.alert-success)
+            const alerts = document.querySelectorAll('.alert-success');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                        const bsAlert = new bootstrap.Alert(alert);
+                        bsAlert.close();
+                    } else {
+                        alert.style.display = 'none';
+                    }
+                }, 3000);
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

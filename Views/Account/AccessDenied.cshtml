@@ -1,14 +1,53 @@
-@page "/accessdenied"
-@model DoAnCS.Views.Account.Pages.AccessDeniedModel
 @{
-    ViewData["Title"] = "AccessDenied";
+    ViewData["Title"] = "Truy cập bị từ chối";
+    Layout = "_Layout";
 }
 
-<h1>@ViewData["Title"]</h1>
-
-<div class="container text-center py-5">
-    <h1 class="display-1 fw-bold text-danger">403</h1>
-    <h2 class="fw-bold">Truy cập bị từ chối!</h2>
-    <p class="text-muted">Bạn không có quyền hạn để truy cập vào khu vực này.</p>
-    <a href="/" class="btn btn-primary rounded-pill px-4">Quay về trang chủ</a>
+<div class="container py-5 my-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="bi bi-shield-lock-fill text-danger" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark mb-3">Rất tiếc! Bạn không có quyền truy cập</h2>
+                    <p class="text-muted mb-4 fs-5">
+                        Trang bạn đang cố gắng truy cập bị hạn chế quyền. Vui lòng liên hệ Admin hoặc đăng nhập bằng tài khoản có thẩm quyền cao hơn.
+                    </p>
+                    <div class="d-grid gap-3">
+                        <a href="/" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow-sm">
+                            <i class="bi bi-house-door me-2"></i>Quay lại trang chủ
+                        </a>
+                        <a href="/Account/Login" class="btn btn-outline-secondary btn-lg rounded-pill fw-bold py-3">
+                            <i class="bi bi-person-fill me-2"></i>Đăng nhập tài khoản khác
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p class="text-muted small">Mã lỗi: 403 Forbidden - Quyền truy cập bị hạn chế</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+        border: none;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+        transform: scale(1.02);
+    }
+</style>
