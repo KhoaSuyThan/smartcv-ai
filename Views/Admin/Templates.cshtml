@@ -42,6 +42,15 @@
                             <div class="status-overlay" id="overlay-@item.TemplateID" style="display: @(item.IsActive ? "none" : "flex");">
                                 <span class="badge bg-danger rounded-pill px-4 py-2 border border-2 border-white shadow-lg fs-6" style="letter-spacing: 1px;">TẠM ẨN</span>
                             </div>
+
+                            @if (item.IsProOnly)
+                            {
+                                <div class="position-absolute top-0 end-0 m-2" style="z-index: 11;">
+                                    <span class="badge bg-warning text-dark border border-white shadow px-2 py-1 rounded-pill fw-bold" style="font-size: 0.65rem;">
+                                         <i class='bx bxs-crown me-1'></i> PRO
+                                    </span>
+                                </div>
+                            }
                         </div>
                         
                         <div class="card-body p-3">

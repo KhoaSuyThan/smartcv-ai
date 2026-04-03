@@ -47,6 +47,12 @@
                                             @user.FullName.Substring(0, 1).ToUpper()
                                         </div>
                                         <strong class="text-dark">@user.FullName</strong>
+                                        @if (user.IsPro)
+                                        {
+                                            <span class="ms-2 badge bg-warning text-dark rounded-pill" style="font-size: 0.6rem; vertical-align: middle;">
+                                                <i class='bx bxs-crown'></i> PRO
+                                            </span>
+                                        }
                                     </div>
                                 </td>
                                 <td class="text-muted">@user.Email</td>

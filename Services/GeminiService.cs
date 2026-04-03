@@ -19,7 +19,7 @@ namespace DoAnCS.Services
             _httpClient = httpClientFactory.CreateClient();
         }
 
-        public async Task<string> GenerateContent(string prompt)
+        public async Task<string> GenerateContent(string prompt, bool isPro = false)
         {
             try {
                 // 1. Lấy cấu hình - Thêm .AsNoTracking() để tăng tốc độ đọc dữ liệu
@@ -30,8 +30,13 @@ namespace DoAnCS.Services
                     return "Lỗi: Hệ thống chưa lấy được mã API!";
                 }
 
+                // Chọn Model dựa trên trạng thái Pro
+                string selectedModel = isPro ? (config.ProModelName ?? "gemini-2.5-pro") : config.ModelName;
+                double selectedTemp = isPro ? config.ProTemperature : config.Temperature;
+                int selectedMaxTokens = isPro ? config.ProMaxOutputTokens : config.MaxOutputTokens;
+
                 // 2. Build URL (Sử dụng v1beta để dùng được tính năng System Instruction)
-                string url = $"https://generativelanguage.googleapis.com/v1beta/models/{config.ModelName}:generateContent?key={config.ApiKey}";
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={config.ApiKey}";
 
                 // 2. Đảm bảo Prompt không rỗng
                 if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";
@@ -45,8 +50,8 @@ namespace DoAnCS.Services
                         new { parts = new[] { new { text = prompt } } } 
                     },
                     generationConfig = new {
-                        temperature = config.Temperature,
-                        maxOutputTokens = config.MaxOutputTokens,
+                        temperature = selectedTemp,
+                        maxOutputTokens = selectedMaxTokens,
                         topP = 0.95,
                         topK = 64
                     }

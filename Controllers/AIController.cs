@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DoAnCS.Services;
 using DoAnCS.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace DoAnCS.Controllers 
 {
@@ -12,12 +15,129 @@ namespace DoAnCS.Controllers
     {
         private readonly IAIService _aiService;
         private readonly DoAnCS.Data.AppDbContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
 
         // Tiêm (Inject) Service xử lý AI và AppDbContext thông qua Constructor
-        public AIController(IAIService aiService, DoAnCS.Data.AppDbContext context)
+        public AIController(IAIService aiService, DoAnCS.Data.AppDbContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _aiService = aiService;
             _context = context;
+            _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
+        }
+
+        // ============================================================
+        // CHATBOX AI - Endpoint công khai, dùng API key riêng
+        // ============================================================
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> ChatboxAsk([FromBody] ChatboxRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.Message))
+                return Json(new { success = false, reply = "Vui lòng nhập câu hỏi!" });
+
+            // 1. Lấy cấu hình từ DB
+            var dbConfig = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
+
+            // 2. Ưu tiên: DB ChatbotApiKey > appsettings ChatbotApiKey (Tách biệt hoàn toàn với Key chính)
+            var chatbotApiKey = dbConfig?.ChatbotApiKey;
+            if (string.IsNullOrEmpty(chatbotApiKey))
+                chatbotApiKey = _configuration["Gemini:ChatbotApiKey"];
+
+            if (string.IsNullOrEmpty(chatbotApiKey))
+                return Json(new { success = false, reply = "Chatbot chưa được cấu hình. Admin vui lòng cài đặt <strong>Key riêng (Chatbox API Key)</strong> để tránh ảnh hưởng đến giới hạn tạo CV!" });
+
+            chatbotApiKey = chatbotApiKey.Trim();
+
+            // 3. Chuẩn bị Request Body (Sửa schema parts thành mảng [])
+            var systemPrompt = @"Bạn là trợ lý ảo của website CVBuilder Pro - nền tảng tạo CV và tìm việc làm IT tại Việt Nam.
+Nhiệm vụ: Giải đáp thắc mắc của người dùng về dịch vụ, hướng dẫn sử dụng, tư vấn CV/nghề nghiệp.
+Quy tắc:
+- Trả lời ngắn gọn, thân thiện, bằng tiếng Việt.
+- Chỉ trả lời các câu hỏi liên quan đến việc làm, CV, tài khoản, dịch vụ của CVBuilder Pro.
+- Nếu câu hỏi ngoài phạm vi, hướng dẫn liên hệ hỗ trợ.
+- KHÔNG tiết lộ thông tin kỹ thuật nội bộ.
+- Giới hạn câu trả lời trong 150 từ.";
+
+            var requestBody = new
+            {
+                system_instruction = new { parts = new[] { new { text = systemPrompt } } },
+                contents = new[] { new { parts = new[] { new { text = request.Message } } } },
+                generationConfig = new { temperature = 0.7, maxOutputTokens = 512, topP = 0.9 }
+            };
+
+            try
+            {
+                var httpClient = _httpClientFactory.CreateClient();
+                // Sử dụng model được cấu hình hoặc mặc định là 2.0-flash
+                string model = dbConfig?.ModelName ?? "gemini-2.0-flash";
+                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={chatbotApiKey}";
+                
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await httpClient.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"[Chatbox] HTTP {(int)response.StatusCode}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    dynamic result = JsonConvert.DeserializeObject(responseString);
+                    if (result?.candidates != null && result.candidates.Count > 0)
+                    {
+                        string reply = result.candidates[0].content.parts[0].text;
+                        
+                        // --- GHI LOG SỬ DỤNG VÀO DATABASE ---
+                        try {
+                            int userId = 0;
+                            var userIdClaim = User.FindFirst("UserID");
+                            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int pid)) userId = pid;
+
+                            int tokens = (request.Message.Length / 4) + (reply.Length / 4) + 100; // Ước lượng + system prompt
+                            var log = new AILog {
+                                UserID = userId > 0 ? userId : (int?)null,
+                                RequestType = "chatbot",
+                                InputText = request.Message,
+                                OutputText = reply,
+                                UsedTokens = tokens,
+                                CreatedAt = DateTime.Now
+                            };
+                            _context.AILogs.Add(log);
+
+                            // Cập nhật tích lũy vào config (Id=1)
+                            var trackedConfig = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == 1);
+                            if (trackedConfig != null) trackedConfig.TotalTokensUsed += tokens;
+
+                            await _context.SaveChangesAsync();
+                        } catch { /* Bỏ qua nếu lỗi log để ko chặn người dùng */ }
+
+                        return Json(new { success = true, reply });
+                    }
+                    return Json(new { success = false, reply = "AI không tạo được câu trả lời. Vui lòng thử câu hỏi khác!" });
+                }
+
+                // Lỗi API - trả về status code cụ thể
+                string errorMsg = (int)response.StatusCode switch
+                {
+                    429 => "⚠️ Chatbot đang bị quá tải (rate limit). Google đã giới hạn key của bạn, vui lòng thử lại sau vài giây hoặc đổi Key khác!",
+                    401 or 403 => "API Key chatbot không hợp lệ. Admin vui lòng kiểm tra lại cấu hình Key dành riêng cho Chatbox!",
+                    400 => "Yêu cầu không hợp lệ. Có thể do bạn copy-paste Key bị dính khoảng trắng hoặc ký tự lạ!",
+                    _ => $"Lỗi kết nối AI ({(int)response.StatusCode}). Vui lòng liên hệ Admin!"
+                };
+                return Json(new { success = false, reply = errorMsg });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Chatbox Error: " + ex.Message);
+                return Json(new { success = false, reply = "Hệ thống đang bận. Vui lòng thử lại sau!" });
+            }
+        }
+
+        public class ChatboxRequest
+        {
+            public string? Message { get; set; }
         }
 
         [HttpPost]
@@ -50,7 +170,12 @@ namespace DoAnCS.Controllers
 
             // 3. Rate Limit - Lấy cấu hình và kiểm tra hạn mức
             var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
-            int rateLimit = configData?.UserRateLimit ?? 10;
+            
+            // Lấy thông tin người dùng để kiểm tra IsPro
+            var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
+            bool isPro = userInfo?.IsPro ?? false;
+
+            int rateLimit = isPro ? (configData?.ProUserRateLimit ?? 50) : (configData?.UserRateLimit ?? 10);
 
             var todayLogsCount = await _context.AILogs
                 .Where(l => l.UserID == userId && l.CreatedAt.Date == DateTime.Today)
@@ -58,7 +183,8 @@ namespace DoAnCS.Controllers
 
             if (todayLogsCount >= rateLimit) 
             {
-                return Json(new { success = false, data = $"Bạn đã vượt hạn mức sử dụng AI ({rateLimit} lần/ngày). Vui lòng quay lại vào ngày mai!" });
+                string accountType = isPro ? "Pro" : "thường";
+                return Json(new { success = false, data = $"Tài khoản {accountType} của bạn đã vượt hạn mức sử dụng AI ({rateLimit} lần/ngày). Vui lòng quay lại vào ngày mai!" });
             }
 
             string prompt = "";
@@ -107,10 +233,10 @@ namespace DoAnCS.Controllers
                     break;
             }
 
-            // 6. Gọi Service AI
+            // 6. Gọi Service AI (Truyền thêm trạng thái Pro)
             try 
             {
-                var aiResult = await _aiService.GenerateContent(prompt);
+                var aiResult = await _aiService.GenerateContent(prompt, isPro);
                 
                 // 7. Ghi Log AI và Cập nhật Token (Chỉ khi không phải gọi từ test_playground, hoặc nếu Admin tự test thì vẫn có userID)
                 // Ước lượng Token đơn giản: 1 Token ~ 4 ký tự

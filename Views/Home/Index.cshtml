@@ -1,4 +1,4 @@
-﻿    @model DoAnCS.Models.HomeViewModel
+    @model DoAnCS.Models.HomeViewModel
     @{
         ViewData["Title"] = "Trang chủ - Hệ thống quản lý CV";
     }
@@ -189,8 +189,16 @@
                 @foreach (var template in Model.PopularTemplates)
                 {
                     <div class="col-md-3">
-                        <div class="card border-0 shadow-sm h-100 template-card">
+                        <div class="card border-0 shadow-sm h-100 template-card @(template.IsProOnly ? "border-pro" : "")">
                             <div class="position-relative overflow-hidden bg-light rounded-top">
+                                @if (template.IsProOnly)
+                                {
+                                    <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+                                        <span class="badge bg-warning text-dark shadow-sm px-2 py-1 rounded-pill fw-bold" style="font-size: 0.6rem;">
+                                            <i class="fas fa-crown me-1"></i> PRO
+                                        </span>
+                                    </div>
+                                }
                                 <img src="@template.PreviewImageUrl" class="card-img-top p-2" alt="@template.Name" 
                                      style="height: 400px; object-fit: contain; background-color: #f8f9fa;"
                                      onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
@@ -237,6 +245,7 @@
             transition: transform 0.3s ease; 
             border: 1px solid #eee !important;
         }
+        .border-pro { border: 2px solid #ffc107 !important; }
         .template-overlay {
             position: absolute; 
             top: 0; left: 0; right: 0; bottom: 0;

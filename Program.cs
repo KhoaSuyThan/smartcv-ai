@@ -103,6 +103,7 @@ using (var scope = app.Services.CreateScope())
             CREATE TABLE [GeminiConfigs] (
                 [Id] int NOT NULL,
                 [ApiKey] nvarchar(max) NULL,
+                [ChatbotApiKey] nvarchar(max) NULL,
                 [ModelName] nvarchar(max) NOT NULL DEFAULT 'gemini-2.5-flash',
                 [Temperature] float NOT NULL DEFAULT 0.7,
                 [MaxOutputTokens] int NOT NULL DEFAULT 2048,
@@ -116,6 +117,14 @@ using (var scope = app.Services.CreateScope())
             );
             INSERT INTO [GeminiConfigs] ([Id], [ApiKey], [ModelName], [Temperature], [MaxOutputTokens], [SystemInstruction], [UserRateLimit], [TotalTokensUsed])
             VALUES (1, N'', N'gemini-2.5-flash', 0.7, 2048, N'Bạn là trợ lý ảo hỗ trợ đánh giá CV.', 10, 0);
+        END
+        ");
+
+        // Thêm cột ChatbotApiKey nếu chưa có (cho DB cũ)
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('GeminiConfigs') AND name = 'ChatbotApiKey')
+        BEGIN
+            ALTER TABLE [GeminiConfigs] ADD [ChatbotApiKey] nvarchar(max) NULL;
         END
         ");
     } 

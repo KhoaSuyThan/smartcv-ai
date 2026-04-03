@@ -41,11 +41,20 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Kiểm tra xem Mẫu CV (TemplateID) có tồn tại trong Database không
-            // Nếu không tồn tại (ví dụ id = 0 do lỗi hoặc URL sai), điều hướng về trang danh sách mẫu
-            var templateExists = await _context.Templates.AnyAsync(t => t.TemplateID == id);
-            if (!templateExists)
+            // 1. Kiểm tra xem Mẫu CV (TemplateID) có tồn tại và quyền truy cập
+            var template = await _context.Templates.FirstOrDefaultAsync(t => t.TemplateID == id);
+            if (template == null)
             {
+                return RedirectToAction("Templates");
+            }
+
+            // Kiểm tra quyền Pro
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            bool isPro = user?.IsPro ?? false;
+
+            if (template.IsProOnly && !isPro)
+            {
+                TempData["ErrorMessage"] = "Mẫu CV này chỉ dành cho thành viên Pro. Hãy nâng cấp tài khoản để sử dụng!";
                 return RedirectToAction("Templates");
             }
 

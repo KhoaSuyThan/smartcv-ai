@@ -122,6 +122,7 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("UserID", user.UserID.ToString()),
+                new Claim("IsPro", user.IsPro.ToString()),
                 new Claim("CompanyID", user.CompanyID.ToString()?? "")
             };
 
@@ -210,6 +211,7 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role), // Quan trọng: Gán quyền từ DB
                 new Claim("UserID", user.UserID.ToString()),
+                new Claim("IsPro", user.IsPro.ToString()),
                 new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
             };
 
@@ -300,6 +302,7 @@ namespace DoAnCS.Controllers
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim("UserID", user.UserID.ToString()),
                     new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"), // Thêm cả Claim ảnh cho xịn
+                    new Claim("IsPro", user.IsPro.ToString()),
                     new Claim(ClaimTypes.Role, user.Role ?? "User"),
                     new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
                 };

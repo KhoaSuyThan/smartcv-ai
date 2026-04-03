@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div class="row g-4 align-items-start">
             @* Cột Trái: Cấu hình *@
             <div class="col-lg-8">
                 <form asp-controller="Admin" asp-action="UpdateConfig" method="post">
@@ -35,7 +35,7 @@
                     @* Card 1: Core Settings *@
                     <div class="card border-0 shadow-sm rounded-4 mb-4">
                         <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-                            <h5 class="fw-bold text-dark"><i class='bx bx-cog text-muted me-2'></i>Cài đặt cốt lõi (Core)</h5>
+                            <h5 class="fw-bold text-dark"><i class='bx bx-cog text-muted me-2'></i>Cài đặt cốt lõi (FREE)</h5>
                         </div>
                         <div class="card-body p-4">
                             <div class="row g-3">
@@ -47,7 +47,7 @@
                                             <i class='bx bx-show text-muted' id="toggleIcon"></i>
                                         </button>
                                     </div>
-                                    <small class="text-danger d-block mt-1">Lưu ý: Không chia sẻ mật mã này cho bất kỳ ai.</small>
+                                    <small class="text-danger d-block mt-1">Lưu ý: Dùng chung API Key cho cả Free và Pro.</small>
                                 </div>
                                 
                                 <div class="col-md-6">
@@ -83,6 +83,69 @@
                                 <div class="col-md-6 mt-4">
                                     <label class="form-label fw-semibold text-secondary small">Giới hạn Output Tokens</label>
                                     <input type="number" name="MaxOutputTokens" class="form-control bg-light border-light" value="@Model.MaxOutputTokens" min="100" max="8192">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @* Card 1.1: Chatbox AI Settings *@
+                    <div class="card border-0 shadow-sm rounded-4 mb-4" style="border-left: 4px solid #0d6efd !important;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold text-primary"><i class='bx bxs-chat me-2'></i>Cài đặt Chatbox AI</h5>
+                            <p class="text-muted small mb-0">API Key riêng cho chatbot hỏi đáp góc phải. Để trống → dùng chung key ở trên.</p>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold text-secondary small">
+                                        Chatbox API Key <span class="badge bg-primary bg-opacity-10 text-primary ms-1">Riêng biệt</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <input type="password" id="ChatbotApiKey" name="ChatbotApiKey"
+                                               class="form-control rounded-start bg-light border-light"
+                                               value="@Model.ChatbotApiKey"
+                                               placeholder="Để trống = dùng chung key với AI CV">
+                                        <button class="btn btn-light border-light border-start-0" type="button" onclick="toggleChatbotKey()">
+                                            <i class='bx bx-show text-muted' id="chatbotToggleIcon"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-primary d-block mt-1">
+                                        <i class='bx bx-info-circle me-1'></i>
+                                        Dùng key riêng để chatbox không tiêu quota AI tạo CV. Lấy key miễn phí tại
+                                        <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* Card 1.2: Core Settings (PRO) *@
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 border-warning" style="border-width: 1px !important;">
+                        <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                            <h5 class="fw-bold text-warning"><i class='bx bxs-crown me-2'></i>Cài đặt cốt lõi (PRO)</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold text-secondary small">Model AI (Pro)</label>
+                                    <select name="ProModelName" class="form-select bg-light border-light">
+                                        <!option value="gemini-2.5-pro" @(Model.ProModelName == "gemini-2.5-pro" ? "selected" : "")>Gemini 2.5 Pro</!option>
+                                        <!option value="gemini-2.5-flash" @(Model.ProModelName == "gemini-2.5-flash" ? "selected" : "")>Gemini 2.5 Flash</!option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold text-secondary small">Giới hạn Pro (L/N)</label>
+                                    <input type="number" name="ProUserRateLimit" class="form-control bg-light border-light" value="@Model.ProUserRateLimit" min="1">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold text-secondary small">Tokens (Pro)</label>
+                                    <input type="number" name="ProMaxOutputTokens" class="form-control bg-light border-light" value="@Model.ProMaxOutputTokens" min="100">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-semibold text-secondary small d-flex justify-content-between">
+                                        <span>Độ sáng tạo (Pro - Temp)</span>
+                                        <span id="proTempValue" class="badge bg-warning text-dark rounded-pill">@Model.ProTemperature</span>
+                                    </label>
+                                    <input type="range" class="form-range" name="ProTemperature" min="0" max="2" step="0.1" value="@Model.ProTemperature" oninput="document.getElementById('proTempValue').innerText = this.value">
                                 </div>
                             </div>
                         </div>
@@ -125,7 +188,7 @@
             </div>
 
             @* Cột Phải: Tracker và Playground *@
-            <div class="col-lg-4">
+            <div class="col-lg-4" style="position: sticky; top: 80px; align-self: flex-start; z-index: 10;">
                 
                 @* Usage Tracker *@
                 <div class="card border-0 shadow-sm rounded-4 bg-gradient-premium text-white mb-4">
@@ -144,8 +207,8 @@
                         </div>
                         
                         <div class="p-3 bg-white bg-opacity-50 text-dark rounded-3 text-center">
-                            <p class="small mb-1 font-weight-bold text-dark">Tổng thiết bị toàn hệ thống từ trước đến nay</p>
-                            <h4 class="fw-bold mb-0 text-warning">@Model.TotalTokensUsed.ToString("N0") <span class="fs-6 fw-normal text-dark">Tokens</span></h4>
+                            <p class="small mb-1 font-weight-bold text-dark">Tổng token toàn hệ thống (tích lũy)</p>
+                            <h4 class="fw-bold mb-0 text-warning">@(((long)(ViewBag.TotalTokensAll ?? 0L)).ToString("N0")) <span class="fs-6 fw-normal text-dark">Tokens</span></h4>
                         </div>
                     </div>
                 </div>
@@ -242,6 +305,20 @@
     function togglePassword() {
         var input = document.getElementById("ApiKey");
         var icon = document.getElementById("toggleIcon");
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bx-show");
+            icon.classList.add("bx-hide");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bx-hide");
+            icon.classList.add("bx-show");
+        }
+    }
+
+    function toggleChatbotKey() {
+        var input = document.getElementById("ChatbotApiKey");
+        var icon = document.getElementById("chatbotToggleIcon");
         if (input.type === "password") {
             input.type = "text";
             icon.classList.remove("bx-show");

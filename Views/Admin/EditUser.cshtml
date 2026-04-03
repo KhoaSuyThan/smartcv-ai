@@ -30,6 +30,14 @@
                             </select>
                         </div>
 
+                        <div class="mb-3 form-check form-switch bg-light p-3 rounded border">
+                            <input class="form-check-input ms-0" type="checkbox" name="IsPro" id="isProCheck" value="true" @(Model.IsPro ? "checked" : "")>
+                            <label class="form-check-label fw-bold ms-2" for="isProCheck">
+                                <i class='bx bxs-crown text-warning'></i> Kích hoạt gói PRO
+                            </label>
+                            <div class="small text-muted mt-1 ms-2">Người dùng Pro được dùng mô hình AI cao cấp và không giới hạn mẫu CV.</div>
+                        </div>
+
                         <div class="mb-3" id="companySection" style="display: @(Model.Role == "Recruiter" ? "block" : "none")">
                             <label class="form-label fw-bold">Thuộc Công ty</label>
                             <select name="CompanyID" class="form-select">
