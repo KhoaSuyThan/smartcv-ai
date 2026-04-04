@@ -52,7 +52,8 @@ namespace DoAnCS.Controllers
             // Nhớ .Include(j => j.Company) để không bị lỗi Null khi gọi tên công ty ở View
             var recentJobs = await _context.Jobs
                 .Include(j => j.Company)
-                .OrderByDescending(j => j.CreatedAt)
+                .OrderBy(j => j.Status == 0 ? 0 : 1) // Ưu tiên tin chờ duyệt (0) lên đầu
+                .ThenByDescending(j => j.CreatedAt)
                 .Take(10) 
                 .ToListAsync();
 
@@ -233,7 +234,11 @@ namespace DoAnCS.Controllers
         // [GET] Danh sách việc làm
         public async Task<IActionResult> ManageJobs()
         {
-            var jobs = await _context.Jobs.Include(j => j.Company).OrderByDescending(j => j.CreatedAt).ToListAsync();
+            var jobs = await _context.Jobs
+                .Include(j => j.Company)
+                .OrderBy(j => j.Status == 0 ? 0 : 1) // Ưu tiên tin chờ duyệt lên đầu
+                .ThenByDescending(j => j.CreatedAt)
+                .ToListAsync();
             return View(jobs);
         }
 
@@ -278,7 +283,11 @@ namespace DoAnCS.Controllers
         // 1. Trang quản lý Jobs
         public async Task<IActionResult> Jobs()
         {
-            var jobs = await _context.Jobs.Include(j => j.Company).ToListAsync();
+            var jobs = await _context.Jobs
+                .Include(j => j.Company)
+                .OrderBy(j => j.Status == 0 ? 0 : 1) // Ưu tiên tin chờ duyệt lên đầu
+                .ThenByDescending(j => j.CreatedAt)
+                .ToListAsync();
             return View(jobs);
         }
 
