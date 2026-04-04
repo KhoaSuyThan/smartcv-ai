@@ -73,9 +73,39 @@
 
                     <div class="row g-4">
                         <div class="col-md-12">
-                            <label asp-for="FullName" class="form-label custom-label">Họ và Tên</label>
+                            @if (isRecruiter)
+                            {
+                                <label asp-for="FullName" class="form-label custom-label">Họ và tên người đại diện</label>
+                            }
+                            else
+                            {
+                                <label asp-for="FullName" class="form-label custom-label">Họ và Tên</label>
+                            }
                             <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
                         </div>
+
+                        @if (isRecruiter)
+                        {
+                            <div class="col-md-12">
+                                <label class="form-label custom-label">
+                                    <i class="bi bi-building me-1"></i>Tên công ty
+                                </label>
+                                <input type="text" name="companyName" id="CompanyName" 
+                                       value="@(Model.Company?.Name)" 
+                                       class="form-control edit-locked" readonly 
+                                       placeholder="Nhập tên công ty" />
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label custom-label">
+                                    <i class="bi bi-geo-alt me-1"></i>Địa chỉ công ty
+                                </label>
+                                <input type="text" name="companyAddress" id="CompanyAddress" 
+                                       value="@(Model.Company?.Address)" 
+                                       class="form-control edit-locked" readonly 
+                                       placeholder="Nhập địa chỉ công ty" />
+                            </div>
+                        }
 
                         <div class="col-md-12">
                             <label asp-for="Phone" class="form-label custom-label">Số điện thoại</label>
@@ -121,14 +151,28 @@
         // FIX LỖI ENCODING: Dùng Html.Raw để lấy chuỗi tiếng Việt chuẩn, không bị mã hóa HTML
         let oldName = "@Html.Raw(Model.FullName)";
         let oldPhone = "@Html.Raw(Model.Phone)";
+        let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
+        let oldCompanyAddress = "@Html.Raw(Model.Company?.Address)";
+        let isRecruiter = @(isRecruiter ? "true" : "false");
+
+        // Danh sách fields cần toggle khi edit
+        function getEditableFields() {
+            let fields = ['FullName', 'Phone'];
+            if (isRecruiter) {
+                fields.push('CompanyName', 'CompanyAddress');
+            }
+            return fields;
+        }
 
         function enableEditing() {
             document.getElementById('editActions').style.setProperty('display', 'flex', 'important');
             document.getElementById('btnEdit').style.display = 'none';
-            ['FullName', 'Phone'].forEach(id => {
+            getEditableFields().forEach(id => {
                 const el = document.getElementById(id);
-                el.readOnly = false;
-                el.classList.remove('edit-locked');
+                if (el) {
+                    el.readOnly = false;
+                    el.classList.remove('edit-locked');
+                }
             });
             document.getElementById('FullName').focus();
         }
@@ -137,12 +181,20 @@
             // Khi gán lại giá trị, nó sẽ là tiếng Việt thuần túy
             document.getElementById('FullName').value = oldName;
             document.getElementById('Phone').value = oldPhone;
+            if (isRecruiter) {
+                let cn = document.getElementById('CompanyName');
+                let ca = document.getElementById('CompanyAddress');
+                if (cn) cn.value = oldCompanyName;
+                if (ca) ca.value = oldCompanyAddress;
+            }
             document.getElementById('editActions').style.setProperty('display', 'none', 'important');
             document.getElementById('btnEdit').style.display = 'block';
-            ['FullName', 'Phone'].forEach(id => {
+            getEditableFields().forEach(id => {
                 const el = document.getElementById(id);
-                el.readOnly = true;
-                el.classList.add('edit-locked');
+                if (el) {
+                    el.readOnly = true;
+                    el.classList.add('edit-locked');
+                }
             });
         }
 

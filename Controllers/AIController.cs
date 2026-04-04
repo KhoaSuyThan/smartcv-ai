@@ -121,7 +121,7 @@ Quy tắc:
                 // Lỗi API - trả về status code cụ thể
                 string errorMsg = (int)response.StatusCode switch
                 {
-                    429 => "⚠️ Chatbot đang bị quá tải (rate limit). Google đã giới hạn key của bạn, vui lòng thử lại sau vài giây hoặc đổi Key khác!",
+                    429 => "Chatbot đang bị quá tải (rate limit). Google đã giới hạn key của bạn, vui lòng thử lại sau vài giây hoặc đổi Key khác!",
                     401 or 403 => "API Key chatbot không hợp lệ. Admin vui lòng kiểm tra lại cấu hình Key dành riêng cho Chatbox!",
                     400 => "Yêu cầu không hợp lệ. Có thể do bạn copy-paste Key bị dính khoảng trắng hoặc ký tự lạ!",
                     _ => $"Lỗi kết nối AI ({(int)response.StatusCode}). Vui lòng liên hệ Admin!"

@@ -55,7 +55,7 @@ namespace DoAnCS.Controllers
         }
 
         // SỬA: Thêm tham số int? page
-        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies)
+        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies, string sortBy)
         {
             // 1. Khởi tạo Query lấy từ Database
             IQueryable<Job> query = _context.Jobs.Include(j => j.Company)
@@ -79,8 +79,16 @@ namespace DoAnCS.Controllers
                 query = query.Where(j => selectedCompanies.Contains(j.Company.Name));
             }
 
-            // 4. Sắp xếp mới nhất lên đầu
-            query = query.OrderByDescending(j => j.CreatedAt);
+            // 4. Sắp xếp
+            if (sortBy == "salary")
+            {
+                // Sắp xếp theo lương (chuỗi): Thử mẹo sắp xếp theo độ dài trước để số lớn hơn đứng đầu
+                query = query.OrderByDescending(j => j.Salary.Length).ThenByDescending(j => j.Salary);
+            }
+            else
+            {
+                query = query.OrderByDescending(j => j.CreatedAt);
+            }
 
             // 5. Mapping sang JobDto để View không bị lỗi
             var jobDtos = await query.Select(j => new JobDto
@@ -184,7 +192,8 @@ namespace DoAnCS.Controllers
                 SelectedSpecialties = specialties ?? new List<string>(), // Lưu lại các checkbox đã chọn
                 SelectedCompanies = selectedCompanies ?? new List<string>(),
                 AllSpecialties = allSpecs.OrderBy(s => s).ToList(),
-                AllCompanies = await _context.Companies.Select(c => c.Name).Distinct().ToListAsync()
+                AllCompanies = await _context.Companies.Select(c => c.Name).Distinct().ToListAsync(),
+                SortBy = sortBy ?? "latest"
             };
 
             return View(viewModel);

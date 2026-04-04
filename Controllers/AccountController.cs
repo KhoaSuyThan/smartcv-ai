@@ -234,7 +234,7 @@ namespace DoAnCS.Controllers
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
 
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return NotFound();
 
             return View(user);
@@ -244,12 +244,12 @@ namespace DoAnCS.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         // BỔ SUNG: Nhận thêm tham số IFormFile từ View gửi lên
-        public async Task<IActionResult> Profile([Bind("FullName,Phone")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false)
+        public async Task<IActionResult> Profile([Bind("FullName,Phone")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null)
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
 
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == userId);
             if (user != null)
             {
                 // --- XỬ LÝ UPLOAD ẢNH ĐẠI DIỆN ---
@@ -292,6 +292,30 @@ namespace DoAnCS.Controllers
                 // Cập nhật các thông tin khác
                 user.FullName = model.FullName;
                 user.Phone = model.Phone;
+
+                // --- XỬ LÝ THÔNG TIN CÔNG TY CHO NHÀ TUYỂN DỤNG ---
+                if (user.Role == "Recruiter" && (!string.IsNullOrEmpty(companyName) || !string.IsNullOrEmpty(companyAddress)))
+                {
+                    if (user.Company != null)
+                    {
+                        // Cập nhật công ty đã có
+                        if (!string.IsNullOrEmpty(companyName)) user.Company.Name = companyName;
+                        if (companyAddress != null) user.Company.Address = companyAddress;
+                    }
+                    else
+                    {
+                        // Tạo mới công ty nếu chưa có
+                        var newCompany = new Company
+                        {
+                            Name = companyName ?? "Chưa cập nhật",
+                            Address = companyAddress,
+                            CreatedAt = DateTime.Now
+                        };
+                        _context.Companies.Add(newCompany);
+                        await _context.SaveChangesAsync();
+                        user.CompanyID = newCompany.CompanyID;
+                    }
+                }
 
                 await _context.SaveChangesAsync();
 

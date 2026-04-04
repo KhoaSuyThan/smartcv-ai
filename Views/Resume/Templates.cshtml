@@ -70,8 +70,18 @@
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-4 rounded-3" role="alert">
-            <i class="fas fa-crown me-2 text-warning"></i> @TempData["ErrorMessage"]
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-4 rounded-3 d-flex align-items-center justify-content-between" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-crown me-2 text-warning fs-4"></i>
+                <span class="fw-bold">@TempData["ErrorMessage"]</span>
+            </div>
+            
+            <div class="ms-auto me-5">
+                <a href="/Account/Upgrade" class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm">
+                    <i class="fas fa-gem me-1 text-warning"></i> Nâng cấp lên Pro ngay
+                </a>
+            </div>
+
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
