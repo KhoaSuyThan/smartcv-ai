@@ -59,7 +59,10 @@ namespace DoAnCS.Controllers
             // Nếu là Admin thì không lọc (query giữ nguyên để thấy hết)
 
             // 3. Sắp xếp và thực thi truy vấn
-            var jobs = await query.OrderByDescending(j => j.CreatedAt).ToListAsync();
+            var jobs = await query
+                .OrderBy(j => j.Status == 0 ? 0 : 1) // Tin chờ duyệt lên đầu
+                .ThenByDescending(j => j.CreatedAt)
+                .ToListAsync();
 
             return View(jobs);
         }
