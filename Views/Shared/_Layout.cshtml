@@ -288,7 +288,7 @@
                     <ul class="list-unstyled">
                         <li><a asp-controller="Resume" asp-action="Templates" class="footer-link">Kho mẫu CV</a></li>
                         <li><a asp-controller="Home" asp-action="Jobs" class="footer-link">Tìm việc làm</a></li>
-                        <li><a href="#" class="footer-link">Tư vấn nghề nghiệp</a></li>
+                        <li><a href="javascript:void(0)" onclick="chatboxOpen('Tôi muốn được tư vấn nghề nghiệp')" class="footer-link">Tư vấn nghề nghiệp</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -665,6 +665,21 @@
             box.classList.toggle('open');
             if (box.classList.contains('open')) {
                 document.getElementById('chat-badge').style.display = 'none';
+            }
+        };
+
+        window.chatboxOpen = function (msg = "") {
+            const box = document.getElementById('ai-chatbox');
+            if (box && !box.classList.contains('open')) {
+                window.chatboxToggle();
+            }
+            if (msg) {
+                const input = document.getElementById('chatbox-input');
+                if (input) {
+                    input.value = msg;
+                    input.dispatchEvent(new Event('input'));
+                    input.focus();
+                }
             }
         };
 
