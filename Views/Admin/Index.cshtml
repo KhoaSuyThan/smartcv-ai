@@ -112,6 +112,108 @@
                             </div>
                         </div>
                     </div>
+
+                    @* --- PHẦN MỚI: TOP KỸ NĂNG XU HƯỚNG --- *@
+                    <div class="mt-4 pt-4 border-top">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <h6 class="fw-bold m-0 text-dark">Kỹ năng được săn đón nhất</h6>
+                            <i class='bx bx-trending-up text-success fs-5'></i>
+                        </div>
+                        <div class="skill-cloud d-flex flex-wrap gap-2 mb-3">
+                            <span class="skill-pill-v2 bg-indigo-subtle text-indigo" data-desc="Kỹ năng giao tiếp và tối ưu hóa câu lệnh cho AI để đạt kết quả chuyên môn cao nhất.">
+                                <i class='bx bxs-zap me-1'></i> Prompt Engineering
+                            </span>
+                            <span class="skill-pill-v2 bg-emerald-subtle text-emerald" data-desc="Tuân thủ các tiêu chuẩn về Môi trường, Xã hội và Quản trị - yếu tố then chốt cho doanh nghiệp 2026.">
+                                <i class='bx bx-leaf me-1'></i> ESG Compliance
+                            </span>
+                            <span class="skill-pill-v2 bg-amber-subtle text-amber" data-desc="Khả năng sử dụng thành thạo các công cụ số và làm việc an toàn trên không gian mạng.">
+                                <i class='bx bx-laptop me-1'></i> Digital Literacy
+                            </span>
+                            <span class="skill-pill-v2 bg-rose-subtle text-rose" data-desc="Kỹ thuật thuyết phục và dứt điểm giao dịch, biến tiềm năng thành doanh thu thực tế.">
+                                <i class='bx bx-coin-stack me-1'></i> Sales Closing
+                            </span>
+                            <span class="skill-pill-v2 bg-blue-subtle text-blue" data-desc="Phân tích dữ liệu lớn để hỗ trợ ra quyết định kinh doanh dựa trên các con số thực tế.">
+                                <i class='bx bx-data me-1'></i> Data Analytics
+                            </span>
+                            <span class="skill-pill-v2 bg-orange-subtle text-orange" data-desc="Bảo vệ hạ tầng mạng và dữ liệu doanh nghiệp trước các cuộc tấn công mạng ngày càng tinh vi.">
+                                <i class='bx bx-shield-quarter me-1'></i> Cybersecurity
+                            </span>
+                            <span class="skill-pill-v2 bg-purple-subtle text-purple" data-desc="Khả năng thích ứng linh hoạt và học hỏi không ngừng trước sự biến động của thị trường.">
+                                <i class='bx bx-brain me-1'></i> Adaptability
+                            </span>
+                            <span class="skill-pill-v2 bg-cyan-subtle text-cyan" data-desc="Thiết kế và vận hành hệ thống trên các nền tảng đám mây lớn như AWS, Azure hoặc GCP.">
+                                <i class='bx bx-cloud me-1'></i> Cloud Architecture
+                            </span>
+                        </div>
+                        
+                        @* Khung hiển thị mô tả khi click *@
+                        <div id="skill-description-box" class="p-3 rounded-3 bg-light border-start border-4 border-primary d-none animate__animated animate__fadeIn">
+                            <h6 class="fw-bold mb-1 text-primary" id="skill-title-display"></h6>
+                            <p class="text-muted small m-0" id="skill-desc-display"></p>
+                        </div>
+                        <div id="skill-placeholder" class="text-xs text-muted">
+                            <i class='bx bx-info-circle me-1'></i> Click vào một kỹ năng để xem chi tiết thông tin.
+                        </div>
+
+                        @* --- PHẦN MỚI: AI SMART INSIGHTS --- *@
+                        <div class="ai-insight-container mt-4 pt-4 border-top">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <h6 class="fw-bold m-0 text-dark">Gợi ý từ CVBuilder AI</h6>
+                                <span class="badge bg-warning text-dark extra-small rounded-pill">Beta</span>
+                            </div>
+                            <div class="ai-insight-box p-3 rounded-4 shadow-sm">
+                                <div class="d-flex gap-3">
+                                    <div class="ai-icon-pulse flex-shrink-0">
+                                        <i class='bx bxs-bot fs-3'></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm-alt mb-1 text-white">Xu hướng ngành Sản xuất bùng nổ</p>
+                                        <p class="text-xs text-white-50 m-0">Ngành Sản xuất đang tăng trưởng 28%, hệ thống khuyên bạn nên đẩy mạnh các mẫu CV chuyên dụng cho kỹ sư nhà máy và quản lý vận hành.</p>
+                                    </div>
+                                </div>
+                                <hr class="my-3 opacity-25 text-white">
+                                <div class="d-flex gap-3">
+                                    <div class="ai-icon-pulse-alt flex-shrink-0">
+                                        <i class='bx bx-trending-up fs-3'></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm-alt mb-1 text-white">Cập nhật Kỹ năng AI</p>
+                                        <p class="text-xs text-white-50 m-0">90% doanh nghiệp tìm kiếm ứng viên biết Prompt Engineering; hãy cân nhắc nạp thêm dữ liệu từ điển kỹ năng này vào chatbot.</p>
+                                    </div>
+                                </div>
+                                <hr class="my-3 opacity-25 text-white">
+                                <div class="d-flex gap-3">
+                                    <div class="ai-icon-pulse-alt flex-shrink-0" style="background: rgba(192, 132, 252, 0.2); color: #c084fc;">
+                                        <i class='bx bx-leaf fs-3'></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm-alt mb-1 text-white">Xu hướng Tuyển dụng Xanh (ESG)</p>
+                                        <p class="text-xs text-white-50 m-0">Nhu cầu nhân sự đạt chuẩn ESG đang tăng 40% tại các khu công nghiệp. Bạn nên ưu tiên hiển thị các doanh nghiệp có chứng chỉ xanh.</p>
+                                    </div>
+                                </div>
+                                <hr class="my-3 opacity-25 text-white">
+                                <div class="d-flex gap-3">
+                                    <div class="ai-icon-pulse-alt flex-shrink-0" style="background: rgba(251, 146, 60, 0.2); color: #fb923c;">
+                                        <i class='bx bx-user-voice fs-3'></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm-alt mb-1 text-white">Ưu tiên Kỹ năng mềm</p>
+                                        <p class="text-xs text-white-50 m-0">Các nhà tuyển dụng đang ưu tiên "Khả năng thích nghi" hơn là kinh nghiệm thuần túy. Hãy bổ sung mẹo viết kỹ năng mềm vào Blog hướng dẫn.</p>
+                                    </div>
+                                </div>
+                                <hr class="my-3 opacity-25 text-white">
+                                <div class="d-flex gap-3">
+                                    <div class="ai-icon-pulse-alt flex-shrink-0" style="background: rgba(45, 212, 191, 0.2); color: #2dd4bf;">
+                                        <i class='bx bx-package fs-3'></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm-alt mb-1 text-white">Cơ hội mảng Logistics & Retail</p>
+                                        <p class="text-xs text-white-50 m-0">Thị trường tiêu dùng số Q2/2026 dự kiến tăng 15%. Nên chuẩn bị các chiến dịch thu hút nhân sự kho bãi và giao vận.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -286,6 +388,80 @@
     }
     .text-xs { font-size: 0.7rem; }
     .text-sm-alt { font-size: 0.85rem; font-weight: 600; }
+
+    /* Skill Pill V2 Styles */
+    .skill-pill-v2 {
+        padding: 8px 14px;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
+        cursor: pointer;
+        border: 2px solid transparent;
+    }
+    .skill-pill-v2:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+    .skill-pill-v2.active {
+        border-color: currentColor;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+    
+    .bg-indigo-subtle { background-color: #e0e7ff; color: #4338ca; }
+    .bg-emerald-subtle { background-color: #d1fae5; color: #059669; }
+    .bg-amber-subtle { background-color: #fef3c7; color: #d97706; }
+    .bg-rose-subtle { background-color: #ffe4e6; color: #e11d48; }
+    .bg-orange-subtle { background-color: #ffedd5; color: #ea580c; }
+    .bg-purple-subtle { background-color: #f3e8ff; color: #9333ea; }
+    .bg-cyan-subtle { background-color: #cffafe; color: #0891b2; }
+    .bg-gray-subtle { background-color: #f1f5f9; color: #64748b; }
+    .bg-blue-subtle { background-color: #dbeafe; color: #2563eb; }
+
+    .text-indigo { color: #4338ca; }
+    .text-emerald { color: #059669; }
+    .text-amber { color: #d97706; }
+    .text-rose { color: #e11d48; }
+    .text-blue { color: #2563eb; }
+    .text-orange { color: #ea580c; }
+    .text-purple { color: #9333ea; }
+    .text-cyan { color: #0891b2; }
+
+    /* AI Insight Styles */
+    .ai-insight-box {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    .ai-icon-pulse {
+        width: 42px;
+        height: 42px;
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: ai-pulse 2s infinite;
+    }
+    .ai-icon-pulse-alt {
+        width: 42px;
+        height: 42px;
+        background: rgba(16, 185, 129, 0.2);
+        color: #34d399;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    @@keyframes ai-pulse {
+        0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
 </style>
 
 <script>
@@ -351,6 +527,34 @@
                     easing: 'easeOutQuart'
                 }
             }
+        });
+
+        // Xử lý click cho Skill Pills
+        const pills = document.querySelectorAll('.skill-pill-v2');
+        const descBox = document.getElementById('skill-description-box');
+        const placeholder = document.getElementById('skill-placeholder');
+        const titleDisplay = document.getElementById('skill-title-display');
+        const descDisplay = document.getElementById('skill-desc-display');
+
+        pills.forEach(pill => {
+            pill.addEventListener('click', function() {
+                // Xóa trạng thái active cũ
+                pills.forEach(p => p.classList.remove('active'));
+                
+                // Thêm trạng thái active mới
+                this.classList.add('active');
+                
+                // Hiện box và cập nhật nội dung
+                const title = this.innerText.trim();
+                const desc = this.getAttribute('data-desc');
+                
+                if (desc) {
+                    titleDisplay.innerText = title;
+                    descDisplay.innerText = desc;
+                    descBox.classList.remove('d-none');
+                    placeholder.classList.add('d-none');
+                }
+            });
         });
     });
 </script>

@@ -632,9 +632,9 @@
             <!-- FAQ Quick Chips -->
             <div id="chatbox-faq">
                 <div class="faq-chip" onclick="chatboxSendFaq(this)">📄 Tạo CV như thế nào?</div>
-                <div class="faq-chip" onclick="chatboxSendFaq(this)">🔍 Tìm việc làm IT</div>
+                <div class="faq-chip" onclick="chatboxSendFaq(this)">🔍 Tìm việc làm</div>
                 <div class="faq-chip" onclick="chatboxSendFaq(this)">⭐ Tính năng Pro là gì?</div>
-                <div class="faq-chip" onclick="chatboxSendFaq(this)">🤖 AI hỗ trợ gì?</div>
+                <div class="faq-chip" onclick="chatboxSendFaq(this)">🤖 AI hỗ trợ những gì?</div>
                 <div class="faq-chip" onclick="chatboxSendFaq(this)">📞 Liên hệ hỗ trợ</div>
             </div>
 
@@ -683,11 +683,52 @@
             }
         };
 
+        // Danh sách câu hỏi thường gặp và câu trả lời nhanh (tránh tốn token)
+        const faqData = {
+            "tạo cv như thế nào?": "Để tạo CV, bạn hãy thực hiện các bước sau:<br>1. Vào mục <strong>Mẫu CV</strong> trên thanh menu.<br>2. Chọn một mẫu thiết kế bạn ưng ý.<br>3. Nhấn <strong>Sử dụng mẫu này</strong> và điền thông tin cá nhân.<br>4. Nhấn <strong>Lưu</strong> và <strong>Tải xuống</strong> định dạng PDF.",
+            "tìm việc làm it": "Bạn có thể vào mục <strong>Việc làm</strong> để xem danh sách các cơ hội nghề nghiệp mới nhất. Bạn cũng có thể lọc theo ngôn ngữ lập trình hoặc mức lương mong muốn nhé!",
+            "tính năng pro là gì?": "Tài khoản <strong>Pro</strong> mang lại cho bạn các đặc quyền:<br>- Sử dụng toàn bộ kho mẫu CV cao cấp.<br>- Không bị dính logo watermark khi xuất PDF.<br>- Được AI ưu tiên phân tích sâu hơn cho hồ sơ của bạn.",
+            "ai hỗ trợ gì?": "AI của chúng tôi hỗ trợ bạn:<br>- <strong>Viết nội dung</strong> chuyên nghiệp cho CV.<br>- <strong>Chấm điểm</strong> sức mạnh hồ sơ.<br>- <strong>Tư vấn</strong> công việc phù hợp với kỹ năng của bạn.",
+            "liên hệ hỗ trợ": "Bạn có thể liên hệ với đội ngũ hỗ trợ qua:<br>- Facebook: <a href='https://www.facebook.com/lekhoa.nguyenvo.7' target='_blank'>CVBuilder Pro</a><br>- Email: khoanv249@gmail.com<br>- Hotline: 0374139213 (8:00 - 22:00)"
+        };
+
+        function showFaqChips() {
+            const faq = document.getElementById('chatbox-faq');
+            if (faq) {
+                faq.style.display = 'flex';
+                // Cuộn xuống cuối để thấy chips nếu tin nhắn quá dài
+                const msgs = document.getElementById('chatbox-messages');
+                msgs.scrollTop = msgs.scrollHeight;
+            }
+        }
+
         window.chatboxSendFaq = function (el) {
             // Lấy text bỏ emoji đầu dòng
             const question = el.textContent.replace(/^\p{Emoji_Presentation}\s*/u, '').trim();
+            const lowerQuestion = question.toLowerCase();
+
+            // Hiển thị câu hỏi của người dùng
+            appendMessage(question, 'user');
+            
+            // Ẩn FAQ chips sau lần hỏi đầu
+            document.getElementById('chatbox-faq').style.display = 'none';
+
+            // Kiểm tra nếu có câu trả lời sẵn
+            if (faqData[lowerQuestion]) {
+                showTyping();
+                setTimeout(() => {
+                    removeTyping();
+                    appendMessage(faqData[lowerQuestion], 'bot');
+                    
+                    // Hiện lại FAQ chips sau 3s
+                    setTimeout(showFaqChips, 1000);
+                }, 600); // Tạo hiệu ứng chờ nhẹ cho tự nhiên
+                return;
+            }
+
+            // Nếu không có, gửi cho AI
             document.getElementById('chatbox-input').value = question;
-            chatboxSend();
+            chatboxSend(true); // Tham số true để báo là đã hiển thị message user rồi
         };
 
         window.chatboxKeyDown = function (e) {
@@ -729,13 +770,16 @@
                 .replace(/\n/g, '<br>');
         }
 
-        window.chatboxSend = async function () {
+        window.chatboxSend = async function (userMsgAlreadyShown = false) {
             const input = document.getElementById('chatbox-input');
             const sendBtn = document.getElementById('chatbox-send');
             const msg = input.value.trim();
             if (!msg) return;
 
-            appendMessage(msg, 'user');
+            if (!userMsgAlreadyShown) {
+                appendMessage(msg, 'user');
+            }
+            
             input.value = '';
             input.style.height = '38px';
             sendBtn.disabled = true;
@@ -757,9 +801,15 @@
                 } else {
                     appendMessage('⚠️ ' + (data.reply || 'Có lỗi xảy ra, thử lại nhé!'), 'bot-error');
                 }
+                
+                // Hiện lại FAQ chips sau 3s
+                setTimeout(showFaqChips, 3000);
             } catch (err) {
                 removeTyping();
                 appendMessage('⚠️ Không thể kết nối. Vui lòng kiểm tra mạng!', 'bot-error');
+                
+                // Hiện lại FAQ chips sau 3s
+                setTimeout(showFaqChips, 3000);
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
@@ -779,4 +829,4 @@
     })();
     </script>
 </body>
-</html>
+</html>
