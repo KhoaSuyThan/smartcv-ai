@@ -151,7 +151,28 @@
         border-radius: 16px;
         text-align: center;
     }
+
+    /* Cropper Styles */
+    .cropper-container-wrapper {
+        max-height: 500px;
+        background-color: #f8f9fa;
+        overflow: hidden;
+    }
+    #imageToCrop {
+        display: block;
+        max-width: 100%;
+    }
+    .preview-box {
+        width: 100px;
+        height: 100px;
+        overflow: hidden;
+        border-radius: 50%;
+        border: 2px solid #fff;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        margin: auto;
+    }
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
 <div class="profile-hero shadow-sm"></div>
 
@@ -296,14 +317,57 @@
     </div>
 </div>
 
+@* MODAL CẮT ẢNH *@
+<div class="modal fade" id="cropperModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-bottom-0 bg-light py-3 px-4">
+                <h5 class="modal-title fw-bold text-dark"><i class='bx bxs-crop me-2 text-primary'></i>Cắt ảnh đại diện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="cropper-container-wrapper d-flex justify-content-center align-items-center" style="height: 450px;">
+                    <img id="imageToCrop" src="" alt="Dùng để cắt">
+                </div>
+                <div class="bg-white p-3 border-top d-flex justify-content-center gap-3">
+                    <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cropper.rotate(-45)" title="Xoay trái">
+                        <i class='bx bx-rotate-left fs-4'></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cropper.zoom(0.1)" title="Phóng to">
+                        <i class='bx bx-zoom-in fs-4'></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cropper.zoom(-0.1)" title="Thu nhỏ">
+                        <i class='bx bx-zoom-out fs-4'></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cropper.rotate(45)" title="Xoay phải">
+                        <i class='bx bx-rotate-right fs-4'></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light p-3 px-4">
+                <div class="me-auto d-none d-md-block">
+                    <div class="preview-box"></div>
+                </div>
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-muted border" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold shadow" onclick="cropAndUpload()">Sử dụng ảnh này</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
         let oldName = "@Html.Raw(Model.FullName)";
         let oldPhone = "@Html.Raw(Model.Phone)";
         let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
         let oldCompanyAddress = "@Html.Raw(Model.Company?.Address)";
         let isRecruiter = @(isRecruiter ? "true" : "false");
+
+        let cropper;
+        const myModal = new bootstrap.Modal(document.getElementById('cropperModal'));
+        const imageElement = document.getElementById('imageToCrop');
 
         function getEditableFields() {
             let fields = ['FullName', 'Phone'];
@@ -350,11 +414,73 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('avatarPreview').src = e.target.result;
-                    document.getElementById('profileForm').submit();
+                    imageElement.src = e.target.result;
+                    myModal.show();
                 }
                 reader.readAsDataURL(input.files[0]);
             }
+        }
+
+        // Khởi tạo Cropper khi Modal mở
+        document.getElementById('cropperModal').addEventListener('shown.bs.modal', function () {
+            cropper = new Cropper(imageElement, {
+                aspectRatio: 1, // Tỷ lệ 1:1 cho avatar
+                viewMode: 1,
+                preview: '.preview-box',
+                autoCropArea: 0.8,
+                dragMode: 'move',
+                ready: function () {
+                    // Fit ảnh vào container
+                }
+            });
+        });
+
+        // Hủy Cropper khi Modal đóng
+        document.getElementById('cropperModal').addEventListener('hidden.bs.modal', function () {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            document.getElementById('avatarInput').value = ""; // Reset input
+        });
+
+        function cropAndUpload() {
+            if (!cropper) return;
+
+            // Lấy canvas đã cắt
+            const canvas = cropper.getCroppedCanvas({
+                width: 400, // Kích thước cố định khi lưu
+                height: 400,
+                imageSmoothingQuality: 'high'
+            });
+
+            // Chuyển canvas thành Blob (file)
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('UserID', document.querySelector('input[name="UserID"]').value);
+                formData.append('avatarFile', blob, 'avatar.jpg');
+                formData.append('FullName', document.getElementById('FullName').value);
+                formData.append('Phone', document.getElementById('Phone').value);
+                if (isRecruiter) {
+                    formData.append('companyName', document.getElementById('CompanyName').value);
+                    formData.append('companyAddress', document.getElementById('CompanyAddress').value);
+                }
+                
+                // Gửi request bằng Fetch API
+                fetch('@Url.Action("Profile", "Account")', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        alert("Lỗi khi cập nhật ảnh đại diện.");
+                    }
+                });
+            }, 'image/jpeg', 0.9);
         }
 
         function deleteAvatar() {
