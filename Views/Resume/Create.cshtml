@@ -95,7 +95,19 @@
         .side-content:empty, .exp-list:empty {
             display: none;
         }
+
+        /* Cropper CSS */
+        .cropper-container-wrapper {
+            max-height: 500px;
+            background-color: #f8f9fa;
+            overflow: hidden;
+        }
+        #imageToCrop {
+            display: block;
+            max-width: 100%;
+        }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 }
 
 <div class="resume-container">
@@ -301,24 +313,104 @@
         </div>
     </div>
 
+    @* MODAL CẮT ẢNH CHO CV *@
+    <div class="modal fade" id="cvCropperModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-bottom-0 bg-primary text-white py-3 px-4">
+                    <h5 class="modal-title fw-bold"><i class='bx bxs-crop me-2'></i>Căn chỉnh ảnh CV</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="cropper-container-wrapper d-flex justify-content-center align-items-center" style="height: 450px;">
+                        <img id="imageToCrop" src="" alt="Cắt ảnh CV">
+                    </div>
+                    <div class="bg-white p-3 border-top d-flex justify-content-center gap-3">
+                        <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cvCropper.rotate(-45)" title="Xoay trái">
+                            <i class='bx bx-rotate-left fs-4'></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cvCropper.zoom(0.1)" title="Phóng to">
+                            <i class='bx bx-zoom-in fs-4'></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cvCropper.zoom(-0.1)" title="Thu nhỏ">
+                            <i class='bx bx-zoom-out fs-4'></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary rounded-circle p-2" onclick="cvCropper.rotate(45)" title="Xoay phải">
+                            <i class='bx bx-rotate-right fs-4'></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 bg-light p-3 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-muted border" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold shadow" onclick="cropAndApplyToCV()">Áp dụng lên CV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
         // 1. Khởi tạo dữ liệu gốc từ Database
         let originalHtml = `@Html.Raw(Model.Template?.HtmlContent)`;
+        let cvCropper;
+        const cvModal = new bootstrap.Modal(document.getElementById('cvCropperModal'));
+        const imageToCrop = document.getElementById('imageToCrop');
 
-        // 2. Xử lý ảnh đại diện
+        // 2. Xử lý chọn ảnh ban đầu
         function previewImage(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function(e) {
-                    $('#AvatarBase64').val(e.target.result);
-                    updatePreview(); 
+                    imageToCrop.src = e.target.result;
+                    cvModal.show();
                 };
                 reader.readAsDataURL(input.files[0]);
             }
+        }
+
+        // Tích hợp Cropper khi Modal mở
+        document.getElementById('cvCropperModal').addEventListener('shown.bs.modal', function () {
+            cvCropper = new Cropper(imageToCrop, {
+                aspectRatio: 1, // Tỷ lệ vuông cho ảnh đại diện CV
+                viewMode: 1,
+                autoCropArea: 1,
+                dragMode: 'move',
+                background: false
+            });
+        });
+
+        // Hủy Cropper khi Modal đóng
+        document.getElementById('cvCropperModal').addEventListener('hidden.bs.modal', function () {
+            if (cvCropper) {
+                cvCropper.destroy();
+                cvCropper = null;
+            }
+            document.getElementById('AvatarInput').value = ""; // Reset input để có thể chọn lại cùng 1 file
+        });
+
+        function cropAndApplyToCV() {
+            if (!cvCropper) return;
+
+            // Cắt ảnh với kích thước tốt cho in ấn/PDF
+            const canvas = cvCropper.getCroppedCanvas({
+                width: 600,
+                height: 600,
+                imageSmoothingQuality: 'high'
+            });
+
+            // Lấy Base64 và gán vào CV
+            const base64Data = canvas.toDataURL('image/jpeg', 0.9);
+            $('#AvatarBase64').val(base64Data);
+            
+            updatePreview(); // Cập nhật live preview ngay lập tức
+            cvModal.hide(); // Đóng modal
+            
+            // Thông báo lưu nháp
+            $('#autosave-status').html('<i class="fas fa-spinner fa-spin"></i> Đang chờ lưu ảnh...');
         }
 
         // 3. Hàm Helper để tạo HTML (Dùng chung cho IT, Ngoại ngữ, Kỹ năng khác)
