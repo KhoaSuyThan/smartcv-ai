@@ -144,7 +144,7 @@ namespace DoAnCS.Controllers
         // [POST] Lưu mẫu CV mới vào Database
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateTemplate(Template template, IFormFile uploadImage)
+        public async Task<IActionResult> CreateTemplate(Template template, IFormFile? uploadImage)
         {
             if (ModelState.IsValid)
             {
