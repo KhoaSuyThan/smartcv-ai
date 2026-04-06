@@ -1,0 +1,174 @@
+@model IEnumerable<DoAnCS.Models.UpgradeRequest>
+@{
+    ViewData["Title"] = "Quản lý Yêu cầu Nâng cấp Pro";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="fw-bold text-primary mb-1">Yêu cầu Nâng cấp Pro</h3>
+                            <p class="text-muted mb-0">Xem và xét duyệt các yêu cầu nâng cấp tài khoản từ người dùng.</p>
+                        </div>
+                        <div class="stats-badges d-flex gap-3">
+                            <div class="badge bg-soft-info text-info p-3 rounded-3 border">
+                                <span class="d-block small opacity-75">Chờ duyệt</span>
+                                <span class="fs-5 fw-bold">@Model.Count(r => r.Status == 0)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3 text-secondary small fw-bold text-uppercase">Người dùng</th>
+                        <th class="py-3 text-secondary small fw-bold text-uppercase">Ngày gửi</th>
+                        <th class="py-3 text-secondary small fw-bold text-uppercase">Minh chứng</th>
+                        <th class="py-3 text-secondary small fw-bold text-uppercase">Ghi chú</th>
+                        <th class="py-3 text-secondary small fw-bold text-uppercase">Trạng thái</th>
+                        <th class="pe-4 py-3 text-end text-secondary small fw-bold text-uppercase">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm me-3 bg-soft-primary text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold">
+                                        @item.User.FullName.Substring(0, 1)
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">@item.User.FullName</div>
+                                        <div class="small text-muted">@item.User.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small">@item.RequestDate.ToString("HH:mm")</div>
+                                <div class="small text-muted">@item.RequestDate.ToString("dd/MM/yyyy")</div>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(item.EvidenceImageUrl))
+                                {
+                                    <a href="@item.EvidenceImageUrl" target="_blank" class="evidence-thumb">
+                                        <img src="@item.EvidenceImageUrl" class="rounded-2 border shadow-sm" style="width: 60px; height: 60px; object-fit: cover;">
+                                        <div class="zoom-overlay"><i class="fas fa-search-plus"></i></div>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Không có ảnh</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="small text-truncate" style="max-width: 200px;" title="@item.Notes">
+                                    @(string.IsNullOrEmpty(item.Notes) ? "---" : item.Notes)
+                                </div>
+                            </td>
+                            <td>
+                                @if (item.Status == 0)
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fas fa-clock me-1"></i> Chờ duyệt</span>
+                                }
+                                else if (item.Status == 1)
+                                {
+                                    <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-check me-1"></i> Đã duyệt</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="fas fa-times me-1"></i> Từ chối</span>
+                                }
+                            </td>
+                            <td class="pe-4 text-end">
+                                @if (item.Status == 0)
+                                {
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <form asp-action="ApproveUpgrade" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn phê duyệt yêu cầu này?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.Id" />
+                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">Duyệt</button>
+                                        </form>
+                                        <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="showRejectModal(@item.Id, '@item.User.FullName')">Từ chối</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="small text-muted">
+                                        Xử lý lúc: @item.DecisionDate?.ToString("dd/MM/yyyy HH:mm")
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+                                Không có yêu cầu nâng cấp nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <form asp-action="RejectUpgrade" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Từ chối nâng cấp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <input type="hidden" name="id" id="rejectId" />
+                    <p>Bạn sắp từ chối yêu cầu của <strong id="rejectName"></strong>. Vui lòng nhập lý do (người dùng sẽ nhìn thấy):</p>
+                    <textarea name="reason" class="form-control rounded-3" rows="3" placeholder="Ví dụ: Minh chứng thanh toán không hợp lệ hoặc chưa nhận được tiền..."></textarea>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-modal="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Xác nhận từ chối</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-soft-primary { background-color: rgba(13, 110, 253, 0.1); }
+        .bg-soft-info { background-color: rgba(13, 202, 240, 0.1); }
+        .avatar-sm { width: 40px; height: 40px; }
+        .evidence-thumb { position: relative; display: inline-block; }
+        .evidence-thumb img { transition: 0.3s; }
+        .evidence-thumb:hover img { filter: brightness(0.7); }
+        .zoom-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; opacity: 0; transition: 0.3s; pointer-events: none; }
+        .evidence-thumb:hover .zoom-overlay { opacity: 1; }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function showRejectModal(id, name) {
+            document.getElementById('rejectId').value = id;
+            document.getElementById('rejectName').textContent = name;
+            var modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+            modal.show();
+        }
+    </script>
+}

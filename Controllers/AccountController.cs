@@ -345,6 +345,89 @@ namespace DoAnCS.Controllers
         }
 
         // ==========================================
+        // NÂNG CẤP TÀI KHOẢN (UPGRADE)
+        // ==========================================
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Upgrade()
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            // Nếu đã là Pro thì chuyển về Profile kèm thông báo
+            if (user.IsPro)
+            {
+                TempData["InfoMessage"] = "Bạn hiện đang là thành viên Pro!";
+                return RedirectToAction("Profile");
+            }
+
+            // Kiểm tra xem đã có yêu cầu nào đang chờ duyệt không
+            var existingRequest = await _context.UpgradeRequests
+                .OrderByDescending(r => r.RequestDate)
+                .FirstOrDefaultAsync(r => r.UserID == userId && r.Status == 0);
+            
+            ViewBag.PendingRequest = existingRequest;
+
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpgradeConfirmed(IFormFile? evidenceFile, string? notes)
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
+
+            // Kiểm tra yêu cầu trùng lặp đang chờ duyệt
+            var existingRequest = await _context.UpgradeRequests
+                .FirstOrDefaultAsync(r => r.UserID == userId && r.Status == 0);
+            
+            if (existingRequest != null)
+            {
+                TempData["InfoMessage"] = "Bạn đã gửi yêu cầu nâng cấp rồi. Vui lòng đợi Admin phê duyệt!";
+                return RedirectToAction("Upgrade");
+            }
+
+            // Xử lý upload ảnh minh chứng
+            string? imageUrl = null;
+            if (evidenceFile != null && evidenceFile.Length > 0)
+            {
+                string folder = "uploads/evidence/";
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(evidenceFile.FileName);
+                string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+
+                if (!Directory.Exists(serverFolder)) Directory.CreateDirectory(serverFolder);
+
+                string filePath = Path.Combine(serverFolder, fileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await evidenceFile.CopyToAsync(fileStream);
+                }
+                imageUrl = "/" + folder + fileName;
+            }
+
+            // Tạo bản ghi yêu cầu mới
+            var request = new UpgradeRequest
+            {
+                UserID = userId,
+                RequestDate = DateTime.Now,
+                Status = 0, // Chờ duyệt
+                EvidenceImageUrl = imageUrl,
+                Notes = notes
+            };
+
+            _context.UpgradeRequests.Add(request);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Gửi yêu cầu nâng cấp thành công! Vui lòng đợi Admin xét duyệt.";
+            return RedirectToAction("Profile");
+        }
+
+        // ==========================================
         // TRANG BÁO LỖI QUYỀN TRUY CẬP (ACCESS DENIED)
         // ==========================================
         [HttpGet]

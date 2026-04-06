@@ -70,8 +70,8 @@ Quy tắc:
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
-                // Sử dụng model được cấu hình hoặc mặc định là 2.0-flash
-                string model = dbConfig?.ModelName ?? "gemini-2.0-flash";
+                // Sử dụng model được cấu hình hoặc mặc định là 2.5-flash
+                string model = dbConfig?.ModelName ?? "gemini-2.5-flash";
                 var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={chatbotApiKey}";
                 
                 var json = JsonConvert.SerializeObject(requestBody);
