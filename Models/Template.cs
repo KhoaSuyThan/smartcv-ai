@@ -9,6 +9,7 @@ namespace DoAnCS.Models
         public string? HtmlContent { get; set; }
         public string? CssContent { get; set; }
         public string? PreviewImageUrl { get; set; } //
+        public string? Category { get; set; }        // Lập trình viên, Kinh tế, ...
         public bool IsActive { get; set; } = true;    //
         public bool IsProOnly { get; set; } = false; // Chỉ dành cho Pro
     }

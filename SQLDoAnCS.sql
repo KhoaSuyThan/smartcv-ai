@@ -80,8 +80,8 @@ CREATE TABLE Templates (
     CssContent NVARCHAR(MAX),  
     PreviewImageUrl NVARCHAR(500),
 	IsProOnly BIT NOT NULL DEFAULT 0,
-    IsActive BIT DEFAULT 1
-
+    IsActive BIT DEFAULT 1,
+	Category NVARCHAR(MAX) NULL
 );
 
 -- 4. BẢNG CV CHÍNH (Chứa thông tin cá nhân "tĩnh" - Khớp Editor)
@@ -236,7 +236,7 @@ DELETE FROM Templates WHERE Name = N'Modern Blue Sidebar';
 GO
 
 -- 2. Chèn mẫu CV với các khoảng cách đã được tối ưu (giảm ~50%)
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
     N'Modern Blue Sidebar', 
     N'<div class="cv-container"><div class="cv-sidebar">
@@ -315,7 +315,8 @@ VALUES (
     .grad-type { color: #0d6efd; font-weight: 500; font-size: 11px; margin-top: 1px !important; }',
 
     '/images/templates/templatesCV_1.jpg',
-    1
+    1,
+	N'Kinh tế, Marketing, Sáng tạo'
 );
 GO
 
@@ -323,7 +324,7 @@ GO
 DELETE FROM Templates WHERE Name = N'Modern Brown Professional';
 GO
 
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
     N'Modern Brown Professional', 
     N'<div class="brown-cv">
@@ -408,14 +409,15 @@ VALUES (
     .exp-desc li { margin-bottom: 4px; padding-left: 5px; }',
 
     N'/images/templates/templatesCV_2.jpg',
-    1
+    1,
+	N'IT, Kinh tế'
 );
 GO
 
 DELETE FROM Templates WHERE Name = N'Elegant Accountant';
 GO
 
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
     N'Elegant Accountant', 
     N'<div class="accountant-cv">
@@ -518,7 +520,8 @@ VALUES (
     .decor-top-right { position: absolute; top: 10px; right: 20px; width: 100px; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns=''http://www.w3.org/2000/svg'' width=''100'' height=''100''%3E%3Cpath d=''M10 10 Q 50 10 90 90'' fill=''none'' stroke=''black'' stroke-width=''1''/%3E%3C/svg%3E") no-repeat; opacity: 0.5; }
 ',
     N'/images/templates/templatesCV_3.jpg',
-    1
+    1,
+	N'Marketing, Sáng tạo'
 );
 GO
 
@@ -527,9 +530,9 @@ DELETE FROM Resumes
 WHERE TemplateID IN (SELECT TemplateID FROM Templates WHERE Name = N'Đảo Phú Quý - Vieclam24h');
 
 
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
-    N'Đảo Phú Quý - Vieclam24h', 
+    N'Đảo Phú Quý', 
     N'<div class="cv-wrapper">
         <div class="cv-sidebar">
             <div class="cv-avatar-section">
@@ -625,8 +628,9 @@ VALUES (
         word-break: break-word; 
     }',
 
-    '/images/templates/dao_phu_quy.jpg',
-    1
+    'https://cdn1.vieclam24h.vn/images/assets/img/072-blue-simple-professional.jpg?v=1',
+    1,
+	N'IT, Marketing'
 );
 GO
 -- 1. Xóa mẫu cũ nếu trùng tên
@@ -634,7 +638,7 @@ DELETE FROM Resumes
 WHERE TemplateID IN (SELECT TemplateID FROM Templates WHERE Name = N'Mẫu CV Professional Blue - Ngô Hải Yến');
 
 -- 2. Chèn mẫu mới
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
     N'Mẫu CV Professional Blue - Ngô Hải Yến', 
     N'<div class="cv-yens-wrapper">
@@ -735,7 +739,8 @@ VALUES (
     p, div, span { word-wrap: break-word; overflow-wrap: break-word; }',
 
     'https://images.careerviet.vn/content/images/tai-mau-cv-xin-viec-file-pdf-careerbuilder-5.jpg',
-    1
+    1,
+	N'IT, Kinh tế, Marketing'
 );
 GO
 
@@ -743,7 +748,7 @@ GO
 DELETE FROM Templates WHERE Name = N'Mẫu CV Pink Elegant - Nguyễn Yên Nhi';
 
 -- 2. Chèn mẫu mới với phần Kỹ năng tổng hợp
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
     N'Mẫu CV Pink Elegant - Nguyễn Yên Nhi', 
     N'<div class="pink-cv-container">
@@ -900,11 +905,12 @@ VALUES (
     .cv-footer { position: absolute; bottom: 40px; right: 60px; font-size: 11px; color: #bbb; }',
 
     'https://marketplace.canva.com/EAGSZ3G6wMw/2/0/1131w/canva-s%C6%A1-y%E1%BA%BFu-l%C3%BD-l%E1%BB%8Bch-chuy%C3%AAn-nghi%E1%BB%87p-hi%E1%BB%87n-%C4%91%E1%BA%A1i-n%E1%BB%AF-t%C3%ADnh-thanh-l%E1%BB%8Bch-h%E1%BB%93ng-tr%E1%BA%AFng-N3-BrRHpD_E.jpg',
-    1
+    1,
+	N'Marketing, Sáng tạo'
 );
 GO
 
-INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive)
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
 VALUES (
     N'Mẫu CV Academic Brown - Nguyễn Minh An', 
     N'<div class="academic-cv-wrapper">
@@ -1024,7 +1030,919 @@ VALUES (
     .academic-cv-wrapper * { word-wrap: break-word; overflow-wrap: break-word; }',
 
     'https://careers.langmaster.edu.vn/storage/images/2023/05/11/mau-cv-dep-25.webp',
-    1
+    1,
+	N'Sáng tạo, Khác'
+);
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Professional Green - Đinh Xuân Thảo', 
+    N'<div class="cv-thao-wrapper">
+    <div class="cv-header">
+        <div class="header-content">
+            <div class="avatar-box">
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+            <div class="title-box">
+                <h1 class="fullname">{{FullName}}</h1>
+                <h2 class="job-title">{{JobTitle}}</h2>
+            </div>
+        </div>
+    </div>
+    
+    <div class="cv-body">
+        <div class="cv-sidebar">
+            <div class="sidebar-section">
+                <h3 class="side-title">LIÊN HỆ</h3>
+                <div class="side-content">
+                    <p><i class="fas fa-phone"></i> {{Phone}}</p>
+                    <p><i class="fas fa-envelope"></i> {{Email}}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{Address}}</p>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="side-title">KỸ NĂNG</h3>
+                <div class="side-content">
+                    <div class="skill-main-block">{{Skills}}</div>
+                    <div class="other-skill-header">KỸ NĂNG KHÁC</div>
+                    <div class="other-skill-content">
+                        {{OtherSkills}}
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="side-title">CHỨNG CHỈ</h3>
+                <div class="side-content">{{Certifications}}</div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3 class="side-title">NGOẠI NGỮ</h3>
+                <div class="side-content">{{Languages}}</div>
+            </div>
+        </div>
+
+        <div class="cv-main">
+            <div class="main-section">
+                <h3 class="main-title">GIỚI THIỆU</h3>
+                <div class="main-content">{{Summary}}</div>
+            </div>
+
+            <div class="main-section">
+                <h3 class="main-title">KINH NGHIỆM LÀM VIỆC</h3>
+                <div class="main-content">{{Experience}}</div>
+            </div>
+
+            <div class="main-section">
+                <h3 class="main-title">HỌC VẤN</h3>
+                <div class="main-content">{{Education}}</div>
+            </div>
+        </div>
+    </div>
+</div>',
+
+    N'/* RESET TUYỆT ĐỐI */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.cv-thao-wrapper { 
+    width: 210mm; min-height: 297mm; background: white; 
+    font-family: "Segoe UI", sans-serif; line-height: 1.2; /* Siết độ giãn dòng cực thấp */
+}
+
+/* Header & Avatar */
+.cv-header { background-color: #2c5a4b; height: 140px; display: flex; align-items: center; position: relative; }
+.header-content { display: flex; align-items: center; padding-left: 50px; width: 100%; }
+.avatar-box { margin-top: 55px; z-index: 10; }
+.avatar-img { width: 170px; height: 170px; border-radius: 50%; border: 5px solid white; object-fit: cover; }
+.title-box { margin-left: 25px; margin-top: 15px; color: white; }
+.fullname { font-size: 32px; font-weight: 800; text-transform: uppercase; }
+.job-title { font-size: 15px; opacity: 0.9; letter-spacing: 2px; text-transform: uppercase; }
+
+/* Layout Body */
+.cv-body { display: flex; padding: 35px 40px 20px 40px; }
+.cv-sidebar { flex: 3.5; padding-right: 20px; border-right: 1px solid #f2f2f2; }
+.cv-main { flex: 6.5; padding-left: 30px; }
+
+/* Sidebar Sections */
+.sidebar-section { margin-bottom: 12px; }
+.side-title { 
+    background: #2c5a4b; color: white; font-size: 12px; font-weight: bold; 
+    padding: 4px 15px; border-radius: 0 20px 20px 0; margin-left: -40px; 
+    display: inline-block; margin-bottom: 5px;
+}
+
+/* --- XỬ LÝ TRIỆT ĐỂ KHOẢNG TRẮNG NỘI DUNG --- */
+.side-content, .main-content {
+    font-size: 12px;
+    color: #444;
+    white-space: pre-line;
+}
+
+/* Ép tất cả các thẻ con (p, li, div) không được có margin dưới */
+.side-content p, .main-content p,
+.side-content li, .main-content li,
+.side-content div, .main-content div {
+    margin-bottom: 2px !important; /* Chỉ để lại 2px cho thoáng, không để trống */
+    padding: 0 !important;
+    line-height: 1.3 !important;
+}
+
+.side-content ul, .main-content ul {
+    margin-left: 15px;
+    margin-bottom: 2px;
+}
+
+/* Kỹ năng khác */
+.other-skill-header { 
+    font-size: 11px; font-weight: 800; color: #2c5a4b; 
+    margin-top: 5px; margin-bottom: 2px; border-top: 1px solid #eee; padding-top: 4px;
+}
+.other-skill-content { font-size: 11px; font-style: italic; color: #555; }
+
+/* Main Sections */
+.main-section { margin-bottom: 12px; }
+.main-title { 
+    color: #2c5a4b; font-size: 15px; font-weight: 800; 
+    border-left: 4px solid #2c5a4b; padding-left: 10px; 
+    margin-bottom: 5px; text-transform: uppercase;
+}
+
+/* Chống tràn */
+p, div, h1, h2, h3, li { word-break: break-word; overflow-wrap: break-word; }',
+
+    'https://static.vietcv.io/image/vng/confidential/c4c87802f4cadd024416c22a12314e88.png?_=1645622482',
+    1,
+	N'Kinh tế, Marketing'
+);
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Trần Mạnh Dũng', 
+    N'<div class="cv-template-6">
+    <div class="cv-left">
+        <div class="avatar-box">
+            <img src="{{AvatarUrl}}" alt="Avatar">
+        </div>
+        <div class="profile-header">
+            <h1 class="fullname">{{FullName}}</h1>
+            <h2 class="jobtitle">{{JobTitle}}</h2>
+        </div>
+        
+        <div class="left-divider"></div>
+        
+        <div class="contact-info">
+            <div class="contact-item"><i class="fas fa-phone-alt"></i><span>{{Phone}}</span></div>
+            <div class="contact-item"><i class="fas fa-calendar-alt"></i><span>{{BirthDate}}</span></div>
+            <div class="contact-item"><i class="fas fa-envelope"></i><span>{{Email}}</span></div>
+            <div class="contact-item"><i class="fas fa-map-marker-alt"></i><span>{{Address}}</span></div>
+        </div>
+
+        <div class="left-section">
+            <h3 class="left-title"><span>Học vấn</span></h3>
+            <div class="left-content edu-list">
+                {{Education}}
+            </div>
+        </div>
+
+        <div class="left-section">
+            <h3 class="left-title"><span>Kỹ năng</span></h3>
+            <div class="left-content skill-list">
+                {{OtherSkills}}
+            </div>
+        </div>
+
+        <div class="left-section">
+            <h3 class="left-title"><span>Tin học</span></h3>
+            <div class="left-content skill-list">
+                {{Skills}}
+            </div>
+        </div>
+
+        <div class="left-section">
+            <h3 class="left-title"><span>Ngoại ngữ</span></h3>
+            <div class="left-content skill-list">
+                {{Languages}}
+            </div>
+        </div>
+
+        <div class="left-section">
+            <h3 class="left-title"><span>Sở thích</span></h3>
+            <div class="left-content skill-list">
+                {{Hobbies}}
+            </div>
+        </div>
+    </div>
+
+    <div class="cv-right">
+        <div class="right-section">
+            <h3 class="right-title"><span>Mục tiêu nghề nghiệp</span></h3>
+            <div class="right-content summary-text">
+                {{Summary}}
+            </div>
+        </div>
+
+        <div class="right-section">
+            <h3 class="right-title"><span>Kinh nghiệm làm việc</span></h3>
+            <div class="right-content experience-list">
+                {{Experience}}
+            </div>
+        </div>
+
+        <div class="right-section">
+            <h3 class="right-title"><span>Hoạt động</span></h3>
+            <div class="right-content activity-list">
+                {{Activities}}
+            </div>
+        </div>
+
+        <div class="right-section">
+            <h3 class="right-title"><span>Danh hiệu và giải thưởng</span></h3>
+            <div class="right-content award-list">
+                {{Awards}}
+            </div>
+        </div>
+
+        <div class="right-section">
+            <h3 class="right-title"><span>Chứng chỉ</span></h3>
+            <div class="right-content cert-list">
+                {{Certifications}}
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <h3 class="right-title"><span>Người tham chiếu</span></h3>
+            <div class="right-content reference-list">
+                {{References}}
+            </div>
+        </div>
+    </div>
+</div>
+',
+
+    N'@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #574040;
+    --text-main: #333;
+    --text-light: #555;
+    --bg-left: var(--primary-color);
+    --bg-right: #ffffff;
+}
+
+/* KHUNG A4 CỐ ĐỊNH */
+.cv-template-6 {
+    display: flex;
+    width: 210mm;
+    max-width: 210mm;
+    min-height: 297mm;
+    background-color: var(--bg-right);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    line-height: 1.4;
+    box-sizing: border-box;
+    margin: 0 auto;
+    overflow: hidden; 
+}
+
+/* CHỐNG TRÀN CHỮ TUYỆT ĐỐI (FIX LỖI AAAAAA) */
+.cv-template-6 * {
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: anywhere; 
+    word-break: break-word;
+}
+
+/* SIDEBAR TRÁI - GIỮ ĐỘ RỘNG 38% THEO Ý KHOA */
+.cv-template-6 .cv-left {
+    width: 38%; 
+    background-color: var(--bg-left);
+    color: #fff;
+    padding: 35px 25px;
+    display: flex;
+    flex-direction: column;
+    min-width: 38%; 
+}
+
+.cv-template-6 .avatar-box {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cv-template-6 .avatar-box img {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.1);
+}
+
+.cv-template-6 .fullname {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.cv-template-6 .jobtitle {
+    font-size: 15px;
+    text-align: center;
+    margin-bottom: 25px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* THÔNG TIN LIÊN HỆ - FIX LỖI DÍNH ICON */
+.cv-template-6 .contact-info {
+    margin-bottom: 25px;
+}
+
+.cv-template-6 .contact-item {
+    display: flex;
+    margin-bottom: 12px; /* Tăng khoảng cách giữa các dòng cho thoáng */
+    font-size: 13.5px;
+    align-items: center; /* Căn giữa icon và text theo chiều dọc */
+    gap: 12px; /* TẠO KHOẢNG CÁCH GIỮA ICON VÀ TEXT */
+}
+
+.cv-template-6 .contact-item i {
+    width: 20px; /* Khóa độ rộng icon để text luôn thẳng hàng dọc */
+    text-align: center;
+    font-size: 16px;
+    flex-shrink: 0; /* Không cho icon bị bóp méo khi text dài */
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* CÁC PHẦN BÊN TRÁI */
+.cv-template-6 .left-section {
+    margin-bottom: 15px; 
+}
+
+.cv-template-6 .left-title {
+    margin-bottom: 10px !important;
+}
+
+.cv-template-6 .left-title span {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.15);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.cv-template-6 .left-content {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.cv-template-6 .left-content li {
+    margin-bottom: 5px !important;
+}
+
+/* CỘT PHẢI */
+.cv-template-6 .cv-right {
+    width: 62%;
+    background-color: var(--bg-right);
+    padding: 40px 30px;
+    min-width: 62%;
+}
+
+.cv-template-6 .right-section {
+    margin-bottom: 20px; 
+}
+
+.cv-template-6 .right-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.cv-template-6 .right-title span {
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 7px 20px;
+    border-radius: 20px;
+    font-size: 14.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.cv-template-6 .right-title::after {
+    content: "";
+    flex-grow: 1;
+    height: 1px;
+    background-color: var(--primary-color);
+    margin-left: 12px;
+    opacity: 0.2;
+}
+
+/* TRIỆT TIÊU KHOẢNG TRỐNG THỪA TỪ AI */
+.cv-template-6 p, .cv-template-6 ul, .cv-template-6 li {
+    margin-top: 0 !important;
+    margin-bottom: 3px !important; 
+}
+
+/* KHI IN PDF */
+@media print {
+    @page { size: A4; margin: 0; }
+    body { margin: 0; padding: 0; }
+    .cv-template-6 {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        box-shadow: none;
+    }
+}',
+
+    '/images/templates/template_b5b27380.webp',
+    1,
+	N'IT, Kinh tế'
+);
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Lê Chiến', 
+    N'<div class="cv-elegant-wrapper">
+        <div class="header-area">
+            <div class="avatar-box">
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+            <div class="header-content">
+                <h1 class="fullname">{{FullName}}</h1>
+                <p class="job-title">{{JobTitle}}</p>
+                <div class="summary-box">{{Summary}}</div>
+            </div>
+        </div>
+        <div class="middle-grid">
+            <div class="grid-col">
+                <h3 class="section-title">THÔNG TIN CÁ NHÂN</h3>
+                <ul class="contact-list">
+                    <li><i class="fas fa-calendar-alt"></i> <span>{{BirthDate}}</span></li>
+                    <li><i class="fas fa-envelope"></i> <span>{{Email}}</span></li>
+                    <li><i class="fas fa-phone-alt"></i> <span>{{Phone}}</span></li>
+                    <li><i class="fas fa-globe"></i> <span>{{Website}}</span></li>
+                    <li><i class="fas fa-map-marker-alt"></i> <span>{{Address}}</span></li>
+                </ul>
+            </div>
+            <div class="grid-col">
+                <h3 class="section-title">HỌC VẤN</h3>
+                <div class="content-text">{{Education}}</div>
+            </div>
+            <div class="grid-col">
+                <h3 class="section-title">CHỨNG CHỈ</h3>
+                <div class="content-text">{{Certifications}}</div>
+            </div>
+        </div>
+        <div class="main-section">
+            <h3 class="section-title">KINH NGHIỆM LÀM VIỆC</h3>
+            <div class="timeline-container">{{Experience}}</div>
+        </div>
+        <!-- Khối DỰ ÁN được bổ sung để tận dụng hết form -->
+        <div class="main-section">
+            <h3 class="section-title">DỰ ÁN NỔI BẬT</h3>
+            <div class="timeline-container">{{Projects}}</div>
+        </div>
+        <div class="footer-grid">
+            <div class="footer-left">
+                <h3 class="section-title">KỸ NĂNG</h3>
+                <div class="content-text">
+                  <div class="skill-group">
+                    <p class="skill-type">💻 TIN HỌC</p>
+                     {{Skills}}
+                  </div>
+        
+                  <div class="skill-group">
+                  <p class="skill-type">🌍 NGOẠI NGỮ</p>
+                     {{Languages}}
+                  </div>
+        
+                   <div class="skill-group">
+                   <p class="skill-type">💡 KỸ NĂNG KHÁC</p>
+                       {{OtherSkills}}
+                   </div>
+                </div>
+                <div class="sub-section">
+                    <h3 class="section-title">SỞ THÍCH</h3>
+                    <div class="content-text">{{Hobbies}}</div>
+                </div>
+            </div>
+            <div class="footer-right">
+                <div class="sub-section">
+                    <h3 class="section-title">DANH HIỆU & GIẢI THƯỞNG</h3>
+                    <div class="content-text">{{Awards}}</div>
+                </div>
+                <div class="sub-section">
+                    <h3 class="section-title">HOẠT ĐỘNG</h3>
+                    <div class="timeline-container small-timeline">{{Activities}}</div>
+                </div>
+                <div class="sub-section">
+                    <h3 class="section-title">NGƯỜI GIỚI THIỆU</h3>
+                    <div class="content-text">{{References}}</div>
+                </div>
+            </div>
+        </div>
+    </div>',
+
+    N'@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap");
+    /* CẤU TRÚC A4 CỐ ĐỊNH */
+    .cv-elegant-wrapper { 
+        width: 100%; min-height: 297mm; background: #fff; padding: 45px 50px; 
+        font-family: "Be Vietnam Pro", sans-serif; color: #333; margin: 0 auto; 
+        box-sizing: border-box; overflow: hidden; border-bottom: 5px solid #2e8b57;
+    }
+    .cv-elegant-wrapper * { box-sizing: border-box; word-wrap: break-word; word-break: break-word; }
+    /* HEADER */
+    .header-area { display: flex; gap: 40px; margin-bottom: 25px; }
+    .avatar-img { width: 145px; height: 145px; border-radius: 50%; object-fit: cover; border: 1px solid #ddd; padding: 3px; }
+    .header-content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .fullname { font-size: 30px; color: #a40000; font-weight: 700; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: 0.5px; }
+    .job-title { font-size: 16px; color: #222; font-weight: 500; margin: 0 0 12px 0; border-bottom: 2px solid #222; padding-bottom: 12px; display: inline-block; width: 100%; }
+    .summary-box { font-size: 13.5px; line-height: 1.6; text-align: justify; color: #333; }
+    /* TIÊU ĐỀ RED SECTION */
+    .section-title { 
+        font-size: 14.5px; font-weight: 700; color: #a40000; 
+        border-bottom: 2px solid #a40000; padding-bottom: 6px; 
+        margin: 0 0 15px 0 !important; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .main-section { margin-bottom: 30px; }
+    .main-section:empty { display: none; }
+    /* 3 COL GRID (Thông tin, Học Vấn, Chứng chỉ) */
+    .middle-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 25px; margin-bottom: 30px; }
+    
+    /* CONTACT LIST */
+    .contact-list { list-style: none; padding: 0; }
+    .contact-list li { margin-bottom: 10px; display: flex; gap: 12px; align-items: center; font-size: 13px; color: #333; }
+    .contact-list i { background: #a40000; color: white !important; width: 22px; height: 22px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+    /* GRID COL (Học vấn & Chứng chỉ) CSS Ghi đè cấu trúc C# */
+    .grid-col .exp-item { display: flex; flex-direction: column; margin-bottom: 15px; }
+    .grid-col .exp-year { order: 2; font-size: 12.5px; color: #555; margin-top: 4px; }
+    .grid-col .exp-content { order: 1; font-size: 12.5px; line-height: 1.5; color: #444; }
+    .grid-col .exp-content strong { font-size: 13.5px; text-transform: uppercase; color: #111; font-weight: 700; }
+    
+    .grid-col .content-text > div > div:first-child { color: #111 !important; font-size: 13.5px !important; margin-bottom: 2px; font-weight: bold; }
+    .grid-col .content-text > div > div:nth-child(2) { color: #555 !important; font-size: 12.5px !important; text-transform: uppercase; line-height: 1.4; }
+    /* -------------------------------------
+       TIMELINE TRUNG TÂM (Trải nghiệm, Dự án) 
+       Sử dụng sức mạnh CSS Absolute
+       để tách 1 Row HTML thành 2 Cột !!
+    -------------------------------------- */
+    .timeline-container .exp-item {
+        position: relative; padding-left: 30%; margin-bottom: 25px; min-height: 60px;
+    }
+    .timeline-container .exp-item::before {
+        content: ""; position: absolute; left: 30%; top: 6px; width: 2px; height: calc(100% + 20px); background: #ccc;
+    }
+    .timeline-container .exp-item:last-child::before { display: none; }
+    
+    .timeline-container .exp-item::after {
+        content: ""; position: absolute; left: calc(30% - 4px); top: 6px; width: 10px; height: 10px; border-radius: 50%; background: #a40000;
+    }
+    
+    .timeline-container .exp-year {
+        position: absolute; left: 0; top: 3px; width: 28%; font-weight: bold; font-size: 13.5px; color: #222; margin-left: -5px; /* Giấu nhẹ dấu chấm do C# sinh ra */
+    }
+    .timeline-container .exp-content { padding-left: 20px; }
+    
+    .timeline-container .info-line:first-child {
+        position: absolute; left: 0; top: 24px; width: 28%; font-weight: bold; font-size: 13.5px; color: #111;
+    }
+    .timeline-container .info-line:first-child strong { display: none; }
+    
+    .timeline-container .info-line:nth-child(2) {
+        font-weight: bold; font-size: 14.5px; color: #000; margin-bottom: 6px;
+    }
+    .timeline-container .info-line:nth-child(2) strong { display: none; }
+    
+    .timeline-container .desc-text { font-size: 13px; line-height: 1.6; color: #333; text-align: justify; }
+    /* FOOTER 2 CỘT */
+    .footer-grid { display: flex; gap: 50px; }
+    .footer-left { flex: 4; }
+    .footer-right { flex: 6; }
+    .sub-section { margin-bottom: 25px; }
+    /* SMALL TIMELINE CHO HOẠT ĐỘNG (Dồn lại 1 cột) */
+    .small-timeline .exp-item { padding-left: 18px; margin-bottom: 15px; }
+    .small-timeline .exp-item::before { left: 0; }
+    .small-timeline .exp-item::after { left: -4px; width: 10px; height: 10px; top: 6px; }
+    .small-timeline .exp-year { position: static; width: auto; font-weight: bold; font-size: 12.5px; margin-bottom: 3px; display: block; }
+    .small-timeline .exp-content { padding-left: 0; }
+    .small-timeline .info-line:first-child { position: static; width: auto; font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 2px; }
+    .small-timeline .info-line:nth-child(2) { font-size: 13.5px; color: #555; margin-bottom: 6px; font-weight: normal; }
+    /* Danh sách kỹ năng, sở thích */
+    .content-text ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .content-text li { font-size: 13px; color: #333; padding: 6px 0; display: flex; line-height: 1.4; border-bottom: 1px dashed #e0e0e0; margin: 0 !important;}
+    .content-text li:last-child { border-bottom: none; }
+    /* References */
+    .content-text p { font-size: 13px; font-style: italic; color: #555; margin-bottom: 5px; }
+/* Tối ưu cho nhóm kỹ năng gộp */
+.skill-group {
+    margin-bottom: 15px; /* Khoảng cách giữa các nhóm nhỏ */
+}
+
+.skill-group:last-child {
+    margin-bottom: 0;
+}
+
+.skill-type {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    margin-bottom: 5px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    display: inline-block;
+    border-radius: 4px;
+}
+
+/* Đảm bảo danh sách bên dưới label không bị margin quá lớn */
+.skill-group ul {
+    margin-top: 2px !important;
+}
+
+.skill-group li {
+    border-bottom: 1px dashed #eee; /* Đường kẻ mờ phân cách các kỹ năng lẻ */
+    padding: 4px 0 !important;
+}',
+
+    'https://www.topcv.vn/cv/snapshot/template-cv-position/mau-cv-lap-trinh-vien-mau-thanh-lich-Xl5SXVReBF0VGg0PRFkVBwhSXFADDQIBAAEGA1MNWlYEV1NXUloACgQDUVABBQ1VUAEHGRYEAVIBWwBV4801.webp?t=1749574801',
+    1,
+	N'IT'
+);
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Đặng Ngọc Linh', 
+    N'<div class="cv-classic-wrapper">
+        <div class="header-section">
+            <h1 class="fullname">{{FullName}}</h1>
+            <h2 class="job-title">{{JobTitle}}</h2>
+            <div class="contact-info">
+                <span><i class="fas fa-phone-alt"></i> {{Phone}}</span>
+                <span><i class="fas fa-envelope"></i> {{Email}}</span>
+                <span><i class="fas fa-globe"></i> {{Website}}</span>
+                <span><i class="fas fa-map-marker-alt"></i> {{Address}}</span>
+            </div>
+        </div>
+        <div class="section summary-section">
+            <h3 class="section-title">MỤC TIÊU NGHỀ NGHỆP</h3>
+            <div class="summary-text">{{Summary}}</div>
+        </div>
+        <div class="section education-section">
+            <h3 class="section-title">HỌC VẤN</h3>
+            <div class="content-area">{{Education}}</div>
+        </div>
+        <div class="section exp-section">
+            <h3 class="section-title">KINH NGHIỆM LÀM VIỆC</h3>
+            <div class="content-area">{{Experience}}</div>
+        </div>
+        
+        <!-- Bổ sung DỰ ÁN theo chuẩn chung -->
+        <div class="section project-section">
+            <h3 class="section-title">DỰ ÁN NỔI BẬT</h3>
+            <div class="content-area">{{Projects}}</div>
+        </div>
+        <div class="section skills-section">
+            <h3 class="section-title">KỸ NĂNG</h3>
+            <!-- Render cả kỹ năng đặc thù (IT) và kỹ năng khác -->
+            <div class="content-area">{{Skills}}</div>
+            <div class="content-area">{{OtherSkills}}</div>
+        </div>
+        <div class="section act-section">
+            <h3 class="section-title">HOẠT ĐỘNG</h3>
+            <div class="content-area">{{Activities}}</div>
+        </div>
+        <div class="section cert-section">
+            <h3 class="section-title">CHỨNG CHỈ</h3>
+            <div class="content-area">{{Certifications}}</div>
+        </div>
+        <div class="section awards-section">
+            <h3 class="section-title">DANH HIỆU & GIẢI THƯỞNG</h3>
+            <div class="content-area">{{Awards}}</div>
+        </div>
+        <div class="section ref-section">
+            <h3 class="section-title">NGƯỜI GIỚI THIỆU</h3>
+            <div class="content-area">{{References}}</div>
+        </div>
+        <div class="section hobbies-section">
+            <h3 class="section-title">SỞ THÍCH</h3>
+            <div class="content-area">{{Hobbies}}</div>
+        </div>
+    </div>',
+
+    N'@import url("https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap");
+    /* CẤU TRÚC A4 CỐ ĐỊNH */
+    .cv-classic-wrapper { 
+        width: 100%; min-height: 297mm; background: #fff; padding: 45px 50px; 
+        font-family: "Lora", "Times New Roman", serif; color: #111; margin: 0 auto; 
+        box-sizing: border-box; overflow: hidden; line-height: 1.6;
+    }
+    .cv-classic-wrapper * { box-sizing: border-box; word-wrap: break-word; word-break: break-word; }
+    /* HEADER */
+    .header-section { text-align: center; margin-bottom: 25px; }
+    .fullname { font-size: 28px; font-weight: 700; text-transform: uppercase; margin: 0 0 5px 0; color: #000; letter-spacing: 1px; }
+    .job-title { font-size: 16px; font-weight: 600; color: #222; margin: 0 0 15px 0; }
+    .contact-info { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; font-size: 13.5px; color: #111; }
+    .contact-info span { display: flex; align-items: center; gap: 5px; }
+    /* LAYOUT SECTION CƠ BẢN */
+    .section { margin-bottom: 25px; }
+    .section:empty, .content-area:empty { display: none !important; }
+    /* SECTION TITLE (Gạch dưới Dài Full Box) */
+    .section-title {
+        font-size: 16px; font-weight: 700; text-transform: uppercase; color: #000;
+        border-bottom: 1.5px solid #000; padding-bottom: 6px; margin: 0 0 15px 0 !important;
+    }
+    /* MỤC TIÊU NGHỀ NGHỆP */
+    .summary-text { font-size: 13.5px; line-height: 1.6; text-align: justify; color: #222; }
+    /* -------------------------------
+       CẤU TRÚC FLEX LEFT-RIGHT 
+       (Học vấn, Kinh nghiệm, Dự án) 
+    ------------------------------- */
+    .exp-section .exp-item, .project-section .exp-item, .education-section .exp-item {
+        position: relative; margin-bottom: 18px; padding-right: 130px; /* Chừa biên phải cho NĂM */
+    }
+    /* NĂM (Đẩy sang cực phải) */
+    .exp-year {
+        display: block; position: absolute; right: 0; top: 0; width: 130px; text-align: right; 
+        font-size: 14.5px; color: #333; font-weight: normal; margin-top: 1px;
+    }
+    /* Loại bỏ dấu chấm tròn tự động sinh ra tử JS */
+    .exp-year::first-letter { font-size: 0; color: transparent; }
+    /* TÊN CÔNG TY (Thẻ khối đầu tiên) */
+    .exp-content .info-line:first-child { font-size: 15px; font-weight: 700; color: #000; margin-bottom: 3px; }
+    .exp-content .info-line:first-child strong { display: none; }
+    /* TÊN VỊ TRÍ (Thẻ khối số 2) */
+    .exp-content .info-line:nth-child(2) { font-size: 14.5px; font-weight: 700; color: #111; margin-bottom: 6px; }
+    .exp-content .info-line:nth-child(2) strong { display: none; }
+    /* MÔ TẢ (Desc text dạng list/câu dài) */
+    .desc-text { font-size: 13.5px; line-height: 1.6; text-align: justify; color: #222; }
+    .desc-text ul { padding-left: 20px; }
+    /* HỌC VẤN (Override style vì khác tag) */
+    .education-section .exp-content strong { font-size: 15px; font-weight: 700; color: #000; display: block; margin-bottom: 3px; }
+    .education-section .exp-content { font-size: 14px; line-height: 1.6; }
+    /* -------------------------------
+       CÁC PHẦN ĐƠN GIẢN (Kỹ năng, Hoạt động, Chứng chỉ) 
+    ------------------------------- */
+    /* KỸ NĂNG: Gạch kẻ chân dưới */
+    .skills-section ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .skills-section li { padding: 8px 0; border-bottom: 1px dashed #ccc; font-size: 14px; }
+    .skills-section li:last-child { border-bottom: none; }
+    .skills-section li::first-letter { font-size: 0; color: transparent; }
+    /* HOẠT ĐỘNG: Flexbox Header Trái Phải */
+    .act-section .exp-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .act-section .company-name { font-weight: 700; font-size: 15px; color: #000; }
+    .act-section .date-badge { font-size: 14px; color: #333; }
+    .act-section .exp-desc { font-size: 13.5px; line-height: 1.6; text-align: justify; }
+    /* CHỨNG CHỈ (Flex đổi vị trí Tên ở Trái - Năm ở Phải) */
+    /* Phải selector qua > div để target đúng vào cấu trúc render của C# */
+    .cert-section .content-area > div { display: flex; justify-content: space-between; border-bottom: 1px dashed #e0e0e0; padding-bottom: 8px; margin-bottom: 12px !important; }
+    .cert-section .content-area > div:last-child { border-bottom: none; }
+    .cert-section .content-area > div > div:first-child { order: 2; font-size: 14px !important; font-weight: normal !important; color: #333 !important; }
+    .cert-section .content-area > div > div:nth-child(2) { order: 1; font-size: 14.5px !important; font-weight: 700 !important; color: #000 !important; }
+    /* DANH HIỆU & GIẢI THƯỞNG */
+    .awards-section ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .awards-section li { padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #e0e0e0; }
+    .awards-section li:last-child { border-bottom: none; }
+    .awards-section li::first-letter { font-size: 0; color: transparent; }
+    /* NGƯỜI GIỚI THIỆU: Gắn gọn inline text */
+    .ref-section p { font-size: 14px !important; margin-bottom: 8px !important; line-height: 1.5; color: #222; }
+    .ref-section p::first-letter { font-size: 0; color: transparent; }
+    /* SỞ THÍCH: Giao diện Inline như các tag */
+    .hobbies-section ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .hobbies-section li { display: inline-block; margin: 0 15px 10px 0 !important; font-size: 14px; }
+    .hobbies-section li::first-letter { font-size: 0; color: transparent; }',
+
+    'https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-senior-_B1tfBFEAUgALBAgBBl0MD1wECQBQAQFQAwIAAw44ec.webp?t=1756265781&color=000000&template_name=senior_v2&lang=vi',
+    1,
+	N'IT, Kinh tế'
+);
+GO
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Nguyễn Võ Lê Khoa', 
+    N'<div class="cv-modern-wrapper">
+        <div class="cv-sidebar">
+            <div class="avatar-area">
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+            
+            <div class="sidebar-info">
+                <div class="info-row"><i class="fas fa-phone-alt"></i> <span>{{Phone}}</span></div>
+                <div class="info-row"><i class="fas fa-envelope"></i> <span>{{Email}}</span></div>
+                <div class="info-row"><i class="fas fa-globe"></i> <span>{{Website}}</span></div>
+                <div class="info-row"><i class="fas fa-map-marker-alt"></i> <span>{{Address}}</span></div>
+            </div>
+            <div class="side-section">
+                <h3 class="side-title">KỸ NĂNG</h3>
+                <div class="side-content">{{OtherSkills}}</div>
+            </div>
+            <div class="side-section">
+                <h3 class="side-title">TIN HỌC</h3>
+                <div class="side-content">{{Skills}}</div>
+            </div>
+            <div class="side-section">
+                <h3 class="side-title">CHỨNG CHỈ</h3>
+                <div class="side-content">{{Certifications}}</div>
+            </div>
+            <div class="side-section">
+                <h3 class="side-title">GIẢI THƯỞNG</h3>
+                <div class="side-content">{{Awards}}</div>
+            </div>
+            <div class="side-section">
+                <h3 class="side-title">SỞ THÍCH</h3>
+                <div class="side-content">{{Hobbies}}</div>
+            </div>
+        </div>
+        <div class="cv-main">
+            <div class="dark-header">
+                <h1 class="name">{{FullName}}</h1>
+                <h2 class="title">{{JobTitle}}</h2>
+                <div class="summary">{{Summary}}</div>
+            </div>
+            <div class="main-body">
+                <div class="main-section">
+                    <h3 class="main-title">HỌC VẤN</h3>
+                    <div class="content-list">{{Education}}</div>
+                </div>
+                <div class="main-section">
+                    <h3 class="main-title">KINH NGHIỆM LÀM VIỆC</h3>
+                    <div class="content-list">
+                        {{Experience}} 
+                    </div>
+                </div>
+                <div class="main-section">
+                    <h3 class="main-title">DỰ ÁN</h3>
+                    <div class="content-list">
+                        {{Projects}}
+                    </div>
+                </div>
+                <div class="main-section">
+                    <h3 class="main-title">HOẠT ĐỘNG</h3>
+                    <div class="content-list">
+                        {{Activities}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>',
+
+    N'/* CẤU TRÚC TỔNG THỂ */
+    @import url(''https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap'');
+    .cv-modern-wrapper { display: flex; width: 100%; height: 100%; min-height: 297mm; background: white; font-family: "Inter", sans-serif; overflow: hidden; }
+    .cv-modern-wrapper * { box-sizing: border-box; word-wrap: break-word; word-break: break-word; }
+    /* SIDEBAR (38%) */
+    .cv-sidebar { width: 38%; background: #eae6db; padding: 40px 25px; display: flex; flex-direction: column; border-right: 1px solid #dcd8cf; }
+    .avatar-area { text-align: center; margin-bottom: 25px; }
+    .avatar-img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    
+    .sidebar-info { border-top: 1px solid #d4cfc4; border-bottom: 1px solid #d4cfc4; padding: 20px 0; margin-bottom: 25px; }
+    .info-row { display: flex; align-items: center; justify-content: flex-start; gap: 12px; font-size: 13px; color: #222; margin-bottom: 12px; line-height: 1.4; display: flex; }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-row i { width: 28px; height: 28px; background: #dedad0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #4b5247; border: 1px solid #d0cbbc; flex-shrink: 0; }
+    .side-title { font-size: 16px; font-weight: 800; color: #222; margin: 20px 0 12px 0 !important; text-transform: uppercase; border-bottom: 1.5px solid #d4cfc4; padding-bottom: 6px; letter-spacing: 0.5px; }
+    .side-content { font-size: 13.5px; color: #333; line-height: 1.5; }
+    .side-content p, .side-content li { margin: 0 0 8px 0 !important; }
+    .side-content ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .side-content li { display: flex; justify-content: space-between; align-items: baseline; }
+    .side-content li > span:first-child { font-weight: 600; color: #222; flex-grow: 1; }
+    .side-content li > span:nth-child(2) { font-style: italic; color: #555; font-size: 11.5px; }
+    /* Fix awards and hobbies */
+    .award-list ul, .hobby-list ul { padding-left: 15px !important; }
+    /* MAIN CONTENT (62%) */
+    .cv-main { width: 62%; display: flex; flex-direction: column; background: #ffffff; }
+    
+    /* DARK HEADER */
+    .dark-header { background: #5d6657; color: #f4f0e8; padding: 45px 35px; }
+    .name { font-size: 38px; font-weight: 800; text-transform: uppercase; margin: 0 0 5px 0; line-height: 1.2; letter-spacing: 1px; color: #fff;}
+    .title { font-size: 17px; font-weight: 600; margin: 0 0 15px 0; letter-spacing: 1.5px; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 12px; display: inline-block; text-transform: uppercase;}
+    .summary { font-size: 14px; line-height: 1.6; text-align: justify; opacity: 0.9; margin-top: 5px; }
+    /* BODY */
+    .main-body { padding: 30px 40px; }
+    .main-section { margin-bottom: 25px; }
+    /* Ẩn các khối trống */
+    .main-section:empty, .content-list:empty { display: none !important; }
+    .main-title { display: flex; align-items: center; font-size: 18px; font-weight: 800; color: #333; margin: 0 0 18px 0 !important; letter-spacing: 0.5px; text-transform: uppercase; }
+    .main-title::after { content: ""; flex-grow: 1; height: 1.5px; background: #e0e0e0; margin-left: 15px; }
+    
+    /* CONTENT LIST & DYNAMIC ITEMS */
+    .content-list { font-size: 14px; line-height: 1.5; color: #333; }
+    
+    .exp-item { position: relative; margin-bottom: 25px; }
+    .exp-year { position: absolute; right: 0; top: -3px; background: #5d6657; color: white; padding: 4px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    
+    .exp-content { padding-right: 140px; display: flex; flex-direction: column; }
+    .info-line:first-child { font-size: 15px; font-weight: 800; color: #222; margin-bottom: 4px; }
+    .info-line:nth-child(2) { font-size: 14px; color: #555; margin-bottom: 6px; font-style: italic; }
+    .desc-text { font-size: 13px; color: #444; line-height: 1.6; text-align: justify; }
+    .desc-text ul { padding-left: 18px; margin-top: 5px; margin-bottom: 0; }
+    .desc-text p { margin-bottom: 5px; }',
+
+    '/images/templates/template_5119c646.png',
+    1,
+	N'IT, Sáng tạo'
 );
 GO
 

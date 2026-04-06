@@ -190,7 +190,7 @@ Quy tắc:
             string prompt = "";
 
             // 4. Chuẩn hóa 'type' để tránh lỗi chữ hoa/thường hoặc khoảng trắng
-            string requestType = type?.ToLower().Trim();
+            string? requestType = type?.ToLower().Trim();
 
             // 5. Thiết lập Prompt dựa trên từng Case (Lấy từ DB nếu có, không có thì xài mặc định)
             switch (requestType)
