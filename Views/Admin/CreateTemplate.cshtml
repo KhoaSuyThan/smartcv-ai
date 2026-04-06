@@ -19,10 +19,35 @@
                             </div>
 
                             <div class="mb-4">
+                                <label class="form-label fw-bold">Dành cho đối tượng / Ngành nghề (Chọn nhiều)</label>
+                                <div class="d-flex flex-wrap gap-3 mt-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selectedCategories" value="IT" id="catIT">
+                                        <label class="form-check-label" for="catIT">Lập trình viên</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selectedCategories" value="Kinh tế" id="catKT">
+                                        <label class="form-check-label" for="catKT">Kinh tế</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selectedCategories" value="Marketing" id="catMK">
+                                        <label class="form-check-label" for="catMK">Marketing</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selectedCategories" value="Sáng tạo" id="catST">
+                                        <label class="form-check-label" for="catST">Sáng tạo</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selectedCategories" value="Khác" id="catKhac">
+                                        <label class="form-check-label" for="catKhac">Khác</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
                                 <label class="form-label fw-bold">URL Ảnh xem trước</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class='bx bx-link'></i></span>
-                                    <input asp-for="PreviewImageUrl" id="previewUrlInput" class="form-control border-2" placeholder="Nhập URL hoặc tải file lên..." />
+                                    <input asp-for="PreviewImageUrl" id="previewUrlInput" class="form-control border-2" placeholder="Nhập URL hoặc tải file bên dưới..." />
                                 </div>
                             </div>
 

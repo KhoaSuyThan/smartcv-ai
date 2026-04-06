@@ -144,8 +144,12 @@ namespace DoAnCS.Controllers
         // [POST] Lưu mẫu CV mới vào Database
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateTemplate(Template template, IFormFile? uploadImage)
+        public async Task<IActionResult> CreateTemplate(Template template, IFormFile? uploadImage, string[] selectedCategories)
         {
+            if (selectedCategories != null && selectedCategories.Length > 0)
+            {
+                template.Category = string.Join(", ", selectedCategories);
+            }
             if (ModelState.IsValid)
             {
                 if (uploadImage != null && uploadImage.Length > 0)
@@ -189,9 +193,18 @@ namespace DoAnCS.Controllers
         // [POST] Xử lý lưu dữ liệu sau khi sửa
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCV(int id, Template template, IFormFile? uploadImage)
+        public async Task<IActionResult> EditCV(int id, Template template, IFormFile? uploadImage, string[] selectedCategories)
         {
             if (id != template.TemplateID) return NotFound();
+
+            if (selectedCategories != null && selectedCategories.Length > 0)
+            {
+                template.Category = string.Join(", ", selectedCategories);
+            }
+            else 
+            {
+                template.Category = ""; // Reset if none selected
+            }
 
             if (ModelState.IsValid)
             {

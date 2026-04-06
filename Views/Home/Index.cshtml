@@ -1,218 +1,302 @@
-    @model DoAnCS.Models.HomeViewModel
-    @{
-        ViewData["Title"] = "Trang chủ";
+@model DoAnCS.Models.HomeViewModel
+@{
+    ViewData["Title"] = "CVBuilder Pro - Kiến tạo sự nghiệp tương lai";
+}
+
+<style>
+    /* TYPING CURSOR */
+    .typing-text::after {
+        content: "|";
+        animation: blink 0.7s infinite;
     }
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <style>
-        .hero-section {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 100px 0;
-        }
-        .btn-create {
-            padding: 12px 30px;
-            font-weight: bold;
-            border-radius: 50px;
-            transition: 0.3s;
-        }
-        .job-card {
-            border: none;
-            transition: transform 0.3s;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .job-card:hover {
-            transform: translateY(-5px);
-        }
-        /* Style cho khung chứa logo việc làm */
-        .job-logo-box {
-            width: 55px;
-            height: 55px;
-            background-color: #f0f7ff; /* Màu xanh nhạt cực nhẹ */
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid #e2e8f0;
-            transition: all 0.3s ease;
-        }
+    @@keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
 
-        /* Hiệu ứng nhịp tim nhẹ cho các tin mới */
-        .animate-pulse {
-            animation: pulse-blue 2s infinite;
-        }
+    /* MOCKUP CV */
+    .cv-mockup {
+        position: relative;
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+    .cv-mockup-inner {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 20px 20px 60px rgba(0,0,0,0.1), -10px -10px 40px rgba(255,255,255,0.8);
+        padding: 20px;
+        border: 1px solid #eee;
+    }
+    .cv-skeleton-line {
+        height: 10px;
+        background: #f0f0f0;
+        margin-bottom: 15px;
+        border-radius: 5px;
+    }
+    .cv-skeleton-circle {
+        width: 80px;
+        height: 80px;
+        background: #e0e0e0;
+        border-radius: 50%;
+        margin-bottom: 20px;
+    }
 
-        @@keyframes pulse-blue {
-            0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
-        }
-    </style>
+    /* STATS CARD */
+    .stat-card {
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #f0f4f8;
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 5px;
+        display: block;
+    }
 
-    <section class="hero-section">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h1 class="display-4 fw-bold text-primary mb-3">Tạo CV giúp bạn trúng tuyển chỉ trong vài phút</h1>
-                    <p class="lead text-muted mb-4">
-                        Bước đầu tiên để có một công việc tốt hơn? Một bản CV chuyên nghiệp. 
-                        Hãy bắt đầu ngay với các mẫu CV được thiết kế chuẩn ATS.
-                    </p>
-                    <div class="d-flex gap-3">
-                        <a asp-controller="Resume" asp-action="Templates" class="btn btn-primary btn-create shadow">
-                            <i class="fas fa-magic me-2"></i> Tạo CV mới ngay
-                        </a>
-                        <a href="#jobs-section" class="btn btn-outline-dark btn-create">
-                            Tìm hiểu việc làm
-                        </a>
-                    </div>
+    /* PROCESS STEP */
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin: 0 auto 20px;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+</style>
+
+<!-- HERO SECTION -->
+<section class="section-padding bg-mesh" style="overflow: hidden;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm" style="background-color: rgba(13, 110, 253, 0.1);">
+                    <i class="fas fa-sparkles me-2"></i>Ứng dụng AI vào sự nghiệp của bạn
+                </span>
+                <h1 class="display-3 fw-bold mb-4" style="line-height: 1.1; color: #1a202c;">
+                    Tạo CV chuyên nghiệp <br>
+                    <span class="text-gradient typing-text" id="typing-target"></span>
+                </h1>
+                <p class="lead text-muted mb-5 pe-lg-5" style="font-size: 1.15rem;">
+                    Nâng tầm hồ sơ của bạn với sự hỗ trợ từ trí tuệ nhân tạo. 
+                    Chúng tôi giúp bạn vượt qua các hệ thống lọc hồ sơ (ATS) và gây ấn tượng mạnh với nhà tuyển dụng ngay từ cái nhìn đầu tiên.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a asp-controller="Resume" asp-action="Templates" class="btn btn-premium btn-lg">
+                        <i class="fas fa-magic me-2"></i> Bắt đầu ngay miễn phí
+                    </a>
+                    <a href="#jobs-section" class="btn btn-outline-dark btn-lg rounded-pill px-4 fw-bold shadow-sm" style="border-width: 2px;">
+                         Khám phá việc làm
+                    </a>
                 </div>
-                <div class="col-lg-6 mt-5 mt-lg-0 text-center">
-                    <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=800" 
-                        class="img-fluid rounded-3 shadow-lg" alt="CV Illustration">
+                <div class="mt-5 d-flex align-items-center gap-4 text-muted small">
+                    <div><i class="fas fa-check-circle text-success me-2"></i>Không cần thiết kế</div>
+                    <div><i class="fas fa-check-circle text-success me-2"></i>Tải xuống PDF tùy ý</div>
+                    <div><i class="fas fa-check-circle text-success me-2"></i>Gợi ý nội dung AI</div>
                 </div>
             </div>
-        </div>
-    </section>
-
-
-    <section id="jobs-section" class="py-5 bg-white">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-end mb-5">
-                <div>
-                    <h2 class="fw-bold mb-2">Cơ hội việc làm mới nhất</h2>
-                    <p class="text-muted mb-0">Dựa trên kỹ năng và sở thích lập trình của bạn, chúng tôi đề xuất:</p>
-                </div>
-                <a asp-controller="Home" asp-action="Jobs" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
-                    Xem tất cả <i class="fas fa-arrow-right ms-2"></i>
-                </a>
-            </div>
-
-            <div class="row g-4">
-                @if (Model.LatestJobs != null && Model.LatestJobs.Any())
-                {
-                    @foreach (var job in Model.LatestJobs)
-                    {
-                        <div class="col-md-4">
-                            <div class="card h-100 border-0 shadow-sm p-3 job-card" style="border-radius: 15px;">
-                                <div class="d-flex align-items-start mb-3">
-                                    @* 1. KHUNG LOGO: Nền xanh nhạt, bo góc, xử lý lỗi ảnh *@
-                                    <div class="me-3 d-flex align-items-center justify-content-center shadow-sm" 
-                                        style="width: 55px; height: 55px; background-color: #f0f7ff; border-radius: 12px; flex-shrink: 0; border: 1px solid #e2e8f0;">
-                                        
-                                        @if (!string.IsNullOrEmpty(job.employer_logo))
-                                        {
-                                            <img src="@job.employer_logo" 
-                                                alt="Logo @job.employer_name"
-                                                style="width: 100%; height: 100%; object-fit: contain; border-radius: 12px; padding: 5px;"
-                                                @* FIX: Nếu ảnh lỗi, gọi hàm xử lý riêng cho sạch code *@
-                                                onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'bx bx-building text-muted fs-3\'></i>';">
-                                        }
-                                        else
-                                        {
-                                            <i class='bx bx-building text-muted fs-3'></i>
-                                        }
-                                    </div>
-
-                                    @* 2. TIÊU ĐỀ & CÔNG TY: Có giới hạn độ dài để không vỡ khung *@
-                                    <div class="overflow-hidden">
-                                        <h6 class="fw-bold mb-1 text-truncate" title="@job.job_title" style="color: #2d3748;">
-                                            @job.job_title
-                                        </h6>
-                                        <p class="text-primary small mb-0 text-truncate fw-semibold">
-                                            @job.employer_name
-                                        </p>
-                                    </div>
-                                </div>
-
-                                @* 3. ĐỊA ĐIỂM *@
-                                <p class="text-muted small mb-2 text-truncate">
-                                    <i class='bx bxs-map me-1 text-danger'></i> 
-                                    @(string.IsNullOrEmpty(job.job_city) ? "Toàn quốc" : job.job_city)
-                                </p>
-
-                                @* 4. MÔ TẢ: Cắt ngắn 3 dòng (Line-clamp) *@
-                                <p class="text-secondary small mb-4" 
-                                style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em; line-height: 1.5; color: #718096;">
-                                    @job.job_description
-                                </p>
-
-                                @* 5. NÚT BẤM DƯỚI CÙNG *@
-                                <div class="mt-auto">
-                                    <a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
-                                    class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow-sm transition-all">
-                                        Xem chi tiết & Ứng tuyển
-                                    </a>
-                                </div>
+            <div class="col-lg-6 mt-5 mt-lg-0" data-aos="zoom-in" data-aos-delay="200">
+                <div class="cv-mockup floating">
+                    <div class="cv-mockup-inner p-4">
+                        <div class="d-flex gap-4 align-items-start mb-4">
+                            <div class="cv-skeleton-circle"></div>
+                            <div class="flex-grow-1">
+                                <div class="cv-skeleton-line" style="width: 80%; height: 20px; background: #0d6efd; opacity: 0.2;"></div>
+                                <div class="cv-skeleton-line" style="width: 50%;"></div>
                             </div>
                         </div>
-                    }
-                }
-                else
-                {
-                    <div class="col-12 text-center py-5">
-                        <div class="mb-3">
-                            <i class='bx bx-search-alt text-muted' style="font-size: 4rem;"></i>
-                        </div>
-                        <h5 class="text-muted">Hiện chưa có cơ hội việc làm nào mới.</h5>
-                        <p class="small text-secondary">Vui lòng quay lại sau hoặc đăng nhập trang Admin để nạp dữ liệu.</p>
+                        <div class="cv-skeleton-line"></div>
+                        <div class="cv-skeleton-line"></div>
+                        <div class="cv-skeleton-line" style="width: 90%;"></div>
+                        <div class="cv-skeleton-line" style="width: 40%; margin-top: 30px;"></div>
+                        <div class="cv-skeleton-line"></div>
+                        <div class="cv-skeleton-line"></div>
+                        <div class="cv-skeleton-line" style="width: 70%;"></div>
                     </div>
-                }
+                    <!-- Decorative elements -->
+                    <div class="position-absolute glass-card p-3 rounded-3 shadow-lg" style="top: -20px; right: -30px; width: 140px;" data-aos="fade-left" data-aos-delay="500">
+                        <div class="text-primary fw-bold small"><i class="fas fa-chart-line me-2"></i>ATS Score</div>
+                        <div class="h4 fw-bold m-0 text-success">98%</div>
+                    </div>
+                    <div class="position-absolute glass-card p-3 rounded-3 shadow-lg" style="bottom: 40px; left: -40px; width: 180px;" data-aos="fade-right" data-aos-delay="700">
+                        <div class="text-primary fw-bold small"><i class="fas fa-robot me-2"></i>AI Suggested</div>
+                        <div class="small m-0 text-muted">"Kỹ năng lãnh đạo"</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <style>
-        /* Hiệu ứng di chuột cho card việc làm */
-        .job-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .job-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        }
-    </style>
-
-    <section id="templates-section" class="py-5" style="background-color: #f8f9fa;">
+<!-- STATS SECTION -->
+<section class="py-4 bg-white border-bottom">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-end mb-5">
-            <div>
-                <h2 class="fw-bold mb-2">Khám phá các mẫu CV chuyên nghiệp</h2>
-                <p class="text-muted mb-0">Thiết kế chuẩn chỉnh @DateTime.Now.Year, được tối ưu cho các hệ thống lọc hồ sơ (ATS).</p>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-3" data-aos="fade-up">
+                <div class="stat-card">
+                    <span class="stat-number text-primary">1000+</span>
+                    <span class="text-muted fw-bold">CV đã được tạo</span>
+                </div>
             </div>
-            <a asp-controller="Resume" asp-action="Templates" class="btn btn-link text-decoration-none fw-bold">
-                Xem tất cả mẫu <i class="fas fa-arrow-right ms-1"></i>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-card">
+                    <span class="stat-number text-success">500+</span>
+                    <span class="text-muted fw-bold">Người đã tìm thấy việc</span>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-card">
+                    <span class="stat-number text-info">100+</span>
+                    <span class="text-muted fw-bold">Mẫu CV độc quyền</span>
+                </div>
+            </div>
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-card">
+                    <span class="stat-number text-warning">4.9/5</span>
+                    <span class="text-muted fw-bold">Đánh giá hài lòng</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PROCESS SECTION -->
+<section class="section-padding" data-aos="fade-up">
+    <div class="container text-center mb-4">
+        <h6 class="text-primary fw-bold text-uppercase ls-wide mb-3">Quy trình đơn giản</h6>
+        <h2 class="display-5 fw-bold">3 bước để có một bản CV hoàn hảo</h2>
+    </div>
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-md-4">
+                <div class="bg-white p-4 rounded-4 shadow-sm border h-100 hover-lift d-flex flex-column align-items-center text-center" 
+                     style="background: linear-gradient(180deg, rgba(13, 110, 253, 0.05) 0%, #fff 100%); border-top: 5px solid #0d6efd !important;">
+                    <div class="step-number" style="background: #0d6efd;">1</div>
+                    <h4 class="fw-bold mb-3">Chọn mẫu thiết kế</h4>
+                    <p class="text-muted flex-grow-1">Hơn 100+ mẫu CV chuẩn chỉnh, thiết kế chuyên nghiệp phù hợp với mọi ngành nghề.</p>
+                    <a asp-controller="Resume" asp-action="Templates" class="btn btn-primary rounded-pill px-4 fw-bold mt-3">Tạo CV ngay</a>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-white p-4 rounded-4 shadow-sm border h-100 hover-lift d-flex flex-column align-items-center text-center"
+                     style="background: linear-gradient(180deg, rgba(25, 135, 84, 0.05) 0%, #fff 100%); border-top: 5px solid #198754 !important;">
+                    <div class="step-number" style="background: #198754;">2</div>
+                    <h4 class="fw-bold mb-3">Điền thông tin & AI hỗ trợ</h4>
+                    <p class="text-muted">Hệ thống AI Gemini sẽ giúp bạn trau chuốt câu từ và gợi ý các kỹ năng quan trọng.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-white p-4 rounded-4 shadow-sm border h-100 hover-lift d-flex flex-column align-items-center text-center"
+                     style="background: linear-gradient(180deg, rgba(255, 193, 7, 0.05) 0%, #fff 100%); border-top: 5px solid #ffc107 !important;">
+                    <div class="step-number" style="background: #ffc107;">3</div>
+                    <h4 class="fw-bold mb-3">Tải về & Ứng tuyển</h4>
+                    <p class="text-muted">Xuất file PDF chất lượng cao chỉ với một cú click và sẵn sàng gửi tới nhà tuyển dụng.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JOBS SECTION -->
+<section id="jobs-section" class="section-padding bg-white" data-aos="fade-up">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+            <div>
+                <h2 class="display-6 fw-bold mb-1">Cơ hội việc làm mới nhất</h2>
+                <p class="text-muted mb-0">Những vị trí mơ ước đang chờ đợi bạn ứng tuyển ngay hôm nay.</p>
+            </div>
+            <a asp-controller="Home" asp-action="Jobs" class="btn btn-outline-primary rounded-pill px-4 fw-bold btn-lg">
+                Xem tất cả cơ hội <i class="fas fa-arrow-right ms-2"></i>
             </a>
         </div>
 
         <div class="row g-4">
-            @if (Model.PopularTemplates != null && Model.PopularTemplates.Any())
+            @if (Model.LatestJobs != null && Model.LatestJobs.Any())
             {
-                @foreach (var template in Model.PopularTemplates)
+                @foreach (var job in Model.LatestJobs)
                 {
-                    <div class="col-md-3">
-                        <div class="card border-0 shadow-sm h-100 template-card @(template.IsProOnly ? "border-pro" : "")">
-                            <div class="position-relative overflow-hidden bg-light rounded-top">
-                                @if (template.IsProOnly)
-                                {
-                                    <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
-                                        <span class="badge bg-warning text-dark shadow-sm px-2 py-1 rounded-pill fw-bold" style="font-size: 0.6rem;">
-                                            <i class="fas fa-crown me-1"></i> PRO
-                                        </span>
-                                    </div>
-                                }
-                                <img src="@template.PreviewImageUrl" class="card-img-top p-2" alt="@template.Name" 
-                                     style="height: 400px; object-fit: contain; background-color: #f8f9fa;"
-                                     onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
-                                
-                                <div class="template-overlay">
-                                    <a asp-controller="Resume" asp-action="Create" asp-route-id="@template.TemplateID" 
-                                       class="btn btn-primary rounded-pill px-4 shadow fw-bold">
-                                        Sử dụng mẫu này
-                                    </a>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card h-100 p-4 hover-lift" style="border-radius: 20px;">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="bg-light p-2 rounded-3 me-3" style="width: 50px; height: 50px; border: 1px solid #eee;">
+                                    @if (!string.IsNullOrEmpty(job.employer_logo))
+                                    {
+                                        <img src="@job.employer_logo" alt="Employer logo" class="w-100 h-100" style="object-fit: contain;"
+                                             onerror="this.onerror=null; this.src='https://icons.getbootstrap.com/assets/icons/building.svg';">
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-building text-muted"></i>
+                                    }
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h6 class="fw-bold mb-1 text-truncate">@job.job_title</h6>
+                                    <p class="text-primary small mb-0 fw-semibold text-truncate">@job.employer_name</p>
                                 </div>
                             </div>
-                            <div class="card-body text-center">
-                                <h6 class="fw-bold mb-1">@template.Name</h6>
-                                <p class="small text-muted mb-0">Mẫu thiết kế hiện đại</p>
+                            <div class="d-flex gap-2 mb-3">
+                                <span class="badge bg-danger-soft text-danger rounded-pill px-3 py-2" style="background-color: rgba(220, 53, 69, 0.1);">
+                                    <i class="fas fa-map-marker-alt me-1"></i> @(job.job_city ?? "Toàn quốc")
+                                </span>
+                                <span class="badge bg-success-soft text-success rounded-pill px-3 py-2" style="background-color: rgba(25, 135, 84, 0.1);">
+                                    <i class="fas fa-money-bill-wave me-1"></i> Thương lượng
+                                </span>
+                            </div>
+                            <p class="text-muted small mb-4 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @job.job_description
+                            </p>
+                            <a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">
+                                Chi tiết & Ứng tuyển
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <p class="text-muted">Đang cập nhật các tin tuyển dụng mới...</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- TEMPLATES SECTION -->
+<section id="templates-section" class="section-padding bg-mesh" data-aos="fade-up">
+    <div class="container">
+        <div class="text-center mb-4">
+            <h2 class="display-6 fw-bold">Kho mẫu CV chuẩn chỉnh ATS</h2>
+            <p class="text-muted">Được thiết kế bởi các chuyên gia nhân sự hàng đầu.</p>
+        </div>
+        
+        <div class="row g-4">
+            @if (Model.PopularTemplates != null && Model.PopularTemplates.Any())
+            {
+                @foreach (var template in Model.PopularTemplates.Take(4))
+                {
+                    <div class="col-lg-3 col-md-6">
+                        <div class="card border-0 shadow-sm overflow-hidden h-100 template-card" style="border-radius: 15px;">
+                            <div class="position-relative">
+                                <img src="@template.PreviewImageUrl" class="card-img-top p-2" alt="@template.Name" style="height: 350px; object-fit: contain;">
+                                <div class="template-overlay d-flex align-items-center justify-content-center opacity-0 hover-opacity-1 transition-all">
+                                    <a asp-controller="Resume" asp-action="Create" asp-route-id="@template.TemplateID" class="btn btn-light rounded-pill px-4 fw-bold shadow">Sử dụng ngay</a>
+                                </div>
+                            </div>
+                            <div class="card-body text-center bg-white">
+                                <h6 class="fw-bold mb-0">@template.Name</h6>
                             </div>
                         </div>
                     </div>
@@ -221,49 +305,130 @@
             else
             {
                 <div class="col-12 text-center py-5">
-                    <p class="text-muted">Hiện chưa có mẫu CV nào được kích hoạt.</p>
+                    <p class="text-muted">Đang cập nhật các mẫu CV mới nhất...</p>
                 </div>
             }
+        </div>
+        <div class="text-center mt-5">
+            <a asp-controller="Resume" asp-action="Templates" class="btn btn-outline-primary rounded-pill px-5 fw-bold">
+                Khám phá toàn bộ 100+ mẫu CV
+            </a>
         </div>
     </div>
 </section>
 
+<!-- BLOG SECTION -->
+<section id="blog-section" class="pt-5 pb-4 bg-white" data-aos="fade-up">
+    <div class="container text-center mb-5">
+        <h6 class="text-primary fw-bold text-uppercase ls-wide mb-2">Kiến thức hữu ích</h6>
+        <h2 class="display-6 fw-bold mb-0">Cẩm nang nghề nghiệp</h2>
+    </div>
 
-    <style>
-        /* Hiệu ứng di chuột cho card việc làm */
-        .job-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .job-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-        }
-        
-        /* Hiệu ứng card mẫu CV */
-        .template-card { 
-            position: relative; 
-            transition: transform 0.3s ease; 
-            border: 1px solid #eee !important;
-        }
-        .border-pro { border: 2px solid #ffc107 !important; }
-        .template-overlay {
-            position: absolute; 
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.05);
-            display: flex; 
-            align-items: flex-end; 
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 2;
-        }
-        .template-card img {
-            /* Ép toàn bộ tờ giấy A4 hiện ra, không bị cắt */
-            object-fit: contain !important; 
-            padding: 10px;
-        }
-        .template-card:hover .template-overlay { 
-            opacity: 1; 
-        }
-        .template-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
-    </style>
+    <div class="container">
+        <div class="row g-4 justify-content-center">
+            <!-- Blog Item 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden" style="border-radius: 20px;">
+                    <div class="position-relative">
+                        <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips" style="height: 200px; object-fit: cover;">
+                        <span class="position-absolute top-0 start-0 m-3 badge bg-primary rounded-pill px-3 py-2">Mẹo</span>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <h5 class="fw-bold mb-2 lh-base">Trả lời "Giới thiệu bản thân"</h5>
+                        <p class="text-muted small mb-0">Khám phá cách kể một câu chuyện sự nghiệp đầy cảm hứng, tập trung vào những giá trị thực tế bạn mang lại để chinh phục nhà tuyển dụng ngay lập tức.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blog Item 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden" style="border-radius: 20px;">
+                    <div class="position-relative">
+                        <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing" style="height: 200px; object-fit: cover;">
+                        <span class="position-absolute top-0 start-0 m-3 badge bg-success rounded-pill px-3 py-2">Hồ sơ</span>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <h5 class="fw-bold mb-2 lh-base">Top 5 sai lầm khi viết CV</h5>
+                        <p class="text-muted small mb-0">Hướng dẫn chi tiết cách tránh những lỗi sơ đẳng về trình bày và thuật toán ATS, giúp bản hồ sơ của bạn luôn lọt vào mắt xanh của các chuyên gia nhân sự.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blog Item 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden" style="border-radius: 20px;">
+                    <div class="position-relative">
+                        <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth" style="height: 200px; object-fit: cover;">
+                        <span class="position-absolute top-0 start-0 m-3 badge bg-warning text-dark rounded-pill px-3 py-2">Lộ trình</span>
+                    </div>
+                    <div class="card-body p-4 text-center">
+                        <h5 class="fw-bold mb-2 lh-base">Chuẩn bị cho mức lương 1000$</h5>
+                        <p class="text-muted small mb-0">Lộ trình rõ ràng cho người mới bắt đầu: Từ việc tham gia dự án thực tế đến cách kết nối với các chuyên gia trong ngành để đạt được thu nhập kỳ vọng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- NEWSLETTER SECTION -->
+<section class="pt-0 pb-5">
+    <div class="container">
+        <div class="glass-card p-5 rounded-4 text-white position-relative overflow-hidden shadow-lg border-0" style="background: var(--primary-gradient) !important;" data-aos="zoom-in">
+            <div class="row align-items-center position-relative" style="z-index: 1;">
+                <div class="col-lg-7 mb-4 mb-lg-0">
+                    <h2 class="fw-bold h1 mb-2">Sẵn sàng bắt đầu sự nghiệp mới?</h2>
+                    <p class="mb-0 opacity-75">Đăng ký nhận thông tin việc làm và mẹo viết CV từ các chuyên gia.</p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="input-group bg-white rounded-pill p-1 shadow-sm">
+                        <input type="email" class="form-control border-0 rounded-pill px-4" placeholder="Nhập email của bạn...">
+                        <button class="btn btn-dark rounded-pill px-4 fw-bold">Tham gia ngay</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Decorative circle -->
+            <div class="position-absolute" style="width: 300px; height: 300px; background: rgba(255,255,255,0.1); border-radius: 50%; top: -100px; right: -50px;"></div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // TYPING EFFECT
+            const words = ["Chỉ trong vài phút.", "Gây ấn tượng tức thì.", "Được tối ưu bởi AI.", "Chuẩn ATS 100%."];
+            let wordIndex = 0;
+            let charIndex = 0;
+            let isDeleting = false;
+            const target = document.getElementById('typing-target');
+
+            function type() {
+                if (!target) return;
+                const currentWord = words[wordIndex];
+                if (isDeleting) {
+                    target.textContent = currentWord.substring(0, charIndex - 1);
+                    charIndex--;
+                } else {
+                    target.textContent = currentWord.substring(0, charIndex + 1);
+                    charIndex++;
+                }
+
+                let typingSpeed = isDeleting ? 50 : 100;
+
+                if (!isDeleting && charIndex === currentWord.length) {
+                    isDeleting = true;
+                    typingSpeed = 2000; // Pause at end
+                } else if (isDeleting && charIndex === 0) {
+                    isDeleting = false;
+                    wordIndex = (wordIndex + 1) % words.length;
+                    typingSpeed = 500;
+                }
+
+                setTimeout(type, typingSpeed);
+            }
+
+            type();
+        });
+    </script>
+}

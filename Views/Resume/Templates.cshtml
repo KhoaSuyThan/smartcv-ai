@@ -58,14 +58,17 @@
     <div class="text-center mb-5">
         <h1 class="fw-bold mb-3 text-primary">Chọn mẫu CV để bắt đầu</h1>
         <p class="text-muted mx-auto" style="max-width: 600px;">
-            Hệ thống BetterCV cung cấp các mẫu thiết kế chuẩn ATS, phù hợp cho sinh viên CNTT.
+            Hệ thống BetterCV cung cấp các mẫu thiết kế chuẩn ATS, phù hợp cho đa dạng ngành nghề từ Công nghệ đến Kinh tế.
         </p>
     </div>
 
-    <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap">
-        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn active">Tất cả mẫu</button>
-        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn">Lập trình viên</button>
-        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn">Kinh tế</button>
+    <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap filter-container">
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn active" data-filter="all">Tất cả mẫu</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="IT">Lập trình viên</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Kinh tế">Kinh tế</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Marketing">Marketing</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Sáng tạo">Sáng tạo</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Khác">Khác</button>
     </div>
 
     @if (TempData["ErrorMessage"] != null)
@@ -89,7 +92,7 @@
     <div class="row g-4">
         @foreach (var item in Model)
         {
-            <div class="col-md-4 col-lg-3">
+            <div class="col-md-4 col-lg-3 template-item" data-category="@item.Category">
                 <div class="card h-100 border-0 shadow-sm template-card @(item.IsProOnly ? "border-pro" : "")">
                     @if (item.IsProOnly)
                     {
@@ -109,7 +112,7 @@
                                asp-action="Create" 
                                asp-route-id="@item.TemplateID" 
                                class="btn btn-primary rounded-pill px-4 shadow fw-bold">
-                               Sử dụng mẫu này
+                                Sử dụng mẫu này
                             </a>
                         </div>
                     </div>
@@ -122,7 +125,7 @@
         }
 
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm template-card border-primary" style="border-style: dashed !important; border-width: 2px !important;">
+            <div class="card h-100 border-0 shadow-sm template-card border-primary" style="border-style: dashed !important; border-width: 2px !important; min-height: 430px;">
                 <div class="card-body d-flex flex-column align-items-center justify-content-center text-muted">
                     <i class="fas fa-plus-circle fa-3x mb-3 text-primary opacity-50"></i>
                     <h6 class="fw-bold">Đang thiết kế thêm...</h6>
@@ -131,3 +134,72 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.template-item');
+        let activeFilters = new Set(['all']);
+
+        filters.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filterValue = this.getAttribute('data-filter');
+
+                if (filterValue === 'all') {
+                    activeFilters.clear();
+                    activeFilters.add('all');
+                    filters.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                } else {
+                    // Nếu đang click nút khác khi "all" đang bật -> tắt "all"
+                    if (activeFilters.has('all')) {
+                        activeFilters.delete('all');
+                        document.querySelector('[data-filter="all"]').classList.remove('active');
+                    }
+
+                    // Toggle filter hiện tại
+                    if (activeFilters.has(filterValue)) {
+                        activeFilters.delete(filterValue);
+                        this.classList.remove('active');
+                    } else {
+                        activeFilters.add(filterValue);
+                        this.classList.add('active');
+                    }
+
+                    // Nếu không còn filter nào -> bật lại "all"
+                    if (activeFilters.size === 0) {
+                        activeFilters.add('all');
+                        document.querySelector('[data-filter="all"]').classList.add('active');
+                    }
+                }
+
+                renderItems();
+            });
+        });
+
+        function renderItems() {
+            items.forEach(item => {
+                const itemCategoryStr = item.getAttribute('data-category') || "";
+                // Hỗ trợ nhiều danh mục cách nhau bằng dấu phẩy
+                const itemCategories = itemCategoryStr.split(',').map(s => s.trim());
+
+                let show = false;
+                if (activeFilters.has('all')) {
+                    show = true;
+                } else {
+                    // Mẫu CV phải thỏa mãn TẤT CẢ các danh mục đang chọn (Điều kiện VÀ)
+                    show = Array.from(activeFilters).every(filter => itemCategories.includes(filter));
+                }
+
+                if (show) {
+                    item.style.display = 'block';
+                    // Hiệu ứng mượt
+                    setTimeout(() => { item.style.opacity = '1'; }, 10);
+                } else {
+                    item.style.opacity = '0';
+                    setTimeout(() => { item.style.display = 'none'; }, 300);
+                }
+            });
+        }
+    });
+</script>
