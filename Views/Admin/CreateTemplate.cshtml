@@ -19,7 +19,15 @@
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label fw-bold text-primary"><i class='bx bx-image-add'></i> Tải lên ảnh xem trước (Thumbnail)</label>
+                                <label class="form-label fw-bold">URL Ảnh xem trước</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class='bx bx-link'></i></span>
+                                    <input asp-for="PreviewImageUrl" id="previewUrlInput" class="form-control border-2" placeholder="Nhập URL hoặc tải file lên..." />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold text-primary"><i class='bx bx-image-add'></i> Hoặc tải lên ảnh từ máy tính</label>
                                 <input type="file" name="uploadImage" id="fileInput" class="form-control border-2" accept="image/*" />
                                 <div class="form-text mt-2 text-muted">Hệ thống sẽ tự động tối ưu tên file khi lưu trữ.</div>
                             </div>
@@ -86,6 +94,15 @@
 </style>
 
 <script>
+    // Live preview khi dán URL ảnh
+    document.getElementById('previewUrlInput').addEventListener('input', function() {
+        if(this.value) {
+            document.getElementById('imgPreview').src = this.value;
+        } else {
+            document.getElementById('imgPreview').src = '/images/no-image.jpg';
+        }
+    });
+
     // Xử lý xem trước ảnh ngay khi Admin chọn file từ máy tính
     document.getElementById('fileInput').addEventListener('change', function(event) {
         const file = event.target.files[0];

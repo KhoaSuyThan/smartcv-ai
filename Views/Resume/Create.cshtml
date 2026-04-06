@@ -121,7 +121,7 @@
             <div class="mb-3">
                 <label class="form-label small fw-bold">Ảnh đại diện</label>
                 <input type="file" id="AvatarInput" class="form-control" accept="image/*" onchange="previewImage(this)">
-                <input type="hidden" id="AvatarBase64" /> 
+                <input type="hidden" id="AvatarBase64" value="@Model.AvatarUrl" /> 
             </div>
             <div class="mb-3">
                 <label class="form-label small fw-bold">Họ và tên</label>
@@ -143,11 +143,15 @@
 
                 <div class="col-md-6 mb-3">
                     <label class="form-label small fw-bold">Ngày sinh</label>
-                    <input type="text" id="BirthDateInput" class="form-control" placeholder="27/01/1998">
+                    <input type="text" id="BirthDateInput" class="form-control" value="@(Model.BirthDate?.ToString("dd/MM/yyyy") ?? "")" placeholder="27/01/1998">
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label small fw-bold">Địa chỉ</label>
-                    <input type="text" id="AddressInput" class="form-control" placeholder="Quận 10, TP.HCM">
+                    <input type="text" id="AddressInput" class="form-control" value="@Model.Address" placeholder="Quận 10, TP.HCM">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label small fw-bold">Link liên kết (Website, Portfolio, LinkedIn...)</label>
+                    <input type="text" id="WebsiteInput" class="form-control" value="@(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Website")?.ContentJSON?.Trim('\"'))" placeholder="https://github.com/khoa">
                 </div>
             </div>
         </div>
@@ -164,7 +168,7 @@
             <div class="card-body">
                 <textarea id="SummaryInput" class="form-control border-0 bg-light" 
                         rows="4" placeholder="Tôi là một người đam mê..." 
-                        oninput="updatePreview()"></textarea>
+                        oninput="updatePreview()">@Model.Summary</textarea>
             </div>
         </div>
 
@@ -214,9 +218,29 @@
         </div>
 
         <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-project-diagram me-2"></i>Dự án</h4>
+            <div id="projects-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('project')">+ Thêm dự án</button>
+        </div>
+
+        <div class="form-section">
             <h4 class="section-title"><i class="fas fa-trophy me-2"></i>Giải thưởng</h4>
             <div id="awards-container"></div>
             <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('award')">+ Thêm giải thưởng</button>
+        </div>
+
+        <div class="form-section">
+            <h4 class="section-title"><i class="fas fa-lightbulb me-2"></i>Kỹ năng</h4>
+            <div class="mb-3">
+                <div class="input-group">
+                    <button class="btn btn-primary btn-sm w-100 mb-2" type="button" onclick="callAI('suggest_skills', this)">
+                        🪄 AI gợi ý kỹ năng theo vị trí ứng tuyển
+                    </button>
+                </div>
+                <small class="text-muted">Hệ thống sẽ dựa vào "Vị trí ứng tuyển" phía trên để gợi ý.</small>
+            </div>
+            <div id="other-skills-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm kỹ năng</button>
         </div>
 
         <div class="form-section">
@@ -232,17 +256,9 @@
         </div>
 
         <div class="form-section">
-            <h4 class="section-title"><i class="fas fa-lightbulb me-2"></i>Kỹ năng khác</h4>
-            <div class="mb-3">
-                <div class="input-group">
-                    <button class="btn btn-primary btn-sm w-100 mb-2" type="button" onclick="callAI('suggest_skills', this)">
-                        🪄 AI gợi ý kỹ năng theo vị trí ứng tuyển
-                    </button>
-                </div>
-                <small class="text-muted">Hệ thống sẽ dựa vào "Vị trí ứng tuyển" phía trên để gợi ý.</small>
-            </div>
-            <div id="other-skills-container"></div>
-            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('other-skill')">+ Thêm thủ công</button>
+            <h4 class="section-title"><i class="fas fa-heart me-2"></i>Sở thích</h4>
+            <div id="hobbies-container"></div>
+            <button class="btn btn-sm btn-outline-primary w-100" onclick="addItem('hobby')">+ Thêm sở thích</button>
         </div>
 
         <div class="form-section">
@@ -274,7 +290,9 @@
         <div class="cv-preview-wrapper" id="resume-preview">
             @Html.Raw(temp?.HtmlContent)
         </div>
-    </div
+        @* Lưu trữ HTML gốc để JS sử dụng mà không bị lỗi ký tự đặc biệt *@
+        <textarea id="OriginalHtmlStorage" style="display:none;">@temp?.HtmlContent</textarea>
+    </div>
 
     
 </div>
@@ -354,8 +372,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
-        // 1. Khởi tạo dữ liệu gốc từ Database
-        let originalHtml = `@Html.Raw(Model.Template?.HtmlContent)`;
+        // 1. Khởi tạo dữ liệu gốc từ Database (Lấy từ textarea ẩn để tránh lỗi cú pháp JS)
+        let originalHtml = document.getElementById('OriginalHtmlStorage').value;
         let cvCropper;
         const cvModal = new bootstrap.Modal(document.getElementById('cvCropperModal'));
         const imageToCrop = document.getElementById('imageToCrop');
@@ -433,6 +451,21 @@
                 createItemHtml('language-item', 'Ngoại ngữ (Tiếng Anh...)', 'lang-name', 'lang-level', 'languages-container');
             } else if (type === 'other-skill') {
                 createItemHtml('other-skill-item', 'Kỹ năng (Giao tiếp...)', 'other-name', 'other-level', 'other-skills-container');
+            } else if (type === 'hobby') {
+                let html = `<div class="dynamic-item hobby-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 hobby-name" placeholder="Sở thích (Đọc sách, Nghe nhạc...)">
+                            </div>`;
+                $('#hobbies-container').append(html);
+            } else if (type === 'project') {
+                let html = `<div class="dynamic-item project-item mb-3 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 proj-name" placeholder="Tên dự án (SMART CV BUILDER)">
+                                <input type="text" class="form-control mb-1 proj-role" placeholder="Vai trò (Backend Developer)">
+                                <input type="text" class="form-control mb-1 proj-time" placeholder="Thời gian (Mar 2026 - Present)">
+                                <textarea class="form-control proj-desc" rows="2" placeholder="Mô tả và công nghệ..."></textarea>
+                            </div>`;
+                $('#projects-container').append(html);
             } else if (type === 'education') {
                 let html = `<div class="dynamic-item education-item mb-3 p-2 border rounded">
                                 <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
@@ -477,14 +510,14 @@
                 $('#references-container').append(html);
             }
             if (type === 'cert') {
-                html = `<div class="dynamic-item cert-item mb-2 p-2 border rounded">
+                let html = `<div class="dynamic-item cert-item mb-2 p-2 border rounded">
                             <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
                             <input type="text" class="form-control mb-1 cert-year" placeholder="Năm (2019)">
                             <input type="text" class="form-control cert-name" placeholder="Tên chứng chỉ (IELTS 7.0)">
                         </div>`;
                 $('#certifications-container').append(html);
             } else if (type === 'activity') {
-                html = `<div class="dynamic-item activity-item mb-3 p-2 border rounded">
+                let html = `<div class="dynamic-item activity-item mb-3 p-2 border rounded">
                             <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
                             <input type="text" class="form-control mb-1 act-name" placeholder="Tên tổ chức/CLB">
                             <input type="text" class="form-control mb-1 act-time" placeholder="Thời gian (2017 - 2019)">
@@ -577,6 +610,7 @@
                 '{{AvatarUrl}}': avatarSrc,
                 '{{BirthDate}}': $('#BirthDateInput').val() || '27/01/1998',
                 '{{Address}}': $('#AddressInput').val() || 'TP. Hồ Chí Minh',
+                '{{Website}}': $('#WebsiteInput').val() || 'https://github.com/khoa',
                 '{{GraduationType}}': $('.edu-gradtype').val() || 'Chưa cập nhật' //
             };
 
@@ -621,6 +655,28 @@
                 });
             map['{{Experience}}'] = expHtml;
 
+            // --- DỰ ÁN ---
+            let projectHtml = '';
+            $('.project-item').each(function() {
+                let name = $(this).find('.proj-name').val();
+                let role = $(this).find('.proj-role').val();
+                let time = $(this).find('.proj-time').val();
+                let desc = $(this).find('.proj-desc').val();
+                let formattedDesc = desc ? desc.trim().replace(/\n/g, '<br>') : '';
+                
+                if(name) {
+                    projectHtml += `<div class="exp-item">
+                                        <span class="exp-year">• ${time}</span>
+                                        <div class="exp-content">
+                                            <div class="info-line"><strong>Dự án:</strong> ${name || ''}</div>
+                                            <div class="info-line"><strong>Vai trò:</strong> ${role || ''}</div>
+                                            <div class="desc-text">${formattedDesc}</div>
+                                        </div>
+                                    </div>`;
+                }
+            });
+            map['{{Projects}}'] = projectHtml;
+
             // --- TIN HỌC ---
             let itHtml = '<ul style="list-style:none; padding:0; margin:0;">';
             $('.it-skill-item').each(function() {
@@ -647,6 +703,14 @@
                 if(name) otherHtml += `<li>• ${name} ${level ? '('+level+')' : ''}</li>`;
             });
             map['{{OtherSkills}}'] = otherHtml + '</ul>';
+
+            // --- SỞ THÍCH ---
+            let hobbyHtml = '<ul style="list-style:none; padding:0; margin:0;">';
+            $('.hobby-item').each(function() {
+                let name = $(this).find('.hobby-name').val();
+                if(name) hobbyHtml += `<li>• ${name}</li>`;
+            });
+            map['{{Hobbies}}'] = hobbyHtml + '</ul>';
 
             // --- GIẢI THƯỞNG ---
             let awardHtml = '<ul style="padding-left:15px; margin:0;">';
@@ -845,31 +909,7 @@
                 Email: $('#EmailInput').val(),
                 Phone: $('#PhoneInput').val(),
                 Address: $('#AddressInput').val(),
-                BirthDate: $('#BirthDateInput').val(),
-                Summary: $('#SummaryInput').val(),
-                AvatarUrl: $('#AvatarBase64').val(),
-                Educations: $('.education-item').map(function() {
-                    return { School: $(this).find('.edu-school').val(), Major: $(this).find('.edu-major').val(), Year: $(this).find('.edu-year').val(), GraduationType: $(this).find('.edu-gradtype').val() };
-                }).get(),
-                Experiences: $('.experience-item').map(function() {
-                    return { Company: $(this).find('.exp-company').val(), Role: $(this).find('.exp-role').val(), Duration: $(this).find('.exp-time').val(), Description: $(this).find('.exp-desc').val() };
-                }).get(),
-                Skills: $('.it-skill-item').map(function() {
-                    return { Name: $(this).find('.it-skill-name').val(), Level: $(this).find('.it-skill-level').val() };
-                }).get(),
-                // ... các phần khác bạn copy từ hàm saveResume cũ qua đây
-            };
-        }
-
-        // 6. Hàm Lưu CV (Gửi đầy đủ JSON)
-        function saveResume() {
-            const resumeData = {
-                TemplateID: parseInt($('#TemplateID').val() || "1"),
-                FullName: $('#FullNameInput').val(),
-                JobTitle: $('#JobTitleInput').val(),
-                Email: $('#EmailInput').val(),
-                Phone: $('#PhoneInput').val(),
-                Address: $('#AddressInput').val(),
+                Website: $('#WebsiteInput').val(),
                 BirthDate: $('#BirthDateInput').val(),
                 Summary: $('#SummaryInput').val(),
                 AvatarUrl: $('#AvatarBase64').val(),
@@ -893,8 +933,25 @@
                 }).get(),
                 References: $('.reference-item').map(function() {
                     return { Info: $(this).find('.ref-info').val() };
+                }).get(),
+                Certifications: $('.cert-item').map(function() {
+                    return { Name: $(this).find('.cert-name').val(), Year: $(this).find('.cert-year').val() };
+                }).get(),
+                Activities: $('.activity-item').map(function() {
+                    return { Name: $(this).find('.act-name').val(), Time: $(this).find('.act-time').val(), Description: $(this).find('.act-desc').val() };
+                }).get(),
+                Hobbies: $('.hobby-item').map(function() {
+                    return { Name: $(this).find('.hobby-name').val() };
+                }).get(),
+                Projects: $('.project-item').map(function() {
+                    return { Name: $(this).find('.proj-name').val(), Role: $(this).find('.proj-role').val(), Time: $(this).find('.proj-time').val(), Description: $(this).find('.proj-desc').val() };
                 }).get()
             };
+        }
+
+        // 6. Hàm Lưu CV (Gửi đầy đủ JSON)
+        function saveResume() {
+            const resumeData = gatherResumeData();
 
             $.ajax({
                 url: '/Resume/SaveResume',
@@ -909,40 +966,100 @@
         }
 
         $(document).ready(function() {
-            // 1. Lấy dữ liệu JSON từ Model gửi từ C# sang
-            const experiencesJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Experience")?.ContentJSON ?? "[]")`;
-            const educationJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Education")?.ContentJSON ?? "[]")`;
-            const skillsJson = `@Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Skills")?.ContentJSON ?? "[]")`;
+            try {
+                console.log("Hệ thống khởi tạo dữ liệu CV...");
+                // 1. Lấy dữ liệu JSON từ Model gửi từ C# sang qua phương thức an toàn
+                // Trực tiếp gán mảng đối tượng thay vì chuỗi để tránh lỗi ký tự đặc biệt (như xuống dòng \n làm hỏng JSON.parse)
+                const exps = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Experience")?.ContentJSON ?? "[]");
+                const edus = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Education")?.ContentJSON ?? "[]");
+                const skills = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Skills")?.ContentJSON ?? "[]");
+                const languages = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Languages")?.ContentJSON ?? "[]");
+                const otherSkills = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "OtherSkills")?.ContentJSON ?? "[]");
+                const awards = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Awards")?.ContentJSON ?? "[]");
+                const refs = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "References")?.ContentJSON ?? "[]");
+                const certs = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Certifications")?.ContentJSON ?? "[]");
+                const acts = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Activities")?.ContentJSON ?? "[]");
+                const hobbies = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Hobbies")?.ContentJSON ?? "[]");
+                const projects = @Html.Raw(Model.ResumeSections?.FirstOrDefault(s => s.SectionType == "Projects")?.ContentJSON ?? "[]");
 
-            // Làm sạch container trước khi đổ dữ liệu
-            $('#experience-container').empty();
-            $('#education-container').empty();
-            $('#it-skills-container').empty();
+                // 2. Khôi phục Kinh nghiệm
+                $('#experience-container').empty();
+                if (exps && exps.length > 0) {
+                    exps.forEach(item => addItemWithData('experience', item));
+                } else {
+                    addItem('experience');
+                }
 
-            // 2. Khôi phục Kinh nghiệm
-            const exps = JSON.parse(experiencesJson);
-            if (exps.length > 0) {
-                exps.forEach(item => addItemWithData('experience', item));
-            } else {
-                addItem('experience'); // Tự động tạo 1 ô trống nếu chưa có dữ liệu
+                // 3. Khôi phục Học vấn
+                $('#education-container').empty();
+                if (edus && edus.length > 0) {
+                    edus.forEach(item => addItemWithData('education', item));
+                } else {
+                    addItem('education');
+                }
+
+                // 4. Khôi phục Kỹ năng (IT Skills)
+                $('#it-skills-container').empty();
+                if (skills && skills.length > 0) {
+                    skills.forEach(item => addItemWithData('it-skill', item));
+                }
+                
+                // 5. Khôi phục Ngoại ngữ
+                $('#languages-container').empty();
+                if (languages && languages.length > 0) {
+                    languages.forEach(item => addItemWithData('language', item));
+                }
+
+                // 6. Khôi phục Kỹ năng khác
+                $('#other-skills-container').empty();
+                if (otherSkills && otherSkills.length > 0) {
+                    otherSkills.forEach(item => addItemWithData('other-skill', item));
+                }
+
+                // 7. Khôi phục Giải thưởng
+                $('#awards-container').empty();
+                if (awards && awards.length > 0) {
+                    awards.forEach(item => addItemWithData('award', item));
+                }
+
+                // 8. Khôi phục Vị trí tham chiếu
+                $('#references-container').empty();
+                if (refs && refs.length > 0) {
+                    refs.forEach(item => addItemWithData('reference', item));
+                }
+
+                // 9. Khôi phục Chứng chỉ
+                $('#certifications-container').empty();
+                if (certs && certs.length > 0) {
+                    certs.forEach(item => addItemWithData('cert', item));
+                }
+
+                // 10. Khôi phục Hoạt động
+                $('#activities-container').empty();
+                if (acts && acts.length > 0) {
+                    acts.forEach(item => addItemWithData('activity', item));
+                }
+
+                // 11. Khôi phục Sở thích
+                $('#hobbies-container').empty();
+                if (hobbies && hobbies.length > 0) {
+                    hobbies.forEach(item => addItemWithData('hobby', item));
+                }
+
+                // 12. Khôi phục Dự án
+                $('#projects-container').empty();
+                if (projects && projects.length > 0) {
+                    projects.forEach(item => addItemWithData('project', item));
+                }
+
+                updatePreview(); 
+                $(document).on('input', '.form-control', updatePreview);
+                console.log("Khởi tạo CV thành công!");
+            } catch (err) {
+                console.error("LỖI KHỞI TẠO CV:", err);
+                // Cố gắng chạy updatePreview dù có lỗi dữ liệu JSON ở trên
+                updatePreview();
             }
-
-            // 3. Khôi phục Học vấn
-            const edus = JSON.parse(educationJson);
-            if (edus.length > 0) {
-                edus.forEach(item => addItemWithData('education', item));
-            } else {
-                addItem('education'); // Tự động tạo 1 ô trống nếu chưa có dữ liệu
-            }
-
-            // 4. Khôi phục Kỹ năng (IT Skills)
-            const skills = JSON.parse(skillsJson);
-            if (skills.length > 0) {
-                skills.forEach(item => addItemWithData('it-skill', item));
-            }
-
-            updatePreview(); 
-            $(document).on('input', '.form-control', updatePreview);
         });
 
         function addItemWithData(type, data) {
@@ -979,6 +1096,66 @@
                                 </div>
                             </div>`;
                 $('#it-skills-container').append(html);
+            } else if (type === 'language') {
+                let html = `<div class="dynamic-item language-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <div class="row">
+                                    <div class="col-7"><input type="text" class="form-control lang-name" value="${data.Name || ''}" placeholder="Ngoại ngữ (Tiếng Anh...)"></div>
+                                    <div class="col-5"><input type="text" class="form-control lang-level" value="${data.Level || ''}" placeholder="Mức độ"></div>
+                                </div>
+                            </div>`;
+                $('#languages-container').append(html);
+            } else if (type === 'other-skill') {
+                let html = `<div class="dynamic-item other-skill-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <div class="row">
+                                    <div class="col-7"><input type="text" class="form-control other-name" value="${data.Name || ''}" placeholder="Kỹ năng (Giao tiếp...)"></div>
+                                    <div class="col-5"><input type="text" class="form-control other-level" value="${data.Level || ''}" placeholder="Mức độ"></div>
+                                </div>
+                            </div>`;
+                $('#other-skills-container').append(html);
+            } else if (type === 'award') {
+                let html = `<div class="dynamic-item award-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control award-name" value="${data.Name || ''}" placeholder="Tên giải thưởng (Sinh viên 5 tốt...)">
+                            </div>`;
+                $('#awards-container').append(html);
+            } else if (type === 'reference') {
+                let html = `<div class="dynamic-item reference-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control ref-info" value="${data.Info || ''}" placeholder="Họ tên, chức vụ, SĐT người tham chiếu">
+                            </div>`;
+                $('#references-container').append(html);
+            } else if (type === 'cert') {
+                let html = `<div class="dynamic-item cert-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 cert-year" value="${data.Year || ''}" placeholder="Năm (2019)">
+                                <input type="text" class="form-control cert-name" value="${data.Name || ''}" placeholder="Tên chứng chỉ (IELTS 7.0)">
+                            </div>`;
+                $('#certifications-container').append(html);
+            } else if (type === 'activity') {
+                let html = `<div class="dynamic-item activity-item mb-3 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 act-name" value="${data.Name || ''}" placeholder="Tên tổ chức/CLB">
+                                <input type="text" class="form-control mb-1 act-time" value="${data.Time || ''}" placeholder="Thời gian (2017 - 2019)">
+                                <textarea class="form-control act-desc" rows="2" placeholder="Mô tả hoạt động...">${data.Description || ''}</textarea>
+                            </div>`;
+                $('#activities-container').append(html);
+            } else if (type === 'hobby') {
+                let html = `<div class="dynamic-item hobby-item mb-2 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control hobby-name" value="${data.Name || ''}" placeholder="Sở thích (Đọc sách, Nghe nhạc...)">
+                            </div>`;
+                $('#hobbies-container').append(html);
+            } else if (type === 'project') {
+                let html = `<div class="dynamic-item project-item mb-3 p-2 border rounded">
+                                <i class="fas fa-times text-danger float-end cursor-pointer" onclick="this.parentElement.remove(); updatePreview();"></i>
+                                <input type="text" class="form-control mb-1 proj-name" value="${data.Name || ''}" placeholder="Tên dự án (SMART CV BUILDER)">
+                                <input type="text" class="form-control mb-1 proj-role" value="${data.Role || ''}" placeholder="Vai trò (Backend Developer)">
+                                <input type="text" class="form-control mb-1 proj-time" value="${data.Time || ''}" placeholder="Thời gian (Mar 2026 - Present)">
+                                <textarea class="form-control proj-desc" rows="2" placeholder="Mô tả và công nghệ...">${data.Description || ''}</textarea>
+                            </div>`;
+                $('#projects-container').append(html);
             }
         }
 

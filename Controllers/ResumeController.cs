@@ -84,6 +84,7 @@ namespace DoAnCS.Controllers
                 // Nạp lại để đảm bảo đối tượng Template đi kèm không bị null
                 resume = await _context.Resumes
                     .Include(r => r.Template)
+                    .Include(r => r.ResumeSections) // Bổ sung Include ResumeSections
                     .FirstOrDefaultAsync(r => r.ResumeID == resume.ResumeID);
             }
 
@@ -117,6 +118,7 @@ namespace DoAnCS.Controllers
                     Address = model.Address,
                     BirthDate = DateTime.TryParse(model.BirthDate, out var dt) ? dt : (DateTime?)null,
                     Summary = model.Summary,
+                    AvatarUrl = model.AvatarUrl,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
@@ -125,35 +127,20 @@ namespace DoAnCS.Controllers
                 await _context.SaveChangesAsync(); // Lưu để lấy ResumeID
 
                 // B. Lưu các Section chi tiết vào ResumeSections (Dạng JSON)
-                var sections = new List<ResumeSection>();
+                await SaveSectionJson(resume.ResumeID, "Experience", model.Experiences ?? new List<ExperienceItem>());
+                await SaveSectionJson(resume.ResumeID, "Education", model.Educations ?? new List<EducationItem>());
+                await SaveSectionJson(resume.ResumeID, "Skills", model.Skills ?? new List<SkillItem>());
+                await SaveSectionJson(resume.ResumeID, "Languages", model.Languages ?? new List<LanguageItem>());
+                await SaveSectionJson(resume.ResumeID, "OtherSkills", model.OtherSkills ?? new List<OtherSkillItem>());
+                await SaveSectionJson(resume.ResumeID, "Awards", model.Awards ?? new List<AwardItem>());
+                await SaveSectionJson(resume.ResumeID, "References", model.References ?? new List<ReferenceItem>());
+                await SaveSectionJson(resume.ResumeID, "Certifications", model.Certifications ?? new List<CertificationItem>());
+                await SaveSectionJson(resume.ResumeID, "Activities", model.Activities ?? new List<ActivityItem>());
+                await SaveSectionJson(resume.ResumeID, "Hobbies", model.Hobbies ?? new List<HobbyItem>());
+                await SaveSectionJson(resume.ResumeID, "Projects", model.Projects ?? new List<ProjectItem>());
+                await SaveSectionJson(resume.ResumeID, "Website", model.Website ?? "");
 
-                // 1. Lưu Kinh nghiệm
-                if (model.Experiences != null && model.Experiences.Any()) {
-                    sections.Add(new ResumeSection {
-                        ResumeID = resume.ResumeID,
-                        SectionType = "Experience",
-                        ContentJSON = JsonSerializer.Serialize(model.Experiences),
-                        SortOrder = 1
-                    });
-                }
-
-                // 2. Lưu Học vấn
-                if (model.Educations != null && model.Educations.Any()) {
-                    sections.Add(new ResumeSection {
-                        ResumeID = resume.ResumeID,
-                        SectionType = "Education",
-                        ContentJSON = JsonSerializer.Serialize(model.Educations),
-                        SortOrder = 2
-                    });
-                }
-
-                // 3. Lưu Kỹ năng (Nếu bạn đã cập nhật ViewModel có Skills)
-                // if (model.Skills != null) { ... }
-
-                if (sections.Any()) {
-                    _context.ResumeSections.AddRange(sections);
-                    await _context.SaveChangesAsync();
-                }
+                await _context.SaveChangesAsync();
 
                 return Json(new { success = true, resumeId = resume.ResumeID, message = "Lưu CV thành công!" });
             }
@@ -190,6 +177,10 @@ namespace DoAnCS.Controllers
                 // 4. Cập nhật các thông tin cơ bản
                 resume.FullName = model.FullName;
                 resume.JobTitle = model.JobTitle;
+                resume.Email = model.Email;
+                resume.Phone = model.Phone;
+                resume.Address = model.Address;
+                resume.BirthDate = DateTime.TryParse(model.BirthDate, out var dt) ? dt : (DateTime?)null;
                 resume.Summary = model.Summary;
                 resume.AvatarUrl = model.AvatarUrl; // Lưu Base64 ảnh đại diện
                 resume.UpdatedAt = DateTime.Now;
@@ -200,6 +191,15 @@ namespace DoAnCS.Controllers
                 await SaveSectionJson(resume.ResumeID, "Experience", model.Experiences ?? new List<ExperienceItem>());
                 await SaveSectionJson(resume.ResumeID, "Education", model.Educations ?? new List<EducationItem>());
                 await SaveSectionJson(resume.ResumeID, "Skills", model.Skills ?? new List<SkillItem>());
+                await SaveSectionJson(resume.ResumeID, "Languages", model.Languages ?? new List<LanguageItem>());
+                await SaveSectionJson(resume.ResumeID, "OtherSkills", model.OtherSkills ?? new List<OtherSkillItem>());
+                await SaveSectionJson(resume.ResumeID, "Awards", model.Awards ?? new List<AwardItem>());
+                await SaveSectionJson(resume.ResumeID, "References", model.References ?? new List<ReferenceItem>());
+                await SaveSectionJson(resume.ResumeID, "Certifications", model.Certifications ?? new List<CertificationItem>());
+                await SaveSectionJson(resume.ResumeID, "Activities", model.Activities ?? new List<ActivityItem>());
+                await SaveSectionJson(resume.ResumeID, "Hobbies", model.Hobbies ?? new List<HobbyItem>());
+                await SaveSectionJson(resume.ResumeID, "Projects", model.Projects ?? new List<ProjectItem>());
+                await SaveSectionJson(resume.ResumeID, "Website", model.Website ?? "");
 
                 // 6. Thực thi lưu vào Database
                 await _context.SaveChangesAsync();
