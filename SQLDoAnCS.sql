@@ -212,6 +212,19 @@ CREATE TABLE JobSkills (
     FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
 );
 
+CREATE TABLE [UpgradeRequests] (
+    [Id]               INT            IDENTITY (1, 1) NOT NULL,
+    [UserID]           INT            NOT NULL,
+    [RequestDate]      DATETIME       NOT NULL DEFAULT (GETDATE()),
+    [Status]           INT            NOT NULL DEFAULT (0),
+    [EvidenceImageUrl] NVARCHAR (MAX) NULL,
+    [Notes]            NVARCHAR (MAX) NULL,
+    [DecisionDate]     DATETIME       NULL,
+    PRIMARY KEY ([Id]),
+    CONSTRAINT [FK_Upgrade_User] FOREIGN KEY ([UserID]) REFERENCES [Users]([UserID])
+);
+
+
 
 -- 1. Thêm thử 1 dòng
 INSERT INTO ContactMessages (Name, Email, Subject, Message)

@@ -143,6 +143,12 @@
                     <div class="d-flex align-items-center gap-2">
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
+                            @if (!User.HasClaim("IsPro", "True") && !User.IsInRole("Admin"))
+                            {
+                                <a asp-controller="Account" asp-action="Upgrade" class="btn btn-outline-warning btn-sm rounded-pill px-3 fw-bold d-none d-md-inline-block">
+                                    <i class="fas fa-crown me-1"></i> Nâng cấp Pro
+                                </a>
+                            }
                             <div class="dropdown">
                                 <button class="btn user-dropdown-btn dropdown-toggle rounded-pill px-4 shadow-sm" 
                                         type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -154,6 +160,15 @@
                                     }
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="userDropdown">
+                                    @if (!User.HasClaim("IsPro", "True") && !User.IsInRole("Admin"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item py-2 text-warning fw-bold" asp-controller="Account" asp-action="Upgrade">
+                                                <i class="fas fa-crown me-2"></i> Nâng cấp Pro
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                    }
                                     <li>
                                         <a class="dropdown-item py-2" href="/Account/Profile">
                                             <i class="fas fa-id-card me-2 text-primary"></i> 
@@ -213,6 +228,7 @@
                                 <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
                                 <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
                                 <a href="/Admin/Companies" class="menu-item @(currentAction == "Companies" ? "active" : "")"><i class='bx bxs-business'></i> Công ty</a>
+                                <a href="/Admin/UpgradeRequests" class="menu-item @(currentAction == "UpgradeRequests" ? "active" : "")"><i class='bx bxs-crown text-warning'></i> Yêu cầu nâng cấp</a>
                             </div>
 
                             <!-- Nhóm Hệ thống -->
@@ -260,6 +276,7 @@
                     <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
                     <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
                     <a href="/Admin/Companies" class="menu-item @(currentAction == "Companies" ? "active" : "")"><i class='bx bxs-business'></i> Công ty</a>
+                    <a href="/Admin/UpgradeRequests" class="menu-item @(currentAction == "UpgradeRequests" ? "active" : "")"><i class='bx bxs-crown text-warning'></i> Yêu cầu nâng cấp</a>
                 </div>
 
                 <!-- Nhóm Hệ thống -->

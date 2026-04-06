@@ -8,6 +8,7 @@ namespace DoAnCS.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UpgradeRequest> UpgradeRequests { get; set; }
         public DbSet<Template> Templates { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Resume> Resumes { get; set; }

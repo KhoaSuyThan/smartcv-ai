@@ -512,5 +512,63 @@ namespace DoAnCS.Controllers
                 return Json(new { success = false, answer = "Lỗi: " + ex.Message });
             }
         }
+
+        // ==========================================
+        //  Quản lý Yêu cầu Nâng cấp Pro
+        // ==========================================
+
+        [HttpGet]
+        public async Task<IActionResult> UpgradeRequests()
+        {
+            var requests = await _context.UpgradeRequests
+                .Include(r => r.User)
+                .OrderByDescending(r => r.Id)
+                .ToListAsync();
+            return View(requests);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveUpgrade(int id)
+        {
+            var request = await _context.UpgradeRequests.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);
+            if (request == null) return NotFound();
+
+            if (request.Status == 0) // Chỉ xử lý nếu đang chờ duyệt
+            {
+                request.Status = 1; // Đã duyệt
+                request.DecisionDate = DateTime.Now;
+                
+                if (request.User != null)
+                {
+                    request.User.IsPro = true;
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã phê duyệt nâng cấp Pro cho {request.User?.FullName}";
+            }
+
+            return RedirectToAction(nameof(UpgradeRequests));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectUpgrade(int id, string? reason)
+        {
+            var request = await _context.UpgradeRequests.Include(r => r.User).FirstOrDefaultAsync(r => r.Id == id);
+            if (request == null) return NotFound();
+
+            if (request.Status == 0)
+            {
+                request.Status = 2; // Từ chối
+                request.DecisionDate = DateTime.Now;
+                request.Notes = reason;
+
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"Đã từ chối nâng cấp Pro cho {request.User?.FullName}";
+            }
+
+            return RedirectToAction(nameof(UpgradeRequests));
+        }
     }
 }
