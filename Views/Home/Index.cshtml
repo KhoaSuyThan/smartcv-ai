@@ -75,6 +75,85 @@
         margin: 0 auto 20px;
         box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
     }
+
+    /* PREMIUM BLOG CARD */
+    .blog-card-premium {
+        border: none;
+        border-radius: 24px;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        cursor: pointer;
+        height: 100%;
+        overflow: hidden;
+    }
+    .blog-card-premium:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .blog-card-premium .card-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        height: 220px;
+    }
+    .blog-card-premium .card-img-top {
+        transition: transform 0.6s ease;
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+    .blog-card-premium:hover .card-img-top {
+        transform: scale(1.1);
+    }
+    .blog-card-premium .badge-category {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 2;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .blog-card-premium .card-body {
+        padding: 30px;
+    }
+    .blog-card-premium .card-title {
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+        line-height: 1.4;
+        color: #1a202c;
+        transition: color 0.3s ease;
+    }
+    .blog-card-premium:hover .card-title {
+        color: #0d6efd;
+    }
+    .blog-card-premium .card-text {
+        color: #718096;
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+    .blog-card-premium .read-more-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: #0d6efd;
+        font-size: 0.9rem;
+        margin-top: 20px;
+    }
+
+    /* BLOG MODAL TYPOGRAPHY */
+    .blog-modal-content h4 { font-weight: 800; color: #1a202c; margin-top: 25px; margin-bottom: 15px; }
+    .blog-modal-content p { color: #4a5568; line-height: 1.8; margin-bottom: 15px; text-align: justify; }
+    .blog-modal-content ul { padding-left: 20px; margin-bottom: 20px; }
+    .blog-modal-content li { color: #4a5568; margin-bottom: 10px; line-height: 1.6; }
+    .blog-modal-header-img { width: 100%; height: 350px; object-fit: cover; border-radius: 15px; margin-bottom: 30px; }
+    .reading-time { font-size: 0.85rem; color: #a0aec0; display: flex; align-items: center; gap: 5px; }
 </style>
 
 <!-- HERO SECTION -->
@@ -318,58 +397,91 @@
 </section>
 
 <!-- BLOG SECTION -->
-<section id="blog-section" class="pt-5 pb-4 bg-white" data-aos="fade-up">
+<section id="blog-section" class="py-5 bg-light" data-aos="fade-up">
     <div class="container text-center mb-5">
-        <h6 class="text-primary fw-bold text-uppercase ls-wide mb-2">Kiến thức hữu ích</h6>
-        <h2 class="display-6 fw-bold mb-0">Cẩm nang nghề nghiệp</h2>
+        <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3">KIẾN THỨC CHUYÊN GIA</span>
+        <h2 class="display-5 fw-bold mb-0">Cẩm nang nghề nghiệp</h2>
+        <p class="text-muted mt-2">Nâng tầm bản thân với những bí quyết từ các chuyên gia nhân sự hàng đầu.</p>
     </div>
 
     <div class="container">
         <div class="row g-4 justify-content-center">
             <!-- Blog Item 1 -->
             <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden" style="border-radius: 20px;">
-                    <div class="position-relative">
-                        <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips" style="height: 200px; object-fit: cover;">
-                        <span class="position-absolute top-0 start-0 m-3 badge bg-primary rounded-pill px-3 py-2">Mẹo</span>
+                <div class="blog-card-premium" onclick="openBlogModal('intro')">
+                    <div class="card-img-wrapper">
+                        <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips">
+                        <span class="badge-category bg-primary text-white">Mẹo Phỏng Vấn</span>
                     </div>
-                    <div class="card-body p-4 text-center">
-                        <h5 class="fw-bold mb-2 lh-base">Trả lời "Giới thiệu bản thân"</h5>
-                        <p class="text-muted small mb-0">Khám phá cách kể một câu chuyện sự nghiệp đầy cảm hứng, tập trung vào những giá trị thực tế bạn mang lại để chinh phục nhà tuyển dụng ngay lập tức.</p>
+                    <div class="card-body">
+                        <div class="reading-time mb-2"><i class="far fa-clock"></i> 5 phút đọc</div>
+                        <h5 class="card-title">Trả lời "Giới thiệu bản thân" chuyên nghiệp</h5>
+                        <p class="card-text">Khám phá cách kể một câu chuyện sự nghiệp đầy cảm hứng, tập trung vào những giá trị thực tế bạn mang lại để chinh phục nhà tuyển dụng ngay lập tức.</p>
+                        <div class="read-more-link">
+                            Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Blog Item 2 -->
             <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden" style="border-radius: 20px;">
-                    <div class="position-relative">
-                        <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing" style="height: 200px; object-fit: cover;">
-                        <span class="position-absolute top-0 start-0 m-3 badge bg-success rounded-pill px-3 py-2">Hồ sơ</span>
+                <div class="blog-card-premium" onclick="openBlogModal('errors')">
+                    <div class="card-img-wrapper">
+                        <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing">
+                        <span class="badge-category bg-success text-white">Hồ Sơ Chuyên Nghiệp</span>
                     </div>
-                    <div class="card-body p-4 text-center">
-                        <h5 class="fw-bold mb-2 lh-base">Top 5 sai lầm khi viết CV</h5>
-                        <p class="text-muted small mb-0">Hướng dẫn chi tiết cách tránh những lỗi sơ đẳng về trình bày và thuật toán ATS, giúp bản hồ sơ của bạn luôn lọt vào mắt xanh của các chuyên gia nhân sự.</p>
+                    <div class="card-body">
+                        <div class="reading-time mb-2"><i class="far fa-clock"></i> 7 phút đọc</div>
+                        <h5 class="card-title">Top 5 sai lầm khi viết CV cho Dev IT</h5>
+                        <p class="card-text">Hướng dẫn chi tiết cách tránh những lỗi sơ đẳng về trình bày và thuật toán ATS, giúp bản hồ sơ của bạn luôn lọt vào mắt xanh của HR giữa hàng nghìn ứng viên.</p>
+                        <div class="read-more-link">
+                            Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Blog Item 3 -->
             <div class="col-lg-4 col-md-6">
-                <div class="card border-0 shadow-sm h-100 hover-lift overflow-hidden" style="border-radius: 20px;">
-                    <div class="position-relative">
-                        <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth" style="height: 200px; object-fit: cover;">
-                        <span class="position-absolute top-0 start-0 m-3 badge bg-warning text-dark rounded-pill px-3 py-2">Lộ trình</span>
+                <div class="blog-card-premium" onclick="openBlogModal('salary')">
+                    <div class="card-img-wrapper">
+                        <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth">
+                        <span class="badge-category bg-warning text-dark">Lộ Trình Sự Nghiệp</span>
                     </div>
-                    <div class="card-body p-4 text-center">
-                        <h5 class="fw-bold mb-2 lh-base">Chuẩn bị cho mức lương 1000$</h5>
-                        <p class="text-muted small mb-0">Lộ trình rõ ràng cho người mới bắt đầu: Từ việc tham gia dự án thực tế đến cách kết nối với các chuyên gia trong ngành để đạt được thu nhập kỳ vọng.</p>
+                    <div class="card-body">
+                        <div class="reading-time mb-2"><i class="far fa-clock"></i> 10 phút đọc</div>
+                        <h5 class="card-title">Lộ trình đạt mức lương 1000$ cho Junior</h5>
+                        <p class="card-text">Lộ trình rõ ràng cho người mới bắt đầu: Từ việc tham gia dự án thực tế đến cách kết nối với các chuyên gia trong ngành để đạt được thu nhập kỳ vọng.</p>
+                        <div class="read-more-link">
+                            Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<!-- BLOG MODAL -->
+<div class="modal fade" id="blogDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-0">
+                <div id="blogContentArea" class="blog-modal-content">
+                    <!-- Content will be injected by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                <a asp-controller="Resume" asp-action="Templates" class="btn btn-primary rounded-pill px-4">Tạo CV ứng tuyển ngay</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- NEWSLETTER SECTION -->
 <section class="pt-0 pb-5">
@@ -429,6 +541,36 @@
             }
 
             type();
+
+            // BLOG MODAL LOGIC (Tải từ JSON bên ngoài)
+            let blogData = {};
+
+            // Hàm tải dữ liệu từ file JSON
+            async function loadBlogData() {
+                try {
+                    const response = await fetch('/data/blogs.json');
+                    if (!response.ok) throw new Error('Không thể tải dữ liệu blog');
+                    blogData = await response.json();
+                    console.log('Blog data loaded successfully');
+                } catch (error) {
+                    console.error('Error loading blog data:', error);
+                }
+            }
+
+            // Gọi hàm tải dữ liệu khi trang web sẵn sàng
+            loadBlogData();
+
+            window.openBlogModal = function(id) {
+                const data = blogData[id];
+                if (data) {
+                    document.getElementById('blogContentArea').innerHTML = data.content;
+                    const blogModal = new bootstrap.Modal(document.getElementById('blogDetailModal'));
+                    blogModal.show();
+                } else {
+                    console.error('Không tìm thấy dữ liệu cho blog ID:', id);
+                    // Có thể hiển thị thông báo lỗi nhẹ nhàng cho người dùng
+                }
+            };
         });
     </script>
 }
