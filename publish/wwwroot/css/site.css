@@ -1,0 +1,163 @@
+.editor-container {
+  display: flex;
+  height: 100vh;
+}
+.form-side {
+  width: 50%;
+  padding: 20px;
+  overflow-y: auto;
+  background: #f8f9fa;
+}
+.preview-side {
+  width: 50%;
+  padding: 40px;
+  background: #525659; /* Màu nền tối để nổi bật tờ giấy CV */
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+}
+#cv-document {
+  width: 210mm; /* Chuẩn khổ A4 */
+  min-height: 297mm;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Hiệu ứng cho Card Mẫu CV */
+.template-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.template-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.template-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(13, 110, 253, 0.1); /* Màu xanh nhạt mờ */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.template-card:hover .template-overlay {
+  opacity: 1;
+}
+/* Ép toàn bộ nền web và các vùng mặc định sang xanh nhạt */
+body,
+.bg-light,
+.bg-white,
+section,
+.container-fluid {
+  background-color: #f0f7ff !important;
+}
+
+/* Giữ nguyên màu trắng cho các "tấm thẻ" (Cards) để tạo độ nổi khối */
+.card {
+  background-color: #ffffff !important;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+/* Các badge màu nhạt kiểu hiện đại */
+.bg-info-soft {
+  background-color: #e0f7fa;
+}
+.bg-success-soft {
+  background-color: #e8f5e9;
+}
+.bg-warning-soft {
+  background-color: #fffde7;
+}
+
+/* --- MODERN UI UTILITIES --- */
+:root {
+  --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+  --mesh-gradient: radial-gradient(at 0% 0%, hsla(210, 100%, 93%, 1) 0, transparent 50%), 
+                   radial-gradient(at 50% 0%, hsla(220, 100%, 95%, 1) 0, transparent 50%), 
+                   radial-gradient(at 100% 0%, hsla(190, 100%, 93%, 1) 0, transparent 50%);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+}
+
+.text-gradient {
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-mesh {
+  background-color: #f0f7ff;
+  background-image: var(--mesh-gradient);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.floating {
+  animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.section-padding {
+  padding: 60px 0;
+}
+
+.btn-premium {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 50px;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+  transition: all 0.3s ease;
+}
+
+.btn-premium:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+  color: white;
+}
+
+footer {
+  padding: 40px 0 20px;
+  background-color: #ffffff !important;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer-link {
+  color: #6c757d;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  font-size: 14px;
+}
+
+.footer-link:hover {
+  color: #0d6efd;
+}
