@@ -15,7 +15,37 @@ GO
 USE DoAnWebCS;
 GO
 
--- 1. Tạo bảng GeminiConfigs
+-- 1. Thông tin công ty
+CREATE TABLE Companies (
+    CompanyID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(255) NOT NULL,
+    LogoUrl NVARCHAR(500),
+    Website NVARCHAR(255),
+    Description NVARCHAR(MAX),
+    Address NVARCHAR(500),
+    Industry NVARCHAR(100), -- Ngành nghề (IT, Marketing,...)
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+-- 2. BẢNG MẪU CV (Lưu trữ cấu trúc giao diện)
+CREATE TABLE Templates (
+    TemplateID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(50) NOT NULL,
+    HtmlContent NVARCHAR(MAX), 
+    CssContent NVARCHAR(MAX),  
+    PreviewImageUrl NVARCHAR(500),
+	IsProOnly BIT NOT NULL DEFAULT 0,
+    IsActive BIT DEFAULT 1,
+	Category NVARCHAR(MAX) NULL
+);
+
+-- 3. HỆ THỐNG KỸ NĂNG VÀ VIỆC LÀM (Phục vụ Matching AI)
+CREATE TABLE Skills (
+    SkillID INT PRIMARY KEY IDENTITY(1,1),CREATE TABLE JobSkills (
+    SkillName NVARCHAR(100) UNIQUE NOT NULL
+);
+
+-- 4. Tạo bảng GeminiConfigs
 CREATE TABLE [GeminiConfigs] (
     [Id] int NOT NULL,
     [ApiKey] nvarchar(max) NULL,
@@ -40,24 +70,28 @@ GO
 INSERT INTO [GeminiConfigs] ([Id], [ModelName], [Temperature], [MaxOutputTokens], [ProModelName], [ProTemperature], [ProMaxOutputTokens], [ProUserRateLimit])
 VALUES (1, 'gemini-2.5-flash', 0.7, 2048, 'gemini-2.5-pro', 0.9, 4096, 50);
 GO
--- 2. Chèn dữ liệu cấu hình mặc định (Bắt buộc phải có 1 dòng Id = 1)
+
 INSERT INTO [GeminiConfigs] 
 ([Id], [ApiKey], [ModelName], [Temperature], [MaxOutputTokens], [SystemInstruction], [UserRateLimit], [TotalTokensUsed])
 VALUES 
-(1, N'Bỏ API vào', N'gemini-2.5-flash', 0.7, 2048, N'Bạn là trợ lý ảo hỗ trợ đánh giá CV chuyên nghiệp.', 10, 0);
+(1, N'Tự thêm API', N'gemini-2.5-flash', 0.7, 2048, N'Bạn là trợ lý ảo hỗ trợ đánh giá CV chuyên nghiệp.', 10, 0);
 GO
--- 1. LƯU LỊCH SỬ XUẤT PDF
-CREATE TABLE ResumeExports (
-    ExportID INT PRIMARY KEY IDENTITY(1,1),
-    ResumeID INT NOT NULL,
-    ExportDate DATETIME DEFAULT GETDATE(),
-    FileUrl NVARCHAR(500), -- Đường dẫn file PDF trên server (nếu có)
-    DownloadCount INT DEFAULT 0,
-    FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
+
+-- 5. Liên hệ hỗ trợ
+CREATE TABLE [ContactMessages] (
+    [Id]            INT IDENTITY(1,1) NOT NULL,    -- ID tự tăng
+    [Name]          NVARCHAR(200) NOT NULL,      -- Họ tên người gửi
+    [Email]         NVARCHAR(255) NOT NULL,     -- Email liên hệ
+    [Subject]       NVARCHAR(500) NULL,         -- Tiêu đề tin nhắn
+    [Message]       NVARCHAR(MAX) NOT NULL,     -- Nội dung chi tiết
+    [AttachmentUrl] NVARCHAR(MAX) NULL,         -- ĐƯỜNG DẪN FILE ĐÍNH KÈM (Mới thêm)
+    [SentAt]        DATETIME2 DEFAULT GETDATE(),-- Thời gian gửi
+    
+    CONSTRAINT [PK_ContactMessages] PRIMARY KEY ([Id])
 );
+GO
 
-
--- 2. BẢNG NGƯỜI DÙNG
+-- 6. BẢNG NGƯỜI DÙNG
 CREATE TABLE Users (
     UserID INT PRIMARY KEY IDENTITY(1,1),
     FullName NVARCHAR(100) NOT NULL,
@@ -72,19 +106,7 @@ CREATE TABLE Users (
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
--- 3. BẢNG MẪU CV (Lưu trữ cấu trúc giao diện)
-CREATE TABLE Templates (
-    TemplateID INT PRIMARY KEY IDENTITY(1,1),
-    Name NVARCHAR(50) NOT NULL,
-    HtmlContent NVARCHAR(MAX), 
-    CssContent NVARCHAR(MAX),  
-    PreviewImageUrl NVARCHAR(500),
-	IsProOnly BIT NOT NULL DEFAULT 0,
-    IsActive BIT DEFAULT 1,
-	Category NVARCHAR(MAX) NULL
-);
-
--- 4. BẢNG CV CHÍNH (Chứa thông tin cá nhân "tĩnh" - Khớp Editor)
+-- 7. BẢNG CV CHÍNH (Chứa thông tin cá nhân "tĩnh" - Khớp Editor)
 CREATE TABLE Resumes (
     ResumeID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -113,7 +135,7 @@ CREATE TABLE Resumes (
     FOREIGN KEY (TemplateID) REFERENCES Templates(TemplateID)
 );
 
--- 5. BẢNG NỘI DUNG CHI TIẾT (Lưu danh sách "động" như Experience, Education dạng JSON)
+-- 8. BẢNG NỘI DUNG CHI TIẾT (Lưu danh sách "động" như Experience, Education dạng JSON)
 CREATE TABLE ResumeSections (
     SectionID INT PRIMARY KEY IDENTITY(1,1),
     ResumeID INT NOT NULL,
@@ -123,12 +145,17 @@ CREATE TABLE ResumeSections (
     FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
 );
 
--- 6. HỆ THỐNG KỸ NĂNG VÀ VIỆC LÀM (Phục vụ Matching AI)
-CREATE TABLE Skills (
-    SkillID INT PRIMARY KEY IDENTITY(1,1),CREATE TABLE JobSkills (
-    SkillName NVARCHAR(100) UNIQUE NOT NULL
+-- 9. LƯU LỊCH SỬ XUẤT PDF
+CREATE TABLE ResumeExports (
+    ExportID INT PRIMARY KEY IDENTITY(1,1),
+    ResumeID INT NOT NULL,
+    ExportDate DATETIME DEFAULT GETDATE(),
+    FileUrl NVARCHAR(500), -- Đường dẫn file PDF trên server (nếu có)
+    DownloadCount INT DEFAULT 0,
+    FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
 );
 
+-- 10. Lưu kỹ năng cho CV
 CREATE TABLE ResumeSkills (
     ResumeID INT NOT NULL,
     SkillID INT NOT NULL,
@@ -138,6 +165,8 @@ CREATE TABLE ResumeSkills (
     FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
 );
 
+
+-- 11. Lưu jobs
 CREATE TABLE Jobs (
     JobID INT PRIMARY KEY IDENTITY(1,1),
     RecruiterID INT NOT NULL,
@@ -153,6 +182,18 @@ CREATE TABLE Jobs (
 	FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID)
 );
 
+-- 12. THÊM KỸ NĂNG YÊU CẦU CHO CÔNG VIỆC (DÀNH CHO AI MATCHING)
+CREATE TABLE JobSkills (
+    JobID INT NOT NULL,
+    SkillID INT NOT NULL,
+    RequiredProficiency NVARCHAR(50), -- Mức độ yêu cầu (Junior, Senior,...)
+    PRIMARY KEY (JobID, SkillID),
+    FOREIGN KEY (JobID) REFERENCES Jobs(JobID) ON DELETE CASCADE,
+    FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
+);
+
+
+-- 13. Duyệt CV
 CREATE TABLE Applications (
     ApplicationID INT PRIMARY KEY IDENTITY(1,1),
     JobID INT NOT NULL,
@@ -163,7 +204,7 @@ CREATE TABLE Applications (
     FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE NO ACTION -- Tránh vòng lặp Cascade
 );
 
--- 7. LOG HỆ THỐNG AI
+-- 14. LOG HỆ THỐNG AI
 CREATE TABLE AILogs (
     LogID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
@@ -176,42 +217,7 @@ CREATE TABLE AILogs (
 );
 GO
 
--- 8. Liên hệ hỗ trợ
-CREATE TABLE [ContactMessages] (
-    [Id]            INT IDENTITY(1,1) NOT NULL,    -- ID tự tăng
-    [Name]          NVARCHAR(200) NOT NULL,      -- Họ tên người gửi
-    [Email]         NVARCHAR(255) NOT NULL,     -- Email liên hệ
-    [Subject]       NVARCHAR(500) NULL,         -- Tiêu đề tin nhắn
-    [Message]       NVARCHAR(MAX) NOT NULL,     -- Nội dung chi tiết
-    [AttachmentUrl] NVARCHAR(MAX) NULL,         -- ĐƯỜNG DẪN FILE ĐÍNH KÈM (Mới thêm)
-    [SentAt]        DATETIME2 DEFAULT GETDATE(),-- Thời gian gửi
-    
-    CONSTRAINT [PK_ContactMessages] PRIMARY KEY ([Id])
-);
-GO
-
--- 9. Thông tin công ty
-CREATE TABLE Companies (
-    CompanyID INT PRIMARY KEY IDENTITY(1,1),
-    Name NVARCHAR(255) NOT NULL,
-    LogoUrl NVARCHAR(500),
-    Website NVARCHAR(255),
-    Description NVARCHAR(MAX),
-    Address NVARCHAR(500),
-    Industry NVARCHAR(100), -- Ngành nghề (IT, Marketing,...)
-    CreatedAt DATETIME DEFAULT GETDATE()
-);
-
--- 10. THÊM KỸ NĂNG YÊU CẦU CHO CÔNG VIỆC (DÀNH CHO AI MATCHING)
-CREATE TABLE JobSkills (
-    JobID INT NOT NULL,
-    SkillID INT NOT NULL,
-    RequiredProficiency NVARCHAR(50), -- Mức độ yêu cầu (Junior, Senior,...)
-    PRIMARY KEY (JobID, SkillID),
-    FOREIGN KEY (JobID) REFERENCES Jobs(JobID) ON DELETE CASCADE,
-    FOREIGN KEY (SkillID) REFERENCES Skills(SkillID) ON DELETE CASCADE
-);
-
+-- 15. Cập nhật yêu cầu
 CREATE TABLE [UpgradeRequests] (
     [Id]               INT            IDENTITY (1, 1) NOT NULL,
     [UserID]           INT            NOT NULL,
@@ -224,12 +230,9 @@ CREATE TABLE [UpgradeRequests] (
     CONSTRAINT [FK_Upgrade_User] FOREIGN KEY ([UserID]) REFERENCES [Users]([UserID])
 );
 
-
-
 -- 1. Thêm thử 1 dòng
 INSERT INTO ContactMessages (Name, Email, Subject, Message)
 VALUES (N'Nguyễn Văn Test', 'test@gmail.com', N'Hỏi về cách tạo CV', N'Em muốn hỏi cách chỉnh sửa ảnh đại diện ạ');
-
 
 -- 1. Xóa mẫu cũ nếu tồn tại
 DELETE FROM Templates WHERE Name = N'Modern Blue Sidebar';
@@ -1945,6 +1948,392 @@ VALUES (
 	N'IT, Sáng tạo'
 );
 GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Modern Professional Split', 
+    N'<div class="cv-dual-wrapper">
+        <div class="left-sidebar">
+            <div class="avatar-container">
+                <img class="avatar-img" src="{{AvatarUrl}}">
+            </div>
+            
+            <div class="sidebar-padding">
+                <div class="contact-box">
+                    <ul>
+                        <li><i class="fas fa-phone"></i> <span>{{Phone}}</span></li>
+                        <li><i class="fas fa-envelope"></i> <span>{{Email}}</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>{{Address}}</span></li>
+                        <li><i class="fas fa-link"></i> <span>{{Website}}</span></li>
+                    </ul>
+                </div>
+                
+                <div class="side-divider"></div>
+                
+                <div class="side-summary">{{Summary}}</div>
+                
+                <div class="side-divider"></div>
+
+                <div class="side-section">
+                    <h3 class="side-title">Kỹ năng</h3>
+                    <div class="skills-list">{{Skills}}</div>
+                    <div class="skills-list">{{OtherSkills}}</div>
+                </div>
+
+                <div class="side-divider"></div>
+
+                <div class="side-section">
+                    <h3 class="side-title">Chứng chỉ</h3>
+                    <!-- CSS sẽ lật ngược Năm lên trên, Tên chứng chỉ xuống dưới -->
+                    <div class="side-cert">{{Certifications}}</div>
+                </div>
+
+                <div class="side-divider"></div>
+
+                <div class="side-section">
+                    <h3 class="side-title">Sở thích</h3>
+                    <div class="skills-list">{{Hobbies}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-main">
+            <div class="header-box">
+                <h1 class="fullname">{{FullName}}</h1>
+                <h2 class="job-title">{{JobTitle}}</h2>
+            </div>
+
+            <div class="main-content">
+                <div class="content-section education-section">
+                    <h3 class="main-title">Học vấn</h3>
+                    <div class="content-area">{{Education}}</div>
+                </div>
+
+                <div class="content-section act-section">
+                    <h3 class="main-title">Hoạt động</h3>
+                    <div class="content-area">{{Activities}}</div>
+                </div>
+
+                <div class="content-section project-section">
+                    <h3 class="main-title">Dự án</h3>
+                    <div class="content-area">{{Projects}}</div>
+                </div>
+
+                <div class="content-section exp-section">
+                    <h3 class="main-title">Kinh nghiệm làm việc</h3>
+                    <div class="content-area">{{Experience}}</div>
+                </div>
+                
+                <div class="content-section awards-section">
+                    <h3 class="main-title">Giải thưởng & Tham chiếu</h3>
+                    <div class="content-area">{{Awards}}</div>
+                    <div class="content-area ref-block">{{References}}</div>
+                </div>
+            </div>
+        </div>
+    </div>',
+
+    N'@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+    /* CẤU TRÚC A4 CỐ ĐỊNH SPLIT VIEW */
+    .cv-dual-wrapper {
+        display: flex; width: 100%; min-height: 297mm; background: #fff;
+        font-family: "Inter", sans-serif; margin: 0 auto; box-sizing: border-box; overflow: hidden;
+    }
+    .cv-dual-wrapper * { box-sizing: border-box; word-wrap: break-word; }
+
+    /* LAYOUT 2 CỘT */
+    .left-sidebar { width: 33.5%; background: #5B626B; color: #fff; display: flex; flex-direction: column; }
+    .right-main { width: 66.5%; background: #fff; display: flex; flex-direction: column; padding-bottom: 40px; }
+
+    /* AVATAR & HEADER ĐỒNG BỘ CHIỀU CAO */
+    .avatar-container { width: 100%; height: 215px; flex-shrink: 0; }
+    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    .header-box { width: 100%; height: 215px; background: #B3BBC5; display: flex; flex-direction: column; justify-content: center; padding-left: 45px; flex-shrink: 0; }
+
+    .fullname { font-size: 32px; font-weight: 700; color: #111; margin: 0 0 8px 0; letter-spacing: -0.5px; }
+    .job-title { font-size: 16.5px; font-weight: 500; color: #333; margin: 0; }
+
+    /* PADDING NỘI DUNG */
+    .sidebar-padding { padding: 35px 30px; }
+    .main-content { padding: 35px 45px; }
+
+    /* ----- CỘT TRÁI (LEFT SIDEBAR) ----- */
+    .contact-box ul { list-style: none; padding: 0; margin: 0; }
+    .contact-box li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.5; }
+    .contact-box i { width: 16px; text-align: center; font-size: 13px; margin-top: 3px; opacity: 0.9; }
+    .side-divider { width: 100%; border-bottom: 1px solid rgba(255, 255, 255, 0.25); margin: 22px 0; }
+    .side-summary { font-size: 13px; line-height: 1.6; text-align: justify; }
+
+    .side-title { font-size: 16px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.5px; color: #fff; }
+    
+    .skills-list ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .skills-list li { margin-bottom: 10px; font-size: 13px; line-height: 1.5; color: #fff; display: flex; }
+    .skills-list li::first-letter { font-size: 0; color: transparent; }
+
+    .side-cert > div { display: flex; flex-direction: column; margin-bottom: 15px !important; }
+    .side-cert .cert-year-div { order: 1; font-size: 12.5px !important; font-weight: 600 !important; color: #9AADC3 !important; margin-bottom: 4px; text-transform: uppercase; }
+    .side-cert .cert-name-div { order: 2; font-size: 13px !important; font-weight: 400 !important; color: #fff !important; line-height: 1.5; }
+
+    /* ----- CỘT PHẢI (RIGHT MAIN) ----- */
+    .content-section { margin-bottom: 25px; }
+    .content-section:empty, .content-area:empty { display: none !important; }
+    .main-title {
+        background: #88929B; color: #fff; padding: 9px 18px; font-size: 15.5px; font-weight: 600; text-transform: uppercase;
+        margin: 0 0 20px 0 !important; display: block; width: 100%; letter-spacing: 0.5px;
+    }
+
+    /* Ẩn chữ Công ty: Vị trí: */
+    .right-main .info-line strong { display: none; }
+    .right-main .exp-year::first-letter { font-size: 0; color: transparent; } /* Ẩn Bullet • */
+
+    /* MAGIC CSS THAY ĐỔI VỊ TRÍ (KINH NGHIỆM, DỰ ÁN) */
+    .exp-section .exp-item, .project-section .exp-item { display: flex; flex-direction: column; margin-bottom: 22px; }
+    .exp-section .exp-content, .project-section .exp-content { display: contents; } /* Giải nén hộp con */
+    
+    .exp-section .info-line:first-child, .project-section .info-line:first-child {
+        order: 1; font-weight: 700; font-size: 15px; color: #111; margin-bottom: 4px; text-transform: uppercase;
+    }
+    .exp-section .info-line:nth-child(2), .project-section .info-line:nth-child(2) {
+        order: 2; font-size: 14px; color: #5B626B; margin-bottom: 4px;
+    }
+    .exp-section .exp-year, .project-section .exp-year {
+        order: 3; font-size: 13.5px; color: #666; margin-bottom: 10px; font-weight: 500;
+    }
+    .exp-section .desc-text, .project-section .desc-text {
+        order: 4; font-size: 13.5px; line-height: 1.6; color: #333; text-align: justify;
+    }
+
+    /* SẮP XẾP VỊ TRÍ HOẠT ĐỘNG (Activity Header structure) */
+    .act-section .exp-item { display: flex; flex-direction: column; margin-bottom: 22px; }
+    .act-section .exp-header { display: contents; }
+    .act-section .company-name { order: 1; font-weight: 700; font-size: 15px; color: #111; margin-bottom: 4px; }
+    .act-section .date-badge { order: 2; font-size: 13.5px; color: #666; margin-bottom: 10px; font-weight: 500; }
+    .act-section .exp-desc { order: 3; font-size: 13.5px; line-height: 1.6; color: #333; text-align: justify; }
+    /* Fix bullet khoảng trắng cho ul li */
+    .desc-text ul { padding-left: 20px; }
+
+    /* SẮP XẾP VỊ TRÍ HỌC VẤN */
+    .education-section .exp-item { display: flex; flex-direction: column; margin-bottom: 20px; }
+    .education-section .exp-content { order: 1; font-weight: 400; color: #5B626B; font-size: 14px; line-height: 1.6; }
+    .education-section .exp-content strong { color: #111; font-size: 15px; font-weight: 700; display: block; margin-bottom: 2px; }
+    .education-section .exp-year { order: 2; color: #666; font-size: 13.5px; margin-top: 4px; font-weight: 500; }
+
+    /* GIẢI THƯỞNG & THAM CHIẾU */
+    .awards-section ul { list-style: none !important; padding: 0 !important; margin: 0 0 10px 0 !important; }
+    .awards-section li { padding: 4px 0; font-size: 13.5px; color: #333; }
+    .awards-section li::first-letter { font-size: 0; color: transparent; }
+
+    .ref-block p { font-size: 13.5px !important; margin-bottom: 8px !important; line-height: 1.5; color: #333; }
+    .ref-block p::first-letter { font-size: 0; color: transparent; }',
+
+    '/images/templates/modern_split.jpg',
+    1,
+	N'IT, Marketing'
+);
+GO
+
+INSERT INTO Templates (Name, HtmlContent, CssContent, PreviewImageUrl, IsActive, Category)
+VALUES (
+    N'Pastel Beige Blocks', 
+    N'<div class="cv-pastel-wrapper">
+        <!-- Block 1: Contact -->
+        <div class="pastel-block contact-block">
+            <div class="contact-item"><i class="fas fa-phone-alt"></i> <span>{{Phone}}</span></div>
+            <div class="contact-item"><i class="fas fa-envelope"></i> <span>{{Email}}</span></div>
+            <div class="contact-item"><i class="fas fa-globe"></i> <span>{{Website}}</span></div>
+            <div class="contact-item"><i class="fas fa-map-marker-alt"></i> <span>{{Address}}</span></div>
+        </div>
+
+        <!-- Block 2: Profile -->
+        <div class="pastel-block profile-block">
+            <div class="profile-left">
+                <h1 class="fullname">{{FullName}}</h1>
+                <div class="job-title-wrapper">
+                    <span class="job-title">{{JobTitle}}</span>
+                    <span class="title-line"></span>
+                </div>
+                <div class="summary-text">{{Summary}}</div>
+            </div>
+            <div class="profile-right">
+                <img src="{{AvatarUrl}}" class="avatar-img">
+            </div>
+        </div>
+
+        <!-- Block 3: Education & Certs -->
+        <div class="pastel-block">
+            <div class="section-group education-group">
+                <h3 class="section-title">Education</h3>
+                <div class="title-line-full"></div>
+                <div class="content-area">{{Education}}</div>
+            </div>
+
+            <div class="section-group cert-group">
+                <h3 class="section-title">Certifications</h3>
+                <div class="title-line-full"></div>
+                <div class="content-area">{{Certifications}}</div>
+            </div>
+        </div>
+
+        <!-- Block 4: Projects & Experience -->
+        <div class="pastel-block project-group">
+            <h3 class="section-title">Projects</h3>
+            <div class="title-line-full"></div>
+            <div class="timeline-area">{{Projects}}</div>
+            
+            <!-- Tận dụng không gian cho Kinh nghiệm làm việc dùng chung form timeline -->
+            <div style="margin-top: 15px;"></div>
+            <h3 class="section-title">Experience</h3>
+            <div class="title-line-full"></div>
+            <div class="timeline-area">{{Experience}}</div>
+        </div>
+
+        <!-- Block 5: Activities -->
+        <div class="pastel-block act-group">
+            <h3 class="section-title">Activities</h3>
+            <div class="title-line-full"></div>
+            <!-- Class riêng act-area do HTML sinh ra từ C# cho phần này khác với Projects -->
+            <div class="act-area">{{Activities}}</div>
+        </div>
+
+        <!-- Block 6: Skills -->
+        <div class="pastel-block skill-group">
+            <h3 class="section-title">Skills</h3>
+            <div class="title-line-full"></div>
+            <div class="content-area">{{Skills}}</div>
+            <div class="content-area">{{OtherSkills}}</div>
+        </div>
+
+        <!-- Block 7: Bottom Split -->
+        <div class="pastel-block bottom-split">
+            <div class="bottom-left hobbies-group">
+                <h3 class="section-title">Interests</h3>
+                <div class="title-line-full"></div>
+                <div class="content-area">{{Hobbies}}</div>
+            </div>
+            <div class="bottom-right">
+                <div class="awards-group">
+                    <h3 class="section-title">Additional Info</h3>
+                    <div class="title-line-full"></div>
+                    <div class="content-area">{{Awards}}</div>
+                    <div class="ref-group">{{References}}</div>
+                </div>
+            </div>
+        </div>
+    </div>',
+
+    N'@import url("https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap");
+
+    /* TỔNG THỂ */
+    .cv-pastel-wrapper { 
+        width: 100%; min-height: 297mm; background: #FFF; padding: 25px 35px; 
+        font-family: "Segoe UI", Helvetica, Arial, sans-serif; box-sizing: border-box; overflow: hidden;
+    }
+    .cv-pastel-wrapper * { box-sizing: border-box; word-wrap: break-word; }
+
+    /* KHỐI PASTEL */
+    .pastel-block { background: #EFECE9; padding: 25px 30px; border-radius: 6px; margin-bottom: 20px; }
+
+    /* KHỐI LIÊN HỆ DỌC THEO HÀNG */
+    .contact-block { padding: 16px 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 35px; margin-bottom: 20px; }
+    .contact-item { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 600; color: #111; }
+    .contact-item i { color: #D6624B; font-size: 14px; }
+
+    /* HỒ SƠ CÁ NHÂN */
+    .profile-block { display: flex; gap: 40px; align-items: center; }
+    .profile-left { flex: 1; display: flex; flex-direction: column; }
+    
+    .fullname { font-size: 26px; font-weight: 700; color: #5C322E; margin: 0 0 10px 0; letter-spacing: 0.5px; }
+    .job-title-wrapper { display: flex; align-items: center; gap: 15px; margin-bottom: 12px; }
+    .job-title { font-size: 14.5px; font-weight: 700; text-transform: uppercase; color: #111; }
+    .title-line { flex: 1; max-width: 140px; height: 2px; background: #D6624B; }
+    
+    .summary-text { font-size: 12.5px; line-height: 1.6; text-align: justify; color: #222; }
+
+    /* HIỆU ỨNG ẢNH ĐAI CAM CẮT GÓC */
+    .profile-right { width: 135px; flex-shrink: 0; position: relative; padding-top: 10px; padding-left: 10px; }
+    .profile-right::before { content: ""; position: absolute; left: 0; top: 0; width: 80px; height: 80px; background: #D6624B; z-index: 1; border-radius: 2px; }
+    .avatar-img { position: relative; z-index: 2; width: 135px; height: 160px; object-fit: cover; border-radius: 4px; box-shadow: -2px 2px 10px rgba(0,0,0,0.1); }
+
+    /* TIÊU ĐỀ RED SECTION */
+    .section-title { font-size: 15.5px; font-weight: 700; color: #5C322E; margin: 0 0 6px 0 !important; }
+    .title-line-full { width: 100%; height: 1.5px; background: #D6624B; margin-bottom: 18px; }
+
+    /* HỌC VẤN (Cấu trúc Flat Text) */
+    .education-group { margin-bottom: 30px; }
+    .education-group .exp-item { display: flex; flex-direction: column; margin-bottom: 15px; }
+    .education-group .exp-content { order: 1; font-size: 12.5px; color: #111; line-height: 1.6; }
+    .education-group .exp-content strong { font-weight: 700; font-size: 13.5px; display: block; margin-bottom: 2px; }
+    .education-group .exp-year { order: 2; font-weight: 700; font-size: 12.5px; margin-top: 4px; color: #111; }
+    .education-group .exp-year::first-letter { font-size: 0; color: transparent; }
+
+    /* CHỨNG CHỈ */
+    .cert-group > div > div { margin-bottom: 15px !important; }
+    .cert-group .cert-year-div { font-size: 12.5px !important; font-weight: 700 !important; color: #333 !important; margin-bottom: 3px !important; }
+    .cert-group .cert-name-div { font-size: 13px !important; font-weight: 400 !important; color: #111 !important; line-height: 1.4; }
+
+    /* TIMELINE DỰ ÁN & KINH NGHIỆM LÀM VIỆC (Lướt Grid tạo thành 4 phân vùng) */
+    .timeline-area .exp-item {
+        display: grid; grid-template-columns: 35% 65%; gap: 0; row-gap: 5px;
+        position: relative; padding-left: 20px; margin-bottom: 28px;
+    }
+    /* Thanh dọc */
+    .timeline-area .exp-item::before { content: ""; position: absolute; left: 4px; top: 12px; width: 1.5px; height: calc(100% + 15px); background: #C5BDBA; }
+    .timeline-area .exp-item:last-child::before { display: none; }
+    /* Chấm cam */
+    .timeline-area .exp-item::after { content: ""; position: absolute; left: 0px; top: 10px; width: 9px; height: 9px; border-radius: 50%; background: #D6624B; }
+    
+    .timeline-area .exp-content { display: contents; } /* Gỡ bỏ bọc hộp */
+
+    /* Định vị Grid */
+    .timeline-area .exp-year { grid-column: 1; grid-row: 1; font-size: 12.5px; font-weight: 700; color: #444; margin-top: 5px; }
+    .timeline-area .exp-year::first-letter { font-size: 0; color: transparent; }
+
+    .timeline-area .info-line:nth-child(2) { grid-column: 2; grid-row: 1; font-size: 13px; font-weight: 700; color: #111; margin-top: 5px; }
+    .timeline-area .info-line:nth-child(2) strong { display: none; }
+
+    .timeline-area .info-line:first-child { grid-column: 1; grid-row: 2; font-size: 13px; font-weight: 700; color: #000; padding-right: 15px; }
+    .timeline-area .info-line:first-child strong { display: none; }
+
+    .timeline-area .desc-text { grid-column: 2; grid-row: 2; font-size: 12.5px; line-height: 1.6; color: #222; text-align: justify; }
+    .desc-text ul { padding-left: 20px; }
+
+    /* TIMELINE HOẠT ĐỘNG (Activity Header structure) */
+    .act-area .exp-item { display: grid; grid-template-columns: 35% 65%; gap: 0; row-gap: 5px; position: relative; padding-left: 20px; margin-bottom: 25px; }
+    .act-area .exp-item::before { content: ""; position: absolute; left: 4px; top: 12px; width: 1.5px; height: calc(100% + 15px); background: #C5BDBA; }
+    .act-area .exp-item:last-child::before { display: none; }
+    .act-area .exp-item::after { content: ""; position: absolute; left: 0px; top: 10px; width: 9px; height: 9px; border-radius: 50%; background: #D6624B; }
+    .act-area .exp-header { display: contents; }
+
+    .act-area .date-badge { grid-column: 1; grid-row: 1; font-size: 12.5px; font-weight: 700; color: #444; margin-top: 5px; }
+    .act-area .company-name { grid-column: 1; grid-row: 2; font-size: 13px; font-weight: 700; color: #000; padding-right: 15px; }
+    .act-area .exp-desc { grid-column: 2; grid-row: 1 / span 2; font-size: 12.5px; line-height: 1.6; color: #222; text-align: justify; margin-top: 5px; }
+
+    /* KỸ NĂNG */
+    .skill-group ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .skill-group li { font-size: 13px; line-height: 1.6; margin-bottom: 10px; color: #111; }
+    .skill-group li::first-letter { font-size: 0; color: transparent; }
+
+    /* KHỐI BOTTOM SPLIT (Giải thưởng & Liên hệ & Sở thích) */
+    .bottom-split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+    
+    .awards-group ul { list-style: none !important; padding: 0 !important; margin: 0 0 10px 0 !important; }
+    .awards-group li { padding: 4px 0; font-size: 12.5px; color: #222; }
+    .awards-group li::first-letter { font-size: 0; color: transparent; }
+
+    .ref-group p { font-size: 12.5px !important; margin-bottom: 8px !important; line-height: 1.6; color: #222; }
+    .ref-group p::first-letter { font-size: 0; color: transparent; }
+
+    .hobbies-group ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
+    .hobbies-group li { font-size: 12.5px; color: #222; display: inline-block; margin-right: 15px !important; margin-bottom: 6px; }
+    .hobbies-group li::first-letter { font-size: 0; color: transparent; }',
+
+    '/images/templates/pastel_blocks.jpg',
+    1,
+	N'IT, Sáng tạo'
+);
+GO
+
 
 -- Nạp Kỹ năng IT
 INSERT INTO Skills (SkillName) VALUES ('.NET'), ('SQL Server'), ('C#'), ('Flutter'), ('React');
