@@ -144,6 +144,10 @@ app.UseSession(); // Session phải nằm trước Authentication
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Đăng ký API Controllers (attribute routing - dùng cho [ApiController] + [Route(...)])
+app.MapControllers();
+
+// Đăng ký MVC Controllers (conventional routing - dùng cho Views)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

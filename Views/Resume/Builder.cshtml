@@ -1,0 +1,113 @@
+@{
+    ViewData["Title"] = "Vue CV Builder";
+    Layout = "_Layout"; 
+}
+
+@section Styles {
+    <!-- Load CSS của Vue -->
+    <link rel="stylesheet" href="~/cvbuilder/assets/index_v10.css" asp-append-version="true" />
+    <!-- Cropper CSS cho ảnh đại diện -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    
+    <style>
+        /* Điều chỉnh để Builder tích hợp mượt với Layout */
+        #app { 
+            background-color: #f3f4f6;
+        }
+        /* Fix lỗi hiển thị khi dùng Tailwind trong Bootstrap Layout */
+        .content-wrapper { padding: 0 !important; }
+        
+        /* Hiển thị lại footer và đảm bảo nó nằm ở cuối trang */
+        footer { 
+            display: block !important; 
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        /* Cấu hình để Builder luôn phủ kín màn hình (trừ navbar) và đẩy footer xuống */
+        .cv-builder-container {
+            min-height: calc(100vh - 72px); 
+            display: flex;
+        }
+
+        /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
+        @@media print {
+            @@page {
+                size: A4;
+                margin: 0 !important; /* Loại bỏ Header/Footer mặc định của trình duyệt (số trang, ngày tháng) */
+            }
+
+            /* Ép trình duyệt giữ lại toàn bộ màu nền và hình ảnh */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            /* Ẩn tất cả các thành phần thừa, trừ Header bên trong bản CV */
+            header:not(#cv-printable-area header), 
+            footer, nav, aside, 
+            .no-print, 
+            .shrink-0.sticky, /* Ẩn Sidebar Vue */
+            button, /* Ẩn tất cả nút bấm */
+            .fixed { /* Ẩn nút Export PDF fixed */
+                display: none !important;
+            }
+
+            /* Reset container */
+            #app, .content-wrapper, main, .cv-builder-container {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: white !important;
+            }
+
+            /* Căn chỉnh bản CV chuẩn khổ A4 */
+            #cv-printable-area {
+                width: 210mm !important;
+                min-height: 297mm !important;
+                margin: 0 auto !important;
+                box-shadow: none !important;
+                transform: none !important;
+                position: static !important;
+                background: white !important;
+                /* Không ép flex ở đây để tránh hỏng layout của mẫu */
+            }
+
+            /* Đảm bảo nội dung bên trong mẫu CV có thể giãn nở tự nhiên */
+            #cv-printable-area > div:first-child {
+                min-height: 297mm !important;
+            }
+
+            /* Loại bỏ các họa tiết nền của website (nhưng giữ màu của CV) */
+            .pattern-dots {
+                background-image: none !important;
+                background-color: white !important;
+            }
+        }
+    </style>
+}
+
+<!-- Truyền dữ liệu ID nháp từ C# sang qua biến toàn cục JS để Vue lấy đi Fetch API -->
+<script>
+    window.CURRENT_RESUME_ID = @(ViewBag.ResumeId ?? 0);
+</script>
+
+<!-- Nơi Vue sẽ chiếm quyền kiểm soát (Mount) -->
+<div id="app">
+    <div style="display:flex; justify-content:center; align-items:center; height:60vh;">
+        <div class="text-center">
+            <h2 class="text-primary"><i class="fas fa-spinner fa-spin me-2"></i>Đang tải Trình tạo CV...</h2>
+            <p class="text-muted">Vui lòng chờ trong giây lát</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Cropper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <!-- Load JS logic chính của Vue -->
+    <script type="module" src="~/cvbuilder/assets/index_v10.js"></script>
+}

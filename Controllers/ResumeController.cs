@@ -348,5 +348,13 @@ namespace DoAnCS.Controllers
                 return Json(new { success = false, message = "Không thể xóa CV: " + ex.Message });
             }
         }
+        // 7. Hiển thị trang Builder (Vue SPA)
+        [HttpGet]
+        public IActionResult Builder(int id)
+        {
+            // Trả ID của CV để Vue có thể móc vào API GET /api/cvbuilder/data/{id}
+            ViewBag.ResumeId = id;
+            return View();
+        }
     }
 }
