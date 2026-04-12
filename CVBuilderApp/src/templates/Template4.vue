@@ -3,14 +3,14 @@
     
     <!-- TRANG TRÍ GÓC TRÁI TRÊN (Khối dọc ôm Avatar và thanh xanh) -->
     <div class="absolute top-0 left-0 w-[60mm] h-[60mm] z-0" :style="{ backgroundColor: (resumeData.theme.primaryColor || '#2d7fb2') + '15' }"></div>
-    <div class="absolute top-0 left-0 w-[4mm] h-[80mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
+    <div class="absolute top-0 left-0 w-[12mm] h-[80mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
     <div class="absolute top-0 left-0 w-[60mm] h-[4mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
 
     <!-- THANH TRANG TRÍ DỌC BÊN PHẢI (Mẫu mới) -->
     <div class="absolute bottom-0 right-0 w-[7mm] h-[150mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
 
     <!-- HEADER BLOCK -->
-    <header class="relative z-10 pt-[15mm] px-[12mm] pb-[8mm] flex gap-12 items-center">
+    <header class="relative z-10 pt-[15mm] px-[15mm] pb-[8mm] flex gap-12 items-center">
         <!-- Avatar Section -->
         <div class="relative ml-4">
             <div class="w-[52mm] h-[52mm] rounded-full border-[8px] border-white shadow-2xl overflow-hidden bg-slate-100 flex-shrink-0 relative z-10 ring-1 ring-slate-100">
@@ -63,10 +63,10 @@
     </header>
 
     <!-- CONTENT BODY - 2 COLUMNS -->
-    <div class="flex flex-1 px-[10mm] py-[2mm] gap-[10mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
+    <div class="flex flex-1 px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
         
         <!-- CỘT TRÁI (SIDEBAR) -->
-        <aside class="w-[68mm] flex flex-col gap-9 pr-4">
+        <aside class="w-[68mm] flex flex-col gap-9 pr-4 pl-6">
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
@@ -79,7 +79,7 @@
                 >
                     <!-- Nút điều hướng -->
                     <div
-                        v-show="hoveredSectionId === section.id"
+                        v-show="hoveredSectionId === section.id || selectedSectionId === section.id"
                         class="nav-btns no-print"
                         @mouseenter="showNav(section.id)"
                         @mouseleave="hideNav()"
@@ -99,23 +99,37 @@
                     <div class="space-y-3">
                         <!-- Danh sách Kỹ năng/Ngôn ngữ (Dạng gạch đầu dòng) -->
                         <div v-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="space-y-2">
-                           <div v-for="item in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium">
-                               - {{ item.name }} <span v-if="item.level" class="text-slate-500 font-normal">({{ item.level }})</span>
+                           <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium item-container pr-8 min-h-[22px] flex items-center">
+                               - {{ item.name }} <span v-if="item.level" class="text-slate-500 font-normal ml-1">({{ item.level }})</span>
+                               
+                               <!-- Nút xóa item -->
+                               <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
+                                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                               </button>
                            </div>
                         </div>
 
                         <!-- Giải thưởng/Chứng chỉ -->
                         <div v-else-if="section.id === 'awards' || section.id === 'certifications'" class="space-y-3">
-                           <div v-for="item in section.items" :key="item._refId" class="text-[13.5px]">
+                           <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] item-container">
                                <p class="font-bold text-slate-800">- {{ item.name }}</p>
                                <p v-if="item.year" class="text-[12px] text-slate-500 italic ml-3">{{ item.year }}</p>
+
+                               <!-- Nút xóa item -->
+                               <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
+                                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                               </button>
                            </div>
                         </div>
 
                         <!-- Sở thích -->
                         <div v-else-if="section.id === 'hobbies'" class="space-y-1.5">
-                            <div v-for="item in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium">
+                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium item-container">
                                 - {{ item.name }}
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
+                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
                             </div>
                         </div>
 
@@ -151,7 +165,7 @@
                 >
                     <!-- Nút điều hướng main column -->
                     <div
-                        v-show="hoveredSectionId === section.id"
+                        v-show="hoveredSectionId === section.id || selectedSectionId === section.id"
                         class="nav-btns nav-btns--left no-print"
                         @mouseenter="showNav(section.id)"
                         @mouseleave="hideNav()"
@@ -176,7 +190,12 @@
 
                         <!-- Kinh nghiệm / Dự án / Hoạt động -->
                         <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-8">
-                            <div v-for="item in section.items" :key="item._refId">
+                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container p-2 -m-2 rounded-lg">
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 scale-125">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+
                                 <h4 class="font-bold text-[15.5px] text-slate-900 leading-tight mb-0.5">{{ section.id === 'experience' ? item.company : (item.name || 'Tên hoạt động') }}</h4>
                                 <div class="flex justify-between items-baseline mb-1.5">
                                     <span class="text-[13.5px] font-bold text-slate-600 italic">{{ section.id === 'experience' ? item.role : (item.role || 'Thành viên') }}</span>
@@ -188,7 +207,12 @@
 
                         <!-- Học Vấn -->
                         <div v-else-if="section.id === 'education'" class="space-y-7">
-                            <div v-for="item in section.items" :key="item._refId">
+                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container p-2 -m-2 rounded-lg">
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 scale-125">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+
                                 <div class="font-bold text-[15.5px] text-slate-900 mb-0.5">{{ item.school }}</div>
                                 <div class="flex justify-between items-baseline mb-1">
                                     <span class="text-[13px] font-extrabold text-slate-500 uppercase italic">Thời gian: {{ item.year }}</span>
@@ -252,6 +276,36 @@ const formatDesc = (text) => {
 }
 </script>
 
+<style scoped>
+.item-container {
+    position: relative;
+    transition: all 0.2s;
+}
+
+.delete-btn {
+    opacity: 0;
+    transition: all 0.2s;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid white;
+}
+
+.item-container:hover .delete-btn {
+    opacity: 1;
+}
+
+.item-container:hover {
+    background-color: rgba(239, 68, 68, 0.05); /* Phớt đỏ nhẹ để biết có thể xóa */
+}
+</style>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -287,17 +341,17 @@ const formatDesc = (text) => {
 /* === NAV BUTTONS (MOVE UP/DOWN) === */
 .nav-btns {
     position: absolute;
-    right: -30px;
-    top: 0;
+    right: 4px;
+    top: 4px; /* Đưa vào bên trong góc trên bên phải */
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 4px;
-    z-index: 100;
+    z-index: 9999;
 }
 
 .nav-btns--left {
     right: auto;
-    left: -34px;
+    left: 4px;
 }
 
 .nav-btn {
@@ -332,9 +386,9 @@ const formatDesc = (text) => {
         cursor: default;
         box-shadow: none !important;
         background: transparent !important;
-        padding: 0;
-        margin: 0;
-        border-radius: 0;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
     }
 }
 </style>

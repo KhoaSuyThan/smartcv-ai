@@ -1,12 +1,12 @@
 <template>
-  <div class="w-full bg-slate-50 flex font-sans text-slate-800 cv-builder-container relative">
+  <div class="w-full bg-slate-50 flex font-sans text-slate-800 cv-builder-container relative" style="height: 100%; overflow: hidden;">
     <!-- CỘT TRÁI: EDITOR PANEL (STICKY) -->
-    <div class="w-[520px] bg-white border-r border-slate-200 shadow-[0_0_20px_rgba(0,0,0,0.05)] z-20 flex flex-col shrink-0 sticky top-0 overflow-hidden" style="height: calc(100vh - 72px);">
+    <div class="cv-builder-editor-panel w-[700px] bg-white border-r border-slate-200 shadow-[0_0_20px_rgba(0,0,0,0.05)] z-20 flex flex-col shrink-0 overflow-hidden" style="height: 100%;">
       <!-- HEADER -->
       <div class="p-6 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative overflow-hidden">
         <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl"></div>
         <h1 class="text-xl font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">CV Builder Pro <span class="text-[10px] bg-red-500 text-white px-1 rounded ml-2">V10</span></h1>
-        <p class="text-slate-400 text-xs mt-1.5 font-medium border-l-2 border-red-500 pl-2">Đồ án Tốt nghiệp - Interactive Editor (Cập nhật 4:54 PM)</p>
+        <p class="text-slate-400 text-xs mt-1.5 font-medium border-l-2 border-red-500 pl-2">Đồ án Cơ sở Công nghệ phần mềm(Cập nhật 4:54 PM)</p>
         <div class="mt-4 flex flex-col gap-2">
             <div class="flex items-center justify-between bg-white/10 rounded-lg p-2 backdrop-blur-sm border border-white/5">
                 <div class="flex items-center gap-2">
@@ -98,14 +98,19 @@
                     </div>
                 </div>
                 
-                <!-- Section Items (Forms Type) -->
+                    <!-- Section Items (Forms Type) -->
                 <div v-show="section.isVisible" class="p-4 bg-white">
-                    <draggable v-if="section.items" v-model="section.items" item-key="_refId" handle=".sub-drag" animation="200" class="space-y-3">
+                    <!-- Textarea đặc biệt cho Mục tiêu nghề nghiệp -->
+                    <div v-if="section.id === 'summary'">
+                        <textarea v-model="resumeData.general.summary" rows="4" class="w-full text-xs py-2.5 px-3 border border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none placeholder-slate-400 shadow-sm leading-relaxed" placeholder="Mô tả mục tiêu nghề nghiệp của bạn..."></textarea>
+                    </div>
+
+                    <draggable v-else-if="section.items" v-model="section.items" item-key="_refId" handle=".sub-drag" animation="200" class="space-y-3">
                         <template #item="{ element: item, index: itemIndex }">
-                             <div class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 relative group/item hover:border-blue-200 transition-colors">
+                             <div class="p-3 border border-slate-100 rounded-xl bg-slate-50/50 relative item-card hover:border-blue-200 transition-colors">
                                 <!-- Delete Item -->
-                                <button @click="removeItem(sectionIndex, itemIndex)" class="absolute -top-2 -right-2 w-5 h-5 bg-white border border-slate-200 rounded-full text-red-500 hover:text-white hover:bg-red-500 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-all shadow-sm z-10">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                <button @click="removeItem(sectionIndex, itemIndex)" class="delete-btn absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg z-20">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                                 <!-- Drag Handle Sub -->
                                 <div class="sub-drag cursor-grab absolute left-0 top-0 w-6 h-full flex flex-col justify-center items-center text-slate-300 hover:text-blue-500 opacity-0 group-hover/item:opacity-100">
@@ -178,7 +183,7 @@
                         </template>
                     </draggable>
                    
-                    <button @click="addItem(sectionIndex)" class="mt-3 w-full border border-dashed border-slate-300 hover:border-blue-500 text-slate-500 hover:text-blue-600 bg-slate-50/50 hover:bg-blue-50 transition-colors rounded-xl py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 focus:outline-none">
+                    <button v-if="section.id !== 'summary'" @click="addItem(sectionIndex)" class="mt-3 w-full border border-dashed border-slate-300 hover:border-blue-500 text-slate-500 hover:text-blue-600 bg-slate-50/50 hover:bg-blue-50 transition-colors rounded-xl py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 focus:outline-none">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> 
                         Thêm Dòng
                     </button>
@@ -191,20 +196,83 @@
     </div>
 
     <!-- CỘT PHẢI: PREVIEW PANEL THỜI GIAN THỰC -->
-    <div class="flex-1 overflow-y-auto bg-slate-800 flex justify-center py-12 px-8 relative scroll-smooth pattern-dots" :style="{ '--theme-color': resumeData.theme.primaryColor }">
+    <div class="flex-1 overflow-auto bg-slate-800 relative scroll-smooth pattern-dots" :style="{ height: '100%', '--theme-color': resumeData.theme.primaryColor }">
         
-        <button @click="exportToPDF" class="fixed top-8 right-8 bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-2xl shadow-blue-500/50 hover:bg-blue-500 transform hover:-translate-y-1 transition-all text-sm flex items-center gap-2 z-50 ring-4 ring-white/10 group">
-            <svg class="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-            Lưu Export PDF
-        </button>
+        <!-- Toolbar Zoom & PDF -->
+        <div class="sticky top-4 pr-8 flex justify-end items-center gap-3 z-30 mb-4">
+            <!-- Bộ điều khiển Zoom -->
+            <div class="flex items-center bg-white/90 backdrop-blur-md border border-slate-200 rounded-full px-3 py-1.5 shadow-xl gap-2 mr-2">
+                <button @click="previewScale = Math.max(0.8, previewScale - 0.1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Thu nhỏ (Min 80%)">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"/></svg>
+                </button>
+                <span class="text-xs font-bold text-slate-700 w-12 text-center">{{ Math.round(previewScale * 100) }}%</span>
+                <button @click="previewScale = Math.min(1.5, previewScale + 0.1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Phóng to (Max 150%)">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                </button>
+            </div>
 
-      <component 
-        v-if="activeTemplate"
-        :is="activeTemplate" 
-        :resumeData="resumeData" 
-        @moveUp="moveSectionUp" 
-        @moveDown="moveSectionDown" 
-      />
+            <button @click="exportToPDF" class="bg-blue-600 text-white px-6 py-3 rounded-full font-bold shadow-2xl shadow-blue-500/50 hover:bg-blue-500 transform hover:-translate-y-1 transition-all text-sm flex items-center gap-2 ring-4 ring-white/10 group">
+                <svg class="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Lưu Export PDF
+            </button>
+        </div>
+
+        <!-- Vùng chứa CV: Dùng flex-col items-center và margin động để thanh cuộn khớp với tỉ lệ scale -->
+        <div class="flex flex-col items-center pt-8 pb-32 min-w-max">
+            <div class="cv-preview-card transition-transform duration-300 origin-top shadow-2xl bg-white flex-shrink-0" 
+                 :style="{ 
+                     transform: `scale(${previewScale})`, 
+                     width: '210mm',
+                     minHeight: '297mm',
+                     marginBottom: `${(previewScale - 1) * 297}mm`,
+                     marginLeft: `${previewScale > 1 ? (previewScale - 1) * 210 / 2 : 0}mm`,
+                     marginRight: `${previewScale > 1 ? (previewScale - 1) * 210 / 2 : 0}mm`
+                 }">
+                <component 
+                  v-if="activeTemplate"
+                  :is="activeTemplate" 
+                  :resumeData="resumeData" 
+                  @moveUp="moveSectionUp" 
+                  @moveDown="moveSectionDown" 
+                  @removeItem="removeItemFromPreview"
+                />
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- MODAL CẮT ẢNH (Dùng Bootstrap Modal có sẵn trong layout) -->
+  <div class="modal fade" id="vueCropperModal" data-bs-backdrop="static" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="modal-header border-bottom-0 bg-slate-900 text-white py-3 px-4">
+          <h5 class="modal-title fw-bold">Căn chỉnh ảnh đại diện</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-0 bg-slate-50">
+          <div class="d-flex justify-content-center align-items-center" style="height: 450px; background: #000;">
+            <img id="imageToCropVue" src="" style="display: block; max-width: 100%;">
+          </div>
+          <div class="bg-white p-3 border-top d-flex justify-content-center gap-3">
+            <button type="button" class="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:bg-slate-50" @click="rotateLeft" title="Xoay trái">
+               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            </button>
+            <button type="button" class="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:bg-slate-50" @click="zoomIn" title="Phóng to">
+               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            </button>
+            <button type="button" class="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:bg-slate-50" @click="zoomOut" title="Thu nhỏ">
+               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+            </button>
+            <button type="button" class="w-10 h-10 flex items-center justify-center rounded-full border border-slate-200 hover:bg-slate-50" @click="rotateRight" title="Xoay phải">
+               <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="modal-footer border-top-0 bg-white p-3 px-4">
+          <button type="button" class="px-6 py-2 rounded-full font-bold text-slate-500 hover:bg-slate-100 transition-all" data-bs-dismiss="modal">Hủy bỏ</button>
+          <button type="button" class="px-8 py-2 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all" @click="applyCrop">Cắt và Áp dụng</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -230,6 +298,7 @@ const templateMapping = {
 }
 
 const activeTemplate = shallowRef(null) // Sẽ được set khi load data
+const previewScale = ref(1.0); // Mặc định ban đầu là 100%
 
 
 const isSaving = ref(false)
@@ -284,22 +353,139 @@ const addItem = (sectionIndex) => {
 }
 
 const removeItem = (sIdx, iIdx) => resumeData.value.sections[sIdx].items.splice(iIdx, 1);
-
-const exportToPDF = () => {
-  window.print();
+const removeItemFromPreview = (sectionId, itemIndex) => {
+    const sIdx = resumeData.value.sections.findIndex(s => s.id === sectionId);
+    if (sIdx !== -1) {
+        resumeData.value.sections[sIdx].items.splice(itemIndex, 1);
+    }
 }
 
-const onAvatarChange = (e) => {
-    const file = e.target.files[0];
+const exportToPDF = () => {
+  // Lấy nội dung CV gốc
+  const cvEl = document.getElementById('cv-printable-area');
+  if (!cvEl) { window.print(); return; }
+
+  // Sao chép toàn bộ các thẻ link/style từ head để đồng bộ font và CSS Tailwind
+  let headHtml = '';
+  const headNodes = document.head.querySelectorAll('link[rel="stylesheet"], style, link[href*="fonts.googleapis.com"]');
+  headNodes.forEach(node => {
+      headHtml += node.outerHTML;
+  });
+
+  // Thêm các rule in ấn tối thiểu để dọn dẹp GUI
+  const printStyles = `
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
+      html, body { 
+          margin: 0 !important; 
+          padding: 0 !important; 
+          background: white !important;
+          width: 210mm;
+          height: 297mm;
+          font-family: 'Inter', sans-serif !important;
+      }
+      #cv-printable-area { 
+          box-shadow: none !important; 
+          width: 210mm !important;
+          margin: 0 !important;
+          transform: none !important;
+          border: none !important;
+          display: flex !important;
+          flex-direction: column !important;
+      }
+      /* Ép layout 2 cột cho Iframe */
+      #cv-printable-area .flex { display: flex !important; }
+      #cv-printable-area aside { 
+          width: 68mm !important; 
+          min-width: 68mm !important; 
+          max-width: 68mm !important;
+          display: flex !important; 
+          flex-direction: column !important; 
+          flex-shrink: 0 !important;
+      }
+      #cv-printable-area main { 
+          flex: 1 !important; 
+          display: flex !important; 
+          flex-direction: column !important; 
+          min-width: 0 !important;
+      }
+      .no-print, .nav-btns, .delete-btn { display: none !important; }
+      @page { size: A4 portrait; margin: 0; }
+    </style>
+  `;
+
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-10000px;left:-10000px;width:210mm;height:297mm;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head><meta charset="utf-8">${headHtml}${printStyles}</head><body>${cvEl.outerHTML}</body></html>`);
+  doc.close();
+
+  let printed = false;
+  const doPrint = () => {
+    if (printed) return;
+    printed = true;
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch(e) { window.print(); }
+    setTimeout(() => {
+      if (document.body.contains(iframe)) document.body.removeChild(iframe);
+    }, 2000);
+  };
+
+  iframe.onload = () => setTimeout(doPrint, 1000);
+  // Fallback sau 3s nếu onload chậm
+  setTimeout(doPrint, 3000);
+}
+
+let cropperInstance = null;
+const onAvatarChange = (event) => {
+    const file = event.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onload = (event) => {
-            // Lưu trực tiếp dạng Base64 vào resumeData
-            resumeData.value.general.avatarUrl = event.target.result;
+        reader.onload = (e) => {
+            const img = document.getElementById('imageToCropVue');
+            img.src = e.target.result;
+            
+            // Mở Modal (Sử dụng Bootstrap có sẵn)
+            const modalEl = document.getElementById('vueCropperModal');
+            const modal = new window.bootstrap.Modal(modalEl);
+            modal.show();
+
+            // Khởi tạo Cropper khi modal hiện xong
+            modalEl.addEventListener('shown.bs.modal', () => {
+                if (cropperInstance) cropperInstance.destroy();
+                cropperInstance = new window.Cropper(img, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                });
+            }, { once: true });
         };
         reader.readAsDataURL(file);
     }
 }
+
+const applyCrop = () => {
+    if (!cropperInstance) return;
+    const canvas = cropperInstance.getCroppedCanvas({ width: 400, height: 400 });
+    resumeData.value.general.avatarUrl = canvas.toDataURL('image/jpeg', 0.9);
+    
+    // Đóng Modal
+    const modalEl = document.getElementById('vueCropperModal');
+    const modal = window.bootstrap.Modal.getInstance(modalEl);
+    modal.hide();
+}
+
+const rotateLeft = () => cropperInstance?.rotate(-45);
+const rotateRight = () => cropperInstance?.rotate(45);
+const zoomIn = () => cropperInstance?.zoom(0.1);
+const zoomOut = () => cropperInstance?.zoom(-0.1);
 
 const moveSectionUp = (sectionId, columnIds) => {
   console.log('[CV Builder] moveUp:', sectionId, 'column:', columnIds);
@@ -426,10 +612,56 @@ onMounted(loadData);
     background-size: 24px 24px;
 }
 
+/* Media print giữ lại làm fallback nếu window.print() được gọi trực tiếp */
 @media print {
   .hide-on-print { display: none !important; }
-  body, html { background: transparent !important; margin: 0; padding: 0; }
-  #cv-printable-area { border: none !important; box-shadow: none !important; margin: 0 !important; width: 210mm !important; }
+  body, html { 
+    background: white !important; 
+    margin: 0 !important; 
+    padding: 0 !important; 
+    overflow: visible !important; 
+    height: auto !important; 
+    width: auto !important;
+  }
+  .cv-builder-editor-panel, .sticky, .no-print, .nav-btns, button { display: none !important; }
+  .pattern-dots, .bg-slate-800, .bg-slate-50 { background: none !important; background-image: none !important; }
+  .cv-builder-container, #app, .flex-1 { 
+    display: block !important; 
+    height: auto !important; 
+    overflow: visible !important; 
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .cv-preview-card { 
+    transform: none !important; 
+    margin: 0 !important; 
+    box-shadow: none !important; 
+    width: 210mm !important;
+    min-height: 297mm !important;
+  }
+  #cv-printable-area { 
+    border: none !important; 
+    box-shadow: none !important; 
+    margin: 0 !important; 
+    width: 210mm !important;
+    background: white !important;
+  }
   @page { size: A4 portrait; margin: 0; }
+}
+
+/* Style cho nút xóa trong Sidebar */
+.item-card .delete-btn {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease-in-out;
+}
+.item-card:hover .delete-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+.delete-btn:hover {
+    background-color: #ef4444;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
 </style>

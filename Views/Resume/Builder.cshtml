@@ -10,92 +10,125 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     
     <style>
-        /* Điều chỉnh để Builder tích hợp mượt với Layout */
-        #app { 
+        /* Cấu hình để Builder luôn phủ kín phần giữa header và footer */
+        :root {
+            --navbar-h: 72px;
+            --footer-h: 0px;
+        }
+
+        /* ĐẢM BẢO trang Builder không bị scroll dọc ngoài ý muốn và đồng bộ màu nền */
+        html, body.cv-builder-page { 
+            overflow: hidden !important; 
+            height: 100% !important;
+            background-color: #f3f4f6 !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Bù trừ zoom 80% từ Layout */
+        body.cv-builder-page {
+            min-height: 125vh !important; /* 100 / 0.8 = 125 */
+        }
+
+        /* Content wrapper không có padding */
+        .content-wrapper, main { 
+            padding: 0 !important; 
+            overflow: hidden !important;
+            background-color: #f3f4f6 !important;
+            height: 100% !important;
+        }
+
+        /* Container Vue App */
+        #app {
             background-color: #f3f4f6;
+            overflow: hidden;
+            height: 100% !important;
         }
-        /* Fix lỗi hiển thị khi dùng Tailwind trong Bootstrap Layout */
-        .content-wrapper { padding: 0 !important; }
-        
-        /* Hiển thị lại footer và đảm bảo nó nằm ở cuối trang */
-        footer { 
-            display: block !important; 
-            background: white;
-            border-top: 1px solid #e2e8f0;
-        }
-        
-        /* Cấu hình để Builder luôn phủ kín màn hình (trừ navbar) và đẩy footer xuống */
+
         .cv-builder-container {
-            min-height: calc(100vh - 72px); 
             display: flex;
+            overflow: hidden;
+            height: 100% !important;
         }
 
         /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
         @@media print {
-            @@page {
-                size: A4;
-                margin: 0 !important; /* Loại bỏ Header/Footer mặc định của trình duyệt (số trang, ngày tháng) */
+            @@page { size: A4; margin: 0 !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            header:not(#cv-printable-area header), footer, nav, aside, .no-print, .cv-builder-editor-panel, button, .fixed, .sticky { display: none !important; }
+            
+            /* Xóa bỏ hoàn toàn màu nền và pattern của UI khi in */
+            html, body, #app, .content-wrapper, main, .cv-builder-container, .flex-1 { 
+                background: white !important; 
+                background-image: none !important;
+                display: block !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                width: 100% !important; 
+                height: auto !important; 
+                min-height: 0 !important;
+                overflow: visible !important;
+                position: static !important;
             }
 
-            /* Ép trình duyệt giữ lại toàn bộ màu nền và hình ảnh */
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                color-adjust: exact !important;
-            }
-
-            /* Ẩn tất cả các thành phần thừa, trừ Header bên trong bản CV */
-            header:not(#cv-printable-area header), 
-            footer, nav, aside, 
-            .no-print, 
-            .shrink-0.sticky, /* Ẩn Sidebar Vue */
-            button, /* Ẩn tất cả nút bấm */
-            .fixed { /* Ẩn nút Export PDF fixed */
-                display: none !important;
-            }
-
-            /* Reset container */
-            #app, .content-wrapper, main, .cv-builder-container {
-                display: block !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-                height: auto !important;
-                background: white !important;
-            }
-
-            /* Căn chỉnh bản CV chuẩn khổ A4 */
-            #cv-printable-area {
-                width: 210mm !important;
-                min-height: 297mm !important;
+            /* Reset lỗi Zoom cho Preview Card */
+            .cv-preview-card {
+                transform: none !important;
                 margin: 0 auto !important;
                 box-shadow: none !important;
-                transform: none !important;
-                position: static !important;
-                background: white !important;
-                /* Không ép flex ở đây để tránh hỏng layout của mẫu */
-            }
-
-            /* Đảm bảo nội dung bên trong mẫu CV có thể giãn nở tự nhiên */
-            #cv-printable-area > div:first-child {
+                width: 210mm !important;
                 min-height: 297mm !important;
+                position: relative !important;
+                top: 0 !important;
+                display: block !important;
+                background: white !important;
             }
 
-            /* Loại bỏ các họa tiết nền của website (nhưng giữ màu của CV) */
-            .pattern-dots {
-                background-image: none !important;
-                background-color: white !important;
+            #cv-printable-area { 
+                width: 210mm !important; 
+                margin: 0 !important; 
+                box-shadow: none !important; 
+                transform: none !important; 
+                position: static !important; 
+                background: white !important; 
+                border: none !important;
             }
         }
     </style>
 }
 
-<!-- Truyền dữ liệu ID nháp từ C# sang qua biến toàn cục JS để Vue lấy đi Fetch API -->
 <script>
     window.CURRENT_RESUME_ID = @(ViewBag.ResumeId ?? 0);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var footer = document.querySelector('footer');
+        if (footer) footer.style.display = 'none';
+
+        function syncHeight() {
+            var navbar = document.querySelector('header');
+            var navH = navbar ? navbar.offsetHeight : 72;
+            document.documentElement.style.setProperty('--navbar-h', navH + 'px');
+
+            // Cấu hình các wrapper
+            var wrappers = ['.content-wrapper', 'main', '#app', '.cv-builder-container', '.cv-builder-editor-panel'];
+            wrappers.forEach(function(selector) {
+                var el = document.querySelector(selector);
+                if (el) {
+                    el.style.height = 'calc(100% - 0px)';
+                    el.style.overflow = 'hidden';
+                }
+            });
+        }
+
+        syncHeight();
+        window.addEventListener('resize', syncHeight);
+        setTimeout(syncHeight, 500);
+        setTimeout(syncHeight, 2000);
+
+        document.body.classList.add('cv-builder-page');
+    });
 </script>
 
-<!-- Nơi Vue sẽ chiếm quyền kiểm soát (Mount) -->
 <div id="app">
     <div style="display:flex; justify-content:center; align-items:center; height:60vh;">
         <div class="text-center">
@@ -106,8 +139,6 @@
 </div>
 
 @section Scripts {
-    <!-- Cropper JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <!-- Load JS logic chính của Vue -->
-    <script type="module" src="~/cvbuilder/assets/index_v10.js"></script>
+    <script type="module" src="~/cvbuilder/assets/index_v10.js" asp-append-version="true"></script>
 }
