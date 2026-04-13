@@ -15,6 +15,20 @@ GO
 USE DoAnWebCS;
 GO
 
+-- Test templates dùng Vue
+CREATE TABLE VueTemplates (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    TemplateName NVARCHAR(100) NOT NULL,    -- Tên hiển thị (VD: Mẫu Thanh Xuân)
+    ComponentName NVARCHAR(100) NOT NULL,   -- Tên File Vue (VD: Template)
+    ThumbnailUrl NVARCHAR(500),             -- Ảnh demo
+    IsPremium BIT DEFAULT 0,                -- 0: Miễn phí, 1: Pro
+    IsActive BIT DEFAULT 1,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium)
+VALUES (N'Trần Hoài Thu', 'Template', '/images/templates/template_476e4073.png', 1);
+
 -- 1. Thông tin công ty
 CREATE TABLE Companies (
     CompanyID INT PRIMARY KEY IDENTITY(1,1),
@@ -41,7 +55,7 @@ CREATE TABLE Templates (
 
 -- 3. HỆ THỐNG KỸ NĂNG VÀ VIỆC LÀM (Phục vụ Matching AI)
 CREATE TABLE Skills (
-    SkillID INT PRIMARY KEY IDENTITY(1,1),CREATE TABLE JobSkills (
+    SkillID INT PRIMARY KEY IDENTITY(1,1),
     SkillName NVARCHAR(100) UNIQUE NOT NULL
 );
 
