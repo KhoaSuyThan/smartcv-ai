@@ -55,7 +55,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("AILogs");
+                    b.ToTable("AILogs", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Application", b =>
@@ -85,7 +85,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("ResumeID");
 
-                    b.ToTable("Applications");
+                    b.ToTable("Applications", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Company", b =>
@@ -117,7 +117,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("CompanyID");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ContactMessage", b =>
@@ -151,7 +151,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactMessages");
+                    b.ToTable("ContactMessages", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Job", b =>
@@ -199,7 +199,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("RecruiterID");
 
-                    b.ToTable("Jobs");
+                    b.ToTable("Jobs", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Resume", b =>
@@ -265,7 +265,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Resumes");
+                    b.ToTable("Resumes", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ResumeExport", b =>
@@ -291,7 +291,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("ResumeID");
 
-                    b.ToTable("ResumeExports");
+                    b.ToTable("ResumeExports", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ResumeSection", b =>
@@ -320,7 +320,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("ResumeID");
 
-                    b.ToTable("ResumeSections");
+                    b.ToTable("ResumeSections", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ResumeSkill", b =>
@@ -339,7 +339,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("SkillID");
 
-                    b.ToTable("ResumeSkills");
+                    b.ToTable("ResumeSkills", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Skill", b =>
@@ -356,7 +356,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("SkillID");
 
-                    b.ToTable("Skills");
+                    b.ToTable("Skills", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Template", b =>
@@ -385,7 +385,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("TemplateID");
 
-                    b.ToTable("Templates");
+                    b.ToTable("Templates", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.User", b =>
@@ -424,7 +424,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("CompanyID");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("DoAnCS.Models.AILog", b =>
