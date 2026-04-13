@@ -4,6 +4,7 @@ using DoAnCS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoAnCS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260411071749_AddJsonContentToResume")]
+    partial class AddJsonContentToResume
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +58,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("AILogs", (string)null);
+                    b.ToTable("AILogs");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Application", b =>
@@ -85,7 +88,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("ResumeID");
 
-                    b.ToTable("Applications", (string)null);
+                    b.ToTable("Applications");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Company", b =>
@@ -117,7 +120,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("CompanyID");
 
-                    b.ToTable("Companies", (string)null);
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ContactMessage", b =>
@@ -151,7 +154,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ContactMessages", (string)null);
+                    b.ToTable("ContactMessages");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.GeminiConfig", b =>
@@ -274,7 +277,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("RecruiterID");
 
-                    b.ToTable("Jobs", (string)null);
+                    b.ToTable("Jobs");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Resume", b =>
@@ -343,7 +346,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Resumes", (string)null);
+                    b.ToTable("Resumes");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ResumeExport", b =>
@@ -369,7 +372,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("ResumeID");
 
-                    b.ToTable("ResumeExports", (string)null);
+                    b.ToTable("ResumeExports");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ResumeSection", b =>
@@ -398,7 +401,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("ResumeID");
 
-                    b.ToTable("ResumeSections", (string)null);
+                    b.ToTable("ResumeSections");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.ResumeSkill", b =>
@@ -417,7 +420,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("SkillID");
 
-                    b.ToTable("ResumeSkills", (string)null);
+                    b.ToTable("ResumeSkills");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Skill", b =>
@@ -434,7 +437,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("SkillID");
 
-                    b.ToTable("Skills", (string)null);
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.Template", b =>
@@ -469,7 +472,7 @@ namespace DoAnCS.Migrations
 
                     b.HasKey("TemplateID");
 
-                    b.ToTable("Templates", (string)null);
+                    b.ToTable("Templates");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.UpgradeRequest", b =>
@@ -547,7 +550,7 @@ namespace DoAnCS.Migrations
 
                     b.HasIndex("CompanyID");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("DoAnCS.Models.AILog", b =>

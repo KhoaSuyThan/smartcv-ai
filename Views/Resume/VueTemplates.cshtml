@@ -1,0 +1,118 @@
+@model IEnumerable<DoAnCS.Models.VueTemplate>
+@{
+    ViewData["Title"] = "Thư viện mẫu CV Vue (Testing)";
+}
+
+<style>
+    .template-card {
+        position: relative; 
+        transition: transform 0.3s ease; 
+        border: 1px solid #eee !important;
+    }
+    .border-pro { border: 2px solid #ffc107 !important; }
+
+    .template-card img {
+        object-fit: contain !important; 
+        padding: 10px;
+    }
+
+    .template-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+
+    .hover-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+    }
+    .template-card:hover .hover-overlay { opacity: 1; }
+    
+    .test-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 3;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold mb-3 text-primary"><i class="fas fa-flask me-2"></i>Thử nghiệm Mẫu CV Vue</h1>
+        <p class="text-muted mx-auto" style="max-width: 600px;">
+            Đây là tab tạm thời để kiểm tra các mẫu CV được xây dựng bằng Vue.js từ bảng <code>VueTemplates</code>.
+        </p>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-4 rounded-3 d-flex align-items-center justify-content-between" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span class="fw-bold">@TempData["ErrorMessage"]</span>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4 justify-content-center">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <div class="alert alert-info">
+                    Chưa có mẫu CV Vue nào trong bảng VueTemplates.
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 col-lg-3 template-item">
+                    <div class="card h-100 border-0 shadow-sm template-card @(item.IsPremium ? "border-pro" : "")">
+                        <div class="test-badge">
+                            <span class="badge bg-danger shadow-sm px-2 py-1 rounded-pill fw-bold">VUE TEST</span>
+                        </div>
+                        
+                        @if (item.IsPremium)
+                        {
+                            <div class="position-absolute top-0 end-0 m-2 z-3">
+                                <span class="badge bg-warning text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">
+                                    <i class="fas fa-crown me-1"></i> PRO
+                                </span>
+                            </div>
+                        }
+                        
+                        <div class="position-relative">
+                            <img src="@item.ThumbnailUrl" class="card-img-top p-2 bg-light" alt="@item.TemplateName" 
+                                 style="height: 350px; object-fit: cover;"
+                                 onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
+                            
+                            <div class="hover-overlay">
+                                <a asp-controller="Resume" 
+                                   asp-action="CreateVue" 
+                                   asp-route-id="@item.Id" 
+                                   class="btn btn-primary rounded-pill px-4 shadow fw-bold mb-3">
+                                    Sử dụng mẫu này
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold mb-1">@item.TemplateName</h6>
+                            <p class="small text-muted mb-0">Component: @item.ComponentName</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="mt-5 text-center">
+        <a asp-action="Templates" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại Kho mẫu chính
+        </a>
+    </div>
+</div>

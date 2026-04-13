@@ -21,6 +21,7 @@ namespace DoAnCS.Data
         public DbSet<ResumeExport> ResumeExports { get; set; }
         public DbSet<ContactMessage> ContactMessages { get; set; }
         public DbSet<GeminiConfig> GeminiConfigs { get; set; }
+        public DbSet<VueTemplate> VueTemplates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

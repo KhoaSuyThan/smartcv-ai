@@ -506,6 +506,28 @@ namespace DoAnCS.Controllers
             return RedirectToAction(nameof(GeminiConfig));
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAIUsageStats()
+        {
+            var today = DateTime.Today;
+            var tokensToday = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today)
+                .SumAsync(l => (int?)l.UsedTokens) ?? 0;
+
+            var callsToday = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today)
+                .CountAsync();
+
+            var totalTokensAll = await _context.AILogs.SumAsync(l => (long?)l.UsedTokens) ?? 0L;
+
+            return Json(new { 
+                success = true, 
+                callsToday = callsToday, 
+                tokensToday = tokensToday, 
+                totalTokensAll = totalTokensAll.ToString("N0") 
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> TestGemini([FromBody] dynamic payload)
         {

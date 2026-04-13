@@ -125,12 +125,27 @@
         }
 
         <div class="col-md-4 col-lg-3">
-            <div class="card h-100 border-0 shadow-sm template-card border-primary" style="border-style: dashed !important; border-width: 2px !important; min-height: 430px;">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center text-muted">
-                    <i class="fas fa-plus-circle fa-3x mb-3 text-primary opacity-50"></i>
-                    <h6 class="fw-bold">Đang thiết kế thêm...</h6>
+            @if (User.IsInRole("Admin"))
+            {
+                <a href="/Admin/CreateTemplate" class="text-decoration-none h-100 d-block">
+                    <div class="card h-100 border-0 shadow-sm template-card border-primary" style="border-style: dashed !important; border-width: 2px !important; min-height: 430px; cursor: pointer;">
+                        <div class="card-body d-flex flex-column align-items-center justify-content-center text-primary">
+                            <i class="fas fa-plus-circle fa-4x mb-3 opacity-75"></i>
+                            <h6 class="fw-bold fs-5">Thiết kế thêm mẫu mới</h6>
+                            <p class="small text-muted text-center px-3">Click để thiết kế thêm mẫu CV mới cho hệ thống.</p>
+                        </div>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <div class="card h-100 border-0 shadow-sm template-card border-primary" style="border-style: dashed !important; border-width: 2px !important; min-height: 430px;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center text-muted">
+                        <i class="fas fa-plus-circle fa-3x mb-3 text-primary opacity-50"></i>
+                        <h6 class="fw-bold">Đang thiết kế thêm...</h6>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
 </div>
