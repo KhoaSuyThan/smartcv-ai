@@ -356,5 +356,51 @@ namespace DoAnCS.Controllers
             ViewBag.ResumeId = id;
             return View();
         }
+
+        // ==========================================
+        // TEST VUE CV FUNCTIONALITY
+        // ==========================================
+
+        // 8. Hiển thị danh sách mẫu CV Vue (Dùng cho Testing)
+        public async Task<IActionResult> VueTemplates()
+        {
+            var vueTemplates = await _context.VueTemplates
+                                .Where(t => t.IsActive == true)
+                                .ToListAsync();
+            return View(vueTemplates);
+        }
+
+        // 9. Tạo CV từ mẫu Vue
+        [HttpGet]
+        public async Task<IActionResult> CreateVue(int id)
+        {
+            int userId = GetCurrentUserId();
+            if (userId == 0) return RedirectToAction("Login", "Account");
+
+            var vueTemplate = await _context.VueTemplates.FindAsync(id);
+            if (vueTemplate == null) return RedirectToAction("VueTemplates");
+
+            // Tạo một bản Resume mới
+            var resume = new Resume
+            {
+                UserID = userId,
+                TemplateID = 4, // Fallback template (Template4)
+                Title = "CV Vue: " + vueTemplate.TemplateName,
+                IsDraft = true,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                // Lưu ComponentName vào JsonContent để Vue Builder nhận diện mẫu cần dùng
+                JsonContent = JsonSerializer.Serialize(new { 
+                    overrideTemplate = vueTemplate.ComponentName,
+                    theme = new { primaryColor = "#2b5c8f" },
+                    general = new { fullName = "", jobTitle = "" }
+                })
+            };
+
+            _context.Resumes.Add(resume);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Builder", new { id = resume.ResumeID });
+        }
     }
 }

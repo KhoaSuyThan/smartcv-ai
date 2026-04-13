@@ -568,6 +568,13 @@ const loadData = async () => {
 
         if (data && data.jsonContent && data.jsonContent !== "{}") {
             const parsed = JSON.parse(data.jsonContent);
+            
+            // --- HỖ TRỢ OVERRIDE MẪU CHO TESTING (VUE TEMPLATES) ---
+            if (parsed.overrideTemplate && templateRegistry[parsed.overrideTemplate]) {
+                activeTemplate.value = templateRegistry[parsed.overrideTemplate];
+                console.log(`[Vue Test] Overriding template to: ${parsed.overrideTemplate}`);
+            }
+
             resumeData.value.theme = parsed.theme || resumeData.value.theme;
             resumeData.value.general = parsed.general || resumeData.value.general;
             
