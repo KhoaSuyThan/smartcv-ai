@@ -383,6 +383,111 @@ namespace DoAnCS.Controllers
             return RedirectToAction(nameof(Templates));
         }
 
+        // --- QUẢN LÝ VUE CV ---
+
+        public async Task<IActionResult> VueTemplates(int page = 1)
+        {
+            int pageSize = 4;
+            var query = _context.VueTemplates.AsQueryable();
+
+            int totalTemplates = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalTemplates / pageSize);
+
+            var templates = await query
+                .OrderByDescending(t => t.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var vm = new AdminDashboardVM
+            {
+                VueTemplates = templates,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalUsers = await _context.Users.CountAsync(),
+                TotalCompanies = await _context.Companies.CountAsync(),
+                TotalJobs = await _context.Jobs.CountAsync(),
+                TotalResumes = await _context.Resumes.CountAsync()
+            };
+
+            return View(vm);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ToggleVueTemplateStatus(int id)
+        {
+            var template = await _context.VueTemplates.FindAsync(id);
+            if (template == null) return NotFound();
+
+            template.IsActive = !template.IsActive;
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteVueTemplate(int id)
+        {
+            var template = await _context.VueTemplates.FindAsync(id);
+            if (template != null)
+            {
+                _context.VueTemplates.Remove(template);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Đã xóa mẫu Vue CV thành công!";
+            }
+            return RedirectToAction(nameof(VueTemplates));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditVueCV(int id)
+        {
+            var template = await _context.VueTemplates.FindAsync(id);
+            if (template == null) return NotFound();
+            return View(template);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditVueCV(int id, VueTemplate template, IFormFile? uploadImage)
+        {
+            if (id != template.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (uploadImage != null && uploadImage.Length > 0)
+                    {
+                        string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
+                        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                        string fileName = "vue_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(uploadImage.FileName);
+                        string filePath = Path.Combine(folder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await uploadImage.CopyToAsync(stream);
+                        }
+
+                        template.ThumbnailUrl = "/images/templates/" + fileName;
+                    }
+
+                    _context.Update(template);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["Success"] = "Cập nhật mẫu Vue CV thành công!";
+                    return RedirectToAction(nameof(VueTemplates));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
+                }
+            }
+            return View(template);
+        }
+
+        // --- KẾT THÚC QUẢN LÝ VUE CV ---
+
         // 1. Danh sách công ty
         public async Task<IActionResult> Companies()
         {

@@ -1,0 +1,90 @@
+@model DoAnCS.Models.VueTemplate
+@{
+    ViewData["Title"] = "Chỉnh sửa Vue CV";
+}
+
+<div class="container py-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h4 class="fw-bold text-primary mb-0">
+                <i class='bx bxs-edit-alt me-2'></i>Chỉnh sửa mẫu Vue CV: @Model.TemplateName
+            </h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="EditVueCV" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="CreatedAt" />
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label asp-for="TemplateName" class="form-label fw-bold">Tên mẫu CV</label>
+                            <input asp-for="TemplateName" class="form-control" placeholder="Nhập tên mẫu..." />
+                            <span asp-validation-for="TemplateName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ComponentName" class="form-label fw-bold">Tên Component (Vue)</label>
+                            <input asp-for="ComponentName" class="form-control" placeholder="Ví dụ: ModernTemplate.vue" />
+                            <span asp-validation-for="ComponentName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Category" class="form-label fw-bold">Danh mục (Categories)</label>
+                            <input asp-for="Category" class="form-control" placeholder="Ví dụ: IT, Marketing..." />
+                            <span asp-validation-for="Category" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsActive">
+                                    <label class="form-check-label fw-bold" asp-for="IsActive">Kích hoạt (Hiển thị)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsPremium">
+                                    <label class="form-check-label fw-bold" asp-for="IsPremium">Mẫu Premium (Pro)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ảnh minh họa (Thumbnail)</label>
+                            <div class="preview-img-container mb-2 border rounded-3 overflow-hidden text-center bg-light" style="height: 300px;">
+                                <img id="imgPreview" src="@(Model.ThumbnailUrl ?? "https://via.placeholder.com/210x297?text=No+Preview")" 
+                                     class="img-fluid h-100 object-fit-contain" />
+                            </div>
+                            <input type="file" name="uploadImage" class="form-control" id="fileInput" onchange="previewImage(this)" />
+                            <input type="hidden" asp-for="ThumbnailUrl" />
+                            <small class="text-muted">Ảnh chuẩn A4 sẽ hiển thị đẹp nhất.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a asp-action="VueTemplates" class="btn btn-light px-4 rounded-pill border">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm fw-bold">
+                        <i class='bx bxs-save me-1'></i> Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imgPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
