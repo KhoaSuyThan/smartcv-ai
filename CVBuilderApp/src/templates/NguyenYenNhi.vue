@@ -69,9 +69,12 @@
                         <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
+                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </button>
                     </div>
 
-                    <h3 class="text-[14px] font-black uppercase mb-3 tracking-wider flex items-center gap-2 text-slate-900 paginated-item">
+                    <h3 class="font-black uppercase mb-3 tracking-wider flex items-center gap-2 text-slate-900 paginated-item" :style="{ fontSize: '20px !important', fontWeight: 'bold !important' }">
                         {{ section.title }}
                     </h3>
 
@@ -140,7 +143,7 @@
             <!-- LIÊN HỆ GỐC (Cố định ở đầu cột phải) -->
             <div class="section-block p-3 border-2 border-slate-50 rounded-2xl bg-white/50 backdrop-blur-sm paginated-item"
                  @click.stop="selectedSectionId = null">
-                <h3 class="text-[14px] font-black uppercase mb-3 tracking-wider text-slate-900 flex items-center gap-3">
+                <h3 class="font-black uppercase mb-3 tracking-wider text-slate-900 flex items-center gap-3" :style="{ fontSize: '20px !important', fontWeight: 'bold !important' }">
                     LIÊN HỆ
                 </h3>
                 <div class="space-y-2.5 text-[12.5px] font-bold text-slate-700">
@@ -183,9 +186,12 @@
                         <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
+                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái">
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
                     </div>
 
-                    <h3 class="text-[14px] font-black uppercase mb-4 tracking-wider text-slate-900 border-b border-pink-50 pb-2 paginated-item">
+                    <h3 class="font-black uppercase mb-4 tracking-wider text-slate-900 border-b border-pink-50 pb-2 paginated-item" :style="{ fontSize: '20px !important', fontWeight: 'bold !important' }">
                         {{ section.title }}
                     </h3>
 
@@ -253,7 +259,7 @@ const props = defineProps({
     resumeData: { type: Object, required: true }
 })
 
-const emit = defineEmits(['moveUp', 'moveDown', 'removeItem'])
+const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 const cvRoot = ref(null);
 const pageCount = ref(1);
@@ -305,8 +311,6 @@ const hideNav = () => {
     }, 150);
 };
 
-const sidebarIds = ['summary', 'education', 'skills', 'it_skills', 'languages', 'certifications', 'awards', 'hobbies', 'references'];
-const mainIds = ['experience', 'project', 'activities'];
 
 // --- PAGINATION ENGINE (Optimized & Stable) ---
 let paginateTimer = null;
@@ -416,8 +420,16 @@ const doPagination = async () => {
     }
 };
 
-const sidebarSections = computed(() => props.resumeData.sections.filter(s => sidebarIds.includes(s.id)));
-const mainSections = computed(() => props.resumeData.sections.filter(s => mainIds.includes(s.id)));
+const sidebarSections = computed(() => {
+    return props.resumeData.sections.filter(s => s.column === 'left');
+});
+
+const mainSections = computed(() => {
+    return props.resumeData.sections.filter(s => s.column === 'right');
+});
+
+const sidebarIds = computed(() => sidebarSections.value.map(s => s.id));
+const mainIds = computed(() => mainSections.value.map(s => s.id));
 
 watch(() => props.resumeData, () => requestPagination(), { deep: true });
 onMounted(() => {
