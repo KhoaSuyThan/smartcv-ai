@@ -550,6 +550,7 @@ const resumeId = window.CURRENT_RESUME_ID || 0
 
 // Khởi tạo Dữ liệu bám sát Models ResumeViewModel.cs
 const resumeData = ref({
+  overrideTemplate: '',
   theme: { primaryColor: '#2b5c8f' },
   general: {
     fullName: '', jobTitle: '', email: '', phone: '', address: '', birthDate: '', summary: '', website: '', avatarUrl: ''
@@ -783,11 +784,23 @@ const loadData = async () => {
         // --- CHỌN MẪU CV TỰ ĐỘNG ---
         let targetName = null;
         if (data && data.templateId) {
-            // 1. Thử tìm trong bảng ánh xạ Mapping
-            targetName = templateMapping[data.templateId];
+            // 1. Chế độ thông minh (Ưu tiên): Nhận diện mẫu dựa trên tên từ database
+            if (data.templateName) {
+                if (data.templateName.includes("Nguyễn Yên Nhi")) {
+                    targetName = "NguyenYenNhi";
+                }
+                // Có thể bổ sung các mẫu khác tại đây
+            }
+
+            // 2. Nếu không tìm thấy theo tên, thử tìm trong bảng ánh xạ Mapping ID
+            if (!targetName) {
+                targetName = templateMapping[data.templateId];
+            }
             
-            // 2. Nếu không có trong mapping, thử tìm theo quy tắc Template<ID>.vue (VD: Template3.vue)
-            if (!targetName) targetName = `Template${data.templateId}`;
+            // 3. Cuối cùng, thử tìm theo quy tắc đặt tên mặc định Template<ID>.vue
+            if (!targetName) {
+                targetName = `Template${data.templateId}`;
+            }
         }
 
         // 3. Lấy component từ registry
@@ -807,6 +820,7 @@ const loadData = async () => {
             // --- HỖ TRỢ OVERRIDE MẪU CHO TESTING (VUE TEMPLATES) ---
             if (parsed.overrideTemplate && templateRegistry[parsed.overrideTemplate]) {
                 activeTemplate.value = templateRegistry[parsed.overrideTemplate];
+                resumeData.value.overrideTemplate = parsed.overrideTemplate; // Lưu lại để AutoSave không làm mất
                 console.log(`[Vue Test] Overriding template to: ${parsed.overrideTemplate}`);
             }
 

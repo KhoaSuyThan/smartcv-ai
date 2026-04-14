@@ -28,6 +28,8 @@ CREATE TABLE VueTemplates (
 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium)
 VALUES (N'Trần Hoài Thu', 'Template', '/images/templates/template_476e4073.png', 1);
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium)
+VALUES (N'Nguyễn Yến Nhi', 'NguyenYenNhi', 'https://marketplace.canva.com/EAGSZ3G6wMw/2/0/1131w/canva-s%C6%A1-y%E1%BA%BFu-l%C3%BD-l%E1%BB%8Bch-chuy%C3%AAn-nghi%E1%BB%87p-hi%E1%BB%87n-%C4%91%E1%BA%A1i-n%E1%BB%AF-t%C3%ADnh-thanh-l%E1%BB%8Bch-h%E1%BB%93ng-tr%E1%BA%AFng-N3-BrRHpD_E.jpg', 1);
 
 -- 1. Thông tin công ty
 CREATE TABLE Companies (
