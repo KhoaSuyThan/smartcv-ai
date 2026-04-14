@@ -58,12 +58,13 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Templates");
             }
 
-            // 2. TÌM BẢN NHÁP CŨ: Lấy bản sinh ra gần nhất cho mẫu ứng với TemplateID này (Bất kể đã xuất PDF hay chưa)
+            // 2. TÌM BẢN NHÁP CŨ: Chỉ lấy những bản ghi truyền thống (Không phải CV Vue)
             var resume = await _context.Resumes
-                .Include(r => r.Template)        // Load HTML/CSS của mẫu
-                .Include(r => r.ResumeSections)  // Load các phần JSON đã lưu
+                .Include(r => r.Template)
+                .Include(r => r.ResumeSections)
+                .Where(r => r.UserID == userId && r.TemplateID == id && !r.Title.StartsWith("CV Vue: "))
                 .OrderByDescending(r => r.UpdatedAt)
-                .FirstOrDefaultAsync(r => r.UserID == userId && r.TemplateID == id);
+                .FirstOrDefaultAsync();
 
             // 3. NẾU CHƯA CÓ THÌ MỚI TẠO MỚI
             if (resume == null)
@@ -380,11 +381,24 @@ namespace DoAnCS.Controllers
             var vueTemplate = await _context.VueTemplates.FindAsync(id);
             if (vueTemplate == null) return RedirectToAction("VueTemplates");
 
-            // Tạo một bản Resume mới
+            // --- CẢI TIẾN: Tránh lưu trùng lặp bằng cách tìm theo UserID và TemplateID thực tế ---
+            // Chỉ tìm các bản ghi có Title bắt đầu bằng "CV Vue: " để tránh bốc nhầm dữ liệu của bảng cũ
+            var existingResume = await _context.Resumes
+                .FirstOrDefaultAsync(r => r.UserID == userId 
+                                       && r.TemplateID == id 
+                                       && r.Title.StartsWith("CV Vue: "));
+
+            if (existingResume != null)
+            {
+                // Nếu đã có, chuyển hướng thẳng vào Builder với ID cũ
+                return RedirectToAction("Builder", new { id = existingResume.ResumeID });
+            }
+
+            // Nếu chưa có, tiến hành tạo mới với TemplateID thực tế
             var resume = new Resume
             {
                 UserID = userId,
-                TemplateID = 4, // Fallback template (Template4)
+                TemplateID = id, // Lấy Id thực tế từ bảng VueTemplates
                 Title = "CV Vue: " + vueTemplate.TemplateName,
                 IsDraft = true,
                 CreatedAt = DateTime.Now,

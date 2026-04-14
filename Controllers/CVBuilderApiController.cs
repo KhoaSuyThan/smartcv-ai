@@ -30,13 +30,17 @@ namespace DoAnCS.Controllers
                 return NotFound(new { message = "Không tìm thấy CV." });
             }
 
+            // Thử tìm trong VueTemplates trước để lấy ComponentName chính xác
+            var vueTemplate = await _context.VueTemplates.FirstOrDefaultAsync(t => t.Id == resume.TemplateID);
+            
             // Trả về dữ liệu JSON hoặc cấu trúc trúc rỗng nếu chưa có
             return Ok(new 
             { 
                 id = resume.ResumeID,
                 title = resume.Title,
                 templateId = resume.TemplateID,
-                templateName = resume.Template?.Name, // Trả thêm tên để Frontend map Component
+                templateName = vueTemplate?.TemplateName ?? resume.Template?.Name, 
+                componentName = vueTemplate?.ComponentName, // Trả thêm ComponentName để Vue dùng trực tiếp
                 jsonContent = resume.JsonContent ?? "{}"
             });
         }

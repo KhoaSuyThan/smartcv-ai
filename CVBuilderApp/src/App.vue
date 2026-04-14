@@ -369,6 +369,7 @@
                   :resumeData="resumeData" 
                   @moveUp="moveSectionUp" 
                   @moveDown="moveSectionDown" 
+                  @moveHorizontal="moveSectionHorizontal"
                   @removeItem="removeItemFromPreview"
                 />
             </div>
@@ -556,18 +557,18 @@ const resumeData = ref({
     fullName: '', jobTitle: '', email: '', phone: '', address: '', birthDate: '', summary: '', website: '', avatarUrl: ''
   },
   sections: [
-    { id: 'summary', title: 'Mục tiêu Nghề nghiệp', isVisible: true, items: [] },
-    { id: 'experience', title: 'Kinh nghiệm Làm việc', isVisible: true, items: [] },
-    { id: 'education', title: 'Quá trình Học vấn', isVisible: true, items: [] },
-    { id: 'skills', title: 'Kỹ năng Chuyên môn', isVisible: true, items: [] },
-    { id: 'it_skills', title: 'Tin học', isVisible: true, items: [] },
-    { id: 'languages', title: 'Ngoại ngữ', isVisible: true, items: [] },
-    { id: 'activities', title: 'Hoạt động', isVisible: false, items: [] },
-    { id: 'project', title: 'Dự án Trọng điểm', isVisible: false, items: [] },
-    { id: 'certifications', title: 'Chứng chỉ / Bằng cấp', isVisible: false, items: [] },
-    { id: 'awards', title: 'Giải thưởng', isVisible: false, items: [] },
-    { id: 'hobbies', title: 'Sở thích', isVisible: false, items: [] },
-    { id: 'references', title: 'Người tham chiếu', isVisible: false, items: [] },
+    { id: 'summary', title: 'Mục tiêu Nghề nghiệp', isVisible: true, column: 'left', items: [] },
+    { id: 'experience', title: 'Kinh nghiệm Làm việc', isVisible: true, column: 'right', items: [] },
+    { id: 'education', title: 'Quá trình Học vấn', isVisible: true, column: 'left', items: [] },
+    { id: 'skills', title: 'Kỹ năng Chuyên môn', isVisible: true, column: 'left', items: [] },
+    { id: 'it_skills', title: 'Tin học', isVisible: true, column: 'left', items: [] },
+    { id: 'languages', title: 'Ngoại ngữ', isVisible: true, column: 'left', items: [] },
+    { id: 'activities', title: 'Hoạt động', isVisible: false, column: 'right', items: [] },
+    { id: 'project', title: 'Dự án Trọng điểm', isVisible: false, column: 'right', items: [] },
+    { id: 'certifications', title: 'Chứng chỉ / Bằng cấp', isVisible: false, column: 'left', items: [] },
+    { id: 'awards', title: 'Giải thưởng', isVisible: false, column: 'left', items: [] },
+    { id: 'hobbies', title: 'Sở thích', isVisible: false, column: 'left', items: [] },
+    { id: 'references', title: 'Người tham chiếu', isVisible: false, column: 'left', items: [] },
   ]
 })
 
@@ -771,6 +772,20 @@ const moveSectionDown = (sectionId, columnIds) => {
   }
 }
 
+const moveSectionHorizontal = (sectionId, direction) => {
+    console.log('[CV Builder] moveHorizontal:', sectionId, 'to:', direction);
+    const section = resumeData.value.sections.find(s => s.id === sectionId);
+    if (section) {
+        section.column = direction;
+        // Đưa xuống cuối cùng của cột mới bằng cách di chuyển vị trí trong mảng
+        const list = [...resumeData.value.sections];
+        const idx = list.findIndex(s => s.id === sectionId);
+        const item = list.splice(idx, 1)[0];
+        list.push(item); // Đẩy xuống cuối mảng sections
+        resumeData.value.sections = list;
+    }
+}
+
 // Logic API (Đồng bộ khứ hồi với C# Backend)
 const inputBaseClass = "w-full bg-transparent border-b border-transparent focus:border-blue-400 py-1 outline-none transition-colors hover:bg-white px-1 -ml-1 rounded-sm focus:bg-white";
 
@@ -783,22 +798,23 @@ const loadData = async () => {
         // Đổi Mẫu dựa trên TemplateID từ API
         // --- CHỌN MẪU CV TỰ ĐỘNG ---
         let targetName = null;
-        if (data && data.templateId) {
-            // 1. Chế độ thông minh (Ưu tiên): Nhận diện mẫu dựa trên tên từ database
-            if (data.templateName) {
-                if (data.templateName.includes("Nguyễn Yên Nhi")) {
-                    targetName = "NguyenYenNhi";
-                }
-                // Có thể bổ sung các mẫu khác tại đây
+        if (data) {
+            // 1. Ưu tiên: Sử dụng ComponentName trả về trực tiếp từ API (Chính xác nhất dành cho mẫu Vue)
+            if (data.componentName) {
+                targetName = data.componentName;
+            }
+            // 2. Dự phòng 1: Nhận diện mẫu dựa trên tên từ database (Dành cho bản ghi cũ)
+            else if (data.templateName) {
+                if (data.templateName.includes("Nguyễn Yên Nhi")) targetName = "NguyenYenNhi";
             }
 
-            // 2. Nếu không tìm thấy theo tên, thử tìm trong bảng ánh xạ Mapping ID
-            if (!targetName) {
+            // 3. Dự phòng 2: Nếu không tìm thấy, thử tìm trong bảng ánh xạ Mapping ID cũ
+            if (!targetName && data.templateId) {
                 targetName = templateMapping[data.templateId];
             }
             
-            // 3. Cuối cùng, thử tìm theo quy tắc đặt tên mặc định Template<ID>.vue
-            if (!targetName) {
+            // 4. Cuối cùng: Thử tìm theo quy tắc đặt tên mặc định Template<ID>.vue
+            if (!targetName && data.templateId) {
                 targetName = `Template${data.templateId}`;
             }
         }
@@ -828,10 +844,21 @@ const loadData = async () => {
             resumeData.value.general = parsed.general || resumeData.value.general;
             
             if (parsed.sections) {
-                // MIGRATION: Đảm bảo các section id mới luôn tồn tại
+                // MIGRATION: Đảm bảo các section id mới luôn tồn tại và có thuộc tính column
+                const defaultSections = resumeData.value.sections;
+                
+                resumeData.value.sections = parsed.sections.map(s => {
+                    const def = defaultSections.find(ds => ds.id === s.id);
+                    return {
+                        ...s,
+                        column: s.column || (def ? def.column : 'left')
+                    };
+                });
+
+                // Thêm các section hoàn toàn mới (chưa có trong JSON cũ)
                 const existingIds = parsed.sections.map(s => s.id);
-                const missingSections = resumeData.value.sections.filter(s => !existingIds.includes(s.id));
-                resumeData.value.sections = [...parsed.sections, ...missingSections];
+                const missingSections = defaultSections.filter(s => !existingIds.includes(s.id));
+                resumeData.value.sections = [...resumeData.value.sections, ...missingSections];
             }
         } else {
             // Đổ Data mẫu trải nghiệm nếu file trắng

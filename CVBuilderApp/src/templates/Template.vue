@@ -88,9 +88,12 @@
                         <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
+                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </button>
                     </div>
 
-                    <h3 class="text-[17px] font-black uppercase mb-4 tracking-tight paginated-item" :style="{ color: resumeData.theme.primaryColor || '#2d7fb2' }">
+                    <h3 class="font-black uppercase mb-4 tracking-tight paginated-item" :style="{ fontSize: '20px !important', fontWeight: 'bold !important', color: resumeData.theme.primaryColor || '#2d7fb2' }">
                         {{ section.title }}
                     </h3>
                     
@@ -173,9 +176,12 @@
                         <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống">
                             <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
+                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
                     </div>
 
-                    <h3 class="text-[18px] font-black uppercase mb-4 tracking-tight paginated-item" :style="{ color: resumeData.theme.primaryColor || '#2d7fb2' }">
+                    <h3 class="font-black uppercase mb-4 tracking-tight paginated-item" :style="{ fontSize: '20px !important', fontWeight: 'bold !important', color: resumeData.theme.primaryColor || '#2d7fb2' }">
                         {{ section.title }}
                     </h3>
 
@@ -369,7 +375,7 @@ const props = defineProps({
     resumeData: { type: Object, required: true }
 })
 
-const emit = defineEmits(['moveUp', 'moveDown'])
+const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 // Hover tracking với delayed-hide pattern (tránh race condition giữa mouseleave và mouseenter)
 const hoveredSectionId = ref(null)
@@ -391,15 +397,15 @@ const hideNav = () => {
 const selectedSectionId = ref(null)
 
 // Các ID phần mục được chỉ định hiển thị ở Sidebar hoặc Main
-const sidebarIds = ['skills', 'it_skills', 'languages', 'awards', 'certifications', 'hobbies', 'references', 'additional'];
-const mainIds = ['summary', 'education', 'experience', 'activities', 'project'];
+const sidebarIds = computed(() => sidebarSections.value.map(s => s.id));
+const mainIds = computed(() => mainSections.value.map(s => s.id));
 
 const sidebarSections = computed(() => {
-    return props.resumeData.sections.filter(s => sidebarIds.includes(s.id));
+    return props.resumeData.sections.filter(s => s.column === 'left');
 });
 
 const mainSections = computed(() => {
-    return props.resumeData.sections.filter(s => mainIds.includes(s.id));
+    return props.resumeData.sections.filter(s => s.column === 'right');
 });
 
 const formatDesc = (text) => {
