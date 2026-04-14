@@ -61,7 +61,7 @@
     </header>
 
     <!-- CONTENT BODY - 2 COLUMNS -->
-    <div class="flex flex-1 px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
+    <div class="flex px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
         
         <!-- CỘT TRÁI (SIDEBAR) -->
         <aside class="w-[68mm] flex flex-col gap-2 pr-4 pl-6">
@@ -284,7 +284,9 @@ const doPagination = async () => {
     const processColumn = (colSelector) => {
         const col = cvRoot.value.querySelector(colSelector);
         if (!col) return;
-        const colItems = col.querySelectorAll('.paginated-item');
+        const colItems = col.classList.contains('paginated-item') 
+            ? [col] 
+            : col.querySelectorAll('.paginated-item');
 
         let isStable = false;
         let attempts = 0;
@@ -330,7 +332,7 @@ const doPagination = async () => {
     });
 
     // Tính số trang dựa trên điểm đáy cuối cùng + lề dưới an toàn
-    const calculatedPageCount = Math.max(1, Math.ceil((maxBottom + marginBottomPx) / pageHeightPx));
+    const calculatedPageCount = Math.max(1, Math.ceil((maxBottom + marginBottomPx - 2) / pageHeightPx));
     
     // Chỉ cập nhật nếu có sự thay đổi để tránh re-render thừa
     if (pageCount.value !== calculatedPageCount) {

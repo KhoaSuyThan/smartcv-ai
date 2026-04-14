@@ -21,7 +21,9 @@ namespace DoAnCS.Controllers
         [HttpGet("data/{id}")]
         public async Task<IActionResult> GetCVData(int id)
         {
-            var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == id);
+            var resume = await _context.Resumes
+                .Include(r => r.Template)
+                .FirstOrDefaultAsync(r => r.ResumeID == id);
             
             if (resume == null)
             {
@@ -34,6 +36,7 @@ namespace DoAnCS.Controllers
                 id = resume.ResumeID,
                 title = resume.Title,
                 templateId = resume.TemplateID,
+                templateName = resume.Template?.Name, // Trả thêm tên để Frontend map Component
                 jsonContent = resume.JsonContent ?? "{}"
             });
         }
