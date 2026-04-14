@@ -10,4 +10,5 @@ public class AdminDashboardVM
     public int TotalPages { get; set; }
     public List<Job> Jobs { get; set; } = new List<Job>();
     public List<Template> Templates { get; set; } = new List<Template>();
+    public List<VueTemplate> VueTemplates { get; set; } = new List<VueTemplate>();
 }
