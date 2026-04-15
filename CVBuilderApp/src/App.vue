@@ -151,7 +151,10 @@
                     <div class="flex items-center gap-2 ml-2 pl-3 border-l border-slate-200">
                         <!-- Toggle -->
                         <label class="relative inline-flex items-center cursor-pointer" title="Ẩn/Hiện thẻ này">
-                            <input type="checkbox" v-model="section.isVisible" class="sr-only peer">
+                            <input type="checkbox" 
+                                v-model="section.isVisible" 
+                                @change="sortSectionsByVisibility" 
+                                class="sr-only peer">
                             <div class="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-[16px] peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
                         </label>
                     </div>
@@ -538,6 +541,18 @@ import draggable from 'vuedraggable'
 import RichTextEditor from './components/RichTextEditor.vue'
 import { toJpeg } from 'html-to-image'
 import { jsPDF } from 'jspdf'
+
+const sortSectionsByVisibility = () => {
+    // Chúng ta không dùng hàm .sort() mặc định vì nó có thể làm xáo trộn 
+    // thứ tự ưu tiên mà người dùng đã dày công sắp xếp trước đó.
+    const visibleSections = resumeData.value.sections.filter(s => s.isVisible);
+    const hiddenSections = resumeData.value.sections.filter(s => !s.isVisible);
+    
+    // Gộp lại: mục đang bật lên trước, mục đang tắt xuống sau
+    resumeData.value.sections = [...visibleSections, ...hiddenSections];
+    
+    console.log('[CV Builder] Đã ưu tiên đẩy các mục đang kích hoạt lên trên.');
+};
 
 const removeAvatar = () => {
     resumeData.value.general.avatarUrl = '';
