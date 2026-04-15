@@ -42,18 +42,35 @@
           <h2 class="text-xs uppercase font-bold text-slate-800 mb-4 tracking-wider flex items-center gap-2">Thông tin Cá nhân</h2>
           
           <!-- Avatar Upload -->
-          <div class="flex items-center gap-4 mb-6 bg-slate-50 p-3 rounded-xl border border-dashed border-slate-200">
-            <div class="relative w-16 h-16 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-sm shrink-0">
+          <div class="flex items-center gap-4 mb-6 bg-blue-50/50 p-4 rounded-xl border border-dashed border-blue-200 transition-all">
+            <div class="relative w-16 h-16 rounded-full bg-white overflow-hidden border-2 border-blue-100 shadow-sm shrink-0 flex items-center justify-center">
                 <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
-                <div v-else class="w-full h-full flex items-center justify-center text-slate-400">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <div v-else class="w-full h-full flex items-center justify-center text-blue-300">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
                 </div>
             </div>
-            <div class="flex-1">
-                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ảnh đại diện</label>
-                <input type="file" @change="onAvatarChange" accept="image/*" class="block w-full text-[11px] text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+
+            <div class="flex-1 flex flex-col gap-1.5">
+                <label class="block text-[11px] font-bold text-blue-700 uppercase tracking-wider ml-1">Ảnh đại diện</label>
+                
+                <div class="flex items-center gap-2">
+                    <input type="file" @change="onAvatarChange" accept="image/*" 
+                        class="block w-full text-[11px] text-slate-500 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[11px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer transition-all shadow-sm file:shadow-blue-200" />
+                    
+                    <button v-if="resumeData.general.avatarUrl" 
+                            @click="removeAvatar" 
+                            type="button"
+                            class="p-2 text-red-500 hover:bg-red-50 rounded-full transition-all border border-transparent hover:border-red-100 shrink-0" 
+                            title="Xóa ảnh và quay về mặc định">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-          </div>
+        </div>
 
           <!-- Đã di chuyển trình chọn màu lên Toolbar -->
 
@@ -521,6 +538,16 @@ import draggable from 'vuedraggable'
 import RichTextEditor from './components/RichTextEditor.vue'
 import { toJpeg } from 'html-to-image'
 import { jsPDF } from 'jspdf'
+
+const removeAvatar = () => {
+    resumeData.value.general.avatarUrl = '';
+    const fileInput = document.querySelector('input[accept="image/*"]');
+    if (fileInput) {
+        fileInput.value = '';
+    }
+
+    console.log('Đã xóa ảnh đại diện.');
+};
 
 const getSectionIcon = (id) => {
   const icons = {
