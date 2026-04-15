@@ -21,11 +21,9 @@
       isPreviewMode ? 'w-0 opacity-0 border-r-0' : 'w-[700px] opacity-100'
     ]" style="height: 100%;">
       <!-- HEADER -->
-      <div class="p-4 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative overflow-hidden">
+      <div class="py-2 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative overflow-hidden">
         <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl"></div>
-        <h1 class="text-lg font-black uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">CV Builder Pro <span class="text-[10px] bg-red-500 text-white px-1 rounded ml-2">V10</span></h1>
-        <p class="text-slate-400 text-xs mt-1.5 font-medium border-l-2 border-red-500 pl-2">Đồ án Cơ sở Công nghệ phần mềm(Cập nhật 4:54 PM)</p>
-        <div class="mt-4 flex flex-col gap-2">
+        <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between bg-white/10 rounded-lg p-2 backdrop-blur-sm border border-white/5">
                 <div class="flex items-center gap-2">
                     <div class="w-2.5 h-2.5 rounded-full" :class="isSaving ? 'bg-yellow-400 animate-pulse' : 'bg-emerald-400'"></div>
@@ -59,21 +57,51 @@
 
           <!-- Đã di chuyển trình chọn màu lên Toolbar -->
 
-          
-          <div class="space-y-4">
-            <div class="grid grid-cols-1 gap-3">
-                <RichTextEditor v-model="resumeData.general.fullName" class="w-full text-sm py-2.5 px-3 border border-slate-200 bg-white rounded-lg focus-within:ring-2 focus-within:ring-blue-500 outline-none transition-all font-medium placeholder-slate-400 shadow-sm" placeholder="Họ và Tên" />
-                <RichTextEditor v-model="resumeData.general.jobTitle" class="w-full text-sm py-2.5 px-3 border border-slate-200 bg-white rounded-lg focus-within:ring-2 focus-within:ring-blue-500 outline-none transition-all placeholder-slate-400 shadow-sm" placeholder="Vị trí ứng tuyển" />
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Họ và tên</label>
+                        <RichTextEditor v-model="resumeData.general.fullName" class="w-full text-sm py-2.5 px-3 border border-slate-200 bg-white rounded-lg focus-within:ring-2 focus-within:ring-blue-500 outline-none transition-all font-medium placeholder-slate-400 shadow-sm" placeholder="Nhập họ tên đầy đủ..." />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Vị trí ứng tuyển</label>
+                        <RichTextEditor v-model="resumeData.general.jobTitle" class="w-full text-sm py-2.5 px-3 border border-slate-200 bg-white rounded-lg focus-within:ring-2 focus-within:ring-blue-500 outline-none transition-all placeholder-slate-400 shadow-sm" placeholder="Ví dụ: Fullstack Developer..." />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Số điện thoại</label>
+                        <RichTextEditor v-model="resumeData.general.phone" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="090..." />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Email</label>
+                        <RichTextEditor v-model="resumeData.general.email" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="example@gmail.com" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Ngày sinh</label>
+                        <RichTextEditor v-model="resumeData.general.birthDate" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="01/01/2000" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Giới tính</label>
+                        <RichTextEditor v-model="resumeData.general.gender" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="Nam / Nữ" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 col-span-2">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Địa chỉ hiện tại</label>
+                        <RichTextEditor v-model="resumeData.general.address" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="Quận 1, TP. Hồ Chí Minh" />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5 col-span-2">
+                        <label class="text-[13px] font-bold text-slate-700 ml-1">Website / LinkedIn / Portfolio</label>
+                        <RichTextEditor v-model="resumeData.general.website" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="https://..." />
+                    </div>
+                </div>
             </div>
-             <div class="grid grid-cols-2 gap-3">
-                <RichTextEditor v-model="resumeData.general.phone" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="Số điện thoại" />
-                <RichTextEditor v-model="resumeData.general.email" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="Email" />
-                <RichTextEditor v-model="resumeData.general.birthDate" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="Ngày sinh (Ví dụ: 01/01/2000)" />
-                <RichTextEditor v-model="resumeData.general.gender" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="Giới tính (Nam/Nữ)" />
-                <RichTextEditor v-model="resumeData.general.address" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400 col-span-2" placeholder="Địa chỉ hiện tại" />
-                <RichTextEditor v-model="resumeData.general.website" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400 col-span-2" placeholder="Website / Portfolio / LinkedIn" />
-            </div>
-          </div>
         </div>
 
 
@@ -98,10 +126,10 @@
                 <!-- Section Header -->
                 <div class="flex items-center justify-between p-3.5 border-b border-slate-100 bg-slate-50/50">
                     <div class="flex items-center gap-2 flex-1">
-                        <span class="drag-handle cursor-grab text-slate-400 hover:text-blue-600 active:cursor-grabbing p-1 bg-white rounded shadow-sm border border-slate-200">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                        <span class="drag-handle cursor-grab text-blue-600 hover:text-blue-700 active:cursor-grabbing p-1.5 bg-white rounded-lg shadow-sm border border-slate-200 transition-colors group-hover:border-blue-200 group-hover:bg-blue-50">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="getSectionIcon(section.id)"></svg>
                         </span>
-                        <input v-model="section.title" class="font-bold text-slate-800 bg-transparent py-1 px-2 rounded-md outline-none focus:ring-2 ring-blue-100 hover:bg-white w-full transition-all uppercase tracking-wide text-xs" />
+                        <input v-model="section.title" class="font-bold text-blue-700 bg-transparent py-1 px-2 rounded-md outline-none focus:ring-2 ring-blue-100 hover:bg-white w-full transition-all uppercase tracking-wide text-sm" />
                     </div>
                     <div class="flex items-center gap-2 ml-2 pl-3 border-l border-slate-200">
                         <!-- Toggle -->
@@ -493,6 +521,24 @@ import draggable from 'vuedraggable'
 import RichTextEditor from './components/RichTextEditor.vue'
 import { toJpeg } from 'html-to-image'
 import { jsPDF } from 'jspdf'
+
+const getSectionIcon = (id) => {
+  const icons = {
+    summary: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />', // User
+    experience: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />', // Briefcase
+    education: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />', // Academic
+    skills: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />', // Bolt
+    it_skills: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />', // Desktop
+    languages: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />', // Language
+    activities: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />', // Users
+    project: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />', // Folder
+    certifications: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />', // Badge
+    awards: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />', // Sparkles
+    hobbies: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />', // Heart
+    references: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />', // Chat
+  };
+  return icons[id] || '<path d="M4 8h16M4 16h16" />'; // Default là dấu =
+};
 
 // --- CƠ CHẾ DYNAMIC TEMPLATE LOADER ---
 // Tự động quét toàn bộ file .vue trong thư mục templates
@@ -929,6 +975,11 @@ onUnmounted(() => {
 </script>
 
 <style>
+
+.cv-builder-editor-panel .overflow-y-auto {
+    padding-bottom: 100px !important; /* Tạo khoảng trống để không bị sát rìa */
+}
+
 .pattern-dots {
     background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
     background-size: 24px 24px;
