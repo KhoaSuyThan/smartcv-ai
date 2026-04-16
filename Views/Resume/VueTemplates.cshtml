@@ -47,6 +47,19 @@
         </p>
     </div>
 
+    <div class="d-flex justify-content-center gap-2 mb-5 flex-wrap filter-container">
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn active" data-filter="all">Tất cả mẫu</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="IT">IT</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Kinh doanh">Kinh doanh</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Marketing">Marketing</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Tài chính">Tài chính</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Sáng tạo">Sáng tạo</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Y tế">Y tế</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Thực tập">Thực tập</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Chuyên nghiệp">Chuyên nghiệp</button>
+        <button class="btn btn-outline-primary rounded-pill px-4 filter-btn" data-filter="Khác">Khác</button>
+    </div>
+
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-4 rounded-3 d-flex align-items-center justify-content-between" role="alert">
@@ -71,7 +84,7 @@
         {
             @foreach (var item in Model)
             {
-                <div class="col-md-4 col-lg-3 template-item">
+                <div class="col-md-4 col-lg-3 template-item" data-category="@item.Category">
                     <div class="card h-100 border-0 shadow-sm template-card @(item.IsPremium ? "border-pro" : "")">
                         <div class="test-badge">
                             <span class="badge bg-danger shadow-sm px-2 py-1 rounded-pill fw-bold">VUE TEST</span>
@@ -102,7 +115,10 @@
                         </div>
                         <div class="card-body text-center">
                             <h6 class="fw-bold mb-1">@item.TemplateName</h6>
-                            <p class="small text-muted mb-0">Component: @item.ComponentName</p>
+                            @if (!string.IsNullOrEmpty(item.Category))
+                            {
+                                <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-3">@item.Category</span>
+                            }
                         </div>
                     </div>
                 </div>
@@ -116,3 +132,75 @@
         </a>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filters = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.template-item');
+        const predefinedCategories = ['IT', 'Kinh doanh', 'Marketing', 'Tài chính', 'Sáng tạo', 'Y tế', 'Thực tập', 'Chuyên nghiệp'];
+        let activeFilters = new Set(['all']);
+
+        filters.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filterValue = this.getAttribute('data-filter');
+
+                if (filterValue === 'all') {
+                    activeFilters.clear();
+                    activeFilters.add('all');
+                    filters.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                } else {
+                    if (activeFilters.has('all')) {
+                        activeFilters.delete('all');
+                        document.querySelector('[data-filter="all"]').classList.remove('active');
+                    }
+
+                    if (activeFilters.has(filterValue)) {
+                        activeFilters.delete(filterValue);
+                        this.classList.remove('active');
+                    } else {
+                        activeFilters.add(filterValue);
+                        this.classList.add('active');
+                    }
+
+                    if (activeFilters.size === 0) {
+                        activeFilters.add('all');
+                        document.querySelector('[data-filter="all"]').classList.add('active');
+                    }
+                }
+
+                renderItems();
+            });
+        });
+
+        function renderItems() {
+            items.forEach(item => {
+                const itemCategoryStr = item.getAttribute('data-category') || "";
+                const itemCategories = itemCategoryStr.split(',').map(s => s.trim()).filter(s => s !== "");
+
+                let show = false;
+                if (activeFilters.has('all')) {
+                    show = true;
+                } else {
+                    // Logic AND: Phải thỏa mãn TẤT CẢ các filter đang chọn
+                    show = Array.from(activeFilters).every(filter => {
+                        if (filter === 'Khác') {
+                            // Khác: Nếu không có category nào hoặc có category không nằm trong danh sách định sẵn
+                            if (itemCategories.length === 0) return true;
+                            return itemCategories.some(cat => !predefinedCategories.includes(cat));
+                        }
+                        return itemCategories.includes(filter);
+                    });
+                }
+
+                if (show) {
+                    item.style.display = 'block';
+                    setTimeout(() => { item.style.opacity = '1'; }, 10);
+                } else {
+                    item.style.opacity = '0';
+                    setTimeout(() => { item.style.display = 'none'; }, 300);
+                }
+            });
+        }
+    });
+</script>
