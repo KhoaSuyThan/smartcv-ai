@@ -1,4 +1,4 @@
-@model IEnumerable<DoAnCS.Models.Job>
+@model DoAnCS.Models.ViewModels.AdminDashboardVM
 @{
     ViewData["Title"] = "Quản lý tin tuyển dụng";
 }
@@ -15,7 +15,7 @@
                 <h3 class="fw-bold text-dark m-0">
                     <i class='bx bxs-briefcase-alt-2 text-warning me-2'></i>Quản lý Tin Tuyển dụng
                 </h3>
-                <p class="text-muted small mb-0">Hệ thống có tổng cộng <span class="fw-bold text-primary">@Model.Count()</span> bản ghi.</p>
+                <p class="text-muted small mb-0">Hệ thống có tổng cộng <span class="fw-bold text-primary">@Model.TotalJobs</span> bản ghi.</p>
             </div>
             <div class="d-flex gap-2">
                 <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
@@ -42,7 +42,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var job in Model)
+                        @foreach (var job in Model.Jobs)
                         {
                             <tr>
                                 <td class="ps-4">
@@ -146,6 +146,27 @@
                 </table>
             </div>
         </div>
+
+        @* Phân trang *@
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center custom-pagination">
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link shadow-sm" href="?page=@(Model.CurrentPage - 1)"><i class='bx bx-chevron-left'></i></a>
+                    </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link shadow-sm" href="?page=@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link shadow-sm" href="?page=@(Model.CurrentPage + 1)"><i class='bx bx-chevron-right'></i></a>
+                    </li>
+                </ul>
+            </nav>
+        }
     </div>
 </div>
 
@@ -174,6 +195,12 @@
     }
 
     .table tbody tr:hover { background-color: #fcfdfe; }
+    .custom-pagination .page-link {
+        border: none; margin: 0 3px; border-radius: 8px !important;
+        color: #666; padding: 8px 16px; font-weight: 600;
+    }
+    .custom-pagination .page-item.active .page-link { background: #0d6efd; color: white; }
+
     .btn-white { background: white; }
     .hover-primary:hover { color: #0d6efd !important; }
 </style>

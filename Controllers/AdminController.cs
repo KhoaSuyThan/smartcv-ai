@@ -294,14 +294,33 @@ namespace DoAnCS.Controllers
         }
         
         // 1. Trang quản lý Jobs
-        public async Task<IActionResult> Jobs()
+        public async Task<IActionResult> Jobs(int page = 1)
         {
-            var jobs = await _context.Jobs
-                .Include(j => j.Company)
+            int pageSize = 10;
+            var query = _context.Jobs.Include(j => j.Company);
+
+            int totalJobs = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalJobs / pageSize);
+
+            var jobs = await query
                 .OrderBy(j => j.Status == 0 ? 0 : 1) // Ưu tiên tin chờ duyệt lên đầu
                 .ThenByDescending(j => j.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
-            return View(jobs);
+
+            var vm = new AdminDashboardVM
+            {
+                Jobs = jobs,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalUsers = await _context.Users.CountAsync(),
+                TotalCompanies = await _context.Companies.CountAsync(),
+                TotalJobs = totalJobs,
+                TotalResumes = await _context.Resumes.CountAsync()
+            };
+
+            return View(vm);
         }
 
         // 2. Trang quản lý Mẫu CV (Templates)
