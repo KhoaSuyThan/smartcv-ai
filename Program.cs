@@ -5,7 +5,7 @@ using DoAnCS.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = @"Server=DESKTOP-Q9U2V6U;Database=DoAnWebCS;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True";
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();

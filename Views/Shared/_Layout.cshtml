@@ -117,7 +117,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Jobs") || ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "active" : "")" 
+                            <a class="nav-link @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" || ViewContext.RouteData.Values["action"]?.ToString() == "Details")) || (ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" && ViewContext.RouteData.Values["action"]?.ToString() == "Index") ? "active" : "")" 
                                asp-controller="Home" asp-action="Jobs">
                                 <i class="fas fa-briefcase me-1"></i> Việc làm
                             </a>
@@ -139,7 +139,7 @@
                             @if (User.IsInRole("Recruiter"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-primary fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" && ViewContext.RouteData.Values["action"]?.ToString() == "Manage" ? "active" : "")" 
+                                    <a class="nav-link text-primary fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" && (ViewContext.RouteData.Values["action"]?.ToString() == "Manage" || ViewContext.RouteData.Values["action"]?.ToString() == "Create" || ViewContext.RouteData.Values["action"]?.ToString() == "Edit") ? "active" : "")" 
                                        asp-controller="Jobs" asp-action="Manage">
                                         <i class="fas fa-briefcase me-1"></i> Tuyển dụng
                                     </a>
