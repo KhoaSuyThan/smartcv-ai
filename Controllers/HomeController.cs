@@ -4,7 +4,7 @@ using DoAnCS.Data;
 using DoAnCS.Models;
 using DoAnCS.Services;
 using X.PagedList;
-using X.PagedList.Extensions; // <--- Thêm dòng này
+using X.PagedList.Extensions;
 
 namespace DoAnCS.Controllers
 {

@@ -12,6 +12,7 @@
     string roleIcon = isAdmin ? "bi-shield-lock-fill" : (isRecruiter ? "bi-building" : "bi-person-fill");
 
     var defaultAvt = "https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg";
+    string activeTab = Context.Request.Query["t"] == "password" ? "password" : "info";
 }
 
 <style>
@@ -171,6 +172,15 @@
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         margin: auto;
     }
+
+    /* Fix overlap with global nav-link underline */
+    #profileTabs .nav-link::after {
+        display: none !important;
+    }
+    #profileTabs .nav-link.active {
+        border-bottom: 2px solid #0d6efd !important;
+        border-radius: 0;
+    }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
@@ -237,81 +247,157 @@
         @* CỘT PHẢI: CHI TIẾT THÔNG TIN *@
         <div class="col-lg-8">
             <div class="card glass-card p-4 p-md-5">
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <div>
-                        <h4 class="info-card-title mb-1">Cài đặt tài khoản</h4>
-                        <p class="text-muted small mb-0">Quản lý và cập nhật thông tin định danh của bạn.</p>
-                    </div>
-                    <button type="button" id="btnEdit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold transition-base" onclick="enableEditing()">
-                        <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
-                    </button>
-                </div>
+                <!-- Nav tabs -->
+                <ul class="nav nav-tabs mb-4 px-1 border-0 gap-2" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link border-0 fw-bold @(activeTab == "info" ? "active text-primary" : "text-muted")" 
+                                id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="@(activeTab == "info" ? "true" : "false")"
+                                onclick="history.replaceState(null, null, '?t=info')">
+                            <i class="bi bi-person-lines-fill me-2"></i>Thông tin cá nhân
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link border-0 fw-bold @(activeTab == "password" ? "active text-primary" : "text-muted")" 
+                                id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab" aria-controls="password" aria-selected="@(activeTab == "password" ? "true" : "false")"
+                                onclick="history.replaceState(null, null, '?t=password')">
+                            <i class="bi bi-shield-lock-fill me-2"></i>Đổi mật khẩu
+                        </button>
+                    </li>
+                </ul>
 
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-5 rounded-4 p-3" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill me-3 fs-3"></i>
-                            <div><strong>Tuyệt vời!</strong> @TempData["SuccessMessage"]</div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                }
-
-                <form id="profileForm" asp-controller="Account" asp-action="Profile" method="post" enctype="multipart/form-data">
-                    <input type="hidden" asp-for="UserID" />
-                    <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="submitAvatar(this)">
-                    <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
-
-                    <div class="row g-5">
-                        <div class="col-md-6">
-                            <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
-                            <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
-                            <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
-                        </div>
-
-                        @if (isRecruiter)
-                        {
-                            <div class="col-md-12">
-                                <label class="custom-label"><i class="bi bi-building me-2"></i>Đơn vị tuyển dụng</label>
-                                <input type="text" name="companyName" id="CompanyName" 
-                                       value="@(Model.Company?.Name)" 
-                                       class="form-control edit-locked" readonly 
-                                       placeholder="Nhập tên công ty" />
+                <!-- Tab panes -->
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- Tab Thông tin cá nhân -->
+                    <div class="tab-pane fade @(activeTab == "info" ? "show active" : "")" id="info" role="tabpanel" aria-labelledby="info-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-5 mt-3">
+                            <div>
+                                <h4 class="info-card-title mb-1">Cài đặt tài khoản</h4>
+                                <p class="text-muted small mb-0">Quản lý và cập nhật thông tin định danh của bạn.</p>
                             </div>
+                            <button type="button" id="btnEdit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold transition-base" onclick="enableEditing()">
+                                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+                            </button>
+                        </div>
 
-                            <div class="col-md-12">
-                                <label class="custom-label"><i class="bi bi-geo-alt me-2"></i>Địa chỉ văn phòng</label>
-                                <input type="text" name="companyAddress" id="CompanyAddress" 
-                                       value="@(Model.Company?.Address)" 
-                                       class="form-control edit-locked" readonly 
-                                       placeholder="Nhập địa chỉ công ty" />
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-5 rounded-4 p-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+                                    <div><strong>Tuyệt vời!</strong> @TempData["SuccessMessage"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         }
 
-                        <div class="col-md-12">
-                            <label class="custom-label text-dark">Email đăng nhập (không thể thay đổi)</label>
-                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 border">
-                                <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                                    <i class="bi bi-envelope-check-fill text-primary mt-1"></i>
+                        <form id="profileForm" asp-controller="Account" asp-action="Profile" method="post" enctype="multipart/form-data">
+                            <input type="hidden" asp-for="UserID" />
+                            <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="submitAvatar(this)">
+                            <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
+
+                            <div class="row g-5">
+                                <div class="col-md-6">
+                                    <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
+                                    <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
                                 </div>
-                                <div class="fw-bold text-dark fs-5">@Model.Email</div>
-                                @if (User.Identity.IsAuthenticated) {
-                                    <i class="bi bi-patch-check-fill text-success ms-auto fs-5" title="Đã xác minh"></i>
+
+                                <div class="col-md-6">
+                                    <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
+                                    <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
+                                </div>
+
+                                @if (isRecruiter)
+                                {
+                                    <div class="col-md-12">
+                                        <label class="custom-label"><i class="bi bi-building me-2"></i>Đơn vị tuyển dụng</label>
+                                        <input type="text" name="companyName" id="CompanyName" 
+                                            value="@(Model.Company?.Name)" 
+                                            class="form-control edit-locked" readonly 
+                                            placeholder="Nhập tên công ty" />
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <label class="custom-label"><i class="bi bi-geo-alt me-2"></i>Địa chỉ văn phòng</label>
+                                        <input type="text" name="companyAddress" id="CompanyAddress" 
+                                            value="@(Model.Company?.Address)" 
+                                            class="form-control edit-locked" readonly 
+                                            placeholder="Nhập địa chỉ công ty" />
+                                    </div>
                                 }
+
+                                <div class="col-md-12">
+                                    <label class="custom-label text-dark">Email đăng nhập (không thể thay đổi)</label>
+                                    <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 border">
+                                        <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                            <i class="bi bi-envelope-check-fill text-primary mt-1"></i>
+                                        </div>
+                                        <div class="fw-bold text-dark fs-5">@Model.Email</div>
+                                        @if (User.Identity.IsAuthenticated) {
+                                            <i class="bi bi-patch-check-fill text-success ms-auto fs-5" title="Đã xác minh"></i>
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+
+                            <div id="editActions" class="mt-5 pt-4 border-top d-flex justify-content-end gap-3" style="display: none !important;">
+                                <button type="button" class="btn btn-light px-4 rounded-pill border fw-bold text-muted" onclick="disableEditing()">Bỏ qua</button>
+                                <button type="submit" class="btn btn-primary px-5 rounded-pill shadow fw-bold">Lưu thông tin</button>
+                            </div>
+                        </form>
                     </div>
 
-                    <div id="editActions" class="mt-5 pt-4 border-top d-flex justify-content-end gap-3" style="display: none !important;">
-                        <button type="button" class="btn btn-light px-4 rounded-pill border fw-bold text-muted" onclick="disableEditing()">Bỏ qua</button>
-                        <button type="submit" class="btn btn-primary px-5 rounded-pill shadow fw-bold">Lưu thông tin</button>
+                    <!-- Tab Đổi mật khẩu -->
+                    <div class="tab-pane fade @(activeTab == "password" ? "show active" : "")" id="password" role="tabpanel" aria-labelledby="password-tab">
+                        <div class="mb-5 mt-3">
+                            <h4 class="info-card-title mb-1">Bảo mật tài khoản</h4>
+                            <p class="text-muted small mb-0">Cập nhật mật khẩu thường xuyên để bảo vệ tài khoản của bạn an toàn hơn.</p>
+                        </div>
+
+                        @if (TempData["PasswordSuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-5 rounded-4 p-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+                                    <div><strong>Thành công!</strong> @TempData["PasswordSuccessMessage"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+                        
+                        @if (TempData["PasswordErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-5 rounded-4 p-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                                    <div><strong>Lỗi!</strong> @TempData["PasswordErrorMessage"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <form id="passwordForm" asp-controller="Account" asp-action="ChangePassword" method="post">
+                            <div class="row g-4">
+                                <div class="col-md-12">
+                                    <label class="custom-label text-dark"><i class="bi bi-shield-lock-fill me-2"></i>Mật khẩu hiện tại</label>
+                                    <input type="password" name="currentPassword" class="form-control" required placeholder="Nhập mật khẩu hiện tại" />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="custom-label text-dark"><i class="bi bi-key-fill me-2"></i>Mật khẩu mới</label>
+                                    <input type="password" name="newPassword" class="form-control" required placeholder="Nhập mật khẩu mới" />
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="custom-label text-dark"><i class="bi bi-key-fill me-2"></i>Xác nhận mật khẩu mới</label>
+                                    <input type="password" name="confirmPassword" class="form-control" required placeholder="Nhập lại mật khẩu mới" />
+                                </div>
+                            </div>
+                            <div class="mt-5 pt-4 border-top d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary px-5 rounded-pill shadow fw-bold">
+                                    <i class="bi bi-check2-circle me-2"></i>Cập nhật mật khẩu
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>

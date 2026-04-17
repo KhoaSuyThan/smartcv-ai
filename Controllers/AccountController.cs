@@ -345,6 +345,53 @@ namespace DoAnCS.Controllers
         }
 
         // ==========================================
+        // ĐỔI MẬT KHẨU (CHANGE PASSWORD)
+        // ==========================================
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) 
+                return RedirectToAction("Login");
+
+            if (string.IsNullOrEmpty(currentPassword) || string.IsNullOrEmpty(newPassword) || string.IsNullOrEmpty(confirmPassword))
+            {
+                TempData["PasswordErrorMessage"] = "Vui lòng điền đầy đủ các trường.";
+                return RedirectToAction("Profile", new { t = "password" });
+            }
+
+            if (newPassword != confirmPassword)
+            {
+                TempData["PasswordErrorMessage"] = "Mật khẩu mới và xác nhận mật khẩu không khớp.";
+                return RedirectToAction("Profile", new { t = "password" });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            // Ignore external login users or users without password set like this
+            if (string.IsNullOrEmpty(user.PasswordHash) || user.PasswordHash.StartsWith("EXTERNAL_LOGIN_"))
+            {
+                TempData["PasswordErrorMessage"] = "Tài khoản đăng nhập bằng mạng xã hội không thể đổi mật khẩu.";
+                return RedirectToAction("Profile", new { t = "password" });
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(currentPassword, user.PasswordHash))
+            {
+                TempData["PasswordErrorMessage"] = "Mật khẩu hiện tại không chính xác.";
+                return RedirectToAction("Profile", new { t = "password" });
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _context.SaveChangesAsync();
+
+            TempData["PasswordSuccessMessage"] = "Đổi mật khẩu thành công!";
+            return RedirectToAction("Profile", new { t = "password" });
+        }
+
+        // ==========================================
         // NÂNG CẤP TÀI KHOẢN (UPGRADE)
         // ==========================================
         [HttpGet]
