@@ -14,6 +14,12 @@ namespace DoAnCS.Models {
         public bool IsPro { get; set; } = false; // Tài khoản Pro
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+        
+        // Các trường phục vụ xác thực đổi mật khẩu
+        public string? PasswordChangeToken { get; set; }
+        public DateTime? PasswordChangeTokenExpires { get; set; }
+        public string? PendingPasswordHash { get; set; }
+
         public virtual ICollection<Resume> Resumes { get; set; }   
     }
 }

@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
+builder.Services.AddScoped<IEmailService, EmailService>(); 
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>

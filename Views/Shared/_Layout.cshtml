@@ -225,7 +225,7 @@
                 var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
                 <div class="d-flex">
                     <!-- Admin Sidebar Cố định dạng Sticky bản sáng -->
-                    <div class="admin-sidebar-container d-none d-lg-block bg-white shadow-sm" style="width: 280px; height: calc(100vh - 76px); position: sticky; top: 0; align-self: flex-start; overflow-y: hidden;">
+                    <div class="admin-sidebar-container d-none d-lg-block bg-white shadow-sm" style="width: 280px; height: 100vh; position: sticky; top: 0; align-self: flex-start; overflow-y: hidden;">
                         <div class="p-4 border-bottom border-1 mb-3 text-center">
                             <h5 class="text-primary fw-bolder m-0" style="letter-spacing: 1.5px;">
                                 <i class='fas fa-user-shield text-primary me-2 fs-4' style="vertical-align: middle;"></i>ADMIN PANEL
@@ -248,7 +248,7 @@
                             </div>
 
                             <!-- Nhóm Hệ thống -->
-                            <div class="sidebar-group border rounded-3 p-2 mb-3">
+                            <div class="sidebar-group border rounded-3 p-2 pb-3 mb-3">
                                 <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
                                 <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
                                 <a href="/Admin/GeminiConfig" class="menu-item @(currentAction == "GeminiConfig" ? "active" : "")"><i class='bx bxs-bot'></i> Cấu hình Gemini</a>
@@ -297,7 +297,7 @@
                 </div>
 
                 <!-- Nhóm Hệ thống -->
-                <div class="sidebar-group border rounded-3 p-2 mb-3">
+                <div class="sidebar-group border rounded-3 p-2 pb-3 mb-3">
                     <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
                     <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
                     <a href="/Admin/GeminiConfig" class="menu-item @(currentAction == "GeminiConfig" ? "active" : "")"><i class='bx bxs-bot'></i> Cấu hình AI</a>
