@@ -7,6 +7,7 @@ using DoAnCS.Data;
 using DoAnCS.Models;
 using Microsoft.EntityFrameworkCore;
 using DoAnCS.Models.ViewModels;
+using DoAnCS.Services; // Thêm dòng này
 
 namespace DoAnCS.Controllers
 {
@@ -14,9 +15,12 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context) {
+        private readonly IEmailService _emailService;
+
+        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService) {
             _webHostEnvironment = webHostEnvironment;
             _context = context;
+            _emailService = emailService;
         }
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
@@ -384,11 +388,91 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Profile", new { t = "password" });
             }
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            // --- THAY ĐỔI LOGIC: Không đổi ngay mà gửi Email xác nhận ---
+            
+            // 1. Tạo Token và lưu thông tin tạm thời
+            string token = Guid.NewGuid().ToString();
+            user.PasswordChangeToken = token;
+            user.PasswordChangeTokenExpires = DateTime.Now.AddMinutes(15);
+            user.PendingPasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
             await _context.SaveChangesAsync();
 
-            TempData["PasswordSuccessMessage"] = "Đổi mật khẩu thành công!";
+            // 2. Tạo link xác nhận
+            var callbackUrl = Url.Action("ConfirmPasswordChange", "Account", 
+                new { token = token }, protocol: Request.Scheme);
+
+            // 3. Gửi Email
+            string subject = "Xác nhận thay đổi mật khẩu - CVBuilder";
+            string message = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;'>
+                    <h2 style='color: #007bff; text-align: center;'>Xác nhận đổi mật khẩu</h2>
+                    <p>Chào <strong>{user.FullName}</strong>,</p>
+                    <p>Chúng tôi nhận được yêu cầu thay đổi mật khẩu cho tài khoản của bạn. Vui lòng nhấn vào nút bên dưới để xác nhận thay đổi này:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{callbackUrl}' style='background-color: #007bff; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;'>Xác nhận đổi mật khẩu</a>
+                    </div>
+                    <p style='color: #ff0000; font-size: 0.9em;'>Lưu ý: Liên kết này sẽ hết hạn trong vòng 15 phút.</p>
+                    <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với bộ phận hỗ trợ để bảo mật tài khoản.</p>
+                    <hr style='border: 0; border-top: 1px solid #eeeeee;'>
+                    <p style='font-size: 0.8em; color: #777;'>Đây là email tự động, vui lòng không phản hồi.</p>
+                </div>";
+
+            try
+            {
+                await _emailService.SendEmailAsync(user.Email, subject, message);
+                TempData["PasswordSuccessMessage"] = "Một liên kết xác nhận đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư.";
+            }
+            catch (Exception ex)
+            {
+                TempData["PasswordErrorMessage"] = "Lỗi khi gửi email: " + ex.Message;
+            }
+
             return RedirectToAction("Profile", new { t = "password" });
+        }
+
+        // ==========================================
+        // XÁC NHẬN ĐỔI MẬT KHẨU (CONFIRM CHANGE PASSWORD)
+        // ==========================================
+        [HttpGet]
+        public async Task<IActionResult> ConfirmPasswordChange(string token)
+        {
+            if (string.IsNullOrEmpty(token)) return RedirectToAction("Index", "Home");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.PasswordChangeToken == token);
+
+            if (user == null || user.PasswordChangeTokenExpires < DateTime.Now)
+            {
+                ViewBag.Error = "Liên kết xác nhận không hợp lệ hoặc đã hết hạn.";
+                return View();
+            }
+
+            // Thực hiện đổi mật khẩu chính thức
+            user.PasswordHash = user.PendingPasswordHash;
+            
+            // Xóa thông tin tạm
+            user.PasswordChangeToken = null;
+            user.PasswordChangeTokenExpires = null;
+            user.PendingPasswordHash = null;
+
+            await _context.SaveChangesAsync();
+
+            // GỬI EMAIL THÔNG BÁO THÀNH CÔNG
+            string subject = "Thông báo: Thay đổi mật khẩu thành công";
+            string message = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;'>
+                    <h2 style='color: #28a745; text-align: center;'>Mật khẩu đã được thay đổi</h2>
+                    <p>Chào <strong>{user.FullName}</strong>,</p>
+                    <p>Mật khẩu tài khoản của bạn đã được thay đổi thành công vào lúc {DateTime.Now.ToString("HH:mm dd/MM/yyyy")}.</p>
+                    <p>Nếu bạn không thực hiện thay đổi này, hãy liên hệ ngay với chúng tôi để bảo mật tài khoản.</p>
+                    <hr style='border: 0; border-top: 1px solid #eeeeee;'>
+                    <p style='font-size: 0.8em; color: #777;'>Hệ thống CVBuilder chân trọng thông báo.</p>
+                </div>";
+            
+            await _emailService.SendEmailAsync(user.Email, subject, message);
+
+            ViewBag.Success = "Đổi mật khẩu thành công! Bây giờ bạn có thể đăng nhập bằng mật khẩu mới.";
+            return View();
         }
 
         // ==========================================
