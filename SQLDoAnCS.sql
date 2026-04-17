@@ -15,6 +15,10 @@ GO
 USE DoAnWebCS;
 GO
 
+ALTER TABLE Users ADD PasswordChangeToken NVARCHAR(MAX) NULL;
+ALTER TABLE Users ADD PasswordChangeTokenExpires DATETIME2 NULL;
+ALTER TABLE Users ADD PendingPasswordHash NVARCHAR(MAX) NULL;
+
 -- Test templates dùng Vue
 CREATE TABLE VueTemplates (
     Id INT PRIMARY KEY IDENTITY(1,1),
@@ -120,6 +124,9 @@ CREATE TABLE Users (
     Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')) DEFAULT 'User',
     CreatedAt DATETIME DEFAULT GETDATE(),
 	IsPro BIT NOT NULL DEFAULT 0,
+	PasswordChangeToken NVARCHAR(MAX) NULL,
+	PasswordChangeTokenExpires DATETIME2 NULL,
+	PendingPasswordHash NVARCHAR(MAX) NULL,
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
