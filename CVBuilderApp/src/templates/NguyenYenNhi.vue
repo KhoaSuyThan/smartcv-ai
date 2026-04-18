@@ -1,5 +1,5 @@
 <template>
-  <div id="cv-printable-area" ref="cvRoot" class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden" :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }">
+  <div id="cv-printable-area" ref="cvRoot" class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden" :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }">
     
     <!-- NỀN TRANG TRÍ (Background Shapes) -->
     <div class="absolute top-[-50mm] right-[-50mm] w-[150mm] h-[150mm] rounded-full bg-pink-100/50 blur-[80px] z-0"></div>
@@ -236,7 +236,15 @@
         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
     </div>
 
-    <!-- DIVIDER PAGES Indicator -->
+    <!-- VIỀN DƯỚI CỐ ĐỊNH Ở TỪNG TRANG -->
+    <template v-for="p in pageCount" :key="'footer-border-'+p">
+        <div class="absolute left-0 w-full flex items-center z-40 pointer-events-none" 
+             :style="{ top: `calc(${p * 297}mm - 12mm)`, height: '1.5px', paddingLeft: '15mm', paddingRight: '15mm' }">
+            <div class="w-full h-full opacity-30 bg-gradient-to-r from-pink-400 via-red-400 to-pink-400"></div>
+        </div>
+    </template>
+
+    <!-- DIVIDER PAGES Indicator (Chỉ dành cho xem trên Web) -->
     <template v-for="p in (pageCount - 1)" :key="'div-'+p">
         <div class="absolute left-[-2.5%] w-[105%] z-50 flex flex-col items-center justify-center pointer-events-none no-print" 
              :style="{ top: `calc(${p * 297}mm - 12px)` }">
@@ -316,8 +324,8 @@ const hideNav = () => {
 let paginateTimer = null;
 const requestPagination = () => {
     if (paginateTimer) clearTimeout(paginateTimer);
-    // Timeout dài hơn một chút để Vue render xong dữ liệu
-    paginateTimer = setTimeout(doPagination, 300);
+    // Độ trễ ngắn hơn để cập nhật tức thì khi người dùng gõ phím hoặc thêm mục mới
+    paginateTimer = setTimeout(doPagination, 50);
 };
 
 const doPagination = async () => {
@@ -331,7 +339,7 @@ const doPagination = async () => {
 
     const A4_WIDTH_MM = 210;
     const A4_HEIGHT_MM = 297;
-    const MARGIN_BOTTOM_MM = 12; // Lề dưới an toàn (12mm)
+    const MARGIN_BOTTOM_MM = 18; // Tăng lề dưới để không chạm vào viền cố định (12mm)
     const MARGIN_TOP_MM = 15;    // Lề đầu trang mới (15mm)
     
     const rootWidthPx = cvRoot.value.offsetWidth;
