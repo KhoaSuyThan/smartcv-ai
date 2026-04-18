@@ -163,7 +163,17 @@
                     <!-- Section Items (Forms Type) -->
                 <div v-show="section.isVisible" class="p-4 bg-white">
                     <!-- Textarea đặc biệt cho Mục tiêu nghề nghiệp -->
-                    <div v-if="section.id === 'summary'">
+                    <div v-if="section.id === 'summary'" class="space-y-2">
+                        <div class="flex justify-end">
+                            <button @click="generateAISummary" :disabled="isAIProcessing['summary']" class="text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold uppercase shadow-sm border border-amber-200 disabled:opacity-50">
+                                <template v-if="isAIProcessing['summary']">
+                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                </template>
+                                <template v-else>
+                                    <span>✨ AI</span>
+                                </template>
+                            </button>
+                        </div>
                         <RichTextEditor v-model="resumeData.general.summary" class="w-full text-xs py-2.5 px-3 border border-slate-200 bg-slate-50 rounded-xl focus-within:ring-2 focus-within:ring-blue-400 focus-within:bg-blue-50/60 outline-none transition-all placeholder-slate-400 shadow-sm leading-relaxed" placeholder="Mô tả mục tiêu nghề nghiệp của bạn..." />
                     </div>
 
@@ -187,7 +197,15 @@
                                             <input v-model="item.role" :class="inputBaseClass" placeholder="Vị trí làm việc" />
                                             <input v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian (VD: 2020 - 2023)" />
                                         </div>
-                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả công việc (Dùng dấu • để liệt kê)" />
+                                        <div class="flex items-start gap-2">
+                                            <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả công việc (Dùng dấu • để liệt kê)" />
+                                            <button @click="improveAIDesc(item, 'experience')" :disabled="isAIProcessing[item._refId]" class="shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
+                                                <template v-if="isAIProcessing[item._refId]">
+                                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                </template>
+                                                <span v-else>✨ AI</span>
+                                            </button>
+                                        </div>
                                     </template>
 
                                     <!-- form học vấn -->
@@ -207,7 +225,15 @@
                                             <input v-model="item.role" :class="inputBaseClass" placeholder="Vai trò" />
                                             <input v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
                                         </div>
-                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Công nghệ sử dụng, Kết quả đạt được..." />
+                                        <div class="flex items-start gap-2">
+                                            <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Công nghệ sử dụng, Kết quả đạt được..." />
+                                            <button @click="improveAIDesc(item, 'project')" :disabled="isAIProcessing[item._refId]" class="shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
+                                                <template v-if="isAIProcessing[item._refId]">
+                                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                </template>
+                                                <span v-else>✨ AI</span>
+                                            </button>
+                                        </div>
                                     </template>
 
                                     <!-- form kỹ năng chung (name, level) -->
@@ -222,7 +248,15 @@
                                     <template v-else-if="section.id === 'activities'">
                                         <input v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên Hoạt động/Tổ chức" />
                                         <input v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
-                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả chi tiết hoạt động..." />
+                                        <div class="flex items-start gap-2">
+                                            <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả chi tiết hoạt động..." />
+                                            <button @click="improveAIDesc(item, 'activities')" :disabled="isAIProcessing[item._refId]" class="shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
+                                                <template v-if="isAIProcessing[item._refId]">
+                                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                </template>
+                                                <span v-else>✨ AI</span>
+                                            </button>
+                                        </div>
                                     </template>
 
                                     <!-- form chứng chỉ/giải thưởng -->
@@ -245,10 +279,16 @@
                         </template>
                     </draggable>
                    
-                    <button v-if="section.id !== 'summary'" @click="addItem(sectionIndex)" class="mt-3 w-full border border-dashed border-slate-300 hover:border-blue-500 text-slate-500 hover:text-blue-600 bg-slate-50/50 hover:bg-blue-50 transition-colors rounded-xl py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 focus:outline-none">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> 
-                        Thêm Dòng
-                    </button>
+                    <div v-if="section.id !== 'summary'" class="flex gap-2">
+                        <button @click="addItem(sectionIndex)" class="mt-3 flex-1 border border-dashed border-slate-300 hover:border-blue-500 text-slate-500 hover:text-blue-600 bg-slate-50/50 hover:bg-blue-50 transition-colors rounded-xl py-2 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 focus:outline-none">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> 
+                            Thêm Dòng
+                        </button>
+                        <button v-if="section.id === 'skills'" @click="generateAISkills(sectionIndex)" :disabled="isAIProcessing['skills']" class="mt-3 border border-amber-200 text-amber-800 bg-amber-100 hover:bg-amber-200 transition-colors rounded-full px-3 py-1 text-[9px] font-black uppercase flex items-center justify-center gap-1 focus:outline-none disabled:opacity-50 shadow-sm">
+                            <svg v-if="isAIProcessing['skills']" class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span v-else>✨ AI</span>
+                        </button>
+                    </div>
                 </div>
               </div>
             </template>
@@ -998,6 +1038,101 @@ const updateFormatState = () => {
         activeFormats.value.insertUnorderedList = document.queryCommandState('insertUnorderedList');
         activeFormats.value.insertOrderedList = document.queryCommandState('insertOrderedList');
     } catch(e) {}
+};
+
+// --- TÍNH NĂNG AI (GEMINI) ---
+const isAIProcessing = ref({});
+
+const callAIService = async (type, content, context = '') => {
+    try {
+        const response = await fetch('/AI/ProcessText', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ type, content, context })
+        });
+        const result = await response.json();
+        if (result.success) return result.data;
+        else {
+            alert(result.data || 'Lỗi xử lý AI');
+            return null;
+        }
+    } catch (e) {
+        console.error('AI Error:', e);
+        alert('Không thể kết nối với máy chủ AI.');
+        return null;
+    }
+};
+
+const generateAISummary = async () => {
+    const jobTitle = resumeData.value.general.jobTitle; 
+    let currentSummary = (resumeData.value.general.summary || '').replace(/<[^>]*>/g, '').trim();
+    
+    // Nếu cả tóm tắt và vị trí ứng tuyển đều trống thì báo lỗi
+    if (!currentSummary && !jobTitle) {
+        alert("Vui lòng nhập Vị trí ứng tuyển hoặc một vài ý chính để AI có thể viết mục tiêu nghề nghiệp!");
+        return;
+    }
+
+    // Nếu chưa nhập tóm tắt, dùng Job Title làm hạt giống
+    if (!currentSummary) {
+        currentSummary = `Tôi đang ứng tuyển vị trí ${jobTitle}`;
+    }
+
+    isAIProcessing.value['summary'] = true;
+    const result = await callAIService('summary', currentSummary, jobTitle || 'Nhân viên');
+    if (result) resumeData.value.general.summary = result;
+    isAIProcessing.value['summary'] = false;
+};
+
+const improveAIDesc = async (item, sectionId) => {
+    const jobTitle = resumeData.value.general.jobTitle || 'Nhân viên';
+    let content = (item.desc || '').replace(/<[^>]*>/g, '').trim();
+    
+    // Nếu mô tả trống, lấy dữ liệu từ các ô phía trên trong cùng 1 mục để gợi ý cho AI
+    if (!content) {
+        if (sectionId === 'experience') {
+            content = item.company ? `Làm việc tại ${item.company}` : '';
+        } else if (sectionId === 'project') {
+            content = item.name ? `Dự án ${item.name}` : '';
+        } else if (sectionId === 'activities') {
+            content = item.name ? `Hoạt động tại ${item.name}` : '';
+        }
+    }
+
+    // Kiểm tra nếu thực sự không có gì để AI dựa vào
+    if (!content) {
+        alert("Vui lòng nhập một vài ý chính để AI có thể hỗ trợ!");
+        return;
+    }
+
+    const context = sectionId === 'experience' ? (item.role || jobTitle) : (sectionId === 'project' ? (item.role || jobTitle) : jobTitle);
+    const aiType = sectionId === 'experience' ? 'optimize' : (sectionId === 'project' ? 'project' : 'activity');
+    
+    isAIProcessing.value[item._refId] = true;
+    const result = await callAIService(aiType, content, context);
+    if (result) item.desc = result;
+    isAIProcessing.value[item._refId] = false;
+};
+
+const generateAISkills = async (sectionIndex) => {
+  const section = resumeData.value.sections[sectionIndex];
+  const jobTitle = (resumeData.value.general.jobTitle || '').replace(/<[^>]*>/g, '').trim();
+
+  if (!jobTitle) {
+      alert("Vui lòng nhập Vị trí ứng tuyển để AI có thể gợi ý kỹ năng phù hợp!");
+      return;
+  }
+  
+  isAIProcessing.value['skills'] = true;
+  const result = await callAIService('suggest_skills', jobTitle, jobTitle);
+  if (result) {
+      if (!section.items) section.items = [];
+      const skillNames = result.split(',').map(s => s.trim()).filter(s => s);
+      skillNames.forEach(name => {
+          section.items.push({ _refId: generateId(), name: name, level: 'Thành thạo' });
+      });
+  }
+  isAIProcessing.value['skills'] = false;
 };
 
 onMounted(() => {

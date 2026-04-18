@@ -211,11 +211,19 @@ Quy tắc:
                     }
                     break;
 
+                case "project": // Tối ưu dự án
+                    prompt = $"Viết duy nhất một đoạn văn mô tả dự án (2-3 câu) cho dự án '{context}' dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC: Chỉ trả về đoạn văn mô tả kết quả và công nghệ. KHÔNG lời chào, KHÔNG tiêu đề.";
+                    break;
+
+                case "activity": // Tối ưu hoạt động
+                    prompt = $"Viết duy nhất một đoạn văn mô tả hoạt động (2-3 câu) cho hoạt động '{context}' dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC: Chỉ trả về nội dung mô tả đóng góp và kỹ năng đạt được. KHÔNG lời chào, KHÔNG tiêu đề.";
+                    break;
+
                 case "suggest_skills": // Gợi ý kỹ năng
                     if (!string.IsNullOrEmpty(configData?.SkillTemplate)) {
                         prompt = configData.SkillTemplate.Replace("{{context}}", context ?? "").Replace("{{content}}", content);
                     } else {
-                        prompt = $"Liệt kê 10 kỹ năng quan trọng nhất cho vị trí '{content}'. YÊU CẦU BẮT BUỘC: Chỉ trả về tên các kỹ năng, ngăn cách nhau bằng duy nhất dấu phẩy. KHÔNG đánh số, KHÔNG lời dẫn, KHÔNG giải thích.";
+                        prompt = $"Liệt kê đúng 5 kỹ năng quan trọng nhất cho vị trí '{content}'. YÊU CẦU BẮT BUỘC: Chỉ trả về tên các kỹ năng, ngăn cách nhau bằng duy nhất dấu phẩy. KHÔNG đánh số, KHÔNG lời dẫn, KHÔNG giải thích.";
                     }
                     break;
 

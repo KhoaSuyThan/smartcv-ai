@@ -164,7 +164,7 @@
                 <h2 class="font-medium uppercase tracking-[0.08em] opacity-90" :style="{ fontSize: '13.5px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
             </div>
 
-            <div v-if="summarySection && summarySection.isVisible" class="leading-relaxed text-justify html-content font-medium opacity-90 mt-1" :style="{ fontSize: '11px !important' }" v-html="resumeData.general.summary || 'Tôi là một sinh viên CNTT năng động...'"></div>
+            <div v-if="summarySection && summarySection.isVisible" class="leading-relaxed text-justify html-content font-medium opacity-90 mt-1" :style="{ fontSize: '11px !important' }" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tôi là một sinh viên năng động...'"></div>
         </header>
 
         <!-- Các Sections của Right Column -->
