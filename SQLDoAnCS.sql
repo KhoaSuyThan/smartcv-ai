@@ -14,6 +14,15 @@ GO
 
 USE DoAnWebCS;
 GO
+	UPDATE GeminiConfigs 
+	SET SkillTemplate = N'Liệt kê đúng 5 kỹ năng quan trọng nhất cho vị trí {{content}}. YÊU CẦU BẮT BUỘC: Chỉ trả về tên các kỹ năng, ngăn cách nhau bằng duy nhất dấu phẩy. KHÔNG đánh số, KHÔNG lời dẫn, KHÔNG giải thích.'
+	WHERE Id = 1;
+	UPDATE GeminiConfigs 
+	SET SummaryTemplate = N'Viết duy nhất một đoạn văn mục tiêu nghề nghiệp (3-4 câu) cho vị trí {{context}} dựa trên các ý: {{content}}. YÊU CẦU BẮT BUỘC: Chỉ trả về nội dung đoạn văn. KHÔNG lời chào, KHÔNG tiêu đề, KHÔNG giải thích thêm.'
+	WHERE Id = 1;
+	UPDATE GeminiConfigs 
+	SET GrammarTemplate = N'Viết duy nhất một đoạn văn mô tả công việc (2-3 câu) sau cho vị trí {{context}} theo chuẩn STAR: {{content}}. YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu ''Dưới đây là...'', không tiêu đề.'
+	WHERE Id = 1;
 
 -- Test templates dùng Vue
 CREATE TABLE VueTemplates (
