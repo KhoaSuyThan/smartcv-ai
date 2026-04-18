@@ -426,8 +426,8 @@
             </button>
         </div>
 
-        <!-- Zoom Bar bên dưới Toolbar -->
-        <div class="sticky top-[80px] pointer-events-none w-full flex justify-end px-8 z-30 mb-8 mt-6">
+        <!-- Zoom Bar & AI Tools -->
+        <div class="sticky top-[80px] pointer-events-none w-full flex flex-col items-end px-8 z-30 mb-8 mt-6 gap-3">
             <!-- Bộ điều khiển Zoom -->
             <div class="pointer-events-auto flex items-center bg-white/90 backdrop-blur-md border border-slate-200 rounded-full px-3 py-1.5 shadow-xl gap-2">
                 <button @click="previewScale = Math.max(0.8, previewScale - 0.1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Thu nhỏ (Min 80%)">
@@ -436,6 +436,21 @@
                 <span class="text-xs font-bold text-slate-700 w-12 text-center">{{ Math.round(previewScale * 100) }}%</span>
                 <button @click="previewScale = Math.min(1.5, previewScale + 0.1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Phóng to (Max 150%)">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                </button>
+            </div>
+
+            <!-- Nút Trình tạo Thư xin việc AI (Cover Letter) -->
+            <div class="pointer-events-auto">
+                <button 
+                    type="button" 
+                    class="flex items-center gap-1 bg-gradient-to-br from-indigo-600 via-blue-600 to-emerald-500 text-white px-2 py-1 rounded-full font-black text-[9px] uppercase tracking-wider shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 active:scale-95 transition-all animate-in slide-in-from-right-10 duration-700"
+                    data-bs-toggle="modal" 
+                    data-bs-target="#coverLetterModal"
+                >
+                    <span class="flex items-center justify-center w-4 h-4 bg-white/20 rounded-full">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </span>
+                    Cover Letter
                 </button>
             </div>
         </div>
@@ -571,6 +586,77 @@
                 {{ isExporting ? 'Đang tạo...' : 'Tải xuống PDF' }}
             </button>
         </div>
+    </div>
+  </div>
+
+  <!-- MODAL TRÌNH TẠO THƯ XIN VIỆC AI -->
+  <div class="modal fade" id="coverLetterModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-2xl rounded-3xl overflow-hidden">
+        <div class="modal-header bg-slate-900 text-white py-4 px-6 border-0">
+          <div class="flex items-center gap-3">
+             <div class="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+             </div>
+             <div>
+                <h5 class="modal-title font-black uppercase tracking-tight text-sm">Trình tạo Thư xin việc AI</h5>
+                <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Powered by Gemini AI</p>
+             </div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-6 bg-slate-50">
+          <div class="space-y-5">
+            <div class="space-y-2">
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển</label>
+                <input 
+                    type="text" 
+                    v-model="targetCompany" 
+                    class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none" 
+                    placeholder="Ví dụ: FPT Software - Vị trí .NET Developer..."
+                >
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center justify-between px-1">
+                    <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Nội dung thư gợi ý</label>
+                    <button v-if="coverLetterResult" @click="copyCoverLetter" class="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        Sao chép nội dung
+                    </button>
+                </div>
+                <div class="relative group">
+                    <textarea 
+                        v-model="coverLetterResult" 
+                        class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed min-h-[350px] focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none custom-scrollbar" 
+                        placeholder="Nội dung thư xin việc chuyên nghiệp sẽ xuất hiện tại đây..."
+                    ></textarea>
+                    
+                    <div v-if="isAIProcessing['cover_letter']" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center gap-3">
+                        <div class="relative w-12 h-12">
+                            <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                        </div>
+                        <span class="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] animate-pulse">AI đang soạn thảo...</span>
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-white border-t border-slate-100 p-4 px-6 flex items-center justify-between">
+            <p class="text-[10px] text-slate-400 font-medium italic">* AI sẽ dựa vào thông tin CV của bạn để viết thư.</p>
+            <div class="flex items-center gap-3">
+                <button type="button" class="px-6 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all" data-bs-dismiss="modal">Đóng</button>
+                <button 
+                  @click="generateAICoverLetter" 
+                  :disabled="isAIProcessing['cover_letter']"
+                  class="bg-slate-900 text-white px-8 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:bg-blue-600 hover:shadow-blue-600/30 transition-all active:scale-95 disabled:opacity-50"
+                >
+                    {{ isAIProcessing['cover_letter'] ? 'Đang xử lý...' : '✨ Bắt đầu viết' }}
+                </button>
+            </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -765,7 +851,7 @@ const exportToPDF = async () => {
       const pdfWidth = 210; 
       const pageHeight = 297; 
       const totalPdfHeight = (cvEl.offsetHeight * pdfWidth) / cvEl.offsetWidth; 
-      exportPagesCount.value = Math.max(1, Math.ceil(totalPdfHeight / pageHeight));
+      exportPagesCount.value = Math.max(1, Math.ceil((totalPdfHeight - 2) / pageHeight));
       
       showExportModal.value = true;
   } catch (error) {
@@ -790,7 +876,7 @@ const confirmDownloadPDF = async () => {
       const pageHeight = 297; 
       
       const totalPdfHeight = (cvEl.offsetHeight * pdfWidth) / cvEl.offsetWidth; 
-      const pages = Math.max(1, Math.ceil(totalPdfHeight / pageHeight));
+      const pages = Math.max(1, Math.ceil((totalPdfHeight - 2) / pageHeight));
 
       for (let i = 0; i < pages; i++) {
           if (i > 0) pdf.addPage();
@@ -1133,6 +1219,51 @@ const generateAISkills = async (sectionIndex) => {
       });
   }
   isAIProcessing.value['skills'] = false;
+};
+
+const targetCompany = ref('');
+const coverLetterResult = ref('');
+
+const generateAICoverLetter = async () => {
+    if (!targetCompany.value) {
+        alert("Vui lòng nhập Công ty và Vị trí bạn muốn ứng tuyển!");
+        return;
+    }
+
+    const fullName = resumeData.value.general.fullName || 'Ứng viên';
+    const jobTitle = resumeData.value.general.jobTitle || 'Nhân viên';
+    const summary = (resumeData.value.general.summary || '').replace(/<[^>]*>/g, '').trim();
+    
+    // Thu thập kinh nghiệm
+    const expSection = resumeData.value.sections.find(s => s.id === 'experience');
+    let experiences = "";
+    if (expSection && expSection.items) {
+        expSection.items.forEach(item => {
+            if (item.company || item.role) {
+                experiences += `${item.company || ''} (${item.role || ''}); `;
+            }
+        });
+    }
+
+    const fullInfo = `Ứng viên: ${fullName}. Vị trí: ${jobTitle}. Mục tiêu: ${summary}. Kinh nghiệm: ${experiences}`;
+
+    isAIProcessing.value['cover_letter'] = true;
+    const result = await callAIService('cover_letter', fullInfo, targetCompany.value);
+    if (result) {
+        coverLetterResult.value = result;
+    }
+    isAIProcessing.value['cover_letter'] = false;
+};
+
+const copyCoverLetter = () => {
+    if (!coverLetterResult.value) return;
+    
+    navigator.clipboard.writeText(coverLetterResult.value).then(() => {
+        alert("Đã sao chép Thư xin việc vào bộ nhớ tạm!");
+    }).catch(err => {
+        console.error('Không thể sao chép:', err);
+        alert("Lỗi khi sao chép. Vui lòng thử lại!");
+    });
 };
 
 onMounted(() => {
