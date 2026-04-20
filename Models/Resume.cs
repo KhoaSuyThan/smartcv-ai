@@ -4,7 +4,7 @@ namespace DoAnCS.Models
     {
         public int ResumeID { get; set; }
         public int UserID { get; set; }
-        public int TemplateID { get; set; }
+        public int? TemplateID { get; set; }
         public string Title { get; set; }
         
         // Các trường thông tin cá nhân mới

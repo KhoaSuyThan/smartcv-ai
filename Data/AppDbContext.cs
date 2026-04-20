@@ -37,6 +37,13 @@ namespace DoAnCS.Data
                 .WithMany(u => u.Resumes)
                 .HasForeignKey(r => r.UserID);
 
+            // Gỡ ràng buộc bắt buộc cho TemplateID để hỗ trợ VueTemplate
+            modelBuilder.Entity<Resume>()
+                .HasOne(r => r.Template)
+                .WithMany()
+                .HasForeignKey(r => r.TemplateID)
+                .IsRequired(false);
+
             // Seed mặc định cho bảng cấu hình Gemini
             modelBuilder.Entity<GeminiConfig>().HasData(new GeminiConfig
             {
