@@ -55,11 +55,56 @@ INSERT INTO [dbo].[VueTemplates]
 VALUES 
     (N'NhatNam', 'NhatNam', '/images/templates/144486e4-9e16-47d8-98d1-159ecfea3ced.png', 1, 1, N'IT, Thực tập', GETDATE()),
     (N'Luệ Tâm', 'LuongLueTam', 'https://images.careerviet.vn/content/images/mau-cv-tieng-viet-careerbuilder-10.jpg?fbclid=IwY2xjawRS0-dleHRuA2FlbQIxMABicmlkETFXWUdraHlQQmFnc2d2YlpOc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHvHP9WmiOXwIvx7qRvLDJOh0XnrmDMdANAdw8p7g2inneMSMelmC4UIx9cQ7_aem_h0K-t4TYnpfG9yidSQORyw', 1, 1, N'Kinh doanh', GETDATE());
+
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
 VALUES (N'Vũ Tùng Dương', 'VuTungDuong', '/images/templates/114946.png', 1, N'Marketing, Sáng tạo', GETDATE());
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
 VALUES (N'Nguyễn Huyền Trang', 'NguyenHuyenTrang', '/images/templates/132438.png', 1, N'Tài chính', GETDATE());
 
+--Vue từ cv gốc
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
+VALUES (N'Modern Blue Sidebar', 'ModernBlueSidebar', '/images/templates/templatesCV_1.jpg', 1, N'Kinh tế, Marketing, Sáng tạo', GETDATE());
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
+VALUES (N'Modern Brown Professional', 'ModernBrownProfessional', '/images/templates/templatesCV_2.jpg', 1, N'Kinh tế, Marketing, Sáng tạo', GETDATE());
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
+VALUES (
+    N'Elegant Accountant', 
+    'ElegantAccountant', 
+    '/images/templates/templatesCV_3.jpg', 
+    1, 
+    N'Marketing, Sáng tạo', 
+    GETDATE()
+);
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
+VALUES (
+    N'Đảo Phú Quý', 
+    'DaoPhuQuyCV', 
+    'https://cdn1.vieclam24h.vn/images/assets/img/072-blue-simple-professional.jpg?v=1', 
+    1, 
+    N'IT, Marketing', 
+    GETDATE()
+);
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
+VALUES (
+    N'Mẫu CV Academic Brown - Nguyễn Minh An', 
+    'AcademicBrownCV', 
+    'https://careers.langmaster.edu.vn/storage/images/2023/05/11/mau-cv-dep-25.webp', 
+    1, 
+    N'Sáng tạo, Khác', 
+    GETDATE()
+);
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
+VALUES (
+   
+    N'Mẫu CV Professional Blue - Ngô Hải Yến',  
+    'ProfessionalBlueCV',  
+    'https://images.careerviet.vn/content/images/tai-mau-cv-xin-viec-file-pdf-careerbuilder-5.jpg',  
+    1,  
+    N'IT, Kinh tế, Marketing', 
+    GETDATE()
+);
 -- 1. Thông tin công ty
 CREATE TABLE Companies (
     CompanyID INT PRIMARY KEY IDENTITY(1,1),
@@ -89,7 +134,6 @@ CREATE TABLE Skills (
     SkillID INT PRIMARY KEY IDENTITY(1,1),
     SkillName NVARCHAR(100) UNIQUE NOT NULL
 );
-
 -- 4. Tạo bảng GeminiConfigs
 CREATE TABLE [GeminiConfigs] (
     [Id] int NOT NULL,
