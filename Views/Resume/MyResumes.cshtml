@@ -3,7 +3,7 @@
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h2 class="fw-bold text-primary mb-0">Hồ sơ của tôi</h2>
+            <h2 class="fw-bold text-primary mb-0"><i class="bi bi-file-earmark-person-fill me-2"></i>Hồ sơ của tôi</h2>
             <p class="text-muted">Danh sách các bản CV đã tạo và bản nháp đang thực hiện</p>
         </div>
         <a href="@Url.Action("Templates", "Resume")" class="btn btn-primary shadow-sm px-4">
@@ -57,7 +57,7 @@
                             
                             <div class="d-grid gap-2">
                                 <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-primary">
-                                    Tiếp tục chỉnh sửa
+                                    <i class="bi bi-pencil-fill me-1"></i> Tiếp tục chỉnh sửa
                                 </a>
                                 
                                 <div class="d-flex gap-2">

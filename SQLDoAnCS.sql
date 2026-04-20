@@ -35,6 +35,13 @@ CREATE TABLE VueTemplates (
 	Category NVARCHAR(255) NULL,
     CreatedAt DATETIME DEFAULT GETDATE()
 );
+-- Test templates dùng Vue *NHATNAM note
+INSERT INTO [dbo].[VueTemplates] 
+    ([TemplateName], [ComponentName], [ThumbnailUrl], [IsPremium], [IsActive], [Category], [CreatedAt])
+VALUES 
+    (N'NhatNam', 'NhatNam', '/images/templates/nhatnam.png', 1, 1, N'IT, Thực tập', GETDATE()),
+    (N'Luệ Tâm', 'LuongLueTam', 'https://images.yourdomain.com/luetam.png', 1, 1, N'Kinh doanh', GETDATE());
+
 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category)
 VALUES (N'Trần Hoài Thu', 'Template', '/images/templates/template_476e4073.png', 1, N'IT, Thực tập, Chuyên nghiệp');
