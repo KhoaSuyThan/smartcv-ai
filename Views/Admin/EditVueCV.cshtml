@@ -16,61 +16,100 @@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="CreatedAt" />
 
-                <div class="row">
-                    <div class="col-md-8">
+                <div class="row g-4">
+                    <div class="col-md-7">
                         <div class="mb-3">
                             <label asp-for="TemplateName" class="form-label fw-bold">Tên mẫu CV</label>
-                            <input asp-for="TemplateName" class="form-control" placeholder="Nhập tên mẫu..." />
+                            <input asp-for="TemplateName" class="form-control form-control-lg border-2" placeholder="Nhập tên mẫu..." />
                             <span asp-validation-for="TemplateName" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="ComponentName" class="form-label fw-bold">Tên Component (Vue)</label>
-                            <input asp-for="ComponentName" class="form-control" placeholder="Ví dụ: ModernTemplate.vue" />
+                            <input asp-for="ComponentName" class="form-control form-control-lg border-2" placeholder="Ví dụ: ModernTemplate.vue" />
                             <span asp-validation-for="ComponentName" class="text-danger"></span>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Category" class="form-label fw-bold">Danh mục (Categories)</label>
-                            <input asp-for="Category" class="form-control" placeholder="Ví dụ: IT, Marketing..." />
-                            <span asp-validation-for="Category" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Dành cho đối tượng / Ngành nghề (Chọn nhiều)</label>
+                            @using System.Linq
+                            @{
+                                var currentCats = (Model.Category ?? "").Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+                            }
+                            <div class="d-flex flex-wrap gap-3 mt-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="IT" id="catIT" @(currentCats.Contains("IT") ? "checked" : "")>
+                                    <label class="form-check-label" for="catIT">IT</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Kinh doanh" id="catKD" @(currentCats.Contains("Kinh doanh") ? "checked" : "")>
+                                    <label class="form-check-label" for="catKD">Kinh doanh</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Marketing" id="catMK" @(currentCats.Contains("Marketing") ? "checked" : "")>
+                                    <label class="form-check-label" for="catMK">Marketing</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Tài chính" id="catTC" @(currentCats.Contains("Tài chính") ? "checked" : "")>
+                                    <label class="form-check-label" for="catTC">Tài chính</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Sáng tạo" id="catST" @(currentCats.Contains("Sáng tạo") ? "checked" : "")>
+                                    <label class="form-check-label" for="catST">Sáng tạo</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Y tế" id="catYT" @(currentCats.Contains("Y tế") ? "checked" : "")>
+                                    <label class="form-check-label" for="catYT">Y tế</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Thực tập" id="catTT" @(currentCats.Contains("Thực tập") ? "checked" : "")>
+                                    <label class="form-check-label" for="catTT">Thực tập</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Chuyên nghiệp" id="catCN" @(currentCats.Contains("Chuyên nghiệp") ? "checked" : "")>
+                                    <label class="form-check-label" for="catCN">Chuyên nghiệp</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="selectedCategories" value="Khác" id="catKhac" @(currentCats.Contains("Khác") ? "checked" : "")>
+                                    <label class="form-check-label" for="catKhac">Khác</label>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                                    <label class="form-check-label fw-bold" asp-for="IsActive">Kích hoạt (Hiển thị)</label>
-                                </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">URL Ảnh xem trước</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class='bx bx-link'></i></span>
+                                <input asp-for="ThumbnailUrl" id="previewUrlInput" class="form-control border-2" placeholder="Nhập URL hoặc chọn file bên dưới..." />
                             </div>
-                            <div class="col-md-6">
-                                <div class="form-check form-switch mt-2">
-                                    <input class="form-check-input" type="checkbox" asp-for="IsPremium">
-                                    <label class="form-check-label fw-bold" asp-for="IsPremium">Mẫu Premium (Pro)</label>
-                                </div>
-                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-primary">Hoặc tải lên ảnh mới</label>
+                            <input type="file" name="uploadImage" id="fileInput" class="form-control border-2" accept="image/*" />
+                        </div>
+
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="activeSwitch">
+                            <label class="form-check-label fw-bold ms-2" for="activeSwitch">Kích hoạt mẫu này</label>
+                        </div>
+
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" asp-for="IsPremium" id="proSwitch">
+                            <label class="form-check-label fw-bold ms-2 text-warning" for="proSwitch"><i class='bx bxs-crown'></i> Đây là mẫu thiết kế PRO</label>
                         </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Ảnh minh họa (Thumbnail)</label>
-                            <div class="preview-img-container mb-2 border rounded-3 overflow-hidden text-center bg-light" style="height: 300px;">
-                                <img id="imgPreview" src="@(Model.ThumbnailUrl ?? "https://via.placeholder.com/210x297?text=No+Preview")" 
-                                     class="img-fluid h-100 object-fit-contain" />
-                            </div>
-                            <input type="file" name="uploadImage" class="form-control" id="fileInput" onchange="previewImage(this)" />
-                            <input type="hidden" asp-for="ThumbnailUrl" />
-                            <small class="text-muted">Ảnh chuẩn A4 sẽ hiển thị đẹp nhất.</small>
-                        </div>
+                    <div class="col-md-5 text-center border-start">
+                        <p class="text-muted small fw-bold text-uppercase">Ảnh xem trước hiện tại</p>
+                        <img src="@(Model.ThumbnailUrl ?? "https://via.placeholder.com/210x297?text=No+Preview")" id="imgPreview" class="img-fluid rounded shadow-sm border" 
+                             style="max-height: 560px; aspect-ratio: 1/1.41; object-fit: cover;" />
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a asp-action="VueTemplates" class="btn btn-light px-4 rounded-pill border">Hủy bỏ</a>
-                    <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm fw-bold">
-                        <i class='bx bxs-save me-1'></i> Lưu thay đổi
-                    </button>
+                <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                    <a asp-action="VueTemplates" class="btn btn-light rounded-pill px-4">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu thay đổi</button>
                 </div>
             </form>
         </div>
@@ -78,13 +117,23 @@
 </div>
 
 <script>
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
+    // Live preview khi đổi URL ảnh
+    document.getElementById('previewUrlInput').addEventListener('input', function() {
+        document.getElementById('imgPreview').src = this.value;
+    });
+
+    document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('imgPreview').src = e.target.result;
             }
-            reader.readAsDataURL(input.files[0]);
+            reader.readAsDataURL(file);
         }
-    }
+    });
 </script>
+
+<style>
+    .form-check-input:checked { background-color: #0d6efd; border-color: #0d6efd; }
+</style>

@@ -467,9 +467,18 @@ namespace DoAnCS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditVueCV(int id, VueTemplate template, IFormFile? uploadImage)
+        public async Task<IActionResult> EditVueCV(int id, VueTemplate template, IFormFile? uploadImage, string[] selectedCategories)
         {
             if (id != template.Id) return NotFound();
+
+            if (selectedCategories != null && selectedCategories.Length > 0)
+            {
+                template.Category = string.Join(", ", selectedCategories);
+            }
+            else 
+            {
+                template.Category = ""; // Reset if none selected
+            }
 
             if (ModelState.IsValid)
             {
