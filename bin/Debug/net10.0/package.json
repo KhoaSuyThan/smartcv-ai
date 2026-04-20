@@ -1,0 +1,8 @@
+{
+  "name": "doan-web-root",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix CVBuilderApp run build",
+    "dev": "npm --prefix CVBuilderApp run dev"
+  }
+}
