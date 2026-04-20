@@ -24,6 +24,13 @@ GO
 	SET GrammarTemplate = N'Viết duy nhất một đoạn văn mô tả công việc (2-3 câu) sau cho vị trí {{context}} theo chuẩn STAR: {{content}}. YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu ''Dưới đây là...'', không tiêu đề.'
 	WHERE Id = 1;
 
+-- Nhớ chạy 2 cái này
+-- Xóa ràng buộc khóa ngoại cũ để không bị chặn khi lưu Resume mẫu Vue
+ALTER TABLE Resumes DROP CONSTRAINT FK__Resumes__Templat__5CD6CB2B;
+
+-- Chuyển cột TemplateID sang cho phép NULL (optional)
+ALTER TABLE Resumes ALTER COLUMN TemplateID INT NULL;
+
 -- Test templates dùng Vue
 CREATE TABLE VueTemplates (
     Id INT PRIMARY KEY IDENTITY(1,1),
@@ -35,20 +42,19 @@ CREATE TABLE VueTemplates (
 	Category NVARCHAR(255) NULL,
     CreatedAt DATETIME DEFAULT GETDATE()
 );
--- Test templates dùng Vue *NHATNAM note
-INSERT INTO [dbo].[VueTemplates] 
-    ([TemplateName], [ComponentName], [ThumbnailUrl], [IsPremium], [IsActive], [Category], [CreatedAt])
-VALUES 
-    (N'NhatNam', 'NhatNam', '/images/templates/nhatnam.png', 1, 1, N'IT, Thực tập', GETDATE()),
-    (N'Luệ Tâm', 'LuongLueTam', 'https://images.yourdomain.com/luetam.png', 1, 1, N'Kinh doanh', GETDATE());
 
-
+-- Insert mẫu
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category)
 VALUES (N'Trần Hoài Thu', 'Template', '/images/templates/template_476e4073.png', 1, N'IT, Thực tập, Chuyên nghiệp');
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category)
 VALUES (N'Nguyễn Yến Nhi', 'NguyenYenNhi', 'https://marketplace.canva.com/EAGSZ3G6wMw/2/0/1131w/canva-s%C6%A1-y%E1%BA%BFu-l%C3%BD-l%E1%BB%8Bch-chuy%C3%AAn-nghi%E1%BB%87p-hi%E1%BB%87n-%C4%91%E1%BA%A1i-n%E1%BB%AF-t%C3%ADnh-thanh-l%E1%BB%8Bch-h%E1%BB%93ng-tr%E1%BA%AFng-N3-BrRHpD_E.jpg', 1, N'Kinh doanh, Marketing, Sáng tạo');
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
 VALUES (N'CV Nguyễn Võ Lê Khoa', 'NguyenVoLeKhoa', '/images/templates/template_5119c646.png', 1, N'IT, Sáng tạo', GETDATE());
+INSERT INTO [dbo].[VueTemplates] 
+    ([TemplateName], [ComponentName], [ThumbnailUrl], [IsPremium], [IsActive], [Category], [CreatedAt])
+VALUES 
+    (N'NhatNam', 'NhatNam', '/images/templates/144486e4-9e16-47d8-98d1-159ecfea3ced.png', 1, 1, N'IT, Thực tập', GETDATE()),
+    (N'Luệ Tâm', 'LuongLueTam', 'https://images.careerviet.vn/content/images/mau-cv-tieng-viet-careerbuilder-10.jpg?fbclid=IwY2xjawRS0-dleHRuA2FlbQIxMABicmlkETFXWUdraHlQQmFnc2d2YlpOc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHvHP9WmiOXwIvx7qRvLDJOh0XnrmDMdANAdw8p7g2inneMSMelmC4UIx9cQ7_aem_h0K-t4TYnpfG9yidSQORyw', 1, 1, N'Kinh doanh', GETDATE());
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
 VALUES (N'Vũ Tùng Dương', 'VuTungDuong', '/images/templates/114946.png', 1, N'Marketing, Sáng tạo', GETDATE());
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, Category, CreatedAt)
@@ -152,7 +158,7 @@ CREATE TABLE Users (
 CREATE TABLE Resumes (
     ResumeID INT PRIMARY KEY IDENTITY(1,1),
     UserID INT NOT NULL,
-    TemplateID INT NOT NULL,
+    TemplateID INT NULL,
     Title NVARCHAR(200) NOT NULL,    -- Tiêu đề bản CV (ví dụ: CV .NET Intern)
     
     -- Thông tin cá nhân (Theo mẫu Quynh My)
@@ -176,7 +182,6 @@ CREATE TABLE Resumes (
 	JsonContent NVARCHAR(MAX) NULL,
 
     FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE,
-    FOREIGN KEY (TemplateID) REFERENCES Templates(TemplateID)
 );
 
 -- 8. BẢNG NỘI DUNG CHI TIẾT (Lưu danh sách "động" như Experience, Education dạng JSON)
