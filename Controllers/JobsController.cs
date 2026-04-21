@@ -348,7 +348,7 @@ namespace DoAnCS.Controllers
         {
             try
             {
-                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (!int.TryParse(userIdClaim, out int userId))
                     return Json(new { success = false, message = "Bạn phải đăng nhập để ứng tuyển." });
 
@@ -385,6 +385,37 @@ namespace DoAnCS.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> WithdrawApplication(int applicationId)
+        {
+            try
+            {
+                var userId = CurrentUserId;
+                if (userId == 0) return Json(new { success = false, message = "Hết phiên đăng nhập." });
+
+                var application = await _context.Applications
+                    .Include(a => a.Resume)
+                    .FirstOrDefaultAsync(a => a.ApplicationID == applicationId && a.Resume.UserID == userId);
+
+                if (application == null)
+                    return Json(new { success = false, message = "Không tìm thấy đơn ứng tuyển này." });
+
+                // Chỉ cho phép hủy nếu đơn vẫn đang chờ hoặc đang xem
+                if (application.Status != "Pending" && application.Status != "Reviewing")
+                    return Json(new { success = false, message = "Không thể hủy đơn đã được xử lý (Đã chấp nhận hoặc Từ chối)." });
+
+                _context.Applications.Remove(application);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Đã hủy đơn ứng tuyển thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
             }
         }
     }

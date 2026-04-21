@@ -48,49 +48,99 @@
 <!-- Modal Ứng tuyển Nhanh -->
 <div class="modal fade" id="applyModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
-            <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold text-primary">Chọn CV để Ứng tuyển</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
+            <!-- Modal Header: Blue background with Icon -->
+            <div class="modal-header bg-primary text-white border-bottom-0 py-3">
+                <h5 class="modal-title fw-bold d-flex align-items-center">
+                    <i class="fas fa-paper-plane me-2"></i> Xác nhận ứng tuyển
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body py-4">
-                <p class="text-muted small mb-3">Vui lòng chọn 1 CV trong hồ sơ của bạn để nộp vào <strong>@Model.job_title</strong>.</p>
-                <form id="applyForm">
-                    <input type="hidden" id="jobIdInput" value="@Model.job_id" />
+
+            <div class="modal-body p-4 bg-light bg-opacity-10">
+                <!-- Job Selection Card (Read only) -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary text-uppercase mb-2">Vị trí ứng tuyển</label>
+                    <div class="card border-0 shadow-sm p-3 bg-white" style="border-radius: 12px;">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary bg-opacity-10 text-primary p-3 me-3" style="border-radius: 10px;">
+                                <i class="fas fa-briefcase fa-lg"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h6 class="fw-bold mb-0 text-truncate text-dark">@Model.job_title</h6>
+                                <p class="small text-muted mb-0 text-truncate">@Model.employer_name</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CV Selection -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                        <label class="form-label small fw-bold text-secondary text-uppercase mb-0">Chọn CV gửi nhà tuyển dụng</label>
+                    </div>
                     
-                    @if (ViewBag.UserResumes != null)
-                    {
-                        var cvs = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
-                        if (cvs.Any())
+                    <form id="applyForm">
+                        <input type="hidden" id="jobIdInput" value="@Model.job_id" />
+                        
+                        @if (ViewBag.UserResumes != null)
                         {
-                            <div class="list-group list-group-flush border rounded-3 overflow-hidden">
-                                @foreach (var cv in cvs)
-                                {
-                                    <label class="list-group-item d-flex gap-3 align-items-center p-3 cursor-pointer hover-bg-light transition-all">
-                                        <input class="form-check-input flex-shrink-0" type="radio" name="selectedResumeId" value="@cv.ResumeID" style="font-size: 1.25em;" required>
-                                        <div class="w-100">
-                                            <h6 class="mb-1 fw-bold text-dark">@(cv.Title ?? "CV Chưa đặt tên")</h6>
-                                            <span class="text-muted small">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</span>
+                            var cvs = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
+                            if (cvs.Any())
+                            {
+                                <div class="cv-list-container" style="max-height: 300px; overflow-y: auto;">
+                                    @foreach (var cv in cvs)
+                                    {
+                                        var isPdf = !string.IsNullOrEmpty(cv.FileUploadUrl);
+                                        <div class="cv-item-wrapper mb-2">
+                                            <label class="cv-card cursor-pointer w-100 mb-0">
+                                                <input class="form-check-input d-none" type="radio" name="selectedResumeId" value="@cv.ResumeID" required>
+                                                <div class="card border p-3 cv-card-inner transition-all" style="border-radius: 12px;">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="custom-radio me-3">
+                                                            <div class="radio-dot"></div>
+                                                        </div>
+                                                        <div class="flex-grow-1 overflow-hidden">
+                                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                                <h6 class="fw-bold mb-0 text-dark text-truncate">@(cv.Title ?? "CV Chưa đặt tên")</h6>
+                                                                @if (isPdf)
+                                                                {
+                                                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 py-1" style="font-size: 10px;">PDF</span>
+                                                                }
+                                                            </div>
+                                                            <p class="small text-muted mb-0">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
                                         </div>
-                                        <div class="flex-shrink-0 text-primary">
-                                            <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning rounded-3 border-0 py-3 shadow-sm">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                                        <div>
+                                            <p class="mb-0 fw-bold">Bạn chưa có CV nào.</p>
+                                            <a href="/Resume/Templates" class="alert-link small">Tạo CV mới ngay để ứng tuyển!</a>
                                         </div>
-                                    </label>
-                                }
-                            </div>
+                                    </div>
+                                </div>
+                            }
                         }
-                        else
-                        {
-                            <div class="alert alert-warning rounded-3 border-0">
-                                <i class="fas fa-exclamation-circle me-2"></i>Bạn chưa có CV nào. <a href="/Resume/Templates" class="alert-link">Tạo CV mới ngay!</a>
-                            </div>
-                        }
-                    }
-                </form>
+                    </form>
+                </div>
             </div>
-            <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitApply">Gửi hồ sơ ngay</button>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer border-top-0 bg-white p-3 d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 flex-grow-1 fw-bold border-2" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4 flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center" id="btnSubmitApply">
+                    <i class="fas fa-paper-plane me-2"></i> Ứng tuyển
+                </button>
             </div>
         </div>
     </div>
@@ -98,26 +148,53 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const applyForm = document.getElementById('applyForm');
+        
+        // Xử lý hiệu ứng chọn CV Card
+        const cvWrappers = document.querySelectorAll('.cv-item-wrapper');
+        cvWrappers.forEach(wrapper => {
+            const radio = wrapper.querySelector('input[name="selectedResumeId"]');
+            const innerCard = wrapper.querySelector('.cv-card-inner');
+            
+            wrapper.addEventListener('click', () => {
+                // Reset all
+                cvWrappers.forEach(w => w.querySelector('.cv-card-inner').classList.remove('border-primary', 'bg-primary', 'bg-opacity-10', 'selected'));
+                
+                // Set selected
+                radio.checked = true;
+                innerCard.classList.add('border-primary', 'selected');
+            });
+
+            // Chọn cái đầu tiên mặc định nếu có
+            if (radio && radio.checked) {
+                innerCard.classList.add('border-primary', 'selected');
+            }
+        });
+
+        // Submit form
         const btnSubmit = document.getElementById('btnSubmitApply');
         if (btnSubmit) {
             btnSubmit.addEventListener('click', async function () {
-                const form = document.getElementById('applyForm');
-                const selectedCv = form.querySelector('input[name="selectedResumeId"]:checked');
+                const selectedCv = applyForm.querySelector('input[name="selectedResumeId"]:checked');
                 
                 if (!selectedCv) {
-                    alert('Vui lòng chọn 1 CV để ứng tuyển!');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Thông báo',
+                        text: 'Vui lòng chọn 1 CV để ứng tuyển!'
+                    });
                     return;
                 }
 
                 btnSubmit.disabled = true;
-                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...';
+                const originalHtml = btnSubmit.innerHTML;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
 
                 try {
                     const response = await fetch('/Jobs/ApplyOneClick', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                            'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             JobId: parseInt(document.getElementById('jobIdInput').value),
@@ -128,23 +205,94 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        alert(result.message || 'Ứng tuyển thành công!');
-                        location.href = '/Account/Applications'; // Chuyển sang trang quản lý đơn ứng tuyển
+                        // Nếu trang chủ có dùng SweetAlert2 thì dùng, không thì alert
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Thành công!',
+                                text: result.message || 'Ứng tuyển thành công!',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.href = '/Account/Applications';
+                            });
+                        } else {
+                            alert(result.message || 'Ứng tuyển thành công!');
+                            location.href = '/Account/Applications';
+                        }
                     } else {
-                        alert(result.message || 'Có lỗi xảy ra, vui lòng thử lại sau.');
+                        if (typeof Swal !== 'undefined') {
+                            Swal.fire('Lỗi', result.message || 'Có lỗi xảy ra', 'error');
+                        } else {
+                            alert(result.message || 'Có lỗi xảy ra');
+                        }
                     }
                 } catch (error) {
                     alert('Lỗi kết nối máy chủ.');
                 } finally {
                     btnSubmit.disabled = false;
-                    btnSubmit.innerHTML = 'Gửi hồ sơ ngay';
+                    btnSubmit.innerHTML = originalHtml;
                 }
             });
         }
     });
 </script>
+
 <style>
     .cursor-pointer { cursor: pointer; }
-    .hover-bg-light:hover { background-color: #f8f9fa; }
+    .transition-all { transition: all 0.2s ease-in-out; }
+    
+    .cv-card-inner:hover {
+        border-color: #0d6efd !important;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    .cv-card-inner.selected {
+        border-color: #0d6efd !important;
+        border-width: 2px !important;
+        background-color: rgba(13, 110, 253, 0.05);
+    }
+    
+    /* Custom Radio Styling */
+    .custom-radio {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #ccc;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .cv-card-inner.selected .custom-radio {
+        border-color: #0d6efd;
+    }
+    
+    .radio-dot {
+        width: 10px;
+        height: 10px;
+        background-color: #0d6efd;
+        border-radius: 50%;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.2s;
+    }
+    
+    .cv-card-inner.selected .radio-dot {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .cv-list-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .cv-list-container::-webkit-scrollbar-thumb {
+        background: #ddd;
+        border-radius: 10px;
+    }
+    .cv-list-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
 </style>
 </div>
