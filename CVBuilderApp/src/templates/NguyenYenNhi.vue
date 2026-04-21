@@ -88,7 +88,7 @@
                         <!-- Học vấn -->
                         <div v-else-if="section.id === 'education'" class="space-y-4">
                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 paginated-item item-container">
-                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;">
                                     <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                                 <div class="absolute left-0 top-1 text-pink-500">
@@ -103,8 +103,8 @@
                         <!-- Kỹ năng với Progress Bar phong cách Canva và nhãn mức độ -->
                         <div v-else-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="space-y-2.5">
                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative">
-                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -8px; right: -8px;">
-                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -5px; right: -5px;">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                                 
                                 <div class="flex justify-between items-end mb-1">
@@ -124,8 +124,8 @@
                         <!-- Các mục khác mặc định cho Sidebar -->
                         <div v-else class="space-y-2.5">
                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container pl-6 relative">
-                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
-                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                                 <div class="absolute left-0 top-1 text-pink-500">
                                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
@@ -200,7 +200,7 @@
                         <div class="absolute left-[7px] top-2 bottom-6 w-[2px] bg-pink-50 z-0"></div>
 
                         <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-8 paginated-item item-container z-10">
-                            <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="left: -15px;">
+                            <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="left: -2px; top: -2px;">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                             
@@ -533,9 +533,11 @@ const getLevelInfo = (level) => {
     background: #ef4444;
     color: white;
     border-radius: 999px;
-    padding: 4px;
-    top: 0;
-    right: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 50;
     transition: all 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
