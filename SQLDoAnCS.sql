@@ -12,6 +12,18 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+-- NHỚ CHẠYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+-- Nhớ chạy
+ALTER TABLE Resumes
+ADD IsPublic BIT NOT NULL DEFAULT 0,
+    Slug NVARCHAR(255) NULL,
+    ViewCount INT NOT NULL DEFAULT 0;
+-- Nhớ chạy
+ALTER TABLE [Resumes] ADD 
+    [FileUploadUrl] NVARCHAR(MAX) NULL;
+GO
+-- Nhớ chạy
+
 USE DoAnWebCS;
 GO
 	UPDATE GeminiConfigs 
@@ -220,6 +232,10 @@ CREATE TABLE Resumes (
 	IsDraft BIT DEFAULT 1,       -- 1: Bản nháp (Auto-save), 0: Bản chính thức
     Version INT DEFAULT 1,       -- Số phiên bản để sau này làm Undo/Redo
 
+	IsPublic BIT NOT NULL DEFAULT 0,
+    Slug NVARCHAR(255) NULL,
+    ViewCount INT NOT NULL DEFAULT 0,
+	FileUploadUrl NVARCHAR(MAX) NULL,
     CreatedAt DATETIME DEFAULT GETDATE(),
     UpdatedAt DATETIME DEFAULT GETDATE(),
 

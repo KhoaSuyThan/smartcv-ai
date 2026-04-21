@@ -207,21 +207,35 @@ namespace DoAnCS.Controllers
                 .Include(j => j.Company)
                 .FirstOrDefaultAsync(m => m.JobID == id);
 
-            // 2. Nếu không tìm thấy trong DB thì mới thử gọi API (hoặc báo lỗi)
+            // 2. Nếu không tìm thấy trong DB thì báo lỗi
             if (jobDb == null) return NotFound();
 
-            // 3. Quan trọng nhất: Mapping dữ liệu từ Job (DB) sang JobDto (View)
+            // 3. Mapping dữ liệu từ Job (DB) sang JobDto (View)
             var jobDto = new JobDto
             {
+                job_id = jobDb.JobID.ToString(), // Chắc chắn map JobID để gửi đơn ứng tuyển
                 job_title = jobDb.Title,
                 employer_name = jobDb.Company?.Name,
-                employer_logo = jobDb.Company?.LogoUrl, // Link ảnh SerpApi lưu ở đây
+                employer_logo = jobDb.Company?.LogoUrl,
                 job_city = jobDb.Company?.Address,
                 job_description = jobDb.Description,
-                job_apply_link = jobDb.Company?.Website ?? "#" // Link ứng tuyển
+                job_apply_link = jobDb.Company?.Website ?? "#"
             };
 
-            // 4. Trả về View với Model là đối tượng JobDto đã được map xong
+            // Lấy danh sách CV của người dùng (nếu đã đăng nhập)
+            if (User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out int userId))
+                {
+                    ViewBag.UserResumes = await _context.Resumes
+                        .Where(r => r.UserID == userId)
+                        .OrderByDescending(r => r.UpdatedAt)
+                        .ToListAsync();
+                }
+            }
+
+            // 4. Trả về View với Model là đối tượng JobDto
             return View(jobDto);
         }
     }

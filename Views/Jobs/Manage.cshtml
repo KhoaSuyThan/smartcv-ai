@@ -70,6 +70,15 @@
                                 </td>
                                 <td class="text-center pe-4">
                                     <div class="d-flex justify-content-center align-items-center gap-2">
+                                        @* Nút Xem Ứng viên *@
+                                        @if (item.Status == 1) // Chỉ hiện khi job đã đăng
+                                        {
+                                            <a asp-action="Candidates" asp-route-id="@item.JobID" 
+                                               class="btn btn-sm btn-outline-info action-btn" title="Danh sách ứng viên">
+                                                <i class="bi bi-people-fill"></i>
+                                            </a>
+                                        }
+
                                         @* Nút Sửa *@
                                         <a asp-action="Edit" asp-route-id="@item.JobID" 
                                            class="btn btn-sm btn-outline-primary action-btn" title="Chỉnh sửa">

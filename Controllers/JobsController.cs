@@ -275,5 +275,123 @@ namespace DoAnCS.Controllers
             if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);
             return RedirectToAction(nameof(Manage));
         }
+
+        // ==========================================
+        // 6. QUẢN LÝ ỨNG VIÊN (RECRUITER)
+        // ==========================================
+        [HttpGet]
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> Candidates(int id)
+        {
+            var job = await _context.Jobs.FindAsync(id);
+            if (job == null) return NotFound();
+
+            // Check quyền sở hữu nếu là Recruiter
+            if (User.IsInRole("Recruiter") && job.CompanyID != CurrentCompanyId)
+                return Forbid();
+
+            var applications = await _context.Applications
+                .Include(a => a.Resume)
+                    .ThenInclude(r => r.User) // Để lấy thông tin liên hệ của ứng viên
+                .Where(a => a.JobID == id)
+                .OrderByDescending(a => a.AppliedAt)
+                .ToListAsync();
+
+            ViewBag.JobTitle = job.Title;
+            ViewBag.JobId = job.JobID;
+            return View(applications);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> UpdateApplicationStatus(int applicationId, string status)
+        {
+            var application = await _context.Applications.Include(a => a.Job).FirstOrDefaultAsync(a => a.ApplicationID == applicationId);
+            if (application == null) return Json(new { success = false, message = "Không tìm thấy đơn ứng tuyển." });
+
+            if (User.IsInRole("Recruiter") && application.Job.CompanyID != CurrentCompanyId)
+                return Json(new { success = false, message = "Bạn không có quyền thay đổi trạng thái đơn này." });
+
+            application.Status = status;
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Cập nhật trạng thái thành công" });
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> PreviewCV(int applicationId)
+        {
+            var application = await _context.Applications
+                .Include(a => a.Job)
+                .Include(a => a.Resume)
+                .FirstOrDefaultAsync(a => a.ApplicationID == applicationId);
+
+            if (application == null) return NotFound("Không tìm thấy đơn ứng tuyển.");
+
+            // Kiểm tra quyền: Chỉ Admin hoặc Recruiter sở hữu Job này mới được xem
+            var companyIdClaim = User.FindFirst("CompanyID")?.Value;
+            int currentCompanyId = !string.IsNullOrEmpty(companyIdClaim) ? int.Parse(companyIdClaim) : 0;
+
+            if (User.IsInRole("Recruiter") && application.Job.CompanyID != currentCompanyId)
+            {
+                return Forbid();
+            }
+
+            ViewBag.ResumeId = application.ResumeID;
+            return View("~/Views/Resume/PublicViewerCVVue.cshtml", application.Resume);
+        }
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "User,Admin,Recruiter")]
+        [IgnoreAntiforgeryToken] // Tạm thời Ignore token đối với body JSON nếu front-end chưa gửi kèm cookie, hoặc nên dùng [FromBody] cẩn thận
+        public async Task<IActionResult> ApplyOneClick([FromBody] ApplyOneClickRequest request)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!int.TryParse(userIdClaim, out int userId))
+                    return Json(new { success = false, message = "Bạn phải đăng nhập để ứng tuyển." });
+
+                // Validate Resume
+                var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == request.ResumeId && r.UserID == userId);
+                if (resume == null) return Json(new { success = false, message = "Lỗi: Không tìm thấy CV hoặc CV không thuộc về bạn." });
+
+                // Validate Job
+                var job = await _context.Jobs.FindAsync(request.JobId);
+                if (job == null) return Json(new { success = false, message = "Lỗi: Tin tuyển dụng không tồn tại hoặc đã bị xóa." });
+
+                // Check Multiple Apply
+                bool alreadyApplied = await _context.Applications
+                    .Include(a => a.Resume)
+                    .AnyAsync(a => a.JobID == request.JobId && a.Resume.UserID == userId && (a.Status == "Pending" || a.Status == "Reviewing"));
+
+                if (alreadyApplied)
+                    return Json(new { success = false, message = "Bạn đã nộp đơn cho vị trí này rồi. Vui lòng chờ nhà tuyển dụng phản hồi." });
+
+                // Register Application
+                var application = new Application
+                {
+                    JobID = request.JobId,
+                    ResumeID = request.ResumeId,
+                    AppliedAt = DateTime.Now,
+                    Status = "Pending"
+                };
+
+                _context.Applications.Add(application);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Ứng tuyển thành công!" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+            }
+        }
+    }
+
+    public class ApplyOneClickRequest
+    {
+        public int JobId { get; set; }
+        public int ResumeId { get; set; }
     }
 }

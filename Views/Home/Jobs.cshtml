@@ -175,7 +175,14 @@
                             </div>
                             <div class="text-md-end mt-3 mt-md-0 ms-md-4" style="min-width: 150px;">
                                 <div class="text-primary fw-bold mb-2">@job.job_salary</div>
-                                <a href="@job.job_apply_link" target="_blank" class="btn btn-sm btn-outline-primary px-4 rounded-pill">Ứng tuyển</a>
+                                @if (!string.IsNullOrEmpty(job.job_apply_link) && job.job_apply_link != "#")
+                                {
+                                    <a href="@job.job_apply_link" target="_blank" class="btn btn-sm btn-outline-primary px-3 rounded-pill mb-1 d-block w-100">Đến Website Công ty</a>
+                                }
+                                else
+                                {
+                                    <a href="/Home/Details/@job.job_id" class="btn btn-sm btn-primary px-3 rounded-pill fw-bold d-block w-100">Ứng tuyển 1-Click <i class="fas fa-bolt ms-1"></i></a>
+                                }
                             </div>
                         </div>
                     }

@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Hồ sơ năng lực (CV)";
+    Layout = "_Layout"; 
+}
+
+@section Styles {
+    <!-- Load CSS của Vue -->
+    <link rel="stylesheet" href="~/cvbuilder/assets/index_v10.css" asp-append-version="true" />
+    
+    <style>
+        /* Cấu hình để ẩn các công cụ Editor */
+        .cv-builder-editor-panel { display: none !important; }
+        .no-print.sticky.top-0 { display: none !important; }
+        .absolute.top-7.z-40 { display: none !important; }
+        .sticky.top-\[80px\] { display: none !important; } /* Hide Zoom Bar & AI Tools */
+        
+        /* Disable clicks on contenteditable elements inside preview */
+        .cv-preview-card [contenteditable], .cv-preview-card input, .cv-preview-card textarea, .cv-preview-card button {
+            pointer-events: none !important;
+            user-select: text !important;
+        }
+        
+        .cv-builder-container {
+            justify-content: center !important;
+            background-color: #f3f4f6 !important;
+        }
+
+        :root {
+            --navbar-h: 72px;
+            --footer-h: 0px;
+        }
+
+        html, body.cv-builder-page { 
+            overflow: auto !important; 
+            height: 100% !important;
+            background-color: #f3f4f6 !important;
+        }
+
+        .content-wrapper, main { 
+            padding: 0 !important; 
+            overflow: hidden !important;
+            background-color: #f3f4f6 !important;
+            height: 100% !important;
+        }
+
+        #app {
+            background-color: #f3f4f6;
+            overflow: auto !important;
+            height: 100% !important;
+        }
+        
+        /* Auto scale CV container to center it nicely if possible */
+        .cv-preview-card {
+            margin: 40px auto !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
+            transform: scale(1.0) !important; /* Force scale 1.0 or responsive */
+        }
+    </style>
+}
+
+@if (Model != null && !string.IsNullOrEmpty(Model.FileUploadUrl))
+{
+    @* Nếu đây là CV được người dùng upload dưới dạng PDF *@
+    <div style="width: 100%; height: 100vh; background: #333; margin: 0; padding: 0;">
+        <iframe src="@Model.FileUploadUrl" width="100%" height="100%" style="border: none;"></iframe>
+    </div>
+}
+else
+{
+    @* Giao diện cho CV Vue *@
+    <script>
+        window.CURRENT_RESUME_ID = @(ViewBag.ResumeId ?? 0);
+        window.IS_PUBLIC_VIEW = true; // Flag for safety
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var footer = document.querySelector('footer');
+            if (footer) footer.style.display = 'none';
+            
+            document.body.classList.add('cv-builder-page');
+        });
+    </script>
+
+    <div id="app">
+        <div style="display:flex; justify-content:center; align-items:center; height:60vh;">
+            <div class="text-center">
+                <h2 class="text-primary"><i class="fas fa-spinner fa-spin me-2"></i>Đang tải CV...</h2>
+            </div>
+        </div>
+    </div>
+    
+    @section Scripts {
+        <script type="module" src="~/cvbuilder/assets/index_v10.js" asp-append-version="true"></script>
+    }
+}
