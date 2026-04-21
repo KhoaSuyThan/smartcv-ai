@@ -23,6 +23,14 @@ namespace DoAnCS.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+        // Trường lưu trữ upload file PDF thay vì tạo bằng Builder
+        public string? FileUploadUrl { get; set; }
+
+        // Các trường tính năng kết nối & chia sẻ (Job Search Ecosystem)
+        public bool IsPublic { get; set; } = false;
+        public string? Slug { get; set; }
+        public int ViewCount { get; set; } = 0;
+
         // Trường lưu trữ toàn bộ cấu trúc CV định dạng JSON từ Vue Builder
         public string? JsonContent { get; set; }
 

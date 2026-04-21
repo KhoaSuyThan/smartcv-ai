@@ -1,0 +1,161 @@
+@model IEnumerable<DoAnCS.Models.Application>
+@{
+    ViewData["Title"] = "Quản lý Ứng viên";
+}
+
+<div class="container py-5 mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1"><i class="fas fa-users-cog me-2"></i>Danh sách Ứng viên</h2>
+            <p class="text-muted mb-0">Việc làm: <strong class="text-dark">@ViewBag.JobTitle</strong> (#@ViewBag.JobId)</p>
+        </div>
+        <a href="/Jobs/Manage" class="btn btn-outline-secondary rounded-pill fw-bold"><i class="fas fa-arrow-left me-2"></i>Quay lại</a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-body p-0">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="px-4 py-3 text-muted fw-bold">Ứng viên</th>
+                                <th class="py-3 text-muted fw-bold">Liên hệ</th>
+                                <th class="py-3 text-muted fw-bold">Ngày nộp</th>
+                                <th class="py-3 text-muted fw-bold">Trạng thái</th>
+                                <th class="px-4 py-3 text-muted fw-bold text-end" style="min-width: 200px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var app in Model)
+                            {
+                                <tr>
+                                    <td class="px-4 py-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3" style="width: 48px; height: 48px; font-weight: bold; font-size: 1.2rem;">
+                                                @(string.IsNullOrEmpty(app.Resume?.User?.FullName) ? "U" : app.Resume.User.FullName.Substring(0, 1).ToUpper())
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1 fw-bold text-dark">@(app.Resume?.User?.FullName ?? "Ứng viên Tự do")</h6>
+                                                <span class="text-muted small"><i class="fas fa-file-alt me-1"></i>CV: @(app.Resume?.Title ?? "Chưa đặt tên")</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4">
+                                        <div class="text-secondary small">
+                                            <div><i class="fas fa-envelope me-1"></i> @(app.Resume?.User?.Email ?? app.Resume?.Email ?? "N/A")</div>
+                                            @if (!string.IsNullOrEmpty(app.Resume?.Phone))
+                                            {
+                                                <div class="mt-1"><i class="fas fa-phone me-1"></i> @app.Resume.Phone</div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-muted small">
+                                        @app.AppliedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                    <td class="py-4">
+                                        <select class="form-select border-0 shadow-sm badge-select application-status" 
+                                                data-id="@app.ApplicationID"
+                                                style="border-radius: 20px; font-weight: bold; width: 150px;"
+                                                onchange="updateStatus(this, @app.ApplicationID)">
+                                            @if (app.Status == "Pending") { <option value="Pending" selected>Chờ xử lý</option> } else { <option value="Pending">Chờ xử lý</option> }
+                                            @if (app.Status == "Reviewing") { <option value="Reviewing" selected>Đang xem xét</option> } else { <option value="Reviewing">Đang xem xét</option> }
+                                            @if (app.Status == "Accepted") { <option value="Accepted" selected>Chấp nhận</option> } else { <option value="Accepted">Chấp nhận</option> }
+                                            @if (app.Status == "Rejected" || app.Status == "Từ chối") { <option value="Rejected" selected>Từ chối</option> } else { <option value="Rejected">Từ chối</option> }
+                                        </select>
+                                    </td>
+                                    <td class="px-4 py-4 text-end">
+                                        <a href="/Jobs/PreviewCV?applicationId=@app.ApplicationID" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold hover-primary">
+                                            <i class="fas fa-eye me-1"></i> Xem CV
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-users-slash text-muted" style="font-size: 4rem; opacity: 0.3;"></i>
+                    </div>
+                    <h5 class="text-dark fw-bold mb-2">Chưa có ứng viên nào</h5>
+                    <p class="text-secondary mb-4">Các đơn ứng tuyển cho công việc này sẽ xuất hiện tại đây.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selects = document.querySelectorAll('.application-status');
+        selects.forEach(select => {
+            updateSelectColor(select);
+        });
+    });
+
+    function updateSelectColor(select) {
+        const value = select.value;
+        select.classList.remove('bg-warning', 'bg-info', 'bg-success', 'bg-danger', 'text-dark', 'text-white');
+        
+        if (value === 'Pending') {
+            select.classList.add('bg-warning', 'text-dark');
+        } else if (value === 'Reviewing') {
+            select.classList.add('bg-info', 'text-dark');
+        } else if (value === 'Accepted') {
+            select.classList.add('bg-success', 'text-white');
+        } else if (value === 'Rejected') {
+            select.classList.add('bg-danger', 'text-white');
+        }
+    }
+
+    async function updateStatus(selectElement, applicationId) {
+        updateSelectColor(selectElement);
+        
+        const newStatus = selectElement.value;
+        
+        try {
+            const response = await fetch('/Jobs/UpdateApplicationStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `applicationId=${applicationId}&status=${newStatus}`
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                // Toast notification (optional)
+                console.log('Cập nhật trạng thái thành công!');
+            } else {
+                alert(result.message || 'Có lỗi xảy ra.');
+            }
+        } catch (error) {
+            alert('Lỗ kết nối máy chủ.');
+        }
+    }
+</script>
+
+<style>
+    .badge-select {
+        cursor: pointer;
+        padding: 6px 12px 6px 16px;
+        appearance: none;
+        background-image: none;
+        text-align: center;
+        text-align-last: center;
+    }
+    .badge-select option {
+        background-color: white;
+        color: black;
+    }
+    .hover-primary:hover {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+</style>

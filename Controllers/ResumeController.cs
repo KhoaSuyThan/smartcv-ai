@@ -96,6 +96,114 @@ namespace DoAnCS.Controllers
             return View("Create", resume); 
         }
 
+        // ==========================================
+        // UPLOAD CV PDF MỚI NHẤT
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadPdf(IFormFile pdfFile)
+        {
+            if (pdfFile == null || pdfFile.Length == 0)
+                return RedirectToAction("Profile", "Account", new { t = "cv" });
+
+            if (pdfFile.ContentType != "application/pdf")
+            {
+                TempData["ErrorMessage"] = "Chỉ chấp nhận file định dạng PDF.";
+                return RedirectToAction("Profile", "Account", new { t = "cv" });
+            }
+
+            if (pdfFile.Length > 5 * 1024 * 1024) // Giới hạn 5MB
+            {
+                TempData["ErrorMessage"] = "Kích thước file PDF không được vượt quá 5MB.";
+                return RedirectToAction("Profile", "Account", new { t = "cv" });
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs");
+            if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(pdfFile.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await pdfFile.CopyToAsync(fileStream);
+            }
+
+            int userId = GetCurrentUserId();
+            var user = await _context.Users.FindAsync(userId);
+
+            // Tạo bản record Resume đánh dấu là file upload
+            var resume = new Resume
+            {
+                UserID = userId,
+                Title = Path.GetFileNameWithoutExtension(pdfFile.FileName),
+                IsDraft = false, // Là file hoàn chỉnh
+                FileUploadUrl = "/uploads/cvs/" + uniqueFileName,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                FullName = user?.FullName,
+                Email = user?.Email,
+                Phone = user?.Phone
+            };
+
+            _context.Resumes.Add(resume);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã tải lên CV PDF thành công!";
+            return RedirectToAction("Profile", "Account", new { t = "cv" });
+        }
+
+        // ==========================================
+        // XÓA CV
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteCVProfile(int id)
+        {
+            int userId = GetCurrentUserId();
+            var resume = await _context.Resumes
+                .FirstOrDefaultAsync(r => r.ResumeID == id && r.UserID == userId);
+
+            if (resume == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy CV hoặc bạn không có quyền xóa.";
+                return RedirectToAction("Profile", "Account", new { t = "cv" });
+            }
+
+            // 1. Xóa file vật lý nếu có
+            if (!string.IsNullOrEmpty(resume.FileUploadUrl))
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", resume.FileUploadUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+            // 2. Xóa các đơn ứng tuyển liên quan (Tránh lỗi khóa ngoại)
+            var applications = await _context.Applications.Where(a => a.ResumeID == id).ToListAsync();
+            if (applications.Any())
+            {
+                _context.Applications.RemoveRange(applications);
+            }
+
+            // 3. EF Core sẽ tự động cascade xóa ResumeSections nếu cấu hình chuẩn,
+            // nhưng để an toàn ta xóa thủ công luôn nếu có (chỉ cho CV builder)
+            var sections = await _context.ResumeSections.Where(s => s.ResumeID == id).ToListAsync();
+            if (sections.Any())
+            {
+                _context.ResumeSections.RemoveRange(sections);
+            }
+
+            _context.Resumes.Remove(resume);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đã xóa CV thành công.";
+            return RedirectToAction("Profile", "Account", new { t = "cv" });
+        }
+
         // 3. PHƯƠNG THỨC POST: Lưu toàn bộ thông tin CV
         [HttpPost]
         public async Task<IActionResult> SaveResume([FromBody] ResumeViewModel model)
@@ -416,5 +524,73 @@ namespace DoAnCS.Controllers
 
             return RedirectToAction("Builder", new { id = resume.ResumeID });
         }
+
+        // ==========================================
+        // TÍNH NĂNG CV CÔNG KHAI
+        // ==========================================
+        [HttpGet("/cv/p/{slug}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Public(string slug)
+        {
+            if (string.IsNullOrEmpty(slug)) return Content("Lỗi: URL không hợp lệ.", "text/plain; charset=utf-8");
+
+            var resume = await _context.Resumes
+                .FirstOrDefaultAsync(r => r.Slug == slug && r.IsPublic == true);
+
+            if (resume == null) return Content("Lỗi: CV không tồn tại hoặc chủ sở hữu đã tắt tính năng chia sẻ cộng đồng.", "text/plain; charset=utf-8");
+
+            // Tăng lượt xem
+            resume.ViewCount += 1;
+            await _context.SaveChangesAsync();
+
+            ViewBag.ResumeId = resume.ResumeID;
+            return View("PublicViewerCVVue", resume);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TogglePublic([FromBody] TogglePublicRequest model)
+        {
+            int userId = GetCurrentUserId();
+            var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == model.ResumeId && r.UserID == userId);
+            if (resume == null) return Json(new { success = false, message = "Không tìm thấy CV." });
+
+            resume.IsPublic = model.IsPublic;
+
+            // Generate slug if making public and doesn't exist
+            if (resume.IsPublic && string.IsNullOrEmpty(resume.Slug))
+            {
+                string baseStr = !string.IsNullOrEmpty(resume.FullName) ? resume.FullName : (!string.IsNullOrEmpty(resume.Title) ? resume.Title : "cv");
+                string slug = GenerateSlug(baseStr) + "-" + Guid.NewGuid().ToString("N").Substring(0, 6);
+                resume.Slug = slug;
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, slug = resume.Slug });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [NonAction]
+        private string GenerateSlug(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "cv";
+            // Xóa dấu tiếng Việt
+            string str = text.ToLower().Normalize(System.Text.NormalizationForm.FormD);
+            str = new string(str.Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark).ToArray());
+            // Chỉ giữ lại chữ cái, số và khoảng trắng
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
+            str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "-").Trim();
+            return str;
+        }
+    }
+
+    public class TogglePublicRequest {
+        public int ResumeId { get; set; }
+        public bool IsPublic { get; set; }
     }
 }

@@ -128,10 +128,28 @@ using (var scope = app.Services.CreateScope())
             ALTER TABLE [GeminiConfigs] ADD [ChatbotApiKey] nvarchar(max) NULL;
         END
         ");
+
+        // Thêm các cột cho tính năng Public CV và ViewCount
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Resumes') AND name = 'IsPublic')
+        BEGIN
+            ALTER TABLE [Resumes] ADD [IsPublic] BIT NOT NULL DEFAULT 0,
+                                      [Slug] NVARCHAR(MAX) NULL,
+                                      [ViewCount] INT NOT NULL DEFAULT 0;
+        END
+        ");
+
+        // Thêm cột cho tính năng PDF Upload
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Resumes') AND name = 'FileUploadUrl')
+        BEGIN
+            ALTER TABLE [Resumes] ADD [FileUploadUrl] NVARCHAR(MAX) NULL;
+        END
+        ");
     } 
     catch(Exception ex) 
     { 
-        Console.WriteLine("SQL Create Table Error: " + ex.Message); 
+        Console.WriteLine("SQL Create/Alter Table Error: " + ex.Message); 
     }
 }
 

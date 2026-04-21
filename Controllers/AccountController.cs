@@ -238,10 +238,31 @@ namespace DoAnCS.Controllers
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
 
-            var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == userId);
+            var user = await _context.Users
+                             .Include(u => u.Company)
+                             .Include(u => u.Resumes)
+                             .FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return NotFound();
 
             return View(user);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> Applications()
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
+
+            var applications = await _context.Applications
+                .Include(a => a.Job)
+                    .ThenInclude(j => j.Company)
+                .Include(a => a.Resume)
+                .Where(a => a.Resume.UserID == userId)
+                .OrderByDescending(a => a.AppliedAt)
+                .ToListAsync();
+
+            return View(applications);
         }
 
         [HttpPost]

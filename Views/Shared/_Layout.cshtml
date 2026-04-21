@@ -201,6 +201,14 @@
                                             }
                                         </a>
                                     </li>
+                                    @if (User.IsInRole("User"))
+                                    {
+                                        <li>
+                                            <a class="dropdown-item py-2" href="/Account/Applications">
+                                                <i class="fas fa-briefcase me-2 text-info"></i> Quản lý Ứng tuyển
+                                            </a>
+                                        </li>
+                                    }
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item py-2 text-danger" asp-controller="Account" asp-action="Logout">

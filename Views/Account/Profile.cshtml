@@ -12,7 +12,7 @@
     string roleIcon = isAdmin ? "bi-shield-lock-fill" : (isRecruiter ? "bi-building" : "bi-person-fill");
 
     var defaultAvt = "https://cdn2.fptshop.com.vn/small/avatar_trang_1_cd729c335b.jpg";
-    string activeTab = Context.Request.Query["t"] == "password" ? "password" : "info";
+    string activeTab = Context.Request.Query["t"] == "password" ? "password" : (Context.Request.Query["t"] == "cv" ? "cv" : "info");
 }
 
 <style>
@@ -303,6 +303,13 @@
                             <i class="bi bi-shield-lock-fill me-2"></i>Đổi mật khẩu
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                         <button class="nav-link border-0 fw-bold @(activeTab == "cv" ? "active text-primary" : "text-muted")"
+                                 id="cv-tab" data-bs-toggle="tab" data-bs-target="#cv" type="button" role="tab" aria-controls="cv" aria-selected="@(activeTab == "cv" ? "true" : "false")"
+                                 onclick="history.replaceState(null, null, '?t=cv')">
+                             <i class="bi bi-file-earmark-person-fill me-2"></i>Quản lý CV
+                         </button>
+                    </li>
                 </ul>
 
                 <!-- Tab panes -->
@@ -446,6 +453,102 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+
+                    <!-- Tab Quản lý CV -->
+                    <div class="tab-pane fade @(activeTab == "cv" ? "show active" : "")" id="cv" role="tabpanel" aria-labelledby="cv-tab">
+                        <div class="mb-4 mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="info-card-title mb-1">CV của tôi</h4>
+                                <p class="text-muted small mb-0">Quản lý và chia sẻ các mẫu CV bạn đã tạo.</p>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-primary rounded-pill shadow-sm px-4 fw-bold" onclick="document.getElementById('uploadPdfInput').click()">
+                                    <i class="fas fa-upload me-1"></i> Tải PDF lên
+                                </button>
+                                <form id="uploadPdfForm" action="/Resume/UploadPdf" method="post" enctype="multipart/form-data" class="d-none">
+                                    @Html.AntiForgeryToken()
+                                    <input type="file" id="uploadPdfInput" name="pdfFile" accept="application/pdf" onchange="document.getElementById('uploadPdfForm').submit()" />
+                                </form>
+                            </div>
+                        </div>
+
+                        @if (TempData["SuccessMessage"] != null && activeTab == "cv")
+                        {
+                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4 rounded-4 p-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle-fill me-3 fs-3"></i>
+                                    <div><strong>Thành công!</strong> @TempData["SuccessMessage"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null && activeTab == "cv")
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4 rounded-4 p-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                                    <div><strong>Lỗi!</strong> @TempData["ErrorMessage"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <div class="row g-3">
+                            @if(Model.Resumes != null && Model.Resumes.Any(r => r.IsDraft == false || true))
+                            {
+                                foreach(var cv in Model.Resumes.OrderByDescending(r => r.UpdatedAt))
+                                {
+                                    <div class="col-md-6">
+                                        <div class="card border rounded-4 shadow-sm h-100 position-relative p-2">
+                                            <div class="card-body">
+                                                <h5 class="fw-bold mb-1">@(string.IsNullOrEmpty(cv.Title) ? "CV chưa đặt tên" : cv.Title)</h5>
+                                                <p class="text-muted small mb-3">Chỉnh sửa lần cuối: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                                
+                                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                                    <div class="form-check form-switch ps-0 mt-1 d-flex align-items-center">
+                                                        <label class="form-check-label ms-0 me-3 small fw-bold text-dark" for="switchPublic_@cv.ResumeID">Công khai</label>
+                                                        <input class="form-check-input ms-0 mt-0" type="checkbox" role="switch" id="switchPublic_@cv.ResumeID" @(cv.IsPublic ? "checked" : "") onchange="togglePublicCV(@cv.ResumeID, this.checked)">
+                                                    </div>
+                                                    <div class="badge bg-light text-dark border">
+                                                        <i class="bi bi-bar-chart-line-fill me-1 text-primary"></i> <span id="viewCount_@cv.ResumeID">@cv.ViewCount</span> lượt xem
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="d-flex gap-2">
+                                                    @if (!string.IsNullOrEmpty(cv.FileUploadUrl))
+                                                    {
+                                                        <a href="@cv.FileUploadUrl" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="bi bi-file-pdf me-1"></i>Xem PDF</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="/Admin/EditVueCV/@cv.ResumeID" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="bi bi-pencil me-1"></i>Sửa</a>
+                                                    }
+                                                    <button type="button" id="btnCopy_@cv.ResumeID" class="btn btn-sm btn-outline-success rounded-pill px-3 @(cv.IsPublic ? "" : "d-none")" onclick="copyPublicLink('@cv.Slug')"><i class="bi bi-link-45deg me-1"></i>Copy Link</button>
+                                                    
+                                                    <form action="/Resume/DeleteCVProfile" method="post" class="m-0 ms-auto" onsubmit="return confirm('Bạn có chắc chắn muốn xóa CV này không? Hành động này sẽ xóa luôn các đơn ứng tuyển đã nộp bằng CV này.');">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@cv.ResumeID" />
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Xóa">
+                                                            <i class="bi bi-trash"></i> Xóa
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-12 text-center py-5 bg-white border rounded-4">
+                                    <div class="text-muted mb-3"><i class="bi bi-file-earmark-x fs-1"></i></div>
+                                    <h5>Bạn chưa tạo CV nào</h5>
+                                    <a href="/" class="btn btn-primary rounded-pill px-4 mt-2">Dùng Template ngay</a>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -639,6 +742,50 @@
                 document.getElementById('isDeleteAvatar').value = "true";
                 document.getElementById('profileForm').submit();
             }
+        }
+
+        // Logic CV Management
+        function togglePublicCV(resumeId, isPublic) {
+            fetch(`/Resume/TogglePublic`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ resumeId: resumeId, isPublic: isPublic })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const btnCopy = document.getElementById(`btnCopy_${resumeId}`);
+                    if(isPublic) {
+                        btnCopy.classList.remove('d-none');
+                        // Update the onclick event with the new slug from server
+                        btnCopy.setAttribute('onclick', `copyPublicLink('${data.slug}')`);
+                    } else {
+                        btnCopy.classList.add('d-none');
+                    }
+                } else {
+                    alert("Có lỗi xảy ra: " + data.message);
+                    // rollback checkbox
+                    document.getElementById(`switchPublic_${resumeId}`).checked = !isPublic;
+                }
+            })
+            .catch(err => {
+                alert("Lỗi kết nối mạng.");
+                document.getElementById(`switchPublic_${resumeId}`).checked = !isPublic;
+            });
+        }
+
+        function copyPublicLink(slug) {
+            if (!slug) {
+                alert("Đường dẫn không hợp lệ!");
+                return;
+            }
+            const fullUrl = window.location.origin + '/cv/p/' + slug;
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                alert('Đã sao chép đường dẫn: ' + fullUrl);
+            });
         }
     </script>
 }

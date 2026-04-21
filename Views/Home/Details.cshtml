@@ -19,12 +19,132 @@
                     @Model.job_description
                 </div>
 
-                <div class="mt-5 d-grid">
-                    <a href="@Model.job_apply_link" target="_blank" class="btn btn-primary btn-lg rounded-pill fw-bold">
-                        Ứng tuyển ngay bây giờ <i class="fas fa-external-link-alt ms-2"></i>
-                    </a>
+                <div class="mt-5 d-flex gap-3 flex-wrap">
+                    @if (!string.IsNullOrEmpty(Model.job_apply_link) && Model.job_apply_link != "#")
+                    {
+                        <a href="@Model.job_apply_link" target="_blank" class="btn btn-outline-primary btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 30%;">
+                            <i class="fas fa-external-link-alt me-2"></i>Website Công ty
+                        </a>
+                    }
+
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+                    {
+                        <button type="button" class="btn btn-primary btn-lg rounded-pill fw-bold flex-grow-1 shadow-sm" style="flex-basis: 60%;" data-bs-toggle="modal" data-bs-target="#applyModal">
+                            Ứng tuyển nhanh 1-Click <i class="fas fa-paper-plane ms-2"></i>
+                        </button>
+                    }
+                    else if (!User.Identity.IsAuthenticated)
+                    {
+                        <a href="/Account/Login?returnUrl=/Home/Details/@Model.job_id" class="btn btn-primary btn-lg rounded-pill fw-bold flex-grow-1 shadow-sm" style="flex-basis: 60%;">
+                            Đăng nhập để Ứng tuyển <i class="fas fa-sign-in-alt ms-2"></i>
+                        </a>
+                    }
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal Ứng tuyển Nhanh -->
+<div class="modal fade" id="applyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold text-primary">Chọn CV để Ứng tuyển</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p class="text-muted small mb-3">Vui lòng chọn 1 CV trong hồ sơ của bạn để nộp vào <strong>@Model.job_title</strong>.</p>
+                <form id="applyForm">
+                    <input type="hidden" id="jobIdInput" value="@Model.job_id" />
+                    
+                    @if (ViewBag.UserResumes != null)
+                    {
+                        var cvs = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
+                        if (cvs.Any())
+                        {
+                            <div class="list-group list-group-flush border rounded-3 overflow-hidden">
+                                @foreach (var cv in cvs)
+                                {
+                                    <label class="list-group-item d-flex gap-3 align-items-center p-3 cursor-pointer hover-bg-light transition-all">
+                                        <input class="form-check-input flex-shrink-0" type="radio" name="selectedResumeId" value="@cv.ResumeID" style="font-size: 1.25em;" required>
+                                        <div class="w-100">
+                                            <h6 class="mb-1 fw-bold text-dark">@(cv.Title ?? "CV Chưa đặt tên")</h6>
+                                            <span class="text-muted small">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</span>
+                                        </div>
+                                        <div class="flex-shrink-0 text-primary">
+                                            <i class="fas fa-file-alt fa-2x opacity-50"></i>
+                                        </div>
+                                    </label>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning rounded-3 border-0">
+                                <i class="fas fa-exclamation-circle me-2"></i>Bạn chưa có CV nào. <a href="/Resume/Templates" class="alert-link">Tạo CV mới ngay!</a>
+                            </div>
+                        }
+                    }
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitApply">Gửi hồ sơ ngay</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnSubmit = document.getElementById('btnSubmitApply');
+        if (btnSubmit) {
+            btnSubmit.addEventListener('click', async function () {
+                const form = document.getElementById('applyForm');
+                const selectedCv = form.querySelector('input[name="selectedResumeId"]:checked');
+                
+                if (!selectedCv) {
+                    alert('Vui lòng chọn 1 CV để ứng tuyển!');
+                    return;
+                }
+
+                btnSubmit.disabled = true;
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...';
+
+                try {
+                    const response = await fetch('/Jobs/ApplyOneClick', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            JobId: parseInt(document.getElementById('jobIdInput').value),
+                            ResumeId: parseInt(selectedCv.value)
+                        })
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert(result.message || 'Ứng tuyển thành công!');
+                        location.href = '/Account/Applications'; // Chuyển sang trang quản lý đơn ứng tuyển
+                    } else {
+                        alert(result.message || 'Có lỗi xảy ra, vui lòng thử lại sau.');
+                    }
+                } catch (error) {
+                    alert('Lỗi kết nối máy chủ.');
+                } finally {
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = 'Gửi hồ sơ ngay';
+                }
+            });
+        }
+    });
+</script>
+<style>
+    .cursor-pointer { cursor: pointer; }
+    .hover-bg-light:hover { background-color: #f8f9fa; }
+</style>
 </div>
