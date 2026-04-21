@@ -401,6 +401,9 @@ namespace DoAnCS.Controllers
                 .OrderByDescending(r => r.UpdatedAt)
                 .ToListAsync();
 
+            // Lấy thêm danh sách VueTemplates để map thumbnail cho CV Vue
+            ViewBag.VueTemplates = await _context.VueTemplates.Where(t => t.IsActive).ToListAsync();
+
             return View(myResumes);
         }
 
