@@ -225,7 +225,7 @@ namespace DoAnCS.Controllers
             // Lấy danh sách CV của người dùng (nếu đã đăng nhập)
             if (User.Identity.IsAuthenticated)
             {
-                var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 if (int.TryParse(userIdClaim, out int userId))
                 {
                     ViewBag.UserResumes = await _context.Resumes

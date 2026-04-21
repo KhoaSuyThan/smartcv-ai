@@ -1,10 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>199271cc-01db-433e-8964-e4fc3ab95066</UserSecretsId>
+    <DefaultItemExcludes>$(DefaultItemExcludes);scratch\**;CVBuilderApp\node_modules\**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

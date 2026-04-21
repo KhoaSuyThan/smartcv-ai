@@ -55,20 +55,42 @@
                                         @app.AppliedAt.ToString("dd/MM/yyyy HH:mm")
                                     </td>
                                     <td class="py-4">
-                                        <select class="form-select border-0 shadow-sm badge-select application-status" 
-                                                data-id="@app.ApplicationID"
-                                                style="border-radius: 20px; font-weight: bold; width: 150px;"
-                                                onchange="updateStatus(this, @app.ApplicationID)">
-                                            @if (app.Status == "Pending") { <option value="Pending" selected>Chờ xử lý</option> } else { <option value="Pending">Chờ xử lý</option> }
-                                            @if (app.Status == "Reviewing") { <option value="Reviewing" selected>Đang xem xét</option> } else { <option value="Reviewing">Đang xem xét</option> }
-                                            @if (app.Status == "Accepted") { <option value="Accepted" selected>Chấp nhận</option> } else { <option value="Accepted">Chấp nhận</option> }
-                                            @if (app.Status == "Rejected" || app.Status == "Từ chối") { <option value="Rejected" selected>Từ chối</option> } else { <option value="Rejected">Từ chối</option> }
-                                        </select>
+                                        @if (app.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>
+                                        }
+                                        else if (app.Status == "Reviewing")
+                                        {
+                                            <span class="badge bg-info text-dark px-3 py-2 rounded-pill"><i class="fas fa-eye me-1"></i>Đang xem xét</span>
+                                        }
+                                        else if (app.Status == "Accepted")
+                                        {
+                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i>Chấp nhận</span>
+                                        }
+                                        else if (app.Status == "Rejected" || app.Status == "Từ chối")
+                                        {
+                                            <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="fas fa-times-circle me-1"></i>Từ chối</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary px-3 py-2 rounded-pill">@app.Status</span>
+                                        }
                                     </td>
                                     <td class="px-4 py-4 text-end">
-                                        <a href="/Jobs/PreviewCV?applicationId=@app.ApplicationID" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold hover-primary">
-                                            <i class="fas fa-eye me-1"></i> Xem CV
-                                        </a>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            @if (app.Status == "Pending" || app.Status == "Reviewing")
+                                            {
+                                                <button onclick="quickUpdateStatus(@app.ApplicationID, 'Accepted')" class="btn btn-sm btn-success rounded-pill fw-bold" title="Duyệt ứng viên">
+                                                    <i class="fas fa-check me-1"></i> Duyệt
+                                                </button>
+                                                <button onclick="quickUpdateStatus(@app.ApplicationID, 'Rejected')" class="btn btn-sm btn-danger rounded-pill fw-bold" title="Từ chối">
+                                                    <i class="fas fa-times me-1"></i> Từ chối
+                                                </button>
+                                            }
+                                            <a href="/Jobs/PreviewCV?applicationId=@app.ApplicationID" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold hover-primary">
+                                                <i class="fas fa-eye me-1"></i> Xem CV
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -91,33 +113,11 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const selects = document.querySelectorAll('.application-status');
-        selects.forEach(select => {
-            updateSelectColor(select);
-        });
-    });
-
-    function updateSelectColor(select) {
-        const value = select.value;
-        select.classList.remove('bg-warning', 'bg-info', 'bg-success', 'bg-danger', 'text-dark', 'text-white');
-        
-        if (value === 'Pending') {
-            select.classList.add('bg-warning', 'text-dark');
-        } else if (value === 'Reviewing') {
-            select.classList.add('bg-info', 'text-dark');
-        } else if (value === 'Accepted') {
-            select.classList.add('bg-success', 'text-white');
-        } else if (value === 'Rejected') {
-            select.classList.add('bg-danger', 'text-white');
+    async function quickUpdateStatus(applicationId, newStatus) {
+        if (!confirm(`Bạn có chắc muốn ${newStatus === 'Accepted' ? 'DUYỆT' : 'TỪ CHỐI'} ứng viên này?`)) {
+            return;
         }
-    }
 
-    async function updateStatus(selectElement, applicationId) {
-        updateSelectColor(selectElement);
-        
-        const newStatus = selectElement.value;
-        
         try {
             const response = await fetch('/Jobs/UpdateApplicationStatus', {
                 method: 'POST',
@@ -130,8 +130,7 @@
             const result = await response.json();
             
             if (result.success) {
-                // Toast notification (optional)
-                console.log('Cập nhật trạng thái thành công!');
+                window.location.reload();
             } else {
                 alert(result.message || 'Có lỗi xảy ra.');
             }
@@ -142,18 +141,6 @@
 </script>
 
 <style>
-    .badge-select {
-        cursor: pointer;
-        padding: 6px 12px 6px 16px;
-        appearance: none;
-        background-image: none;
-        text-align: center;
-        text-align-last: center;
-    }
-    .badge-select option {
-        background-color: white;
-        color: black;
-    }
     .hover-primary:hover {
         background-color: #0d6efd !important;
         color: white !important;
