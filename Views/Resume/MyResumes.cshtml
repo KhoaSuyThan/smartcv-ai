@@ -30,20 +30,75 @@
                         <div class="position-relative overflow-hidden bg-white border-bottom" 
                              style="aspect-ratio: 1 / 1.4; width: 100%;">
                             
-                            @if (cv.Template != null && !string.IsNullOrEmpty(cv.Template.PreviewImageUrl))
+                             @{
+                                bool isVueCV_Img = (cv.Title != null && cv.Title.StartsWith("CV Vue:")) || !string.IsNullOrEmpty(cv.JsonContent);
+                                bool isPdf_Img = !string.IsNullOrEmpty(cv.FileUploadUrl);
+                                string previewUrl = "";
+                                
+                                if (isPdf_Img) 
+                                {
+                                    // Placeholder cho file PDF tải lên
+                                    previewUrl = "/images/pdf-placeholder.png"; 
+                                }
+                                else if (isVueCV_Img) 
+                                {
+                                    // Tìm thumbnail chuẩn từ bảng VueTemplates thông qua TemplateID
+                                    var vtList = ViewBag.VueTemplates as IEnumerable<DoAnCS.Models.VueTemplate>;
+                                    var vt = vtList?.FirstOrDefault(t => t.Id == cv.TemplateID);
+                                    previewUrl = vt?.ThumbnailUrl ?? "/images/templates/vue-default.png";
+                                }
+                                else 
+                                {
+                                    previewUrl = cv.Template?.PreviewImageUrl ?? "/images/templates/default-template.png";
+                                }
+                            }
+
+                            @if (isPdf_Img)
                             {
-                                <img src="@cv.Template.PreviewImageUrl" class="card-img-top" 
+                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light border-bottom">
+                                    <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 5rem;"></i>
+                                    <p class="text-muted small mt-2">Bản PDF tải lên</p>
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(previewUrl))
+                            {
+                                <img src="@previewUrl" class="card-img-top" 
                                      style="height: 100%; width: 100%; object-fit: cover; object-position: top;" 
                                      alt="Template Preview">
                             }
                             else
                             {
-                                <img src="~/images/templates/default-template.png" class="card-img-top" 
-                                     style="height: 100%; width: 100%; object-fit: cover;" 
-                                     alt="Default Preview">
+                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light text-secondary opacity-50">
+                                     <i class="bi bi-file-earmark-person" style="font-size: 4rem;"></i>
+                                     <span class="small mt-2 font-monospace">@cv.Title</span>
+                                </div>
                             }
                             
-                            <div class="position-absolute top-0 end-0 m-2">
+                             <div class="position-absolute top-0 end-0 m-2 d-flex flex-column gap-1 align-items-end">
+                                @{
+                                    bool isVueCV_Badge = (cv.Title != null && cv.Title.StartsWith("CV Vue:")) || !string.IsNullOrEmpty(cv.JsonContent);
+                                    bool isPdfUpload = !string.IsNullOrEmpty(cv.FileUploadUrl);
+                                }
+                                
+                                @if (isPdfUpload)
+                                {
+                                    <span class="badge bg-danger shadow-sm">
+                                        <i class="bi bi-file-earmark-pdf-fill"></i> FILE TẢI LÊN
+                                    </span>
+                                }
+                                else if (isVueCV_Badge)
+                                {
+                                    <span class="badge bg-info text-dark shadow-sm">
+                                        <i class="bi bi-magic"></i> VUE BUILDER
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-dark shadow-sm">
+                                        <i class="bi bi-layout-text-window-reverse"></i> TRUYỀN THỐNG
+                                    </span>
+                                }
+
                                 <span class="badge @(cv.IsDraft ? "bg-warning text-dark" : "bg-success") shadow-sm">
                                     <i class="bi @(cv.IsDraft ? "bi-pencil-fill" : "bi-check-circle-fill")"></i> 
                                     @(cv.IsDraft ? "Bản nháp" : "Hoàn thiện")
@@ -56,9 +111,28 @@
                             <small class="text-muted d-block mb-3">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</small>
                             
                             <div class="d-grid gap-2">
-                                <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-primary">
-                                    <i class="bi bi-pencil-fill me-1"></i> Tiếp tục chỉnh sửa
-                                </a>
+                                @{
+                                    bool isVueCV = (cv.Title != null && cv.Title.StartsWith("CV Vue:")) || !string.IsNullOrEmpty(cv.JsonContent);
+                                }
+                                
+                                 @if (isPdfUpload)
+                                {
+                                    <a href="@cv.FileUploadUrl" target="_blank" class="btn btn-danger">
+                                        <i class="bi bi-eye me-1"></i> Xem file PDF
+                                    </a>
+                                }
+                                else if (isVueCV)
+                                {
+                                    <a href="@Url.Action("Builder", "Resume", new { id = cv.ResumeID })" class="btn btn-primary">
+                                        <i class="bi bi-magic me-1"></i> Tiếp tục chỉnh sửa (Vue)
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-outline-primary">
+                                        <i class="bi bi-pencil-fill me-1"></i> Tiếp tục chỉnh sửa
+                                    </a>
+                                }
                                 
                                 <div class="d-flex gap-2">
                                     <button onclick="renameCV(@cv.ResumeID)" class="btn btn-light border flex-grow-1">

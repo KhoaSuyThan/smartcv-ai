@@ -77,7 +77,14 @@
                                         }
                                     </td>
                                     <td class="px-4 py-4 text-end">
-                                        <a href="/Home/Details/@app.JobID" class="btn btn-sm btn-light border rounded-pill fw-bold text-secondary hover-primary">Xem tin</a>
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="/Home/Details/@app.JobID" class="btn btn-sm btn-light border rounded-pill fw-bold text-secondary hover-primary">Xem tin</a>
+                                            
+                                            @if (app.Status == "Pending" || app.Status == "Reviewing")
+                                            {
+                                                <button onclick="withdrawApplication(@app.ApplicationID)" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">Hủy</button>
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -101,6 +108,48 @@
         </div>
     </div>
 </div>
+
+<script>
+    async function withdrawApplication(applicationId) {
+        if (!confirm('Bạn có chắc chắn muốn hủy đơn ứng tuyển này? Hành động này không thể hoàn tác.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch('/Jobs/WithdrawApplication', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `applicationId=${applicationId}`
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Hiển thị thông báo thành công (có thể dùng Swal nếu có)
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã hủy!',
+                        text: result.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    alert(result.message);
+                    window.location.reload();
+                }
+            } else {
+                alert(result.message || 'Có lỗi xảy ra.');
+            }
+        } catch (error) {
+            alert('Lỗi kết nối máy chủ.');
+        }
+    }
+</script>
 
 <style>
     .hover-primary:hover {
