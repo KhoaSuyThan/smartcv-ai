@@ -771,18 +771,18 @@ const resumeData = ref({
     fullName: '', jobTitle: '', email: '', phone: '', address: '', birthDate: '', summary: '', website: '', avatarUrl: ''
   },
   sections: [
-    { id: 'summary', title: 'Mục tiêu Nghề nghiệp', isVisible: true, column: 'left', items: [] },
-    { id: 'experience', title: 'Kinh nghiệm Làm việc', isVisible: true, column: 'right', items: [] },
-    { id: 'education', title: 'Quá trình Học vấn', isVisible: true, column: 'left', items: [] },
-    { id: 'skills', title: 'Kỹ năng Chuyên môn', isVisible: true, column: 'left', items: [] },
-    { id: 'it_skills', title: 'Tin học', isVisible: true, column: 'left', items: [] },
-    { id: 'languages', title: 'Ngoại ngữ', isVisible: true, column: 'left', items: [] },
-    { id: 'activities', title: 'Hoạt động', isVisible: false, column: 'right', items: [] },
-    { id: 'project', title: 'Dự án Trọng điểm', isVisible: false, column: 'right', items: [] },
-    { id: 'certifications', title: 'Chứng chỉ / Bằng cấp', isVisible: false, column: 'left', items: [] },
-    { id: 'awards', title: 'Giải thưởng', isVisible: false, column: 'left', items: [] },
-    { id: 'hobbies', title: 'Sở thích', isVisible: false, column: 'left', items: [] },
-    { id: 'references', title: 'Người tham chiếu', isVisible: false, column: 'left', items: [] },
+    { id: 'summary',        title: 'Mục tiêu Nghề nghiệp',   isVisible: true,  column: 'right', items: [] },
+    { id: 'experience',     title: 'Kinh nghiệm Làm việc',   isVisible: true,  column: 'right', items: [] },
+    { id: 'education',      title: 'Quá trình Học vấn',     isVisible: true,  column: 'right', items: [] },
+    { id: 'skills',         title: 'Kỹ năng Chuyên môn',   isVisible: true,  column: 'left',  items: [] },
+    { id: 'it_skills',      title: 'Tin học',              isVisible: false, column: 'left',  items: [] },
+    { id: 'languages',      title: 'Ngoại ngữ',            isVisible: false, column: 'left',  items: [] },
+    { id: 'activities',     title: 'Hoạt động',             isVisible: true,  column: 'right', items: [] },
+    { id: 'project',        title: 'Dự án Trọng điểm',     isVisible: false, column: 'right', items: [] },
+    { id: 'certifications', title: 'Chứng chỉ / Bằng cấp',  isVisible: true,  column: 'left',  items: [] },
+    { id: 'awards',         title: 'Giải thưởng',           isVisible: true,  column: 'left',  items: [] },
+    { id: 'hobbies',        title: 'Sở thích',              isVisible: true,  column: 'left',  items: [] },
+    { id: 'references',     title: 'Người tham chiếu',      isVisible: true,  column: 'left',  items: [] },
   ]
 })
 
@@ -1073,7 +1073,30 @@ const loadData = async () => {
                 const existingIds = parsed.sections.map(s => s.id);
                 const missingSections = defaultSections.filter(s => !existingIds.includes(s.id));
                 resumeData.value.sections = [...resumeData.value.sections, ...missingSections];
-            }
+
+                // --- MIGRATION FOR VUTUNGDUONG TEMPLATE ---
+                if (targetName === 'VuTungDuong' || resumeData.value.overrideTemplate === 'VuTungDuong') {
+                  const rightSections = ['summary', 'experience', 'education', 'activities'];
+                  const leftSections = ['skills', 'certifications', 'awards', 'hobbies', 'references'];
+                  const hiddenSections = ['it_skills', 'languages', 'project'];
+
+                  resumeData.value.sections.forEach(s => {
+                    if (rightSections.includes(s.id)) {
+                      s.column = 'right';
+                      if (s.id !== 'activities') s.isVisible = true;
+                    } else if (leftSections.includes(s.id)) {
+                      s.column = 'left';
+                      s.isVisible = true;
+                    } else if (hiddenSections.includes(s.id)) {
+                      s.isVisible = false;
+                    }
+                  });
+
+                  // Force màu vàng cam mặc định cho VuTungDuong
+                  if (!resumeData.value.theme) resumeData.value.theme = {};
+                  resumeData.value.theme.primaryColor = '#dfa234';
+                }
+              }
         } else {
             // Đổ Data mẫu trải nghiệm nếu file trắng
             resumeData.value.general = { fullName: 'Trần Văn Demo', jobTitle: 'Fullstack Developer', email: 'mail@demo.com', phone: '090-000-000', address: 'Quận 1, TP HCM', summary: 'Ứng viên năng động, mong chờ cơ hội.' };

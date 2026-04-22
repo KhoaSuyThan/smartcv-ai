@@ -2,68 +2,68 @@
   <div id="cv-printable-area" ref="cvRoot" class="bg-white flex w-[210mm] relative box-border text-[13px] leading-relaxed" :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }">
     
     <!-- CỘT TRÁI (SIDEBAR) -->
-    <aside class="w-[72mm] flex-shrink-0 flex flex-col relative z-20" style="background-color: #f6ede4;" @click.self="selectedSectionId = null">
-       
-        <!-- HỌ TÊN -->
-        <div class="px-[8mm] pt-[12mm] pb-[3mm] paginated-item text-center">
-            <h1 class="text-[26px] font-extrabold leading-tight mb-1" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Nguyễn Huyền Trang'"></h1>
-            <h2 class="text-[12px] font-semibold uppercase tracking-wide text-gray-700 mt-1" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'CHUYÊN VIÊN SALES ADMIN'"></h2>
-        </div>
+    <aside class="w-[72mm] flex-shrink-0 flex flex-col relative z-20 bg-white" @click.self="selectedSectionId = null">
+       <div class="m-[3mm] flex-1 flex flex-col shadow-sm" style="background-color: #f8e8e8;">
+            <!-- HỌ TÊN - BOX MÀU -->
+            <div class="mx-[3mm] mt-[8mm] mb-6 px-[4mm] py-[6mm] paginated-item text-center rounded-sm shadow-sm" style="background-color: #c48c8c;">
+                <h1 class="font-extrabold leading-tight mb-2 tracking-tight" :style="{ color: '#6a2a31', fontSize: '30px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Nguyễn Huyền Trang'"></h1>
+                <h2 class="font-bold uppercase tracking-wider text-white" :style="{ fontSize: '22px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'CHUYÊN VIÊN SALES ADMIN'"></h2>
+            </div>
 
-        <!-- AVATAR - HÌNH TRÒN -->
-        <div class="px-[8mm] pb-[6mm] paginated-item flex justify-center">
-            <div class="w-[48mm] h-[48mm] rounded-full overflow-hidden bg-white relative z-10 box-border flex-shrink-0" :style="{ border: `3px solid ${resumeData.theme.primaryColor || '#8A3841'}` }">
-                <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
-                <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                    <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <!-- AVATAR - HÌNH TRÒN CÓ VIỀN -->
+            <div class="px-[8mm] pb-[10mm] paginated-item flex justify-center mt-2">
+                <div class="w-[46mm] h-[46mm] rounded-full overflow-hidden bg-white relative z-10 box-border flex-shrink-0" :style="{ border: `4px solid #6a2a31` }">
+                    <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+                    <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                        <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- CÁC SECTION TRONG SIDEBAR -->
-        <div class="flex flex-col flex-1 pb-[8mm]">
-            <!-- THÔNG TIN CÁ NHÂN (cố định) -->
-            <div class="paginated-item section-block-sidebar py-[3mm] px-[8mm]">
-                <div class="sidebar-section-header mb-3">
-                    <h3 class="font-bold text-[15px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">Thông tin cá nhân</h3>
-                    <div class="w-full h-[1.5px] mt-1" :style="{ backgroundColor: resumeData.theme.primaryColor || '#8A3841' }"></div>
-                </div>
-                <div class="space-y-2.5 text-[12.5px] font-medium text-gray-800">
-                    <div class="flex items-start gap-2.5" v-if="!isEmpty(resumeData.general.birthDate)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-[2px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                       </div>
-                       <span class="leading-tight pt-[1px]" v-html="resumeData.general.birthDate"></span>
+            <!-- CÁC SECTION TRONG SIDEBAR -->
+            <div class="flex flex-col flex-1 pb-[8mm]">
+                <!-- THÔNG TIN CÁ NHÂN (cố định) -->
+                <div class="paginated-item section-block-sidebar py-[4mm] px-[8mm]">
+                    <div class="sidebar-section-header mb-3">
+                        <h3 class="font-bold uppercase tracking-wide" :style="{ color: '#6a2a31', fontSize: '15px !important' }">Thông tin cá nhân</h3>
+                        <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31;"></div>
                     </div>
-                    <div class="flex items-start gap-2.5" v-if="!isEmpty(resumeData.general.gender)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-[2px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                <div class="space-y-3 font-medium">
+                    <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.birthDate)">
+                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
+                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                        </div>
-                       <span class="leading-tight pt-[1px]" v-html="resumeData.general.gender"></span>
+                       <span style="font-size: 12px !important; color: #6a2a31;" v-html="resumeData.general.birthDate"></span>
                     </div>
-                    <div class="flex items-start gap-2.5" v-if="!isEmpty(resumeData.general.phone)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-[2px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
+                    <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.gender)">
+                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
+                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                       </div>
+                       <span style="font-size: 12px !important; color: #6a2a31;" v-html="resumeData.general.gender"></span>
+                    </div>
+                    <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.phone)">
+                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.091 15.091 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.12.37 2.33.57 3.58.57a1 1 0 011 1v3.5a1 1 0 01-1 1A16 16 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.21 1.11l-2.24 2.1z" /></svg>
                        </div>
-                       <span class="break-all leading-tight pt-[1px]" v-html="resumeData.general.phone"></span>
+                       <span style="font-size: 12px !important; color: #6a2a31;" class="break-all" v-html="resumeData.general.phone"></span>
                     </div>
-                    <div class="flex items-start gap-2.5" v-if="!isEmpty(resumeData.general.email)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-[2px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.email)">
+                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
+                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                        </div>
-                       <span class="break-all leading-tight pt-[1px]" v-html="resumeData.general.email"></span>
+                       <span style="font-size: 12px !important; color: #6a2a31;" class="break-all" v-html="resumeData.general.email"></span>
                     </div>
-                    <div class="flex items-start gap-2.5" v-if="!isEmpty(resumeData.general.website)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-[2px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.facebook) || !isEmpty(resumeData.general.website)">
+                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
+                           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
                        </div>
-                       <span class="break-all leading-tight pt-[1px]" v-html="resumeData.general.website"></span>
+                       <span style="font-size: 12px !important; color: #6a2a31;" class="break-all" v-html="resumeData.general.facebook || resumeData.general.website"></span>
                     </div>
-                    <div class="flex items-start gap-2.5" v-if="!isEmpty(resumeData.general.address)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-[2px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <div class="flex items-start gap-3" v-if="!isEmpty(resumeData.general.address)">
+                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-0.5" style="color: #6a2a31;">
+                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                        </div>
-                       <span class="leading-tight pt-[1px]" v-html="resumeData.general.address"></span>
+                       <span style="font-size: 12px !important; color: #6a2a31;" class="leading-snug" v-html="resumeData.general.address"></span>
                     </div>
                 </div>
             </div>
@@ -72,9 +72,9 @@
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block section-block-sidebar py-[3mm] px-[8mm]"
+                    class="section-block section-block-sidebar py-[4mm] px-[8mm]"
                     :class="{ 'section-selected': selectedSectionId === section.id }"
-                    :style="selectedSectionId === section.id ? { '--sel-color': resumeData.theme.primaryColor || '#8A3841' } : {}"
+                    :style="selectedSectionId === section.id ? { '--sel-color': '#6a2a31' } : {}"
                     @mouseenter="showNav(section.id)"
                     @mouseleave="hideNav()"
                     @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
@@ -86,87 +86,56 @@
                         @mouseenter="showNav(section.id)"
                         @mouseleave="hideNav()"
                     >
-                        <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Lên">
+                        <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Lên" style="background-color: #6a2a31;">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                         </button>
-                        <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Xuống">
+                        <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Xuống" style="background-color: #6a2a31;">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
+                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải" style="background-color: #6a2a31;">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
                     </div>
 
                     <!-- Section header với underline -->
                     <div class="sidebar-section-header mb-3 paginated-item">
-                        <h3 class="font-bold text-[15px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
+                        <h3 class="font-bold uppercase tracking-wide" style="color: #6a2a31; font-size: 15px !important;">
                             {{ section.title }}
                         </h3>
-                        <div class="w-full h-[1.5px] mt-1" :style="{ backgroundColor: resumeData.theme.primaryColor || '#8A3841' }"></div>
+                        <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31;"></div>
                     </div>
                     
                     <div class="space-y-4">
                          <!-- Học Vấn trong Sidebar -->
-                         <div v-if="section.id === 'education'" class="space-y-4">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[12.5px] item-container paginated-item flex flex-col gap-1 pr-2 text-gray-800">
-                                 <div class="flex justify-between items-baseline gap-1">
-                                     <span class="font-bold text-[13px] text-gray-900" v-html="item.school"></span>
-                                     <span class="text-[12px] whitespace-nowrap text-gray-700 flex-shrink-0">{{ item.year }}</span>
+                         <div v-if="section.id.toLowerCase().includes('education')" class="space-y-3">
+                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item flex flex-col gap-0.5 pr-2">
+                                 <div class="flex justify-between items-start gap-1">
+                                     <span class="font-bold leading-snug" style="font-size: 13px !important; color: #6a2a31;" v-html="item.school"></span>
+                                     <span class="font-bold flex-shrink-0 mt-0.5" style="font-size: 11.5px !important; color: #6a2a31;">{{ item.year }}</span>
                                  </div>
-                                 <div class="font-normal text-gray-800" v-if="item.major" v-html="item.major"></div>
-                                 <div class="font-normal text-gray-700 italic" v-if="item.gradType" v-html="item.gradType"></div>
+                                 <div class="font-bold leading-snug" v-if="item.major" style="font-size: 12px !important; color: #6a2a31;" v-html="item.major"></div>
+                                 <div class="font-bold leading-snug" v-if="item.gradType" style="font-size: 12px !important; color: #6a2a31;" v-html="item.gradType"></div>
                                  <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                  </button>
                              </div>
                          </div>
 
-                         <!-- Kỹ năng: Tên bold + mô tả phía dưới (không progress bar, giống ảnh) -->
-                         <div v-else-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="space-y-3.5">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[12.5px] text-gray-800 item-container paginated-item pr-3 leading-snug">
-                                 <div class="font-bold text-[13px] text-gray-900 mb-0.5" v-html="item.name"></div>
-                                 <div class="text-[12px] font-normal text-gray-700 leading-[1.5]" v-if="item.desc" v-html="formatDesc(item.desc)"></div>
-                                 <div class="text-[12px] font-normal text-gray-700" v-else-if="item.level">{{ item.level }}</div>
+                         <!-- Kỹ năng -->
+                         <div v-else-if="section.id.toLowerCase().includes('skill') || section.id.toLowerCase().includes('lang')" class="space-y-3.5">
+                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 item-container paginated-item pr-3 leading-snug">
+                                 <div class="font-bold text-gray-900 mb-0.5" style="font-size: 13px !important;" v-html="item.name"></div>
+                                 <div class="font-normal text-gray-700 leading-[1.6]" v-if="item.desc" style="font-size: 11.5px !important;" v-html="formatDesc(item.desc)"></div>
+                                 <div class="font-normal text-gray-700" v-else-if="item.level" style="font-size: 11.5px !important;">{{ item.level }}</div>
                                  <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                  </button>
                              </div>
                          </div>
                          
-                         <!-- Sở thích -->
-                         <div v-else-if="section.id === 'hobbies'" class="space-y-2">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[12.5px] text-gray-800 font-medium item-container paginated-item pr-3">
-                                 <span v-html="item.name"></span>
-                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
-                                     <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                                 </button>
-                             </div>
-                         </div>
-                          
-                         <!-- Chứng chỉ, Giải thưởng trong Sidebar -->
-                         <div v-else-if="section.id === 'awards' || section.id === 'certifications'" class="space-y-3">
-                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[12.5px] item-container paginated-item flex gap-3 pr-2 text-gray-800">
-                                <span class="font-bold text-gray-900 whitespace-nowrap flex-shrink-0">{{ item.year }}</span>
-                                <span class="leading-snug font-normal">{{ item.name }}</span>
-                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
-                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                            </div>
-                         </div>
-
-                         <!-- Người tham chiếu -->
-                         <div v-else-if="section.id === 'references'" class="space-y-4">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[12.5px] item-container paginated-item relative text-gray-800">
-                                 <div class="sidebar-html-content leading-snug" v-html="formatDesc(item.info)"></div>
-                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
-                                     <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                                 </button>
-                             </div>
-                         </div>
-
-                         <!-- Default -->
+                         <!-- Các phần khác nếu có trong sidebar (mặc định) -->
                          <div v-else class="space-y-3">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[12.5px] text-gray-800 font-medium leading-snug paginated-item item-container pr-3">
+                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug paginated-item item-container pr-3" style="font-size: 12px !important;">
                                  <span class="sidebar-html-content" v-html="formatDesc(item.desc || item.name || item.info)"></span>
                                  <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -177,16 +146,20 @@
                 </div>
             </template>
         </div>
+       </div>
     </aside>
 
     <!-- CỘT PHẢI (MAIN CONTENT) -->
-    <main class="flex-1 pt-[12mm] pb-[10mm] px-[8mm] flex flex-col gap-0 relative z-10 bg-white" @click.self="selectedSectionId = null">
+    <main class="flex-1 pt-[15mm] pb-[10mm] px-[10mm] flex flex-col gap-0 relative z-10 bg-white" @click.self="selectedSectionId = null">
         <template v-for="section in mainSections" :key="section.id">
             <div
-                v-show="section.isVisible"
+                v-show="section.isVisible || ['summary', 'objective', 'experience', 'award', 'cert', 'activit'].some(id => section.id.toLowerCase().includes(id))"
                 class="section-block section-block-main"
                 :class="{ 'section-selected': selectedSectionId === section.id }"
-                :style="selectedSectionId === section.id ? { '--sel-color': resumeData.theme.primaryColor || '#8A3841' } : {}"
+                :style="[
+                    selectedSectionId === section.id ? { '--sel-color': '#6a2a31' } : {},
+                    (section.id.toLowerCase().includes('summary') || section.id.toLowerCase().includes('objective')) ? { marginTop: '10mm !important' } : {}
+                ]"
                 @mouseenter="showNav(section.id)"
                 @mouseleave="hideNav()"
                 @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
@@ -210,18 +183,18 @@
 
                 <!-- Tiêu đề section + gạch ngang màu theme -->
                 <div class="main-section-header mb-4 paginated-item">
-                    <h3 class="font-bold text-[17px]" :style="{ color: resumeData.theme.primaryColor || '#8A3841' }">
+                    <h3 class="font-bold uppercase tracking-wide" style="color: #6a2a31; font-size: 16px !important;">
                         {{ section.title }}
                     </h3>
-                    <div class="w-full h-[1.5px] mt-1" :style="{ backgroundColor: resumeData.theme.primaryColor || '#8A3841', opacity: 0.4 }"></div>
+                    <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31; opacity: 0.5;"></div>
                 </div>
 
                 <div class="space-y-5">
                     <!-- Mục tiêu nghề nghiệp -->
-                    <div v-if="section.id === 'summary'" class="text-[13px] leading-[1.75] text-gray-800 text-justify html-content paginated-item font-normal" v-html="resumeData.general.summary || 'Chưa có thông tin mục tiêu nghề nghiệp.'"></div>
+                    <div v-if="section.id.toLowerCase().includes('summary')" class="text-gray-800 text-justify html-content paginated-item font-medium" style="font-size: 12.5px !important;" v-html="resumeData.general.summary || 'Chưa có thông tin mục tiêu nghề nghiệp.'"></div>
 
                     <!-- Kinh nghiệm / Hoạt động / Dự án -->
-                    <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-5">
+                    <div v-else-if="section.id.toLowerCase().includes('experience') || section.id.toLowerCase().includes('project') || section.id.toLowerCase().includes('activit')" class="space-y-5">
                         <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
                             <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -229,52 +202,41 @@
 
                             <!-- Role + Time trên cùng hàng, bold -->
                             <div class="flex justify-between items-baseline gap-2 mb-0.5">
-                                <span class="font-bold text-[14px] text-gray-900 leading-tight">{{ section.id === 'experience' ? item.role : (item.role || item.name) }}</span>
-                                <span class="text-[13px] font-semibold text-gray-800 whitespace-nowrap flex-shrink-0">{{ item.time }}</span>
+                                <span class="font-bold text-gray-900 leading-tight uppercase" style="font-size: 13.5px !important;">{{ section.id.toLowerCase().includes('experience') ? item.role : (item.role || item.name) }}</span>
+                                <span class="font-bold text-gray-800 whitespace-nowrap flex-shrink-0" style="font-size: 12.5px !important;">{{ item.time }}</span>
                             </div>
-                            <!-- Company name, italic gray nhẹ -->
-                            <div class="text-[13px] text-gray-500 italic mb-1.5" v-if="section.id === 'experience' ? item.company : (item.company || '')">
-                                {{ section.id === 'experience' ? item.company : (item.company || '') }}
+                            <!-- Company name -->
+                            <div class="text-gray-600 font-bold mb-1.5" v-if="section.id.toLowerCase().includes('experience') ? item.company : (item.company || '')" style="font-size: 13px !important;">
+                                {{ section.id.toLowerCase().includes('experience') ? item.company : (item.company || '') }}
                             </div>
                             <!-- Mô tả với bullet points -->
-                            <div class="text-[13px] leading-[1.65] text-gray-800 text-justify html-content font-normal" v-html="formatDesc(item.desc)"></div>
+                            <div class="leading-[1.65] text-gray-800 text-justify html-content font-medium" style="font-size: 12.5px !important;" v-html="formatDesc(item.desc)"></div>
                         </div>
                     </div>
 
                     <!-- Học Vấn (nếu ở Main) -->
-                    <div v-else-if="section.id === 'education'" class="space-y-4">
+                    <div v-else-if="section.id.toLowerCase().includes('education')" class="space-y-4">
                         <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
                             <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                             <div class="flex justify-between items-baseline gap-2 mb-0.5">
-                                <span class="font-bold text-[14px] text-gray-900">{{ item.school }}</span>
-                                <span class="text-[13px] font-semibold text-gray-800 whitespace-nowrap flex-shrink-0">{{ item.year }}</span>
+                                <span class="font-bold text-gray-900" style="font-size: 14px !important;">{{ item.school }}</span>
+                                <span class="font-bold text-gray-700 whitespace-nowrap flex-shrink-0" style="font-size: 12.5px !important;">{{ item.year }}</span>
                             </div>
-                            <div class="font-medium text-[13px] text-gray-600 mb-1" v-if="item.major">{{ item.major }}</div>
-                            <div class="text-[13px] text-gray-700 font-normal">
+                            <div class="font-bold text-gray-800 mb-1" v-if="item.major" style="font-size: 12.5px !important;">{{ item.major }}</div>
+                            <div class="text-gray-700 font-medium" style="font-size: 12.5px !important;">
                                 <span v-if="item.gradType">{{ item.gradType }}</span>
                             </div>
-                            <div v-if="item.desc" class="text-[13px] leading-[1.65] text-gray-800 text-justify font-normal html-content mt-1" v-html="formatDesc(item.desc)"></div>
+                            <div v-if="item.desc" class="leading-[1.65] text-gray-800 text-justify font-medium html-content mt-1" style="font-size: 12.5px !important;" v-html="formatDesc(item.desc)"></div>
                         </div>
                     </div>
 
                     <!-- Danh hiệu / Giải thưởng (Main) - năm + tên inline -->
-                    <div v-else-if="section.id === 'awards'" class="space-y-2.5">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item flex gap-4 items-baseline">
-                            <div class="font-bold text-[13px] text-gray-900 w-[42px] flex-shrink-0">{{ item.year }}</div>
-                            <div class="flex-1 text-[13px] text-gray-800 font-normal leading-[1.6]" v-html="formatDesc(item.name || item.desc)"></div>
-                            <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
-                                <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Chứng chỉ (Main) - năm + tên inline -->
-                    <div v-else-if="section.id === 'certifications'" class="space-y-2.5">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item flex gap-4 items-baseline">
-                            <div class="font-bold text-[13px] text-gray-900 w-[42px] flex-shrink-0">{{ item.year }}</div>
-                            <div class="flex-1 text-[13px] text-gray-800 font-normal leading-[1.6]" v-html="formatDesc(item.name || item.desc)"></div>
+                    <div v-else-if="section.id.toLowerCase().includes('award') || section.id.toLowerCase().includes('cert')" class="space-y-3">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item flex gap-6 items-baseline">
+                            <div class="font-bold text-gray-900 w-[42px] flex-shrink-0" style="font-size: 12.5px !important;">{{ item.year }}</div>
+                            <div class="flex-1 text-gray-800 font-medium leading-[1.6]" style="font-size: 12.5px !important;" v-html="formatDesc(item.name || item.desc)"></div>
                             <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
@@ -283,7 +245,7 @@
 
                     <!-- Default Main -->
                     <div v-else class="space-y-4">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item text-[13px] leading-[1.65] text-gray-800 font-normal html-content">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item text-gray-800 font-medium html-content" style="font-size: 12.5px !important;">
                              <div v-html="formatDesc(item.desc || item.name || item.info)"></div>
                              <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -455,11 +417,32 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id));
 const mainIds = computed(() => mainSections.value.map(s => s.id));
 
 const sidebarSections = computed(() => {
-    return props.resumeData.sections.filter(s => s.column === 'left');
+    const activeSidebarIds = ['education', 'skills'];
+    const forbiddenIds = ['it_skills', 'technical_skills', 'languages', 'lang'];
+    
+    return props.resumeData.sections
+        .filter(s => {
+            const id = s.id.toLowerCase();
+            return s.column === 'left' && 
+                   activeSidebarIds.some(activeId => id.includes(activeId)) &&
+                   !forbiddenIds.some(forbiddenId => id.includes(forbiddenId));
+        })
+        .sort((a, b) => {
+            const idxA = activeSidebarIds.findIndex(id => a.id.toLowerCase().includes(id));
+            const idxB = activeSidebarIds.findIndex(id => b.id.toLowerCase().includes(id));
+            return idxA - idxB;
+        });
 });
 
 const mainSections = computed(() => {
-    return props.resumeData.sections.filter(s => s.column === 'right');
+    const activeMainIds = ['summary', 'objective', 'experience', 'award', 'cert', 'activit', 'project'];
+    return props.resumeData.sections
+        .filter(s => activeMainIds.some(id => s.id.toLowerCase().includes(id)))
+        .sort((a, b) => {
+            const idxA = activeMainIds.findIndex(id => a.id.toLowerCase().includes(id));
+            const idxB = activeMainIds.findIndex(id => b.id.toLowerCase().includes(id));
+            return idxA - idxB;
+        });
 });
 
 const formatDesc = (text) => {
@@ -498,14 +481,14 @@ const formatDesc = (text) => {
 }
 
 /* -- HTML CONTENT STYLING (Main) -- */
+:deep(.html-content), :deep(.html-content *) {
+    font-size: 12.5px !important;
+    line-height: 1.6 !important;
+    font-weight: 800 !important;
+    color: #6a2a31 !important;
+}
 :deep(.html-content ul) {
     list-style-type: disc !important;
-    padding-left: 1.25rem !important;
-    margin-top: 0.2rem;
-    margin-bottom: 0.2rem;
-}
-:deep(.html-content ol) {
-    list-style-type: decimal !important;
     padding-left: 1.25rem !important;
     margin-top: 0.2rem;
     margin-bottom: 0.2rem;
@@ -513,32 +496,33 @@ const formatDesc = (text) => {
 :deep(.html-content li) {
     margin-bottom: 0.25rem;
 }
-:deep(.html-content b), :deep(.html-content strong) { font-weight: 700; color: #111827; }
-:deep(.html-content h4) { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: #111827; }
-:deep(.html-content i), :deep(.html-content em) { font-style: italic; }
-:deep(.html-content u) { text-decoration: underline; }
-
-/* Dynamic list marker scaling */
-:deep(.html-content li:has(> font[size="1"])) { font-size: 10px; }
-:deep(.html-content li:has(> font[size="2"])) { font-size: 13px; }
-:deep(.html-content li:has(> font[size="3"])) { font-size: 16px; }
+:deep(.html-content b), :deep(.html-content strong) { font-weight: 900 !important; color: #4a1a1f !important; }
+:deep(.html-content h4) { font-weight: 900 !important; font-size: 13.5px !important; margin-bottom: 4px; color: #4a1a1f !important; }
 
 /* Sidebar styling overrides */
-:deep(.sidebar-html-content p),
-:deep(.sidebar-html-content span),
-:deep(.sidebar-html-content li),
-:deep(.sidebar-html-content div) {
-    color: inherit;
+:deep(.sidebar-html-content), :deep(.sidebar-html-content *) {
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    font-weight: 800 !important;
+    color: #6a2a31 !important;
 }
 :deep(.sidebar-html-content b), :deep(.sidebar-html-content strong) {
-    color: #111827;
-    font-weight: 700;
+    color: #4a1a1f !important;
+    font-weight: 900 !important;
 }
-:deep(.sidebar-html-content ul) {
-    list-style-type: disc !important;
-    padding-left: 1rem !important;
-    margin-top: 0.15rem;
-    margin-bottom: 0.15rem;
+
+/* Global bold and color for all text elements */
+:deep(span), :deep(div), :deep(p), :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(li) {
+    font-weight: 800 !important;
+}
+
+.text-gray-800, .text-gray-700, .text-gray-600, .text-gray-900 {
+    color: #6a2a31 !important;
+}
+
+h3 {
+    color: #6a2a31 !important;
+    font-weight: 800 !important;
 }
 
 /* -- ITEM CONTAINERS -- */
