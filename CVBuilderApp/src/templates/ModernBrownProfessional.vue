@@ -66,7 +66,7 @@
             <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
               <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
               <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
             </div>
 
             <h3 class="w-full block" :style="{ fontSize: '16px !important', color: '#333', borderBottom: '1px solid #c9beae', paddingBottom: '5px !important', margin: '0 0 10px 0 !important', fontWeight: 'bold !important' }">
@@ -74,17 +74,34 @@
             </h3>
             
             <div class="w-full flex flex-col gap-[10px]">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative w-full text-[#444]" :style="{ fontSize: '12px !important', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container group relative w-full text-[#444]" :style="{ fontSize: '12px !important', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }">
                 
-                <div v-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="flex flex-col">
+                <!-- Hiển thị Kỹ năng với Icon Ngôi sao -->
+                <div v-if="section.id === 'skills'" class="flex items-start gap-[8px]">
+                  <svg class="mt-[4px] shrink-0 text-[#634c46] opacity-70" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+                  <div class="font-medium text-[#333] w-full break-words">{{ item.name }}</div>
+                </div>
+
+                <!-- Hiển thị Học vấn hoặc Kinh nghiệm khi ở Sidebar -->
+                <div v-else-if="section.id === 'education' || section.id === 'experience'" class="w-full">
+                  <div class="w-full flex justify-between items-start mb-[2px]">
+                    <span class="font-bold text-[#333] leading-tight flex-1" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
+                    <span v-if="item.year || item.time" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold">{{ item.year || item.time }}</span>
+                  </div>
+                  <div v-if="item.major || item.role" class="font-bold text-[#444] mb-[2px]">{{ item.major || item.role }}</div>
+                  <div v-if="item.desc" class="html-content text-justify whitespace-pre-line text-[#555] text-[11px]" v-html="formatDesc(item.desc)"></div>
+                </div>
+
+                <div v-else-if="section.id === 'languages' || section.id === 'it_skills'" class="flex flex-col">
                   <div class="font-bold text-[#333] w-full break-words" :style="{ margin: '0 !important' }">{{ item.name }}</div>
                   <div v-if="item.info || item.level" class="w-full break-words mt-[2px]" :style="{ margin: '0 !important' }">{{ item.info || item.level }}</div>
                 </div>
 
                 <div v-else class="html-content break-words whitespace-pre-line text-justify w-full" :style="{ margin: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info || item.school || item.company)"></div>
 
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 top-0">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                <!-- Nút xóa chuẩn hóa -->
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 absolute right-0 top-0 w-[18px] h-[18px]">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
             </div>
@@ -98,7 +115,7 @@
       <header class="paginated-item w-full flex flex-col relative" :style="{ backgroundColor: '#634c46', color: 'white', padding: '40px 35px' }">
         <h1 class="text-white break-words w-full" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '36px !important', textTransform: 'capitalize', fontWeight: '800 !important', letterSpacing: '1px', lineHeight: '1.1' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Họ Và Tên Ứng Viên'"></h1>
         
-        <h2 class="text-white break-words w-full uppercase" :style="{ margin: '5px 0 15px 0 !important', padding: '0 0 10px 0 !important', fontSize: '16px !important', fontWeight: 'normal !important', borderBottom: '1px solid rgba(255,255,255,0.3)' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
+        <h2 class="text-white break-words w-full uppercase" :style="{ margin: '15px 0 15px 0 !important', padding: '0 0 10px 0 !important', fontSize: '20px !important', fontWeight: 'bold !important', borderBottom: '1px solid rgba(255,255,255,0.3)' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
         
         <div v-if="summarySection && summarySection.isVisible" class="relative group w-full" :class="{ 'section-selected': selectedSectionId === summarySection.id }" @click.stop="selectedSectionId = selectedSectionId === summarySection.id ? null : summarySection.id">
            <div class="html-content text-justify whitespace-pre-line w-full text-white" :style="{ fontSize: '12.5px !important', lineHeight: '1.6 !important', opacity: '0.9', margin: '0 !important', padding: '0 !important' }" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tôi là một ứng viên năng động, có tinh thần trách nhiệm cao và mong muốn đóng góp giá trị cho công ty...' "></div>
@@ -127,7 +144,7 @@
             </h3>
 
             <div class="w-full flex flex-col gap-[15px]">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative w-full text-[#333]" :style="{ margin: '0 !important', padding: '0 !important' }">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container group relative w-full text-[#333]" :style="{ margin: '0 !important', padding: '0 !important' }">
                 
                 <div v-if="section.id === 'education' || section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="w-full" :style="{ padding: '0 !important' }">
                   <div class="w-full flex justify-between items-start mb-[5px]">
@@ -147,8 +164,8 @@
                   <div class="html-content text-justify whitespace-pre-line break-words w-full text-[#444]" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
                 </div>
 
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 absolute right-[-15px] top-0 w-[18px] h-[18px]">
-                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 absolute right-0 top-0 w-[20px] h-[20px]">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
             </div>
@@ -276,11 +293,17 @@ watch(() => props.resumeData, () => {
 }, { deep: true });
 
 onMounted(() => {
-    const templateSpecificSections = ['education', 'experience', 'skills', 'certifications', 'awards', 'references'];
+    const activeSections = ['summary', 'experience', 'activities', 'skills', 'certifications', 'awards', 'education', 'references'];
     if (props.resumeData && props.resumeData.sections) {
         props.resumeData.sections.forEach(sec => {
-            if (templateSpecificSections.includes(sec.id) && !sec.isVisible) {
-                sec.isVisible = true;
+            // Chỉ hiện các mục có trong ảnh mẫu
+            sec.isVisible = activeSections.includes(sec.id);
+            
+            // Cố định cột cho các mục theo đúng thiết kế ảnh mẫu
+            if (['skills', 'certifications', 'awards', 'education', 'references'].includes(sec.id)) {
+                sec.column = 'left';
+            } else if (['experience', 'activities', 'project'].includes(sec.id)) {
+                sec.column = 'right';
             }
         });
     }
@@ -387,8 +410,8 @@ const formatDesc = (text) => {
 }
 
 .delete-btn {
-    opacity: 0;
-    transition: all 0.2s;
+    opacity: 0 !important;
+    transition: all 0.2s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -396,7 +419,7 @@ const formatDesc = (text) => {
 }
 
 .item-container:hover .delete-btn {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 /* === HTML CONTENT SUPPORT === */
