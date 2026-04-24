@@ -579,7 +579,8 @@ main .item-container:hover {
 
 /* Main: padding + dải phân cách dưới */
 .section-block-main {
-    padding: 4px 4px 16px 4px;
+    padding: 4px 15px 16px 10px;
+    margin-right: 35px;
     margin-bottom: 14px;
     border-radius: 0;
 }
