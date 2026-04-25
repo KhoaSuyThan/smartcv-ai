@@ -19,7 +19,7 @@
             v-show="section.isVisible"
             class="section-block relative paginated-item group w-full mb-[20px]"
             :class="{ 'section-selected': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--sel-color': '#8b7355' } : { marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }"
+            :style="{ '--sel-color': '#8b7355', marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }"
             @mouseenter="showNav(section.id)"
             @mouseleave="hideNav()"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
@@ -27,7 +27,7 @@
             <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
               <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
               <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải (Cột phụ)"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải (Cột phụ)"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
             </div>
 
             <h1 class="uppercase w-full block" :style="{ fontSize: '17px !important', color: '#8b7355', paddingBottom: '8px !important', margin: '20px 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: '800 !important', letterSpacing: '1px' }">
@@ -55,7 +55,7 @@
                   <div class="html-content text-justify whitespace-pre-line break-words w-full" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '14px', lineHeight: '1.7' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
                 </div>
 
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 absolute right-[-20px] top-0 w-[18px] h-[18px]">
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 absolute right-[20px] top-[5px] w-[18px] h-[18px]">
                   <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -113,7 +113,7 @@
                   <div class="font-bold opacity-90 text-[11px] mt-[2px]" v-if="item.year || item.time">{{ item.year || item.time }}</div>
                   <div v-if="item.desc" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[5px]" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc)"></div>
                 </div>
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-5px] top-0">
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-[20px] top-[5px] w-[18px] h-[18px]">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -184,7 +184,7 @@
                   <div v-if="item.desc" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[5px]" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc)"></div>
                 </div>
 
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-5px] top-0">
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-[20px] top-[5px] w-[18px] h-[18px]">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -499,15 +499,15 @@ const formatDesc = (text) => {
 }
 
 .section-selected {
-    outline: 1.5px dashed var(--sel-color, #8b7355);
-    outline-offset: 1mm;
+    border-color: var(--sel-color, #8b7355) !important;
+    border-style: solid !important;
 }
 
 /* === NAV BUTTONS === */
 .nav-btns {
     position: absolute;
-    right: 0;
-    top: -25px;
+    right: 10px;
+    top: 10px;
     display: flex;
     flex-direction: row;
     gap: 5px;
@@ -528,7 +528,7 @@ const formatDesc = (text) => {
     transition: all 0.15s ease;
 }
 
-.nav-btn:hover { background: #1d4ed8; transform: scale(1.1); }
+.nav-btn:hover { background: #1d4ed8; }
 .nav-btn:active { transform: scale(0.95); }
 
 @media print {
