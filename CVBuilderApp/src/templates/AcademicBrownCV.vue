@@ -1,14 +1,17 @@
 <template>
-  <div id="cv-printable-area" ref="cvRoot" class="flex flex-row relative box-border overflow-hidden" :style="{ width: '210mm', height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Segoe UI\', Roboto, Helvetica, Arial, sans-serif', backgroundColor: '#fdf5e6' }">
+  <div id="cv-printable-area" ref="cvRoot" class="flex flex-row relative box-border overflow-hidden" :style="{ width: '210mm', height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Segoe UI\', Roboto, Helvetica, Arial, sans-serif', backgroundColor: '#f3ebdd !important' }">
     
-    <main class="flex-[6] flex flex-col relative z-20 overflow-hidden box-border pt-[40px] pb-[50px]" @click.self="selectedSectionId = null">
+    <main class="flex-[6] flex flex-col relative z-20 overflow-hidden box-border pt-[40px] pb-[50px]" :style="{ backgroundColor: '#f3ebdd !important' }" @click.self="selectedSectionId = null">
       
-      <header class="paginated-item w-full flex flex-col relative" :style="{ borderBottom: '3px solid #8b7355', paddingBottom: '15px', marginBottom: '30px', marginLeft: '20px !important',paddingTop: '25px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
+      <header class="paginated-item w-full flex flex-col relative" :style="{ paddingBottom: '65px', marginBottom: '0', marginLeft: '20px !important', paddingTop: '75px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
         
-        <h1 class="uppercase break-words w-full m-0" :style="{ fontSize: '46px !important', fontWeight: '800 !important', color: '#5d4e46', lineHeight: '1.2', marginTop: '0 !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
+        <h1 class="uppercase break-words w-full m-0" :style="{ fontSize: '56px !important', fontWeight: '800 !important', color: '#5d4e46', lineHeight: '1.1', marginTop: '0 !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
         
-        <p class="uppercase break-words w-full m-0" :style="{ fontSize: '20px !important', letterSpacing: '2px', color: '#8b7355', marginTop: '8px !important', fontWeight: 'bold !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></p>
+        <p class="uppercase break-words w-full m-0" :style="{ fontSize: '22px !important', letterSpacing: '2px', color: '#8b7355', marginTop: '10px !important', fontWeight: '600 !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></p>
       </header>
+
+      <!-- Thanh ngang 10px -->
+      <div class="paginated-item w-full" :style="{ height: '10px', backgroundColor: '#5d4e46', marginBottom: '40px', width: '100%' }"></div>
 
       <div class="w-full flex flex-col flex-1 m-0 p-0">
         <template v-for="section in mainSections" :key="section.id">
@@ -27,7 +30,7 @@
               <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải (Cột phụ)"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
             </div>
 
-            <h1 class="uppercase w-full block" :style="{ fontSize: '17px !important', color: '#8b7355', borderBottom: '2px solid #d4c5b4', paddingBottom: '8px !important', margin: '20px 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: '800 !important', letterSpacing: '1px' }">
+            <h1 class="uppercase w-full block" :style="{ fontSize: '17px !important', color: '#8b7355', paddingBottom: '8px !important', margin: '20px 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: '800 !important', letterSpacing: '1px' }">
               {{ section.title }}
             </h1>
 
@@ -62,7 +65,7 @@
       </div>
     </main>
 
-    <aside class="z-10 flex flex-col shrink-0 relative box-border text-white" :style="{ width: '40%', backgroundColor: '#5d4e46', padding: '40px 30px 50px 30px' }">
+    <aside class="z-10 flex flex-col shrink-0 relative box-border text-white" :style="{ width: '38%', backgroundColor: '#5d4e46', padding: '40px 30px', margin: '20px 0 !important', height: 'calc(100% - 40px) !important', alignSelf: 'flex-start' }">
       
       <div class="paginated-item relative z-20 w-full flex flex-col items-center mb-[40px]">
         <div class="relative rounded-full overflow-hidden mx-auto" :style="{ width: '180px', height: '180px', border: '8px solid rgba(255,255,255,0.1)' }">
@@ -73,43 +76,16 @@
         </div>
       </div>
 
-      <div class="paginated-item w-full mb-[35px]">
-        <h1 class="uppercase block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', borderBottom: '1px solid rgba(253, 245, 230, 0.3)', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
-          THÔNG TIN LIÊN HỆ
-        </h1>
-        <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '13px !important', lineHeight: '1.6', color: '#e8e8e8' }">
-          <li v-if="!isEmpty(resumeData.general.phone)" class="flex items-start relative break-words w-full">
-            <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Di động:</strong> 
-            <span v-html="resumeData.general.phone"></span>
-          </li>
-          <li v-if="!isEmpty(resumeData.general.email)" class="flex items-start relative break-words w-full">
-            <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Email:</strong> 
-            <span v-html="resumeData.general.email"></span>
-          </li>
-          <li v-if="!isEmpty(resumeData.general.address)" class="flex items-start relative break-words w-full">
-            <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Địa chỉ:</strong> 
-            <span v-html="resumeData.general.address"></span>
-          </li>
-          <li v-if="!isEmpty(resumeData.general.dob)" class="flex items-start relative break-words w-full">
-            <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Ngày sinh:</strong> 
-            <span v-html="resumeData.general.dob"></span>
-          </li>
-          <li v-if="!isEmpty(resumeData.general.github) || !isEmpty(resumeData.general.website) || !isEmpty(resumeData.general.linkedin)" class="flex items-start relative break-words w-full">
-            <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Web:</strong> 
-            <span v-html="!isEmpty(resumeData.general.github) ? resumeData.general.github : (!isEmpty(resumeData.general.linkedin) ? resumeData.general.linkedin : resumeData.general.website)"></span>
-          </li>
-        </ul>
-      </div>
-
       <div v-if="summarySection && summarySection.isVisible" class="paginated-item relative group w-full mb-[35px]" :class="{ 'section-selected': selectedSectionId === summarySection.id }" @click.stop="selectedSectionId = selectedSectionId === summarySection.id ? null : summarySection.id">
-        <h1 class="uppercase block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', borderBottom: '1px solid rgba(253, 245, 230, 0.3)', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
-          {{ summarySection.title || 'MỤC TIÊU LÀM VIỆC' }}
+        <h1 class="uppercase block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
+          {{ summarySection.title || 'TÓM TẮT CHUYÊN MÔN' }}
         </h1>
         <div class="html-content-sidebar text-justify whitespace-pre-line w-full text-[#e8e8e8]" :style="{ fontSize: '13px !important', lineHeight: '1.6 !important', margin: '0 !important' }" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tôi là một ứng viên năng động, mong muốn...' "></div>
       </div>
 
       <div class="w-full flex-1 flex flex-col m-0 p-0">
-        <template v-for="section in sidebarSections" :key="section.id">
+        <!-- Render Awards Section if in sidebar -->
+        <template v-for="section in sidebarSections.filter(s => s.id === 'awards')" :key="section.id">
           <div
             v-show="section.isVisible"
             class="section-block relative paginated-item group w-full mb-[35px]"
@@ -125,7 +101,69 @@
               <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái (Cột chính)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
             </div>
 
-            <h1 class="uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', borderBottom: '1px solid rgba(253, 245, 230, 0.3)', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
+            <h1 class="uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
+              {{ section.title }}
+            </h1>
+            
+            <div class="w-full flex flex-col gap-[15px]">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative w-full text-[#e8e8e8]" :style="{ fontSize: '13px !important', margin: '0 !important', padding: '0 !important' }">
+                <div class="w-full flex flex-col">
+                  <span class="font-bold w-full break-words leading-tight text-[#fdf5e6]" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
+                  <div class="italic opacity-90 mt-[2px] text-[12px]" v-if="item.major || item.role">{{ item.major || item.role }}</div>
+                  <div class="font-bold opacity-90 text-[11px] mt-[2px]" v-if="item.year || item.time">{{ item.year || item.time }}</div>
+                  <div v-if="item.desc" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[5px]" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc)"></div>
+                </div>
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-5px] top-0">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Render Contact Info -->
+        <div class="paginated-item w-full mb-[35px]">
+          <h1 class="uppercase block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
+            THÔNG TIN LIÊN HỆ
+          </h1>
+          <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '13px !important', lineHeight: '1.6', color: '#e8e8e8' }">
+            <li v-if="!isEmpty(resumeData.general.phone)" class="flex items-start relative break-words w-full">
+              <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Di động:</strong> 
+              <span v-html="resumeData.general.phone"></span>
+            </li>
+            <li v-if="!isEmpty(resumeData.general.email)" class="flex items-start relative break-words w-full">
+              <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Email:</strong> 
+              <span v-html="resumeData.general.email"></span>
+            </li>
+            <li v-if="!isEmpty(resumeData.general.website) || !isEmpty(resumeData.general.linkedin) || !isEmpty(resumeData.general.github)" class="flex items-start relative break-words w-full">
+              <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Trang web:</strong> 
+              <span v-html="!isEmpty(resumeData.general.website) ? resumeData.general.website : (!isEmpty(resumeData.general.linkedin) ? resumeData.general.linkedin : resumeData.general.github)"></span>
+            </li>
+            <li v-if="!isEmpty(resumeData.general.address)" class="flex items-start relative break-words w-full">
+              <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Địa chỉ:</strong> 
+              <span v-html="resumeData.general.address"></span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Render remaining sidebar sections (including Skills) -->
+        <template v-for="section in sidebarSections.filter(s => s.id !== 'awards')" :key="section.id">
+          <div
+            v-show="section.isVisible"
+            class="section-block relative paginated-item group w-full mb-[35px]"
+            :class="{ 'section-selected': selectedSectionId === section.id }"
+            :style="selectedSectionId === section.id ? { '--sel-color': 'white' } : {}"
+            @mouseenter="showNav(section.id)"
+            @mouseleave="hideNav()"
+            @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
+          >
+            <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
+              <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái (Cột chính)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+            </div>
+
+            <h1 class="uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
               {{ section.title }}
             </h1>
             
@@ -134,10 +172,7 @@
                 
                 <div v-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="flex flex-col skill-group-extra mt-[5px]">
                   <div class="extra-label w-full uppercase" :style="{ fontSize: '12px !important', fontWeight: 'bold !important', color: '#fdf5e6', marginBottom: '5px' }">
-                     <span v-if="section.id === 'it_skills'">💻 </span>
-                     <span v-else-if="section.id === 'languages'">🌍 </span>
-                     <span v-else>🎨 </span>
-                     {{ item.name }}
+                     🎨 {{ item.name }}
                   </div>
                   <div v-if="item.info || item.level" class="extra-content w-full break-words whitespace-pre-line" :style="{ fontSize: '12px !important', color: '#ddd', lineHeight: '1.4', paddingLeft: '5px' }">{{ item.info || item.level }}</div>
                 </div>
@@ -270,13 +305,28 @@ watch(() => props.resumeData, () => {
 }, { deep: true });
 
 onMounted(() => {
-    const templateSpecificSections = ['education', 'experience', 'skills', 'languages', 'awards'];
+    const activeMain = ['experience', 'education'];
+    const activeSidebar = ['awards', 'skills'];
+    const hideSections = ['project', 'activities', 'languages', 'it_skills'];
+    
     if (props.resumeData && props.resumeData.sections) {
         props.resumeData.sections.forEach(sec => {
-            if (templateSpecificSections.includes(sec.id) && !sec.isVisible) {
+            if (activeMain.includes(sec.id)) {
                 sec.isVisible = true;
+                sec.column = 'left';
+            } else if (activeSidebar.includes(sec.id)) {
+                sec.isVisible = true;
+                sec.column = 'right';
+            } else if (hideSections.includes(sec.id)) {
+                sec.isVisible = false;
             }
         });
+        
+        const summary = props.resumeData.sections.find(s => s.id === 'summary');
+        if (summary) {
+            summary.isVisible = true;
+            summary.column = 'right';
+        }
     }
 
     requestPagination();
@@ -326,8 +376,34 @@ const summarySection = computed(() => props.resumeData.sections.find(s => s.id =
 // Cột trái là Main Column (Học vấn, Kinh nghiệm) -> s.column === 'left' (hoặc map với right nếu data gốc ngược)
 // Cột phải là Sidebar Column (Avatar, Skill, Contact) -> s.column === 'right'
 // Để đảm bảo data render đúng nếu User đã nhập dữ liệu, ta cần map linh hoạt:
-const mainSections = computed(() => props.resumeData.sections.filter(s => s.column === 'left' && s.id !== 'summary'));
-const sidebarSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right' && s.id !== 'summary'));
+const mainSections = computed(() => {
+    const order = ['experience', 'education'];
+    return props.resumeData.sections
+        .filter(s => s.column === 'left' && s.id !== 'summary')
+        .sort((a, b) => {
+            const indexA = order.indexOf(a.id);
+            const indexB = order.indexOf(b.id);
+            if (indexA === -1 && indexB === -1) return 0;
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+});
+
+const sidebarSections = computed(() => {
+    // Sắp xếp các mục sidebar theo thứ tự: awards -> skills
+    const order = ['awards', 'skills'];
+    return props.resumeData.sections
+        .filter(s => s.column === 'right' && s.id !== 'summary')
+        .sort((a, b) => {
+            const indexA = order.indexOf(a.id);
+            const indexB = order.indexOf(b.id);
+            if (indexA === -1 && indexB === -1) return 0;
+            if (indexA === -1) return 1;
+            if (indexB === -1) return -1;
+            return indexA - indexB;
+        });
+});
 
 const mainIds = computed(() => mainSections.value.map(s => s.id));
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id));
