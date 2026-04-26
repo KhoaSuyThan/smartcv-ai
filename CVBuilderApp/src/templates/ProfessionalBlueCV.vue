@@ -13,7 +13,7 @@
       </div>
 
       <div class="paginated-item w-full mb-[15px]">
-        <h3 class="uppercase block" :style="{ fontSize: '16px !important', fontWeight: 'bold !important', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '8px !important', margin: '0 0 15px 0 !important', letterSpacing: '1px' }">
+        <h3 class="uppercase block" :style="{ fontSize: '16px !important', fontWeight: 'bold !important', paddingBottom: '8px !important', margin: '0 0 15px 0 !important', letterSpacing: '1px' }">
           LIÊN HỆ VỚI TÔI
         </h3>
         <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '13px !important', lineHeight: '1.4' }">
@@ -66,13 +66,16 @@
             @mouseleave="hideNav()"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
-            <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
-              <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
+            <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" :style="{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', position: 'absolute', right: '10px', top: '10px', zIndex: '9999' }" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
+              <div :style="{ display: 'flex', flexDirection: 'row', gap: '8px' }">
+                <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
+              </div>
+              <button @click.stop.prevent="section.isVisible = false" class="nav-btn" :style="{ backgroundColor: '#ef4444 !important' }" title="Ẩn phần này"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
 
-            <h3 class="uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: 'bold !important', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '8px !important', margin: '30px 0 15px 0 !important', letterSpacing: '1px' }">
+            <h3 class="uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: 'bold !important', paddingBottom: '8px !important', margin: '30px 0 15px 0 !important', letterSpacing: '1px' }">
               {{ section.title }}
             </h3>
             
@@ -91,7 +94,7 @@
                   <div v-if="item.desc" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[5px]" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc)"></div>
                 </div>
 
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity absolute right-[-5px] top-0">
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 opacity-0 group-hover:opacity-100 transition-opacity">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -103,15 +106,25 @@
 
 <main class="flex-1 flex flex-col relative bg-[#ffffff] z-20 overflow-hidden box-border pt-[30px] pb-[50px]" @click.self="selectedSectionId = null">
       
-      <header class="paginated-item w-full flex flex-col relative" :style="{ borderBottom: `3px solid ${templatePrimaryColor}`, paddingBottom: '15px', marginBottom: '30px', marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
+      <header class="paginated-item w-full flex flex-col relative" :style="{ paddingBottom: '15px', marginBottom: '50px', marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
         
-        <h1 class="uppercase break-words w-full m-0" :style="{ fontSize: '48px !important', fontWeight: '800 !important', color: templatePrimaryColor, lineHeight: '1.2', marginTop: '10px !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
+        <h1 class="uppercase break-words w-full m-0" :style="{ fontSize: '48px !important', fontWeight: '800 !important', color: templatePrimaryColor, lineHeight: '1.2', marginTop: '60px !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
         
-        <h2 class="uppercase break-words w-full m-0" :style="{ fontSize: '20px !important', letterSpacing: '3px', fontWeight: 'bold', color: templateAccentColor, marginTop: '8px !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
+        <div class="h-[2px] w-[60px] ml-[20px] my-[15px] bg-[#eee]"></div>
+
+        <h2 class="uppercase break-words w-full m-0" :style="{ fontSize: '20px !important', letterSpacing: '3px', fontWeight: 'bold', color: templateAccentColor, marginTop: '0 !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
       </header>
 
-      <div v-if="summarySection && summarySection.isVisible" class="paginated-item relative group w-full mb-[20px]" :class="{ 'section-selected': selectedSectionId === summarySection.id }" @click.stop="selectedSectionId = selectedSectionId === summarySection.id ? null : summarySection.id" :style="{ marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
-        
+      <div v-if="summarySection && summarySection.isVisible" class="section-block paginated-item relative group w-full mb-[20px]" :class="{ 'section-selected': selectedSectionId === summarySection.id }" @click.stop="selectedSectionId = selectedSectionId === summarySection.id ? null : summarySection.id" :style="{ marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)', '--sel-color': selectedSectionId === summarySection.id ? templatePrimaryColor : 'transparent' }">
+        <div v-show="hoveredSectionId === summarySection.id || selectedSectionId === summarySection.id" class="nav-btns no-print" :style="{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', position: 'absolute', right: '10px', top: '10px', zIndex: '9999' }" @mouseenter="showNav(summarySection.id)" @mouseleave="hideNav()">
+          <div :style="{ display: 'flex', flexDirection: 'row', gap: '8px' }">
+            <button @click.stop.prevent="$emit('moveUp', summarySection.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+            <button @click.stop.prevent="$emit('moveDown', summarySection.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+            <button @click.stop.prevent="$emit('moveHorizontal', summarySection.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+          </div>
+          <button @click.stop.prevent="summarySection.isVisible = false" class="nav-btn" :style="{ backgroundColor: '#ef4444 !important' }" title="Ẩn phần này"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+
         <h3 class="uppercase w-full block" :style="{ fontSize: '16px !important', color: templateAccentColor, borderBottom: '2px solid #eee', paddingBottom: '8px !important', margin: '0 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: 'bold !important', letterSpacing: '2px' }">
           {{ summarySection.title || 'MỤC TIÊU NGHỀ NGHIỆP' }}
         </h3>
@@ -127,15 +140,18 @@
             v-show="section.isVisible"
             class="section-block relative paginated-item group w-full mb-[20px]"
             :class="{ 'section-selected': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--sel-color': templatePrimaryColor } : { marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }"
+            :style="{ marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)', '--sel-color': selectedSectionId === section.id ? templatePrimaryColor : 'transparent' }"
             @mouseenter="showNav(section.id)"
             @mouseleave="hideNav()"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
-            <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
-              <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+            <div v-show="hoveredSectionId === section.id || selectedSectionId === section.id" class="nav-btns no-print" :style="{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', position: 'absolute', right: '10px', top: '10px', zIndex: '9999' }" @mouseenter="showNav(section.id)" @mouseleave="hideNav()">
+              <div :style="{ display: 'flex', flexDirection: 'row', gap: '8px' }">
+                <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+              </div>
+              <button @click.stop.prevent="section.isVisible = false" class="nav-btn" :style="{ backgroundColor: '#ef4444 !important' }" title="Ẩn phần này"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
 
             <h3 class="uppercase w-full block" :style="{ fontSize: '16px !important', color: templateAccentColor, borderBottom: '2px solid #eee', paddingBottom: '8px !important', margin: '20px 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: 'bold !important', letterSpacing: '2px' }">
@@ -163,7 +179,7 @@
                   <div class="html-content text-justify whitespace-pre-line break-words w-full" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '14px', lineHeight: '1.8' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
                 </div>
 
-                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 absolute right-[-20px] top-0 w-[18px] h-[18px]">
+                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 w-[18px] h-[18px]">
                   <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -284,12 +300,10 @@ watch(() => props.resumeData, () => {
 }, { deep: true });
 
 onMounted(() => {
-    const templateSpecificSections = ['education', 'experience', 'skills', 'languages', 'awards'];
+    const activeIds = ['education', 'experience', 'skills', 'awards', 'summary'];
     if (props.resumeData && props.resumeData.sections) {
         props.resumeData.sections.forEach(sec => {
-            if (templateSpecificSections.includes(sec.id) && !sec.isVisible) {
-                sec.isVisible = true;
-            }
+            sec.isVisible = activeIds.includes(sec.id);
         });
     }
 
@@ -399,6 +413,9 @@ const formatDesc = (text) => {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 0;
 }
 
 .item-container:hover .delete-btn {
@@ -438,6 +455,7 @@ const formatDesc = (text) => {
     border: 2px solid transparent; 
     cursor: pointer;
     transition: all 0.15s ease;
+    border-radius: 6px;
 }
 
 .section-block:hover {
@@ -445,18 +463,17 @@ const formatDesc = (text) => {
 }
 
 .section-selected {
-    outline: 1.5px solid var(--sel-color, #32507d);
-    outline-offset: 1mm;
+    outline: 2px solid var(--sel-color, #32507d);
+    outline-offset: 4px;
+    border-radius: 6px;
 }
 
 /* === NAV BUTTONS === */
 .nav-btns {
     position: absolute;
-    right: -25px;
-    top: 0;
+    right: 10px;
+    top: 10px;
     display: flex;
-    flex-direction: column;
-    gap: 5px;
     z-index: 9999;
 }
 
