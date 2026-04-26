@@ -140,10 +140,40 @@
                             </div>
                         </div>
 
+                        <!-- Học vấn (nếu được chuyển sang sidebar) -->
+                        <div v-else-if="section.id === 'education'" class="space-y-4">
+                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
+                                <p class="font-bold text-slate-800">{{ item.school }}</p>
+                                <p class="text-[12px] text-slate-500 font-bold uppercase">{{ item.year }}</p>
+                                <p class="text-[13px] text-slate-700 italic">{{ item.major }}</p>
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
+                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Kinh nghiệm / Dự án (nếu được chuyển sang sidebar) -->
+                        <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-4">
+                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
+                                <p class="font-bold text-slate-800">{{ section.id === 'experience' ? item.company : (item.name || 'Dự án/Hoạt động') }}</p>
+                                <p class="text-[12px] text-slate-500 font-bold italic">{{ section.id === 'experience' ? item.role : (item.role || 'Thành viên') }}</p>
+                                <p class="text-[11px] text-slate-400 font-extrabold uppercase">{{ item.time }}</p>
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
+                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
                          <!-- Các mục mặc định cho Sidebar -->
                         <div v-else class="space-y-2">
-                           <div v-for="item in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 whitespace-pre-line font-medium leading-relaxed paginated-item">
-                               - {{ item.desc || item.name || item.info }}
+                           <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 whitespace-pre-line font-medium leading-relaxed paginated-item item-container">
+                                - {{ item.desc || item.name || item.info || item.school || 'Chưa có thông tin' }}
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
+                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
                            </div>
                         </div>
                     </div>
@@ -221,6 +251,19 @@
                                 </div>
                                 <div class="text-[13.5px] font-bold text-slate-700">Chuyên ngành: {{ item.major }}</div>
                                 <div v-if="item.gradType" class="text-[13px] text-slate-600">Xếp loại tốt nghiệp: <span class="font-bold underline">{{ item.gradType }}</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Kỹ năng / Chứng chỉ / Giải thưởng (nếu được chuyển sang Main) -->
+                        <div v-else class="space-y-4">
+                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
+                                <!-- Nút xóa item -->
+                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30 scale-125">
+                                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                                <p class="font-bold text-[15px] text-slate-800">{{ item.name || item.info }}</p>
+                                <p v-if="item.level || item.year" class="text-[13px] text-slate-500 italic">{{ item.level || item.year }}</p>
+                                <div v-if="item.desc" class="text-[13.5px] text-slate-700 mt-1 html-content" v-html="formatDesc(item.desc)"></div>
                             </div>
                         </div>
                     </div>
