@@ -1,5 +1,40 @@
 <template>
   <div class="w-full bg-slate-50 flex font-sans text-slate-800 cv-builder-container relative" style="height: 100%; overflow: hidden;">
+    
+    <!-- PANEL GỢI Ý HÀNH ĐỘNG (Đặt ở Root để đảm bảo luôn hiển thị) -->
+    <div v-if="showTips && !isPreviewMode" 
+         class="absolute left-[715px] top-24 w-72 z-[9999] bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-slate-200 overflow-hidden text-slate-800 transition-all duration-500"
+    >
+        <div class="bg-slate-900 px-4 py-2 flex items-center justify-between border-b border-white/10">
+            <div class="flex items-center gap-2">
+                <span class="text-amber-400 text-sm">✨</span>
+                <span class="text-[10px] font-black uppercase tracking-widest text-white">Gợi ý hoàn thiện</span>
+            </div>
+            <button @click.stop="showTips = false" class="w-6 h-6 flex items-center justify-center rounded-full bg-white/10 text-slate-400 hover:text-white transition-all">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        <div class="max-h-[400px] overflow-y-auto custom-scrollbar p-2 bg-white">
+            <div v-if="completionTips.length === 0" class="py-10 text-center px-4">
+                <div class="text-4xl mb-2">🏆</div>
+                <div class="text-[11px] font-black text-emerald-600 uppercase tracking-widest leading-relaxed text-center">Hoàn hảo!</div>
+            </div>
+            <div v-else class="space-y-1">
+                <button 
+                    v-for="tip in completionTips" 
+                    :key="tip.id"
+                    @click.stop="scrollToField(tip.targetId)"
+                    class="w-full text-left p-2.5 rounded-xl transition-all flex items-center gap-3 group border border-transparent hover:bg-slate-50 hover:border-slate-100"
+                >
+                    <div class="shrink-0 flex items-center justify-center w-5 h-5 rounded-lg border transition-colors" :class="tip.isDone ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-white border-slate-100 text-slate-400 group-hover:border-blue-100 group-hover:bg-blue-50 group-hover:text-blue-600'">
+                        <svg v-if="tip.isDone" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        <span v-else class="text-[10px] font-black italic">!</span>
+                    </div>
+                    <div class="text-[12px] font-bold text-slate-700 leading-tight group-hover:text-blue-700 transition-colors">{{ tip.label }}</div>
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- NÚT ẨN HIỆN SIDEBAR (GRIP HANDLE) -->
     <div 
         class="absolute top-7 z-40 flex items-center transition-all duration-500 ease-in-out" 
@@ -17,11 +52,11 @@
 
     <!-- CỘT TRÁI: EDITOR PANEL (STICKY) -->
     <div :class="[
-      'cv-builder-editor-panel bg-white border-r border-slate-200 shadow-[0_0_20px_rgba(0,0,0,0.05)] z-20 flex flex-col shrink-0 overflow-hidden transition-all duration-500 ease-in-out',
+      'cv-builder-editor-panel bg-white border-r border-slate-200 shadow-[0_0_20px_rgba(0,0,0,0.05)] z-20 flex flex-col shrink-0 transition-all duration-500 ease-in-out relative',
       isPreviewMode ? 'w-0 opacity-0 border-r-0' : 'w-[700px] opacity-100'
     ]" style="height: 100%;">
       <!-- HEADER -->
-      <div class="py-3 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative overflow-hidden px-4">
+      <div class="py-3 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative px-4">
         <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl"></div>
         <div class="flex flex-col gap-3">
             <!-- Trạng thái đồng bộ -->
@@ -34,18 +69,39 @@
             </div>
 
             <!-- Thanh tiến trình hoàn thiện CV -->
-            <div class="space-y-2">
+            <div class="space-y-2 relative group z-[100]">
                 <div class="flex items-center justify-between px-0.5">
-                    <span class="text-[13px] font-black uppercase tracking-widest text-blue-200">Độ hoàn thiện CV</span>
-                    <span class="text-[13px] font-black text-white bg-blue-600 px-3 py-1 rounded-full shadow-lg shadow-blue-500/20">{{ completionPercentage }}%</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[13px] font-black uppercase tracking-widest text-blue-200">Độ hoàn thiện CV</span>
+                    </div>
+                    <div class="flex items-center gap-2 relative z-[60]">
+                        <span class="text-[13px] font-black text-white bg-blue-600 px-3 py-1 rounded-full shadow-lg shadow-blue-500/20">{{ completionPercentage }}%</span>
+                        <!-- Nút Toggle Gợi ý mới (Bên phải %) -->
+                        <button 
+                            @click.stop="showTips = !showTips"
+                            class="w-7 h-7 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white border border-blue-400/30 transition-all shadow-lg cursor-pointer"
+                            :class="{ 'rotate-180 bg-slate-800': showTips }"
+                            style="pointer-events: auto;"
+                            title="Xem gợi ý hoàn thiện"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                            <span v-if="pendingTipsCount > 0 && !showTips" class="absolute -top-1 -right-1 flex h-3 w-3">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-slate-900"></span>
+                            </span>
+                        </button>
+                    </div>
                 </div>
-                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5 p-[2px]">
+                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5 p-[2px] cursor-pointer" @click="showTips = !showTips">
                     <div 
                         class="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.6)]"
                         :class="progressColorClass"
                         :style="{ width: `${completionPercentage}%` }"
                     ></div>
                 </div>
+
+                <!-- PANEL GỢI Ý HÀNH ĐỘNG (Bản Note bên phải Thông tin cá nhân) -->
+                <!-- Removed from here -->
             </div>
         </div>
       </div>
@@ -54,12 +110,13 @@
       <div class="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth custom-scrollbar bg-slate-50">
         
         <!-- THÔNG TIN CHUNG -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
+        <div id="field-general" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
+          
           <h2 class="text-xs uppercase font-bold text-slate-800 mb-4 tracking-wider flex items-center gap-2">Thông tin Cá nhân</h2>
           
           <!-- Avatar Upload -->
-          <div class="flex items-center gap-4 mb-6 bg-blue-50/50 p-4 rounded-xl border border-dashed border-blue-200 transition-all">
+          <div id="field-avatar" class="flex items-center gap-4 mb-6 bg-blue-50/50 p-4 rounded-xl border border-dashed border-blue-200 transition-all">
             <div class="relative w-16 h-16 rounded-full bg-white overflow-hidden border-2 border-blue-100 shadow-sm shrink-0 flex items-center justify-center">
                 <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
                 <div v-else class="w-full h-full flex items-center justify-center text-blue-300">
@@ -93,24 +150,24 @@
 
             <div class="space-y-4">
                 <div class="grid grid-cols-1 gap-4">
-                    <div class="flex flex-col gap-1.5">
+                    <div id="field-fullName" class="flex flex-col gap-1.5 transition-all duration-500">
                         <label class="text-[13px] font-bold text-slate-700 ml-1">Họ và tên</label>
                         <RichTextEditor v-model="resumeData.general.fullName" class="w-full text-sm py-2.5 px-3 border border-slate-200 bg-white rounded-lg focus-within:ring-2 focus-within:ring-blue-500 outline-none transition-all font-medium placeholder-slate-400 shadow-sm" placeholder="Nhập họ tên đầy đủ..." />
                     </div>
 
-                    <div class="flex flex-col gap-1.5">
+                    <div id="field-jobTitle" class="flex flex-col gap-1.5 transition-all duration-500">
                         <label class="text-[13px] font-bold text-slate-700 ml-1">Vị trí ứng tuyển</label>
                         <RichTextEditor v-model="resumeData.general.jobTitle" class="w-full text-sm py-2.5 px-3 border border-slate-200 bg-white rounded-lg focus-within:ring-2 focus-within:ring-blue-500 outline-none transition-all placeholder-slate-400 shadow-sm" placeholder="Ví dụ: Fullstack Developer..." />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
+                    <div id="field-phone" class="flex flex-col gap-1.5 transition-all duration-500">
                         <label class="text-[13px] font-bold text-slate-700 ml-1">Số điện thoại</label>
                         <RichTextEditor v-model="resumeData.general.phone" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="090..." />
                     </div>
 
-                    <div class="flex flex-col gap-1.5">
+                    <div id="field-email" class="flex flex-col gap-1.5 transition-all duration-500">
                         <label class="text-[13px] font-bold text-slate-700 ml-1">Email</label>
                         <RichTextEditor v-model="resumeData.general.email" class="w-full text-sm py-2 px-3 border border-slate-200 bg-white rounded-lg outline-none focus-within:ring-2 focus-within:ring-blue-500 placeholder-slate-400" placeholder="example@gmail.com" />
                     </div>
@@ -155,7 +212,7 @@
             animation="300"
           >
             <template #item="{ element: section, index: sectionIndex }">
-              <div class="bg-white border text-sm border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col relative overflow-hidden group focus-within:ring-2 ring-blue-100" :class="!section.isVisible ? 'opacity-60 bg-slate-50' : ''">
+              <div :id="'section-' + section.id" class="bg-white border text-sm border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col relative overflow-hidden group focus-within:ring-2 ring-blue-100" :class="!section.isVisible ? 'opacity-60 bg-slate-50' : ''">
                 
                 <!-- Section Header -->
                 <div class="flex items-center justify-between p-3.5 border-b border-slate-100 bg-slate-50/50">
@@ -810,6 +867,117 @@ const completionPercentage = computed(() => {
     if (totalPoints === 0) return 0;
     return Math.round((currentPoints / totalPoints) * 100);
 });
+
+const showTips = ref(false);
+watch(showTips, (val) => {
+    console.log('[CV Builder] showTips changed:', val);
+});
+
+const completionTips = computed(() => {
+    const data = resumeData.value;
+    const g = data.general;
+    const tips = [];
+
+    // Helper kiểm tra nội dung
+    const isEmpty = (val) => {
+        if (!val) return true;
+        const clean = val.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+        return clean === '' || clean === 'Nhập họ tên đầy đủ...' || clean === 'Vị trí ứng tuyển';
+    };
+
+    // 1. Ảnh đại diện
+    tips.push({
+        id: 'avatar',
+        label: 'Tải ảnh chân dung',
+        hint: 'Ảnh giúp nhà tuyển dụng tin tưởng bạn hơn 40%.',
+        isDone: !!g.avatarUrl,
+        targetId: 'field-avatar'
+    });
+
+    // 2. Họ tên
+    tips.push({
+        id: 'fullName',
+        label: 'Nhập họ và tên',
+        hint: 'Hãy ghi tên thật đầy đủ của bạn.',
+        isDone: !isEmpty(g.fullName),
+        targetId: 'field-fullName'
+    });
+
+    // 3. Vị trí
+    tips.push({
+        id: 'jobTitle',
+        label: 'Vị trí ứng tuyển',
+        hint: 'Ghi cụ thể vị trí (VD: Mobile Developer).',
+        isDone: !isEmpty(g.jobTitle),
+        targetId: 'field-jobTitle'
+    });
+
+    // 4. Liên hệ
+    tips.push({
+        id: 'contact',
+        label: 'Email & Số điện thoại',
+        hint: 'Để nhà tuyển dụng liên hệ với bạn.',
+        isDone: !isEmpty(g.email) && !isEmpty(g.phone),
+        targetId: 'field-email'
+    });
+
+    // 5. Mục tiêu
+    tips.push({
+        id: 'summary',
+        label: 'Viết mục tiêu nghề nghiệp',
+        hint: 'Nêu bật giá trị của bạn trong 2-3 câu.',
+        isDone: !isEmpty(g.summary),
+        targetId: 'section-summary'
+    });
+
+    // 6. Kinh nghiệm
+    const expSection = data.sections.find(s => s.id === 'experience');
+    tips.push({
+        id: 'experience',
+        label: 'Kinh nghiệm làm việc',
+        hint: 'Thêm ít nhất 1-2 công việc gần nhất.',
+        isDone: expSection && expSection.items?.length > 0,
+        targetId: 'section-experience'
+    });
+
+    // 7. Kỹ năng
+    const skillSection = data.sections.find(s => s.id === 'skills');
+    tips.push({
+        id: 'skills',
+        label: 'Kỹ năng chuyên môn',
+        hint: 'Liệt kê các công nghệ bạn thành thạo.',
+        isDone: skillSection && skillSection.items?.length >= 3,
+        targetId: 'section-skills'
+    });
+
+    // Trả về danh sách chưa hoàn thành trước, hoàn thành sau
+    return tips.sort((a, b) => a.isDone - b.isDone);
+});
+
+const pendingTipsCount = computed(() => completionTips.value.filter(t => !t.isDone).length);
+
+const scrollToField = (targetId) => {
+    const el = document.getElementById(targetId);
+    if (el) {
+        // Tìm container cuộn (là div có class overflow-y-auto bên trong editor panel)
+        const container = el.closest('.overflow-y-auto');
+        if (container) {
+            const topPos = el.offsetTop;
+            container.scrollTo({
+                top: topPos - 100, // Cuộn đến vị trí cách top 100px để không bị sát mép
+                behavior: 'smooth'
+            });
+        } else {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Hiệu ứng Highlight tạm thời
+        el.classList.add('ring-4', 'ring-blue-500/20', 'border-blue-400', 'bg-blue-50/50');
+        setTimeout(() => {
+            el.classList.remove('ring-4', 'ring-blue-500/20', 'border-blue-400', 'bg-blue-50/50');
+        }, 2000);
+    }
+};
 
 const progressColorClass = computed(() => {
     const p = completionPercentage.value;
