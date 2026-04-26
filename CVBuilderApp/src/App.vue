@@ -21,13 +21,30 @@
       isPreviewMode ? 'w-0 opacity-0 border-r-0' : 'w-[700px] opacity-100'
     ]" style="height: 100%;">
       <!-- HEADER -->
-      <div class="py-2 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative overflow-hidden">
+      <div class="py-3 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative overflow-hidden px-4">
         <div class="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-blue-500 rounded-full opacity-20 blur-2xl"></div>
-        <div class="flex flex-col gap-2">
-            <div class="flex items-center justify-between bg-white/10 rounded-lg p-2 backdrop-blur-sm border border-white/5">
+        <div class="flex flex-col gap-3">
+            <!-- Trạng thái đồng bộ -->
+            <div class="flex items-center justify-between bg-white/5 rounded-lg p-2 backdrop-blur-sm border border-white/5">
                 <div class="flex items-center gap-2">
-                    <div class="w-2.5 h-2.5 rounded-full" :class="isSaving ? 'bg-yellow-400 animate-pulse' : 'bg-emerald-400'"></div>
-                    <span class="text-xs font-semibold tracking-wide" :class="isSaving ? 'text-yellow-100' : 'text-emerald-50'">{{ isSaving ? 'Đang bộ đồng dữ liệu...' : 'Đã đồng bộ máy chủ' }}</span>
+                    <div class="w-2 h-2 rounded-full" :class="isSaving ? 'bg-yellow-400 animate-pulse' : 'bg-emerald-400'"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider" :class="isSaving ? 'text-yellow-200' : 'text-emerald-100'">{{ isSaving ? 'Đang đồng bộ...' : 'Đã lưu đám mây' }}</span>
+                </div>
+                <div class="text-[10px] font-medium text-slate-400">{{ lastSavedTime }}</div>
+            </div>
+
+            <!-- Thanh tiến trình hoàn thiện CV -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between px-0.5">
+                    <span class="text-[13px] font-black uppercase tracking-widest text-blue-200">Độ hoàn thiện CV</span>
+                    <span class="text-[13px] font-black text-white bg-blue-600 px-3 py-1 rounded-full shadow-lg shadow-blue-500/20">{{ completionPercentage }}%</span>
+                </div>
+                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5 p-[2px]">
+                    <div 
+                        class="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.6)]"
+                        :class="progressColorClass"
+                        :style="{ width: `${completionPercentage}%` }"
+                    ></div>
                 </div>
             </div>
         </div>
@@ -662,7 +679,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, shallowRef, defineAsyncComponent } from 'vue'
+import { ref, onMounted, onUnmounted, watch, shallowRef, defineAsyncComponent, computed } from 'vue'
 import draggable from 'vuedraggable'
 import RichTextEditor from './components/RichTextEditor.vue'
 import { toJpeg } from 'html-to-image'
@@ -732,6 +749,74 @@ const showExportModal = ref(false)
 const exportPreviewUrl = ref('')
 const exportPagesCount = ref(1)
 const modalPreviewScale = ref(0.85) // Tăng tỉ lệ mặc định để xem to hơn
+const lastSavedTime = ref('')
+const initialVisibleSectionIds = ref([]) // Lưu danh sách các mục active ban đầu của CV này
+
+// --- LOGIC TÍNH % HOÀN THIỆN CV (LINH HOẠT THEO TỪNG MẪU CV) ---
+const completionPercentage = computed(() => {
+    const data = resumeData.value;
+    const g = data.general;
+    
+    // 1. Danh sách các trường thông tin cá nhân cần kiểm tra (7 trường)
+    const personalFields = [
+        { val: g.fullName, label: 'Họ tên' },
+        { val: g.jobTitle, label: 'Vị trí' },
+        { val: g.email, label: 'Email' },
+        { val: g.phone, label: 'SĐT' },
+        { val: g.address, label: 'Địa chỉ' },
+        { val: g.avatarUrl, label: 'Ảnh' },
+        { val: g.summary, label: 'Mục tiêu' }
+    ];
+
+    let totalPoints = personalFields.length;
+    let currentPoints = personalFields.filter(f => {
+        if (!f.val) return false;
+        // Xóa hết tags HTML và thực thể HTML trước khi check nội dung (vì dùng RichTextEditor)
+        const val = f.val.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+        
+        // Không tính nếu là chuỗi rỗng hoặc các placeholder mặc định
+        return val !== '' && 
+               val !== 'Nhập họ tên đầy đủ...' && 
+               val !== 'Vị trí ứng tuyển' &&
+               val !== 'Ứng viên năng động, mong chờ cơ hội.';
+    }).length;
+
+    // 2. Chỉ tính điểm cho các mục (Sections) đang hiển thị (isVisible)
+    // Ưu tiên sử dụng danh sách mục active ban đầu nếu đã được ghi lại
+    const sectionsToTrack = data.sections.filter(s => {
+        if (initialVisibleSectionIds.value.length > 0) {
+            return initialVisibleSectionIds.value.includes(s.id);
+        }
+        return s.isVisible && s.id !== 'summary'; // summary đã tính ở phần personal
+    });
+
+    totalPoints += sectionsToTrack.length;
+    
+    sectionsToTrack.forEach(s => {
+        const hasContent = s.items?.length > 0 && s.items.some(item => {
+            // Kiểm tra từng trường trong item, bỏ qua trường ID hệ thống _refId
+            return Object.entries(item).some(([key, v]) => {
+                if (key === '_refId') return false;
+                if (typeof v !== 'string') return false;
+                
+                // Loại bỏ HTML trước khi kiểm tra
+                const cleanV = v.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+                return cleanV !== '';
+            });
+        });
+        if (hasContent) currentPoints++;
+    });
+
+    if (totalPoints === 0) return 0;
+    return Math.round((currentPoints / totalPoints) * 100);
+});
+
+const progressColorClass = computed(() => {
+    const p = completionPercentage.value;
+    if (p < 30) return 'bg-red-500';
+    if (p < 70) return 'bg-amber-500';
+    return 'bg-emerald-500';
+});
 
 // --- QUẢN LÝ DROPDOWN MÀU SẮC ---
 const showThemeMenu = ref(false)
@@ -1097,6 +1182,14 @@ const loadData = async () => {
                   resumeData.value.theme.primaryColor = '#dfa234';
                 }
               }
+
+              // Ghi lại danh sách các mục hiển thị ban đầu của CV này để tính % cố định
+              if (initialVisibleSectionIds.value.length === 0) {
+                  initialVisibleSectionIds.value = resumeData.value.sections
+                      .filter(s => s.isVisible && s.id !== 'summary')
+                      .map(s => s.id);
+                  console.log('[CV Builder] Khởi tạo bộ khung tính % cho CV:', initialVisibleSectionIds.value);
+              }
         } else {
             // Đổ Data mẫu trải nghiệm nếu file trắng
             resumeData.value.general = { fullName: 'Trần Văn Demo', jobTitle: 'Fullstack Developer', email: 'mail@demo.com', phone: '090-000-000', address: 'Quận 1, TP HCM', summary: 'Ứng viên năng động, mong chờ cơ hội.' };
@@ -1119,6 +1212,7 @@ watch(resumeData, () => {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ jsonContent: JSON.stringify(resumeData.value) })
           });
+          lastSavedTime.value = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
         } catch(e) {} finally { isSaving.value = false; }
    }, 2000); // Đợi 2s không gõ mới lưu DB bảo vệ C# Database
 }, { deep: true });
