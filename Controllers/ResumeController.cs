@@ -567,6 +567,16 @@ namespace DoAnCS.Controllers
                 resume.Slug = slug;
             }
 
+            // --- BỔ SUNG: Giới hạn tối đa 4 CV công khai ---
+            if (model.IsPublic)
+            {
+                int publicCount = await _context.Resumes.CountAsync(r => r.UserID == userId && r.IsPublic);
+                if (publicCount >= 4)
+                {
+                    return Json(new { success = false, message = "Bạn chỉ có thể công khai tối đa 4 CV trên hồ sơ cá nhân." });
+                }
+            }
+
             try
             {
                 await _context.SaveChangesAsync();

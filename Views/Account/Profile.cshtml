@@ -466,9 +466,14 @@
                         <!-- Tab Quản lý CV -->
                         <div class="tab-pane fade @(activeTab == "cv" ? "show active" : "")" id="cv" role="tabpanel" aria-labelledby="cv-tab">
                             <div class="mb-4 mt-3 d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h4 class="info-card-title mb-1">CV của tôi</h4>
-                                    <p class="text-muted small mb-0">Quản lý và chia sẻ các mẫu CV bạn đã tạo.</p>
+                                 <div class="d-flex align-items-center gap-3">
+                                    <div>
+                                        <h4 class="info-card-title mb-1">CV của tôi</h4>
+                                        <p class="text-muted small mb-0">Quản lý và chia sẻ các mẫu CV bạn đã tạo.</p>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" title="Quản lý hiển thị CV" onclick="openManageCVsModal()">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
                                 </div>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-outline-primary rounded-pill shadow-sm px-4 fw-bold" onclick="document.getElementById('uploadPdfInput').click()">
@@ -504,22 +509,30 @@
                             }
 
                             <div class="row g-3">
-                                @if(Model.Resumes != null && Model.Resumes.Any(r => r.IsDraft == false || true))
+                                @{
+                                    var publicResumes = Model.Resumes?.Where(r => r.IsPublic).OrderByDescending(r => r.UpdatedAt).Take(4).ToList() ?? new List<Resume>();
+                                }
+                                @if(publicResumes.Any())
                                 {
-                                    foreach(var cv in Model.Resumes.OrderByDescending(r => r.UpdatedAt))
+                                    foreach(var cv in publicResumes)
                                     {
-                                        <div class="col-md-6">
-                                            <div class="card border rounded-4 shadow-sm h-100 position-relative p-2">
-                                                <div class="card-body">
-                                                    <h5 class="fw-bold mb-1">@(string.IsNullOrEmpty(cv.Title) ? "CV chưa đặt tên" : cv.Title)</h5>
-                                                    <p class="text-muted small mb-3">Chỉnh sửa lần cuối: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                        <div class="col-md-6" id="cvCardCol_@cv.ResumeID">
+                                            <div class="card border rounded-4 shadow-sm h-100 position-relative p-1">
+                                                <div class="card-body p-2">
+                                                    <h5 class="fw-bold mb-0 d-flex align-items-center" style="line-height: 1.2;">
+                                                        <span id="cvTitleMain_@cv.ResumeID">@(string.IsNullOrEmpty(cv.Title) ? "CV chưa đặt tên" : cv.Title)</span>
+                                                        <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-muted opacity-50" onclick="renameCV(@cv.ResumeID, '@(cv.Title?.Replace("'", "\\'"))')">
+                                                            <i class="bi bi-pencil-square small"></i>
+                                                        </button>
+                                                    </h5>
+                                                    <p class="text-muted small mb-2" style="font-size: 0.75rem;">Chỉnh sửa: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                                                     
-                                                    <div class="d-flex align-items-center justify-content-between mb-3">
-                                                        <div class="form-check form-switch ps-0 mt-1 d-flex align-items-center">
-                                                            <label class="form-check-label ms-0 me-3 small fw-bold text-dark" for="switchPublic_@cv.ResumeID">Công khai</label>
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <div class="form-check form-switch ps-0 d-flex align-items-center">
+                                                            <label class="form-check-label ms-0 me-2 small fw-bold text-dark" for="switchPublic_@cv.ResumeID">Công khai</label>
                                                             <input class="form-check-input ms-0 mt-0" type="checkbox" role="switch" id="switchPublic_@cv.ResumeID" @(cv.IsPublic ? "checked" : "") onchange="togglePublicCV(@cv.ResumeID, this.checked)">
                                                         </div>
-                                                        <div class="badge bg-light text-dark border">
+                                                        <div class="badge bg-light text-dark border p-1 px-2" style="font-size: 0.7rem;">
                                                             <i class="bi bi-bar-chart-line-fill me-1 text-primary"></i> <span id="viewCount_@cv.ResumeID">@cv.ViewCount</span> lượt xem
                                                         </div>
                                                     </div>
@@ -531,7 +544,10 @@
                                                         }
                                                         else
                                                         {
-                                                            <a href="/Admin/EditVueCV/@cv.ResumeID" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="bi bi-pencil me-1"></i>Sửa</a>
+                                                            string editUrl = (cv.Title != null && cv.Title.StartsWith("CV Vue:")) 
+                                                                ? $"/Resume/Builder/{cv.ResumeID}" 
+                                                                : $"/Resume/Create/{cv.TemplateID}";
+                                                            <a href="@editUrl" class="btn btn-sm btn-outline-primary rounded-pill px-3"><i class="bi bi-pencil me-1"></i>Sửa</a>
                                                         }
                                                         <button type="button" id="btnCopy_@cv.ResumeID" class="btn btn-sm btn-outline-success rounded-pill px-3 @(cv.IsPublic ? "" : "d-none")" onclick="copyPublicLink('@cv.Slug')"><i class="bi bi-link-45deg me-1"></i>Copy Link</button>
                                                         
@@ -540,7 +556,7 @@
                                                             <input type="hidden" name="id" value="@cv.ResumeID" />
                                                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Xóa">
                                                                 <i class="bi bi-trash"></i> Xóa
-                                                            </button>
+                                                             </button>
                                                         </form>
                                                     </div>
                                                 </div>
@@ -552,8 +568,9 @@
                                 {
                                     <div class="col-12 text-center py-5 bg-white border rounded-4">
                                         <div class="text-muted mb-3"><i class="bi bi-file-earmark-x fs-1"></i></div>
-                                        <h5>Bạn chưa tạo CV nào</h5>
-                                        <a href="/" class="btn btn-primary rounded-pill px-4 mt-2">Dùng Template ngay</a>
+                                        <h5>Bạn chưa công khai CV nào (Tối đa 4)</h5>
+                                        <p class="text-muted small">Nhấn vào biểu tượng cây bút để chọn CV muốn hiển thị.</p>
+                                        <a href="/" class="btn btn-primary rounded-pill px-4 mt-2">Tạo CV mới ngay</a>
                                     </div>
                                 }
                             </div>
@@ -598,6 +615,86 @@
                 </div>
                 <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-muted border" data-bs-dismiss="modal">Hủy bỏ</button>
                 <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold shadow" onclick="cropAndUpload()">Sử dụng ảnh này</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* MODAL QUẢN LÝ HIỂN THỊ CV *@
+<div class="modal fade" id="manageCVsModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 bg-light py-3 px-4">
+                <h5 class="modal-title fw-bold text-dark"><i class='bi bi-gear-fill me-2 text-primary'></i>Quản lý hiển thị CV trên Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-info border-0 rounded-4 mb-4 small">
+                    <i class="bi bi-info-circle-fill me-2"></i> Bạn chỉ có thể chọn tối đa <strong>4 CV</strong> để hiển thị công khai trên hồ sơ cá nhân.
+                </div>
+                <div class="list-group list-group-flush">
+                    @if (Model.Resumes != null && Model.Resumes.Any())
+                    {
+                        foreach (var cv in Model.Resumes.OrderByDescending(r => r.IsPublic).ThenByDescending(r => r.UpdatedAt))
+                        {
+                            <div class="list-group-item px-0 py-3 border-bottom d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-3 p-2 me-3">
+                                        <i class="bi bi-file-earmark-person fs-4 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold d-flex align-items-center">
+                                            <span id="cvTitle_@cv.ResumeID">@(string.IsNullOrEmpty(cv.Title) ? "CV chưa đặt tên" : cv.Title)</span>
+                                            <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-muted" onclick="renameCV(@cv.ResumeID, '@(cv.Title?.Replace("'", "\\'"))')">
+                                                <i class="bi bi-pencil-square small"></i>
+                                            </button>
+                                        </h6>
+                                        <small class="text-muted">Cập nhật: @cv.UpdatedAt.ToString("dd/MM HH:mm")</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="form-check form-switch ps-0 mb-0">
+                                        <label class="form-check-label me-3 small fw-bold text-dark" for="modalSwitchPublic_@cv.ResumeID">Công khai</label>
+                                        <input class="form-check-input cv-visibility-switch ms-0" type="checkbox" role="switch" 
+                                               id="modalSwitchPublic_@cv.ResumeID" @(cv.IsPublic ? "checked" : "") 
+                                               onchange="togglePublicCVInModal(@cv.ResumeID, this)">
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        @if (!string.IsNullOrEmpty(cv.FileUploadUrl))
+                                        {
+                                            <a href="@cv.FileUploadUrl" target="_blank" class="btn btn-sm btn-light rounded-circle p-2" title="Xem PDF">
+                                                <i class="bi bi-file-pdf small"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            string editUrl = (cv.Title != null && cv.Title.StartsWith("CV Vue:")) 
+                                                ? $"/Resume/Builder/{cv.ResumeID}" 
+                                                : $"/Resume/Create/{cv.TemplateID}";
+                                            <a href="@editUrl" class="btn btn-sm btn-light rounded-circle p-2" title="Chỉnh sửa">
+                                                <i class="bi bi-pencil small"></i>
+                                            </a>
+                                        }
+                                        <form action="/Resume/DeleteCVProfile" method="post" class="m-0" onsubmit="return confirm('Xóa CV này?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@cv.ResumeID" />
+                                            <button type="submit" class="btn btn-sm btn-light text-danger rounded-circle p-2" title="Xóa">
+                                                <i class="bi bi-trash small"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center py-4 text-muted">Bạn chưa có CV nào.</div>
+                    }
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 bg-light p-3 px-4">
+                <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold shadow" data-bs-dismiss="modal" onclick="window.location.reload()">Đóng và Cập nhật</button>
             </div>
         </div>
     </div>
@@ -767,22 +864,42 @@
             .then(data => {
                 if (data.success) {
                     const btnCopy = document.getElementById(`btnCopy_${resumeId}`);
+                    
+                    // Đồng bộ tất cả các switch của CV này trên trang (cả ở ngoài và trong modal)
+                    const switches = [
+                        document.getElementById(`switchPublic_${resumeId}`),
+                        document.getElementById(`modalSwitchPublic_${resumeId}`)
+                    ];
+                    switches.forEach(sw => {
+                        if (sw) sw.checked = isPublic;
+                    });
+
                     if(isPublic) {
-                        btnCopy.classList.remove('d-none');
+                        if(btnCopy) btnCopy.classList.remove('d-none');
                         // Update the onclick event with the new slug from server
-                        btnCopy.setAttribute('onclick', `copyPublicLink('${data.slug}')`);
+                        if(btnCopy) btnCopy.setAttribute('onclick', `copyPublicLink('${data.slug}')`);
                     } else {
-                        btnCopy.classList.add('d-none');
+                        if(btnCopy) btnCopy.classList.add('d-none');
+                        // Nếu đang ở trang profile (không phải trong modal) thì ẩn card đi ngay lập tức
+                        const cardCol = document.getElementById(`cvCardCol_${resumeId}`);
+                        if (cardCol) {
+                            cardCol.style.transition = 'all 0.3s ease';
+                            cardCol.style.opacity = '0';
+                            cardCol.style.transform = 'scale(0.9)';
+                            setTimeout(() => cardCol.remove(), 300);
+                        }
                     }
                 } else {
                     alert("Có lỗi xảy ra: " + data.message);
                     // rollback checkbox
-                    document.getElementById(`switchPublic_${resumeId}`).checked = !isPublic;
+                    const switchEl = document.getElementById(`switchPublic_${resumeId}`) || document.getElementById(`modalSwitchPublic_${resumeId}`);
+                    if(switchEl) switchEl.checked = !isPublic;
                 }
             })
             .catch(err => {
                 alert("Lỗi kết nối mạng.");
-                document.getElementById(`switchPublic_${resumeId}`).checked = !isPublic;
+                const switchEl = document.getElementById(`switchPublic_${resumeId}`) || document.getElementById(`modalSwitchPublic_${resumeId}`);
+                if(switchEl) switchEl.checked = !isPublic;
             });
         }
 
@@ -794,6 +911,63 @@
             const fullUrl = window.location.origin + '/cv/p/' + slug;
             navigator.clipboard.writeText(fullUrl).then(() => {
                 alert('Đã sao chép đường dẫn: ' + fullUrl);
+            });
+        }
+
+        function togglePublicCVInModal(resumeId, checkbox) {
+            const maxAllowed = 4;
+            const activeSwitches = document.querySelectorAll('.cv-visibility-switch:checked');
+            
+            if (checkbox.checked && activeSwitches.length > maxAllowed) {
+                alert("Bạn chỉ được phép chọn tối đa 4 CV để hiển thị công khai.");
+                checkbox.checked = false;
+                return;
+            }
+
+        // Gọi hàm toggle có sẵn
+            togglePublicCV(resumeId, checkbox.checked);
+        }
+
+        function openManageCVsModal() {
+            try {
+                const modalEl = document.getElementById('manageCVsModal');
+                if (modalEl) {
+                    const modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else {
+                    alert("Không tìm thấy modal quản lý CV!");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Lỗi khi mở modal: " + e.message);
+            }
+        }
+
+        function renameCV(resumeId, currentTitle) {
+            const newName = prompt("Nhập tên mới cho CV của bạn:", currentTitle || "");
+            if (newName === null || newName.trim() === "" || newName === currentTitle) return;
+
+            fetch(`/Resume/UpdateName`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `id=${resumeId}&newName=${encodeURIComponent(newName)}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const elModal = document.getElementById(`cvTitle_${resumeId}`);
+                    const elMain = document.getElementById(`cvTitleMain_${resumeId}`);
+                    if (elModal) elModal.innerText = newName;
+                    if (elMain) elMain.innerText = newName;
+                } else {
+                    alert("Lỗi: " + data.message);
+                }
+            })
+            .catch(err => {
+                alert("Lỗi kết nối mạng.");
             });
         }
     </script>
