@@ -1,5 +1,5 @@
 <template>
-  <div id="cv-printable-area" ref="cvRoot" class="bg-white flex w-[210mm] relative box-border text-[13px] leading-relaxed" :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }">
+  <div id="cv-printable-area" ref="cvRoot" class="bg-white flex w-[210mm] relative box-border text-[13px] leading-relaxed overflow-hidden" :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }">
     
     <!-- CỘT TRÁI (SIDEBAR) -->
     <aside class="w-[72mm] flex-shrink-0 flex flex-col relative z-20 bg-white" @click.self="selectedSectionId = null">
@@ -23,7 +23,7 @@
             <!-- CÁC SECTION TRONG SIDEBAR -->
             <div class="flex flex-col flex-1 pb-[8mm]">
                 <!-- THÔNG TIN CÁ NHÂN (cố định) -->
-                <div class="paginated-item section-block-sidebar py-[4mm] px-[8mm]">
+                <div class="paginated-item section-block section-block-sidebar py-[4mm] px-[8mm]">
                     <div class="sidebar-section-header mb-3">
                         <h3 class="font-bold uppercase tracking-wide" :style="{ color: '#6a2a31', fontSize: '15px !important' }">Thông tin cá nhân</h3>
                         <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31;"></div>
@@ -72,33 +72,28 @@
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block section-block-sidebar py-[4mm] px-[8mm]"
-                    :class="{ 'section-selected': selectedSectionId === section.id }"
-                    :style="selectedSectionId === section.id ? { '--sel-color': '#6a2a31' } : {}"
-                    @mouseenter="showNav(section.id)"
-                    @mouseleave="hideNav()"
+                    class="section-block section-block-sidebar paginated-item py-[4mm] px-[8mm] mb-1"
+                    :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
                     @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
                 >
                     <!-- Nav buttons -->
                     <div
-                        v-show="hoveredSectionId === section.id || selectedSectionId === section.id"
+                        v-show="selectedSectionId === section.id"
                         class="nav-btns no-print"
-                        @mouseenter="showNav(section.id)"
-                        @mouseleave="hideNav()"
                     >
-                        <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Lên" style="background-color: #6a2a31;">
+                        <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Lên">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                         </button>
-                        <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Xuống" style="background-color: #6a2a31;">
+                        <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Xuống">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
-                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải" style="background-color: #6a2a31;">
+                        <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                         </button>
                     </div>
 
                     <!-- Section header với underline -->
-                    <div class="sidebar-section-header mb-3 paginated-item">
+                    <div class="sidebar-section-header mb-3">
                         <h3 class="font-bold uppercase tracking-wide" style="color: #6a2a31; font-size: 15px !important;">
                             {{ section.title }}
                         </h3>
@@ -108,14 +103,14 @@
                     <div class="space-y-4">
                          <!-- Học Vấn trong Sidebar -->
                          <div v-if="section.id.toLowerCase().includes('education')" class="space-y-3">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item flex flex-col gap-0.5 pr-2">
+                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container flex flex-col gap-0.5 pr-2">
                                  <div class="flex justify-between items-start gap-1">
                                      <span class="font-bold leading-snug" style="font-size: 13px !important; color: #6a2a31;" v-html="item.school"></span>
                                      <span class="font-bold flex-shrink-0 mt-0.5" style="font-size: 11.5px !important; color: #6a2a31;">{{ item.year }}</span>
                                  </div>
                                  <div class="font-bold leading-snug" v-if="item.major" style="font-size: 12px !important; color: #6a2a31;" v-html="item.major"></div>
                                  <div class="font-bold leading-snug" v-if="item.gradType" style="font-size: 12px !important; color: #6a2a31;" v-html="item.gradType"></div>
-                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
+                                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                  </button>
                              </div>
@@ -123,11 +118,11 @@
 
                          <!-- Kỹ năng -->
                          <div v-else-if="section.id.toLowerCase().includes('skill') || section.id.toLowerCase().includes('lang')" class="space-y-3.5">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 item-container paginated-item pr-3 leading-snug">
+                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 item-container pr-3 leading-snug">
                                  <div class="font-bold text-gray-900 mb-0.5" style="font-size: 13px !important;" v-html="item.name"></div>
                                  <div class="font-normal text-gray-700 leading-[1.6]" v-if="item.desc" style="font-size: 11.5px !important;" v-html="formatDesc(item.desc)"></div>
                                  <div class="font-normal text-gray-700" v-else-if="item.level" style="font-size: 11.5px !important;">{{ item.level }}</div>
-                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
+                                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                  </button>
                              </div>
@@ -135,9 +130,9 @@
                          
                          <!-- Các phần khác nếu có trong sidebar (mặc định) -->
                          <div v-else class="space-y-3">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug paginated-item item-container pr-3" style="font-size: 12px !important;">
+                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug item-container pr-3" style="font-size: 12px !important;">
                                  <span class="sidebar-html-content" v-html="formatDesc(item.desc || item.name || item.info)"></span>
-                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
+                                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                  </button>
                              </div>
@@ -153,22 +148,17 @@
     <main class="flex-1 pt-[15mm] pb-[10mm] px-[10mm] flex flex-col gap-0 relative z-10 bg-white" @click.self="selectedSectionId = null">
         <template v-for="section in mainSections" :key="section.id">
             <div
-                v-show="section.isVisible || ['summary', 'objective', 'experience', 'award', 'cert', 'activit'].some(id => section.id.toLowerCase().includes(id))"
-                class="section-block section-block-main"
-                :class="{ 'section-selected': selectedSectionId === section.id }"
+                v-show="section.isVisible"
+                class="section-block section-block-main paginated-item"
+                :class="{ 'section-active--main': selectedSectionId === section.id }"
                 :style="[
-                    selectedSectionId === section.id ? { '--sel-color': '#6a2a31' } : {},
                     (section.id.toLowerCase().includes('summary') || section.id.toLowerCase().includes('objective')) ? { marginTop: '10mm !important' } : {}
                 ]"
-                @mouseenter="showNav(section.id)"
-                @mouseleave="hideNav()"
                 @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
             >
                 <div
-                    v-show="hoveredSectionId === section.id || selectedSectionId === section.id"
+                    v-show="selectedSectionId === section.id"
                     class="nav-btns no-print"
-                    @mouseenter="showNav(section.id)"
-                    @mouseleave="hideNav()"
                 >
                     <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Lên">
                         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
@@ -182,7 +172,7 @@
                 </div>
 
                 <!-- Tiêu đề section + gạch ngang màu theme -->
-                <div class="main-section-header mb-4 paginated-item">
+                <div class="main-section-header mb-4">
                     <h3 class="font-bold uppercase tracking-wide" style="color: #6a2a31; font-size: 16px !important;">
                         {{ section.title }}
                     </h3>
@@ -191,12 +181,12 @@
 
                 <div class="space-y-5">
                     <!-- Mục tiêu nghề nghiệp -->
-                    <div v-if="section.id.toLowerCase().includes('summary')" class="text-gray-800 text-justify html-content paginated-item font-medium" style="font-size: 12.5px !important;" v-html="resumeData.general.summary || 'Chưa có thông tin mục tiêu nghề nghiệp.'"></div>
+                    <div v-if="section.id.toLowerCase().includes('summary')" class="text-gray-800 text-justify html-content font-medium" style="font-size: 12.5px !important;" v-html="resumeData.general.summary || 'Chưa có thông tin mục tiêu nghề nghiệp.'"></div>
 
                     <!-- Kinh nghiệm / Hoạt động / Dự án -->
                     <div v-else-if="section.id.toLowerCase().includes('experience') || section.id.toLowerCase().includes('project') || section.id.toLowerCase().includes('activit')" class="space-y-5">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
-                            <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container">
+                            <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
 
@@ -216,8 +206,8 @@
 
                     <!-- Học Vấn (nếu ở Main) -->
                     <div v-else-if="section.id.toLowerCase().includes('education')" class="space-y-4">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item">
-                            <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container">
+                            <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                             <div class="flex justify-between items-baseline gap-2 mb-0.5">
@@ -234,10 +224,10 @@
 
                     <!-- Danh hiệu / Giải thưởng (Main) - năm + tên inline -->
                     <div v-else-if="section.id.toLowerCase().includes('award') || section.id.toLowerCase().includes('cert')" class="space-y-3">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item flex gap-6 items-baseline">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container flex gap-6 items-baseline">
                             <div class="font-bold text-gray-900 w-[42px] flex-shrink-0" style="font-size: 12.5px !important;">{{ item.year }}</div>
                             <div class="flex-1 text-gray-800 font-medium leading-[1.6]" style="font-size: 12.5px !important;" v-html="formatDesc(item.name || item.desc)"></div>
-                            <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
+                            <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
@@ -245,9 +235,9 @@
 
                     <!-- Default Main -->
                     <div v-else class="space-y-4">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container paginated-item text-gray-800 font-medium html-content" style="font-size: 12.5px !important;">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container text-gray-800 font-medium html-content" style="font-size: 12.5px !important;">
                              <div v-html="formatDesc(item.desc || item.name || item.info)"></div>
-                             <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
+                             <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
                                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                              </button>
                         </div>
@@ -279,6 +269,7 @@ const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 const cvRoot = ref(null);
 const pageCount = ref(1);
+const selectedSectionId = ref(null);
 
 // --- UTILS ---
 const isEmpty = (val) => {
@@ -288,11 +279,15 @@ const isEmpty = (val) => {
     return cleanText === '';
 };
 
-// --- PAGINATION ENGINE (Optimized & Stable) ---
+// --- PAGINATION ENGINE (Optimized & Stable with Content Splitting) ---
+const A4_W_MM = 210;
+const A4_H_MM = 297;
+const MARGIN_MM = 15;
+
 let paginateTimer = null;
 const requestPagination = () => {
     if (paginateTimer) clearTimeout(paginateTimer);
-    paginateTimer = setTimeout(doPagination, 50);
+    paginateTimer = setTimeout(doPagination, 60);
 };
 
 const doPagination = async () => {
@@ -303,26 +298,18 @@ const doPagination = async () => {
 
     await nextTick();
 
-    const A4_WIDTH_MM = 210;
-    const A4_HEIGHT_MM = 297;
-    const MARGIN_BOTTOM_MM = 15; 
-    const MARGIN_TOP_MM = 15;    
+    const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM;
+    const pageH = A4_H_MM * pxPerMm;
+    const marginPx = MARGIN_MM * pxPerMm;
+    const safeLine = pageH - marginPx;
     
-    const rootWidthPx = cvRoot.value.offsetWidth;
-    const pxPerMm = rootWidthPx / A4_WIDTH_MM;
-    const pageHeightPx = A4_HEIGHT_MM * pxPerMm;
-    const marginBottomPx = MARGIN_BOTTOM_MM * pxPerMm;
-    const marginTopPx = MARGIN_TOP_MM * pxPerMm;
-    const safeBottomPx = pageHeightPx - marginBottomPx;
+    // maxFit determines if an item should be allowed to split across pages
+    const maxFit = safeLine - marginPx;
 
-    const getRelativeTop = (el) => {
-        let offset = 0;
-        let currentEl = el;
-        while (currentEl && currentEl !== cvRoot.value) {
-            offset += currentEl.offsetTop;
-            currentEl = currentEl.offsetParent;
-        }
-        return offset;
+    const relTop = (el) => {
+        let off = 0, cur = el;
+        while (cur && cur !== cvRoot.value) { off += cur.offsetTop; cur = cur.offsetParent; }
+        return off;
     };
 
     const processColumn = (colSelector) => {
@@ -330,38 +317,28 @@ const doPagination = async () => {
         if (!col) return;
         const colItems = col.classList.contains('paginated-item') 
             ? [col] 
-            : col.querySelectorAll('.paginated-item');
+            : Array.from(col.querySelectorAll('.paginated-item'));
 
-        let isStable = false;
-        let attempts = 0;
-        
-        while (!isStable && attempts < 50) {
-            isStable = true;
-            attempts++;
-            
-            for (let i = 0; i < colItems.length; i++) {
-                const item = colItems[i];
-                if (!item) continue;
+        for (let pass = 0; pass < 80; pass++) {
+            let stable = true;
+            for (const item of colItems) {
+                const top = relTop(item);
+                const bottom = top + item.offsetHeight;
+                const pageIdx = Math.floor(top / pageH);
+                const curSafe = pageIdx * pageH + safeLine;
                 
-                const top = getRelativeTop(item);
-                const height = item.offsetHeight;
-                const bottom = top + height;
-                
-                const currentPageIndex = Math.floor(top / pageHeightPx);
-                const currentSafeBottom = (currentPageIndex * pageHeightPx) + safeBottomPx;
-                
-                if (bottom > currentSafeBottom && top < (currentPageIndex + 1) * pageHeightPx) {
-                    if (height > (pageHeightPx - marginTopPx - marginBottomPx)) {
-                        continue;
-                    }
-                    const targetTop = (currentPageIndex + 1) * pageHeightPx + marginTopPx;
-                    const pushAmount = targetTop - top;
+                // Content Splitting logic: if the item is taller than maxFit, we allow it to split
+                // rather than pushing it down forever.
+                if (top < curSafe && bottom > curSafe && item.offsetHeight <= maxFit) {
+                    const targetTop = (pageIdx + 1) * pageH + marginPx;
+                    const extra = targetTop - top;
                     const currentMt = parseFloat(item.style.marginTop || '0');
-                    item.style.marginTop = (currentMt + pushAmount) + 'px';
-                    isStable = false;
+                    item.style.marginTop = (currentMt + extra) + 'px';
+                    stable = false;
                     break;
                 }
             }
+            if (stable) break;
         }
     };
 
@@ -370,12 +347,11 @@ const doPagination = async () => {
 
     let maxBottom = 0;
     allPaginated.forEach(el => {
-        const top = getRelativeTop(el);
-        const bottom = top + el.offsetHeight;
-        if (bottom > maxBottom) maxBottom = bottom;
+        const b = relTop(el) + el.offsetHeight;
+        if (b > maxBottom) maxBottom = b;
     });
 
-    const calculatedPageCount = Math.max(1, Math.ceil((maxBottom + marginBottomPx - 2) / pageHeightPx));
+    const calculatedPageCount = Math.max(1, Math.ceil((maxBottom + marginPx) / pageH));
     if (pageCount.value !== calculatedPageCount) {
         pageCount.value = calculatedPageCount;
     }
@@ -384,6 +360,27 @@ const doPagination = async () => {
 watch(() => props.resumeData, () => requestPagination(), { deep: true });
 
 onMounted(() => {
+    // Determine active status and columns for default sections if not set
+    if (props.resumeData && props.resumeData.sections) {
+        const SIDEBAR_IDS = ['education', 'skills'];
+        const MAIN_IDS = ['summary', 'objective', 'experience', 'award', 'cert', 'activit', 'project'];
+        const FORBIDDEN_IDS = ['it_skills', 'technical_skills', 'languages', 'lang'];
+
+        props.resumeData.sections.forEach(sec => {
+            const id = sec.id.toLowerCase();
+            if (SIDEBAR_IDS.some(activeId => id.includes(activeId)) && !FORBIDDEN_IDS.some(forbiddenId => id.includes(forbiddenId))) {
+                if (sec.isVisible === undefined) sec.isVisible = true;
+                if (!sec.column) sec.column = 'left';
+            } else if (MAIN_IDS.some(activeId => id.includes(activeId))) {
+                if (sec.isVisible === undefined) sec.isVisible = true;
+                if (!sec.column) sec.column = 'right';
+            } else {
+                if (sec.isVisible === undefined) sec.isVisible = false;
+                if (!sec.column) sec.column = 'right'; // default to right if unused
+            }
+        });
+    }
+
     requestPagination();
     window.addEventListener('resize', requestPagination);
     document.addEventListener('keyup', requestPagination);
@@ -395,56 +392,19 @@ onUnmounted(() => {
     if (paginateTimer) clearTimeout(paginateTimer);
 });
 
-// --- NAVIGATION & INTERACTION ---
-const hoveredSectionId = ref(null);
-let _hideTimer = null;
+// --- SECTIONS ---
+const sidebarSections = computed(() => {
+    return (props.resumeData?.sections || []).filter(s => s.column === 'left');
+});
 
-const showNav = (id) => {
-    if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null; }
-    hoveredSectionId.value = id;
-};
-
-const hideNav = () => {
-    _hideTimer = setTimeout(() => {
-        hoveredSectionId.value = null;
-        _hideTimer = null;
-    }, 120);
-};
-
-const selectedSectionId = ref(null);
+const mainSections = computed(() => {
+    return (props.resumeData?.sections || []).filter(s => s.column === 'right');
+});
 
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id));
 const mainIds = computed(() => mainSections.value.map(s => s.id));
 
-const sidebarSections = computed(() => {
-    const activeSidebarIds = ['education', 'skills'];
-    const forbiddenIds = ['it_skills', 'technical_skills', 'languages', 'lang'];
-    
-    return props.resumeData.sections
-        .filter(s => {
-            const id = s.id.toLowerCase();
-            return s.column === 'left' && 
-                   activeSidebarIds.some(activeId => id.includes(activeId)) &&
-                   !forbiddenIds.some(forbiddenId => id.includes(forbiddenId));
-        })
-        .sort((a, b) => {
-            const idxA = activeSidebarIds.findIndex(id => a.id.toLowerCase().includes(id));
-            const idxB = activeSidebarIds.findIndex(id => b.id.toLowerCase().includes(id));
-            return idxA - idxB;
-        });
-});
-
-const mainSections = computed(() => {
-    const activeMainIds = ['summary', 'objective', 'experience', 'award', 'cert', 'activit', 'project'];
-    return props.resumeData.sections
-        .filter(s => activeMainIds.some(id => s.id.toLowerCase().includes(id)))
-        .sort((a, b) => {
-            const idxA = activeMainIds.findIndex(id => a.id.toLowerCase().includes(id));
-            const idxB = activeMainIds.findIndex(id => b.id.toLowerCase().includes(id));
-            return idxA - idxB;
-        });
-});
-
+// --- FORMATTING ---
 const formatDesc = (text) => {
     if (!text) return '';
     if (/<[a-z][\s\S]*>/i.test(text)) {
@@ -528,84 +488,75 @@ h3 {
 /* -- ITEM CONTAINERS -- */
 .item-container {
     position: relative;
-    transition: all 0.2s;
 }
 
 .delete-btn {
-    opacity: 0;
-    transition: all 0.2s;
     position: absolute;
-    top: 2px;
-    right: 2px;
+    right: -2px;
+    top: -2px;
     width: 22px;
     height: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 2px solid white;
-    pointer-events: none;
+    background: #ef4444 !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 30;
+    transition: transform 0.12s ease;
 }
 
-.item-container:hover .delete-btn {
-    opacity: 1;
-    pointer-events: auto;
+.delete-btn:hover {
+    transform: scale(1.15) !important;
 }
-
-aside .item-container:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    border-radius: 6px;
-    padding-left: 4px;
-    margin-left: -4px;
-}
-aside .delete-btn {
-    top: -2px;
-    right: -2px;
-    border-color: #f6ede4;
-}
-
-main .item-container:hover {
-    background-color: rgba(0, 0, 0, 0.01);
+.delete-btn:active {
+    transform: scale(0.9) !important;
 }
 
 /* -- SECTION BLOCKS -- */
 .section-block {
     position: relative;
-    border-radius: 6px;
-    border: 2px solid transparent; 
+    border-radius: 0 !important;
+    border: 2px solid transparent !important; 
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    transition:
+        transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.2s ease,
+        border-color 0.15s ease,
+        border-radius 0.15s ease,
+        background 0.15s ease;
 }
 
-/* Main: padding + dải phân cách dưới */
+/* Main */
 .section-block-main {
     padding: 4px 15px 16px 10px;
     margin-right: 35px;
     margin-bottom: 14px;
-    border-radius: 0;
 }
 
-.section-block-main:hover {
-    background: rgba(0, 0, 0, 0.01);
-}
-
-.section-block-sidebar:hover {
-    background: rgba(0, 0, 0, 0.04);
-    border-radius: 6px;
-}
-
-.section-selected {
-    border-color: var(--sel-color, #8A3841) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+.section-active--main {
+    border: 2px solid #ffffff !important;
     border-radius: 6px !important;
+    transform: scale(1.012) !important;
+    box-shadow: 0 4px 18px rgba(106, 42, 49, 0.15), 0 1px 4px rgba(106, 42, 49, 0.08) !important;
+    background: rgba(106, 42, 49, 0.02) !important;
+    z-index: 10 !important;
 }
 
-.section-selected.section-block-main {
-    background: color-mix(in srgb, var(--sel-color, #8A3841) 3%, white) !important;
+/* Sidebar */
+.section-block-sidebar {
+    padding: 4px 8px;
 }
 
-.section-selected.section-block-sidebar {
-    background: rgba(0, 0, 0, 0.04) !important;
+.section-active--sidebar {
+    border: 2px solid #f8e8e8 !important;
+    border-radius: 6px !important;
+    transform: scale(1.012) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    z-index: 10 !important;
 }
 
 /* -- NAV BUTTONS -- */
@@ -624,22 +575,21 @@ main .item-container:hover {
     align-items: center;
     justify-content: center;
     padding: 4px;
-    background: #8A3841;
-    color: white;
+    background: #8A3841 !important;
+    color: white !important;
     border: none;
-    border-radius: 4px;
+    border-radius: 4px !important;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0, 0.2);
+    box-shadow: 0 2px 6px rgba(138,56,65, 0.4);
     transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .nav-btn:hover {
-    background: #6a2a31;
-    transform: scale(1.1);
+    background: #6a2a31 !important;
 }
 
 .nav-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.92) !important;
 }
 
 /* -- PRINT / EXPORT -- */
@@ -647,20 +597,19 @@ main .item-container:hover {
     .no-print {
         display: none !important;
     }
-    .section-block, .section-selected {
-        cursor: default;
+    .section-block, .section-active--main, .section-active--sidebar {
+        cursor: default !important;
         box-shadow: none !important;
         background: transparent !important;
         border-color: transparent !important;
+        transform: none !important;
         border-radius: 0 !important;
+        padding: 0 !important;
+        outline: none !important;
     }
     .section-block-main {
         padding: 0 0 14px 0 !important;
         margin-bottom: 14px !important;
-    }
-    aside .section-block {
-        padding-left: 0 !important;
-        padding-right: 0 !important;
     }
 }
 
@@ -668,12 +617,16 @@ main .item-container:hover {
     display: none !important;
 }
 :global(.is-exporting-pdf .section-block),
-:global(.is-exporting-pdf .section-selected) {
+:global(.is-exporting-pdf .section-active--main),
+:global(.is-exporting-pdf .section-active--sidebar) {
     cursor: default !important;
     box-shadow: none !important;
     background: transparent !important;
     border-color: transparent !important;
+    transform: none !important;
     border-radius: 0 !important;
+    padding: 0 !important;
+    outline: none !important;
 }
 :global(.is-exporting-pdf .section-block-main) {
     padding: 0 0 14px 0 !important;
