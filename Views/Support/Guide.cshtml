@@ -1,85 +1,231 @@
-<div class="container my-5 py-5 text-center">
-    <h1 class="fw-bold mb-5" style="color: #2c3e50;">Cách tạo CV chuyên nghiệp trong 3 bước</h1>
+@{
+    ViewData["Title"] = "Hướng dẫn tạo CV";
+}
 
-    <div class="row g-4 mb-5">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0 p-4 custom-card">
-                <div class="card-body">
-                    <div class="icon-circle bg-primary-light mb-4">
-                        <i class="fas fa-layer-group fa-2x text-primary"></i>
+<div class="guide-wrapper">
+    <!-- Decorative background elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
+
+    <div class="container py-5 position-relative">
+        <!-- Hero Section -->
+        <div class="text-center mb-5 pb-4" data-aos="fade-down">
+            <h1 class="display-4 fw-bold mb-3 hero-title">
+                Hành trình <span class="text-primary-gradient">Chinh phục Sự nghiệp</span> bắt đầu từ đây
+            </h1>
+            <p class="lead text-muted mx-auto" style="max-width: 700px;">
+                Tạo một bản CV chuyên nghiệp, thu hút nhà tuyển dụng chỉ trong vài phút với quy trình tối ưu hóa 3 bước.
+            </p>
+        </div>
+
+        <!-- Steps Section -->
+        <div class="row g-4 justify-content-center">
+            <!-- Step 1 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="glass-card h-100">
+                    <div class="step-badge">01</div>
+                    <div class="card-content text-center p-4">
+                        <div class="icon-wrapper mb-4">
+                            <div class="icon-blob blob-primary"></div>
+                            <i class="fas fa-layer-group fa-3x icon-main"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Chọn mẫu thiết kế</h4>
+                        <p class="text-secondary">
+                            Khám phá thư viện hàng trăm mẫu CV hiện đại, chuẩn ATS, phù hợp cho mọi ngành nghề và trình độ.
+                        </p>
                     </div>
-                    <h5 class="fw-bold">1. Chọn mẫu</h5>
-                    <p class="text-muted small">Kho mẫu đa dạng, phù hợp mọi ngành nghề từ IT đến Marketing.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="glass-card h-100">
+                    <div class="step-badge badge-success">02</div>
+                    <div class="card-content text-center p-4">
+                        <div class="icon-wrapper mb-4">
+                            <div class="icon-blob blob-success"></div>
+                            <i class="fas fa-magic fa-3x icon-main"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Tối ưu cùng AI</h4>
+                        <p class="text-secondary">
+                            Sử dụng trí tuệ nhân tạo để gợi ý từ khóa, viết mục tiêu nghề nghiệp và tinh chỉnh kinh nghiệm làm việc.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="glass-card h-100">
+                    <div class="step-badge badge-danger">03</div>
+                    <div class="card-content text-center p-4">
+                        <div class="icon-wrapper mb-4">
+                            <div class="icon-blob blob-danger"></div>
+                            <i class="fas fa-file-pdf fa-3x icon-main"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Xuất bản & Kết nối</h4>
+                        <p class="text-secondary">
+                            Tải file PDF chất lượng cao hoặc chia sẻ link CV trực tuyến để ứng tuyển ngay vào hàng ngàn công việc hấp dẫn.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0 p-4 custom-card">
-                <div class="card-body">
-                    <div class="icon-circle bg-success-light mb-4">
-                        <i class="fas fa-magic fa-2x text-success"></i>
-                    </div>
-                    <h5 class="fw-bold">2. Dùng AI hỗ trợ</h5>
-                    <p class="text-muted small">Sử dụng tính năng "AI viết hộ" để tối ưu mục tiêu và kinh nghiệm.</p>
-                </div>
+        <!-- CTA Section -->
+        <div class="text-center mt-5 pt-4" data-aos="zoom-in" data-aos-delay="400">
+            <div class="cta-container p-5 glass-panel">
+                <h3 class="fw-bold mb-4">Sẵn sàng để tỏa sáng?</h3>
+                <a asp-controller="Resume" asp-action="Templates" class="btn-modern shadow-lg">
+                    <span>Bắt đầu tạo CV ngay</span>
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+                <p class="mt-4 text-muted small">
+                    <i class="fas fa-check-circle text-success me-1"></i> Miễn phí 100% cho người mới
+                    <span class="mx-2">|</span>
+                    <i class="fas fa-bolt text-warning me-1"></i> Hoàn thành trong 5 phút
+                </p>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0 p-4 custom-card">
-                <div class="card-body">
-                    <div class="icon-circle bg-danger-light mb-4">
-                        <i class="fas fa-file-pdf fa-2x text-danger"></i>
-                    </div>
-                    <h5 class="fw-bold">3. Xuất file PDF</h5>
-                    <p class="text-muted small">Tải ngay bản PDF sắc nét để gửi cho nhà tuyển dụng.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="mt-5">
-        <a asp-controller="Resume" asp-action="Templates" class="btn btn-primary btn-lg px-5 py-3 fw-bold rounded-pill shadow pulse-button">
-            BẮT ĐẦU NGAY <i class="fas fa-arrow-right ms-2"></i>
-        </a>
     </div>
 </div>
 
 <style>
-    /* Hiệu ứng cho các ô (Cards) */
-    .custom-card {
-        border-radius: 15px;
-        transition: all 0.3s ease;
-        background: #ffffff;
+    /* Guide Wrapper & Shapes */
+    .guide-wrapper {
+        min-height: 80vh;
+        background: #f8fbff;
+        overflow: hidden;
+        position: relative;
+        padding-bottom: 50px;
     }
 
-    .custom-card:hover {
-        transform: translateY(-10px); /* Bay lên một chút khi di chuột */
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
-        border: 1px solid #0d6efd; /* Hiện viền xanh nhẹ */
+    .bg-shape {
+        position: absolute;
+        filter: blur(80px);
+        z-index: 0;
+        opacity: 0.4;
+    }
+    .shape-1 { width: 400px; height: 400px; background: #0d6efd; top: -100px; left: -100px; border-radius: 50%; }
+    .shape-2 { width: 300px; height: 300px; background: #6610f2; bottom: -50px; right: -50px; border-radius: 50%; }
+    .shape-3 { width: 250px; height: 250px; background: #0dcaf0; top: 20%; right: 10%; border-radius: 50%; }
+
+    /* Typography */
+    .hero-title {
+        color: #1a1a2e;
+        letter-spacing: -1px;
+    }
+    .text-primary-gradient {
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
-    /* Vòng tròn chứa Icon */
-    .icon-circle {
-        width: 70px;
-        height: 70px;
-        line-height: 70px;
-        margin: 0 auto;
-        border-radius: 50%;
+    /* Glass Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 24px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        z-index: 1;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-12px);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    .step-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        background: #0d6efd;
+        color: white;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+    .badge-success { background: #198754; box-shadow: 0 4px 15px rgba(25, 135, 84, 0.3); }
+    .badge-danger { background: #dc3545; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3); }
+
+    /* Icons */
+    .icon-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
     }
 
-    /* Màu nền nhạt cho Icon */
-    .bg-primary-light { background-color: #e7f1ff; }
-    .bg-success-light { background-color: #e6fcf5; }
-    .bg-danger-light { background-color: #fff5f5; }
+    .icon-main {
+        position: relative;
+        z-index: 2;
+    }
+    .icon-blob {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0.15;
+        border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        animation: morph 8s ease-in-out infinite;
+    }
+    .blob-primary { background: #0d6efd; color: #0d6efd; }
+    .blob-success { background: #198754; color: #198754; }
+    .blob-danger { background: #dc3545; color: #dc3545; }
 
-    /* Hiệu ứng nút bấm (Nhịp đập nhẹ) */
-    .pulse-button:hover {
-        transform: scale(1.05);
-        transition: 0.2s;
+    .icon-wrapper .icon-main { color: inherit; }
+    .col-lg-4:nth-child(1) .icon-main { color: #0d6efd; }
+    .col-lg-4:nth-child(2) .icon-main { color: #198754; }
+    .col-lg-4:nth-child(3) .icon-main { color: #dc3545; }
+
+    @@keyframes morph {
+        0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+        50% { border-radius: 50% 50% 20% 80% / 25% 80% 20% 75%; }
+        100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+    }
+
+    /* CTA Section */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 30px;
+    }
+
+    .btn-modern {
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
+        color: white;
+        padding: 18px 45px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .btn-modern:hover {
+        transform: scale(1.05) translateY(-3px);
+        box-shadow: 0 15px 30px rgba(102, 16, 242, 0.4);
+        color: white;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .hero-title { font-size: 2.2rem; }
+        .glass-card { margin-bottom: 20px; }
     }
 </style>
