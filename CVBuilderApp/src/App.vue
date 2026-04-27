@@ -490,6 +490,20 @@
 
                 <!-- Clear -->
                 <button @mousedown.prevent="execCmd('removeFormat')" class="w-7 h-7 flex items-center justify-center rounded hover:bg-red-100 hover:shadow-inner hover:text-red-700 active:bg-red-200 active:scale-90 transition-all text-slate-700 font-bold text-[14px] outline-none" title="Xoá định dạng (Reset)">T&times;</button>
+                
+                <div class="w-px h-6 bg-slate-200 mx-1.5"></div>
+
+                <!-- AI Spell Check -->
+                <button @click="scanCVForGrammar" :disabled="isScanningGrammar" class="flex items-center gap-1.5 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-lg hover:from-amber-100 hover:to-orange-100 transition-all shadow-sm group disabled:opacity-50" title="Quét lỗi chính tả & ngữ pháp bằng AI">
+                    <template v-if="isScanningGrammar">
+                        <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="text-[10px] font-black uppercase tracking-wider">Đang quét...</span>
+                    </template>
+                    <template v-else>
+                        <svg class="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <span class="text-[10px] font-black uppercase tracking-wider">AI Scan</span>
+                    </template>
+                </button>
             </div>
 
             <!-- Nút Export (Trên thanh) -->
@@ -1468,7 +1482,7 @@ const improveAIDesc = async (item, sectionId) => {
         } else if (sectionId === 'activities') {
             content = item.name ? `Hoạt động tại ${item.name}` : '';
         }
-    }
+}
 
     // Kiểm tra nếu thực sự không có gì để AI dựa vào
     if (!content) {
@@ -1484,6 +1498,130 @@ const improveAIDesc = async (item, sectionId) => {
     if (result) item.desc = result;
     isAIProcessing.value[item._refId] = false;
 };
+
+const isScanningGrammar = ref(false);
+
+const scanCVForGrammar = async () => {
+    if (isScanningGrammar.value) return;
+    
+    // 0. Hàm dọn dẹp highlight cũ (Xóa các thẻ span highlight nhưng giữ lại chữ)
+    const clearHighlights = (html) => {
+        if (!html) return "";
+        return html.replace(/<span class="grammar-error-highlight"[^>]*>(.*?)<\/span>/g, '$1');
+    };
+
+    // Dọn dẹp toàn bộ dữ liệu trước khi quét
+    resumeData.value.general.fullName = clearHighlights(resumeData.value.general.fullName);
+    resumeData.value.general.jobTitle = clearHighlights(resumeData.value.general.jobTitle);
+    resumeData.value.general.summary = clearHighlights(resumeData.value.general.summary);
+    resumeData.value.sections.forEach(s => {
+        if (s.items) {
+            s.items.forEach(item => {
+                if (item.desc) item.desc = clearHighlights(item.desc);
+            });
+        }
+    });
+
+    // 1. Thu thập toàn bộ nội dung cần quét
+    let combinedText = "";
+    const mappings = [];
+    
+    const addSection = (id, text, sectionId = null, itemIdx = null) => {
+        if (!text) return;
+        const cleanText = text.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+        if (cleanText.length < 2) return;
+        
+        const marker = `[[${id}]]`;
+        combinedText += `${marker} ${cleanText} \n`;
+        mappings.push({ id, marker, original: text, sectionId, itemIdx });
+    };
+
+    addSection('fullName', resumeData.value.general.fullName);
+    addSection('jobTitle', resumeData.value.general.jobTitle);
+    addSection('summary', resumeData.value.general.summary);
+    
+    resumeData.value.sections.forEach(section => {
+        if (section.isVisible && section.items && ['experience', 'project', 'activities'].includes(section.id)) {
+            section.items.forEach((item, idx) => {
+                addSection(`${section.id}-${idx}`, item.desc, section.id, idx);
+            });
+        }
+    });
+
+    if (combinedText.length === 0) {
+        alert("Không có nội dung nào để quét!");
+        return;
+    }
+
+    isScanningGrammar.value = true;
+    
+    try {
+        const response = await callAIService('check_grammar', combinedText);
+        if (response) {
+            // Kiểm tra xem phản hồi có phải là thông báo lỗi của AI không
+            if (response.includes("quota") || response.includes("limit") || response.includes("exhausted")) {
+                alert("AI đang bị quá tải. Vui lòng đợi khoảng 1 phút rồi thử lại.");
+                return;
+            }
+
+            try {
+                const jsonString = response.replace(/```json/g, '').replace(/```/g, '').trim();
+                const errors = JSON.parse(jsonString);
+                
+                if (Array.isArray(errors) && errors.length > 0) {
+                    let totalErrors = 0;
+
+                    mappings.forEach(map => {
+                        let highlightedText = map.original;
+                        let fieldHasError = false;
+
+                        errors.forEach(err => {
+                            try {
+                                const escapedError = err.error.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                                const regex = new RegExp(`(${escapedError})`, 'gi');
+                                
+                                if (regex.test(highlightedText)) {
+                                    highlightedText = highlightedText.replace(regex, `<span class="grammar-error-highlight" title="Click đúp để sửa thành: ${err.fix} (${err.reason})" data-fix="${err.fix}" data-field="${map.id}">$1</span>`);
+                                    fieldHasError = true;
+                                    totalErrors++;
+                                }
+                            } catch(e) {}
+                        });
+
+                        if (fieldHasError) {
+                            if (map.id === 'fullName') resumeData.value.general.fullName = highlightedText;
+                            else if (map.id === 'jobTitle') resumeData.value.general.jobTitle = highlightedText;
+                            else if (map.id === 'summary') resumeData.value.general.summary = highlightedText;
+                            else {
+                                const section = resumeData.value.sections.find(s => s.id === map.sectionId);
+                                if (section && section.items[map.itemIdx]) {
+                                    section.items[map.itemIdx].desc = highlightedText;
+                                }
+                            }
+                        }
+                    });
+
+                    if (totalErrors > 0) {
+                        alert(`AI đã phát hiện và highlight ${totalErrors} chỗ cần sửa. Hãy di chuột vào vùng gạch đỏ để xem gợi ý!`);
+                    } else {
+                        alert("Không phát hiện lỗi chính tả đáng kể nào.");
+                    }
+                } else {
+                    alert("Chúc mừng! CV của bạn không có lỗi chính tả.");
+                }
+            } catch (e) {
+                console.error("Lỗi xử lý phản hồi AI:", e, response);
+                alert("AI phản hồi không đúng định dạng hoặc nội dung quá phức tạp. Hãy thử lại với đoạn văn ngắn hơn.");
+            }
+        }
+    } catch (err) {
+        console.error("Lỗi khi quét AI:", err);
+        alert("Hệ thống AI đang bận hoặc gặp lỗi kết nối.");
+    } finally {
+        isScanningGrammar.value = false;
+    }
+};
+
 
 const generateAISkills = async (sectionIndex) => {
   const section = resumeData.value.sections[sectionIndex];
@@ -1551,12 +1689,49 @@ const copyCoverLetter = () => {
     });
 };
 
+const handleGrammarFix = (e) => {
+    const target = e.target.closest('.grammar-error-highlight');
+    if (target) {
+        const fix = target.getAttribute('data-fix');
+        const fieldId = target.getAttribute('data-field');
+        
+        if (fix && fieldId) {
+            // 1. Cập nhật dữ liệu trong resumeData
+            if (fieldId === 'fullName') {
+                resumeData.value.general.fullName = resumeData.value.general.fullName.replace(target.outerHTML, fix);
+            } else if (fieldId === 'jobTitle') {
+                resumeData.value.general.jobTitle = resumeData.value.general.jobTitle.replace(target.outerHTML, fix);
+            } else if (fieldId === 'summary') {
+                resumeData.value.general.summary = resumeData.value.general.summary.replace(target.outerHTML, fix);
+            } else {
+                // Xử lý các section (experience-0, project-1, ...)
+                const [sectionId, itemIdx] = fieldId.split('-');
+                const section = resumeData.value.sections.find(s => s.id === sectionId);
+                if (section && section.items[itemIdx]) {
+                    section.items[itemIdx].desc = section.items[itemIdx].desc.replace(target.outerHTML, fix);
+                }
+            }
+            
+            // 2. Nếu đang ở trong editor (ô input/contenteditable), cập nhật UI ngay
+            const editor = target.closest('[contenteditable="true"]');
+            if (editor) {
+                target.outerHTML = fix;
+                editor.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }
+};
+
 onMounted(() => {
     loadData();
     document.addEventListener('selectionchange', updateFormatState);
     document.addEventListener('mouseup', updateFormatState);
     document.addEventListener('keyup', updateFormatState);
     document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('dblclick', handleGrammarFix);
 });
 
 onUnmounted(() => {
@@ -1564,6 +1739,7 @@ onUnmounted(() => {
     document.removeEventListener('mouseup', updateFormatState);
     document.removeEventListener('keyup', updateFormatState);
     document.removeEventListener('mousedown', handleOutsideClick);
+    document.removeEventListener('dblclick', handleGrammarFix);
 });
 </script>
 
@@ -1630,4 +1806,18 @@ onUnmounted(() => {
     background-color: #ef4444;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
 }
+
+    /* Highlight lỗi chính tả chuẩn MS Word */
+    .grammar-error-highlight {
+        text-decoration: underline wavy #ef4444 !important;
+        text-decoration-thickness: 2px !important;
+        text-underline-offset: 4px !important;
+        background-color: rgba(239, 68, 68, 0.1) !important;
+        cursor: pointer;
+        display: inline !important;
+    }
+    
+    .grammar-error-highlight:hover {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+    }
 </style>
