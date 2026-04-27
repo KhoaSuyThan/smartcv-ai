@@ -13,3 +13,6 @@ obj/
 
 # File log và các file tạm
 *.log
+
+# Thư mục chứa assets đã build (Vite/Vue)
+wwwroot/cvbuilder/assets/
