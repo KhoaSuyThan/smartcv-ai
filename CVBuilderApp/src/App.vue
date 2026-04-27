@@ -515,7 +515,7 @@
         </div>
 
         <!-- Zoom Bar & AI Tools -->
-        <div class="sticky top-[80px] pointer-events-none w-full flex flex-col items-end px-8 z-30 mb-8 mt-6 gap-3">
+        <div class="sticky top-[110px] pointer-events-none w-full flex flex-col items-end px-8 z-30 mb-8 mt-6 gap-3">
             <!-- Bộ điều khiển Zoom -->
             <div class="pointer-events-auto flex items-center bg-white/90 backdrop-blur-md border border-slate-200 rounded-full px-3 py-1.5 shadow-xl gap-2">
                 <button @click="previewScale = Math.max(0.8, previewScale - 0.1)" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-600 transition-colors" title="Thu nhỏ (Min 80%)">
