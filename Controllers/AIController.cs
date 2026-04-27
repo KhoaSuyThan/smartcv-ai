@@ -231,6 +231,21 @@ Quy tắc:
                     prompt = $"Bạn là chuyên gia viết thư xin việc. Hãy viết một bức thư xin việc ấn tượng, chuyên nghiệp gửi đến công ty {context}. Dựa trên thông tin ứng viên: {content}. Yêu cầu: Văn phong thuyết phục, độ dài khoảng 250-300 chữ, có đầy đủ phần mở đầu, nội dung chính và kết bài. Chỉ trả về nội dung bức thư, không kèm lời chào của AI.";
                     break;
 
+                case "check_grammar": // Kiểm tra lỗi chính tả & ngữ pháp
+                    prompt = $@"Bạn là một chuyên gia tuyển dụng cao cấp và biên tập viên CV chuyên nghiệp. Hãy kiểm tra lỗi chính tả, ngữ pháp và tính chuyên nghiệp của văn bản sau đây.
+
+Văn bản cần kiểm tra:
+""{content}""
+
+YÊU CẦU CỰC KỲ KHẮT KHE:
+1. Bắt lỗi chính tả tiếng Việt, tiếng Anh và cả ""teen code"", viết tắt không trang trọng (ví dụ: 'mún' -> 'muốn', 'ko' -> 'không', 'toi' -> 'tôi').
+2. Bắt lỗi sai chính tả thuật ngữ chuyên ngành (ví dụ: 'Bachend' -> 'Backend', 'Develope' -> 'Developer').
+3. Kiểm tra tính chuyên nghiệp: Nếu văn bản quá bình dân, không phù hợp với CV, hãy đánh dấu là lỗi.
+4. Trả về kết quả dưới dạng JSON Array: [{{""error"": ""từ/cụm từ sai"", ""fix"": ""gợi ý đúng/trang trọng hơn"", ""reason"": ""lý do (Sai chính tả/Thiếu chuyên nghiệp/Sai thuật ngữ)""}}].
+5. Nếu không có lỗi, trả về []. Tuyệt đối không trả về lời dẫn hay markdown.";
+                    break;
+
+
                 default:
                     // Dùng cho trường hợp Test Playground trên Admin
                     if (requestType == "test_playground") {
