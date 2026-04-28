@@ -115,7 +115,7 @@
     <main class="flex-1 flex flex-col relative bg-white z-20 overflow-hidden box-border" @click.self="selectedSectionId = null">
 
       <header class="paginated-item w-full flex flex-col relative" :style="{ backgroundColor: '#634c46', color: 'white', padding: '40px 35px' }">
-        <h1 class="text-white break-words w-full" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '36px !important', textTransform: 'capitalize', fontWeight: '800 !important', letterSpacing: '1px', lineHeight: '1.1' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Họ Và Tên Ứng Viên'"></h1>
+        <h1 class="text-white break-words w-full" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '36px !important', textTransform: 'capitalize', fontWeight: '800 !important', letterSpacing: '1px', lineHeight: '1.1' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Họ Và Tên'"></h1>
         <h2 class="text-white break-words w-full uppercase" :style="{ margin: '15px 0 15px 0 !important', padding: '0 0 10px 0 !important', fontSize: '20px !important', fontWeight: 'bold !important', borderBottom: '1px solid rgba(255,255,255,0.3)' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
         <div
           v-if="summarySection && summarySection.isVisible"
