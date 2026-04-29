@@ -58,6 +58,49 @@
         background-color: #fff5f5; /* Màu nền đỏ cực nhẹ */
         box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1); /* Đổ bóng nhẹ */
     }
+
+    /* Badge Match Score */
+    .match-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        animation: fadeInBadge 0.5s ease;
+    }
+    .match-badge-high {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    .match-badge-medium {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af;
+        border: 1px solid #93c5fd;
+    }
+    .match-badge-low {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+        border: 1px solid #fcd34d;
+    }
+    .job-item-row.match-highlight {
+        border-color: #10b981;
+        background: linear-gradient(135deg, #f0fdf4, #ffffff);
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+    }
+    @@keyframes fadeInBadge {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .cv-selector-card {
+        background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        border: 1px solid #bae6fd;
+        border-radius: 15px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
 </style>
 
 <div class="container py-5">
@@ -123,6 +166,37 @@
                     <i class='bx bx-filter-alt me-1'></i> Áp dụng bộ lọc
                 </button>
             </form>
+
+            @* === DROPDOWN CHỌN CV ĐỂ SO KHỚP === *@
+            @if (ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
+            {
+                var userResumes = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
+                var selectedId = ViewBag.SelectedResumeId ?? 0;
+                <div class="cv-selector-card mt-3">
+                    <h6 class="fw-bold mb-2 text-primary" style="font-size: 0.85rem;">
+                        <i class='bx bx-target-lock me-1'></i> So khớp việc làm
+                    </h6>
+                    <p class="text-muted small mb-2" style="font-size: 0.78rem;">Chọn CV để xem mức độ phù hợp với từng tin tuyển dụng:</p>
+                    <select id="cvMatchSelector" class="form-select form-select-sm border-primary" style="border-radius: 10px; font-weight: 600;">
+                        @foreach (var resume in userResumes)
+                        {
+                            var isSelected = resume.ResumeID == (int)selectedId;
+                            if (isSelected)
+                            {
+                                <option value="@resume.ResumeID" selected="selected">
+                                    @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@resume.ResumeID">
+                                    @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+            }
         </div>
 
         <div class="col-lg-9">
@@ -139,7 +213,9 @@
                 {
                     @foreach (var job in Model.RealJobs)
                     {
-                        <div class="job-item-row d-md-flex align-items-center">
+                        var ms2 = ViewBag.MatchScores as Dictionary<string, int>;
+                        var isHighMatch = ms2 != null && ms2.ContainsKey(job.job_id) && ms2[job.job_id] >= 70;
+                        <div class="job-item-row d-md-flex align-items-center @(isHighMatch ? "match-highlight" : "")">
                             <div class="me-4 mb-3 mb-md-0 company-logo-container"> @* Đặt một class cho container *@
                                 @if (!string.IsNullOrEmpty(job.employer_logo))
                                 {
@@ -158,11 +234,23 @@
                                 }
                             </div>
                             <div class="flex-grow-1">
-                                <h5 class="fw-bold mb-1"><a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
-                                    class="text-decoration-none text-dark">
-                                        @job.job_title
-                                    </a>
-                                </h5>
+                                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                    <h5 class="fw-bold mb-0"><a asp-controller="Home" asp-action="Details" asp-route-id="@job.job_id" 
+                                        class="text-decoration-none text-dark">
+                                            @job.job_title
+                                        </a>
+                                    </h5>
+                                    @{
+                                        var matchScores2 = ViewBag.MatchScores as Dictionary<string, int>;
+                                        if (matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] > 0)
+                                        {
+                                            var score2 = matchScores2[job.job_id];
+                                            var badgeClass2 = score2 >= 70 ? "match-badge-high" : (score2 >= 40 ? "match-badge-medium" : "match-badge-low");
+                                            var emoji2 = score2 >= 70 ? "🎯" : (score2 >= 40 ? "👍" : "💡");
+                                            <span class="match-badge @badgeClass2">@emoji2 Phù hợp @score2%</span>
+                                        }
+                                    }
+                                </div>
                                 <p class="text-muted small mb-2">
                                     <span class="text-primary fw-bold">@job.employer_name</span> • @job.job_city
                                 </p>
@@ -282,5 +370,15 @@
             // Submit form filter ở bên trái
             document.querySelector('form.job-filter-sidebar').submit();
         });
+
+        // Xử lý khi thay đổi CV để so khớp
+        const cvSelector = document.getElementById('cvMatchSelector');
+        if (cvSelector) {
+            cvSelector.addEventListener('change', function() {
+                const url = new URL(window.location.href);
+                url.searchParams.set('selectedResumeId', this.value);
+                window.location.href = url.toString();
+            });
+        }
     });
 </script>

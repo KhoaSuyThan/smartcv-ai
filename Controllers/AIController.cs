@@ -231,6 +231,26 @@ Quy tắc:
                     prompt = $"Bạn là chuyên gia viết thư xin việc. Hãy viết một bức thư xin việc ấn tượng, chuyên nghiệp gửi đến công ty {context}. Dựa trên thông tin ứng viên: {content}. Yêu cầu: Văn phong thuyết phục, độ dài khoảng 250-300 chữ, có đầy đủ phần mở đầu, nội dung chính và kết bài. Chỉ trả về nội dung bức thư, không kèm lời chào của AI.";
                     break;
 
+                case "job_match": // So khớp CV với Job Description
+                    prompt = $@"Bạn là chuyên gia tuyển dụng IT hàng đầu Việt Nam với 15 năm kinh nghiệm. Hãy phân tích mức độ phù hợp giữa CV ứng viên và mô tả công việc (JD) dưới đây.
+
+=== CV CỦA ỨNG VIÊN ===
+{content}
+
+=== MÔ TẢ CÔNG VIỆC (JD) ===
+{context}
+
+YÊU CẦU PHÂN TÍCH:
+1. Tính điểm phù hợp tổng thể (matchScore) từ 0-100 dựa trên: kỹ năng kỹ thuật (40%), kinh nghiệm liên quan (30%), trình độ học vấn (15%), kỹ năng mềm (15%).
+2. Liệt kê các kỹ năng/từ khóa trong CV đã khớp với JD (matchedSkills).
+3. Liệt kê các kỹ năng/yêu cầu trong JD mà CV chưa có (missingSkills).
+4. Đưa ra 3-5 gợi ý CỤ THỂ để cải thiện CV nhằm tăng tỷ lệ trúng tuyển (suggestions).
+5. Viết nhận xét tổng quan 2-3 câu bằng tiếng Việt (summary).
+
+TUYỆT ĐỐI chỉ trả về JSON thuần (KHÔNG có markdown, KHÔNG có ```json, KHÔNG có lời dẫn):
+{{""matchScore"": 75, ""matchedSkills"": [""C#"", "".NET""], ""missingSkills"": [""Docker"", ""AWS""], ""suggestions"": [""Bổ sung kinh nghiệm Docker...""], ""summary"": ""Ứng viên có nền tảng tốt...""}}";
+                    break;
+
                 case "check_grammar": // Kiểm tra lỗi chính tả & ngữ pháp
                     prompt = $@"Bạn là một chuyên gia tuyển dụng cao cấp và biên tập viên CV chuyên nghiệp. Hãy kiểm tra lỗi chính tả, ngữ pháp và tính chuyên nghiệp của văn bản sau đây.
 
