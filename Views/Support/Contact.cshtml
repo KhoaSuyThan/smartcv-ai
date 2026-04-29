@@ -1,41 +1,319 @@
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow border-0 p-4">
-                <h3 class="fw-bold text-primary mb-3">Liên hệ với chúng tôi</h3>
-                <form asp-controller="Support" asp-action="Contact" method="post" enctype="multipart/form-data">
-                    <div asp-validation-summary="All" class="text-danger"></div>
+@{
+    ViewData["Title"] = "Liên hệ với chúng tôi";
+}
 
-                    @if (TempData["Success"] != null)
-                    {
-                        <div class="alert alert-success">@TempData["Success"]</div>
-                    }
+<div class="contact-page-wrapper py-5 position-relative" style="min-height: 90vh; overflow: hidden; background: #f8fbff;">
+    <!-- Animated Background Elements -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style="z-index: 0; pointer-events: none;">
+        <div class="blob-bg position-absolute" style="width: 600px; height: 600px; background: radial-gradient(circle, rgba(13, 110, 253, 0.15) 0%, rgba(255,255,255,0) 70%); top: -200px; left: -200px; filter: blur(60px); animation: move 20s infinite alternate;"></div>
+        <div class="blob-bg position-absolute" style="width: 500px; height: 500px; background: radial-gradient(circle, rgba(102, 16, 242, 0.12) 0%, rgba(255,255,255,0) 70%); bottom: -100px; right: -100px; filter: blur(60px); animation: move 25s infinite alternate-reverse;"></div>
+        <div class="blob-bg position-absolute" style="width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, rgba(255,255,255,0) 70%); top: 40%; left: 50%; filter: blur(80px); animation: move 30s infinite linear;"></div>
+    </div>
 
-                    <div class="mb-3">
-                        <label>Họ tên</label>
-                        <input type="text" name="Name" class="form-control" required /> </div>
+    <div class="container position-relative" style="z-index: 1;">
+        <div class="text-center mb-5" data-aos="fade-down">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold mb-3">GET IN TOUCH</span>
+            <h1 class="fw-black text-gradient display-3 mb-2" style="letter-spacing: -1px;">Liên Hệ Hỗ Trợ</h1>
+            <p class="text-muted lead mx-auto" style="max-width: 600px;">Đội ngũ của chúng tôi luôn sẵn sàng giải đáp thắc mắc và hỗ trợ bạn xây dựng sự nghiệp mơ ước.</p>
+        </div>
 
-                    <div class="mb-3">
-                        <label>Email</label>
-                        <input type="email" name="Email" class="form-control" required /> </div>
-
-                    <div class="mb-3">
-                        <label>Tiêu đề</label>
-                        <input type="text" name="Subject" class="form-control" /> </div>
-
-                    <div class="mb-3">
-                        <label>Nội dung</label>
-                        <textarea name="Message" class="form-control" rows="4" placeholder="Mô tả vấn đề hoặc yêu cầu của bạn tại đây..."></textarea> </div>
-
-                    <div class="mb-3">
-                            <label class="form-label fw-bold">Đính kèm ảnh hoặc file (Nếu có)</label>
-                            <input type="file" name="Attachment" class="form-control" accept="image/*,.pdf,.doc,.docx" />
-                            <small class="text-muted">Chấp nhận ảnh, PDF hoặc file Word (Dưới 5MB).</small>
+        <div class="row g-4 align-items-stretch">
+            <!-- Left Side: Information -->
+            <div class="col-lg-4" data-aos="fade-right">
+                <div class="premium-glass-card p-4 h-100 shadow-lg d-flex flex-column">
+                    <h4 class="fw-bold mb-4">Thông tin liên hệ</h4>
+                    
+                    <div class="contact-info-list d-flex flex-column gap-3">
+                        <div class="info-card d-flex align-items-start gap-3 p-2 rounded-4 transition-all">
+                            <div class="icon-circle bg-primary text-white shadow-sm">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Địa chỉ văn phòng</h6>
+                                <p class="text-muted mb-0 small">Khu phố 6, Linh Trung, Thủ Đức, TP. Hồ Chí Minh</p>
+                            </div>
                         </div>
 
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">GỬI TIN NHẮN</button>
-                </form>
+                        <div class="info-card d-flex align-items-start gap-3 p-3 rounded-4 transition-all">
+                            <div class="icon-circle bg-info text-white shadow-sm">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Đường dây nóng</h6>
+                                <p class="text-muted mb-0 small">0374 139 213 (8:00 - 21:00)</p>
+                            </div>
+                        </div>
+
+                        <div class="info-card d-flex align-items-start gap-3 p-3 rounded-4 transition-all">
+                            <div class="icon-circle bg-success text-white shadow-sm">
+                                <i class="fas fa-envelope-open-text"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Email hỗ trợ</h6>
+                                <p class="text-muted mb-0 small">khoanv249@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-3 text-center">
+                        <div class="illustration-wrapper p-2 rounded-5 bg-white bg-opacity-50">
+                            <img src="https://img.freepik.com/free-vector/contact-us-concept-illustration_114360-2291.jpg" alt="Support" class="img-fluid rounded-4 floating" style="max-height: 140px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Form -->
+            <div class="col-lg-8" data-aos="fade-left">
+                <div class="premium-glass-card p-4 shadow-lg h-100">
+                    <form asp-controller="Support" asp-action="Contact" method="post" enctype="multipart/form-data" class="row g-3">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                        @if (TempData["Success"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 py-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-check-circle fs-4 me-3"></i>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">Gửi tin nhắn thành công!</h6>
+                                        <small>Chúng tôi sẽ phản hồi bạn sớm nhất có thể.</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        <div class="col-md-6">
+                            <div class="input-group-premium">
+                                <input type="text" name="Name" required placeholder=" ">
+                                <label>Họ và tên</label>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="input-group-premium">
+                                <input type="email" name="Email" required placeholder=" ">
+                                <label>Địa chỉ Email</label>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="input-group-premium">
+                                <input type="text" name="Subject" required placeholder=" ">
+                                <label>Tiêu đề</label>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="textarea-group-premium">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <label class="fw-bold small text-secondary mb-0">Nội dung chi tiết</label>
+                                    <div class="file-upload-compact">
+                                        <input type="file" name="Attachment" id="fileInput" class="d-none" accept="image/*,.pdf,.doc,.docx" onchange="updateFileName(this)">
+                                        <label for="fileInput" class="btn btn-sm btn-outline-primary rounded-pill px-3 transition-all" style="font-size: 0.75rem; border-width: 1.5px;">
+                                            <i class="fas fa-paperclip me-1"></i> <span id="fileNameDisplay">Đính kèm tệp</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <textarea name="Message" rows="4" placeholder="Mô tả vấn đề hoặc góp ý của bạn tại đây..." required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-12 text-end pt-2">
+
+                            <button type="submit" class="btn-premium-action">
+                                <span>Gửi tin nhắn ngay</span>
+                                <div class="icon">
+                                    <i class="fas fa-paper-plane"></i>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    :root {
+        --p-blue: #0d6efd;
+        --p-purple: #6610f2;
+        --glass-white: rgba(255, 255, 255, 0.75);
+    }
+
+    .fw-black { font-weight: 900; }
+    
+    .premium-glass-card {
+        background: var(--glass-white);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 32px;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    .icon-circle {
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .info-card:hover {
+        background: rgba(255, 255, 255, 0.8);
+        transform: translateX(8px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+    }
+
+    /* Floating Label Inputs */
+    .input-group-premium {
+        position: relative;
+        margin-top: 10px;
+    }
+
+    .input-group-premium input {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 1rem;
+        color: #333;
+        border: none;
+        border-bottom: 2px solid #e0e0e0;
+        outline: none;
+        background: transparent;
+        transition: 0.3s;
+    }
+
+    .input-group-premium label {
+        position: absolute;
+        top: 12px;
+        left: 0;
+        color: #999;
+        font-size: 1rem;
+        pointer-events: none;
+        transition: 0.3s;
+    }
+
+    .input-group-premium input:focus ~ label,
+    .input-group-premium input:not(:placeholder-shown) ~ label {
+        top: -18px;
+        font-size: 0.85rem;
+        color: var(--p-blue);
+        font-weight: 700;
+    }
+
+    .input-group-premium .bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 2px;
+        width: 0;
+        background: var(--p-blue);
+        transition: 0.4s;
+    }
+
+    .input-group-premium input:focus ~ .bar {
+        width: 100%;
+    }
+
+    /* Textarea */
+    .textarea-group-premium textarea {
+        width: 100%;
+        border-radius: 16px;
+        padding: 15px;
+        border: 2px solid #eef2f7;
+        background: rgba(255, 255, 255, 0.5);
+        outline: none;
+        transition: 0.3s;
+        font-size: 0.95rem;
+    }
+
+    .textarea-group-premium textarea:focus {
+        border-color: var(--p-blue);
+        background: white;
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.05);
+    }
+
+    /* Modern File Upload */
+    .modern-file-upload {
+        border: 2px dashed #d1d9e6;
+        background: rgba(240, 244, 248, 0.4);
+        cursor: pointer;
+    }
+
+    .modern-file-upload:hover {
+        border-color: var(--p-blue);
+        background: rgba(13, 110, 253, 0.03);
+        transform: translateY(-2px);
+    }
+
+    /* Premium Action Button */
+    .btn-premium-action {
+        background: linear-gradient(135deg, var(--p-blue), var(--p-purple));
+        color: white;
+        border: none;
+        padding: 14px 35px;
+        border-radius: 18px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 15px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 10px 25px rgba(102, 16, 242, 0.25);
+        transition: 0.3s;
+    }
+
+    .btn-premium-action:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(102, 16, 242, 0.35);
+        color: white;
+    }
+
+    .btn-premium-action .icon {
+        transition: transform 0.4s;
+    }
+
+    .btn-premium-action:hover .icon {
+        transform: translate(5px, -5px) scale(1.2);
+    }
+
+    /* Animations */
+    @@keyframes move {
+        from { transform: translate(0, 0); }
+        to { transform: translate(100px, 50px); }
+    }
+
+    .cursor-pointer { cursor: pointer; }
+    
+    .floating {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    @@keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+</style>
+
+<script>
+    function updateFileName(input) {
+        const display = document.getElementById('fileNameDisplay');
+        if (input.files && input.files.length > 0) {
+            display.innerText = input.files[0].name;
+            // Thu gọn tên file nếu quá dài
+            if (display.innerText.length > 15) {
+                display.innerText = display.innerText.substring(0, 12) + '...';
+            }
+        } else {
+            display.innerText = 'Đính kèm tệp';
+        }
+    }
+</script>
