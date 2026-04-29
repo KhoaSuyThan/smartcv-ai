@@ -242,7 +242,7 @@
                                     </h5>
                                     @{
                                         var matchScores2 = ViewBag.MatchScores as Dictionary<string, int>;
-                                        if (matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] > 0)
+                                        if (matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] >= 0)
                                         {
                                             var score2 = matchScores2[job.job_id];
                                             var badgeClass2 = score2 >= 70 ? "match-badge-high" : (score2 >= 40 ? "match-badge-medium" : "match-badge-low");

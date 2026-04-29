@@ -112,7 +112,8 @@ namespace DoAnCS.Controllers
                 {
                     selectedResume = userResumes.FirstOrDefault(r => r.ResumeID == selectedResumeId.Value);
                 }
-                selectedResume ??= userResumes.FirstOrDefault();
+                // Ưu tiên lấy CV mà người dùng đang bật "Công khai" (IsPublic) trên Profile
+                selectedResume ??= userResumes.FirstOrDefault(r => r.IsPublic) ?? userResumes.FirstOrDefault();
 
                 if (selectedResume != null)
                 {
@@ -384,30 +385,26 @@ namespace DoAnCS.Controllers
         {
             if (userSkills == null || !userSkills.Any()) return 0;
 
-            // Gộp tất cả text của Job để so khớp
             var jobText = $"{job.Title} {job.Description} {job.Requirements}".ToLower();
 
             int matched = 0;
-            int total = userSkills.Count;
+            // Chỉ lấy các kỹ năng có ý nghĩa (độ dài >= 2)
+            var validUserSkills = userSkills.Where(s => !string.IsNullOrWhiteSpace(s) && s.Trim().Length >= 2).ToList();
+            int total = validUserSkills.Count;
 
-            foreach (var skill in userSkills)
+            if (total == 0) return 0;
+
+            foreach (var skill in validUserSkills)
             {
-                if (string.IsNullOrWhiteSpace(skill)) continue;
-                
-                // So khớp linh hoạt: tìm kiếm từng từ trong kỹ năng
                 var skillLower = skill.ToLower().Trim();
+                
+                // Tránh lỗi khi người dùng nhập chuỗi vô nghĩa như "aaaaaaaaa"
+                if (skillLower.Length > 20 && !skillLower.Contains(" ")) continue; 
+
+                // Chỉ tính là khớp nếu toàn bộ cụm từ xuất hiện trong JD (VD: "vue.js", "frontend")
                 if (jobText.Contains(skillLower))
                 {
                     matched++;
-                }
-                else
-                {
-                    // Thử tách từ và so khớp từng phần (VD: "ASP.NET Core" -> "asp.net", "core")
-                    var parts = skillLower.Split(new[] { ' ', ',', '/', '|', '-', '.' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length > 1 && parts.Any(p => p.Length >= 2 && jobText.Contains(p)))
-                    {
-                        matched++;
-                    }
                 }
             }
 
@@ -416,7 +413,9 @@ namespace DoAnCS.Controllers
             int jobMatched = 0;
             foreach (var keyword in jobKeywords)
             {
-                if (userSkills.Any(s => s.ToLower().Contains(keyword.ToLower()) || keyword.ToLower().Contains(s.ToLower())))
+                var keywordLower = keyword.ToLower();
+                // Phải khớp toàn bộ từ khóa công nghệ, không chơi chứa một phần (Contains) để tránh "a" khớp với "Java"
+                if (validUserSkills.Any(s => s.ToLower().Trim() == keywordLower || s.ToLower().Contains(keywordLower)))
                 {
                     jobMatched++;
                 }
@@ -426,7 +425,7 @@ namespace DoAnCS.Controllers
             double userRate = total > 0 ? (double)matched / total : 0;
             double jobRate = jobKeywords.Count > 0 ? (double)jobMatched / jobKeywords.Count : 0;
 
-            int score = (int)Math.Round((userRate * 40 + jobRate * 60) * 100); // Trọng số: 60% cho Job requirements
+            int score = (int)Math.Round((userRate * 40 + jobRate * 60) * 100); 
             return Math.Min(score, 100);
         }
 
