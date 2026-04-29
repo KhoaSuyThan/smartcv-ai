@@ -34,6 +34,7 @@ namespace DoAnCS.Services
                 string selectedModel = isPro ? (config.ProModelName ?? "gemini-2.5-pro") : config.ModelName;
                 double selectedTemp = isPro ? config.ProTemperature : config.Temperature;
                 int selectedMaxTokens = isPro ? config.ProMaxOutputTokens : config.MaxOutputTokens;
+                if (selectedMaxTokens < 8192) selectedMaxTokens = 8192; // Tăng lên 8192 vì tiếng Việt tốn rất nhiều token
 
                 // 2. Build URL (Sử dụng v1beta để dùng được tính năng System Instruction)
                 string url = $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={config.ApiKey}";

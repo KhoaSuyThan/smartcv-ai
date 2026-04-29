@@ -541,6 +541,20 @@
                     Cover Letter
                 </button>
             </div>
+
+            <!-- Nút Job Matcher (So khớp CV với JD) -->
+            <div class="pointer-events-auto">
+                <button 
+                    type="button" 
+                    @click="showJobMatcherModal = true"
+                    class="flex items-center gap-1 bg-gradient-to-br from-rose-500 via-orange-500 to-amber-400 text-white px-2 py-1 rounded-full font-black text-[9px] uppercase tracking-wider shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 active:scale-95 transition-all animate-in slide-in-from-right-10 duration-700"
+                >
+                    <span class="flex items-center justify-center w-4 h-4 bg-white/20 rounded-full">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    </span>
+                    Job Matcher
+                </button>
+            </div>
         </div>
 
         <!-- Vùng chứa CV: Dùng flex-col items-center và margin động để thanh cuộn khớp với tỉ lệ scale -->
@@ -745,6 +759,154 @@
             </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL JOB MATCHER (So khớp CV & JD) -->
+  <div v-if="showJobMatcherModal" class="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showJobMatcherModal = false"></div>
+    
+    <!-- Modal Content -->
+    <!-- Modal Content -->
+    <div class="relative bg-white w-[95vw] max-w-[1400px] h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col">
+        <!-- Modal Header -->
+        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <div>
+                    <h5 class="font-black uppercase tracking-tight text-sm">AI Job Matcher</h5>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">So khớp CV với mô tả công việc</p>
+                </div>
+            </div>
+            <button @click="showJobMatcherModal = false" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+        
+        <!-- Modal Body -->
+        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div class="flex gap-6 h-full" :class="jobMatchResult ? 'flex-row' : 'flex-col items-center'">
+                <!-- Cột trái: Nhập JD -->
+                <div :class="jobMatchResult ? 'w-[35%] shrink-0 h-full flex flex-col' : 'w-full max-w-[700px] h-full flex flex-col'" class="space-y-4">
+                    <div class="space-y-2 flex-1 flex flex-col">
+                        <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Dán nội dung mô tả công việc (JD)</label>
+                        <textarea 
+                            v-model="jobDescription" 
+                            class="w-full flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-orange-100 focus:border-orange-400 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
+                            :class="jobMatchResult ? 'min-h-[500px]' : 'min-h-[300px]'"
+                            placeholder="Dán nội dung Job Description / Mô tả công việc tại đây...
+
+Ví dụ:
+- Vị trí: Backend Developer
+- Yêu cầu: Thành thạo C#, ASP.NET Core, SQL Server, Docker...
+- Kinh nghiệm: Tối thiểu 2 năm..."
+                        ></textarea>
+                    </div>
+                    
+                    <button 
+                        @click="analyzeJobMatch" 
+                        :disabled="isMatchingJob || !jobDescription.trim()"
+                        class="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white py-3.5 rounded-xl font-black text-[12px] uppercase tracking-[0.15em] shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        <template v-if="isMatchingJob">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span>AI đang phân tích...</span>
+                        </template>
+                        <template v-else>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span>🎯 Phân tích mức độ phù hợp</span>
+                        </template>
+                    </button>
+                </div>
+
+                <!-- Cột phải: Kết quả -->
+                <div v-if="jobMatchResult" class="flex-1 space-y-5 min-w-0">
+                    <!-- Match Score Circle -->
+                    <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
+                        <div class="relative w-32 h-32 mx-auto mb-4">
+                            <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="52" stroke="#e2e8f0" stroke-width="10" fill="none"/>
+                                <circle cx="60" cy="60" r="52" 
+                                    :stroke="matchScoreColor" 
+                                    stroke-width="10" 
+                                    fill="none" 
+                                    stroke-linecap="round"
+                                    :stroke-dasharray="`${jobMatchResult.matchScore * 3.267} 326.7`"
+                                    class="transition-all duration-1000 ease-out"
+                                />
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-3xl font-black" :style="{ color: matchScoreColor }">{{ jobMatchResult.matchScore }}%</span>
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Match Score</span>
+                            </div>
+                        </div>
+                        <p class="text-sm font-bold" :style="{ color: matchScoreColor }">{{ matchScoreLabel }}</p>
+                    </div>
+
+                    <!-- Kỹ năng khớp -->
+                    <div v-if="jobMatchResult.matchedSkills?.length" class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4">
+                        <h4 class="text-[11px] font-black text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">✓</span>
+                            Kỹ năng đã khớp ({{ jobMatchResult.matchedSkills.length }})
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="skill in jobMatchResult.matchedSkills" :key="'matched-'+skill" 
+                                class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-[11px] font-bold border border-emerald-200">✅ {{ skill }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Kỹ năng thiếu -->
+                    <div v-if="jobMatchResult.missingSkills?.length" class="bg-rose-50/50 border border-rose-100 rounded-2xl p-4">
+                        <h4 class="text-[11px] font-black text-rose-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span class="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-[10px]">✗</span>
+                            Kỹ năng còn thiếu ({{ jobMatchResult.missingSkills.length }})
+                        </h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span v-for="skill in jobMatchResult.missingSkills" :key="'missing-'+skill" 
+                                class="px-3 py-1.5 bg-rose-100 text-rose-800 rounded-full text-[11px] font-bold border border-rose-200">❌ {{ skill }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Gợi ý cải thiện -->
+                    <div v-if="jobMatchResult.suggestions?.length" class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
+                        <h4 class="text-[11px] font-black text-blue-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <span class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">💡</span>
+                            Gợi ý cải thiện CV
+                        </h4>
+                        <ul class="space-y-2">
+                            <li v-for="(suggestion, idx) in jobMatchResult.suggestions" :key="'sug-'+idx" 
+                                class="text-sm text-slate-700 leading-relaxed flex items-start gap-2 bg-white p-3 rounded-xl border border-blue-50">
+                                <span class="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5">{{ idx + 1 }}</span>
+                                <span>{{ suggestion }}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Nhận xét tổng quan -->
+                    <div v-if="jobMatchResult.summary" class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4">
+                        <h4 class="text-[11px] font-black text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <span>📋</span> Nhận xét tổng quan
+                        </h4>
+                        <p class="text-sm text-slate-700 leading-relaxed italic">"{{ jobMatchResult.summary }}"</p>
+                    </div>
+                </div>
+
+                <!-- Placeholder khi chưa có kết quả -->
+                <div v-if="!jobMatchResult && !isMatchingJob" class="w-full max-w-[700px] text-center py-8">
+                    <div class="text-5xl mb-4 opacity-30">🎯</div>
+                    <p class="text-slate-400 text-sm font-medium">Dán nội dung JD vào ô trên và nhấn nút phân tích để xem mức độ phù hợp của CV với công việc.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-4 border-t border-slate-100 bg-white/90 backdrop-blur-md flex items-center justify-between shrink-0">
+            <p class="text-[10px] text-slate-400 font-medium italic">* AI sẽ phân tích dựa trên nội dung CV hiện tại của bạn.</p>
+            <button @click="showJobMatcherModal = false" class="px-6 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all">Đóng</button>
+        </div>
     </div>
   </div>
 </template>
@@ -1687,6 +1849,99 @@ const copyCoverLetter = () => {
         console.error('Không thể sao chép:', err);
         alert("Lỗi khi sao chép. Vui lòng thử lại!");
     });
+};
+
+// --- TÍNH NĂNG JOB MATCHER ---
+const showJobMatcherModal = ref(false);
+const jobDescription = ref('');
+const jobMatchResult = ref(null);
+const isMatchingJob = ref(false);
+
+const matchScoreColor = computed(() => {
+    if (!jobMatchResult.value) return '#94a3b8';
+    const score = jobMatchResult.value.matchScore;
+    if (score >= 80) return '#10b981'; // Emerald
+    if (score >= 60) return '#3b82f6'; // Blue
+    if (score >= 40) return '#f59e0b'; // Amber
+    return '#ef4444'; // Red
+});
+
+const matchScoreLabel = computed(() => {
+    if (!jobMatchResult.value) return '';
+    const score = jobMatchResult.value.matchScore;
+    if (score >= 80) return '🏆 Rất phù hợp! Hãy ứng tuyển ngay!';
+    if (score >= 60) return '👍 Khá phù hợp. Cải thiện thêm để tăng cơ hội.';
+    if (score >= 40) return '⚠️ Tạm được. Cần bổ sung nhiều kỹ năng.';
+    return '❌ Chưa phù hợp lắm. Xem gợi ý bên dưới.';
+});
+
+const analyzeJobMatch = async () => {
+    if (!jobDescription.value.trim()) {
+        alert('Vui lòng dán nội dung Job Description!');
+        return;
+    }
+
+    // Thu thập toàn bộ thông tin CV thành text
+    const g = resumeData.value.general;
+    let cvText = `Họ tên: ${(g.fullName || '').replace(/<[^>]*>/g, '')}\n`;
+    cvText += `Vị trí: ${(g.jobTitle || '').replace(/<[^>]*>/g, '')}\n`;
+    cvText += `Mục tiêu: ${(g.summary || '').replace(/<[^>]*>/g, '')}\n\n`;
+
+    resumeData.value.sections.forEach(section => {
+        if (!section.isVisible || !section.items) return;
+        cvText += `--- ${section.title} ---\n`;
+        section.items.forEach(item => {
+            if (section.id === 'experience') {
+                cvText += `${item.company || ''} | ${item.role || ''} | ${item.time || ''}\n`;
+                cvText += `${(item.desc || '').replace(/<[^>]*>/g, '')}\n`;
+            } else if (section.id === 'education') {
+                cvText += `${item.school || ''} | ${item.major || ''} | ${item.year || ''} | ${item.gradType || ''}\n`;
+            } else if (section.id === 'project') {
+                cvText += `${item.name || ''} | ${item.role || ''} | ${item.time || ''}\n`;
+                cvText += `${(item.desc || '').replace(/<[^>]*>/g, '')}\n`;
+            } else if (section.id === 'skills' || section.id === 'it_skills' || section.id === 'languages') {
+                cvText += `${item.name || ''} (${item.level || ''})\n`;
+            } else if (section.id === 'certifications' || section.id === 'awards') {
+                cvText += `${item.name || ''} - ${item.year || ''}\n`;
+            } else if (section.id === 'activities') {
+                cvText += `${item.name || ''} | ${item.time || ''}\n`;
+                cvText += `${(item.desc || '').replace(/<[^>]*>/g, '')}\n`;
+            } else if (section.id === 'hobbies') {
+                cvText += `${item.name || ''}\n`;
+            } else if (section.id === 'references') {
+                cvText += `${(item.info || '').replace(/<[^>]*>/g, '')}\n`;
+            }
+        });
+        cvText += '\n';
+    });
+
+    isMatchingJob.value = true;
+    jobMatchResult.value = null;
+
+    try {
+        const response = await callAIService('job_match', cvText, jobDescription.value);
+        if (response) {
+            try {
+                const jsonString = response.replace(/```json/g, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(jsonString);
+                jobMatchResult.value = {
+                    matchScore: parseInt(parsed.matchScore) || 0,
+                    matchedSkills: parsed.matchedSkills || [],
+                    missingSkills: parsed.missingSkills || [],
+                    suggestions: parsed.suggestions || [],
+                    summary: parsed.summary || ''
+                };
+            } catch (e) {
+                console.error('Lỗi parse JSON job match:', e, response);
+                alert('AI phản hồi không đúng định dạng. Vui lòng thử lại!');
+            }
+        }
+    } catch (err) {
+        console.error('Lỗi job match:', err);
+        alert('Hệ thống AI đang bận. Vui lòng thử lại sau!');
+    } finally {
+        isMatchingJob.value = false;
+    }
 };
 
 const handleGrammarFix = (e) => {
