@@ -168,7 +168,7 @@
             </form>
 
             @* === DROPDOWN CHỌN CV ĐỂ SO KHỚP === *@
-            @if (ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
+            @if (User.IsInRole("User") && ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
             {
                 var userResumes = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
                 var selectedId = ViewBag.SelectedResumeId ?? 0;
@@ -214,7 +214,7 @@
                     @foreach (var job in Model.RealJobs)
                     {
                         var ms2 = ViewBag.MatchScores as Dictionary<string, int>;
-                        var isHighMatch = ms2 != null && ms2.ContainsKey(job.job_id) && ms2[job.job_id] >= 70;
+                        var isHighMatch = User.IsInRole("User") && ms2 != null && ms2.ContainsKey(job.job_id) && ms2[job.job_id] >= 70;
                         <div class="job-item-row d-md-flex align-items-center @(isHighMatch ? "match-highlight" : "")">
                             <div class="me-4 mb-3 mb-md-0 company-logo-container"> @* Đặt một class cho container *@
                                 @if (!string.IsNullOrEmpty(job.employer_logo))
@@ -242,7 +242,7 @@
                                     </h5>
                                     @{
                                         var matchScores2 = ViewBag.MatchScores as Dictionary<string, int>;
-                                        if (matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] >= 0)
+                                        if (User.IsInRole("User") && matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] >= 0)
                                         {
                                             var score2 = matchScores2[job.job_id];
                                             var badgeClass2 = score2 >= 70 ? "match-badge-high" : (score2 >= 40 ? "match-badge-medium" : "match-badge-low");
