@@ -296,7 +296,7 @@
                         <button class="nav-link border-0 fw-bold @(activeTab == "info" ? "active text-primary" : "text-muted")" 
                                 id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="@(activeTab == "info" ? "true" : "false")"
                                 onclick="history.replaceState(null, null, '?t=info')">
-                            <i class="bi bi-person-lines-fill me-2"></i>Thông tin cá nhân
+                            <i class="bi bi-person-lines-fill me-2"></i>@(isRecruiter ? "Thông tin công ty" : "Thông tin cá nhân")
                         </button>
                     </li>
                     @if (!isAdmin && !isRecruiter)
@@ -324,8 +324,8 @@
                     <div class="tab-pane fade @(activeTab == "info" ? "show active" : "")" id="info" role="tabpanel" aria-labelledby="info-tab">
                         <div class="d-flex justify-content-between align-items-center mb-5 mt-3">
                             <div>
-                                <h4 class="info-card-title mb-1">Cài đặt tài khoản</h4>
-                                <p class="text-muted small mb-0">Quản lý và cập nhật thông tin định danh của bạn.</p>
+                                <h4 class="info-card-title mb-1">@(isRecruiter ? "Thông tin doanh nghiệp" : "Cài đặt tài khoản")</h4>
+                                <p class="text-muted small mb-0">@(isRecruiter ? "Quản lý và cập nhật thông tin thương hiệu của doanh nghiệp." : "Quản lý và cập nhật thông tin định danh của bạn.")</p>
                             </div>
                             <button type="button" id="btnEdit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold transition-base" onclick="enableEditing()">
                                 <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
@@ -349,16 +349,6 @@
                             <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
 
                             <div class="row g-5">
-                                <div class="col-md-6">
-                                    <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
-                                    <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
-                                    <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
-                                </div>
-
                                 @if (isRecruiter)
                                 {
                                     <div class="col-md-12">
@@ -375,6 +365,28 @@
                                             value="@(Model.Company?.Address)" 
                                             class="form-control edit-locked" readonly 
                                             placeholder="Nhập địa chỉ công ty" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Người đại diện</label>
+                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại liên hệ</label>
+                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
+                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
+                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
                                     </div>
                                 }
 
