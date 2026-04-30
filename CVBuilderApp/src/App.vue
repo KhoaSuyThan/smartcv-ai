@@ -769,7 +769,7 @@
     
     <!-- Modal Content -->
     <!-- Modal Content -->
-    <div class="relative bg-white w-[95vw] max-w-[1400px] h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col">
+    <div class="relative bg-white w-[95vw] max-w-[1400px] h-auto max-h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
             <div class="flex items-center gap-3">
@@ -788,18 +788,16 @@
         
         <!-- Modal Body -->
         <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <div class="flex gap-6 h-full" :class="jobMatchResult ? 'flex-row' : 'flex-col items-center'">
+            <div class="flex gap-6" :class="jobMatchResult ? 'flex-row' : 'flex-col items-center'">
                 <!-- Cột trái: Nhập JD -->
-                <div :class="jobMatchResult ? 'w-[35%] shrink-0 h-full flex flex-col' : 'w-full max-w-[700px] h-full flex flex-col'" class="space-y-4">
+                <div :class="jobMatchResult ? 'w-[35%] shrink-0 flex flex-col' : 'w-full max-w-[1000px] flex flex-col'" class="space-y-4">
                     <div class="space-y-2 flex-1 flex flex-col">
-                        <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Dán nội dung mô tả công việc (JD)</label>
+                        <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Nội dung mô tả công việc (JD)</label>
                         <textarea 
                             v-model="jobDescription" 
                             class="w-full flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-orange-100 focus:border-orange-400 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
-                            :class="jobMatchResult ? 'min-h-[500px]' : 'min-h-[300px]'"
-                            placeholder="Dán nội dung Job Description / Mô tả công việc tại đây...
-
-Ví dụ:
+                            :class="jobMatchResult ? 'min-h-[500px]' : 'min-h-[370px]'"
+                            placeholder="Ví dụ:
 - Vị trí: Backend Developer
 - Yêu cầu: Thành thạo C#, ASP.NET Core, SQL Server, Docker...
 - Kinh nghiệm: Tối thiểu 2 năm..."
@@ -895,18 +893,14 @@ Ví dụ:
                 </div>
 
                 <!-- Placeholder khi chưa có kết quả -->
-                <div v-if="!jobMatchResult && !isMatchingJob" class="w-full max-w-[700px] text-center py-8">
-                    <div class="text-5xl mb-4 opacity-30">🎯</div>
-                    <p class="text-slate-400 text-sm font-medium">Dán nội dung JD vào ô trên và nhấn nút phân tích để xem mức độ phù hợp của CV với công việc.</p>
+                <div v-if="!jobMatchResult && !isMatchingJob" class="w-full flex items-center justify-start gap-3 py-0 mt-[-1rem]">
+                    <span class="text-2xl opacity-40">🎯</span>
+                    <span class="text-slate-400 text-sm font-medium">Dán nội dung JD vào ô trên và nhấn nút phân tích để xem mức độ phù hợp của CV với công việc.</span>
                 </div>
             </div>
         </div>
 
-        <!-- Modal Footer -->
-        <div class="p-4 border-t border-slate-100 bg-white/90 backdrop-blur-md flex items-center justify-between shrink-0">
-            <p class="text-[10px] text-slate-400 font-medium italic">* AI sẽ phân tích dựa trên nội dung CV hiện tại của bạn.</p>
-            <button @click="showJobMatcherModal = false" class="px-6 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all">Đóng</button>
-        </div>
+
     </div>
   </div>
 </template>
