@@ -12,17 +12,9 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
--- NHỚ CHẠYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
--- Nhớ chạy
-ALTER TABLE Resumes
-ADD IsPublic BIT NOT NULL DEFAULT 0,
-    Slug NVARCHAR(255) NULL,
-    ViewCount INT NOT NULL DEFAULT 0;
--- Nhớ chạy
-ALTER TABLE [Resumes] ADD 
-    [FileUploadUrl] NVARCHAR(MAX) NULL;
-GO
--- Nhớ chạy
+-- Nhớ chạy data để lưu MOMO
+ALTER TABLE UpgradeRequests
+ADD TransactionId nvarchar(255) NULL;
 
 USE DoAnWebCS;
 GO
@@ -35,13 +27,6 @@ GO
 	UPDATE GeminiConfigs 
 	SET GrammarTemplate = N'Viết duy nhất một đoạn văn mô tả công việc (2-3 câu) sau cho vị trí {{context}} theo chuẩn STAR: {{content}}. YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu ''Dưới đây là...'', không tiêu đề.'
 	WHERE Id = 1;
-
--- Nhớ chạy 2 cái này
--- Xóa ràng buộc khóa ngoại cũ để không bị chặn khi lưu Resume mẫu Vue
-ALTER TABLE Resumes DROP CONSTRAINT FK__Resumes__Templat__5CD6CB2B;
-
--- Chuyển cột TemplateID sang cho phép NULL (optional)
-ALTER TABLE Resumes ALTER COLUMN TemplateID INT NULL;
 
 -- Test templates dùng Vue
 CREATE TABLE VueTemplates (
@@ -335,6 +320,7 @@ CREATE TABLE [UpgradeRequests] (
     [EvidenceImageUrl] NVARCHAR (MAX) NULL,
     [Notes]            NVARCHAR (MAX) NULL,
     [DecisionDate]     DATETIME       NULL,
+	TransactionId nvarchar(255) NULL, --Lưu Momo
     PRIMARY KEY ([Id]),
     CONSTRAINT [FK_Upgrade_User] FOREIGN KEY ([UserID]) REFERENCES [Users]([UserID])
 );

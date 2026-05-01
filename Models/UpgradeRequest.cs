@@ -26,5 +26,7 @@ namespace DoAnCS.Models
         public string? Notes { get; set; } // Ghi chú từ người dùng hoặc lý do từ chối từ Admin
         
         public DateTime? DecisionDate { get; set; } // Ngày Admin xử lý
+
+        public string? TransactionId { get; set; } // Mã giao dịch MoMo
     }
 }

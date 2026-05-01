@@ -529,54 +529,98 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpgradeConfirmed(IFormFile? evidenceFile, string? notes)
+        public async Task<IActionResult> CreateMomoPayment()
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
 
-            // Kiểm tra yêu cầu trùng lặp đang chờ duyệt
-            var existingRequest = await _context.UpgradeRequests
-                .FirstOrDefaultAsync(r => r.UserID == userId && r.Status == 0);
-            
+            var existingRequest = await _context.UpgradeRequests.FirstOrDefaultAsync(r => r.UserID == userId && r.Status == 0);
             if (existingRequest != null)
             {
-                TempData["InfoMessage"] = "Bạn đã gửi yêu cầu nâng cấp rồi. Vui lòng đợi Admin phê duyệt!";
-                return RedirectToAction("Upgrade");
+                _context.UpgradeRequests.Remove(existingRequest); // Xóa yêu cầu cũ đang treo
             }
 
-            // Xử lý upload ảnh minh chứng
-            string? imageUrl = null;
-            if (evidenceFile != null && evidenceFile.Length > 0)
-            {
-                string folder = "uploads/evidence/";
-                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(evidenceFile.FileName);
-                string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
-
-                if (!Directory.Exists(serverFolder)) Directory.CreateDirectory(serverFolder);
-
-                string filePath = Path.Combine(serverFolder, fileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
-                {
-                    await evidenceFile.CopyToAsync(fileStream);
-                }
-                imageUrl = "/" + folder + fileName;
-            }
-
-            // Tạo bản ghi yêu cầu mới
+            // Tạo yêu cầu mới (Status = 0: Đang chờ thanh toán)
             var request = new UpgradeRequest
             {
                 UserID = userId,
                 RequestDate = DateTime.Now,
-                Status = 0, // Chờ duyệt
-                EvidenceImageUrl = imageUrl,
-                Notes = notes
+                Status = 0,
+                Notes = "Thanh toán MoMo"
             };
 
             _context.UpgradeRequests.Add(request);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Gửi yêu cầu nâng cấp thành công! Vui lòng đợi Admin xét duyệt.";
-            return RedirectToAction("Profile");
+            // Mã đơn hàng (Gắn Id cố định vào chuỗi để tránh trùng lặp)
+            var orderId = $"CVBUILDER_{request.Id}_{DateTime.Now.Ticks}";
+
+            // Lấy service
+            var momoService = HttpContext.RequestServices.GetRequiredService<DoAnCS.Services.MomoService>();
+            
+            try
+            {
+                // Số tiền 20.000đ
+                var payUrl = await momoService.CreatePaymentUrl(orderId, 20000, $"Nang cap CVBuilder Pro cho UserID {userId}");
+                return Redirect(payUrl); // Chuyển hướng sang MoMo
+            }
+            catch (Exception ex)
+            {
+                TempData["PasswordErrorMessage"] = "Lỗi hệ thống khi tạo thanh toán: " + ex.Message;
+                return RedirectToAction("Upgrade");
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult PaymentCallback(string partnerCode, string orderId, string requestId, int amount, string orderInfo, string orderType, long transId, int resultCode, string message, string payType, long responseTime, string extraData, string signature)
+        {
+            if (resultCode == 0)
+            {
+                ViewBag.SuccessMessage = "Thanh toán thành công! Gói Pro của bạn sẽ được kích hoạt ngay lập tức.";
+            }
+            else
+            {
+                ViewBag.ErrorMessage = $"Thanh toán thất bại hoặc bị hủy: {message}";
+            }
+            return View("PaymentResult");
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> MomoIpn([FromBody] DoAnCS.Models.ViewModels.MomoIpnRequest request)
+        {
+            var momoService = HttpContext.RequestServices.GetRequiredService<DoAnCS.Services.MomoService>();
+            if (!momoService.ValidateSignature(request))
+            {
+                return BadRequest("Invalid signature");
+            }
+
+            if (request.resultCode == 0)
+            {
+                // Tách lấy UpgradeRequest.Id từ chuỗi "CVBUILDER_{Id}_{Ticks}"
+                var parts = request.orderId.Split('_');
+                if (parts.Length > 1 && int.TryParse(parts[1], out int upgradeId))
+                {
+                    var upgradeRequest = await _context.UpgradeRequests.FirstOrDefaultAsync(u => u.Id == upgradeId);
+                    if (upgradeRequest != null && upgradeRequest.Status == 0)
+                    {
+                        upgradeRequest.Status = 1; // Đã thanh toán
+                        upgradeRequest.DecisionDate = DateTime.Now;
+                        upgradeRequest.TransactionId = request.transId.ToString();
+
+                        var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == upgradeRequest.UserID);
+                        if (user != null)
+                        {
+                            user.IsPro = true;
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+            // MoMo yêu cầu HTTP 204 No Content
+            return NoContent(); 
         }
 
         // ==========================================
