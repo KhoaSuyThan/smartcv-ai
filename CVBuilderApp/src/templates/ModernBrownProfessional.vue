@@ -3,7 +3,8 @@
     
     <aside class="z-10 flex flex-col shrink-0 relative box-border" :style="{ width: '35%', backgroundColor: templateSecondaryColor, padding: '30px 20px', gap: '20px' }">
       
-      <div class="paginated-item relative z-20 w-full flex flex-col items-center mb-[-5px]">
+      <!-- ĐÃ SỬA: Đổi mb-[-5px] thành mb-[10px] để nhích avatar lên, không bị đè vạch -->
+      <div class="paginated-item relative z-20 w-full flex flex-col items-center mb-[10px]">
         <div class="relative rounded-full overflow-hidden mx-auto bg-white" :style="{ width: '150px', height: '150px', border: '5px solid #d6cdc4', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }">
           <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
@@ -12,7 +13,7 @@
         </div>
       </div>
 
-      <div class="paginated-item w-full" :style="{ borderTop: '1px solid #c9beae', borderBottom: '1px solid #c9beae', padding: '12px 0' }">
+      <div class="paginated-item w-full mb-[20px]" :style="{ borderTop: '1px solid #c9beae', borderBottom: '1px solid #c9beae', padding: '12px 0' }">
         <ul class="w-full list-none p-0 m-0 text-[#333] flex flex-col gap-[10px]" :style="{ fontSize: '12px !important' }">
           <li class="flex items-center gap-[10px] relative">
             <div class="w-[24px] h-[24px] bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm" :style="{ color: templatePrimaryColor }">
@@ -47,11 +48,11 @@
         </ul>
       </div>
 
-      <div class="w-full flex-1 flex flex-col gap-[20px] m-0 p-0">
+      <div class="w-full flex-1 flex flex-col m-0 p-0">
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block relative paginated-item w-full"
+            class="section-block relative w-full mb-[20px]"
             :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -64,11 +65,11 @@
                 <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Sang Phải">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg>
               </button>
             </div>
 
-            <h3 class="w-full block" :style="{ fontSize: '16px !important', color: '#333', borderBottom: '1px solid #c9beae', paddingBottom: '5px !important', margin: '0 0 10px 0 !important', fontWeight: 'bold !important' }">
+            <h3 class="w-full block paginated-item" :style="{ fontSize: '16px !important', color: '#333', borderBottom: '1px solid #c9beae', paddingBottom: '5px !important', margin: '0 0 10px 0 !important', fontWeight: 'bold !important' }">
               {{ section.title }}
             </h3>
 
@@ -79,23 +80,26 @@
                 class="item-container relative w-full text-[#444]"
                 :style="{ fontSize: '12px !important', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }"
               >
-                <div v-if="section.id === 'skills'" class="flex items-start gap-[8px]">
+                <div v-if="section.id === 'skills'" class="flex items-start gap-[8px] paginated-item">
                   <svg class="mt-[4px] shrink-0 text-[#634c46] opacity-70" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
                   <div class="font-medium text-[#333] w-full break-words">{{ item.name }}</div>
                 </div>
+                
                 <div v-else-if="section.id === 'education' || section.id === 'experience'" class="w-full">
-                  <div class="w-full flex justify-between items-start mb-[2px]">
+                  <div class="w-full flex justify-between items-start mb-[2px] paginated-item">
                     <span class="font-bold text-[#333] leading-tight flex-1" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
                     <span v-if="item.year || item.time" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold">{{ item.year || item.time }}</span>
                   </div>
-                  <div v-if="item.major || item.role" class="font-bold text-[#444] mb-[2px]">{{ item.major || item.role }}</div>
-                  <div v-if="item.desc" class="html-content text-justify whitespace-pre-line text-[#555] text-[11px]" v-html="formatDesc(item.desc)"></div>
+                  <div v-if="item.major || item.role" class="font-bold text-[#444] mb-[2px] paginated-item">{{ item.major || item.role }}</div>
+                  <div v-if="item.desc" class="html-content text-justify whitespace-pre-line text-[#555] text-[11px] flex flex-col" v-html="formatDesc(item.desc)"></div>
                 </div>
-                <div v-else-if="section.id === 'languages' || section.id === 'it_skills'" class="flex flex-col">
+                
+                <div v-else-if="section.id === 'languages' || section.id === 'it_skills'" class="flex flex-col paginated-item">
                   <div class="font-bold text-[#333] w-full break-words" :style="{ margin: '0 !important' }">{{ item.name }}</div>
                   <div v-if="item.info || item.level" class="w-full break-words mt-[2px]" :style="{ margin: '0 !important' }">{{ item.info || item.level }}</div>
                 </div>
-                <div v-else class="html-content break-words whitespace-pre-line text-justify w-full" :style="{ margin: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info || item.school || item.company)"></div>
+                
+                <div v-else class="html-content break-words whitespace-pre-line text-justify w-full flex flex-col" :style="{ margin: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info || item.school || item.company)"></div>
 
                 <!-- Nút xóa: chỉ hiện khi section đang active -->
                 <button
@@ -123,15 +127,15 @@
           :class="{ 'section-active--header': selectedSectionId === summarySection.id }"
           @click.stop="selectedSectionId = selectedSectionId === summarySection.id ? null : summarySection.id"
         >
-          <div class="html-content text-justify whitespace-pre-line w-full text-white" :style="{ fontSize: '12.5px !important', lineHeight: '1.6 !important', opacity: '0.9', margin: '0 !important', padding: '0 !important' }" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tôi là một ứng viên năng động, có tinh thần trách nhiệm cao và mong muốn đóng góp giá trị cho công ty...'"></div>
+          <div class="html-content text-justify whitespace-pre-line w-full text-white flex flex-col" :style="{ fontSize: '12.5px !important', lineHeight: '1.6 !important', opacity: '0.9', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tôi là một ứng viên năng động, có tinh thần trách nhiệm cao và mong muốn đóng góp giá trị cho công ty...')"></div>
         </div>
       </header>
 
-      <div class="w-full flex flex-col flex-1 box-border gap-[20px]" :style="{ padding: '30px 35px' }">
+      <div class="w-full flex flex-col flex-1 box-border m-0" :style="{ padding: '30px 35px' }">
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block relative paginated-item w-full"
+            class="section-block relative w-full mb-[20px]"
             :class="{ 'section-active--main': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -148,7 +152,7 @@
               </button>
             </div>
 
-            <h3 class="uppercase w-full block" :style="{ fontSize: '18px !important', color: '#333', borderBottom: `2px solid ${templatePrimaryColor}`, paddingBottom: '5px !important', margin: '0 0 15px 0 !important', fontWeight: 'bold !important' }">
+            <h3 class="uppercase w-full block paginated-item" :style="{ fontSize: '18px !important', color: '#333', borderBottom: `2px solid ${templatePrimaryColor}`, paddingBottom: '5px !important', margin: '0 0 15px 0 !important', fontWeight: 'bold !important' }">
               {{ section.title }}
             </h3>
 
@@ -160,19 +164,20 @@
                 :style="{ margin: '0 !important', padding: '0 !important' }"
               >
                 <div v-if="['education','experience','project','activities'].includes(section.id)" class="w-full" :style="{ padding: '0 !important' }">
-                  <div class="w-full flex justify-between items-start mb-[5px]">
+                  <div class="w-full flex justify-between items-start mb-[5px] paginated-item">
                     <div class="flex-1 pr-3">
                       <span class="font-bold text-[#333] leading-tight block" :style="{ fontSize: '14px', margin: '0 !important' }" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
                       <span class="italic text-[#555] block mt-[2px] leading-tight" :style="{ fontSize: '13px', margin: '0 !important' }" v-if="item.major || item.role">{{ item.major || item.role }}</span>
                     </div>
                     <span v-if="item.year || item.time" class="shrink-0 text-center whitespace-nowrap" :style="{ backgroundColor: '#9b8a7e', color: 'white', padding: '3px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }">{{ item.year || item.time }}</span>
                   </div>
-                  <div v-if="item.desc" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444]" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '5px 0 0 0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc)"></div>
-                  <div v-else-if="item.gradType" class="font-medium mt-[5px] text-[#444]" :style="{ fontSize: '12.5px !important', margin: '0 !important' }">Trạng thái: {{ item.gradType }}</div>
+                  <div v-if="item.desc" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '5px 0 0 0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc)"></div>
+                  <div v-else-if="item.gradType" class="font-medium mt-[5px] text-[#444] paginated-item" :style="{ fontSize: '12.5px !important', margin: '0 !important' }">Trạng thái: {{ item.gradType }}</div>
                 </div>
+                
                 <div v-else class="w-full" :style="{ padding: '0 !important' }">
-                  <div v-if="item.year || item.time" class="font-bold mb-[5px]" :style="{ color: templatePrimaryColor, fontSize: '12px', margin: '0 !important' }">{{ item.year || item.time }}</div>
-                  <div class="html-content text-justify whitespace-pre-line break-words w-full text-[#444]" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
+                  <div v-if="item.year || item.time" class="font-bold mb-[5px] paginated-item" :style="{ color: templatePrimaryColor, fontSize: '12px', margin: '0 !important' }">{{ item.year || item.time }}</div>
+                  <div class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
                 </div>
 
                 <!-- Nút xóa: chỉ hiện khi section đang active -->
@@ -219,7 +224,7 @@ const selectedSectionId = ref(null)
 
 // ─── Props / Emits ─────────────────────────────────────────────────────────
 const props = defineProps({ resumeData: { type: Object, required: true } })
-const emit  = defineEmits(['removeItem'])
+const emit  = defineEmits(['removeItem', 'moveUp', 'moveDown', 'moveHorizontal'])
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 const isEmpty = (val) => {
@@ -228,26 +233,56 @@ const isEmpty = (val) => {
   return val.replace(/<[^>]*>/g, '').trim() === ''
 }
 
+// THUẬT TOÁN "BĂM LÁ" XUYÊN SÂU TRÌNH SOẠN THẢO HTML
 const formatDesc = (text) => {
   if (!text) return ''
-  if (/<[a-z][\s\S]*>/i.test(text)) {
-    if (text.includes('<li') && (text.includes('<font') || text.includes('style='))) {
-      try {
-        const tempDiv = document.createElement('div')
-        tempDiv.innerHTML = text
-        tempDiv.querySelectorAll('li').forEach(li => {
-          const child = li.firstElementChild
-          if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
-            if (child.color) li.style.color = child.color
-            if (child.style?.color) li.style.color = child.style.color
-          }
-        })
-        return tempDiv.innerHTML
-      } catch (e) { return text }
-    }
-    return text
+  
+  if (!/<[a-z][\s\S]*>/i.test(text)) {
+    return text.split('\n')
+               .map(l => l.trim())
+               .filter(Boolean)
+               .map(l => `<span class="paginated-item" style="display: block; width: 100%;">${l}</span>`)
+               .join('')
   }
-  return text.split('\n').map(l => l.trim()).filter(Boolean).join('<br/>')
+  
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = text
+  
+  tempDiv.querySelectorAll('li').forEach(li => {
+    const child = li.firstElementChild
+    if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
+      if (child.color) li.style.color = child.color
+      if (child.style?.color) li.style.color = child.style.color
+    }
+  })
+
+  // Đệ quy bọc các text nodes bằng thẻ span để thuật toán JS tóm gọn từng dòng
+  const wrapTextNodes = (element) => {
+    Array.from(element.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.trim()) {
+           const wrapper = document.createElement('span')
+           wrapper.className = 'paginated-item'
+           wrapper.style.display = 'block'
+           wrapper.style.width = '100%'
+           node.replaceWith(wrapper)
+           wrapper.appendChild(node)
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        node.classList.remove('paginated-item')
+        if (node.tagName === 'BR') {
+           node.outerHTML = '<span class="paginated-item" style="display: block; width: 100%; height: 6px;"></span>'
+        } else if (node.tagName === 'LI') {
+           node.classList.add('paginated-item')
+        } else {
+           wrapTextNodes(node)
+        }
+      }
+    })
+  }
+
+  wrapTextNodes(tempDiv)
+  return tempDiv.innerHTML
 }
 
 // ─── Theme colors ──────────────────────────────────────────────────────────
@@ -299,92 +334,102 @@ const moveSectionHorizontal = (sectionId, direction) => {
   requestPagination()
 }
 
-// ─── Pagination (học từ CVTemplate.vue gốc) ────────────────────────────────
+// ─── THUẬT TOÁN PHÂN TRANG (TÍNH TOÁN THEO KÍCH THƯỚC VẬT LÝ, KHÁNG ZOOM) ─
 const A4_W_MM   = 210
 const A4_H_MM   = 297
-const MARGIN_MM = 20  // giống hệt CVTemplate gốc
 
 let paginateTimer = null
 const requestPagination = () => {
   if (paginateTimer) clearTimeout(paginateTimer)
-  paginateTimer = setTimeout(doPagination, 60)
+  paginateTimer = setTimeout(doPagination, 50)
 }
 
 const doPagination = async () => {
   if (!cvRoot.value) return
 
-  cvRoot.value.querySelectorAll('.paginated-item').forEach(el => { el.style.marginTop = '' })
+  // Tạm vô hiệu hóa hiệu ứng Scale CSS để tránh sai lệch tọa độ khi người dùng chọn khối
+  const activeElements = cvRoot.value.querySelectorAll('.section-active--main, .section-active--sidebar, .section-active--header')
+  activeElements.forEach(el => el.style.setProperty('transform', 'none', 'important'))
+
+  // BỘ LỌC CHỈ CHỌN LỚP NGOÀI CÙNG
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
+    if (el.offsetHeight === 0) return false;
+    let parent = el.parentElement;
+    while (parent && parent !== cvRoot.value) {
+      if (parent.classList.contains('paginated-item')) return false;
+      parent = parent.parentElement;
+    }
+    return true;
+  });
+
+  allElements.forEach(el => { el.style.setProperty('margin-top', '0px', 'important') })
   await nextTick()
 
-  const pxPerMm  = cvRoot.value.offsetWidth / A4_W_MM
+  // THUẬT TOÁN KHÁNG ZOOM: TÍNH THEO OFFSET_WIDTH THAY VÌ GET_BOUNDING_CLIENT_RECT
+  const offsetW = cvRoot.value.offsetWidth;
+  const cvRect = cvRoot.value.getBoundingClientRect();
+  const scale = offsetW ? cvRect.width / offsetW : 1; 
+
+  const pxPerMm  = offsetW / A4_W_MM
   const pageH    = A4_H_MM * pxPerMm
-  const marginPx = MARGIN_MM * pxPerMm
-  const safeLine = pageH - marginPx
+  const bottomSafeZone = 14 * pxPerMm
+  // Tăng lề trên để nhảy trang không bị sát vạch
+  const topMargin = 16 * pxPerMm
 
-  const relTop = (el) => {
-    let off = 0, cur = el
-    while (cur && cur !== cvRoot.value) { off += cur.offsetTop; cur = cur.offsetParent }
-    return off
-  }
+  let stable = false
+  let passes = 0
 
-  const processColumn = (selector) => {
-    const col = cvRoot.value.querySelector(selector)
-    if (!col) return
-    const colItems = col.classList.contains('paginated-item')
-      ? [col]
-      : Array.from(col.querySelectorAll('.paginated-item'))
+  while (!stable && passes < 30) {
+    stable = true
+    passes++
+    const currentCvRect = cvRoot.value.getBoundingClientRect()
 
-    // item phải nhỏ hơn maxUsable mới đẩy — item quá lớn bỏ qua hoàn toàn (giống CVTemplate gốc)
-    const maxUsable = safeLine - marginPx
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      const elRect = el.getBoundingClientRect()
+      
+      // Khử tỷ lệ thu phóng do trình duyệt Zoom
+      const top = (elRect.top - currentCvRect.top) / scale
+      const height = elRect.height / scale
+      const bottom = top + height
 
-    for (let pass = 0; pass < 80; pass++) {
-      let stable = true
-      for (const item of colItems) {
-        const top     = relTop(item)
-        const bottom  = top + item.offsetHeight
-        const pageIdx = Math.floor(top / pageH)
-        const curSafe = pageIdx * pageH + safeLine
+      const pageIndex = Math.floor(top / pageH)
+      const topInPage = top - (pageIndex * pageH)
+      const bottomInPage = topInPage + height
 
-        if (top < curSafe && bottom > curSafe && item.offsetHeight <= maxUsable) {
-          const targetTop = (pageIdx + 1) * pageH + marginPx
-          const extra     = targetTop - top
-          const cur       = parseFloat(item.style.marginTop || '0')
-          item.style.marginTop = (cur + extra) + 'px'
-          stable = false
-          break
-        }
+      // Chặn nếu có khối vô tình quá lớn
+      if (height > (pageH - bottomSafeZone - topMargin)) continue
+
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const distToNextPage = pageH - topInPage + topMargin
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         stable = false
+         break
       }
-      if (stable) break
     }
   }
 
-  processColumn('aside')
-  processColumn('main')
+  // Khôi phục lại hiệu ứng thu phóng
+  activeElements.forEach(el => el.style.removeProperty('transform'))
 
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
   let maxBottom = 0
-  cvRoot.value.querySelectorAll('.paginated-item').forEach(el => {
-    const b = relTop(el) + el.offsetHeight
-    if (b > maxBottom) maxBottom = b
+  allElements.forEach(el => {
+    const bottom = (el.getBoundingClientRect().bottom - finalCvRect.top) / scale
+    if (bottom > maxBottom) maxBottom = bottom
   })
 
-  const needed = Math.max(1, Math.ceil((maxBottom + marginPx) / pageH))
-  if (pageCount.value !== needed) pageCount.value = needed
+  pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
 }
 
 // ─── Visibility init ───────────────────────────────────────────────────────
-// Chỉ hiển thị section đã có dữ liệu HOẶC nằm trong danh sách thiết kế gốc
-const hasData = (sec) => {
-  if (sec.id === 'summary') return !isEmpty(sec.content || '')
-  return Array.isArray(sec.items) && sec.items.length > 0
-}
-
 const DESIGN_SIDEBAR = ['skills', 'certifications', 'awards', 'education', 'references', 'languages', 'it_skills']
 const DESIGN_MAIN    = ['experience', 'activities', 'project']
 
 onMounted(() => {
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
-      // Gán cột theo thiết kế gốc
       if (DESIGN_SIDEBAR.includes(sec.id)) {
         sec.column = 'left'
       } else if (DESIGN_MAIN.includes(sec.id)) {
@@ -394,8 +439,6 @@ onMounted(() => {
       } else if (!sec.column) {
         sec.column = 'right'
       }
-
-      // Hiển thị tất cả section trong danh sách thiết kế gốc (kể cả rỗng, giống ảnh mẫu)
       const inDesign = [...DESIGN_SIDEBAR, ...DESIGN_MAIN, 'summary'].includes(sec.id)
       sec.isVisible = inDesign
     })
@@ -433,7 +476,12 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   position: relative;
 }
 
-/* ── Delete button — chỉ hiện khi section active (v-show điều khiển) ──── */
+/* ── Đóng băng Animation (Chống lỗi đo Pixel) ──── */
+.paginated-item {
+  transition: none !important;
+}
+
+/* ── Delete button ──── */
 .delete-btn {
   position: absolute !important;
   right: -6px !important;
@@ -469,13 +517,10 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
     background    0.15s ease;
 }
 
-/* Hover: KHÔNG thêm bất kỳ hiệu ứng hay nút nào */
 .section-block:hover {
   background: transparent !important;
 }
 
-/* ── Active — sidebar:
-     viền màu nền sidebar (#e5ddd5) → "chìm" nhưng vẫn định hình khung  ─ */
 .section-active--sidebar {
   border: 2px solid #c9beae !important;
   border-style: solid !important;
@@ -486,8 +531,6 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   z-index: 10 !important;
 }
 
-/* ── Active — main:
-     viền màu nền trắng (#ffffff) → "chìm" trên nền trắng  ─────────────── */
 .section-active--main {
   border: 2px solid #e8e0d8 !important;
   border-style: solid !important;
@@ -498,25 +541,23 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   z-index: 10 !important;
 }
 
-/* ── Active — header summary ───────────────────────────────────────────── */
 .section-active--header {
   border-radius: 6px !important;
   outline: 2px solid rgba(255,255,255,0.4) !important;
   outline-offset: 4px !important;
 }
 
-/* ── Nav buttons — CHỈ hiện khi section active, ẩn hoàn toàn khi không ── */
+/* ── Nav buttons ── */
 .nav-btns {
   position: absolute !important;
   right: 4px !important;
   top: 4px !important;
-  display: none !important;   /* mặc định ẩn — v-show sẽ override thành flex khi active */
+  display: none !important; 
   flex-direction: row !important;
   gap: 4px !important;
   z-index: 9999 !important;
 }
 
-/* v-show của Vue set inline style="display:flex" khi true — cho phép override */
 .section-active--sidebar .nav-btns,
 .section-active--main .nav-btns {
   display: flex !important;
@@ -553,7 +594,7 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
 :deep(.html-content li:has(> font[size="3"])) { font-size: 12.5px !important; }
 :deep(.html-content li:has(> font[size="4"])) { font-size: 14px !important; }
 
-/* ── Print / PDF ───────────────────────────────────────────────────────── */
+/* BẢO VỆ GIAO DIỆN BẢN IN, XÓA MỌI GHI ĐÈ SAI LỆCH VỊ TRÍ PADDING */
 @media print {
   .no-print { display: none !important; }
   .section-block,
