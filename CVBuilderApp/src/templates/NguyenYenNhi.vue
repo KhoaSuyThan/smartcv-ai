@@ -48,9 +48,10 @@
       <!-- CỘT TRÁI (SIDEBAR) -->
       <aside class="flex-[1.1] min-w-[75mm] flex flex-col gap-5" @click.self="selectedSectionId = null">
         <template v-for="section in sidebarSections" :key="section.id">
+          <!-- GỠ paginated-item Ở THẺ BỌC CHÍNH ĐỂ TRÁNH KÉO CẢ CỤC -->
           <div
             v-show="section.isVisible"
-            class="section-block relative paginated-item"
+            class="section-block relative"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -61,25 +62,52 @@
               <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
 
-            <h3 class="font-black uppercase mb-3 tracking-wider text-slate-900" style="font-size: 20px !important; font-weight: bold !important;">{{ section.title }}</h3>
+            <!-- Tiêu đề có phân trang riêng -->
+            <div class="paginated-item">
+              <h3 class="font-black uppercase mb-3 tracking-wider text-slate-900" style="font-size: 20px !important; font-weight: bold !important;">{{ section.title }}</h3>
+            </div>
 
             <div class="space-y-3">
+              <!-- Summary -->
               <div v-if="section.id === 'summary'"
-                class="text-[12.5px] leading-[1.6] text-slate-700 text-justify font-medium html-content paginated-item"
-                v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mô tả mục tiêu nghề nghiệp của bạn...'">
+                class="text-[12.5px] leading-[1.6] text-slate-700 text-justify font-medium html-content"
+                v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mô tả mục tiêu nghề nghiệp của bạn...')">
               </div>
 
-              <div v-else-if="section.id === 'education'" class="space-y-4">
-                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 paginated-item item-container">
-                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                  <div class="absolute left-0 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
-                  <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
-                  <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
-                  <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+              <!-- NÂNG CẤP: Xử lý Experience / Project / Activities giống hệt cột phải -->
+              <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-5 relative">
+                <div class="absolute left-[7px] top-2 bottom-6 w-[2px] bg-pink-50 z-0"></div>
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-8 item-container z-10">
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="left: -2px; top: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                  <div class="paginated-item relative">
+                    <div class="absolute -left-8 top-1.5 text-pink-500 bg-white shadow-sm ring-4 ring-white rounded-full"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                    <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide flex flex-col">
+                      <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
+                      <span class="text-slate-500 uppercase font-black text-[9px] opacity-60 tracking-widest mt-0.5">{{ section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.name || 'DỰ ÁN') }}</span>
+                    </div>
+                    <h4 class="text-[13px] font-black text-slate-900 leading-tight mb-1.5">
+                      {{ section.id === 'experience' ? item.role : (item.role || item.name || 'Vị trí') }}
+                    </h4>
+                  </div>
+                  <div class="text-[12.5px] leading-[1.6] text-slate-600 text-justify font-medium html-content" v-html="formatDesc(item.desc || '')"></div>
                 </div>
               </div>
 
-              <div v-else-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="space-y-2.5">
+              <!-- Education -->
+              <div v-else-if="section.id === 'education'" class="space-y-4">
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                  <div class="paginated-item relative">
+                    <div class="absolute -left-6 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                    <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
+                    <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
+                    <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Skills / Languages -->
+              <div v-else-if="['skills','languages','it_skills'].includes(section.id)" class="space-y-2.5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -5px; right: -5px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
                   <div class="flex justify-between items-end mb-1">
@@ -92,11 +120,13 @@
                 </div>
               </div>
 
+              <!-- Các mục khác (Fallback) -->
               <div v-else class="space-y-2.5">
-                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container pl-6 relative">
+                <!-- ĐÃ GỠ paginated-item Ở ĐÂY ĐỂ TRÁNH LỖI KÉO CẢ CỤC -->
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container pl-6 relative">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
                   <div class="absolute left-0 top-1 text-pink-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
-                  <div class="text-[12.5px] font-bold text-slate-800" v-html="formatDesc(item.name || item.desc || item.info)"></div>
+                  <div class="text-[12.5px] font-bold text-slate-800 html-content" v-html="formatDesc(item.name || item.desc || item.info)"></div>
                 </div>
               </div>
             </div>
@@ -128,55 +158,69 @@
 
         <!-- CÁC SECTION MAIN -->
         <template v-for="section in mainSections" :key="section.id">
+          <!-- GỠ paginated-item -->
           <div
             v-show="section.isVisible"
-            class="section-block relative paginated-item"
+            class="section-block relative group my-0 py-1"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
-            <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
-              <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
-              <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
+            <!-- Nav Buttons -->
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
+                <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+                <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </transition>
 
-            <h3 class="font-black uppercase mb-4 tracking-wider text-slate-900 border-b border-pink-50 pb-2 paginated-item" style="font-size: 20px !important; font-weight: bold !important;">{{ section.title }}</h3>
+            <!-- Tiêu đề -->
+            <div class="paginated-item">
+              <h3 class="font-black uppercase mb-4 tracking-wider text-slate-900 border-b border-pink-50 pb-2" style="font-size: 20px !important; font-weight: bold !important;">{{ section.title }}</h3>
+            </div>
 
             <div v-if="section.id === 'summary'"
-              class="text-[12.5px] leading-[1.6] text-slate-700 text-justify font-medium html-content paginated-item"
-              v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mô tả mục tiêu nghề nghiệp của bạn...'">
+              class="text-[12.5px] leading-[1.6] text-slate-700 text-justify font-medium html-content"
+              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mô tả mục tiêu nghề nghiệp của bạn...')">
             </div>
 
-            <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-6 relative">
+            <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-6 relative">
               <div class="absolute left-[7px] top-2 bottom-6 w-[2px] bg-pink-50 z-0"></div>
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-8 paginated-item item-container z-10">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-8 item-container z-10">
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="left: -2px; top: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                <div class="absolute left-0 top-1.5 text-pink-500 bg-white shadow-sm ring-4 ring-white rounded-full"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
-                <div class="text-[12.5px] font-black text-pink-500 mb-1 tracking-wide flex justify-between">
-                  <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
-                  <span class="text-slate-500 uppercase font-black text-[10px] opacity-60 tracking-widest">{{ section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.name || 'DỰ ÁN') }}</span>
+                <div class="paginated-item relative">
+                  <div class="absolute -left-8 top-1.5 text-pink-500 bg-white shadow-sm ring-4 ring-white rounded-full"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                  <div class="text-[12.5px] font-black text-pink-500 mb-1 tracking-wide flex justify-between">
+                    <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
+                    <span class="text-slate-500 uppercase font-black text-[10px] opacity-60 tracking-widest">{{ section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.name || 'DỰ ÁN') }}</span>
+                  </div>
+                  <h4 class="text-[14.5px] font-black text-slate-900 leading-tight mb-1.5">
+                    {{ section.id === 'experience' ? item.role : (item.role || item.name || 'Vị trí') }}
+                    <span v-if="section.id === 'experience' && item.company" class="text-slate-400 font-bold text-[13px] ml-1 opacity-80">| {{ item.company }}</span>
+                  </h4>
                 </div>
-                <h4 class="text-[14.5px] font-black text-slate-900 leading-tight mb-1.5">
-                  {{ section.id === 'experience' ? item.role : (item.role || item.name || 'Vị trí') }}
-                  <span v-if="section.id === 'experience' && item.company" class="text-slate-400 font-bold text-[13px] ml-1 opacity-80">| {{ item.company }}</span>
-                </h4>
                 <div class="text-[12.5px] leading-[1.6] text-slate-600 text-justify font-medium html-content" v-html="formatDesc(item.desc || '')"></div>
               </div>
             </div>
 
             <div v-else-if="section.id === 'education'" class="space-y-4">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 paginated-item item-container">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                <div class="absolute left-0 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
-                <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
-                <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
-                <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+                <div class="paginated-item relative">
+                  <div class="absolute -left-6 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                  <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
+                  <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
+                  <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+                </div>
+                <div class="text-[12.5px] leading-[1.6] text-slate-600 html-content" v-html="formatDesc(item.desc)"></div>
+                <div v-if="!item.desc && item.gradType" class="paginated-item text-[12.5px] font-bold mt-1">Trạng thái: <span class="font-normal">{{ item.gradType }}</span></div>
               </div>
             </div>
 
+            <!-- Các mục khác -->
             <div v-else class="space-y-3" style="padding-left: 4px;">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 paginated-item item-container">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 <div class="absolute left-0 top-1 text-pink-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
                 <div class="html-content font-medium text-justify text-[12.5px] text-slate-800" v-html="formatDesc(item.desc || item.info || item.name)"></div>
@@ -187,12 +231,14 @@
       </main>
     </div>
 
+    <!-- DECORATION BÊN DƯỚI -->
     <div class="absolute bottom-[4mm] right-[10mm] flex items-center gap-1 text-pink-500 opacity-60 z-20 no-print">
       <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
       <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
       <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
     </div>
 
+    <!-- VẠCH DƯỚI CỐ ĐỊNH TỪNG TRANG -->
     <template v-for="p in pageCount" :key="'footer-border-'+p">
       <div class="absolute left-0 w-full flex items-center z-40 pointer-events-none"
         :style="{ top: `calc(${p * 297}mm - 12mm)`, height: '1.5px', paddingLeft: '15mm', paddingRight: '15mm' }">
@@ -200,6 +246,7 @@
       </div>
     </template>
 
+    <!-- THANH NGẮT TRANG (ĐEN) -->
     <template v-for="p in (pageCount - 1)" :key="'div-'+p">
       <div class="absolute left-[-2.5%] w-[105%] z-50 flex flex-col items-center justify-center pointer-events-none no-print"
         :style="{ top: `calc(${p * 297}mm - 12px)` }">
@@ -240,10 +287,54 @@ const mainSections = computed(() => props.resumeData.sections.filter(s => s.colu
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
 
+// HÀM CHÉM NHỎ DÒNG
 const formatDesc = (text) => {
   if (!text) return ''
-  if (/<[a-z][\s\S]*>/i.test(text)) return text
-  return text.split('\n').map(l => l.trim()).filter(l => l).join('<br/>')
+  
+  if (!/<[a-z][\s\S]*>/i.test(text)) {
+     return text.split('\n')
+                .map(l => l.trim())
+                .filter(Boolean)
+                .map(l => `<div class="paginated-item">${l}</div>`)
+                .join('')
+  }
+
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = text
+  
+  tempDiv.querySelectorAll('li').forEach(li => {
+    const child = li.firstElementChild
+    if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
+      if (child.color) li.style.color = child.color
+      if (child.style && child.style.color) li.style.color = child.style.color
+    }
+  })
+
+  const container = document.createElement('div')
+  Array.from(tempDiv.childNodes).forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      if (node.textContent.trim()) {
+        const div = document.createElement('div')
+        div.className = 'paginated-item min-h-[14px]'
+        div.appendChild(node.cloneNode(true))
+        container.appendChild(div)
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      if (node.tagName === 'BR') {
+        const div = document.createElement('div')
+        div.className = 'paginated-item h-[14px]'
+        container.appendChild(div)
+      } else if (['UL', 'OL'].includes(node.tagName)) {
+        Array.from(node.children).forEach(li => li.classList.add('paginated-item'))
+        container.appendChild(node.cloneNode(true))
+      } else {
+        node.classList.add('paginated-item')
+        container.appendChild(node.cloneNode(true))
+      }
+    }
+  })
+
+  return container.innerHTML
 }
 
 const getLevelInfo = (level) => {
@@ -259,62 +350,57 @@ const getLevelInfo = (level) => {
   return { text: level, percent: '80%' }
 }
 
-// ── Pagination ──────────────────────────────────────────────────────────────
+// ── Pagination Engine Tối Ưu ──────────────────────────────────────────
 let paginateTimer = null
 const requestPagination = () => {
   if (paginateTimer) clearTimeout(paginateTimer)
-  paginateTimer = setTimeout(doPagination, 50)
+  paginateTimer = setTimeout(doPagination, 60)
 }
 
 const doPagination = async () => {
   if (!cvRoot.value) return
-  cvRoot.value.querySelectorAll('.paginated-item').forEach(el => { el.style.marginTop = '' })
+  const allElements = cvRoot.value.querySelectorAll('.paginated-item')
+  allElements.forEach(el => { el.style.marginTop = '0px' })
   await nextTick()
 
-  const A4_W = 210, A4_H = 297, MB = 18, MT = 15
-  const pxMm = cvRoot.value.offsetWidth / A4_W
-  const pageH = A4_H * pxMm
-  const mbPx = MB * pxMm
-  const mtPx = MT * pxMm
+  const A4_W_MM = 210
+  const A4_H_MM = 297
+  const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM
+  const pageH = A4_H_MM * pxPerMm
+  
+  // Dừng lại 14mm trước khi hết trang
+  const bottomSafeZone = 14 * pxPerMm
+  const topMargin = 8 * pxPerMm
 
-  const relTop = (el) => {
-    let off = 0, cur = el
-    while (cur && cur !== cvRoot.value) { off += cur.offsetTop; cur = cur.offsetParent }
-    return off
-  }
-
-  const processColumn = (sel) => {
-    const col = cvRoot.value.querySelector(sel)
-    if (!col) return
-    const items = col.querySelectorAll('.paginated-item')
-    let stable = false, attempts = 0
-    while (!stable && attempts < 50) {
-      stable = true; attempts++
-      for (const item of items) {
-        const top = relTop(item), h = item.offsetHeight, bottom = top + h
-        const pageIdx = Math.floor(top / pageH)
-        const safeBottom = (pageIdx + 1) * pageH - mbPx
-        if (bottom > safeBottom && top < (pageIdx + 1) * pageH) {
-          if (h > pageH - mtPx - mbPx) continue
-          const delta = (pageIdx + 1) * pageH + mtPx - top
-          item.style.marginTop = (parseFloat(item.style.marginTop || '0') + delta) + 'px'
-          stable = false; break
-        }
-      }
+  const getOffsetTop = (el) => {
+    let offset = 0
+    let curr = el
+    while (curr && curr !== cvRoot.value) {
+      offset += curr.offsetTop
+      curr = curr.offsetParent
     }
+    return offset
   }
 
-  processColumn('header')
-  processColumn('aside')
-  processColumn('main')
+  allElements.forEach((el) => {
+    if(el.offsetHeight === 0) return
+    const top = getOffsetTop(el)
+    const topInPage = top % pageH
+    const bottomInPage = topInPage + el.offsetHeight
+
+    // Đáy đè qua vạch cấm -> Đẩy qua mép
+    if (bottomInPage > (pageH - bottomSafeZone)) {
+       const distToNextPage = pageH - topInPage + topMargin
+       el.style.marginTop = `${distToNextPage}px`
+    }
+  })
 
   let maxBottom = 0
-  cvRoot.value.querySelectorAll('.paginated-item').forEach(el => {
-    const b = relTop(el) + el.offsetHeight
+  allElements.forEach(el => {
+    const b = getOffsetTop(el) + el.offsetHeight
     if (b > maxBottom) maxBottom = b
   })
-  const calc = Math.max(1, Math.ceil((maxBottom + mbPx - 2) / pageH))
-  if (pageCount.value !== calc) pageCount.value = calc
+  pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
 }
 
 watch(() => props.resumeData, requestPagination, { deep: true })
@@ -349,16 +435,14 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
-/* ── Section block mặc định ── */
+/* ── Section block ── */
 .section-block {
   padding: 12px;
-  /* border transparent để giữ chỗ, tránh layout shift khi active */
   border-width: 2px !important;
   border-style: solid !important;
   border-color: transparent !important;
   border-radius: 16px !important;
   cursor: pointer;
-  /* transform phải nằm trong transition để zoom hoạt động */
   transition:
     transform 0.18s ease,
     border-color 0.15s ease,
@@ -367,37 +451,28 @@ onUnmounted(() => {
   transform-origin: center center;
 }
 
-/* Hover: hoàn toàn không có thay đổi visual */
 .section-block:hover {
   background: transparent !important;
   box-shadow: none !important;
 }
 
-/* ── Active: đây là phần quan trọng được fix ── */
+/* ── Active (Khung hồng) ── */
 .section-active {
-  /* 1. Zoom nhẹ — scale nằm trong transform, không bị ghi đè */
   transform: scale(1.013) !important;
   transform-origin: center center !important;
-
-  /* 2. Bo góc 6px đúng yêu cầu */
   border-radius: 6px !important;
-
-  /* 3. Viền solid, màu trùng background của section (trắng = #ffffff)
-        Dùng màu nhẹ hơn một chút (#f8f8f8 → hơi tối hơn trắng) để tạo cảm giác "viền chìm"
-        Vì background của section-block là white/transparent, ta dùng màu xám rất nhạt
-        để border vẫn thấy nhưng không lấn át nội dung */
   border-style: solid !important;
   border-width: 2px !important;
-  border-color: #f9a8d4 !important; /* pink-300 — gần với nền trắng/hồng nhạt của template */
-
-  /* 4. Shadow nhẹ để khung nổi bật */
+  border-color: #f9a8d4 !important; 
   box-shadow: 0 6px 20px rgba(244, 114, 182, 0.20) !important;
-
-  /* 5. Background hơi tinted để phân biệt */
-  background: rgba(253, 242, 248, 0.6) !important; /* pink-50/60 */
-
+  background: rgba(253, 242, 248, 0.6) !important; 
   z-index: 10 !important;
   position: relative !important;
+}
+
+/* Tắt chuyển động để thuật toán đo pixel ko bị trễ */
+.paginated-item {
+  transition: none; 
 }
 
 /* ── Nav Buttons ── */
@@ -452,11 +527,11 @@ onUnmounted(() => {
 .delete-btn:hover { transform: scale(1.15) !important; }
 .delete-btn:active { transform: scale(0.9) !important; }
 
-/* ── Contact block (không active được, chỉ display) ── */
+/* ── Contact block ── */
 .contact-block {
   border-width: 2px;
   border-style: solid;
-  border-color: #f1f5f9; /* slate-100 */
+  border-color: #f1f5f9; 
 }
 
 /* ── Rich text ── */
