@@ -217,10 +217,12 @@
 
     <!-- ===================== CỘT PHẢI (MAIN) ===================== -->
     <main
-      class="flex-1 flex flex-col relative z-10"
-      style="padding: 14mm 8mm 8mm 8mm ; overflow: hidden;"
-      @click.self="selectedSectionId = null"
+  class="flex-1 flex flex-col relative z-10"
+  style="padding: 14mm 8mm 8mm 8mm; overflow: hidden;"
+  @click.self="selectedSectionId = null"
     >
+  <!-- Spacer đẩy nội dung xuống -->
+  <div style="height: 5mm;" class="no-print"></div>
       <template v-for="section in mainSections" :key="section.id">
         <div
           v-show="section.isVisible"
