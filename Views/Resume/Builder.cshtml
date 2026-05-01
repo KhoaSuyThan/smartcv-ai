@@ -99,6 +99,7 @@
 
 <script>
     window.CURRENT_RESUME_ID = @(ViewBag.ResumeId ?? 0);
+    window.IS_PRO_USER = @(User.HasClaim("IsPro", "True") || User.IsInRole("Admin") ? "true" : "false");
 
     document.addEventListener('DOMContentLoaded', function () {
         var footer = document.querySelector('footer');

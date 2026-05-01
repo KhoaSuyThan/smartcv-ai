@@ -546,6 +546,10 @@ namespace DoAnCS.Controllers
             resume.ViewCount += 1;
             await _context.SaveChangesAsync();
 
+            // Kiểm tra trạng thái Pro của chủ sở hữu CV (để hiển thị watermark cho Free)
+            var owner = await _context.Users.FirstOrDefaultAsync(u => u.UserID == resume.UserID);
+            ViewBag.IsOwnerPro = owner?.IsPro ?? false;
+
             ViewBag.ResumeId = resume.ResumeID;
             return View("PublicViewerCVVue", resume);
         }

@@ -33,6 +33,10 @@ namespace DoAnCS.Controllers
             // Thử tìm trong VueTemplates trước để lấy ComponentName chính xác
             var vueTemplate = await _context.VueTemplates.FirstOrDefaultAsync(t => t.Id == resume.TemplateID);
             
+            // Kiểm tra trạng thái Pro của chủ sở hữu CV
+            var owner = await _context.Users.FirstOrDefaultAsync(u => u.UserID == resume.UserID);
+            bool isPro = owner?.IsPro ?? false;
+
             // Trả về dữ liệu JSON hoặc cấu trúc trúc rỗng nếu chưa có
             return Ok(new 
             { 
@@ -41,7 +45,8 @@ namespace DoAnCS.Controllers
                 templateId = resume.TemplateID,
                 templateName = vueTemplate?.TemplateName ?? resume.Template?.Name, 
                 componentName = vueTemplate?.ComponentName, // Trả thêm ComponentName để Vue dùng trực tiếp
-                jsonContent = resume.JsonContent ?? "{}"
+                jsonContent = resume.JsonContent ?? "{}",
+                isPro = isPro // Trạng thái Pro để frontend quyết định hiển thị watermark
             });
         }
 

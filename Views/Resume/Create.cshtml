@@ -372,6 +372,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
     <script>
+        // Trạng thái Pro của người dùng (để quyết định hiển thị watermark)
+        var IS_PRO_USER = @(User.HasClaim("IsPro", "True") || User.IsInRole("Admin") ? "true" : "false");
+
         // 1. Khởi tạo dữ liệu gốc từ Database (Lấy từ textarea ẩn để tránh lỗi cú pháp JS)
         let originalHtml = document.getElementById('OriginalHtmlStorage').value;
         let cvCropper;
@@ -863,12 +866,25 @@
                 const originalZoom = htmlElement.style.zoom;
                 htmlElement.style.zoom = "100%";
 
+                // --- WATERMARK CHO USER FREE ---
+                let watermarkEl = null;
+                if (!IS_PRO_USER) {
+                    watermarkEl = document.createElement('div');
+                    watermarkEl.textContent = '@@cvbuilder';
+                    watermarkEl.style.cssText = 'position:absolute;bottom:10px;left:14px;font-size:9px;color:rgba(100,116,139,0.55);z-index:10;pointer-events:none;font-weight:500;letter-spacing:0.3px;font-family:Inter,Segoe UI,sans-serif;user-select:none;';
+                    element.style.position = 'relative';
+                    element.appendChild(watermarkEl);
+                }
+
                 const canvas = await html2canvas(element, {
                     scale: 2, 
                     useCORS: true,
                     logging: false,
                     backgroundColor: "#ffffff"
                 });
+
+                // Cleanup watermark sau khi chụp xong
+                if (watermarkEl) watermarkEl.remove();
 
                 // Khôi phục lại mức zoom ban đầu
                 if (originalZoom) {

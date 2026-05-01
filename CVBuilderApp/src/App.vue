@@ -1185,6 +1185,7 @@ const execCmd = (command, value = null) => {
 
 const isSaving = ref(false)
 const resumeId = window.CURRENT_RESUME_ID || 0
+const isProUser = ref(window.IS_PRO_USER === true || window.IS_PRO_USER === 'true')
 
 // Khởi tạo Dữ liệu bám sát Models ResumeViewModel.cs
 const resumeData = ref({
@@ -1260,6 +1261,17 @@ const exportToPDF = async () => {
   // Đợi Vue render DOM xong (do thay đổi scale và xóa trạng thái)
   await new Promise(resolve => setTimeout(resolve, 500));
 
+  // --- WATERMARK CHO USER FREE ---
+  let watermarkEl = null;
+  if (!isProUser.value) {
+      watermarkEl = document.createElement('div');
+      watermarkEl.className = 'cv-watermark-free';
+      watermarkEl.textContent = '@cvbuilder';
+      cvEl.style.position = 'relative';
+      cvEl.appendChild(watermarkEl);
+      await new Promise(r => setTimeout(r, 100)); // Đợi DOM render watermark
+  }
+
   try {
       // Sử dụng html-to-image giúp xử lý các CSS hiện đại (như oklch của Tailwind v4) mà không bị lỗi
       const dataUrl = await toJpeg(cvEl, {
@@ -1281,6 +1293,8 @@ const exportToPDF = async () => {
       console.error('Lỗi khi chuẩn bị bản xem trước: ', error);
       alert('Có lỗi xảy ra khi chuẩn bị bản xem trước. Vui lòng thử lại!');
   } finally {
+      // Cleanup watermark sau khi chụp xong
+      if (watermarkEl) watermarkEl.remove();
       // Trả lại scale cũ và loại bỏ class ẩn viền
       cvEl.classList.remove('is-exporting-pdf');
       previewScale.value = originalScale;
@@ -2068,5 +2082,20 @@ onUnmounted(() => {
     
     .grammar-error-highlight:hover {
         background-color: rgba(239, 68, 68, 0.2) !important;
+    }
+
+    /* WATERMARK cho tài khoản Free */
+    .cv-watermark-free {
+        position: absolute;
+        bottom: 10px;
+        left: 14px;
+        font-size: 9px;
+        color: rgba(100, 116, 139, 0.55);
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+        letter-spacing: 0.3px;
+        font-weight: 500;
+        z-index: 10;
+        pointer-events: none;
+        user-select: none;
     }
 </style>
