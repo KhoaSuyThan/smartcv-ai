@@ -441,6 +441,25 @@ const mainIds = computed(() => mainSections.value.map(s => s.id));
 
 watch(() => props.resumeData, () => requestPagination(), { deep: true });
 onMounted(() => {
+    // Khởi tạo trạng thái hiển thị mặc định cho mẫu này theo đúng Ảnh 2
+    if (props.resumeData?.sections) {
+        const SIDEBAR_IDS = ['summary','education', 'skills'];
+        const MAIN_IDS = ['experience', 'project'];
+
+        props.resumeData.sections.forEach(sec => {
+            // Chỉ active đúng các mục có trong ảnh 2 (6 mục tính cả Thông tin liên hệ)
+            const isTarget = [...SIDEBAR_IDS, ...MAIN_IDS].includes(sec.id);
+            sec.isVisible = isTarget;
+
+            // Gán cột theo thiết kế
+            if (SIDEBAR_IDS.includes(sec.id)) {
+                sec.column = 'left';
+            } else {
+                sec.column = 'right';
+            }
+        });
+    }
+
     requestPagination();
     window.addEventListener('resize', requestPagination);
     document.addEventListener('keyup', requestPagination);
