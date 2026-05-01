@@ -13,7 +13,7 @@
           v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Nguyễn Văn A'">
         </h1>
         <h2 class="font-medium mb-6 text-[#333]" style="font-size: 13.5px"
-          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Trình dược viên'">
+          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Lập trình viên'">
         </h2>
 
         <!-- Ảnh đại diện tròn -->
@@ -87,7 +87,7 @@
         <div class="w-full border-b mt-6 opacity-30" :style="{ borderColor: templatePrimaryColor }"></div>
       </div>
 
-      <!-- SIDEBAR SECTIONS (Kỹ năng, Học vấn bên trái, v.v.) -->
+      <!-- SIDEBAR SECTIONS -->
       <div class="px-[8mm] flex-1 pb-8 flex flex-col pt-3">
         <template v-for="section in sidebarSections" :key="section.id">
           <div
@@ -116,38 +116,26 @@
 
             <!-- Kỹ năng / Ngôn ngữ / IT -->
             <div v-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="space-y-4">
-              <!-- Default sample display if items are empty -->
-              <template v-if="!section.items || section.items.length === 0">
-                <div class="item-container relative">
-                  <div class="font-bold text-[#333] leading-snug" style="font-size: 12px;">Am hiểu các loại Dược phẩm</div>
-                </div>
-                <div class="item-container relative">
-                  <div class="font-bold text-[#333] leading-snug" style="font-size: 12px;">Hiểu biết về quy định Pháp lý</div>
-                </div>
-                <div class="item-container relative">
-                  <div class="font-bold text-[#333] leading-snug" style="font-size: 12px;">Kỹ năng tư vấn</div>
-                </div>
-                <div class="item-container relative">
-                  <div class="font-bold text-[#333] leading-snug" style="font-size: 12px;">Kỹ năng giải quyết vấn đề</div>
-                </div>
-                <div class="item-container relative">
-                  <div class="font-bold text-[#333] leading-snug" style="font-size: 12px;">Khả năng làm việc nhóm</div>
-                </div>
-              </template>
-              <template v-else>
+              <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                  <!-- Tên kỹ năng dạng văn bản in đậm, không viền hộp -->
                   <div class="font-bold text-[#333] leading-snug" style="font-size: 12px;">
                     {{ item.name }}
                     <span v-if="item.level" class="font-normal opacity-80 ml-1">({{ item.level }})</span>
                     <span v-if="item.info" class="font-normal opacity-80 block text-[11px] mt-1">{{ item.info }}</span>
                   </div>
-                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
                     <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
               </template>
+            </div>
+
+            <!-- Mục tiêu nghề nghiệp (nếu ở cột trái) -->
+            <div v-else-if="section.id === 'summary' || section.id === 'objective'" class="space-y-3">
+               <div class="leading-[1.7] text-justify html-content font-normal text-[#333]" style="font-size: 11.5px;"
+                    v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : ''">
+               </div>
             </div>
 
             <!-- Học vấn (sidebar) -->
@@ -162,7 +150,7 @@
                 </div>
                 <div v-if="item.major" class="opacity-80 text-[11px]">Chuyên ngành: {{ item.major }}</div>
                 <div v-if="item.desc" class="html-content leading-relaxed mt-1" v-html="formatDesc(item.desc)"></div>
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -175,7 +163,7 @@
                 class="item-container relative" style="font-size: 11.5px; color: #333;">
                 <div class="font-bold">{{ item.name }}</div>
                 <div v-if="item.year" class="opacity-65 text-[10.5px]">{{ item.year }}</div>
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -187,7 +175,7 @@
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative" style="font-size: 11.5px; color: #333;">
                 <div class="html-content" v-html="formatDesc(item.desc || item.name || item.info)"></div>
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -204,31 +192,6 @@
     <!-- ==================== CỘT PHẢI (MAIN) ==================== -->
     <main class="flex-1 flex flex-col bg-white z-20 relative" @click.self="selectedSectionId = null">
       <div class="px-[10mm] pt-[15mm] pb-[10mm] flex-1 flex flex-col gap-[8mm]">
-
-        <!-- MỤC TIÊU NGHỀ NGHIỆP (summary – cố định đầu cột phải) -->
-        <div v-if="summarySection && summarySection.isVisible"
-          class="section-block section-block-main paginated-item relative"
-          :class="{ 'section-active': selectedSectionId === summarySection.id }"
-          @click.stop="selectedSectionId = selectedSectionId === summarySection.id ? null : summarySection.id">
-
-          <div v-show="selectedSectionId === summarySection.id" class="nav-btns no-print">
-            <button @click.stop.prevent="moveSectionDown(summarySection.id, 'right')" class="nav-btn" title="Di chuyển xuống">
-              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-          </div>
-
-          <!-- Tiêu đề section -->
-          <div class="mb-3">
-            <h3 class="font-bold" :style="{ fontSize: '18px', color: templatePrimaryColor, fontWeight: '700' }">
-              {{ summarySection.title || 'Mục tiêu nghề nghiệp' }}
-            </h3>
-          </div>
-          <div class="leading-[1.7] text-justify html-content font-normal text-[#333]"
-            style="font-size: 12px;"
-            v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tôi đã có 3 năm kinh nghiệm làm việc tại vị trí Trình dược viên. Trong quá trình làm việc trước đây, tôi đã xây dựng và duy trì mối quan hệ tốt đẹp với 150+ nhà thuốc, giúp công ty tăng 20% doanh thu trong năm 2023. Tôi mong muốn có cơ hội tiếp tục phát triển sự nghiệp tại Quý công ty để phát huy năng lực của bản thân và học hỏi thêm những kỹ năng chuyên môn cần thiết. Mục tiêu của tôi 2 năm tới là trở thành Trưởng nhóm đội Sales Dược, dẫn dắt đội ngũ đạt được mục tiêu doanh số đặt ra, đóng góp tích cực vào sự phát triển bền vững của Quý công ty.'">
-          </div>
-          <div class="w-full border-b border-slate-200 mt-6" :style="{ borderColor: templatePrimaryColor, opacity: 0.3 }"></div>
-        </div>
 
         <!-- CÁC SECTIONS CHÍNH -->
         <template v-for="section in mainSections" :key="section.id">
@@ -258,21 +221,33 @@
               </h3>
             </div>
 
-            <!-- Học vấn (main) -->
-            <div v-if="section.id === 'education'" class="space-y-5">
-              <!-- Default state when empty -->
-              <template v-if="!section.items || section.items.length === 0">
-                <div class="item-container relative">
-                  <div class="flex justify-between items-baseline gap-4 mb-1">
-                    <h4 class="font-bold text-[#333]" style="font-size: 13.5px;">Đại học TopCV</h4>
-                    <span class="font-normal text-slate-400 shrink-0 text-[11.5px]">2016 - 2021</span>
+            <!-- Kỹ năng / Ngôn ngữ / IT (main) -->
+            <div v-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'" class="space-y-4">
+              <template v-if="section.items && section.items.length > 0">
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
+                  <div class="font-bold text-[#333] leading-snug" style="font-size: 13.5px;">
+                    {{ item.name }}
+                    <span v-if="item.level" class="font-normal opacity-80 ml-1">({{ item.level }})</span>
+                    <span v-if="item.info" class="font-normal opacity-80 block text-[11.5px] mt-1">{{ item.info }}</span>
                   </div>
-                  <div class="text-[#333] font-normal mb-1" style="font-size: 12.5px;">
-                    Chuyên ngành: Dược lâm sàng
-                  </div>
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
+                    class="delete-btn no-print" style="top: -4px; right: -4px;">
+                    <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
                 </div>
               </template>
-              <template v-else>
+            </div>
+
+            <!-- Mục tiêu nghề nghiệp (main) -->
+            <div v-else-if="section.id === 'summary' || section.id === 'objective'" class="space-y-3">
+               <div class="leading-[1.7] text-justify html-content font-normal text-[#333]" style="font-size: 12px;"
+                    v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : ''">
+               </div>
+            </div>
+
+            <!-- Học vấn (main) -->
+            <div v-else-if="section.id === 'education'" class="space-y-5">
+              <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative">
                   <div class="flex justify-between items-baseline gap-4 mb-1">
@@ -284,7 +259,7 @@
                   </div>
                   <div v-if="item.gradType" class="text-slate-500 italic" style="font-size: 11.5px;">{{ item.gradType }}</div>
                   <div v-if="item.desc" class="html-content leading-relaxed mt-1 text-[#333]" style="font-size: 12px;" v-html="formatDesc(item.desc)"></div>
-                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
                     <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
@@ -294,22 +269,7 @@
 
             <!-- Kinh nghiệm / Dự án / Hoạt động (main) -->
             <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-6">
-              <!-- Default state when empty -->
-              <template v-if="!section.items || section.items.length === 0">
-                <div class="item-container relative">
-                  <div class="flex justify-between items-baseline gap-4 mb-1">
-                    <h4 class="font-bold text-[#333]" style="font-size: 13.5px;">Trình dược viên OTC</h4>
-                    <span class="font-normal text-slate-400 shrink-0 text-[11.5px]">10/2021 - Hiện tại</span>
-                  </div>
-                  <div class="font-normal text-slate-500 mb-2" style="font-size: 12.5px;">
-                    ABC Pharmacy
-                  </div>
-                  <div class="leading-relaxed text-[#333] html-content" style="font-size: 12px;">
-                    <ul><li>Thu thập và phân tích thông tin về thị trường và đối thủ cạnh tranh để điều chỉnh chiến lược tiếp thị và bán hàng hiệu quả.</li><li>Xây dựng và duy trì mối quan hệ với nhà thuốc hiện tại, đồng thời mở rộng mạng lưới nhà thuốc mới để tăng cường sự hiện diện của công ty trên thị trường.</li><li>Cung cấp thông tin chi tiết và tư vấn về các sản phẩm Dược phẩm của công ty, đáp ứng nhu cầu và yêu cầu của thị trường.</li><li>Đàm phán các điều khoản hợp đồng và chốt đơn hàng, đảm bảo lợi ích của nhà thuốc và công ty.</li><li>Theo dõi và quản lý tiến độ giao hàng, đảm bảo hàng hóa được vận chuyển đúng thời gian và đạt chất lượng yêu cầu.</li><li>Tham gia các chương trình đào tạo để nâng cao kỹ năng bán hàng và cập nhật kiến thức về sản phẩm mới.</li><li>Phối hợp với các bộ phận khác trong công ty để đảm bảo hoàn thành công việc hiệu quả.</li><li>Thực hiện các nhiệm vụ khác theo yêu cầu của cấp trên.</li><li>Báo cáo kết quả kinh doanh và các hoạt động liên quan cho quản lý cấp trên.</li></ul><p><b>Thành tích:</b></p><ul><li>Duy trì mối quan hệ tốt đẹp với 150+ nhà thuốc.</li><li>Đạt 150% KPI trong năm 2023</li></ul>
-                  </div>
-                </div>
-              </template>
-              <template v-else>
+              <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative">
                   <div class="flex justify-between items-baseline gap-4 mb-1">
@@ -325,7 +285,7 @@
                   <div class="leading-relaxed text-[#333] html-content" style="font-size: 12px;"
                     v-html="formatDesc(item.desc)">
                   </div>
-                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
                     <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
@@ -335,18 +295,12 @@
 
             <!-- Giải thưởng / Chứng chỉ (main) -->
             <div v-else-if="section.id === 'awards' || section.id === 'certifications'" class="space-y-3">
-              <template v-if="!section.items || section.items.length === 0">
-                <div class="item-container relative flex items-start gap-5">
-                  <span class="font-bold text-[#333] shrink-0" style="font-size: 12.5px;">2022</span>
-                  <span class="font-normal text-[#333] html-content" style="font-size: 12.5px;">Chứng chỉ hành nghề Dược</span>
-                </div>
-              </template>
-              <template v-else>
+              <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative flex items-start gap-5">
                   <span class="font-bold text-[#333] shrink-0" style="font-size: 12.5px;">{{ item.year }}</span>
                   <span class="font-normal text-[#333] html-content" style="font-size: 12.5px;" v-html="item.name || item.info"></span>
-                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
                     <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
@@ -359,7 +313,7 @@
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative text-[#333] leading-relaxed" style="font-size: 12px;">
                 <div class="html-content" v-html="formatDesc(item.desc || item.info || item.name)"></div>
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -408,7 +362,72 @@ const isEmpty = (val) => {
     return cleanText === ''
 }
 
-// --- PAGINATION ENGINE (Optimized & Stable with Content Splitting) ---
+// --- HÀM XỬ LÝ DI CHUYỂN SECTION KÈM CẬP NHẬT TRỰC TIẾP ---
+const moveSectionUp = (id, currentColumn) => {
+    // Vẫn emit để báo cho component cha (nếu có dùng)
+    emit('moveUp', id, currentColumn);
+
+    // Thay đổi vị trí trực tiếp trong mảng local để giao diện cập nhật ngay lập tức
+    if (!props.resumeData?.sections) return;
+    const sections = props.resumeData.sections;
+    const colSections = sections.filter(s => s.column === currentColumn);
+    const idx = colSections.findIndex(s => s.id === id);
+
+    if (idx > 0) {
+        const prevId = colSections[idx - 1].id;
+        const realIdxCur = sections.findIndex(s => s.id === id);
+        const realIdxPrev = sections.findIndex(s => s.id === prevId);
+        
+        if (realIdxCur !== -1 && realIdxPrev !== -1) {
+            // Cắt phần tử hiện tại và nhét vào vị trí của phần tử phía trên
+            const temp = sections.splice(realIdxCur, 1)[0];
+            sections.splice(realIdxPrev, 0, temp);
+        }
+    }
+}
+
+const moveSectionDown = (id, currentColumn) => {
+    emit('moveDown', id, currentColumn);
+
+    if (!props.resumeData?.sections) return;
+    const sections = props.resumeData.sections;
+    const colSections = sections.filter(s => s.column === currentColumn);
+    const idx = colSections.findIndex(s => s.id === id);
+
+    if (idx !== -1 && idx < colSections.length - 1) {
+        const nextId = colSections[idx + 1].id;
+        const realIdxCur = sections.findIndex(s => s.id === id);
+        const realIdxNext = sections.findIndex(s => s.id === nextId);
+
+        if (realIdxCur !== -1 && realIdxNext !== -1) {
+            // Cắt phần tử hiện tại và nhét vào vị trí của phần tử phía dưới
+            const temp = sections.splice(realIdxCur, 1)[0];
+            sections.splice(realIdxNext, 0, temp);
+        }
+    }
+}
+
+const moveSectionHorizontal = (id, targetColumn) => {
+    emit('moveHorizontal', id, targetColumn);
+    
+    if (!props.resumeData?.sections) return;
+    const sec = props.resumeData.sections.find(s => s.id === id);
+    if (sec) {
+        sec.column = targetColumn;
+    }
+}
+
+const handleRemoveItem = (sectionId, itemIndex) => {
+    emit('removeItem', sectionId, itemIndex);
+    
+    if (!props.resumeData?.sections) return;
+    const section = props.resumeData.sections.find(s => s.id === sectionId);
+    if (section && section.items && section.items.length > itemIndex) {
+        section.items.splice(itemIndex, 1);
+    }
+}
+
+// --- PAGINATION ENGINE ---
 const A4_W_MM = 210;
 const A4_H_MM = 297;
 const MARGIN_MM = 15;
@@ -422,7 +441,6 @@ const requestPagination = () => {
 const doPagination = async () => {
     if (!cvRoot.value) return;
     
-    // Dynamically tag rich text elements to allow granular splitting
     const richElements = cvRoot.value.querySelectorAll('.item-container, .html-content p, .html-content li, .html-content div');
     richElements.forEach(el => el.classList.add('paginated-item'));
 
@@ -435,8 +453,6 @@ const doPagination = async () => {
     const pageH = A4_H_MM * pxPerMm;
     const marginPx = MARGIN_MM * pxPerMm;
     const safeLine = pageH - marginPx;
-    
-    // maxFit determines if an item should be allowed to split across pages
     const maxFit = safeLine - marginPx;
 
     const relTop = (el) => {
@@ -452,7 +468,6 @@ const doPagination = async () => {
             ? [col] 
             : Array.from(col.querySelectorAll('.paginated-item'));
             
-        // Only paginate leaf-nodes (elements that do not contain other paginated items)
         const leafItems = colItems.filter(el => !el.querySelector('.paginated-item'));
 
         for (let pass = 0; pass < 80; pass++) {
@@ -463,8 +478,6 @@ const doPagination = async () => {
                 const pageIdx = Math.floor(top / pageH);
                 const curSafe = pageIdx * pageH + safeLine;
                 
-                // Content Splitting logic: if the item is taller than maxFit, we allow it to split
-                // rather than pushing it down forever.
                 if (top < curSafe && bottom > curSafe && item.offsetHeight <= maxFit) {
                     const targetTop = (pageIdx + 1) * pageH + marginPx;
                     const extra = targetTop - top;
@@ -497,21 +510,25 @@ watch(() => props.resumeData, () => requestPagination(), { deep: true })
 
 onMounted(() => {
     if (props.resumeData && props.resumeData.sections) {
-        const SIDEBAR_IDS = ['education', 'skills']
-        const MAIN_IDS = ['summary', 'objective', 'experience', 'award', 'cert', 'activit', 'project']
-        const FORBIDDEN_IDS = ['it_skills', 'technical_skills', 'languages', 'lang']
+        // Tùy chỉnh hiển thị các ID cho chạy thẳng sang cột phải 
+        const FORCED_RIGHT_IDS = ['summary', 'objective', 'education', 'skills']
+        const DEFAULT_LEFT_IDS = ['languages', 'it_skills']
 
         props.resumeData.sections.forEach(sec => {
             const id = sec.id.toLowerCase()
-            if (SIDEBAR_IDS.some(activeId => id.includes(activeId)) && !FORBIDDEN_IDS.some(forbiddenId => id.includes(forbiddenId))) {
-                if (sec.isVisible === undefined) sec.isVisible = true
-                if (!sec.column) sec.column = 'left'
-            } else if (MAIN_IDS.some(activeId => id.includes(activeId))) {
-                if (sec.isVisible === undefined) sec.isVisible = true
-                if (!sec.column) sec.column = 'right'
-            } else {
-                if (sec.isVisible === undefined) sec.isVisible = false
-                if (!sec.column) sec.column = 'right'
+            if (sec.isVisible === undefined) sec.isVisible = true
+
+            // Ép vào cột phải theo yêu cầu
+            if (FORCED_RIGHT_IDS.some(k => id.includes(k))) {
+                sec.column = 'right'
+            } 
+            // Nếu chưa có vị trí chỉ định từ Database thì gán mặc định
+            else if (!sec.column) {
+                if (DEFAULT_LEFT_IDS.some(k => id.includes(k))) {
+                    sec.column = 'left'
+                } else {
+                    sec.column = 'right'
+                }
             }
         })
     }
@@ -534,9 +551,6 @@ const sidebarSections = computed(() => {
 const mainSections = computed(() => {
     return (props.resumeData?.sections || []).filter(s => s.column === 'right')
 })
-
-const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
-const mainIds = computed(() => mainSections.value.map(s => s.id))
 
 const formatDesc = (text) => {
     if (!text) return '';
@@ -630,7 +644,6 @@ const formatDesc = (text) => {
     margin: -6px;
 }
 
-/* Solid border styling matching the background color for "chìm" effect */
 .section-active {
     border: 2px solid var(--border-color, rgba(0,0,0,0.08)) !important;
     border-radius: 6px !important;
