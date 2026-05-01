@@ -71,12 +71,28 @@ else
     <script>
         window.CURRENT_RESUME_ID = @(ViewBag.ResumeId ?? 0);
         window.IS_PUBLIC_VIEW = true; // Flag for safety
+        window.IS_PRO_USER = @(ViewBag.IsOwnerPro == true ? "true" : "false");
 
         document.addEventListener('DOMContentLoaded', function () {
             var footer = document.querySelector('footer');
             if (footer) footer.style.display = 'none';
             
             document.body.classList.add('cv-builder-page');
+
+            // Inject watermark cho CV công khai của user Free
+            if (!window.IS_PRO_USER) {
+                var checkReady = setInterval(function() {
+                    var cvCard = document.querySelector('.cv-preview-card');
+                    if (cvCard) {
+                        clearInterval(checkReady);
+                        cvCard.style.position = 'relative';
+                        var wm = document.createElement('div');
+                        wm.textContent = '@@cvbuilder';
+                        wm.style.cssText = 'position:absolute;bottom:10px;left:14px;font-size:9px;color:rgba(100,116,139,0.55);z-index:10;pointer-events:none;font-weight:500;letter-spacing:0.3px;font-family:Inter,Segoe UI,sans-serif;user-select:none;';
+                        cvCard.appendChild(wm);
+                    }
+                }, 500);
+            }
         });
     </script>
 
