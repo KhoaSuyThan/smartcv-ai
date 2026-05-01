@@ -394,9 +394,29 @@ watch(() => props.resumeData, () => {
 }, { deep: true });
 
 onMounted(() => {
+    // Khởi tạo trạng thái hiển thị mặc định cho mẫu này
+    if (props.resumeData?.sections) {
+        // Danh sách các mục cần hiển thị (active) để "đủ" theo yêu cầu người dùng
+        // Bao gồm các mục trong ảnh và các mục quan trọng khác
+        const RIGHT_IDS = ['summary', 'experience', 'education', 'project', 'activities'];
+        const LEFT_IDS  = ['skills', 'it_skills', 'languages', 'certifications', 'awards', 'hobbies'];
+
+        props.resumeData.sections.forEach(sec => {
+            // Active hầu hết các mục (trừ Người tham chiếu nếu không cần thiết)
+            const isDefaultVisible = [...LEFT_IDS, ...RIGHT_IDS].includes(sec.id);
+            sec.isVisible = isDefaultVisible;
+
+            // Gán cột theo chuẩn thiết kế: Main (phải) cho nội dung dài, Sidebar (trái) cho thông tin bổ trợ
+            if (LEFT_IDS.includes(sec.id)) {
+                sec.column = 'left';
+            } else {
+                sec.column = 'right';
+            }
+        });
+    }
+
     requestPagination();
     window.addEventListener('resize', requestPagination);
-    // Đăng ký DOM change/keyup thông minh để canh dòng khi bạn soạn văn bản
     document.addEventListener('keyup', requestPagination);
 });
 

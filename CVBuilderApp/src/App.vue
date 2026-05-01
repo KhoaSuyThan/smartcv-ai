@@ -1201,12 +1201,12 @@ const resumeData = ref({
     { id: 'skills',         title: 'Kỹ năng Chuyên môn',   isVisible: true,  column: 'left',  items: [] },
     { id: 'it_skills',      title: 'Tin học',              isVisible: false, column: 'left',  items: [] },
     { id: 'languages',      title: 'Ngoại ngữ',            isVisible: false, column: 'left',  items: [] },
-    { id: 'activities',     title: 'Hoạt động',             isVisible: true,  column: 'right', items: [] },
+    { id: 'activities',     title: 'Hoạt động',             isVisible: false, column: 'right', items: [] },
     { id: 'project',        title: 'Dự án Trọng điểm',     isVisible: false, column: 'right', items: [] },
-    { id: 'certifications', title: 'Chứng chỉ / Bằng cấp',  isVisible: true,  column: 'left',  items: [] },
-    { id: 'awards',         title: 'Giải thưởng',           isVisible: true,  column: 'left',  items: [] },
-    { id: 'hobbies',        title: 'Sở thích',              isVisible: true,  column: 'left',  items: [] },
-    { id: 'references',     title: 'Người tham chiếu',      isVisible: true,  column: 'left',  items: [] },
+    { id: 'certifications', title: 'Chứng chỉ / Bằng cấp',  isVisible: false, column: 'left',  items: [] },
+    { id: 'awards',         title: 'Giải thưởng',           isVisible: false, column: 'left',  items: [] },
+    { id: 'hobbies',        title: 'Sở thích',              isVisible: false, column: 'left',  items: [] },
+    { id: 'references',     title: 'Người tham chiếu',      isVisible: false, column: 'left',  items: [] },
   ]
 })
 
