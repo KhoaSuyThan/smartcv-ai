@@ -20,40 +20,29 @@
           LIÊN HỆ VỚI TÔI
         </h3>
         <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '13px !important', lineHeight: '1.4' }">
-          
           <li class="flex items-start relative gap-[10px] paginated-item">
             <div class="w-[15px] text-center shrink-0 mt-[3px]">
               <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
             </div>
             <span class="break-words" :style="{ opacity: isEmpty(resumeData.general.address) ? '0.45' : '1' }" v-html="!isEmpty(resumeData.general.address) ? resumeData.general.address : 'TP. Hồ Chí Minh'"></span>
           </li>
-
           <li class="flex items-start relative gap-[10px] paginated-item">
             <div class="w-[15px] text-center shrink-0 mt-[3px]">
               <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
             </div>
             <span class="break-words" :style="{ opacity: isEmpty(resumeData.general.email) ? '0.45' : '1' }" v-html="!isEmpty(resumeData.general.email) ? resumeData.general.email : 'email@example.com'"></span>
           </li>
-
           <li class="flex items-start relative gap-[10px] paginated-item">
             <div class="w-[15px] text-center shrink-0 mt-[3px]">
               <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
             </div>
             <span class="break-words" :style="{ opacity: isEmpty(resumeData.general.phone) ? '0.45' : '1' }" v-html="!isEmpty(resumeData.general.phone) ? resumeData.general.phone : '0123.456.789'"></span>
           </li>
-
           <li v-if="!isEmpty(resumeData.general.dob)" class="flex items-start relative gap-[10px] paginated-item">
             <div class="w-[15px] text-center shrink-0 mt-[3px]">
               <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
             </div>
             <span class="break-words" v-html="resumeData.general.dob"></span>
-          </li>
-          
-          <li v-if="!isEmpty(resumeData.general.github) || !isEmpty(resumeData.general.website) || !isEmpty(resumeData.general.linkedin)" class="flex items-start relative gap-[10px] paginated-item">
-            <div class="w-[15px] text-center shrink-0 mt-[3px]">
-              <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"></path></svg>
-            </div>
-            <span class="break-words" v-html="!isEmpty(resumeData.general.github) ? resumeData.general.github : (!isEmpty(resumeData.general.linkedin) ? resumeData.general.linkedin : resumeData.general.website)"></span>
           </li>
         </ul>
       </div>
@@ -61,15 +50,14 @@
       <!-- Các Section Cột Trái -->
       <div class="w-full flex-1 flex flex-col m-0 p-0">
         <template v-for="section in sidebarSections" :key="section.id">
-          <!-- BỎ paginated-item Ở THẺ BỌC ĐỂ KHÔNG BỊ ĐẨY CẢ CỤC -->
+          <!-- BỎ HIỆU ỨNG SCALE TRONG :style -->
           <div
             v-if="section.isVisible"
             class="section-block relative group w-full mb-[15px]"
             :class="{ 'section-selected-sidebar': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { transform: 'scale(1.02)', transformOrigin: 'left center', zIndex: 10 } : {}"
+            :style="selectedSectionId === section.id ? { zIndex: 10 } : {}"
             @click.stop="toggleSection(section.id)"
           >
-            <!-- Nav Buttons -->
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print" @click.stop>
               <div class="nav-btns-row">
                 <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
@@ -98,7 +86,6 @@
                   <div v-if="item.desc" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[5px]" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc)"></div>
                 </div>
 
-                <!-- ĐÃ SỬA: Fallback an toàn, chống mất chữ khi kéo Người tham chiếu qua trái -->
                 <div v-else class="w-full flex flex-col">
                   <div v-if="item.year || item.time" class="font-bold opacity-90 text-[11px] mb-[2px] paginated-item">{{ item.year || item.time }}</div>
                   <div class="html-content-sidebar text-justify whitespace-pre-line break-words w-full" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
@@ -117,11 +104,10 @@
     <!-- ===== CỘT PHẢI (MAIN) ===== -->
     <main class="flex-1 flex flex-col relative bg-[#ffffff] z-20 overflow-hidden box-border pt-[30px] pb-[50px]" @click.self="selectedSectionId = null">
       
-      <!-- BỎ paginated-item Ở THẺ BỌC HEADER -->
-      <header class="w-full flex flex-col relative" :style="{ paddingBottom: '15px', marginBottom: '50px', marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
-        <h1 class="uppercase break-words w-full m-0 paginated-item" :style="{ fontSize: '48px !important', fontWeight: '800 !important', color: templatePrimaryColor, lineHeight: '1.2', marginTop: '60px !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
+      <header class="w-full flex flex-col relative" :style="{ paddingTop: '45px', paddingBottom: '15px', marginBottom: '50px', marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' }">
+        <h1 class="uppercase break-words w-full m-0 paginated-item" :style="{ fontSize: '48px !important', fontWeight: '800 !important', color: templatePrimaryColor, lineHeight: '1.2', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
         <div class="h-[2px] w-[60px] ml-[20px] my-[15px] bg-[#eee] paginated-item"></div>
-        <h2 class="uppercase break-words w-full m-0 paginated-item" :style="{ fontSize: '20px !important', letterSpacing: '3px', fontWeight: 'bold', color: templateAccentColor, marginTop: '0 !important', paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
+        <h2 class="uppercase break-words w-full m-0 paginated-item" :style="{ fontSize: '20px !important', letterSpacing: '3px', fontWeight: 'bold', color: templateAccentColor, paddingLeft: '20px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
       </header>
 
       <!-- Summary -->
@@ -131,7 +117,7 @@
         :class="{ 'section-selected-main': selectedSectionId === summarySection.id }"
         :style="[
           { marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' },
-          selectedSectionId === summarySection.id ? { transform: 'scale(1.015)', transformOrigin: 'left center', zIndex: 10 } : {}
+          selectedSectionId === summarySection.id ? { zIndex: 10 } : {}
         ]"
         @click.stop="toggleSection(summarySection.id)"
       >
@@ -156,14 +142,14 @@
       <!-- Các Section Cột Phải -->
       <div class="w-full flex flex-col flex-1 m-0 p-0">
         <template v-for="section in mainSections" :key="section.id">
-          <!-- BỎ paginated-item Ở THẺ BỌC -->
+          <!-- BỎ HIỆU ỨNG SCALE TRONG :style -->
           <div
             v-if="section.isVisible"
             class="section-block relative group w-full mb-[20px]"
             :class="{ 'section-selected-main': selectedSectionId === section.id }"
             :style="[
               { marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' },
-              selectedSectionId === section.id ? { transform: 'scale(1.015)', transformOrigin: 'left center', zIndex: 10 } : {}
+              selectedSectionId === section.id ? { zIndex: 10 } : {}
             ]"
             @click.stop="toggleSection(section.id)"
           >
@@ -245,8 +231,10 @@ const isEmpty = (val) => {
   return val.replace(/<[^>]*>/g, '').trim() === ''
 }
 
+// BỔ SUNG: Tính toán lại phân trang mỗi khi click chọn để đảm bảo an toàn tuyệt đối
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
+  requestPagination()
 }
 
 const summarySection = computed(() => props.resumeData.sections.find(s => s.id === 'summary'))
@@ -255,9 +243,10 @@ const mainSections = computed(() => props.resumeData.sections.filter(s => s.colu
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
 
-// Hàm băm nhỏ dòng và tự động thêm class paginated-item
+// HÀM CHÉM DÒNG: Thọc sâu vào thẻ Editor cấp để chém nhỏ tới tận cùng
 const formatDesc = (text) => {
   if (!text) return ''
+  
   if (!/<[a-z][\s\S]*>/i.test(text)) {
     return text.split('\n')
                .map(l => l.trim())
@@ -277,34 +266,33 @@ const formatDesc = (text) => {
     }
   })
 
-  const container = document.createElement('div')
-  Array.from(tempDiv.childNodes).forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      if (node.textContent.trim()) {
-        const div = document.createElement('div')
-        div.className = 'paginated-item min-h-[14px]'
-        div.appendChild(node.cloneNode(true))
-        container.appendChild(div)
+  const wrapTextNodes = (element) => {
+    Array.from(element.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.trim()) {
+           const wrapper = document.createElement('div')
+           wrapper.className = 'paginated-item inline-block w-full'
+           node.replaceWith(wrapper)
+           wrapper.appendChild(node)
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'BR') {
+           node.outerHTML = '<div class="paginated-item h-[14px] w-full"></div>'
+        } else if (['P', 'DIV', 'LI'].includes(node.tagName)) {
+           node.classList.add('paginated-item')
+           wrapTextNodes(node)
+        } else if (['UL', 'OL'].includes(node.tagName)) {
+           node.classList.add('paginated-item')
+           wrapTextNodes(node)
+        }
       }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      if (node.tagName === 'BR') {
-        const div = document.createElement('div')
-        div.className = 'paginated-item h-[14px]'
-        container.appendChild(div)
-      } else if (['UL', 'OL'].includes(node.tagName)) {
-        Array.from(node.children).forEach(li => li.classList.add('paginated-item'))
-        container.appendChild(node.cloneNode(true))
-      } else {
-        node.classList.add('paginated-item')
-        container.appendChild(node.cloneNode(true))
-      }
-    }
-  })
+    })
+  }
 
-  return container.innerHTML
+  wrapTextNodes(tempDiv)
+  return tempDiv.innerHTML
 }
 
-// ─── THUẬT TOÁN PHÂN TRANG BẤT BẠI ───────────────────────────────────────────────
 const A4_WIDTH_MM = 210
 const A4_HEIGHT_MM = 297
 
@@ -317,59 +305,62 @@ const requestPagination = () => {
 const doPagination = async () => {
   if (!cvRoot.value) return
 
-  // Bước 1: Trả mọi thứ về vị trí cũ trước khi tính toán lại
-  const allElements = cvRoot.value.querySelectorAll('.paginated-item')
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item'))
   allElements.forEach(el => {
     el.style.setProperty('margin-top', '0px', 'important')
   })
   await nextTick()
 
-  const pxPerMm = cvRoot.value.offsetWidth / A4_WIDTH_MM
+  const cvRect = cvRoot.value.getBoundingClientRect()
+  const pxPerMm = cvRect.width / A4_WIDTH_MM
   const pageH = A4_HEIGHT_MM * pxPerMm
   
-  // Dừng lại 14mm trước khi chạm mép cuối trang
   const bottomSafeZone = 14 * pxPerMm
-  // Sau khi bị đẩy qua trang, cách đỉnh 8mm cho đẹp
   const topMargin = 8 * pxPerMm
 
-  const getTopRelative = (el) => {
-    let offset = 0
-    let cur = el
-    while (cur && cur !== cvRoot.value) {
-      offset += cur.offsetTop
-      cur = cur.offsetParent
+  let stable = false
+  let passes = 0
+
+  while (!stable && passes < 30) {
+    stable = true
+    passes++
+    
+    const currentCvRect = cvRoot.value.getBoundingClientRect()
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      if (el.offsetHeight === 0) continue
+
+      const elRect = el.getBoundingClientRect()
+      const top = elRect.top - currentCvRect.top
+      const height = elRect.height
+      const bottom = top + height
+
+      const pageIndex = Math.floor(top / pageH)
+      const topInPage = top - (pageIndex * pageH)
+      const bottomInPage = topInPage + height
+
+      if (height > (pageH - bottomSafeZone - topMargin)) continue
+
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const distToNextPage = pageH - topInPage + topMargin
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         stable = false
+         break
+      }
     }
-    return offset
   }
 
-  // Bước 2: Quét từng dòng nhỏ. Dòng nào chạm vạch thì đẩy nó sang trang
-  allElements.forEach((el) => {
-    if(el.offsetHeight === 0) return
-    const top = getTopRelative(el)
-    const topInPage = top % pageH
-    const bottomInPage = topInPage + el.offsetHeight
-
-    if (el.offsetHeight > (pageH - bottomSafeZone - topMargin)) return
-
-    // Khi đuôi của khối văn bản lấn vào vùng an toàn dưới cùng -> Đẩy sang trang 2!
-    if (bottomInPage > (pageH - bottomSafeZone)) {
-       const distToNextPage = pageH - topInPage + topMargin
-       // Dùng setProperty với 'important' để tiêu diệt mọi CSS chống đối
-       el.style.setProperty('margin-top', `${distToNextPage}px`, 'important')
-    }
-  })
-
-  // Bước 3: Đo đạc tổng trang
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
   let maxBottom = 0
   allElements.forEach(el => {
-    const b = getTopRelative(el) + el.offsetHeight
-    if (b > maxBottom) maxBottom = b
+    const rect = el.getBoundingClientRect()
+    const bottom = rect.bottom - finalCvRect.top
+    if (bottom > maxBottom) maxBottom = bottom
   })
 
-  const needed = Math.max(1, Math.ceil(maxBottom / pageH))
-  if (pageCount.value !== needed) {
-    pageCount.value = needed
-  }
+  pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
 }
 
 watch(() => props.resumeData, requestPagination, { deep: true })
@@ -419,17 +410,17 @@ onUnmounted(() => {
   top: 0;
 }
 
-/* Đóng băng mọi animation để thuật toán đếm pixel chính xác 100% */
 .paginated-item {
-  transition: none; 
+  transition: none !important; 
 }
 
+/* ĐÃ XÓA HIỆU ỨNG TRANSFORM SCALE Ở CSS */
 .section-block {
   position: relative;
   border: 2px solid transparent;
   cursor: pointer;
   border-radius: 6px !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
 .section-block:hover {
@@ -439,8 +430,6 @@ onUnmounted(() => {
 .section-selected-main {
   border: 2px solid v-bind('templateAccentColor') !important;
   border-radius: 6px !important;
-  transform: scale(1.015) !important;
-  transform-origin: left center !important;
   box-shadow: 0 4px 16px rgba(95, 180, 196, 0.2) !important;
   background: rgba(95, 180, 196, 0.03) !important;
   z-index: 10 !important;
@@ -449,8 +438,6 @@ onUnmounted(() => {
 .section-selected-sidebar {
   border: 2px solid rgba(255, 255, 255, 0.35) !important;
   border-radius: 6px !important;
-  transform: scale(1.02) !important;
-  transform-origin: left center !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
   background: rgba(255, 255, 255, 0.05) !important;
   z-index: 10 !important;
@@ -501,8 +488,17 @@ onUnmounted(() => {
 :deep(.html-content u) { text-decoration: underline; }
 :deep(.html-content ul li), :deep(.html-content ol li) { margin-bottom: 2px !important; }
 
-:deep(.html-content-sidebar) { margin: 0 !important; padding: 0 !important; color: white !important; }
-:deep(.html-content-sidebar p) { margin: 0 !important; padding: 0 !important; }
+:deep(.html-content-sidebar),
+:deep(.html-content-sidebar p),
+:deep(.html-content-sidebar span),
+:deep(.html-content-sidebar font),
+:deep(.html-content-sidebar div),
+:deep(.html-content-sidebar a),
+:deep(.html-content-sidebar li) {
+  margin: 0 !important; 
+  padding: 0 !important; 
+  color: white !important; 
+}
 :deep(.html-content-sidebar ul) { list-style-type: disc !important; padding-left: 1.25rem !important; margin: 0 !important; }
 :deep(.html-content-sidebar ol) { list-style-type: decimal !important; padding-left: 1.25rem !important; margin: 0 !important; }
 :deep(.html-content-sidebar b), :deep(.html-content-sidebar strong) { font-weight: bold; }
