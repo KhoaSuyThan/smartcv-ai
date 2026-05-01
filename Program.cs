@@ -13,6 +13,7 @@ builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
+builder.Services.AddHttpClient<MomoService>();
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>

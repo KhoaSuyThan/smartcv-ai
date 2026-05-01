@@ -1,6 +1,5 @@
 @{
     ViewData["Title"] = "Nâng cấp lên Pro";
-    var pendingRequest = ViewBag.PendingRequest as DoAnCS.Models.UpgradeRequest;
 }
 
 <div class="upgrade-container pb-5">
@@ -15,26 +14,9 @@
     </div>
 
     <div class="container">
-        @if (pendingRequest != null)
-        {
-            <div class="row justify-content-center mb-5">
-                <div class="col-lg-8">
-                    <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 d-flex align-items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-clock fa-3x text-info me-4"></i>
-                        </div>
-                        <div>
-                            <h4 class="alert-heading fw-bold">Yêu cầu đang được xét duyệt!</h4>
-                            <p class="mb-0">Bạn đã gửi yêu cầu nâng cấp vào lúc <strong>@pendingRequest.RequestDate.ToString("HH:mm dd/MM/yyyy")</strong>. Admin đang kiểm tra minh chứng thanh toán của bạn. Vui lòng kiên nhẫn đợi trong giây lát.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-
         <div class="row justify-content-center g-4">
             <!-- Free Plan -->
-            <div class="col-lg-4 col-md-6">
+            <div class="col-lg-5 col-md-6">
                 <div class="card h-100 border-0 shadow-sm plan-card">
                     <div class="card-body p-5">
                         <div class="mb-4">
@@ -70,7 +52,7 @@
             </div>
 
             <!-- Pro Plan -->
-            <div class="col-lg-5 col-md-6">
+            <div class="col-lg-6 col-md-6">
                 <div class="card h-100 border-0 shadow-lg plan-card pro-featured">
                     <div class="card-body p-5 position-relative overflow-hidden">
                         <div class="pro-ribbon">PHỔ BIẾN</div>
@@ -81,7 +63,7 @@
                             </span>
                             <h2 class="card-title fw-bold text-white">Chuyên nghiệp</h2>
                             <div class="d-flex align-items-baseline mb-3">
-                                <span class="h1 fw-bold mb-0 text-white">99.000đ</span>
+                                <span class="h1 fw-bold mb-0 text-white" style="font-size: 3rem;">20.000đ</span>
                                 <span class="text-white-50 ms-2">/vĩnh viễn</span>
                             </div>
                             <p class="text-white-50 small">Tối ưu hóa mọi cơ hội nghề nghiệp của bạn.</p>
@@ -96,55 +78,18 @@
 
                         <hr class="border-light opacity-25 mb-4">
 
-                        @if (pendingRequest == null)
-                        {
-                            <form asp-action="UpgradeConfirmed" method="post" enctype="multipart/form-data">
-                                @Html.AntiForgeryToken()
-                                
-                                <div class="mb-4">
-                                    <label class="form-label text-white fw-bold mb-2">
-                                        <i class="fas fa-camera me-1"></i> Ảnh minh chứng thanh toán
-                                    </label>
-                                    <input type="file" name="evidenceFile" class="form-control bg-white-10 border-0 text-white custom-file-input" required accept="image/*">
-                                    <div class="form-text text-white-50 mt-1 small">Vui lòng tải lên ảnh chụp màn hình chuyển khoản qua QR/Số tài khoản.</div>
-                                </div>
-
-                                <div class="mb-4">
-                                    <label class="form-label text-white fw-bold mb-2">Ghi chú (nếu có)</label>
-                                    <textarea name="notes" class="form-control bg-white-10 border-0 text-white" rows="2" placeholder="Ví dụ: Đã chuyển khoản từ ngân hàng MB..."></textarea>
-                                </div>
-
-                                <div class="d-grid mt-4">
-                                    <button type="submit" class="btn btn-light text-primary py-3 rounded-pill fw-bold w-100 shadow-sm upgrade-submit-btn">
-                                        Gửi yêu cầu xét duyệt
-                                    </button>
-                                </div>
-                            </form>
-                        }
-                        else
-                        {
-                            <div class="text-center py-4 bg-white-10 rounded-4 border border-white-10">
-                                <i class="fas fa-spinner fa-spin fa-2x text-warning mb-3"></i>
-                                <h5 class="text-white fw-bold mb-1">Yêu cầu đang chờ duyệt</h5>
-                                <p class="text-white-50 small px-4">Chúng tôi sẽ thông báo cho bạn ngay khi Admin phê duyệt.</p>
+                        <!-- MOMO PAYMENT BUTTON -->
+                        <form asp-action="CreateMomoPayment" asp-controller="Account" method="post" class="text-center mt-4">
+                            <button type="submit" class="btn w-100 momo-btn">
+                                <i class="fas fa-wallet me-2"></i> THANH TOÁN QUA MOMO
+                            </button>
+                            <div class="d-flex justify-content-center align-items-center mt-3 gap-2 text-white-50 small">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Thanh toán an toàn, kích hoạt tức thì.</span>
                             </div>
-                        }
+                        </form>
+
                     </div>
-                </div>
-            </div>
-            
-            <!-- QR Payment Section -->
-            <div class="col-lg-3 col-md-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 text-center p-4">
-                    <h5 class="fw-bold mb-3">Quét mã thanh toán</h5>
-                    <div class="qr-wrapper bg-white-10 rounded-4 mb-3 overflow-hidden p-2" style="background-color: rgba(13, 110, 253, 0.05); border: 1px solid rgba(13, 110, 253, 0.1);">
-                        <img src="/images/QR/UpgradeCV.png" alt="QR Payment" class="img-fluid rounded-4 w-100 mb-2 shadow-sm">
-                        <div class="pb-2">
-                            <p class="mb-0 fw-bold text-primary">NGUYEN VO LE KHOA</p>
-                            <p class="small text-muted mb-0">Ngân hàng: Vietcombank</p>
-                        </div>
-                    </div>
-                    <p class="small text-muted mb-0">Nội dung: <span class="fw-bold text-danger">UPGRADEPRO [Email của bạn]</span></p>
                 </div>
             </div>
         </div>
@@ -160,16 +105,23 @@
         .pro-featured { background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%); transform: scale(1.02); z-index: 2; border: 2px solid rgba(255,193,7,0.3) !important; }
         .pro-ribbon { position: absolute; top: 20px; right: -35px; background: #ffc107; color: #000; padding: 5px 40px; transform: rotate(45deg); font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        .bg-white-10 { background-color: rgba(255,255,255,0.1) !important; }
-        .border-white-10 { border-color: rgba(255,255,255,0.15) !important; }
+        .momo-btn {
+            background-color: #a50064; /* Màu chủ đạo MoMo */
+            color: white;
+            padding: 16px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 8px 20px rgba(165, 0, 100, 0.4);
+            transition: all 0.3s ease;
+        }
         
-        .custom-file-input::-webkit-file-upload-button { visibility: hidden; }
-        .custom-file-input::before { content: 'Chọn ảnh minh chứng'; display: inline-block; background: white; border-radius: 30px; padding: 8px 20px; outline: none; white-space: nowrap; cursor: pointer; color: #0d6efd; font-weight: 700; font-size: 0.85rem; margin-right: 10px; }
-        .custom-file-input:active::before { background: #f8f9fa; }
-        
-        textarea::placeholder { color: rgba(255,255,255,0.4) !important; }
-        
-        .upgrade-submit-btn { transition: 0.3s; }
-        .upgrade-submit-btn:hover { background: #ffc107 !important; border-color: #ffc107 !important; color: #000 !important; transform: scale(1.02); }
+        .momo-btn:hover {
+            background-color: #d82d8b; /* Màu sáng hơn khi hover */
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(165, 0, 100, 0.6);
+        }
     </style>
 }

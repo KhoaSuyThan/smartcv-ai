@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Kết quả thanh toán";
+}
+
+<div class="container mt-5 text-center" style="max-width: 600px;">
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="alert alert-success" style="border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(40, 167, 69, 0.1);">
+            <h2 class="mb-3"><i class="fas fa-check-circle fa-4x text-success"></i></h2>
+            <h3 class="fw-bold">@ViewBag.SuccessMessage</h3>
+            <p class="text-muted mt-3">Trạng thái Pro của bạn đã được kích hoạt. Hãy trải nghiệm ngay!</p>
+            <a href="@Url.Action("Profile", "Account")" class="btn btn-primary mt-4 px-4 py-2" style="border-radius: 30px;">Trở về hồ sơ</a>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" style="border-radius: 15px; padding: 40px; box-shadow: 0 10px 30px rgba(220, 53, 69, 0.1);">
+            <h2 class="mb-3"><i class="fas fa-times-circle fa-4x text-danger"></i></h2>
+            <h3 class="fw-bold">Thanh toán thất bại</h3>
+            <p class="text-muted mt-3">@ViewBag.ErrorMessage</p>
+            <a href="@Url.Action("Upgrade", "Account")" class="btn btn-outline-danger mt-4 px-4 py-2" style="border-radius: 30px;">Thử lại</a>
+        </div>
+    }
+</div>
