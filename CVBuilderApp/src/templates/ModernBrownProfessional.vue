@@ -79,11 +79,14 @@
                 :key="item._refId"
                 class="item-container relative w-full text-[#444]"
                 :style="{ fontSize: '12px !important', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }"
-              >
-                <div v-if="section.id === 'skills'" class="flex items-start gap-[8px] paginated-item">
+              > 
+                <div v-if="section.id === 'skills'" class="flex items-start gap-[8px] paginated-item w-full">
                   <svg class="mt-[4px] shrink-0 text-[#634c46] opacity-70" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
-                  <div class="font-medium text-[#333] w-full break-words">{{ item.name }}</div>
+                  <div class="w-full flex justify-between items-start gap-2">
+                  <span class="font-medium text-[#333] break-words">{{ item.name }}</span>
+                  <span v-if="item.level || item.info" class="font-bold shrink-0 whitespace-nowrap text-right opacity-90 text-[11px]">{{ item.level || item.info }}</span>
                 </div>
+              </div>
                 
                 <div v-else-if="section.id === 'education' || section.id === 'experience'" class="w-full">
                   <div class="w-full flex justify-between items-start mb-[2px] paginated-item">
@@ -99,11 +102,19 @@
                   <div v-if="item.info || item.level" class="w-full break-words mt-[2px]" :style="{ margin: '0 !important' }">{{ item.info || item.level }}</div>
                 </div>
                 
-                <div v-else class="html-content break-words whitespace-pre-line text-justify w-full flex flex-col" :style="{ margin: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info || item.school || item.company)"></div>
+                <div v-else class="w-full flex flex-col">
+  <div class="paginated-item w-full flex justify-between items-start gap-2 relative">
+    <span class="font-bold flex-1 break-words leading-tight text-[#333] flex flex-col" v-html="formatDesc(item.name || item.title || item.company || item.organization)"></span>
+    <!-- Hiển thị Năm với thiết kế bo tròn đồng bộ -->
+    <span v-if="item.year || item.time || item.date" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold">{{ item.year || item.time || item.date }}</span>
+  </div>
+  <div v-if="item.major || item.role || item.info" class="italic opacity-90 mt-[2px] text-[12px] paginated-item flex flex-col text-[#444]" v-html="formatDesc(item.major || item.role || item.info)"></div>
+  <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full mt-[2px] flex flex-col text-[#555]" :style="{ lineHeight: '1.5' }" v-html="formatDesc(item.desc || item.details)"></div>
+</div>
 
                 <!-- Nút xóa: chỉ hiện khi section đang active -->
                 <button
-                  v-show="selectedSectionId === section.id"
+                 v-if="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print"
                 >
@@ -176,13 +187,18 @@
                 </div>
                 
                 <div v-else class="w-full" :style="{ padding: '0 !important' }">
-                  <div v-if="item.year || item.time" class="font-bold mb-[5px] paginated-item" :style="{ color: templatePrimaryColor, fontSize: '12px', margin: '0 !important' }">{{ item.year || item.time }}</div>
-                  <div class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc || item.name || item.info)"></div>
-                </div>
+              <div class="paginated-item w-full flex justify-between items-start gap-2">
+                <span class="font-bold text-[#333] leading-tight flex-1" v-html="formatDesc(item.name || item.title || item.company || item.organization)"></span>
+                <!-- ĐÃ BỔ SUNG item.level VÀO ĐÂY ĐỂ HIỂN THỊ MỨC ĐỘ GÓC PHẢI -->
+                <span v-if="item.year || item.time || item.date || item.level" class="font-bold shrink-0 text-[12px]" :style="{ color: templatePrimaryColor }">{{ item.year || item.time || item.date || item.level }}</span>
+              </div>
+               <div v-if="item.info || item.role || item.major" class="paginated-item text-[14px] font-medium text-[#555] mt-[2px] flex flex-col" v-html="formatDesc(item.info || item.role || item.major)"></div>
+               <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col mt-[2px]" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc || item.details)"></div>
+              </div>
 
                 <!-- Nút xóa: chỉ hiện khi section đang active -->
                 <button
-                  v-show="selectedSectionId === section.id"
+                  v-if="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print"
                 >
