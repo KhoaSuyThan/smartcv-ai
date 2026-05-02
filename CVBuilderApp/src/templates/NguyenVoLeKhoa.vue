@@ -173,21 +173,62 @@
 
               <!-- Other sidebar sections -->
               <div v-else class="space-y-3">
-                <div
-                  v-for="(item, itemIndex) in section.items"
-                  :key="item._refId"
-                  class="text-[#333] font-normal leading-relaxed item-container relative"
-                  style="font-size: 11px !important"
-                >
-                  <div class="html-content" v-html="formatDesc(item.desc || item.name || item.info)"></div>
-                  
-                  <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
-                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                  </transition>
+              <div
+                v-for="(item, itemIndex) in section.items"
+                :key="item._refId"
+                class="text-[#333] font-normal leading-relaxed item-container relative"
+                style="font-size: 11px !important"
+              >
+
+                <div v-if="item.time || item.year" 
+                  class="paginated-item font-bold mb-0.5"
+                  :style="{ color: templatePrimaryColor, fontSize: '10px !important' }">
+                  {{ item.time || item.year }}
                 </div>
+
+                <div v-if="item.company || item.school || item.name || item.title"
+                  class="paginated-item font-bold mb-0.5"
+                  style="font-size: 11.5px !important; color: #333;">
+                  {{ item.company || item.school || item.name || item.title }}
+                </div>
+
+                <!-- ✅ Ngành học: hiện riêng bên dưới tên trường -->
+                <div v-if="item.major"
+                  class="paginated-item font-normal mb-0.5"
+                  style="font-size: 11px !important; color: #555;">
+                  {{ item.major }}
+                </div>
+
+                <!-- Vai trò: chỉ hiện khi có tên ở trên (giữ nguyên logic cũ nhưng thêm school) -->
+                <div v-if="(item.company || item.school || item.name || item.title) && item.role"
+                  class="paginated-item font-normal mb-1"
+                  style="font-size: 11px !important; color: #555;">
+                  {{ item.role }}
+                </div>
+
+                <!-- ✅ Xếp loại / GPA: thêm mới -->
+                <div v-if="item.gradType || item.gpa"
+                  class="paginated-item font-normal mb-1"
+                  style="font-size: 11px !important; color: #555;">
+                  <span v-if="item.gradType">Tốt nghiệp loại: <strong>{{ item.gradType }}</strong></span>
+                  <span v-if="item.gradType && item.gpa"> | </span>
+                  <span v-if="item.gpa">GPA: <strong>{{ item.gpa }}</strong></span>
+                </div>
+
+                <!-- Mô tả (giữ nguyên) -->
+                <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
+
+                <transition name="fade-btns">
+                  <button v-if="selectedSectionId === section.id" 
+                    @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" 
+                    class="delete-item-btn no-print">
+                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </transition>
               </div>
+            </div>
             </div>
           </div>
         </template>
@@ -258,7 +299,7 @@
                   <div class="text-[#333] leading-relaxed html-content" style="font-size: 11px !important" v-html="formatDesc(item.desc)"></div>
                   
                   <div v-if="!item.desc && item.gradType" class="paginated-item text-[#333] font-bold mt-1" style="font-size: 11px !important">
-                    Trạng thái: <span class="font-normal">{{ item.gradType }}</span>
+                    Tốt nghiệp loại: <span class="font-normal">{{ item.gradType }}</span>
                   </div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
@@ -299,7 +340,26 @@
                   class="item-container relative text-[#333] leading-relaxed"
                   style="font-size: 11px !important"
                 >
-                  <div class="html-content" v-html="formatDesc(item.desc || item.info || item.name)"></div>
+                <div v-if="['awards','certifications'].includes(section.id)" class="paginated-item">
+                  <p v-if="item.year" class="font-bold text-[#333] mb-0.5">{{ item.year }}</p>
+                  <p class="font-normal">{{ item.name || item.info }}</p>
+                </div>
+
+                <div v-else-if="['skills','languages','it_skills'].includes(section.id)"
+                  class="paginated-item flex items-start gap-2">
+                  <span class="mt-[0.5px] text-slate-500 shrink-0">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                      <path d="M12 2l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/>
+                    </svg>
+                  </span>
+                  <span class="flex-1">
+                    <span class="font-bold">{{ item.name }}:</span>
+                    <span v-if="item.info" class="font-normal"> {{ item.info }}</span>
+                    <span v-else-if="item.level" class="font-normal"> ({{ item.level }})</span>
+                  </span>
+                </div>
+                
+                  <div v-else class="html-content" v-html="formatDesc(item.desc || item.info || item.name)"></div>
 
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
