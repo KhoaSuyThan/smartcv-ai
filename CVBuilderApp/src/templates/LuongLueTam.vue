@@ -183,7 +183,17 @@
                 style="font-size: 11px !important; color: rgba(255,255,255,0.9);">
                 <div class="flex items-start gap-2">
                   <div class="rounded-full bg-white shrink-0" style="width: 6px; height: 6px; margin-top: 6px;"></div>
-                  <div class="html-content" v-html="formatDesc(item.desc || item.name || item.info)"></div>
+                  <div class="flex flex-col">
+                    <div v-if="item.year || item.time"
+                      class="inline-block text-[#334155] font-bold tracking-wide shadow-[1px_1px_0px_rgba(0,0,0,0.1)] mb-1"
+                      style="font-size: 10px !important; padding: 2px 6px; background-color: #f1f5f9; width: fit-content;">
+                      {{ item.year || item.time }}
+                    </div>
+                    <div class="font-bold mb-0.5" v-if="item.name || item.info" style="font-size: 11px !important;">
+                      {{ item.name || item.info }}
+                    </div>
+                    <div class="html-content opacity-80" v-if="item.desc" v-html="formatDesc(item.desc)"></div>
+                  </div>
                 </div>
                 <button v-if="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
