@@ -94,22 +94,47 @@
             </h3>
 
             <div class="space-y-4 px-1">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-slate-800">
-                <!-- ĐÃ SỬA: Dùng formatDesc và flex-col để băm nhỏ dòng ở Cột Trái -->
-                <div class="html-content font-bold text-[14px] leading-snug flex flex-col" v-html="formatDesc(item.name)" />
-                <div v-if="!isEmpty(item.info || item.level)" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col"
-                     v-html="formatDesc(item.info || item.level)" />
-                
-                <button
-                  v-if="selectedSectionId === section.id"
-                  @click.stop="$emit('removeItem', section.id, itemIndex)"
-                  class="delete-btn no-print"
-                  title="Xóa"
-                >
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-              </div>
-            </div>
+  <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-slate-800">
+    
+    <!-- SỬA LỖI VÀ ĐỊNH DẠNG HỌC VẤN / KINH NGHIỆM GIỐNG ẢNH MẪU SỐ 3 -->
+    <template v-if="['education','experience','project','activities'].includes(section.id)">
+      <!-- Ngành học / Vị trí in đậm -->
+      <div class="html-content font-bold text-[14px] leading-snug flex flex-col text-slate-800 paginated-item" v-html="formatDesc(item.major || item.role || item.position || item.name)"></div>
+      
+      <!-- Thời gian - Xếp loại in nghiêng màu nhạt -->
+      <div class="html-content text-[13px] text-slate-500 italic mt-0.5 flex items-center flex-wrap paginated-item">
+        <span v-if="item.year || item.time || item.date" v-html="formatDesc(item.year || item.time || item.date)"></span>
+        <span v-if="(item.year || item.time || item.date) && item.gradType" class="mx-1">•</span>
+        <span v-if="item.gradType" v-html="formatDesc('Loại ' + item.gradType)"></span>
+      </div>
+      
+      <!-- Tên trường / Công ty ở dưới cùng -->
+      <div class="html-content text-[13px] text-slate-600 mt-0.5 flex flex-col paginated-item" v-if="item.school || item.company || item.organization" v-html="formatDesc((section.id === 'education' ? 'Tên trường học ' : '') + (item.school || item.company || item.organization))"></div>
+      
+      <!-- Mô tả thêm -->
+      <div v-if="item.desc" class="html-content text-justify text-[13px] leading-relaxed flex flex-col mt-1 text-slate-500 paginated-item" v-html="formatDesc(item.desc)"></div>
+    </template>
+    
+    <!-- MẶC ĐỊNH CHO KỸ NĂNG / CHỨNG CHỈ CÒN LẠI -->
+    <template v-else>
+      <div class="flex justify-between items-start gap-2 paginated-item">
+        <div class="html-content font-bold text-[14px] leading-snug flex-1 flex flex-col" v-html="formatDesc(item.name || item.title)" />
+        <span v-if="item.level || item.info" class="font-bold text-[12px] text-slate-500 shrink-0">{{ item.level || item.info }}</span>
+      </div>
+      <div v-if="item.year || item.time" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col paginated-item" v-html="formatDesc(item.year || item.time)" />
+      <div v-if="item.desc" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col paginated-item text-justify" v-html="formatDesc(item.desc)" />
+    </template>
+    
+    <button
+      v-if="selectedSectionId === section.id"
+      @click.stop="$emit('removeItem', section.id, itemIndex)"
+      class="delete-btn no-print"
+      title="Xóa"
+    >
+      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+</div>
           </div>
         </template>
       </div>
@@ -202,18 +227,24 @@
 
                 <!-- Generic -->
                 <template v-else>
-                  <div class="flex gap-4">
-                    <div v-if="item.year || item.time" class="shrink-0 font-bold text-blue-500 text-[14px] paginated-item"
-                         v-html="safeHtml(item.year || item.time)" />
-                    <div class="flex-1">
-                      <div v-if="!isEmpty(item.name)" class="html-content font-bold text-[15px] mb-1 paginated-item"
-                           v-html="safeHtml(item.name)" />
-                      <div v-if="!isEmpty(item.desc || item.info)"
-                           class="html-content text-justify text-[14px] leading-relaxed flex flex-col"
-                           v-html="formatDesc(item.desc || item.info)" />
-                    </div>
+                <div class="flex-1">
+                  <div class="flex justify-between items-start gap-2">
+                    <div v-if="!isEmpty(item.name || item.title)" 
+                        class="html-content font-bold text-[15px] mb-1 paginated-item flex-1"
+                        v-html="formatDesc(item.name || item.title)" />
+                    <span v-if="item.level || item.info" class="font-bold text-[13px] text-slate-500 shrink-0">{{ item.level || item.info }}</span>
                   </div>
-                </template>
+                  <div v-if="!isEmpty(item.role || item.info || item.position)"
+                      class="html-content text-[13px] text-slate-500 italic mb-1 paginated-item"
+                      v-html="formatDesc(item.role || item.info || item.position)" />
+                  <div v-if="item.year || item.time" 
+                      class="html-content text-[13px] text-blue-500 font-bold mb-1 paginated-item"
+                      v-html="formatDesc(item.year || item.time)" />
+                  <div v-if="!isEmpty(item.desc)"
+                      class="html-content text-justify text-[14px] leading-relaxed flex flex-col paginated-item"
+                      v-html="formatDesc(item.desc)" />
+                </div>
+              </template>
 
                 <button
                   v-if="selectedSectionId === section.id"
@@ -467,6 +498,8 @@ onMounted(() => {
     const hasData = sec.items?.length > 0
     sec.isVisible = defaultVisible.has(sec.id) || hasData
   })
+   const refSection = props.resumeData?.sections?.find(s => s.id === 'references')
+  if (refSection) refSection.column = 'right'
 
   requestPagination()
   window.addEventListener('resize', requestPagination)
