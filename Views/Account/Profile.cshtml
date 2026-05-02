@@ -279,8 +279,21 @@
                     </div>
                     <div class="col-6">
                         <div class="stat-badge">
-                            <h6 class="custom-label mb-1 text-dark">Hồ sơ</h6>
-                            <div class="fw-bold text-dark">@(Model.Resumes?.Count ?? 0)</div>
+                            @if (isRecruiter)
+                            {
+                                <h6 class="custom-label mb-1 text-dark">Tin tuyển dụng</h6>
+                                <div class="fw-bold text-dark">@(ViewBag.JobCount ?? 0)</div>
+                            }
+                            else if (isAdmin)
+                            {
+                                <h6 class="custom-label mb-1 text-dark">Người dùng</h6>
+                                <div class="fw-bold text-dark">@(ViewBag.TotalUsers ?? 0)</div>
+                            }
+                            else
+                            {
+                                <h6 class="custom-label mb-1 text-dark">Hồ sơ</h6>
+                                <div class="fw-bold text-dark">@(Model.Resumes?.Count ?? 0)</div>
+                            }
                         </div>
                     </div>
                 </div>

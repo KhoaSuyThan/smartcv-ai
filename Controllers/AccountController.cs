@@ -244,6 +244,17 @@ namespace DoAnCS.Controllers
                              .FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null) return NotFound();
 
+            // Nếu là nhà tuyển dụng, lấy thêm số lượng tin tuyển dụng của công ty
+            if (user.Role == "Recruiter" && user.CompanyID != null)
+            {
+                ViewBag.JobCount = await _context.Jobs.CountAsync(j => j.CompanyID == user.CompanyID);
+            }
+            // Nếu là admin, lấy tổng số lượng người dùng trong hệ thống
+            else if (user.Role == "Admin")
+            {
+                ViewBag.TotalUsers = await _context.Users.CountAsync();
+            }
+
             return View(user);
         }
 
