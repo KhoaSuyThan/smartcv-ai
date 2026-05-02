@@ -169,7 +169,16 @@
             <div class="w-full flex flex-col gap-[20px]" :style="{ borderLeft: '2px solid #c8d8e8', paddingLeft: '15px !important', marginLeft: '20px !important', width: 'calc(100% - 20px)' }">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative w-full text-[#444]" :style="{ margin: '0 !important', padding: '0 !important' }">
                 
-                <div v-if="['education', 'experience', 'project', 'activities'].includes(section.id)" class="w-full">
+                <!-- ĐÃ SỬA: Bổ sung hiển thị Kỹ năng cho Cột Phải -->
+                <div v-if="['skills', 'languages', 'it_skills'].includes(section.id)" class="w-full flex flex-col paginated-item">
+                  <div class="w-full flex justify-between items-baseline gap-2" :style="{ margin: '0 !important' }">
+                    <span class="font-bold break-words flex-1 leading-tight text-[#333]" :style="{ margin: '0 !important', fontSize: '15px' }" v-html="item.name"></span>
+                    <span class="font-bold shrink-0 whitespace-nowrap text-right text-[#666]" v-if="item.level" :style="{ fontSize: '13px', margin: '0 !important' }">{{ item.level }}</span>
+                  </div>
+                  <div class="italic text-[#555] mt-[2px] mb-[5px] w-full" :style="{ fontSize: '14px !important' }" v-if="item.info">{{ item.info }}</div>
+                </div>
+
+                <div v-else-if="['education', 'experience', 'project', 'activities'].includes(section.id)" class="w-full">
                   <div class="w-full flex flex-col paginated-item">
                     <div class="w-full flex justify-between items-baseline gap-2" :style="{ margin: '0 !important' }">
                       <span class="font-bold break-words flex-1 leading-tight text-[#333]" :style="{ margin: '0 !important', fontSize: '15px' }" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
@@ -316,7 +325,7 @@ const doPagination = async () => {
   const pageH = A4_HEIGHT_MM * pxPerMm
   
   const bottomSafeZone = 14 * pxPerMm
-  const topMargin = 8 * pxPerMm
+  const topMargin = 25 * pxPerMm 
 
   let stable = false
   let passes = 0
