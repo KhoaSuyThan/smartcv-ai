@@ -122,15 +122,24 @@
                              </div>
                          </div>
                          
-                         <div v-else class="space-y-3">
-                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug item-container pr-3" style="font-size: 12px !important;">
-                                 <!-- formatDesc sẽ tự chém nhỏ html -->
-                                 <div class="sidebar-html-content flex flex-col" v-html="formatDesc(item.desc || item.name || item.info)"></div>
-                                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
-                                     <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                                 </button>
-                             </div>
-                         </div>
+                        <div v-else class="space-y-3">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug item-container pr-3" style="font-size: 12px !important; color: #6a2a31;">
+                            
+                            <!-- Áp dụng formatDesc để băm nhỏ từng dòng, giúp thuật toán nhận diện và ngắt trang -->
+                            <div v-if="item.year || item.time" class="font-bold opacity-70 mb-0.5 flex flex-col" style="font-size: 11px !important;" v-html="formatDesc(item.year || item.time)"></div>
+                            
+                            <div v-if="item.name || item.title" class="font-bold mb-0.5 flex flex-col" style="font-size: 12px !important;" v-html="formatDesc(item.name || item.title)"></div>
+                            
+                                <div v-if="item.role || item.position" class="opacity-80 italic mb-0.5 flex flex-col" style="font-size: 11px !important;" v-html="formatDesc(item.role || item.position)"></div>
+                            
+                            <div v-if="item.desc" class="sidebar-html-content flex flex-col" v-html="formatDesc(item.desc)"></div>
+                            <div v-else-if="!item.name && !item.title" class="sidebar-html-content flex flex-col" v-html="formatDesc(item.info || '')"></div>
+                            
+                                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
+                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -174,16 +183,16 @@
 
                     <div v-else-if="section.id.toLowerCase().includes('experience') || section.id.toLowerCase().includes('project') || section.id.toLowerCase().includes('activit')" class="space-y-5">
                         <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container">
-                            <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
-                                <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
-
                             <div class="flex justify-between items-baseline gap-2 mb-0.5 paginated-item">
-                                <span class="font-bold text-gray-900 leading-tight uppercase" style="font-size: 13.5px !important;">{{ section.id.toLowerCase().includes('experience') ? item.role : (item.role || item.name) }}</span>
+                                <span class="font-bold text-gray-900 leading-tight uppercase" style="font-size: 13.5px !important;">
+                                {{ section.id.toLowerCase().includes('experience') ? (item.role || item.company) : (item.name || item.role) }}
+                                </span>
                                 <span class="font-bold text-gray-800 whitespace-nowrap flex-shrink-0" style="font-size: 12.5px !important;">{{ item.time }}</span>
                             </div>
-                            <div class="text-gray-600 font-bold mb-1.5 paginated-item" v-if="section.id.toLowerCase().includes('experience') ? item.company : (item.company || '')" style="font-size: 13px !important;">
-                                {{ section.id.toLowerCase().includes('experience') ? item.company : (item.company || '') }}
+                            <div class="text-gray-600 font-bold mb-1.5 paginated-item"
+                            v-if="section.id.toLowerCase().includes('experience') ? item.company : item.role"
+                            style="font-size: 13px !important;">
+                                {{ section.id.toLowerCase().includes('experience') ? item.company : item.role }}
                             </div>
                             <div class="leading-[1.65] text-gray-800 text-justify html-content font-medium flex flex-col" style="font-size: 12.5px !important;" v-html="formatDesc(item.desc)"></div>
                         </div>
@@ -216,14 +225,20 @@
                         </div>
                     </div>
 
-                    <div v-else class="space-y-4">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container text-gray-800 font-medium html-content flex flex-col" style="font-size: 12.5px !important;">
-                             <div class="flex flex-col" v-html="formatDesc(item.desc || item.name || item.info)"></div>
-                             <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
-                                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                             </button>
+                  <div v-else class="space-y-4">
+                
+                    <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container text-gray-800 font-medium flex flex-col paginated-item" style="font-size: 12.5px !important;">
+                        <div class="flex justify-between items-baseline gap-2 w-full">
+                            <!-- Đã bọc hàm formatDesc để băm nhỏ nội dung nếu người dùng xuống dòng -->
+                            <span class="font-bold flex flex-col flex-1" v-html="formatDesc(item.name || item.title || '')"></span>
+                            <span v-if="item.level || item.info" class="font-normal opacity-80 flex-shrink-0" style="font-size: 11.5px !important;">{{ item.level || item.info }}</span>
                         </div>
+                        <div v-if="item.desc" class="html-content flex flex-col mt-0.5" v-html="formatDesc(item.desc)"></div>
+                        <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-md z-30">
+                            <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
                     </div>
+                </div>
                 </div>
             </div>
         </template>
@@ -389,8 +404,7 @@ const doPagination = async () => {
     const pageH = A4_H_MM * pxPerMm;
     
     const bottomSafeZone = 12 * pxPerMm;
-    const topMargin = 8 * pxPerMm;
-
+    const topMargin = 18 * pxPerMm;
     let stable = false;
     let passes = 0;
 
@@ -440,7 +454,7 @@ watch(() => props.resumeData, () => requestPagination(), { deep: true });
 
 onMounted(() => {
     if (props.resumeData && props.resumeData.sections) {
-        const SIDEBAR_IDS = ['education', 'skills'];
+        const SIDEBAR_IDS = ['education', 'skills', 'reference'];
         const MAIN_IDS = ['summary', 'objective', 'experience', 'award', 'cert', 'activit', 'project'];
         const FORBIDDEN_IDS = ['it_skills', 'technical_skills', 'languages', 'lang'];
 
