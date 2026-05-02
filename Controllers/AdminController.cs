@@ -445,6 +445,16 @@ namespace DoAnCS.Controllers
             {
                 try
                 {
+                    // Kiểm tra xem file .vue có tồn tại trong thư mục templates không
+                    string componentFile = template.ComponentName.EndsWith(".vue") ? template.ComponentName : template.ComponentName + ".vue";
+                    string templatePath = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates", componentFile);
+
+                    if (!System.IO.File.Exists(templatePath))
+                    {
+                        TempData["Error"] = $"Cảnh báo: File component '{componentFile}' không tồn tại trong thư mục templates. Vui lòng tạo file trước!";
+                        return RedirectToAction(nameof(VueTemplates));
+                    }
+
                     if (uploadImage != null && uploadImage.Length > 0)
                     {
                         string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
@@ -530,6 +540,16 @@ namespace DoAnCS.Controllers
             {
                 try
                 {
+                    // Kiểm tra file vật lý
+                    string componentFile = template.ComponentName.EndsWith(".vue") ? template.ComponentName : template.ComponentName + ".vue";
+                    string templatePath = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates", componentFile);
+
+                    if (!System.IO.File.Exists(templatePath))
+                    {
+                        ModelState.AddModelError("ComponentName", $"File '{componentFile}' không tồn tại trong source code.");
+                        return View(template);
+                    }
+
                     if (uploadImage != null && uploadImage.Length > 0)
                     {
                         string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
