@@ -433,6 +433,52 @@ namespace DoAnCS.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateVueCV(VueTemplate template, IFormFile? uploadImage, string[] selectedCategories)
+        {
+            if (selectedCategories != null && selectedCategories.Length > 0)
+            {
+                template.Category = string.Join(", ", selectedCategories);
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (uploadImage != null && uploadImage.Length > 0)
+                    {
+                        string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
+                        if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                        string fileName = "vue_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(uploadImage.FileName);
+                        string filePath = Path.Combine(folder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await uploadImage.CopyToAsync(stream);
+                        }
+
+                        template.ThumbnailUrl = "/images/templates/" + fileName;
+                    }
+
+                    template.CreatedAt = DateTime.Now;
+                    _context.VueTemplates.Add(template);
+                    await _context.SaveChangesAsync();
+
+                    TempData["Success"] = "Thêm mẫu Vue CV mới thành công!";
+                    return RedirectToAction(nameof(VueTemplates));
+                }
+                catch (Exception ex)
+                {
+                    TempData["Error"] = "Lỗi hệ thống: " + ex.Message;
+                }
+            }
+            
+            TempData["Error"] = "Dữ liệu không hợp lệ, vui lòng kiểm tra lại.";
+            return RedirectToAction(nameof(VueTemplates));
+        }
+
+        [HttpPost]
         public async Task<IActionResult> ToggleVueTemplateStatus(int id)
         {
             var template = await _context.VueTemplates.FindAsync(id);
