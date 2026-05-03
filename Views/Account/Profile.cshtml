@@ -567,6 +567,10 @@
                                                             <i class="bi bi-pencil-square small"></i>
                                                         </button>
                                                     </h5>
+                                                    <div class="text-primary small fw-medium mt-1 mb-1" style="cursor: pointer;" onclick="updateJobTitle(@cv.ResumeID)" title="Nhấn để sửa vị trí">
+                                                        <i class="bi bi-person-workspace me-1"></i> <span id="cvJobMain_@cv.ResumeID">@(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa cập nhật vị trí" : cv.JobTitle)</span>
+                                                        <i class="bi bi-pencil-square ms-1 text-muted opacity-50" style="font-size: 0.75rem;"></i>
+                                                    </div>
                                                     <p class="text-muted small mb-2" style="font-size: 0.75rem;">Chỉnh sửa: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                                                     
                                                     <div class="d-flex align-items-center justify-content-between mb-2">
@@ -691,6 +695,10 @@
                                                 <i class="bi bi-pencil-square small"></i>
                                             </button>
                                         </h6>
+                                        <div class="text-primary small fw-medium mt-1 mb-1" style="cursor: pointer;" onclick="updateJobTitle(@cv.ResumeID)" title="Nhấn để sửa vị trí">
+                                            <i class="bi bi-person-workspace me-1"></i> <span id="cvJobModal_@cv.ResumeID">@(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa cập nhật vị trí" : cv.JobTitle)</span>
+                                            <i class="bi bi-pencil-square ms-1 text-muted opacity-50" style="font-size: 0.75rem;"></i>
+                                        </div>
                                         <small class="text-muted">Cập nhật: @cv.UpdatedAt.ToString("dd/MM HH:mm")</small>
                                     </div>
                                 </div>
@@ -1006,6 +1014,38 @@
                     const elMain = document.getElementById(`cvTitleMain_${resumeId}`);
                     if (elModal) elModal.innerText = newName;
                     if (elMain) elMain.innerText = newName;
+                } else {
+                    alert("Lỗi: " + data.message);
+                }
+            })
+            .catch(err => {
+                alert("Lỗi kết nối mạng.");
+            });
+        }
+
+        function updateJobTitle(resumeId) {
+            const currentEl = document.getElementById(`cvJobMain_${resumeId}`) || document.getElementById(`cvJobModal_${resumeId}`);
+            let currentJob = currentEl ? currentEl.innerText : "";
+            if (currentJob === "Chưa cập nhật vị trí") currentJob = "";
+            const newJob = prompt("Nhập Vị trí (Job Title) cho CV này:", currentJob);
+            if (newJob === null) return;
+
+            fetch(`/Resume/UpdateJobTitle`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `id=${resumeId}&jobTitle=${encodeURIComponent(newJob.trim())}`
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    let displayJob = newJob.trim() === "" ? "Chưa cập nhật vị trí" : newJob.trim();
+                    const elModal = document.getElementById(`cvJobModal_${resumeId}`);
+                    const elMain = document.getElementById(`cvJobMain_${resumeId}`);
+                    if (elModal) elModal.innerText = displayJob;
+                    if (elMain) elMain.innerText = displayJob;
                 } else {
                     alert("Lỗi: " + data.message);
                 }
