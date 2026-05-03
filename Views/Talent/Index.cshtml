@@ -1,0 +1,200 @@
+@model IEnumerable<DoAnCS.Models.Resume>
+@{
+    ViewData["Title"] = "Tìm kiếm ứng viên tiềm năng";
+}
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-gradient">Khám phá tài năng sáng giá</h2>
+        <p class="text-muted">Tìm kiếm và kết nối với các ứng viên tiềm năng từ khắp mọi nơi</p>
+    </div>
+
+    <!-- Thanh tìm kiếm -->
+    <div class="card glass-card p-4 mb-5 shadow-sm border-0">
+        <form method="get" asp-action="Index" class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold text-secondary">Từ khóa / Kỹ năng</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-primary"></i>
+                    </span>
+                    <input type="text" name="searchTerm" class="form-control border-start-0 ps-0" 
+                           placeholder="Ví dụ: Java, React, Marketing..." value="@ViewBag.SearchTerm">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-secondary">Vị trí mong muốn</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-briefcase text-primary"></i>
+                    </span>
+                    <input type="text" name="jobTitle" class="form-control border-start-0 ps-0" 
+                           placeholder="Ví dụ: Web Developer..." value="@ViewBag.JobTitleFilter">
+                </div>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-premium w-100 py-2">
+                    <i class="bi bi-filter me-2"></i> Lọc kết quả
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Danh sách kết quả -->
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="col-12 text-center py-5">
+                <img src="/images/no-results.png" alt="No results" style="width: 150px; opacity: 0.5;">
+                <h4 class="mt-4 text-secondary">Không tìm thấy ứng viên nào phù hợp</h4>
+                <p class="text-muted">Hãy thử thay đổi từ khóa hoặc bộ lọc để có kết quả tốt hơn.</p>
+                <a href="@Url.Action("Index", "Talent")" class="btn btn-outline-primary mt-2">Xóa bộ lọc</a>
+            </div>
+        }
+        else
+        {
+            @foreach (var resume in Model)
+            {
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100 hover-lift border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0">
+                                    <img src="@(string.IsNullOrEmpty(resume.AvatarUrl) ? "/images/default-avatar.png" : resume.AvatarUrl)" 
+                                         class="rounded-circle border border-2 border-primary" 
+                                         style="width: 60px; height: 60px; object-fit: cover;">
+                                </div>
+                                <div class="ms-3 overflow-hidden">
+                                    <h5 class="card-title mb-1 fw-bold text-dark text-truncate">@resume.FullName</h5>
+                                    <p class="card-subtitle text-primary fw-medium small text-truncate">
+                                        <i class="bi bi-bookmark-check me-1"></i> @(resume.JobTitle ?? "Chưa cập nhật")
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">
+                                    @(string.IsNullOrEmpty(resume.Summary) ? "Ứng viên này chưa cập nhật tóm tắt bản thân." : resume.Summary)
+                                </p>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                @if (resume.UpdatedAt != null)
+                                {
+                                    <span class="badge bg-light text-secondary border">
+                                        <i class="bi bi-clock me-1"></i> Cập nhật: @resume.UpdatedAt.ToString("dd/MM/yyyy")
+                                    </span>
+                                }
+                                @if (resume.ViewCount > 0)
+                                {
+                                    <span class="badge bg-light text-secondary border">
+                                        <i class="bi bi-eye me-1"></i> @resume.ViewCount lượt xem
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 p-4 pt-0">
+                            <button onclick="showTalentDetails(@resume.UserID)" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
+                                <i class="bi bi-file-earmark-person me-1"></i> Xem hồ sơ chi tiết
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<!-- Modal chi tiết ứng viên -->
+<div class="modal fade" id="talentDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-0 px-4 pb-4" id="talentDetailContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-gradient {
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+    }
+    .btn-premium {
+        background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+        transition: all 0.3s ease;
+    }
+    .btn-premium:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+        color: white;
+    }
+</style>
+
+@section Scripts {
+<script>
+    const talentModal = new bootstrap.Modal(document.getElementById('talentDetailModal'));
+
+    function showTalentDetails(userId) {
+        document.getElementById('talentDetailContent').innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Đang tải dữ liệu...</p>
+            </div>`;
+        talentModal.show();
+
+        fetch(`/Talent/Details/${userId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('talentDetailContent').innerHTML = html;
+        })
+        .catch(err => {
+            document.getElementById('talentDetailContent').innerHTML = `
+                <div class="alert alert-danger">Lỗi khi tải thông tin ứng viên. Vui lòng thử lại sau.</div>`;
+            console.error(err);
+        });
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('Đã sao chép liên kết vào bộ nhớ tạm!');
+        }, function(err) {
+            console.error('Không thể sao chép: ', err);
+        });
+    }
+</script>
+}
+

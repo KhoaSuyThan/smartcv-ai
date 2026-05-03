@@ -592,7 +592,6 @@ namespace DoAnCS.Controllers
             }
         }
 
-        [NonAction]
         private string GenerateSlug(string text)
         {
             if (string.IsNullOrEmpty(text)) return "cv";
@@ -603,6 +602,29 @@ namespace DoAnCS.Controllers
             str = System.Text.RegularExpressions.Regex.Replace(str, @"[^a-z0-9\s-]", "");
             str = System.Text.RegularExpressions.Regex.Replace(str, @"\s+", "-").Trim();
             return str;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Preview(int id)
+        {
+            var resume = await _context.Resumes.FindAsync(id);
+            if (resume == null || (!resume.IsPublic && !User.IsInRole("Admin"))) 
+                return NotFound("Hồ sơ không tồn tại hoặc đã bị tắt chia sẻ.");
+
+            // Tăng lượt xem nếu không phải chủ sở hữu xem
+            int currentUserId = GetCurrentUserId();
+            if (resume.UserID != currentUserId)
+            {
+                resume.ViewCount += 1;
+                await _context.SaveChangesAsync();
+            }
+
+            var owner = await _context.Users.FirstOrDefaultAsync(u => u.UserID == resume.UserID);
+            ViewBag.IsOwnerPro = owner?.IsPro ?? false;
+            ViewBag.ResumeId = resume.ResumeID;
+
+            return View("PublicViewerCVVue", resume);
         }
     }
 
