@@ -438,6 +438,31 @@ namespace DoAnCS.Controllers
             }
         }
 
+        // Cập nhật Vị trí (Job Title) của CV
+        [HttpPost]
+        public async Task<IActionResult> UpdateJobTitle(int id, string jobTitle)
+        {
+            var resume = await _context.Resumes.FindAsync(id);
+            if (resume == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy bản CV." });
+            }
+
+            resume.JobTitle = string.IsNullOrWhiteSpace(jobTitle) ? null : jobTitle.Trim();
+            resume.UpdatedAt = DateTime.Now;
+
+            try
+            {
+                _context.Resumes.Update(resume);
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+            }
+        }
+
         // 2. Chức năng xóa bản nháp CV
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
