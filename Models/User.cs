@@ -19,6 +19,9 @@ namespace DoAnCS.Models {
         public string? PasswordChangeToken { get; set; }
         public DateTime? PasswordChangeTokenExpires { get; set; }
         public string? PendingPasswordHash { get; set; }
+        
+        public string? Summary { get; set; } // Giới thiệu bản thân
+        public string? Skills { get; set; }  // Các kỹ năng (ví dụ: C#, React, SQL)
 
         public virtual ICollection<Resume> Resumes { get; set; }   
     }

@@ -3,15 +3,18 @@
     ViewData["Title"] = "Tìm kiếm ứng viên tiềm năng";
 }
 
-<div class="container py-5">
+<div class="container-fluid px-lg-5 py-5" style="background-color: #f8fafc; min-height: 100vh;">
     <div class="text-center mb-5">
         <h2 class="fw-bold text-gradient">Khám phá tài năng sáng giá</h2>
         <p class="text-muted">Tìm kiếm và kết nối với các ứng viên tiềm năng từ khắp mọi nơi</p>
     </div>
 
-    <!-- Thanh tìm kiếm -->
-    <div class="card glass-card p-4 mb-5 shadow-sm border-0">
-        <form method="get" asp-action="Index" class="row g-3">
+    <div class="row g-4">
+        <!-- Cột trái: Tìm kiếm và Kết quả -->
+        <div class="col-lg-9">
+            <!-- Thanh tìm kiếm -->
+            <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 20px;">
+                <form method="get" asp-action="Index" class="row g-3">
             <div class="col-md-5">
                 <label class="form-label fw-semibold text-secondary">Từ khóa / Kỹ năng</label>
                 <div class="input-group">
@@ -37,71 +40,125 @@
                     <i class="bi bi-filter me-2"></i> Lọc kết quả
                 </button>
             </div>
-        </form>
-    </div>
-
-    <!-- Danh sách kết quả -->
-    <div class="row">
-        @if (!Model.Any())
-        {
-            <div class="col-12 text-center py-5">
-                <img src="/images/no-results.png" alt="No results" style="width: 150px; opacity: 0.5;">
-                <h4 class="mt-4 text-secondary">Không tìm thấy ứng viên nào phù hợp</h4>
-                <p class="text-muted">Hãy thử thay đổi từ khóa hoặc bộ lọc để có kết quả tốt hơn.</p>
-                <a href="@Url.Action("Index", "Talent")" class="btn btn-outline-primary mt-2">Xóa bộ lọc</a>
+                </form>
             </div>
-        }
-        else
-        {
-            @foreach (var resume in Model)
-            {
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100 hover-lift border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="flex-shrink-0">
-                                    <img src="@(string.IsNullOrEmpty(resume.AvatarUrl) ? "/images/default-avatar.png" : resume.AvatarUrl)" 
-                                         class="rounded-circle border border-2 border-primary" 
-                                         style="width: 60px; height: 60px; object-fit: cover;">
-                                </div>
-                                <div class="ms-3 overflow-hidden">
-                                    <h5 class="card-title mb-1 fw-bold text-dark text-truncate">@resume.FullName</h5>
-                                    <p class="card-subtitle text-primary fw-medium small text-truncate">
-                                        <i class="bi bi-bookmark-check me-1"></i> @(resume.JobTitle ?? "Chưa cập nhật")
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; min-height: 4.5em;">
-                                    @(string.IsNullOrEmpty(resume.Summary) ? "Ứng viên này chưa cập nhật tóm tắt bản thân." : resume.Summary)
-                                </p>
-                            </div>
 
-                            <div class="d-flex flex-wrap gap-2 mb-4">
-                                @if (resume.UpdatedAt != null)
-                                {
-                                    <span class="badge bg-light text-secondary border">
-                                        <i class="bi bi-clock me-1"></i> Cập nhật: @resume.UpdatedAt.ToString("dd/MM/yyyy")
-                                    </span>
-                                }
-                                @if (resume.ViewCount > 0)
-                                {
-                                    <span class="badge bg-light text-secondary border">
-                                        <i class="bi bi-eye me-1"></i> @resume.ViewCount lượt xem
-                                    </span>
-                                }
+            <!-- Danh sách kết quả -->
+            <div class="row g-4">
+                @if (!Model.Any())
+                {
+                    <div class="col-12 text-center py-5">
+                        <img src="/images/no-results.png" alt="No results" style="width: 150px; opacity: 0.5;">
+                        <h4 class="mt-4 text-secondary">Không tìm thấy ứng viên nào phù hợp</h4>
+                        <p class="text-muted">Hãy thử thay đổi từ khóa hoặc bộ lọc để có kết quả tốt hơn.</p>
+                        <a href="@Url.Action("Index", "Talent")" class="btn btn-outline-primary mt-2">Xóa bộ lọc</a>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var resume in Model)
+                    {
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 hover-lift border-0 shadow-sm overflow-hidden" style="border-radius: 15px;">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="flex-shrink-0">
+                                            <img src="@(string.IsNullOrEmpty(resume.AvatarUrl) ? "/images/default-avatar.png" : resume.AvatarUrl)" 
+                                                 class="rounded-circle border border-2 border-primary" 
+                                                 style="width: 55px; height: 55px; object-fit: cover;">
+                                        </div>
+                                        <div class="ms-3 overflow-hidden">
+                                            <h6 class="card-title mb-1 fw-bold text-dark text-truncate">@resume.FullName</h6>
+                                            <p class="card-subtitle text-primary fw-medium small text-truncate">
+                                                @(resume.JobTitle ?? "Chưa cập nhật")
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 3em;">
+                                            @if (!string.IsNullOrEmpty(resume.User?.Summary))
+                                            {
+                                                @resume.User.Summary
+                                            }
+                                            else
+                                            {
+                                                @(string.IsNullOrEmpty(resume.Summary) ? "Ứng viên này chưa cập nhật tóm tắt bản thân." : resume.Summary)
+                                            }
+                                        </p>
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-1 mb-3">
+                                        @if (!string.IsNullOrEmpty(resume.User?.Skills))
+                                        {
+                                            @foreach (var skill in resume.User.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries).Take(3))
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary border rounded-pill fw-normal" style="font-size: 0.65rem;">@skill.Trim()</span>
+                                            }
+                                            @if (resume.User.Skills.Split(',').Length > 3)
+                                            {
+                                                <span class="badge bg-light text-secondary border rounded-pill fw-normal" style="font-size: 0.65rem;">+@(resume.User.Skills.Split(',').Length - 3)</span>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-white border-0 p-4 pt-0">
+                                    <button onclick="showTalentDetails(@resume.UserID)" class="btn btn-outline-primary w-100 rounded-pill fw-bold btn-sm">
+                                        <i class="bi bi-file-earmark-person me-1"></i> Chi tiết
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="card-footer bg-white border-0 p-4 pt-0">
-                            <button onclick="showTalentDetails(@resume.UserID)" class="btn btn-outline-primary w-100 rounded-pill fw-bold">
-                                <i class="bi bi-file-earmark-person me-1"></i> Xem hồ sơ chi tiết
-                            </button>
-                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Cột phải: Ứng viên đã lưu ( Sidebar style ) -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 100px; border-radius: 20px; overflow: hidden;">
+                <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold m-0 text-dark">Ứng viên đã lưu</h5>
+                        <p class="text-muted small mb-0">Danh sách tiềm năng của bạn</p>
+                    </div>
+                    <span class="badge bg-danger rounded-pill px-3 py-2">@(ViewBag.SavedCandidates?.Count ?? 0)</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush scrollbar-thin" style="max-height: calc(100vh - 300px); overflow-y: auto;" id="savedCandidatesList">
+                        @{
+                            var savedCandidates = ViewBag.SavedCandidates as List<DoAnCS.Models.SavedCandidate>;
+                        }
+                        @if (savedCandidates == null || !savedCandidates.Any())
+                        {
+                            <div class="p-5 text-center text-muted">
+                                <i class="bi bi-bookmark fs-1 opacity-25 d-block mb-2"></i>
+                                <p class="small">Chưa có ứng viên nào được lưu.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            @foreach (var saved in savedCandidates)
+                            {
+                                <div class="list-group-item list-group-item-action border-0 px-4 py-3 d-flex align-items-center" 
+                                     style="cursor: pointer;" onclick="showTalentDetails(@saved.Resume.UserID)">
+                                    <img src="@(string.IsNullOrEmpty(saved.Resume.AvatarUrl) ? "/images/default-avatar.png" : saved.Resume.AvatarUrl)" 
+                                         class="rounded-circle me-3 border" style="width: 45px; height: 45px; object-fit: cover;">
+                                    <div class="overflow-hidden">
+                                        <h6 class="fw-bold mb-0 text-dark text-truncate">@saved.Resume.FullName</h6>
+                                        <p class="text-muted small mb-0 text-truncate">@(saved.Resume.JobTitle ?? "Ứng viên")</p>
+                                    </div>
+                                    <i class="bi bi-chevron-right ms-auto text-muted small"></i>
+                                </div>
+                            }
+                        }
                     </div>
                 </div>
-            }
-        }
+                <div class="card-footer bg-white border-top py-3 text-center">
+                    <a href="#" class="text-primary fw-bold text-decoration-none small">Xem tất cả ứng viên <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -156,6 +213,18 @@
         box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
         color: white;
     }
+
+    /* Saved Candidate Item Hover Effect */
+    .list-group-item-action {
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent !important;
+    }
+    .list-group-item-action:hover {
+        background-color: #f0f7ff !important;
+        transform: translateX(8px);
+        border-left-color: #0d6efd !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
 </style>
 
 @section Scripts {
@@ -194,6 +263,39 @@
         }, function(err) {
             console.error('Không thể sao chép: ', err);
         });
+    }
+
+    function toggleSaveCandidate(resumeId, btn) {
+        fetch(`/Talent/ToggleSave?resumeId=${resumeId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const icon = btn.querySelector('i');
+                if (data.saved) {
+                    btn.classList.remove('btn-outline-danger');
+                    btn.classList.add('btn-danger');
+                    icon.classList.remove('bi-heart');
+                    icon.classList.add('bi-heart-fill');
+                    btn.title = "Bỏ lưu";
+                } else {
+                    btn.classList.remove('btn-danger');
+                    btn.classList.add('btn-outline-danger');
+                    icon.classList.remove('bi-heart-fill');
+                    icon.classList.add('bi-heart');
+                    btn.title = "Lưu ứng viên";
+                }
+                // Tải lại trang để cập nhật danh sách bên cánh phải
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error(err));
     }
 </script>
 }

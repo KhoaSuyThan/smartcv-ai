@@ -12,9 +12,9 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
--- Nhớ chạy data để lưu MOMO
-ALTER TABLE UpgradeRequests
-ADD TransactionId nvarchar(255) NULL;
+-- Nhớ chạy data để lưu 
+ALTER TABLE Users ADD Summary NVARCHAR(MAX) NULL;
+ALTER TABLE Users ADD Skills NVARCHAR(MAX) NULL;
 
 USE DoAnWebCS;
 GO
@@ -192,6 +192,8 @@ CREATE TABLE Users (
 	PasswordChangeToken NVARCHAR(MAX) NULL,
 	PasswordChangeTokenExpires DATETIME2 NULL,
 	PendingPasswordHash NVARCHAR(MAX) NULL,
+	Summary NVARCHAR(MAX) NULL,
+	Skills NVARCHAR(MAX) NULL,
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 

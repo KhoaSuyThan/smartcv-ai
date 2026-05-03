@@ -45,6 +45,32 @@
     </div>
 </div>
 
+<!-- Giới thiệu & Kỹ năng -->
+@if (!string.IsNullOrEmpty(Model.Summary) || !string.IsNullOrEmpty(Model.Skills))
+{
+    <div class="row g-3 mb-4 px-2">
+        @if (!string.IsNullOrEmpty(Model.Summary))
+        {
+            <div class="col-12">
+                <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-card-text text-primary me-2"></i>Giới thiệu bản thân</h6>
+                <p class="text-muted small mb-0" style="line-height: 1.6; text-align: justify;">@Model.Summary</p>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Skills))
+        {
+            <div class="col-12">
+                <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-tools text-primary me-2"></i>Kỹ năng chính</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var skill in Model.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-2 fw-normal" style="font-size: 0.75rem;">@skill.Trim()</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
 <!-- Danh sách CV -->
 <div class="px-2">
     <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
@@ -86,11 +112,18 @@
                             <a href="@Url.Action("Preview", "Resume", new { id = resume.ResumeID })" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold flex-grow-1">
                                 <i class="bi bi-file-earmark-person me-1"></i> Xem CV
                             </a>
-                            <button onclick="copyToClipboard('@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Action("Preview", "Resume", new { id = resume.ResumeID }))')" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold">
+                            <button onclick="copyToClipboard('@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Action("Preview", "Resume", new { id = resume.ResumeID }))')" class="btn btn-sm btn-outline-success rounded-pill px-3 fw-bold" title="Copy Link">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
-                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
-                                <i class="bi bi-heart"></i>
+                            
+                            @{
+                                var savedResumeIds = ViewBag.SavedResumeIds as List<int> ?? new List<int>();
+                                bool isSaved = savedResumeIds.Contains(resume.ResumeID);
+                            }
+                            <button onclick="toggleSaveCandidate(@resume.ResumeID, this)" 
+                                    class="btn btn-sm @(isSaved ? "btn-danger" : "btn-outline-danger") rounded-pill px-3 fw-bold" 
+                                    title="@(isSaved ? "Bỏ lưu" : "Lưu ứng viên")">
+                                <i class="bi @(isSaved ? "bi-heart-fill" : "bi-heart")"></i>
                             </button>
                         </div>
                     </div>
