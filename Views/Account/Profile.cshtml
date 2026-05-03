@@ -135,11 +135,18 @@
         background-color: transparent !important;
         border: none !important;
         padding-left: 0 !important;
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: 1.05rem;
+        font-weight: 600;
         color: #1a202c !important;
         box-shadow: none !important;
         pointer-events: none;
+        resize: none;
+    }
+    
+    textarea.form-control.edit-locked {
+        font-weight: 400;
+        color: #4a5568 !important;
+        line-height: 1.6;
     }
     
     .form-control:not(.edit-locked) {
@@ -186,14 +193,14 @@
         border-radius: 0;
     }
 
-    /* Chiều cao cố định cho User/Admin */
+    /* Sử dụng min-height thay vì height cố định để tránh tràn nội dung khi thêm trường mới */
     .user-height {
-        height: 420px;
+        min-height: 450px;
     }
 
-    /* Chiều cao cố định lớn hơn cho Recruiter để chứa thêm thông tin công ty */
+    /* Chiều cao cho Recruiter */
     .recruiter-height {
-        height: 670px;
+        min-height: 700px;
     }
 
     #profileTabsContent {
@@ -402,6 +409,16 @@
                                         <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
                                     </div>
                                 }
+
+                                <div class="col-md-12">
+                                    <label class="custom-label text-dark"><i class="bi bi-card-text me-2"></i>Giới thiệu bản thân</label>
+                                    <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="3" placeholder="Chia sẻ một chút về bản thân bạn..."></textarea>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
+                                    <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
+                                </div>
 
                                 <div class="col-md-12">
                                     <label class="custom-label text-dark">Email đăng nhập (không thể thay đổi)</label>
@@ -740,7 +757,7 @@
         const imageElement = document.getElementById('imageToCrop');
 
         function getEditableFields() {
-            let fields = ['FullName', 'Phone'];
+            let fields = ['FullName', 'Phone', 'Summary', 'Skills'];
             if (isRecruiter) {
                 fields.push('CompanyName', 'CompanyAddress');
             }
@@ -763,6 +780,8 @@
         function disableEditing() {
             document.getElementById('FullName').value = oldName;
             document.getElementById('Phone').value = oldPhone;
+            document.getElementById('Summary').value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
+            document.getElementById('Skills').value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
             if (isRecruiter) {
                 let cn = document.getElementById('CompanyName');
                 let ca = document.getElementById('CompanyAddress');
