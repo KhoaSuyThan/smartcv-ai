@@ -20,7 +20,7 @@ namespace DoAnCS.Controllers
         {
             var query = _context.Resumes
                 .Include(r => r.User)
-                .Where(r => r.IsPublic && !r.IsDraft)
+                .Where(r => r.IsPublic)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -41,8 +41,10 @@ namespace DoAnCS.Controllers
                 query = query.Where(r => r.JobTitle != null && r.JobTitle.ToLower().Contains(jobTitle));
             }
 
+            // Nhóm theo UserID để mỗi người chỉ xuất hiện 1 lần, lấy CV mới nhất của họ
             var resumes = await query
-                .OrderByDescending(r => r.UpdatedAt)
+                .GroupBy(r => r.UserID)
+                .Select(g => g.OrderByDescending(r => r.UpdatedAt).First())
                 .ToListAsync();
 
             // Lấy danh sách ứng viên đã lưu để hiển thị bên cánh phải
@@ -71,7 +73,7 @@ namespace DoAnCS.Controllers
 
             // Chỉ lấy những CV công khai và không phải nháp
             var publicResumes = user.Resumes
-                .Where(r => r.IsPublic && !r.IsDraft)
+                .Where(r => r.IsPublic)
                 .OrderByDescending(r => r.UpdatedAt)
                 .ToList();
 
