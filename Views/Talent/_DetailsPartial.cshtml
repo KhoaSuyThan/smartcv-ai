@@ -98,14 +98,22 @@
                 {
                     @foreach (var resume in publicResumes)
                     {
+                        bool isPdf = !string.IsNullOrEmpty(resume.FileUploadUrl);
+                        bool isVue = !string.IsNullOrEmpty(resume.JsonContent);
+                        
                         <div class="col-12">
                             <div class="cv-premium-card p-3 rounded-4 border bg-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 transition-all">
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="cv-icon bg-danger-subtle text-danger rounded-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                                        <i class="bi bi-file-pdf fs-3"></i>
+                                    <div class="cv-icon @(isPdf ? "bg-danger-subtle text-danger" : (isVue ? "bg-primary-subtle text-primary" : "bg-info-subtle text-info")) rounded-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        @if (isPdf) { <i class="bi bi-file-pdf fs-3"></i> }
+                                        else if (isVue) { <i class="bi bi-filetype-vue fs-3"></i> }
+                                        else { <i class="bi bi-file-earmark-person fs-3"></i> }
                                     </div>
                                     <div class="overflow-hidden">
-                                        <h6 class="fw-bold mb-1 text-dark text-truncate">@resume.Title</h6>
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <h6 class="fw-bold mb-0 text-dark text-truncate">@resume.Title</h6>
+                                            @if (isVue) { <span class="badge bg-primary px-2" style="font-size: 0.6rem;">VUE</span> }
+                                        </div>
                                         <div class="d-flex align-items-center gap-3 text-muted" style="font-size: 0.8rem;">
                                             <span><i class="bi bi-calendar3 me-1"></i> @resume.UpdatedAt.ToString("dd/MM/yyyy")</span>
                                             <span><i class="bi bi-eye me-1"></i> @resume.ViewCount lượt xem</span>
