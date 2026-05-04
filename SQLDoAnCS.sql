@@ -15,7 +15,16 @@ GO
 -- Nhớ chạy data để lưu 
 ALTER TABLE Users ADD Summary NVARCHAR(MAX) NULL;
 ALTER TABLE Users ADD Skills NVARCHAR(MAX) NULL;
+CREATE TABLE SavedCandidates (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    RecruiterId INT NOT NULL,
+    ResumeId INT NOT NULL,
+    SavedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_SavedCandidates_Recruiter FOREIGN KEY (RecruiterId) REFERENCES Users(UserID),
+    CONSTRAINT FK_SavedCandidates_Resume FOREIGN KEY (ResumeId) REFERENCES Resumes(ResumeID)
+);
 
+-- Chạy
 USE DoAnWebCS;
 GO
 	UPDATE GeminiConfigs 

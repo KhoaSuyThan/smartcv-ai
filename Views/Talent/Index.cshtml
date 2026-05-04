@@ -5,307 +5,382 @@
 
 <style>
     :root {
-        --primary-color: #4f46e5;
-        --primary-hover: #4338ca;
-        --secondary-color: #0ea5e9;
-        --dark-bg: #0f172a;
-        --light-bg: #f8fafc;
-        --card-bg: #ffffff;
-        --text-main: #1e293b;
-        --text-muted: #64748b;
-        --border-color: #e2e8f0;
+        --primary: #6366f1;
+        --primary-light: #818cf8;
+        --primary-dark: #4f46e5;
+        --secondary: #0ea5e9;
+        --accent: #f43f5e;
+        --bg-main: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --text-dark: #0f172a;
+        --text-gray: #64748b;
+        --border: #e2e8f0;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+        --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+        --shadow-lg: 0 20px 50px -12px rgba(0,0,0,0.08);
     }
 
     body {
-        background-color: var(--light-bg);
+        background-color: var(--bg-main);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     .talent-hero {
-        background: linear-gradient(135deg, var(--dark-bg) 0%, #1e1b4b 100%);
-        border-radius: 1.5rem;
-        padding: 5rem 2rem 7rem;
+        background: #0f172a;
+        background-image: 
+            radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+            radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.1) 0px, transparent 50%);
+        border-radius: 2rem;
+        padding: 6rem 2rem 8rem;
         position: relative;
         overflow: hidden;
-        margin-top: 1rem;
+        margin-top: 1.5rem;
+        box-shadow: var(--shadow-md);
     }
 
-    .talent-hero::before {
+    .talent-hero::after {
         content: '';
         position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.2), transparent 40%),
-                    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.2), transparent 40%);
+        top: -50%; left: -50%;
+        width: 200%; height: 200%;
+        background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
         z-index: 0;
     }
 
-    .talent-hero-content {
-        position: relative;
-        z-index: 1;
+    @@keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 
-    .text-gradient-primary {
-        background: linear-gradient(135deg, #818cf8 0%, #38bdf8 100%);
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+        background: linear-gradient(to bottom right, #fff 30%, rgba(255,255,255,0.7));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
 
     .search-container {
-        margin-top: -4rem;
+        margin-top: -5rem;
         position: relative;
         z-index: 10;
-        max-width: 1000px;
-        margin-left: auto;
-        margin-right: auto;
+        padding: 0 1rem;
     }
 
-    .search-card {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        border-radius: 1.25rem;
-        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
+    .search-glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 1.5rem;
         padding: 1.5rem;
+        box-shadow: var(--shadow-lg);
     }
 
-    .search-input-group {
+    .input-wrapper {
+        position: relative;
         background: white;
         border-radius: 1rem;
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        padding: 0.25rem;
     }
 
-    .search-input-group:focus-within {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    .input-wrapper:focus-within {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        transform: translateY(-1px);
     }
 
-    .search-input-group input {
+    .input-wrapper i {
+        color: var(--text-gray);
+        font-size: 1.1rem;
+        margin-left: 1rem;
+    }
+
+    .input-wrapper input {
         border: none;
+        padding: 0.75rem 0.75rem;
+        font-weight: 500;
+        color: var(--text-dark);
+        width: 100%;
         background: transparent;
-        box-shadow: none !important;
-        font-size: 0.95rem;
     }
 
-    .search-input-group .input-icon {
-        color: var(--text-muted);
-        padding-left: 1.25rem;
+    .input-wrapper input:focus {
+        outline: none;
+        box-shadow: none;
     }
 
-    .btn-search-submit {
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        border: none;
+    .btn-gradient {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         color: white;
-        font-weight: 600;
+        border: none;
+        padding: 0.85rem 1.5rem;
         border-radius: 1rem;
-        padding: 0.75rem 2rem;
-        transition: all 0.3s ease;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
-    .btn-search-submit:hover {
+    .btn-gradient:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 20px -10px var(--primary-color);
+        box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
         color: white;
     }
 
     .candidate-card {
-        background: var(--card-bg);
-        border-radius: 1.25rem;
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border);
+        padding: 1.5rem;
         height: 100%;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         flex-direction: column;
     }
 
     .candidate-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
-        border-color: rgba(79, 70, 229, 0.3);
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-light);
     }
 
-    .candidate-avatar-wrapper {
+    .btn-bookmark-quick {
+        position: absolute;
+        top: 1.25rem;
+        right: 1.25rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 0.75rem;
+        background: var(--bg-main);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-gray);
+        transition: all 0.2s;
+        z-index: 5;
+    }
+
+    .btn-bookmark-quick:hover {
+        background: #fee2e2;
+        color: var(--accent);
+        border-color: #fecaca;
+    }
+
+    .btn-bookmark-quick.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .avatar-ring {
         position: relative;
-        width: 70px;
-        height: 70px;
-        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        padding: 4px;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+        border-radius: 1.25rem;
     }
 
-    .candidate-avatar {
+    .candidate-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         border-radius: 1rem;
         border: 2px solid white;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
-    .candidate-status-dot {
+    .status-badge {
         position: absolute;
         bottom: -2px;
         right: -2px;
-        width: 16px;
-        height: 16px;
-        background: #22c55e;
+        width: 18px;
+        height: 18px;
+        background: #10b981;
         border: 3px solid white;
         border-radius: 50%;
     }
 
-    .candidate-name {
-        font-size: 1.15rem;
+    .card-title {
         font-weight: 700;
-        color: var(--text-main);
+        color: var(--text-dark);
+        font-size: 1.25rem;
         margin-bottom: 0.25rem;
     }
 
-    .candidate-role {
-        color: var(--primary-color);
-        font-weight: 500;
+    .card-role {
+        color: var(--primary);
+        font-weight: 600;
         font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
-    .candidate-summary {
-        color: var(--text-muted);
-        font-size: 0.875rem;
+    .card-bio {
+        color: var(--text-gray);
+        font-size: 0.9rem;
         line-height: 1.6;
+        margin: 1rem 0;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        min-height: 2.8rem;
     }
 
-    .skill-badge {
+    .skill-pill {
         background: #f1f5f9;
         color: #475569;
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 0.4rem 0.8rem;
+        padding: 0.4rem 0.9rem;
         border-radius: 2rem;
-        border: 1px solid #e2e8f0;
-        transition: all 0.2s ease;
-    }
-    
-    .candidate-card:hover .skill-badge {
-        background: rgba(79, 70, 229, 0.05);
-        border-color: rgba(79, 70, 229, 0.2);
-        color: var(--primary-color);
-    }
-
-    .btn-view-profile {
-        background: transparent;
-        color: var(--primary-color);
-        border: 1px solid rgba(79, 70, 229, 0.3);
-        border-radius: 0.75rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        padding: 0.6rem 1rem;
-        transition: all 0.3s ease;
-        width: 100%;
+        border: 1px solid transparent;
+        transition: all 0.2s;
     }
 
-    .btn-view-profile:hover {
-        background: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
-
-    .sidebar-card {
+    .candidate-card:hover .skill-pill {
         background: white;
-        border-radius: 1.25rem;
-        border: none;
-        box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.05);
+        border-color: var(--border);
+    }
+
+    .btn-outline-premium {
+        border: 1.5px solid var(--primary);
+        color: var(--primary);
+        background: transparent;
+        border-radius: 1rem;
+        padding: 0.75rem;
+        font-weight: 700;
+        transition: all 0.3s;
+        margin-top: auto;
+    }
+
+    .btn-outline-premium:hover {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 8px 20px -6px var(--primary);
+    }
+
+    .sidebar-wrapper {
         position: sticky;
         top: 2rem;
     }
 
-    .sidebar-header {
-        background: linear-gradient(to right, #f8fafc, #ffffff);
-        border-bottom: 1px solid var(--border-color);
-        padding: 1.5rem;
-        border-radius: 1.25rem 1.25rem 0 0;
+    .glass-sidebar {
+        background: white;
+        border-radius: 1.5rem;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
     }
 
-    .saved-candidate-item {
+    .sidebar-head {
+        padding: 1.5rem;
+        background: linear-gradient(to right, #f8fafc, #fff);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .saved-item {
         padding: 1rem 1.5rem;
-        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
         transition: all 0.2s;
         cursor: pointer;
+        border-bottom: 1px solid #f1f5f9;
     }
 
-    .saved-candidate-item:last-child {
-        border-bottom: none;
-    }
-
-    .saved-candidate-item:hover {
+    .saved-item:hover {
         background: #f8fafc;
-        padding-left: 1.75rem;
+        transform: translateX(5px);
     }
 
-    .saved-candidate-avatar {
-        width: 40px; height: 40px;
-        border-radius: 0.75rem;
+    .saved-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 0.8rem;
         object-fit: cover;
     }
 
-    .empty-state {
+    .empty-sidebar {
         padding: 4rem 2rem;
         text-align: center;
-        background: white;
-        border-radius: 1.25rem;
-        border: 1px dashed var(--border-color);
     }
 
-    .empty-state-icon {
-        width: 80px;
-        height: 80px;
+    .empty-icon {
+        width: 64px;
+        height: 64px;
         background: #f1f5f9;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
-        color: var(--text-muted);
         margin: 0 auto 1.5rem;
+        color: #94a3b8;
+        font-size: 1.5rem;
+    }
+
+    /* Custom Scrollbar */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 5px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-light);
     }
 </style>
 
 <div class="container-fluid px-xl-5 pb-5">
     <!-- Hero Section -->
     <div class="talent-hero">
-        <div class="talent-hero-content text-center">
-            <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill mb-4" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
-                <span class="badge bg-primary rounded-pill">Mới</span>
-                <span class="text-white-50 small fw-medium">Hệ thống gợi ý ứng viên thông minh</span>
-            </div>
-            <h1 class="display-4 fw-black text-white mb-3" style="font-weight: 800; letter-spacing: -1px;">
-                Tìm Kiếm <span class="text-gradient-primary">Nhân Tài</span> Xuất Chúng
+        <div class="text-center position-relative" style="z-index: 1;">
+            <h1 class="hero-title mb-4">
+                Tìm Kiếm <span style="background: linear-gradient(to right, var(--primary-light), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Nhân Tài</span><br>Xuất Chúng
             </h1>
-            <p class="text-white-50 fs-5 mb-0 mx-auto" style="max-width: 600px;">
-                Truy cập hàng ngàn hồ sơ chất lượng cao và kết nối trực tiếp với những ứng viên phù hợp nhất cho doanh nghiệp của bạn.
+            <p class="text-white-50 fs-5 mb-0 mx-auto" style="max-width: 600px; font-weight: 400;">
+                Hệ thống kết nối nhân tài hàng đầu, giúp doanh nghiệp tìm thấy mảnh ghép hoàn hảo một cách nhanh chóng và chính xác.
             </p>
         </div>
     </div>
 
     <!-- Search Section -->
     <div class="search-container mb-5">
-        <div class="search-card">
-            <form method="get" asp-action="Index" class="row g-3 align-items-center">
+        <div class="search-glass">
+            <form method="get" asp-action="Index" class="row g-3">
                 <div class="col-md-5">
-                    <div class="search-input-group d-flex align-items-center p-1">
-                        <i class="bi bi-search input-icon"></i>
-                        <input type="text" name="searchTerm" class="form-control py-2" 
-                               placeholder="Từ khóa, kỹ năng (ví dụ: React, Java...)" value="@ViewBag.SearchTerm">
+                    <div class="input-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" name="searchTerm" 
+                               placeholder="Kỹ năng, tên ứng viên..." value="@ViewBag.SearchTerm">
                     </div>
                 </div>
                 <div class="col-md-5">
-                    <div class="search-input-group d-flex align-items-center p-1">
-                        <i class="bi bi-briefcase input-icon"></i>
-                        <input type="text" name="jobTitle" class="form-control py-2" 
-                               placeholder="Vị trí ứng tuyển (ví dụ: Frontend...)" value="@ViewBag.JobTitleFilter">
+                    <div class="input-wrapper">
+                        <i class="bi bi-geo-alt"></i>
+                        <input type="text" name="jobTitle" 
+                               placeholder="Vị trí tuyển dụng..." value="@ViewBag.JobTitleFilter">
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <button type="submit" class="btn-search-submit w-100 h-100 py-2 d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-sliders"></i> Lọc
+                    <button type="submit" class="btn-gradient w-100 h-100">
+                        <i class="bi bi-funnel"></i> Tìm kiếm
                     </button>
                 </div>
             </form>
@@ -315,30 +390,32 @@
     <div class="row g-4 mt-2">
         <!-- Cột trái: Kết quả -->
         <div class="col-lg-8 col-xl-9">
-            <div class="d-flex justify-content-between align-items-end mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h4 class="fw-bold text-dark mb-1">Kết quả tìm kiếm</h4>
-                    <p class="text-muted small mb-0">Hiển thị @Model.Count() ứng viên phù hợp</p>
+                    <h3 class="fw-bold text-dark mb-1">Ứng viên tiềm năng</h3>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary-subtle text-primary rounded-pill px-3">@Model.Count() Kết quả</span>
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.JobTitleFilter))
+                        {
+                            <a href="@Url.Action("Index", "Talent")" class="text-muted small text-decoration-none hover-primary">
+                                <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                            </a>
+                        }
+                    </div>
                 </div>
-                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.JobTitleFilter))
-                {
-                    <a href="@Url.Action("Index", "Talent")" class="text-danger small text-decoration-none fw-medium">
-                        <i class="bi bi-x-circle me-1"></i> Xóa bộ lọc
-                    </a>
-                }
             </div>
 
             <div class="row g-4">
                 @if (!Model.Any())
                 {
                     <div class="col-12">
-                        <div class="empty-state">
-                            <div class="empty-state-icon">
-                                <i class="bi bi-search"></i>
+                        <div class="text-center py-5 bg-white rounded-5 border border-dashed p-5">
+                            <div class="empty-icon mx-auto mb-3">
+                                <i class="bi bi-emoji-frown"></i>
                             </div>
-                            <h4 class="fw-bold text-dark mb-2">Không tìm thấy ứng viên</h4>
-                            <p class="text-muted mb-4">Chúng tôi không tìm thấy ứng viên nào khớp với tiêu chí của bạn. Hãy thử thay đổi từ khóa tìm kiếm.</p>
-                            <a href="@Url.Action("Index", "Talent")" class="btn btn-outline-primary rounded-pill px-4">Xóa tất cả bộ lọc</a>
+                            <h4 class="fw-bold text-dark">Rất tiếc!</h4>
+                            <p class="text-muted mb-4">Chúng tôi không tìm thấy ứng viên nào phù hợp với yêu cầu của bạn.</p>
+                            <a href="@Url.Action("Index", "Talent")" class="btn btn-primary rounded-pill px-4">Xem tất cả ứng viên</a>
                         </div>
                     </div>
                 }
@@ -348,56 +425,63 @@
                     {
                         <div class="col-md-6 col-xl-4">
                             <div class="candidate-card">
-                                <div class="card-body p-4 flex-grow-1">
-                                    <div class="d-flex align-items-start gap-3 mb-3">
-                                        <div class="candidate-avatar-wrapper">
-                                            <img src="@(!string.IsNullOrEmpty(resume.AvatarUrl) ? resume.AvatarUrl : (!string.IsNullOrEmpty(resume.User?.AvatarUrl) ? resume.User.AvatarUrl : "/images/default-avatar.png"))" 
-                                                 class="candidate-avatar" alt="@resume.FullName">
-                                            <div class="candidate-status-dot"></div>
-                                        </div>
-                                        <div class="overflow-hidden">
-                                            <h5 class="candidate-name text-truncate" title="@resume.FullName">@resume.FullName</h5>
-                                            <div class="candidate-role text-truncate" title="@resume.JobTitle">
-                                                <i class="bi bi-person-workspace me-1"></i> @(resume.JobTitle ?? "Chưa cập nhật")
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <p class="candidate-summary mb-4">
-                                        @if (!string.IsNullOrEmpty(resume.User?.Summary))
-                                        {
-                                            @resume.User.Summary
-                                        }
-                                        else
-                                        {
-                                            @(string.IsNullOrEmpty(resume.Summary) ? "Ứng viên này chưa cập nhật tóm tắt bản thân." : resume.Summary)
-                                        }
-                                    </p>
+                                @{
+                                    var savedResumeIds = ViewBag.SavedResumeIds as List<int> ?? new List<int>();
+                                    bool isSaved = savedResumeIds.Contains(resume.ResumeID);
+                                }
+                                <button onclick="toggleSaveCandidate(@resume.ResumeID, this)" 
+                                        class="btn-bookmark-quick @(isSaved ? "active" : "")" 
+                                        title="@(isSaved ? "Bỏ lưu" : "Lưu ứng viên")">
+                                    <i class="bi @(isSaved ? "bi-bookmark-fill" : "bi-bookmark")"></i>
+                                </button>
 
-                                    <div class="d-flex flex-wrap gap-2 mt-auto">
-                                        @if (!string.IsNullOrEmpty(resume.User?.Skills))
-                                        {
-                                            var skills = resume.User.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
-                                            foreach (var skill in skills.Take(3))
-                                            {
-                                                <span class="skill-badge">@skill</span>
-                                            }
-                                            if (skills.Count > 3)
-                                            {
-                                                <span class="skill-badge bg-light">+@(skills.Count - 3)</span>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <span class="skill-badge text-muted" style="border: 1px dashed #cbd5e1; background: transparent;">Chưa cập nhật kỹ năng</span>
-                                        }
+                                <div class="d-flex align-items-center gap-3 mb-3">
+                                    <div class="avatar-ring">
+                                        <img src="@(!string.IsNullOrEmpty(resume.AvatarUrl) ? resume.AvatarUrl : (!string.IsNullOrEmpty(resume.User?.AvatarUrl) ? resume.User.AvatarUrl : "/images/default-avatar.png"))" 
+                                             class="candidate-img" alt="@resume.FullName">
+                                        <div class="status-badge"></div>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <h5 class="card-title text-truncate" title="@resume.FullName">@resume.FullName</h5>
+                                        <div class="card-role text-truncate">
+                                            <i class="bi bi-briefcase-fill"></i> @(resume.JobTitle ?? "Chuyên viên")
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="card-footer bg-transparent border-0 p-4 pt-0 mt-auto">
-                                    <button onclick="showTalentDetails(@resume.UserID)" class="btn-view-profile">
-                                        Xem hồ sơ chi tiết
-                                    </button>
+                                
+                                <p class="card-bio">
+                                    @if (!string.IsNullOrEmpty(resume.User?.Summary))
+                                    {
+                                        @resume.User.Summary
+                                    }
+                                    else
+                                    {
+                                        @(string.IsNullOrEmpty(resume.Summary) ? "Ứng viên này hiện chưa cung cấp thông tin giới thiệu bản thân chi tiết." : resume.Summary)
+                                    }
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    @if (!string.IsNullOrEmpty(resume.User?.Skills))
+                                    {
+                                        var skills = resume.User.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+                                        foreach (var skill in skills.Take(2))
+                                        {
+                                            <span class="skill-pill">@skill</span>
+                                        }
+                                        if (skills.Count > 2)
+                                        {
+                                            <span class="skill-pill">+@(skills.Count - 2)</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Chưa có kỹ năng</span>
+                                    }
                                 </div>
+
+                                <button onclick="showTalentDetails(@resume.UserID)" class="btn-outline-premium">
+                                    Xem thông tin chi tiết
+                                </button>
                             </div>
                         </div>
                     }
@@ -407,51 +491,55 @@
 
         <!-- Cột phải: Ứng viên đã lưu -->
         <div class="col-lg-4 col-xl-3">
-            <div class="sidebar-card">
-                <div class="sidebar-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="fw-bold mb-1 text-dark">Đã lưu</h5>
-                        <p class="text-muted small mb-0">Danh sách theo dõi</p>
+            <div class="sidebar-wrapper">
+                <div class="glass-sidebar">
+                    <div class="sidebar-head d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0 text-dark">Đã lưu</h5>
+                            <span class="text-muted small">Ứng viên theo dõi</span>
+                        </div>
+                        <div class="badge rounded-pill bg-primary px-3 py-2">
+                            @(ViewBag.SavedCandidates?.Count ?? 0)
+                        </div>
                     </div>
-                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 36px; height: 36px;">
-                        @(ViewBag.SavedCandidates?.Count ?? 0)
-                    </div>
-                </div>
-                <div class="p-0">
-                    <div class="list-group list-group-flush scrollbar-thin" style="max-height: 600px; overflow-y: auto;">
+                    
+                    <div class="scrollbar-thin" style="max-height: 500px; overflow-y: auto; overflow-x: hidden;">
                         @{
                             var savedCandidates = ViewBag.SavedCandidates as List<DoAnCS.Models.SavedCandidate>;
                         }
                         @if (savedCandidates == null || !savedCandidates.Any())
                         {
-                            <div class="p-5 text-center text-muted">
-                                <i class="bi bi-bookmark-heart fs-1 mb-3 text-black-50 d-block"></i>
-                                <p class="small fw-medium">Chưa có ứng viên nào trong danh sách lưu.</p>
+                            <div class="empty-sidebar">
+                                <div class="empty-icon">
+                                    <i class="bi bi-bookmark-heart"></i>
+                                </div>
+                                <p class="text-muted small fw-medium mb-0">Chưa lưu ứng viên nào</p>
                             </div>
                         }
                         else
                         {
                             @foreach (var saved in savedCandidates)
                             {
-                                <div class="saved-candidate-item d-flex align-items-center gap-3" onclick="showTalentDetails(@saved.Resume.UserID)">
+                                <div class="saved-item" onclick="showTalentDetails(@saved.Resume.UserID)">
                                     <img src="@(!string.IsNullOrEmpty(saved.Resume.AvatarUrl) ? saved.Resume.AvatarUrl : (!string.IsNullOrEmpty(saved.Resume.User?.AvatarUrl) ? saved.Resume.User.AvatarUrl : "/images/default-avatar.png"))" 
-                                         class="saved-candidate-avatar border shadow-sm">
-                                    <div class="overflow-hidden flex-grow-1">
-                                        <h6 class="fw-bold mb-0 text-dark text-truncate fs-6">@saved.Resume.FullName</h6>
-                                        <p class="text-muted small mb-0 text-truncate">@(saved.Resume.JobTitle ?? "Ứng viên")</p>
+                                         class="saved-avatar border">
+                                    <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
+                                        <h6 class="fw-bold mb-0 text-dark text-truncate small">@saved.Resume.FullName</h6>
+                                        <p class="text-muted mb-0 text-truncate" style="font-size: 0.75rem;">@(saved.Resume.JobTitle ?? "Ứng viên")</p>
                                     </div>
-                                    <i class="bi bi-chevron-right text-muted small"></i>
+                                    <i class="bi bi-chevron-right text-muted ms-auto small"></i>
                                 </div>
                             }
                         }
                     </div>
+
+                    @if (savedCandidates != null && savedCandidates.Any())
+                    {
+                        <div class="p-3 bg-light-subtle text-center border-top">
+                            <span class="text-primary small fw-bold">Xem tất cả danh sách</span>
+                        </div>
+                    }
                 </div>
-                @if (savedCandidates != null && savedCandidates.Any())
-                {
-                    <div class="p-3 border-top text-center bg-light" style="border-radius: 0 0 1.25rem 1.25rem;">
-                        <span class="text-primary small fw-semibold">Click vào ứng viên để xem chi tiết</span>
-                    </div>
-                }
             </div>
         </div>
     </div>
@@ -530,20 +618,15 @@
         .then(data => {
             if (data.success) {
                 const icon = btn.querySelector('i');
-                const textSpan = btn.querySelector('span');
                 if (data.saved) {
-                    btn.classList.remove('btn-outline-primary', 'bg-white');
-                    btn.classList.add('btn-primary', 'text-white');
+                    btn.classList.add('active');
                     icon.classList.remove('bi-bookmark');
                     icon.classList.add('bi-bookmark-fill');
-                    if (textSpan) textSpan.innerText = "Đã lưu";
                     btn.title = "Bỏ lưu";
                 } else {
-                    btn.classList.remove('btn-primary', 'text-white');
-                    btn.classList.add('btn-outline-primary', 'bg-white');
+                    btn.classList.remove('active');
                     icon.classList.remove('bi-bookmark-fill');
                     icon.classList.add('bi-bookmark');
-                    if (textSpan) textSpan.innerText = "Lưu ứng viên";
                     btn.title = "Lưu ứng viên";
                 }
                 location.reload();

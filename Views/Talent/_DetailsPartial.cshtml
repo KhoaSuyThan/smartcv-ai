@@ -3,165 +3,184 @@
     var publicResumes = ViewBag.PublicResumes as List<DoAnCS.Models.Resume>;
 }
 
-<div class="p-4 overflow-x-hidden">
-    <!-- Header với thông tin cơ bản -->
-    <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="border-radius: 1.25rem; background: linear-gradient(145deg, #ffffff, #f8fafc);">
-        <div class="card-body p-0">
-            <div class="row g-0">
-                <div class="col-md-4 d-flex flex-column align-items-center justify-content-center p-4 text-center border-end border-light-subtle" style="background: rgba(79, 70, 229, 0.03);">
-                    <div class="position-relative mb-3">
-                        <img src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "/images/default-avatar.png" : Model.AvatarUrl)" 
-                             class="rounded-circle border border-4 border-white shadow-sm" 
-                             style="width: 120px; height: 120px; object-fit: cover;">
-                        <span class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle" style="width: 20px; height: 20px; margin-bottom: 5px; margin-right: 5px;"></span>
-                    </div>
-                    <h5 class="fw-bold mb-1 text-dark">@Model.FullName</h5>
-                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-medium mt-1">Ứng viên</span>
-                </div>
-                <div class="col-md-8 p-4 d-flex flex-column justify-content-center">
-                    <h6 class="fw-bold mb-4 text-muted text-uppercase small" style="letter-spacing: 1px;">Thông tin liên hệ</h6>
-                    <div class="d-flex flex-column gap-3">
-                        <div class="d-flex align-items-center p-3 rounded-4 bg-white border border-light-subtle shadow-sm transition-all hover-lift-sm">
-                            <div class="icon-box bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px;">
-                                <i class="bi bi-envelope fs-5"></i>
-                            </div>
-                            <div class="overflow-hidden">
-                                <div class="text-muted small fw-medium mb-1">Email</div>
-                                <div class="fw-bold text-dark text-truncate">@Model.Email</div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center p-3 rounded-4 bg-white border border-light-subtle shadow-sm transition-all hover-lift-sm">
-                            <div class="icon-box bg-success-subtle text-success rounded-circle me-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 45px; height: 45px;">
-                                <i class="bi bi-telephone fs-5"></i>
-                            </div>
-                            <div class="overflow-hidden">
-                                <div class="text-muted small fw-medium mb-1">Số điện thoại</div>
-                                <div class="fw-bold text-dark text-truncate">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cung cấp" : Model.Phone)</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="p-0 overflow-x-hidden">
+    <!-- Cover & Avatar Header -->
+    <div class="mb-4">
+        <div style="height: 140px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 0 0 2rem 2rem; opacity: 0.8;"></div>
+        <div class="text-center" style="margin-top: -70px; position: relative; z-index: 10;">
+            <div class="position-relative d-inline-block">
+                <img src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "/images/default-avatar.png" : Model.AvatarUrl)" 
+                     class="rounded-circle border border-4 border-white shadow-lg" 
+                     style="width: 140px; height: 140px; object-fit: cover; background: white;">
+                <span class="position-absolute bottom-0 end-0 bg-success border border-3 border-white rounded-circle" 
+                      style="width: 24px; height: 24px; margin-bottom: 10px; margin-right: 10px;" 
+                      title="Sẵn sàng làm việc"></span>
+            </div>
+            <h3 class="fw-bold mt-3 mb-1 text-dark">@Model.FullName</h3>
+            <div class="d-flex align-items-center justify-content-center gap-3">
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1">Ứng viên xác thực</span>
+                <span class="text-muted small fw-medium"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Việt Nam</span>
             </div>
         </div>
     </div>
 
-    <!-- Giới thiệu & Kỹ năng -->
-    @if (!string.IsNullOrEmpty(Model.Summary) || !string.IsNullOrEmpty(Model.Skills))
-    {
-        <div class="row g-4 mb-5">
-            @if (!string.IsNullOrEmpty(Model.Summary))
-            {
-                <div class="col-12">
-                    <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
-                        <span class="bg-primary-subtle text-primary rounded p-1 me-2"><i class="bi bi-person-vcard"></i></span>
-                        Giới thiệu bản thân
-                    </h6>
-                    <div class="p-4 bg-white rounded-4 border border-light-subtle shadow-sm">
-                        <p class="text-muted mb-0" style="line-height: 1.7; text-align: justify; font-size: 0.95rem;">@Model.Summary</p>
+    <div class="px-4 pb-4">
+        <!-- Info Grid -->
+        <div class="row g-3 mb-5">
+            <div class="col-md-6">
+                <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
+                    <div class="icon-circle bg-primary-subtle text-primary">
+                        <i class="bi bi-envelope-at"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="text-muted small fw-medium">Email liên hệ</div>
+                        <div class="fw-bold text-dark text-truncate">@Model.Email</div>
                     </div>
                 </div>
-            }
-            @if (!string.IsNullOrEmpty(Model.Skills))
-            {
-                <div class="col-12">
-                    <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
-                        <span class="bg-primary-subtle text-primary rounded p-1 me-2"><i class="bi bi-lightning-charge"></i></span>
-                        Kỹ năng chính
-                    </h6>
-                    <div class="d-flex flex-wrap gap-2 p-4 bg-white rounded-4 border border-light-subtle shadow-sm">
-                        @foreach (var skill in Model.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 py-2 fw-medium" style="font-size: 0.85rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
-                                @skill.Trim()
-                            </span>
-                        }
+            </div>
+            <div class="col-md-6">
+                <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
+                    <div class="icon-circle bg-success-subtle text-success">
+                        <i class="bi bi-telephone"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="text-muted small fw-medium">Số điện thoại</div>
+                        <div class="fw-bold text-dark text-truncate">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</div>
                     </div>
                 </div>
-            }
+            </div>
         </div>
-    }
 
-    <!-- Danh sách CV -->
-    <div>
-        <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
-            <span class="bg-primary-subtle text-primary rounded p-1 me-2"><i class="bi bi-file-earmark-text"></i></span>
-            Danh sách CV công khai
-        </h6>
-
-        <div class="row g-3">
-            @if (publicResumes == null || !publicResumes.Any())
-            {
-                <div class="col-12 text-center py-5 bg-white rounded-4 border border-light-subtle shadow-sm">
-                    <i class="bi bi-folder-x fs-1 text-muted opacity-50 mb-3 d-block"></i>
-                    <p class="text-muted fw-medium mb-0">Ứng viên chưa có hồ sơ nào được công khai.</p>
+        <!-- Section: Summary -->
+        @if (!string.IsNullOrEmpty(Model.Summary))
+        {
+            <div class="mb-5">
+                <h6 class="section-title">
+                    <i class="bi bi-person-lines-fill me-2"></i> Tóm tắt bản thân
+                </h6>
+                <div class="p-4 bg-light-subtle rounded-4 border-start border-primary border-4 shadow-sm" style="background: #f8fafc;">
+                    <p class="text-muted mb-0 lh-lg" style="text-align: justify;">@Model.Summary</p>
                 </div>
-            }
-            else
-            {
-                @foreach (var resume in publicResumes)
-                {
-                    <div class="col-12">
-                        <div class="cv-card shadow-sm border border-light-subtle p-4 bg-white rounded-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-                            <div class="flex-grow-1 overflow-hidden">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <h6 class="fw-bold text-dark mb-0 text-truncate fs-5">@resume.Title</h6>
-                                    <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 border border-success-subtle d-flex align-items-center gap-1" style="font-size: 0.7rem;">
-                                        <i class="bi bi-globe"></i> Công khai
-                                    </span>
-                                </div>
-                                <div class="mb-2 text-primary fw-medium small">
-                                    <i class="bi bi-person-workspace me-1"></i> @(string.IsNullOrEmpty(resume.JobTitle) ? "Chưa cập nhật vị trí" : resume.JobTitle)
-                                </div>
-                                <p class="text-muted small mb-0 d-flex align-items-center gap-3">
-                                    <span><i class="bi bi-clock me-1"></i> Cập nhật: @resume.UpdatedAt.ToString("dd/MM/yyyy")</span>
-                                    <span><i class="bi bi-eye me-1"></i> @resume.ViewCount lượt xem</span>
-                                </p>
-                            </div>
+            </div>
+        }
 
-                            <div class="d-flex gap-2 flex-shrink-0">
-                                <a href="@Url.Action("Preview", "Resume", new { id = resume.ResumeID })" target="_blank" class="btn btn-primary rounded-pill px-4 fw-medium shadow-sm">
-                                    <i class="bi bi-eye me-1"></i> Xem CV
-                                </a>
-                                <button onclick="copyToClipboard('@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Action("Preview", "Resume", new { id = resume.ResumeID }))')" class="btn btn-outline-secondary bg-light rounded-circle shadow-sm" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" title="Sao chép liên kết">
-                                    <i class="bi bi-link-45deg fs-5"></i>
-                                </button>
-                                
-                                @{
-                                    var savedResumeIds = ViewBag.SavedResumeIds as List<int> ?? new List<int>();
-                                    bool isSaved = savedResumeIds.Contains(resume.ResumeID);
-                                }
-                                <button onclick="toggleSaveCandidate(@resume.ResumeID, this)" 
-                                        class="btn @(isSaved ? "btn-danger" : "btn-outline-danger") rounded-circle shadow-sm" 
-                                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;"
-                                        title="@(isSaved ? "Bỏ lưu" : "Lưu ứng viên")">
-                                    <i class="bi @(isSaved ? "bi-bookmark-fill" : "bi-bookmark") fs-6"></i>
-                                </button>
-                            </div>
-                        </div>
+        <!-- Section: Skills -->
+        @if (!string.IsNullOrEmpty(Model.Skills))
+        {
+            <div class="mb-5">
+                <h6 class="section-title">
+                    <i class="bi bi-lightning-charge me-2"></i> Kỹ năng chuyên môn
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var skill in Model.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <span class="skill-tag">@skill.Trim()</span>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Section: Resumes -->
+        <div>
+            <h6 class="section-title">
+                <i class="bi bi-file-earmark-person me-2"></i> Hồ sơ năng lực (CV)
+            </h6>
+
+            <div class="row g-3">
+                @if (publicResumes == null || !publicResumes.Any())
+                {
+                    <div class="col-12 text-center py-5 bg-light rounded-4 border border-dashed">
+                        <i class="bi bi-cloud-slash fs-1 text-muted opacity-25 mb-2"></i>
+                        <p class="text-muted mb-0">Ứng viên chưa công khai hồ sơ nào.</p>
                     </div>
                 }
-            }
+                else
+                {
+                    @foreach (var resume in publicResumes)
+                    {
+                        <div class="col-12">
+                            <div class="cv-premium-card p-3 rounded-4 border bg-white d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 transition-all">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="cv-icon bg-danger-subtle text-danger rounded-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <i class="bi bi-file-pdf fs-3"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <h6 class="fw-bold mb-1 text-dark text-truncate">@resume.Title</h6>
+                                        <div class="d-flex align-items-center gap-3 text-muted" style="font-size: 0.8rem;">
+                                            <span><i class="bi bi-calendar3 me-1"></i> @resume.UpdatedAt.ToString("dd/MM/yyyy")</span>
+                                            <span><i class="bi bi-eye me-1"></i> @resume.ViewCount lượt xem</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="@Url.Action("Preview", "Resume", new { id = resume.ResumeID })" target="_blank" 
+                                       class="btn btn-primary rounded-pill px-4 btn-sm fw-bold shadow-sm">
+                                        <i class="bi bi-eye-fill"></i> Xem CV
+                                    </a>
+                                    <button onclick="copyToClipboard('@(Context.Request.Scheme + "://" + Context.Request.Host + Url.Action("Preview", "Resume", new { id = resume.ResumeID }))')" 
+                                            class="btn btn-light rounded-circle border shadow-sm" style="width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;" 
+                                            title="Copy Link">
+                                        <i class="bi bi-link-45deg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .hover-lift-sm {
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    .section-title {
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        color: var(--text-gray);
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
     }
-    .hover-lift-sm:hover {
+    .info-card {
+        transition: all 0.3s;
+    }
+    .info-card:hover {
+        border-color: var(--primary-light);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
     }
-    .cv-card { 
-        transition: all 0.3s ease; 
+    .icon-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
     }
-    .cv-card:hover { 
-        transform: translateY(-3px); 
-        box-shadow: 0 10px 20px rgba(0,0,0,0.06) !important;
-        border-color: #cbd5e1 !important;
+    .skill-tag {
+        background: white;
+        color: var(--text-dark);
+        border: 1px solid var(--border);
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s;
     }
-    .transition-all {
-        transition: all 0.3s ease;
+    .skill-tag:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+    .cv-premium-card:hover {
+        background: #f8fafc;
+        border-color: var(--primary-light);
+        box-shadow: var(--shadow-md);
     }
 </style>
+
