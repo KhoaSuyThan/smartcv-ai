@@ -1,0 +1,158 @@
+@model IEnumerable<DoAnCS.Models.Company>
+
+@{
+    ViewData["Title"] = "Danh sách Công ty";
+}
+
+<div class="companies-wrapper min-vh-100" style="background-color: #f8fafc;">
+    <!-- Hero Section -->
+    <div class="company-hero py-4 mb-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #157347 0%, #198754 100%);">
+        <div class="container position-relative z-1 py-3">
+            <div class="row align-items-center">
+                <div class="col-lg-8" data-aos="fade-right">
+                    <h2 class="fw-bold mb-2">Khám phá doanh nghiệp hàng đầu</h2>
+                    <p class="opacity-90 mb-3 small">Tìm hiểu môi trường làm việc và cơ hội nghề nghiệp tại các công ty uy tín.</p>
+                    <div class="d-flex gap-3">
+                        <div class="border border-white border-opacity-25 rounded-3 p-2 px-4 text-center">
+                            <h4 class="fw-bold mb-0 text-white">@Model.Count()</h4>
+                            <small class="opacity-75" style="font-size: 0.7rem;">Công ty</small>
+                        </div>
+                        <div class="border border-white border-opacity-25 rounded-3 p-2 px-4 text-center">
+                            <h4 class="fw-bold mb-0 text-white">@Model.Sum(c => c.Jobs?.Count(j => j.Status == 1) ?? 0)</h4>
+                            <small class="opacity-75" style="font-size: 0.7rem;">Việc làm</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-none d-lg-block text-end" data-aos="fade-left">
+                    <i class="fas fa-city fa-5x opacity-10"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                var activeJobsCount = item.Jobs?.Count(j => j.Status == 1) ?? 0;
+                <div class="col-lg-4 col-md-6" data-aos="fade-up">
+                    <div class="card h-100 company-card overflow-hidden">
+                        <!-- Card Banner -->
+                        <div class="card-banner" style="height: 100px; background: linear-gradient(135deg, rgba(25, 135, 84, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%); position: relative;">
+                            @if (activeJobsCount > 0)
+                            {
+                                <span class="badge bg-success position-absolute top-0 end-0 m-3 shadow-sm border border-white border-opacity-25">@activeJobsCount Việc làm</span>
+                            }
+                        </div>
+                        
+                        <!-- Logo Area -->
+                        <div class="text-center position-relative" style="margin-top: -50px; z-index: 2;">
+                            <div class="company-logo-wrapper bg-white d-inline-block p-2 rounded-4 shadow-sm border border-success border-opacity-10">
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center overflow-hidden rounded-3">
+                                    @if (!string.IsNullOrEmpty(item.LogoUrl))
+                                    {
+                                        <img src="@item.LogoUrl" alt="@item.Name" class="img-fluid" style="max-height: 80px;">
+                                    }
+                                    else
+                                    {
+                                        <span class="fs-1 fw-bold text-success">@item.Name.Substring(0, 1).ToUpper()</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-body p-4 text-center">
+                            <h5 class="card-title fw-bold mb-2 text-dark">@item.Name</h5>
+                            <p class="text-muted small mb-3">
+                                <span class="badge bg-light text-success border px-2 py-1">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i> @(item.Address ?? "Toàn quốc")
+                                </span>
+                            </p>
+                            <p class="card-text text-secondary small mb-0 description-text">
+                                @(string.IsNullOrEmpty(item.Description) ? "Chưa có mô tả chi tiết cho công ty này." : item.Description)
+                            </p>
+                        </div>
+                        
+                        <div class="card-footer bg-transparent border-0 p-4 pt-0">
+                            <div class="d-grid">
+                                <a asp-action="Details" asp-route-id="@item.CompanyID" class="btn btn-success rounded-pill fw-bold py-2 transition-all detail-btn">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 bg-white rounded-4 shadow-sm" data-aos="fade-up">
+                <div class="mb-4">
+                    <i class="fas fa-search fa-4x text-light"></i>
+                </div>
+                <h4 class="text-muted">Chưa tìm thấy dữ liệu công ty.</h4>
+                <p class="text-muted small">Vui lòng quay lại sau nhé!</p>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .company-card {
+        border: 2px solid transparent;
+        border-bottom: 4px solid #198754;
+        border-radius: 24px;
+        background-color: #ffffff;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+    }
+    
+    .company-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(25, 135, 84, 0.15), 0 10px 10px -5px rgba(25, 135, 84, 0.1);
+        border-color: #198754;
+    }
+    
+    .company-logo-wrapper {
+        width: 100px;
+        height: 100px;
+        transition: all 0.3s ease;
+    }
+    
+    .company-card:hover .company-logo-wrapper {
+        transform: scale(1.1);
+        box-shadow: 0 8px 15px rgba(25, 135, 84, 0.2) !important;
+    }
+    
+    .company-card:hover .card-banner {
+        filter: brightness(0.98);
+    }
+
+    .detail-btn {
+        box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
+    }
+
+    .detail-btn:hover {
+        background-color: #157347;
+        box-shadow: 0 6px 15px rgba(25, 135, 84, 0.4);
+        transform: scale(1.02);
+    }
+    
+    .description-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 4.5em;
+        line-height: 1.5;
+        color: #475569;
+    }
+    
+    .opacity-90 { opacity: 0.9; }
+    .z-1 { z-index: 1; }
+
+    .company-hero {
+        border-radius: 0 0 3rem 3rem;
+    }
+</style>

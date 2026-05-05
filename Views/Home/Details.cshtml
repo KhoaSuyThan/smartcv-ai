@@ -27,7 +27,7 @@
                         </a>
                     }
 
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("User"))
                     {
                         <button type="button" class="btn btn-primary btn-lg rounded-pill fw-bold flex-grow-1 shadow-sm" style="flex-basis: 60%;" data-bs-toggle="modal" data-bs-target="#applyModal">
                             Ứng tuyển nhanh 1-Click <i class="fas fa-paper-plane ms-2"></i>
