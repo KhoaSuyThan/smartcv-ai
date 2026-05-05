@@ -13,16 +13,10 @@ CREATE DATABASE DoAnWebCS;
 GO
 
 -- Nhớ chạy data để lưu 
-ALTER TABLE Users ADD Summary NVARCHAR(MAX) NULL;
-ALTER TABLE Users ADD Skills NVARCHAR(MAX) NULL;
-CREATE TABLE SavedCandidates (
-    Id INT PRIMARY KEY IDENTITY(1,1),
-    RecruiterId INT NOT NULL,
-    ResumeId INT NOT NULL,
-    SavedAt DATETIME NOT NULL DEFAULT GETDATE(),
-    CONSTRAINT FK_SavedCandidates_Recruiter FOREIGN KEY (RecruiterId) REFERENCES Users(UserID),
-    CONSTRAINT FK_SavedCandidates_Resume FOREIGN KEY (ResumeId) REFERENCES Resumes(ResumeID)
-);
+ALTER TABLE Users ADD 
+    PasswordResetOTP NVARCHAR(6) NULL,
+    OTPExpires DATETIME NULL,
+    OTPFailCount INT DEFAULT 0;
 
 -- Chạy
 USE DoAnWebCS;
@@ -36,6 +30,16 @@ GO
 	UPDATE GeminiConfigs 
 	SET GrammarTemplate = N'Viết duy nhất một đoạn văn mô tả công việc (2-3 câu) sau cho vị trí {{context}} theo chuẩn STAR: {{content}}. YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu ''Dưới đây là...'', không tiêu đề.'
 	WHERE Id = 1;
+
+
+CREATE TABLE SavedCandidates (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    RecruiterId INT NOT NULL,
+    ResumeId INT NOT NULL,
+    SavedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_SavedCandidates_Recruiter FOREIGN KEY (RecruiterId) REFERENCES Users(UserID),
+    CONSTRAINT FK_SavedCandidates_Resume FOREIGN KEY (ResumeId) REFERENCES Resumes(ResumeID)
+);
 
 -- Test templates dùng Vue
 CREATE TABLE VueTemplates (
@@ -203,6 +207,9 @@ CREATE TABLE Users (
 	PendingPasswordHash NVARCHAR(MAX) NULL,
 	Summary NVARCHAR(MAX) NULL,
 	Skills NVARCHAR(MAX) NULL,
+	PasswordResetOTP NVARCHAR(6) NULL,
+    OTPExpires DATETIME NULL,
+    OTPFailCount INT DEFAULT 0,
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 

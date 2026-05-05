@@ -19,6 +19,11 @@ namespace DoAnCS.Models {
         public string? PasswordChangeToken { get; set; }
         public DateTime? PasswordChangeTokenExpires { get; set; }
         public string? PendingPasswordHash { get; set; }
+
+        // Các trường phục vụ quên mật khẩu bằng OTP
+        public string? PasswordResetOTP { get; set; }
+        public DateTime? OTPExpires { get; set; }
+        public int? OTPFailCount { get; set; } = 0;
         
         public string? Summary { get; set; } // Giới thiệu bản thân
         public string? Skills { get; set; }  // Các kỹ năng (ví dụ: C#, React, SQL)
