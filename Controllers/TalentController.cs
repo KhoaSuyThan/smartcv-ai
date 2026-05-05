@@ -41,11 +41,32 @@ namespace DoAnCS.Controllers
                 query = query.Where(r => r.JobTitle != null && r.JobTitle.ToLower().Contains(jobTitle));
             }
 
-            // Nhóm theo UserID để mỗi người chỉ xuất hiện 1 lần, lấy CV mới nhất của họ
-            var resumes = await query
+            // Nhóm theo UserID để mỗi người chỉ xuất hiện 1 lần
+            var aggregatedResumes = await query
                 .GroupBy(r => r.UserID)
-                .Select(g => g.OrderByDescending(r => r.UpdatedAt).First())
+                .Select(g => new
+                {
+                    UserID = g.Key,
+                    LatestResume = g.OrderByDescending(r => r.UpdatedAt).First(),
+                    JobTitles = g.Select(r => r.JobTitle).Where(t => t != null).Distinct().ToList()
+                })
                 .ToListAsync();
+
+            var resumes = aggregatedResumes.Select(a =>
+            {
+                var r = a.LatestResume;
+                // Ưu tiên hiển thị tên thật của User thay vì tên tùy biến trong từng CV
+                if (r.User != null && !string.IsNullOrEmpty(r.User.FullName))
+                {
+                    r.FullName = r.User.FullName;
+                }
+                // Gộp tất cả các vị trí từ các CV công khai khác nhau
+                if (a.JobTitles.Any())
+                {
+                    r.JobTitle = string.Join("|", a.JobTitles);
+                }
+                return r;
+            }).ToList();
 
             // Lấy danh sách ứng viên đã lưu để hiển thị bên cánh phải
             int recruiterId = CurrentUserId;
@@ -57,6 +78,7 @@ namespace DoAnCS.Controllers
                 .ToListAsync();
 
             ViewBag.SavedCandidates = savedCandidates;
+            ViewBag.SavedResumeIds = savedCandidates.Select(s => s.ResumeId).ToList();
             ViewBag.SearchTerm = searchTerm;
             ViewBag.JobTitleFilter = jobTitle;
 
