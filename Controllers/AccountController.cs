@@ -637,6 +637,170 @@ namespace DoAnCS.Controllers
         }
 
         // ==========================================
+        // QUÊN MẬT KHẨU (FORGOT PASSWORD)
+        // ==========================================
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                ViewBag.Error = "Vui lòng nhập Email.";
+                return View();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+            {
+                // Để bảo mật, không nên cho biết email có tồn tại hay không
+                // Nhưng ở đây ta báo lỗi để người dùng biết nhập sai
+                ViewBag.Error = "Email này không tồn tại trong hệ thống.";
+                return View();
+            }
+
+            // Sinh mã OTP 6 số
+            string otp = new Random().Next(100000, 999999).ToString();
+            user.PasswordResetOTP = otp;
+            user.OTPExpires = DateTime.Now.AddMinutes(3); // Hiệu lực 3 phút
+            user.OTPFailCount = 0; // Reset số lần sai
+
+            await _context.SaveChangesAsync();
+
+            // Gửi Email
+            string subject = "Mã xác thực khôi phục mật khẩu - CVBuilder";
+            string message = $@"
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;'>
+                    <h2 style='color: #007bff; text-align: center;'>Mã xác thực OTP</h2>
+                    <p>Chào <strong>{user.FullName}</strong>,</p>
+                    <p>Bạn đã yêu cầu khôi phục mật khẩu. Vui lòng sử dụng mã OTP dưới đây để xác thực:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 10px; color: #007bff; background: #f8f9fa; padding: 15px 30px; border-radius: 5px; border: 1px dashed #007bff;'>{otp}</span>
+                    </div>
+                    <p style='color: #ff0000; font-size: 0.9em;'>Lưu ý: Mã này sẽ hết hạn trong vòng 3 phút.</p>
+                    <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bảo mật tài khoản của mình.</p>
+                    <hr style='border: 0; border-top: 1px solid #eeeeee;'>
+                    <p style='font-size: 0.8em; color: #777;'>Hệ thống CVBuilder chân trọng thông báo.</p>
+                </div>";
+
+            try
+            {
+                await _emailService.SendEmailAsync(user.Email, subject, message);
+                // Lưu email vào session để dùng ở bước tiếp theo
+                HttpContext.Session.SetString("ResetEmail", email);
+                return RedirectToAction("VerifyOTP");
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Lỗi khi gửi email: " + ex.Message;
+                return View();
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult VerifyOTP()
+        {
+            var email = HttpContext.Session.GetString("ResetEmail");
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("ForgotPassword");
+            
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyOTP(string otp)
+        {
+            var email = HttpContext.Session.GetString("ResetEmail");
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("ForgotPassword");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null) return RedirectToAction("ForgotPassword");
+
+            if ((user.OTPFailCount ?? 0) >= 5)
+            {
+                ViewBag.Error = "Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã mới.";
+                return View();
+            }
+
+            if (user.OTPExpires < DateTime.Now)
+            {
+                ViewBag.Error = "Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.";
+                return View();
+            }
+
+            if (user.PasswordResetOTP != otp)
+            {
+                user.OTPFailCount = (user.OTPFailCount ?? 0) + 1;
+                await _context.SaveChangesAsync();
+                ViewBag.Error = $"Mã OTP không chính xác. Bạn còn {5 - user.OTPFailCount} lần thử.";
+                return View();
+            }
+
+            // Nếu đúng, đánh dấu là đã xác thực xong
+            HttpContext.Session.SetString("OTPVerified", "true");
+            return RedirectToAction("ResetPassword");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult ResetPassword()
+        {
+            var verified = HttpContext.Session.GetString("OTPVerified");
+            if (verified != "true") return RedirectToAction("ForgotPassword");
+
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(string newPassword, string confirmPassword)
+        {
+            var verified = HttpContext.Session.GetString("OTPVerified");
+            var email = HttpContext.Session.GetString("ResetEmail");
+
+            if (verified != "true" || string.IsNullOrEmpty(email)) return RedirectToAction("ForgotPassword");
+
+            if (newPassword != confirmPassword)
+            {
+                ViewBag.Error = "Mật khẩu xác nhận không khớp.";
+                return View();
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user != null)
+            {
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                
+                // Xóa OTP
+                user.PasswordResetOTP = null;
+                user.OTPExpires = null;
+                user.OTPFailCount = 0;
+
+                await _context.SaveChangesAsync();
+
+                // Xóa session
+                HttpContext.Session.Remove("ResetEmail");
+                HttpContext.Session.Remove("OTPVerified");
+
+                TempData["SuccessMessage"] = "Đặt lại mật khẩu thành công! Hãy đăng nhập lại.";
+                return RedirectToAction("Login");
+            }
+
+            return RedirectToAction("ForgotPassword");
+        }
+
+        // ==========================================
         // TRANG BÁO LỖI QUYỀN TRUY CẬP (ACCESS DENIED)
         // ==========================================
         [HttpGet]
