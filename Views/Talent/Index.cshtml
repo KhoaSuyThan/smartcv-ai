@@ -226,6 +226,7 @@
         display: flex;
         align-items: center;
         gap: 0.4rem;
+        margin-bottom: 0.15rem;
     }
 
     .card-bio {
@@ -253,6 +254,19 @@
     .candidate-card:hover .skill-pill {
         background: white;
         border-color: var(--border);
+    }
+
+    .skill-pill:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+
+    .hover-opacity-100 {
+        transition: opacity 0.2s;
+    }
+    .hover-opacity-100:hover {
+        opacity: 1 !important;
     }
 
     .btn-outline-premium {
@@ -437,14 +451,26 @@
 
                                 <div class="d-flex align-items-center gap-3 mb-3">
                                     <div class="avatar-ring">
-                                        <img src="@(!string.IsNullOrEmpty(resume.AvatarUrl) ? resume.AvatarUrl : (!string.IsNullOrEmpty(resume.User?.AvatarUrl) ? resume.User.AvatarUrl : "/images/default-avatar.png"))" 
-                                             class="candidate-img" alt="@resume.FullName">
+                                        <img src="@(!string.IsNullOrWhiteSpace(resume.AvatarUrl) ? resume.AvatarUrl : (!string.IsNullOrWhiteSpace(resume.User?.AvatarUrl) ? resume.User.AvatarUrl : $"https://ui-avatars.com/api/?name={resume.FullName}&background=random"))" 
+                                             class="candidate-img" alt="@resume.FullName" onerror="this.src='https://ui-avatars.com/api/?name=@resume.FullName&background=random'">
                                         <div class="status-badge"></div>
                                     </div>
                                     <div class="overflow-hidden">
                                         <h5 class="card-title text-truncate" title="@resume.FullName">@resume.FullName</h5>
-                                        <div class="card-role text-truncate">
-                                            <i class="bi bi-briefcase-fill"></i> @(resume.JobTitle ?? "Chuyên viên")
+                                        <div class="card-role-list">
+                                            @if (!string.IsNullOrEmpty(resume.JobTitle))
+                                            {
+                                                foreach (var title in resume.JobTitle.Split('|'))
+                                                {
+                                                    <div class="card-role text-truncate" title="@title">
+                                                        <i class="bi bi-briefcase-fill me-1"></i> @title
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <div class="card-role"><i class="bi bi-briefcase-fill me-1"></i> Chuyên viên</div>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -521,13 +547,17 @@
                             @foreach (var saved in savedCandidates)
                             {
                                 <div class="saved-item" onclick="showTalentDetails(@saved.Resume.UserID)">
-                                    <img src="@(!string.IsNullOrEmpty(saved.Resume.AvatarUrl) ? saved.Resume.AvatarUrl : (!string.IsNullOrEmpty(saved.Resume.User?.AvatarUrl) ? saved.Resume.User.AvatarUrl : "/images/default-avatar.png"))" 
-                                         class="saved-avatar border">
+                                    <img src="@(!string.IsNullOrWhiteSpace(saved.Resume.AvatarUrl) ? saved.Resume.AvatarUrl : (!string.IsNullOrWhiteSpace(saved.Resume.User?.AvatarUrl) ? saved.Resume.User.AvatarUrl : $"https://ui-avatars.com/api/?name={saved.Resume.FullName}&background=random"))" 
+                                         class="saved-avatar border" onerror="this.src='https://ui-avatars.com/api/?name=@saved.Resume.FullName&background=random'">
                                     <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
                                         <h6 class="fw-bold mb-0 text-dark text-truncate small">@saved.Resume.FullName</h6>
                                         <p class="text-muted mb-0 text-truncate" style="font-size: 0.75rem;">@(saved.Resume.JobTitle ?? "Ứng viên")</p>
                                     </div>
-                                    <i class="bi bi-chevron-right text-muted ms-auto small"></i>
+                                    <button class="btn btn-link text-danger p-1 ms-2 opacity-50 hover-opacity-100" 
+                                            onclick="event.stopPropagation(); if(confirm('Bạn có chắc chắn muốn bỏ lưu ứng viên này khỏi danh sách đã lưu?')) toggleSaveCandidate(@saved.ResumeId, this)"
+                                            title="Bỏ lưu">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
                                 </div>
                             }
                         }

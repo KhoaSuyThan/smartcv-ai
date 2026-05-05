@@ -9,9 +9,10 @@
         <div style="height: 140px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 0 0 2rem 2rem; opacity: 0.8;"></div>
         <div class="text-center" style="margin-top: -70px; position: relative; z-index: 10;">
             <div class="position-relative d-inline-block">
-                <img src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? "/images/default-avatar.png" : Model.AvatarUrl)" 
+                <img src="@(string.IsNullOrWhiteSpace(Model.AvatarUrl) ? $"https://ui-avatars.com/api/?name={Model.FullName}&background=random&size=256" : Model.AvatarUrl)" 
                      class="rounded-circle border border-4 border-white shadow-lg" 
-                     style="width: 140px; height: 140px; object-fit: cover; background: white;">
+                     style="width: 140px; height: 140px; object-fit: cover; background: white;"
+                     onerror="this.src='https://ui-avatars.com/api/?name=@Model.FullName&background=random&size=256'">
                 <span class="position-absolute bottom-0 end-0 bg-success border border-3 border-white rounded-circle" 
                       style="width: 24px; height: 24px; margin-bottom: 10px; margin-right: 10px;" 
                       title="Sẵn sàng làm việc"></span>
