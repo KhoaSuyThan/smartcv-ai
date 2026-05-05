@@ -1,0 +1,207 @@
+@model DoAnCS.Models.Company
+
+@{
+    ViewData["Title"] = Model.Name;
+    var jobs = ViewBag.Jobs as IEnumerable<DoAnCS.Models.Job>;
+}
+
+<div class="company-detail-wrapper bg-light min-vh-100 pb-5">
+    <!-- Premium Header -->
+    <div class="company-header py-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #157347 0%, #198754 100%) !important;">
+        <div class="container position-relative z-1 py-4">
+            <div class="row align-items-center">
+                <div class="col-md-auto text-center text-md-start mb-4 mb-md-0">
+                    <div class="bg-white p-3 rounded-4 shadow-lg d-inline-block" style="width: 160px; height: 160px;">
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center overflow-hidden">
+                            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                            {
+                                <img src="@Model.LogoUrl" alt="@Model.Name" class="img-fluid" style="max-height: 130px;">
+                            }
+                            else
+                            {
+                                <span class="display-2 fw-bold text-success">@Model.Name.Substring(0, 1).ToUpper()</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md ms-md-4 text-center text-md-start">
+                    <nav aria-label="breadcrumb" class="mb-2">
+                        <ol class="breadcrumb mb-0 bg-transparent p-0">
+                            <li class="breadcrumb-item"><a asp-action="Index" class="text-white text-opacity-75 text-decoration-none">Công ty</a></li>
+                            <li class="breadcrumb-item active text-white" aria-current="page">@Model.Name</li>
+                        </ol>
+                    </nav>
+                    <h1 class="display-4 fw-bold mb-3">@Model.Name</h1>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-md-start gap-4">
+                        @if (!string.IsNullOrEmpty(Model.Website))
+                        {
+                            <a href="@Model.Website" target="_blank" class="text-white text-decoration-none hover-opacity transition-all">
+                                <i class="fas fa-external-link-alt me-2 text-warning"></i> Website công ty
+                            </a>
+                        }
+                        <span class="text-white">
+                            <i class="fas fa-map-marker-alt me-2 text-warning"></i> @(Model.Address ?? "Toàn quốc")
+                        </span>
+                        <span class="badge bg-white text-success py-2 px-3 rounded-pill shadow-sm">
+                            <i class="fas fa-briefcase me-2"></i> @(jobs?.Count() ?? 0) Vị trí mở rộng
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative bg -->
+        <div class="position-absolute bottom-0 end-0 opacity-10 p-5">
+            <i class="fas fa-building fa-15x"></i>
+        </div>
+    </div>
+
+    <div class="container mt-n4 position-relative z-2">
+        <div class="row g-4">
+            <!-- Left Column: Info -->
+            <div class="col-lg-8">
+                <!-- About Section -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" data-aos="fade-up">
+                    <div class="card-header bg-white border-0 py-4 px-4 d-flex align-items-center">
+                        <div class="icon-box bg-success bg-opacity-10 p-2 rounded-3 me-3">
+                            <i class="fas fa-info-circle text-success"></i>
+                        </div>
+                        <h4 class="fw-bold mb-0">Giới thiệu về chúng tôi</h4>
+                    </div>
+                    <div class="card-body p-4 pt-0">
+                        <div class="company-description text-muted fs-6" style="line-height: 1.8; text-align: justify;">
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                @Html.Raw(Model.Description.Replace("\n", "<br/>"))
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <p class="mb-0">Chưa có thông tin giới thiệu chi tiết cho doanh nghiệp này.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jobs Section -->
+                <div class="mt-5">
+                    <div class="d-flex align-items-center justify-content-between mb-4" data-aos="fade-up">
+                        <h4 class="fw-bold mb-0">Cơ hội nghề nghiệp mới nhất</h4>
+                        <span class="text-muted small">@(jobs?.Count() ?? 0) kết quả</span>
+                    </div>
+
+                    <div class="row g-3">
+                        @if (jobs != null && jobs.Any())
+                        {
+                            @foreach (var job in jobs)
+                            {
+                                <div class="col-12" data-aos="fade-up">
+                                    <div class="card border-0 shadow-sm job-item-card transition-all rounded-4 overflow-hidden">
+                                        <div class="card-body p-4">
+                                            <div class="row align-items-center">
+                                                <div class="col">
+                                                    <h5 class="fw-bold mb-2">
+                                                        <a href="/Home/Details/@job.JobID" class="text-dark text-decoration-none hover-text-success transition-all">@job.Title</a>
+                                                    </h5>
+                                                    <div class="d-flex flex-wrap gap-3 mb-0">
+                                                        <span class="text-success fw-bold"><i class="fas fa-money-bill-wave me-2"></i>@job.Salary</span>
+                                                        <span class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Hạn: @(job.Deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")</span>
+                                                        <span class="text-muted small"><i class="far fa-clock me-2"></i>@job.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-auto mt-3 mt-md-0">
+                                                    <a href="/Home/Details/@job.JobID" class="btn btn-outline-success rounded-pill px-4 fw-bold hover-lift">
+                                                        Chi tiết <i class="fas fa-arrow-right ms-2"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12 text-center py-5 bg-white rounded-4 shadow-sm" data-aos="fade-up">
+                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="80" class="opacity-20 mb-3" alt="No jobs">
+                                <p class="text-muted mb-0">Hiện tại công ty chưa đăng tuyển vị trí nào mới.</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Sidebar -->
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 100px;">
+                    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" data-aos="fade-left">
+                        <div class="card-header bg-white border-0 py-4 px-4">
+                            <h5 class="fw-bold mb-0 text-dark">Liên hệ & Địa điểm</h5>
+                        </div>
+                        <div class="card-body p-4 pt-0">
+                            <div class="d-flex align-items-start mb-4">
+                                <div class="icon-box bg-danger bg-opacity-10 p-2 rounded-3 me-3">
+                                    <i class="fas fa-map-marker-alt text-danger"></i>
+                                </div>
+                                <div>
+                                    <p class="small text-muted mb-1">Địa chỉ văn phòng</p>
+                                    <p class="mb-0 fw-medium">@(Model.Address ?? "Đang cập nhật")</p>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Website))
+                            {
+                                <div class="d-flex align-items-start mb-4">
+                                    <div class="icon-box bg-info bg-opacity-10 p-2 rounded-3 me-3">
+                                        <i class="fas fa-globe text-info"></i>
+                                    </div>
+                                    <div>
+                                        <p class="small text-muted mb-1">Trang web chính thức</p>
+                                        <a href="@Model.Website" target="_blank" class="text-decoration-none text-dark fw-medium text-break">@Model.Website</a>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="d-grid gap-2 mt-4">
+                                <a href="/Home/Jobs" class="btn btn-success py-2 rounded-pill fw-bold shadow-sm">
+                                    <i class="fas fa-search me-2"></i> Khám phá ngay
+                                </a>
+                                <button class="btn btn-outline-success py-2 rounded-pill fw-bold" onclick="chatboxOpen('Tôi muốn hỏi thông tin về công ty @Model.Name')">
+                                    <i class="fas fa-comment-alt me-2"></i> Nhắn tin hỏi đáp
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .mt-n4 { margin-top: -2.5rem !important; }
+    .z-2 { z-index: 2; }
+    .z-1 { z-index: 1; }
+    .hover-opacity:hover { opacity: 0.8; }
+    .fa-15x { font-size: 15rem; }
+    
+    .job-item-card:hover {
+        transform: scale(1.01);
+        box-shadow: 0 0.5rem 1.5rem rgba(25, 135, 84, 0.1) !important;
+        border-left: 4px solid #198754 !important;
+    }
+    
+    .hover-text-success:hover { color: #198754 !important; }
+    .hover-lift:hover { transform: translateY(-2px); }
+    
+    .icon-box {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+</style>

@@ -10,4 +10,5 @@ public class Company
     public string? Address { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public virtual ICollection<User>? Users { get; set; }
+    public virtual ICollection<Job>? Jobs { get; set; }
 }

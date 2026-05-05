@@ -780,6 +780,13 @@ namespace DoAnCS.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (user != null)
             {
+                // Kiểm tra mật khẩu mới có trùng mật khẩu cũ không
+                if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
+                {
+                    ViewBag.Error = "Mật khẩu mới không được trùng với mật khẩu cũ.";
+                    return View();
+                }
+
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
                 
                 // Xóa OTP
