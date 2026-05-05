@@ -112,7 +112,7 @@
 
             <div class="space-y-4" v-if="sectionHasContent(section)">
               <!-- Skills / Languages / IT Skills -->
-              <div v-if="['skills','languages','it_skills'].includes(section.id)" class="space-y-3">
+              <div v-if="['skills'].includes(section.id)" class="space-y-3">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
@@ -487,11 +487,24 @@ const templatePrimaryColor = computed(() => {
 const templateSecondaryColor = computed(() => '#e8e4db')
 
 const sidebarSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'left' && s.id !== 'summary')
+  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages', 'education'].includes(s.id))
 )
-const mainSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'right' && s.id !== 'summary')
-)
+const mainSections = computed(() => {
+  const sections = props.resumeData.sections.filter(s => 
+    (s.column === 'right' || s.id === 'education') && 
+    !['summary', 'it_skills', 'languages'].includes(s.id)
+  )
+  
+  // Sắp xếp: education nằm ngay dưới experience
+  const expIndex = sections.findIndex(s => s.id === 'experience')
+  const eduIndex = sections.findIndex(s => s.id === 'education')
+  if (expIndex !== -1 && eduIndex !== -1) {
+    const [edu] = sections.splice(eduIndex, 1)
+    const newExpIndex = sections.findIndex(s => s.id === 'experience')
+    sections.splice(newExpIndex + 1, 0, edu)
+  }
+  return sections
+})
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
 

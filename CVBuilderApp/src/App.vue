@@ -1485,10 +1485,14 @@ const loadData = async () => {
             const parsed = JSON.parse(data.jsonContent);
             
             // --- HỖ TRỢ OVERRIDE MẪU CHO TESTING (VUE TEMPLATES) ---
-            if (parsed.overrideTemplate && templateRegistry[parsed.overrideTemplate]) {
-                activeTemplate.value = templateRegistry[parsed.overrideTemplate];
-                resumeData.value.overrideTemplate = parsed.overrideTemplate; // Lưu lại để AutoSave không làm mất
-                console.log(`[Vue Test] Overriding template to: ${parsed.overrideTemplate}`);
+            if (parsed.overrideTemplate) {
+                resumeData.value.overrideTemplate = parsed.overrideTemplate; // Lưu lại luôn để AutoSave không làm mất
+                if (templateRegistry[parsed.overrideTemplate]) {
+                    activeTemplate.value = templateRegistry[parsed.overrideTemplate];
+                    console.log(`[Vue Test] Overriding template to: ${parsed.overrideTemplate}`);
+                } else {
+                    console.warn(`⚠️ Mẫu CV ${parsed.overrideTemplate} chưa có trong bundle JS. Vui lòng chạy lệnh 'npm run build' trong thư mục CVBuilderApp!`);
+                }
             }
 
             resumeData.value.theme = parsed.theme || resumeData.value.theme;
