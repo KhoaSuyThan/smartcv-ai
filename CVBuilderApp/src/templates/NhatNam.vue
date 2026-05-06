@@ -692,7 +692,7 @@ const mainSections = computed(() => {
 .section-active {
     border: 2px solid var(--border-color, rgba(0,0,0,0.08)) !important;
     border-radius: 6px !important;
-    transform: scale(1.015) !important;
+    /* removed scale */
     box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
     background: rgba(0,0,0,0.02) !important;
     z-index: 10 !important;

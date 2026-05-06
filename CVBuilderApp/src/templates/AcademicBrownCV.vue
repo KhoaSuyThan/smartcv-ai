@@ -535,7 +535,7 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
   border: 2px solid #f3ebdd !important;
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.013) !important;
+  /* removed scale */
   box-shadow: 0 6px 24px rgba(93,78,70,0.18), 0 1px 4px rgba(93,78,70,0.08) !important;
   background: rgba(255,255,255,0.28) !important;
   z-index: 10 !important;
@@ -545,7 +545,7 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
   border: 2px solid #5d4e46 !important;
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.013) !important;
+  /* removed scale */
   box-shadow: 0 6px 24px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.12) !important;
   background: rgba(255,255,255,0.06) !important;
   z-index: 10 !important;

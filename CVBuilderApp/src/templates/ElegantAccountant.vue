@@ -578,7 +578,7 @@ onUnmounted(() => {
 .section-selected {
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.012) !important;
+  /* removed scale */
   background-color: rgba(0, 0, 0, 0.012) !important;
   z-index: 20;
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07) !important;

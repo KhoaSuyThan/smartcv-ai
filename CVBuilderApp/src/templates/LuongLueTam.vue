@@ -617,7 +617,7 @@ const getLevelPercent = (level) => {
 .section-active--sidebar {
   border: 2px solid rgba(255,255,255,0.5) !important;
   border-radius: 6px !important;
-  transform: scale(1.013) !important;
+  /* removed scale */
   box-shadow: 0 6px 20px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1) !important;
   background: rgba(255,255,255,0.07) !important;
   z-index: 10 !important;
@@ -626,7 +626,7 @@ const getLevelPercent = (level) => {
 .section-active--main {
   border: 2px solid #c8d4b8 !important;
   border-radius: 6px !important;
-  transform: scale(1.013) !important;
+  /* removed scale */
   box-shadow: 0 4px 18px rgba(70,85,104,0.10), 0 1px 4px rgba(70,85,104,0.06) !important;
   background: rgba(220,228,205,0.10) !important;
   z-index: 10 !important;

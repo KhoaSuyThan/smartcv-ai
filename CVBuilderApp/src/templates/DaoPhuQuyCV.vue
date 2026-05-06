@@ -627,7 +627,7 @@ const mainSections = computed(() =>
   border: 2px solid v-bind(templatePrimaryColor) !important;
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.012) !important;
+  /* removed scale */
   box-shadow: 0 6px 20px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.1) !important;
   background: rgba(255,255,255,0.08) !important;
   z-index: 10 !important;
@@ -637,7 +637,7 @@ const mainSections = computed(() =>
   border: 2px solid v-bind(templatePrimaryColor) !important;
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.012) !important;
+  /* removed scale */
   box-shadow: 0 4px 18px rgba(0,76,130,0.12), 0 1px 4px rgba(0,76,130,0.06) !important;
   background: rgba(0,76,130,0.03) !important;
   z-index: 10 !important;

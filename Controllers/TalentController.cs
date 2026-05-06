@@ -28,6 +28,7 @@ namespace DoAnCS.Controllers
                 searchTerm = searchTerm.ToLower();
                 query = query.Where(r => 
                     (r.FullName != null && r.FullName.ToLower().Contains(searchTerm)) ||
+                    (r.User != null && r.User.FullName != null && r.User.FullName.ToLower().Contains(searchTerm)) ||
                     (r.Summary != null && r.Summary.ToLower().Contains(searchTerm)) ||
                     (r.JobTitle != null && r.JobTitle.ToLower().Contains(searchTerm)) ||
                     (r.User != null && r.User.Summary != null && r.User.Summary.ToLower().Contains(searchTerm)) ||

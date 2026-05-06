@@ -541,7 +541,7 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   border: 2px solid #c9beae !important;
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.012) !important;
+  /* removed scale */
   box-shadow: 0 6px 20px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06) !important;
   background: rgba(255,255,255,0.35) !important;
   z-index: 10 !important;
@@ -551,7 +551,7 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   border: 2px solid #e8e0d8 !important;
   border-style: solid !important;
   border-radius: 6px !important;
-  transform: scale(1.012) !important;
+  /* removed scale */
   box-shadow: 0 4px 18px rgba(99,76,70,0.10), 0 1px 4px rgba(99,76,70,0.06) !important;
   background: rgba(229,221,213,0.10) !important;
   z-index: 10 !important;

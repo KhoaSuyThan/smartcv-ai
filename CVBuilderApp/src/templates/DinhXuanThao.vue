@@ -484,7 +484,7 @@ onUnmounted(() => {
 }
 
 .section-block.section-active {
-  transform: scale(1.012);
+  /* removed scale */
   border-radius: 6px !important;
   border: 2px solid var(--active-bg, #3b715a) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.10);
@@ -611,3 +611,4 @@ main {
   transform: none !important;
 }
 </style>
+

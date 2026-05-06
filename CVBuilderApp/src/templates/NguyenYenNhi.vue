@@ -489,7 +489,7 @@ onUnmounted(() => {
 
 /* ── Active (Khung hồng) ── */
 .section-active {
-  transform: scale(1.013) !important;
+  /* removed scale */
   transform-origin: center center !important;
   border-radius: 6px !important;
   border-style: solid !important;
