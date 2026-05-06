@@ -18,6 +18,17 @@ ALTER TABLE Users ADD
     OTPExpires DATETIME NULL,
     OTPFailCount INT DEFAULT 0;
 
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Đinh Xuân Thảo', 
+    'DinhXuanThao', 
+    '/img/cv-thumbnails/DinhXuanThao.png', 
+    0, 
+    1, 
+    'Professional', 
+    GETDATE()
+);
+
 -- Chạy
 USE DoAnWebCS;
 GO
