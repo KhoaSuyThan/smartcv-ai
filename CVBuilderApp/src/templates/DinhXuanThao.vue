@@ -27,9 +27,9 @@
       <!-- Sidebar Sections -->
       <div class="w-full pl-0 pr-0 flex-1 pb-8 flex flex-col mt-4">
         <!-- CONTACT INFOMATION -->
-        <div class="section-block relative group mb-6 px-[6mm]" @click.stop="toggleSection('contact')">
+        <div class="section-block relative group mb-6 -my-[4mm] px-[8mm] py-[4mm]" @click.stop="toggleSection('contact')">
           <div class="paginated-item">
-            <div class="bg-[#3b715a] text-white py-[6px] pl-5 pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[6mm] uppercase shadow-sm flex items-center tracking-wide">
+            <div class="bg-[#3b715a] text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide">
               LIÊN HỆ
             </div>
             <div class="space-y-3 px-2 text-[11px] font-medium text-gray-700">
@@ -77,22 +77,22 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group mb-6 px-[6mm]"
+            class="section-block relative group mb-6 -my-[4mm] px-[8mm] py-[4mm]"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"
           >
             <!-- Nav Buttons -->
             <transition name="fade-btns">
-              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="right: -4px;">
-                <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
+              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="right: 20px;" @click.stop>
+                <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
               </div>
             </transition>
 
             <div class="paginated-item">
-              <div class="bg-[#3b715a] text-white py-[6px] pl-5 pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[6mm] uppercase shadow-sm flex items-center tracking-wide">
+              <div class="bg-[#3b715a] text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide">
                 {{ section.title }}
               </div>
             </div>
@@ -179,22 +179,22 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group my-0 py-1"
+            class="section-block relative group -mx-[8mm] -my-[4mm] px-[8mm] py-[4mm]"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"
           >
             <!-- Nav Buttons -->
             <transition name="fade-btns">
-              <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
-                <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" @click.stop>
+                <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
               </div>
             </transition>
 
             <div class="paginated-item">
-              <h3 class="section-title font-bold mb-5 tracking-wide flex items-center gap-3 text-[18px]" :style="{ color: templatePrimaryColor }">
+              <h3 class="section-title font-bold mb-2.5 tracking-wide flex items-center gap-3 text-[18px]" :style="{ color: templatePrimaryColor }">
                 <div class="w-[6px] h-[22px]" :style="{ backgroundColor: templatePrimaryColor }"></div>
                 {{ section.title }}
               </h3>
@@ -205,6 +205,24 @@
               <!-- SUMMARY -->
               <div v-if="section.id === 'summary'" class="item-container relative">
                 <div class="text-[12px] text-gray-700 leading-[1.7] text-justify font-medium html-content" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Với hơn hai năm kinh nghiệm ở các vị trí Product Manager, Business Analyst... tôi mong muốn tận dụng kỹ năng và kiến thức của mình để đóng góp cho công ty.')"></div>
+              </div>
+
+              <!-- SKILLS -->
+              <div v-else-if="section.id === 'skills'" class="space-y-5">
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative pb-1">
+                  <div class="flex justify-between items-baseline mb-2">
+                    <span class="font-bold text-[13px] uppercase text-gray-800 tracking-wide">{{ item.name }}</span>
+                    <span class="text-[11px] font-semibold text-gray-500">{{ getLevelInfo(item.level).text }}</span>
+                  </div>
+                  <div class="w-full h-[6px] bg-gray-100 rounded-full overflow-hidden shadow-inner">
+                    <div class="h-full rounded-full" :style="{ width: getLevelInfo(item.level).percent, backgroundColor: templatePrimaryColor }"></div>
+                  </div>
+                  <transition name="fade-btns">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
+                      <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </transition>
+                </div>
               </div>
 
               <!-- EXPERIENCE / PROJECT / ACTIVITIES / EDUCATION -->
@@ -369,11 +387,11 @@ const templatePrimaryColor = computed(() => {
 })
 
 const sidebarSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages', 'education'].includes(s.id))
+  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages'].includes(s.id))
 )
 const mainSections = computed(() => {
   const sections = props.resumeData.sections.filter(s => 
-    (s.column === 'right' || s.id === 'education') && 
+    s.column === 'right' && 
     !['it_skills', 'languages'].includes(s.id)
   )
   return sections
@@ -473,6 +491,8 @@ onUnmounted(() => {
   font-size: 18px !important;
   color: #000000 !important;
   font-weight: bold !important;
+  margin: 0 !important;
+  margin-bottom: 10px !important;
 }
 
 .section-block {
@@ -480,11 +500,11 @@ onUnmounted(() => {
   border-radius: 6px;
   border: 2px solid transparent;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .section-block.section-active {
-  /* removed scale */
+  transform: none !important;
   border-radius: 6px !important;
   border: 2px solid var(--active-bg, #3b715a) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.10);
@@ -493,7 +513,7 @@ onUnmounted(() => {
 
 .nav-btns {
   position: absolute;
-  right: 6px;
+  right: 20px;
   top: 6px;
   display: flex;
   flex-direction: row;
