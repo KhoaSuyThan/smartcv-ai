@@ -13,10 +13,18 @@ CREATE DATABASE DoAnWebCS;
 GO
 
 -- Nhớ chạy data để lưu 
-ALTER TABLE Users ADD 
-    PasswordResetOTP NVARCHAR(6) NULL,
-    OTPExpires DATETIME NULL,
-    OTPFailCount INT DEFAULT 0;
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Trần Mạnh Dũng', 
+    'TranManhDung', 
+    '/images/templates/template_b5b27380.webp', -- Đường dẫn ảnh thu nhỏ hiển thị ở trang chọn mẫu
+    1,                                     -- 1: Mẫu Premium (hoặc đặt 0 nếu muốn miễn phí)
+    1,                                     -- Kích hoạt mẫu hoạt động
+    N'Marketing, Sáng tạo, Chuyên nghiệp', 
+    GETDATE()
+);
+GO
+-- Chạy
 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
@@ -29,7 +37,7 @@ VALUES (
     GETDATE()
 );
 
--- Chạy
+
 USE DoAnWebCS;
 GO
 	UPDATE GeminiConfigs 
