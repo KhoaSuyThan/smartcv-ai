@@ -300,10 +300,16 @@ namespace DoAnCS.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FileUploadUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDraft")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
                         .HasColumnType("bit");
 
                     b.Property<string>("JobTitle")
@@ -315,10 +321,13 @@ namespace DoAnCS.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TemplateID")
+                    b.Property<int?>("TemplateID")
                         .HasColumnType("int");
 
                     b.Property<string>("ThemeColor")
@@ -335,6 +344,9 @@ namespace DoAnCS.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ViewCount")
                         .HasColumnType("int");
 
                     b.HasKey("ResumeID");
@@ -420,6 +432,32 @@ namespace DoAnCS.Migrations
                     b.ToTable("ResumeSkills");
                 });
 
+            modelBuilder.Entity("DoAnCS.Models.SavedCandidate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RecruiterId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ResumeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SavedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecruiterId");
+
+                    b.HasIndex("ResumeId");
+
+                    b.ToTable("SavedCandidates");
+                });
+
             modelBuilder.Entity("DoAnCS.Models.Skill", b =>
                 {
                     b.Property<int>("SkillID")
@@ -495,6 +533,9 @@ namespace DoAnCS.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("UserID")
                         .HasColumnType("int");
 
@@ -533,14 +574,38 @@ namespace DoAnCS.Migrations
                     b.Property<bool>("IsPro")
                         .HasColumnType("bit");
 
+                    b.Property<DateTime?>("OTPExpires")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("OTPFailCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PasswordChangeToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PasswordChangeTokenExpires")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordResetOTP")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PendingPasswordHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Skills")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Summary")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserID");
@@ -557,6 +622,9 @@ namespace DoAnCS.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ComponentName")
                         .IsRequired()
@@ -617,7 +685,7 @@ namespace DoAnCS.Migrations
             modelBuilder.Entity("DoAnCS.Models.Job", b =>
                 {
                     b.HasOne("DoAnCS.Models.Company", "Company")
-                        .WithMany()
+                        .WithMany("Jobs")
                         .HasForeignKey("CompanyID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -637,9 +705,7 @@ namespace DoAnCS.Migrations
                 {
                     b.HasOne("DoAnCS.Models.Template", "Template")
                         .WithMany()
-                        .HasForeignKey("TemplateID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TemplateID");
 
                     b.HasOne("DoAnCS.Models.User", "User")
                         .WithMany("Resumes")
@@ -693,6 +759,25 @@ namespace DoAnCS.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("DoAnCS.Models.SavedCandidate", b =>
+                {
+                    b.HasOne("DoAnCS.Models.User", "Recruiter")
+                        .WithMany()
+                        .HasForeignKey("RecruiterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DoAnCS.Models.Resume", "Resume")
+                        .WithMany()
+                        .HasForeignKey("ResumeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Recruiter");
+
+                    b.Navigation("Resume");
+                });
+
             modelBuilder.Entity("DoAnCS.Models.UpgradeRequest", b =>
                 {
                     b.HasOne("DoAnCS.Models.User", "User")
@@ -715,6 +800,8 @@ namespace DoAnCS.Migrations
 
             modelBuilder.Entity("DoAnCS.Models.Company", b =>
                 {
+                    b.Navigation("Jobs");
+
                     b.Navigation("Users");
                 });
 

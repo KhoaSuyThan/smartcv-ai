@@ -12,6 +12,19 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Lê Chiến', 
+    'LeChien', 
+    'https://www.topcv.vn/cv/snapshot/template-cv-position/mau-cv-lap-trinh-vien-mau-thanh-lich-Xl5SXVReBF0VGg0PRFkVBwhSXFADDQIBAAEGA1MNWlYEV1NXUloACgQDUVABBQ1VUAEHGRYEAVIBWwBV4801.webp?t=1749574801', -- Đường dẫn ảnh preview
+    1,                                        -- 1: Mẫu Premium
+    1,                                        -- Trạng thái hoạt động
+    N'IT, Lập trình viên, Senior', 
+    GETDATE()
+);
+GO
+
 -- Nhớ chạy data để lưu 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
