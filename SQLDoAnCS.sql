@@ -24,6 +24,17 @@ VALUES (
     GETDATE()
 );
 GO
+-- NHớ chạy nhé !!
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Trần Đức Huy', 
+    'TranDucHuy',  -- Phải khớp chính xác với tên file TranDucHuy.vue
+    '/images/templates/tran-duc-huy.png', 
+    1,             -- 0 là miễn phí, 1 là Premium
+    1,             -- 1 là Active
+    N'IT, Lập trình viên', 
+    GETDATE()
+);
 
 -- Nhớ chạy data để lưu 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
