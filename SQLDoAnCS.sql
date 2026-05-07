@@ -28,6 +28,18 @@ GO
 -- Nhớ chạy data để lưu 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
+    N'Đặng Ngọc Linh', 
+    'DangNgocLinh', 
+    '/images/templates/DangNgocLinh.webp', 
+    1, 
+    1, 
+    N'Nhân sự, Tư vấn, Chăm sóc khách hàng', 
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
     N'Trần Mạnh Dũng', 
     'TranManhDung', 
     '/images/templates/template_b5b27380.webp', -- Đường dẫn ảnh thu nhỏ hiển thị ở trang chọn mẫu
