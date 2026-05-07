@@ -54,6 +54,7 @@ INSERT INTO VueTemplates (
     Category, 
     CreatedAt
 )
+
 VALUES (
     N'Nguyễn Thành Nhất Nam',                  -- Tên mẫu hiển thị trên giao diện chọn mẫu
     N'NguyenThanhNhatNam',                     -- Tên file Vue (không kèm đuôi .vue)

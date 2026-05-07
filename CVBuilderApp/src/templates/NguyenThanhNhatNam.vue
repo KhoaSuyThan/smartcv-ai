@@ -291,90 +291,100 @@
 
       <!-- 4. HÀNG DƯỚI CÙNG (INTERESTS & ADDITIONAL INFORMATION - CHIA ĐÔI SONG SONG) -->
       <section class="paginated-item px-[10mm] pb-[8mm] grid grid-cols-2 gap-[5mm] shrink-0">
-        <!-- Cột trái: Interests (Hobbies) -->
-        <template v-for="section in footerLeftSections" :key="section.id">
-          <div
-            class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
-            :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': '#4A352F' } : {}"
-            @click.stop="toggleSection(section.id)"
-          >
-            <!-- Nav Control -->
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="right: 12px; top: 12px;" @click.stop>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
-                  <svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                </button>
-              </div>
-            </transition>
-
-            <div class="paginated-item">
-              <div class="flex flex-col mb-2.5">
-                <h3 class="section-title">
-                  {{ section.id === 'hobbies' ? 'Sở thích' : section.title }}
-                </h3>
-                <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
-              </div>
+        <!-- Cột: Interests (Hobbies) -->
+        <div
+          v-if="hobbiesSection && hobbiesSection.isVisible"
+          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
+          :class="{ 'section-active': selectedSectionId === hobbiesSection.id }"
+          :style="[
+            selectedSectionId === hobbiesSection.id ? { '--active-bg': '#4A352F' } : {},
+            { order: hobbiesSection.column === 'left' ? 1 : 2 }
+          ]"
+          @click.stop="toggleSection(hobbiesSection.id)"
+        >
+          <!-- Nav Control -->
+          <transition name="fade-btns">
+            <div v-if="selectedSectionId === hobbiesSection.id" class="nav-btns no-print" style="right: 12px; top: 12px;" @click.stop>
+              <button @click.stop.prevent="moveHorizontal(hobbiesSection.id)" class="nav-btn" :title="hobbiesSection.column === 'left' ? 'Sang Phải' : 'Sang Trái'">
+                <svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path v-if="hobbiesSection.column === 'left'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                  <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
             </div>
+          </transition>
 
-            <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.6] text-justify font-medium">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="inline item-container relative">
-                <span>{{ item.name }}</span><span v-if="itemIndex < section.items.length - 1">, </span>
-                <transition name="fade-btns">
-                  <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -6px; right: -6px; transform: scale(0.8)">
-                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                  </button>
-                </transition>
-              </div>
-              <div v-if="section.items && section.items.length === 0" class="text-[#4A352F]/40 italic">Chưa có sở thích.</div>
+          <div class="paginated-item">
+            <div class="flex flex-col mb-2.5">
+              <h3 class="section-title">
+                Sở thích
+              </h3>
+              <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
             </div>
           </div>
-        </template>
 
-        <!-- Cột phải: Additional Information (Languages / Awards) -->
-        <template v-for="section in footerRightSections" :key="section.id">
-          <div
-            class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
-            :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': '#4A352F' } : {}"
-            @click.stop="toggleSection(section.id)"
-          >
-            <!-- Nav Control -->
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="right: 12px; top: 12px;" @click.stop>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái">
-                  <svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+          <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.6] text-justify font-medium">
+            <div v-for="(item, itemIndex) in hobbiesSection.items" :key="item._refId" class="inline item-container relative">
+              <span>{{ item.name }}</span><span v-if="itemIndex < hobbiesSection.items.length - 1">, </span>
+              <transition name="fade-btns">
+                <button v-if="selectedSectionId === hobbiesSection.id" @click.stop.prevent="$emit('removeItem', hobbiesSection.id, itemIndex)" class="delete-item-btn no-print" style="top: -6px; right: -6px; transform: scale(0.8)">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-              </div>
-            </transition>
-            <div class="paginated-item">
-              <div class="flex flex-col mb-2.5">
-                <h3 class="section-title">
-                  Thông tin thêm
-                </h3>
-                <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
-              </div>
+              </transition>
             </div>
+            <div v-if="hobbiesSection.items && hobbiesSection.items.length === 0" class="text-[#4A352F]/40 italic">Chưa có sở thích.</div>
+          </div>
+        </div>
 
-            <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.65] text-justify font-medium space-y-2">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <div class="flex items-start gap-1">
-                  <span class="text-[#D03B29] shrink-0 mt-[1.5px] font-bold">•</span>
-                  <div class="flex-1">
-                    <span v-if="item.name">{{ item.name }}</span>
-                    <span v-else class="html-content" v-html="formatDesc(item.info || item.desc)"></span>
-                  </div>
+        <!-- Cột: Additional Information (Languages / Awards) -->
+        <div
+          v-if="additionalSection && additionalSection.isVisible"
+          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
+          :class="{ 'section-active': selectedSectionId === additionalSection.id }"
+          :style="[
+            selectedSectionId === additionalSection.id ? { '--active-bg': '#4A352F' } : {},
+            { order: additionalSection.column === 'left' ? 1 : 2 }
+          ]"
+          @click.stop="toggleSection(additionalSection.id)"
+        >
+          <!-- Nav Control -->
+          <transition name="fade-btns">
+            <div v-if="selectedSectionId === additionalSection.id" class="nav-btns no-print" style="right: 12px; top: 12px;" @click.stop>
+              <button @click.stop.prevent="moveHorizontal(additionalSection.id)" class="nav-btn" :title="additionalSection.column === 'left' ? 'Sang Phải' : 'Sang Trái'">
+                <svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path v-if="additionalSection.column === 'left'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                  <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
+            </div>
+          </transition>
+          <div class="paginated-item">
+            <div class="flex flex-col mb-2.5">
+              <h3 class="section-title">
+                Thông tin thêm
+              </h3>
+              <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
+            </div>
+          </div>
+
+          <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.65] text-justify font-medium space-y-2">
+            <div v-for="(item, itemIndex) in additionalSection.items" :key="item._refId" class="item-container relative">
+              <div class="flex items-start gap-1">
+                <span class="text-[#D03B29] shrink-0 mt-[1.5px] font-bold">•</span>
+                <div class="flex-1">
+                  <span v-if="item.name">{{ item.name }}</span>
+                  <span v-else class="html-content" v-html="formatDesc(item.info || item.desc)"></span>
                 </div>
-                <transition name="fade-btns">
-                  <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -4px; right: -4px;">
-                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                  </button>
-                </transition>
               </div>
-              <div v-if="section.items && section.items.length === 0" class="text-[#4A352F]/40 italic">Chưa có thông tin bổ sung.</div>
+              <transition name="fade-btns">
+                <button v-if="selectedSectionId === additionalSection.id" @click.stop.prevent="$emit('removeItem', additionalSection.id, itemIndex)" class="delete-item-btn no-print" style="top: -4px; right: -4px;">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </transition>
             </div>
+            <div v-if="additionalSection.items && additionalSection.items.length === 0" class="text-[#4A352F]/40 italic">Chưa có thông tin bổ sung.</div>
           </div>
-        </template>
+        </div>
       </section>
 
       <!-- Watermark chân trang -->
@@ -484,15 +494,29 @@ const mainSections = computed(() =>
 )
 const mainIds = computed(() => mainSections.value.map(s => s.id))
 
-// Lọc các section hiển thị ở hàng cuối cùng chia đôi (theo column)
-const footerSectionIds = ['hobbies', 'additional']
-const footerLeftSections = computed(() =>
-  props.resumeData.sections.filter(s => footerSectionIds.includes(s.id) && s.column === 'left' && s.isVisible)
+// Cấu trúc section chân trang (Sở thích & Thông tin thêm)
+const hobbiesSection = computed(() =>
+  props.resumeData.sections.find(s => s.id === 'hobbies')
 )
-const footerRightSections = computed(() =>
-  props.resumeData.sections.filter(s => footerSectionIds.includes(s.id) && s.column === 'right' && s.isVisible)
+const additionalSection = computed(() =>
+  props.resumeData.sections.find(s => s.id === 'additional')
 )
-const footerIds = computed(() => [...footerLeftSections.value, ...footerRightSections.value].map(s => s.id))
+
+const moveHorizontal = (sectionId) => {
+  const current = props.resumeData.sections.find(s => s.id === sectionId)
+  if (!current) return
+
+  const targetDir = current.column === 'left' ? 'right' : 'left'
+  current.column = targetDir
+
+  const otherId = sectionId === 'hobbies' ? 'additional' : 'hobbies'
+  const other = props.resumeData.sections.find(s => s.id === otherId)
+  if (other) {
+    other.column = current.column === 'left' ? 'right' : 'left'
+  }
+
+  requestPagination()
+}
 
 // ─── PAGINATION ENGINE ───
 const A4_W_MM   = 210
@@ -570,13 +594,15 @@ onMounted(() => {
       // 1. Chỉ active những mục có trong ảnh
       sec.isVisible = activeDefault.includes(sec.id);
       
-      // 2. Quy chuẩn vị trí cột để tương thích
-      if (sec.id === 'hobbies' || sec.id === 'languages' || sec.id === 'awards') {
-        sec.column = 'left';
-      } else if (sec.id === 'additional') {
-        sec.column = 'right';
-      } else {
-        sec.column = 'right';
+      // 2. Quy chuẩn vị trí cột để tương thích (chỉ set nếu chưa có column)
+      if (!sec.column) {
+        if (sec.id === 'hobbies' || sec.id === 'languages' || sec.id === 'awards') {
+          sec.column = 'left';
+        } else if (sec.id === 'additional') {
+          sec.column = 'right';
+        } else {
+          sec.column = 'right';
+        }
       }
     });
   }

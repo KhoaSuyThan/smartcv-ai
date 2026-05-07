@@ -1548,10 +1548,10 @@ const loadData = async () => {
 
                   resumeData.value.sections.forEach(s => {
                     if (rightSections.includes(s.id)) {
-                      s.column = 'right';
+                      if (!s.column) s.column = 'right';
                       s.isVisible = true;
                     } else if (leftSections.includes(s.id)) {
-                      s.column = 'left';
+                      if (!s.column) s.column = 'left';
                       s.isVisible = true;
                     } else if (hiddenSections.includes(s.id)) {
                       s.isVisible = false;
