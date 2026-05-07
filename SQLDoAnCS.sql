@@ -12,6 +12,27 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+--Nhớ chạy nha các cậu
+INSERT INTO VueTemplates (
+    TemplateName, 
+    ComponentName, 
+    ThumbnailUrl, 
+    IsPremium, 
+    IsActive, 
+    Category, 
+    CreatedAt
+)
+VALUES (
+    N'Hoàng Tường Vy', 
+    'HoangTuongVy', 
+    '/images/templates/HoangTuongVy.png', -- Nhớ upload ảnh mẫu của template vào đường dẫn này
+    1, -- Đặt 1 nếu mẫu này là Premium, 0 nếu miễn phí
+    1, 
+    N'Marketing', 
+    GETDATE()
+);
+GO
+
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
     N'Pastel Beige Blocks', 
