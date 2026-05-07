@@ -339,9 +339,9 @@
                                         <input v-model="item.year" :class="inputBaseClass" class="text-xs" placeholder="Năm / Tổ chức cấp" />
                                     </template>
 
-                                    <!-- form sở thích -->
-                                    <template v-else-if="section.id === 'hobbies'">
-                                        <input v-model="item.name" :class="inputBaseClass" class="font-semibold text-slate-800" placeholder="Sở thích (VD: Đọc sách)" />
+                                    <!-- form sở thích & thông tin thêm -->
+                                    <template v-else-if="section.id === 'hobbies' || section.id === 'additional'">
+                                        <input v-model="item.name" :class="inputBaseClass" class="font-semibold text-slate-800" :placeholder="section.id === 'additional' ? 'Thông tin thêm (VD: Có xe máy riêng)' : 'Sở thích (VD: Đọc sách)'" />
                                     </template>
 
                                     <!-- form tham chiếu -->
@@ -947,6 +947,7 @@ const getSectionIcon = (id) => {
     certifications: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />', // Badge
     awards: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />', // Sparkles
     hobbies: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />', // Heart
+    additional: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />', // Information Circle
     references: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />', // Chat
   };
   return icons[id] || '<path d="M4 8h16M4 16h16" />'; // Default là dấu =
@@ -1206,6 +1207,7 @@ const resumeData = ref({
     { id: 'certifications', title: 'Chứng chỉ / Bằng cấp',  isVisible: false, column: 'left',  items: [] },
     { id: 'awards',         title: 'Giải thưởng',           isVisible: false, column: 'left',  items: [] },
     { id: 'hobbies',        title: 'Sở thích',              isVisible: false, column: 'left',  items: [] },
+    { id: 'additional',     title: 'Thông tin thêm',        isVisible: false, column: 'left',  items: [] },
     { id: 'references',     title: 'Người tham chiếu',      isVisible: false, column: 'left',  items: [] },
   ]
 })
@@ -1229,7 +1231,7 @@ const addItem = (sectionIndex) => {
   else if(section.id === 'project')    Object.assign(newItem, { name: '', role: '', time: '', desc: '' });
   else if(section.id === 'skills' || section.id==='languages' || section.id==='it_skills') Object.assign(newItem, { name: '', level: '' });
   else if(section.id === 'activities') Object.assign(newItem, { name: '', time: '', desc: '' });
-  else if(section.id === 'hobbies')    Object.assign(newItem, { name: '' });
+  else if(section.id === 'hobbies' || section.id === 'additional')    Object.assign(newItem, { name: '' });
   else if(section.id === 'references') Object.assign(newItem, { info: '' });
   else Object.assign(newItem, { name: '', year: '' });
 
@@ -1536,6 +1538,25 @@ const loadData = async () => {
                   // Force màu vàng cam mặc định cho VuTungDuong
                   if (!resumeData.value.theme) resumeData.value.theme = {};
                   resumeData.value.theme.primaryColor = '#dfa234';
+                }
+
+                // --- MIGRATION FOR NGUYENTHANHNHATNAM TEMPLATE ---
+                if (targetName === 'NguyenThanhNhatNam' || resumeData.value.overrideTemplate === 'NguyenThanhNhatNam') {
+                  const rightSections = ['education', 'project', 'activities', 'additional'];
+                  const leftSections = ['skills', 'certifications', 'hobbies', 'summary'];
+                  const hiddenSections = ['experience', 'it_skills', 'languages', 'awards', 'references'];
+
+                  resumeData.value.sections.forEach(s => {
+                    if (rightSections.includes(s.id)) {
+                      s.column = 'right';
+                      s.isVisible = true;
+                    } else if (leftSections.includes(s.id)) {
+                      s.column = 'left';
+                      s.isVisible = true;
+                    } else if (hiddenSections.includes(s.id)) {
+                      s.isVisible = false;
+                    }
+                  });
                 }
               }
 
