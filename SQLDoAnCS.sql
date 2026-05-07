@@ -12,6 +12,18 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Pastel Beige Blocks', 
+    'PastelBeigeBlocks', -- Tên file component Vue của bạn (ví dụ: PastelBeigeBlocks.vue)
+    '/images/templates/PastelBeigeBlocks.png', -- Bạn thay bằng link ảnh chụp mẫu CV này nhé
+    0,                                        -- 0: Mẫu miễn phí (hoặc 1 nếu bạn muốn thu phí)
+    1,                                        -- Trạng thái hoạt động
+    N'Sáng tạo, Marketing, Hiện đại', 
+    GETDATE()
+);
+GO
+
 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
