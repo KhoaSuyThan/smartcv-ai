@@ -11,71 +11,20 @@ GO
 
 CREATE DATABASE DoAnWebCS;
 GO
--- Thêm template Nguyễn Tùng Doanh vào VueTemplates
+
+-- chạy sql mới
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
-    N'Nguyen Tung Doanh', 
-    'NguyenTungDoanh', 
-    '/images/templates/TungDoanh.jpg', 
+    N'Nguyễn Thị Lan Anh', 
+    N'NguyenThiLanAnh', 
+    N'https://cv.timviec.com.vn/images/detail/thumb_v2/mau_72.jpg?v=2', 
     1, 
     1, 
-    N'Designer, Hiện đại, 2 cột', 
-    GETDATE()
-);
-GO
-
--- Chèn mẫu CV Trương Mỹ Linh vào bảng VueTemplates
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Trương Mỹ Linh', 
-    'TruongMyLinh', 
-    '/images/templates/TruongMyLinh.png', 
-    1, 
-    1, 
-    N'Nhân sự, Quản lý', 
-    GETDATE()
-);
-GO
-
--- Thêm mẫu basic blue vào VueTemplates
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Basic Blue',
-    'BasicBlue',
-    '/images/templates/BasicBlue.png',
-    1,
-    1,
-    N'Kinh doanh, Marketing, Chuyên nghiệp',
-    GETDATE()
-);
-GO
-
-
--- Thêm template Vũ Hoàng Việt vào VueTemplates
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Vũ Hoàng Việt', 
-    'VuHoangViet', 
-    'https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?t=1763719062&color=3C9B68&template_name=student_3&lang=vi',
-    1,                                        -- Premium
-    1,                                        -- Active
-    N'Kế toán, Thực tập, Chuyên nghiệp', 
+    N'Kế toán, Marketing, Chuyên nghiệp', 
     GETDATE()
 );
 
--- Chèn mẫu CV Nguyễn Khánh Huyền vào bảng VueTemplates
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Nguyễn Khánh Huyền', 
-    'NguyenKhanhHuyen', 
-    '/images/templates/NguyenKhanhHuyen.png', -- Đường dẫn ảnh preview sau khi chụp mẫu
-    1,                                        -- 1: Mẫu Premium Pro
-    1,                                        -- 1: Đang hoạt động
-    N'Kế toán, Chuyên nghiệp, Văn phòng', 
-    GETDATE()
-);
-
-
+-- chạy sql mới
 
 USE DoAnWebCS;
 GO
@@ -222,7 +171,6 @@ VALUES (
     GETDATE()
 );
 GO
--- NHớ chạy nhé !!
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
     N'Trần Đức Huy', 
@@ -234,7 +182,6 @@ VALUES (
     GETDATE()
 );
 
--- Nhớ chạy data để lưu 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
     N'Đặng Ngọc Linh', 
@@ -270,7 +217,63 @@ VALUES (
     GETDATE()
 );
 
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Nguyen Tung Doanh', 
+    'NguyenTungDoanh', 
+    '/images/templates/TungDoanh.jpg', 
+    1, 
+    1, 
+    N'Designer, Hiện đại, 2 cột', 
+    GETDATE()
+);
+GO
 
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Trương Mỹ Linh', 
+    'TruongMyLinh', 
+    '/images/templates/TruongMyLinh.png', 
+    1, 
+    1, 
+    N'Nhân sự, Quản lý', 
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Basic Blue',
+    'BasicBlue',
+    '/images/templates/BasicBlue.png',
+    1,
+    1,
+    N'Kinh doanh, Marketing, Chuyên nghiệp',
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Vũ Hoàng Việt', 
+    'VuHoangViet', 
+    'https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?t=1763719062&color=3C9B68&template_name=student_3&lang=vi',
+    1,                                        -- Premium
+    1,                                        -- Active
+    N'Kế toán, Thực tập, Chuyên nghiệp', 
+    GETDATE()
+);
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Nguyễn Khánh Huyền', 
+    'NguyenKhanhHuyen', 
+    '/images/templates/NguyenKhanhHuyen.png', -- Đường dẫn ảnh preview sau khi chụp mẫu
+    1,                                        -- 1: Mẫu Premium Pro
+    1,                                        -- 1: Đang hoạt động
+    N'Kế toán, Chuyên nghiệp, Văn phòng', 
+    GETDATE()
+);
 
 -- 1. Thông tin công ty
 CREATE TABLE Companies (
