@@ -12,6 +12,18 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+-- Thêm template Vũ Hoàng Việt vào VueTemplates
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Vũ Hoàng Việt', 
+    'VuHoangViet', 
+    'https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?t=1763719062&color=3C9B68&template_name=student_3&lang=vi',
+    1,                                        -- Premium
+    1,                                        -- Active
+    N'Kế toán, Thực tập, Chuyên nghiệp', 
+    GETDATE()
+);
+
 -- Chèn mẫu CV Nguyễn Khánh Huyền vào bảng VueTemplates
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
