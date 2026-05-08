@@ -12,6 +12,21 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+-- Chèn mẫu CV Trương Mỹ Linh vào bảng VueTemplates
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Trương Mỹ Linh', 
+    'TruongMyLinh', 
+    '/images/templates/TruongMyLinh.png', 
+    1, 
+    1, 
+    N'Nhân sự, Quản lý', 
+    GETDATE()
+);
+GO
+
+
+
 -- Chèn mẫu CV Nguyễn Khánh Huyền vào bảng VueTemplates
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
