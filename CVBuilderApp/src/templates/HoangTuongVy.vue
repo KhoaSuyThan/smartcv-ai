@@ -10,9 +10,9 @@
     <aside class="w-[75mm] z-10 flex flex-col shrink-0 relative bg-[#e5e7eb]">
       
       <!-- HEADER LEFT -->
-      <div class="pt-[15mm] px-[8mm] flex flex-col items-center paginated-item relative z-20">
-        <h1 class="font-bold text-[28px] text-center text-[#222] leading-tight mb-1" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HOÀNG TƯỜNG VY'"></h1>
-        <h2 class="font-normal text-[16px] text-center text-[#444] mb-6" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Content Marketing'"></h2>
+      <div class="pt-[20mm] px-[8mm] flex flex-col items-center paginated-item relative z-20">
+        <h1 class="font-bold text-[22px] text-center text-[#222] leading-tight mb-1" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HOÀNG TƯỜNG VY'"></h1>
+        <h2 class="font-normal text-[13.5px] text-center text-[#444] mb-6" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Content Marketing'"></h2>
 
         <!-- Avatar -->
         <div class="relative w-[48mm] h-[48mm] rounded-full overflow-hidden mb-8 mx-auto border-4 border-white shadow-md bg-white">
@@ -26,16 +26,16 @@
       </div>
 
       <!-- SIDEBAR SECTIONS -->
-      <div class="w-full flex-1 pb-8 flex flex-col">
+      <div class="w-full flex-1 pb-[20mm] flex flex-col">
         <!-- FIXED CONTACT INFO SECTION (Bản chất nó là thông tin cá nhân) -->
-        <div class="section-block relative group mb-4 px-[8mm]">
+        <div class="section-block relative group" style="margin-bottom: 15mm;">
           <div class="paginated-item">
             <h3 class="section-title text-white font-bold uppercase tracking-wider text-center py-2 mb-4" style="background-color: #2b2b2b; font-size: 14px !important;">
               THÔNG TIN CÁ NHÂN
             </h3>
           </div>
           
-          <div class="flex flex-col w-full font-medium text-[#333] space-y-3" style="font-size: 11.5px !important">
+          <div class="flex flex-col w-full font-medium text-[#333] space-y-3 px-3" style="font-size: 11.5px !important">
             <div class="flex items-start gap-3 paginated-item" v-if="!isEmpty(resumeData.general.phone)">
               <div class="w-5 font-bold text-[#444] shrink-0 text-center">M</div>
               <span class="break-all flex-1 pt-[1px]" v-html="resumeData.general.phone"></span>
@@ -62,7 +62,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group mb-4 px-[8mm]"
+            class="section-block relative group" style="margin-bottom: 15mm;"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="toggleSection(section.id)"
           >
@@ -87,9 +87,14 @@
               </h3>
             </div>
 
-            <div class="space-y-4" v-if="sectionHasContent(section)">
-              <!-- Education in Sidebar -->
-              <div v-if="section.id === 'education'" class="space-y-4 relative">
+            <div class="space-y-4 px-3" v-if="sectionHasContent(section)">
+              <!-- Summary -->
+              <div v-if="section.id === 'summary'">
+                <div class="leading-relaxed text-justify html-content font-medium text-[#444]" style="font-size: 11.5px !important" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mục tiêu nghề nghiệp...')"></div>
+              </div>
+
+              <!-- Education -->
+              <div v-else-if="section.id === 'education'" class="space-y-4 relative">
                 <div class="absolute left-[3px] top-1 bottom-4 w-[1px] bg-[#444] z-0 opacity-20"></div>
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-[14px]">
                   <div class="paginated-item relative z-10">
@@ -114,15 +119,60 @@
                 </div>
               </div>
 
-              <!-- Skills -->
-              <div v-else-if="['skills', 'languages'].includes(section.id)" class="space-y-1.5">
+              <!-- Experience / Activities / Projects -->
+              <div v-else-if="['experience','activities','project'].includes(section.id)" class="space-y-4 relative">
+                <div class="absolute left-[3px] top-1 bottom-4 w-[1px] bg-[#444] z-0 opacity-20"></div>
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-[14px]">
+                  <div class="paginated-item relative z-10">
+                    <div class="absolute -left-[14px] top-1.5 w-2 h-2 rounded-full bg-[#444]"></div>
+                    <div class="flex justify-between items-start gap-2 mb-1">
+                      <h4 class="text-[#333] font-bold" style="font-size: 12px !important">
+                        <span v-html="section.id === 'experience' ? item.company : (item.name || item.organization)"></span>
+                      </h4>
+                    </div>
+                    <div class="flex justify-between items-start gap-2 mb-1">
+                      <span class="font-normal text-[#555] uppercase tracking-wide" style="font-size: 10.5px !important">{{ section.id === 'experience' ? item.role : (item.role || item.position || '') }}</span>
+                      <span v-if="item.time" class="font-normal text-[#555] shrink-0" style="font-size: 10px !important">{{ item.time }}</span>
+                    </div>
+                  </div>
+                  <div class="leading-relaxed text-[#444] text-justify html-content mt-1" style="font-size: 11px !important" v-html="formatDesc(item.desc)"></div>
+                  <transition name="fade-btns">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
+                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </transition>
+                </div>
+              </div>
+
+              <!-- Certifications / Awards -->
+              <div v-else-if="['certifications', 'awards'].includes(section.id)" class="space-y-3 relative">
+                <div class="absolute left-[3px] top-1 bottom-4 w-[1px] bg-[#444] z-0 opacity-20"></div>
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-[14px]">
+                  <div class="paginated-item relative z-10">
+                    <div class="absolute -left-[14px] top-1.5 w-2 h-2 rounded-full bg-[#444]"></div>
+                    <div v-if="item.year" class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important">{{ item.year }}</div>
+                    <div class="font-normal text-[#444] html-content" style="font-size: 11px !important">{{ item.name || item.info }}</div>
+                  </div>
+                  <transition name="fade-btns">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
+                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </transition>
+                </div>
+              </div>
+
+              <!-- Skills / IT Skills / Languages -->
+              <div v-else-if="['skill', 'lang'].some(k => section.id.toLowerCase().includes(k))" class="space-y-1.5">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
                   class="paginated-item text-[#333] item-container font-medium uppercase leading-snug"
                   style="font-size: 11px !important"
                 >
-                  <div class="font-bold text-[#333]">{{ item.name }}</div>
+                  <div class="flex justify-between items-center w-full">
+                    <span class="font-bold text-[#333]">{{ item.name }}</span>
+                    <span v-if="item.level || item.info" class="font-normal text-[#666] normal-case italic" style="font-size: 10px !important">{{ item.level || item.info }}</span>
+                  </div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -132,12 +182,10 @@
               </div>
 
               <!-- References -->
-              <div v-else-if="section.id === 'references'" class="space-y-3">
+              <div v-else-if="section.id.toLowerCase().includes('reference')" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed">
-                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important">{{ item.name }} <span v-if="item.role" class="font-normal text-[#555]">- {{ item.role }}</span></div>
-                  <div v-if="item.company" class="text-[#555] font-normal" style="font-size: 11px !important">{{ item.company }}</div>
-                  <div v-if="item.phone" class="text-[#555] font-normal" style="font-size: 11px !important">Tel.: {{ item.phone }}</div>
-                  <div v-if="item.email" class="text-[#555] font-normal" style="font-size: 11px !important">Email: {{ item.email }}</div>
+                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important">{{ item.name }} <span v-if="item.role || item.title" class="font-normal text-[#555]">- {{ item.role || item.title }}</span></div>
+                  <div class="text-[#555] font-normal html-content" style="font-size: 11px !important" v-html="formatDesc(item.contact || item.info || item.desc)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -182,11 +230,11 @@
 
     <!-- RIGHT COLUMN -->
     <main class="flex-1 flex flex-col relative bg-white z-20" @click.self="selectedSectionId = null">
-      <div class="px-[10mm] pt-[15mm] pb-[8mm] flex-1 flex flex-col">
+      <div class="px-[10mm] pt-[20mm] pb-[20mm] flex-1 flex flex-col">
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group mb-6"
+            class="section-block relative group" style="margin-bottom: 15mm;"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="toggleSection(section.id)"
           >
@@ -211,15 +259,40 @@
               </h3>
             </div>
 
-            <!-- Summary -->
-            <div v-if="section.id === 'summary'" class="px-1">
-              <div class="leading-relaxed text-justify html-content font-medium text-[#444]" style="font-size: 12px !important" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mục tiêu nghề nghiệp...')"></div>
-            </div>
+            <div class="px-1 space-y-5" v-if="sectionHasContent(section)">
+              <!-- Summary -->
+              <div v-if="section.id === 'summary'">
+                <div class="leading-relaxed text-justify html-content font-medium text-[#444]" style="font-size: 12px !important" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mục tiêu nghề nghiệp...')"></div>
+              </div>
 
-            <div class="px-1 space-y-5" v-if="sectionHasContent(section) && section.id !== 'summary'">
-              
+              <!-- Education -->
+              <div v-else-if="section.id === 'education'" class="space-y-4 relative">
+                <div class="absolute left-[3px] top-2 bottom-4 w-[1px] bg-[#444] z-0 opacity-20"></div>
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-5">
+                  <div class="paginated-item relative z-10">
+                    <div class="absolute -left-5 top-1.5 w-2 h-2 rounded-full bg-[#444]"></div>
+                    <div class="flex justify-between items-start gap-4 mb-0.5">
+                      <h4 class="text-[#222] font-bold" style="font-size: 13px !important">
+                        <span v-html="item.school"></span>
+                      </h4>
+                      <span v-if="item.year" class="font-bold text-[#333] shrink-0" style="font-size: 12px !important">{{ item.year }}</span>
+                    </div>
+                    <div v-if="item.major" class="font-normal text-[#555] mb-1" style="font-size: 12px !important">{{ item.major }}</div>
+                    <div v-if="item.gradType" class="text-[#555] font-normal" style="font-size: 11.5px !important">
+                      Xếp loại: <span class="font-bold">{{ item.gradType }}</span>
+                    </div>
+                  </div>
+                  <div class="leading-[1.6] text-[#444] html-content mt-1" style="font-size: 12px !important" v-html="formatDesc(item.desc)"></div>
+                  <transition name="fade-btns">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
+                      <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </transition>
+                </div>
+              </div>
+
               <!-- Experience / Activities / Projects -->
-              <div v-if="['experience','activities','project'].includes(section.id)" class="space-y-4 relative">
+              <div v-else-if="['experience','activities','project'].includes(section.id)" class="space-y-4 relative">
                 <div class="absolute left-[3px] top-2 bottom-4 w-[1px] bg-[#444] z-0 opacity-20"></div>
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-5">
                   <div class="paginated-item relative z-10">
@@ -255,6 +328,53 @@
                       <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                   </transition>
+                </div>
+              </div>
+
+              <!-- Skills / IT Skills / Languages -->
+              <div v-else-if="['skill', 'lang'].some(k => section.id.toLowerCase().includes(k))" class="space-y-1.5">
+                <div
+                  v-for="(item, itemIndex) in section.items"
+                  :key="item._refId"
+                  class="paginated-item text-[#333] item-container font-medium uppercase leading-snug"
+                  style="font-size: 12px !important"
+                >
+                  <div class="flex justify-between items-center w-full">
+                    <span class="font-bold text-[#333]">{{ item.name }}</span>
+                    <span v-if="item.level || item.info" class="font-normal text-[#666] normal-case italic" style="font-size: 11px !important">{{ item.level || item.info }}</span>
+                  </div>
+                  <transition name="fade-btns">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
+                      <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </transition>
+                </div>
+              </div>
+
+              <!-- References -->
+              <div v-else-if="section.id.toLowerCase().includes('reference')" class="space-y-3">
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed">
+                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 13px !important">{{ item.name }} <span v-if="item.role || item.title" class="font-normal text-[#555]">- {{ item.role || item.title }}</span></div>
+                  <div class="text-[#555] font-normal html-content" style="font-size: 12px !important" v-html="formatDesc(item.contact || item.info || item.desc)"></div>
+                  <transition name="fade-btns">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
+                      <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                  </transition>
+                </div>
+              </div>
+
+              <!-- Hobbies -->
+              <div v-else-if="section.id === 'hobbies'" class="space-y-1">
+                <div class="text-[#333] font-normal leading-relaxed text-justify" style="font-size: 12px !important">
+                  <span v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container inline-block mr-1 relative">
+                    {{ item.name }}<span v-if="itemIndex < section.items.length - 1"> - </span>
+                    <transition name="fade-btns">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
+                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </transition>
+                  </span>
                 </div>
               </div>
 
@@ -323,6 +443,7 @@ const isEmpty = (val) => {
 
 const sectionHasContent = (section) => {
   if (!section) return false
+  if (section.id === 'summary') return !isEmpty(props.resumeData?.general?.summary)
   return section.items && section.items.length > 0
 }
 
@@ -376,10 +497,10 @@ const formatDesc = (text) => {
 }
 
 const sidebarSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'left' && !['summary'].includes(s.id))
+  props.resumeData.sections.filter(s => s.column === 'left')
 )
 const mainSections = computed(() => 
-  props.resumeData.sections.filter(s => s.column === 'right' || s.id === 'summary')
+  props.resumeData.sections.filter(s => s.column === 'right')
 )
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
@@ -403,8 +524,8 @@ const doPagination = async () => {
   const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM
   const pageH = A4_H_MM * pxPerMm
   
-  const bottomSafeZone = 14 * pxPerMm 
-  const topMargin = 8 * pxPerMm 
+  const bottomSafeZone = 20 * pxPerMm 
+  const topMargin = 20 * pxPerMm 
 
   const getOffsetTop = (el) => {
     let offset = 0
@@ -425,6 +546,8 @@ const doPagination = async () => {
     if (bottomInPage > (pageH - bottomSafeZone)) {
        const distToNextPage = pageH - topInPage + topMargin
        el.style.marginTop = `${distToNextPage}px`
+    } else if (top > pageH && topInPage < topMargin) {
+       el.style.marginTop = `${topMargin - topInPage}px`
     }
   })
 
@@ -440,14 +563,16 @@ watch(() => props.resumeData, requestPagination, { deep: true })
 
 onMounted(() => {
   // Chỉ bật hiển thị các section đúng theo mẫu
-  const visibleLeft = ['education', 'skills', 'references', 'hobbies']
-  const visibleRight = ['summary', 'experience', 'activities', 'certifications', 'awards']
+  const isLeft = (id) => ['education', 'skill', 'reference', 'hobbi', 'lang'].some(k => id.toLowerCase().includes(k))
+  const isRight = (id) => ['summary', 'experience', 'activit', 'cert', 'award'].some(k => id.toLowerCase().includes(k))
   
   props.resumeData?.sections?.forEach(sec => {
-    if ([...visibleLeft, ...visibleRight].includes(sec.id)) {
+    if (isLeft(sec.id)) {
       sec.isVisible = true
-      if (visibleLeft.includes(sec.id)) sec.column = 'left'
-      if (visibleRight.includes(sec.id)) sec.column = 'right'
+      sec.column = 'left'
+    } else if (isRight(sec.id)) {
+      sec.isVisible = true
+      sec.column = 'right'
     } else {
       sec.isVisible = false
     }
