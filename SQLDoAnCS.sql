@@ -12,119 +12,18 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
---Nhớ chạy nha các cậu
-INSERT INTO VueTemplates (
-    TemplateName, 
-    ComponentName, 
-    ThumbnailUrl, 
-    IsPremium, 
-    IsActive, 
-    Category, 
-    CreatedAt
-)
-VALUES (
-    N'Hoàng Tường Vy', 
-    'HoangTuongVy', 
-    '/images/templates/HoangTuongVy.png', -- Nhớ upload ảnh mẫu của template vào đường dẫn này
-    1, -- Đặt 1 nếu mẫu này là Premium, 0 nếu miễn phí
-    1, 
-    N'Marketing', 
-    GETDATE()
-);
-GO
-
+-- Chèn mẫu CV Nguyễn Khánh Huyền vào bảng VueTemplates
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
-    N'Pastel Beige Blocks', 
-    'PastelBeigeBlocks', -- Tên file component Vue của bạn (ví dụ: PastelBeigeBlocks.vue)
-    '/images/templates/PastelBeigeBlocks.png', -- Bạn thay bằng link ảnh chụp mẫu CV này nhé
-    0,                                        -- 0: Mẫu miễn phí (hoặc 1 nếu bạn muốn thu phí)
-    1,                                        -- Trạng thái hoạt động
-    N'Sáng tạo, Marketing, Hiện đại', 
-    GETDATE()
-);
-GO
-
-INSERT INTO VueTemplates (
-    TemplateName, 
-    ComponentName, 
-    ThumbnailUrl, 
-    IsPremium, 
-    IsActive, 
-    Category, 
-    CreatedAt
-)
-
-VALUES (
-    N'Nguyễn Thành Nhất Nam',                  -- Tên mẫu hiển thị trên giao diện chọn mẫu
-    N'NguyenThanhNhatNam',                     -- Tên file Vue (không kèm đuôi .vue)
-    N'/images/templates/56b4434b_z7706213773805_d32e4083943d756e77acee513997f69a.jpg', -- Đường dẫn ảnh preview (bạn có thể thay thế ảnh demo nếu cần)
-    1,                                         -- 1: Mẫu Premium (hoặc đặt 0 nếu muốn miễn phí)
-    1,                                         -- 1: Trạng thái kích hoạt hoạt động
-    N'IT, Thực tập, Thiết kế tối giản',        -- Thể loại tìm kiếm lọc mẫu
-    GETDATE()                                  -- Thời gian tạo
-);
-GO
-
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Lê Chiến', 
-    'LeChien', 
-    'https://www.topcv.vn/cv/snapshot/template-cv-position/mau-cv-lap-trinh-vien-mau-thanh-lich-Xl5SXVReBF0VGg0PRFkVBwhSXFADDQIBAAEGA1MNWlYEV1NXUloACgQDUVABBQ1VUAEHGRYEAVIBWwBV4801.webp?t=1749574801', -- Đường dẫn ảnh preview
-    1,                                        -- 1: Mẫu Premium
-    1,                                        -- Trạng thái hoạt động
-    N'IT, Lập trình viên, Senior', 
-    GETDATE()
-);
-GO
--- NHớ chạy nhé !!
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Trần Đức Huy', 
-    'TranDucHuy',  -- Phải khớp chính xác với tên file TranDucHuy.vue
-    '/images/templates/tran-duc-huy.png', 
-    1,             -- 0 là miễn phí, 1 là Premium
-    1,             -- 1 là Active
-    N'IT, Lập trình viên', 
+    N'Nguyễn Khánh Huyền', 
+    'NguyenKhanhHuyen', 
+    '/images/templates/NguyenKhanhHuyen.png', -- Đường dẫn ảnh preview sau khi chụp mẫu
+    1,                                        -- 1: Mẫu Premium Pro
+    1,                                        -- 1: Đang hoạt động
+    N'Kế toán, Chuyên nghiệp, Văn phòng', 
     GETDATE()
 );
 
--- Nhớ chạy data để lưu 
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Đặng Ngọc Linh', 
-    'DangNgocLinh', 
-    '/images/templates/DangNgocLinh.webp', 
-    1, 
-    1, 
-    N'Nhân sự, Tư vấn, Chăm sóc khách hàng', 
-    GETDATE()
-);
-GO
-
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Trần Mạnh Dũng', 
-    'TranManhDung', 
-    '/images/templates/template_b5b27380.webp', -- Đường dẫn ảnh thu nhỏ hiển thị ở trang chọn mẫu
-    1,                                     -- 1: Mẫu Premium (hoặc đặt 0 nếu muốn miễn phí)
-    1,                                     -- Kích hoạt mẫu hoạt động
-    N'Marketing, Sáng tạo, Chuyên nghiệp', 
-    GETDATE()
-);
-GO
--- Chạy
-
-INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
-VALUES (
-    N'Đinh Xuân Thảo', 
-    'DinhXuanThao', 
-    '/img/cv-thumbnails/DinhXuanThao.png', 
-    0, 
-    1, 
-    'Professional', 
-    GETDATE()
-);
 
 
 USE DoAnWebCS;
@@ -223,6 +122,105 @@ VALUES (
     N'IT, Kinh tế, Marketing', 
     GETDATE()
 );
+INSERT INTO VueTemplates (
+    TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Hoàng Tường Vy', 
+    'HoangTuongVy', 
+    '/images/templates/HoangTuongVy.png', -- Nhớ upload ảnh mẫu của template vào đường dẫn này
+    1, -- Đặt 1 nếu mẫu này là Premium, 0 nếu miễn phí
+    1, 
+    N'Marketing', 
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Pastel Beige Blocks', 
+    'PastelBeigeBlocks', -- Tên file component Vue của bạn (ví dụ: PastelBeigeBlocks.vue)
+    '/images/templates/PastelBeigeBlocks.png', -- Bạn thay bằng link ảnh chụp mẫu CV này nhé
+    0,                                        -- 0: Mẫu miễn phí (hoặc 1 nếu bạn muốn thu phí)
+    1,                                        -- Trạng thái hoạt động
+    N'Sáng tạo, Marketing, Hiện đại', 
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (
+    TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Nguyễn Thành Nhất Nam',                  -- Tên mẫu hiển thị trên giao diện chọn mẫu
+    N'NguyenThanhNhatNam',                     -- Tên file Vue (không kèm đuôi .vue)
+    N'/images/templates/56b4434b_z7706213773805_d32e4083943d756e77acee513997f69a.jpg', -- Đường dẫn ảnh preview (bạn có thể thay thế ảnh demo nếu cần)
+    1,                                         -- 1: Mẫu Premium (hoặc đặt 0 nếu muốn miễn phí)
+    1,                                         -- 1: Trạng thái kích hoạt hoạt động
+    N'IT, Thực tập, Thiết kế tối giản',        -- Thể loại tìm kiếm lọc mẫu
+    GETDATE()                                  -- Thời gian tạo
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Lê Chiến', 
+    'LeChien', 
+    'https://www.topcv.vn/cv/snapshot/template-cv-position/mau-cv-lap-trinh-vien-mau-thanh-lich-Xl5SXVReBF0VGg0PRFkVBwhSXFADDQIBAAEGA1MNWlYEV1NXUloACgQDUVABBQ1VUAEHGRYEAVIBWwBV4801.webp?t=1749574801', -- Đường dẫn ảnh preview
+    1,                                        -- 1: Mẫu Premium
+    1,                                        -- Trạng thái hoạt động
+    N'IT, Lập trình viên, Senior', 
+    GETDATE()
+);
+GO
+-- NHớ chạy nhé !!
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Trần Đức Huy', 
+    'TranDucHuy',  -- Phải khớp chính xác với tên file TranDucHuy.vue
+    '/images/templates/tran-duc-huy.png', 
+    1,             -- 0 là miễn phí, 1 là Premium
+    1,             -- 1 là Active
+    N'IT, Lập trình viên', 
+    GETDATE()
+);
+
+-- Nhớ chạy data để lưu 
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Đặng Ngọc Linh', 
+    'DangNgocLinh', 
+    '/images/templates/DangNgocLinh.webp', 
+    1, 
+    1, 
+    N'Nhân sự, Tư vấn, Chăm sóc khách hàng', 
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Trần Mạnh Dũng', 
+    'TranManhDung', 
+    '/images/templates/template_b5b27380.webp', -- Đường dẫn ảnh thu nhỏ hiển thị ở trang chọn mẫu
+    1,                                     -- 1: Mẫu Premium (hoặc đặt 0 nếu muốn miễn phí)
+    1,                                     -- Kích hoạt mẫu hoạt động
+    N'Marketing, Sáng tạo, Chuyên nghiệp', 
+    GETDATE()
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Đinh Xuân Thảo', 
+    'DinhXuanThao', 
+    '/img/cv-thumbnails/DinhXuanThao.png', 
+    0, 
+    1, 
+    'Professional', 
+    GETDATE()
+);
+
+
+
 -- 1. Thông tin công ty
 CREATE TABLE Companies (
     CompanyID INT PRIMARY KEY IDENTITY(1,1),
