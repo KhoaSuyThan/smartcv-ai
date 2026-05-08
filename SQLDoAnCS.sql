@@ -25,6 +25,18 @@ VALUES (
 );
 GO
 
+-- Thêm mẫu basic blue vào VueTemplates
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Basic Blue',
+    'BasicBlue',
+    '/images/templates/BasicBlue.png',
+    1,
+    1,
+    N'Kinh doanh, Marketing, Chuyên nghiệp',
+    GETDATE()
+);
+GO
 
 
 -- Thêm template Vũ Hoàng Việt vào VueTemplates
