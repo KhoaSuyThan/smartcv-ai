@@ -12,7 +12,17 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
---Nhớ chạy nha các cậu
+-- Chèn mẫu CV Nguyễn Khánh Huyền vào bảng VueTemplates
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Nguyễn Khánh Huyền', 
+    'NguyenKhanhHuyen', 
+    '/images/templates/NguyenKhanhHuyen.png', -- Đường dẫn ảnh preview sau khi chụp mẫu
+    1,                                        -- 1: Mẫu Premium Pro
+    1,                                        -- 1: Đang hoạt động
+    N'Kế toán, Chuyên nghiệp, Văn phòng', 
+    GETDATE()
+);
 
 
 
