@@ -2,138 +2,148 @@
   <div
     id="cv-printable-area"
     ref="cvRoot"
-    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
     :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
     @click.self="selectedSectionId = null"
   >
-    <!-- LEFT COLUMN (SIDEBAR) -->
-    <aside class="w-[72mm] shrink-0 bg-white flex flex-col pt-[12mm] pb-[10mm] px-[6mm] items-center gap-[2mm] z-10">
-      
-      <!-- Avatar Circular -->
-      <div class="relative w-[45mm] h-[45mm] rounded-full overflow-hidden border-[4px] shadow-md bg-slate-100 shrink-0" :style="{ borderColor: templatePrimaryColor }">
-        <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
-          <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-        </div>
-      </div>
-
-      <!-- Contact Items -->
-      <div class="w-full flex flex-col gap-[1.5mm] text-center" style="margin:0;padding:0;">
-        <div v-if="!isEmpty(resumeData.general.gender)" style="margin:0;padding:0;">
-          <p class="text-[10px] italic text-gray-400" style="margin:0;padding:0;">Giới tính</p>
-          <p class="text-[14px] font-bold text-gray-800" style="margin:0;padding:0;" v-html="resumeData.general.gender"></p>
-        </div>
-        <div v-if="!isEmpty(resumeData.general.birthDate)" style="margin:0;padding:0;">
-          <p class="text-[10px] italic text-gray-400" style="margin:0;padding:0;">Ngày sinh</p>
-          <p class="text-[14px] font-bold text-gray-800" style="margin:0;padding:0;" v-html="resumeData.general.birthDate"></p>
-        </div>
-        <div v-if="!isEmpty(resumeData.general.email)" style="margin:0;padding:0;">
-          <p class="text-[10px] italic text-gray-400" style="margin:0;padding:0;">Email:</p>
-          <p class="text-[14px] font-bold text-gray-800 break-all" style="margin:0;padding:0;" v-html="resumeData.general.email"></p>
-        </div>
-        <div v-if="!isEmpty(resumeData.general.phone)" style="margin:0;padding:0;">
-          <p class="text-[10px] italic text-gray-400" style="margin:0;padding:0;">Điện thoại:</p>
-          <p class="text-[14px] font-bold text-gray-800" style="margin:0;padding:0;" v-html="resumeData.general.phone"></p>
-        </div>
-        <div v-if="!isEmpty(resumeData.general.address)" style="margin:0;padding:0;">
-          <p class="text-[10px] italic text-gray-400" style="margin:0;padding:0;">Địa chỉ:</p>
-          <p class="text-[14px] font-bold text-gray-800" style="margin:0;padding:0;" v-html="resumeData.general.address"></p>
-        </div>
-      </div>
-
-      <!-- Sidebar Dynamic Sections (Awards & References) -->
-      <div class="w-full flex flex-col gap-6">
-        <template v-for="section in sidebarSections" :key="section.id">
-          <div
-            v-if="section.isVisible"
-            class="section-block relative w-full -mx-[6mm] px-[6mm] py-[3mm]"
-            :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
-            @click.stop="toggleSection(section.id)"
-          >
-            <!-- Navigation buttons -->
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" @click.stop>
-                <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
-                </button>
-                <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang phải">
-                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-                </button>
-              </div>
-            </transition>
-
-            <!-- Section Title Pill -->
-            <div class="paginated-item">
-              <h3 
-                class="section-title text-white py-[5px] pl-[16px] pr-4 rounded-r-full font-bold uppercase tracking-wide mb-3 shrink-0 shadow-sm -ml-[6mm] w-[110%]"
-                :style="{ backgroundColor: templatePrimaryColor, fontSize: '15px' }"
-              >
-                {{ section.title }}
-              </h3>
-            </div>
-
-            <!-- Section Content -->
-            <div class="space-y-4 pl-[20px] pr-1" v-if="sectionHasContent(section)">
-              <!-- Awards (Danh hiệu và giải thưởng) -->
-              <div v-if="section.id.toLowerCase().includes('award') || section.id.toLowerCase().includes('cert')" class="space-y-4">
-                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed relative text-slate-700 text-[12.5px]">
-                  <p v-if="item.year" class="font-bold text-slate-900 mb-0.5">{{ item.year }}:</p>
-                  <div class="font-normal html-content" v-html="formatDesc(item.name || item.info || item.desc)"></div>
-                  <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
-                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                  </transition>
-                </div>
-              </div>
-
-              <!-- References (Người tham chiếu) -->
-              <div v-else-if="section.id.toLowerCase().includes('reference')" class="space-y-4">
-                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed relative text-slate-700 text-[12px] font-medium">
-                  <div class="html-content" v-html="formatDesc(item.info || item.desc || item.name)"></div>
-                  <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
-                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                  </transition>
-                </div>
-              </div>
-
-              <!-- Fallback rendering for any other sidebar section -->
-              <div v-else class="space-y-3">
-                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative text-slate-700 text-[12.5px] leading-relaxed">
-                  <div class="font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school">{{ item.name || item.title || item.company || item.school }}</div>
-                  <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
-                  <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
-                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                  </transition>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
-    </aside>
-
-    <!-- RIGHT COLUMN (MAIN CONTENT) -->
-    <main class="flex-1 flex flex-col relative bg-white z-20 min-h-max" @click.self="selectedSectionId = null">
-      
-      <!-- Orange Banner Header (Vibrant Orange matching the image) -->
-      <header
-        class="paginated-item pt-[16mm] px-[12mm] pb-[10mm] flex flex-col justify-center min-h-[48mm] shrink-0"
-        :style="{ backgroundColor: templatePrimaryColor, color: 'white' }"
-      >
+    <!-- FULL WIDTH HEADER (Orange Banner) -->
+    <header
+      class="paginated-item relative w-full h-[45mm] flex items-center shrink-0 z-10"
+      :style="{ backgroundColor: templatePrimaryColor, color: 'white' }"
+    >
+      <!-- Name & Job Title Container starting at 72mm -->
+      <div class="flex-1 pl-[72mm] pr-[12mm] flex flex-col justify-center">
         <h1 class="font-extrabold uppercase tracking-wide mb-1 leading-tight !text-[28px]" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
         <h2 class="font-medium uppercase tracking-[0.15em] text-white/90 !text-[16px] mt-1" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
-      </header>
+      </div>
+    </header>
+
+    <!-- TWO COLUMN BODY -->
+    <div class="flex flex-row flex-1 w-full relative min-h-max z-20" @click.self="selectedSectionId = null">
+      <!-- LEFT COLUMN (SIDEBAR) -->
+      <aside class="w-[72mm] shrink-0 bg-[#fafafa] flex flex-col pt-[102mm] pb-[10mm] px-[6mm] items-center gap-[2mm] z-30 relative">
+        
+        <!-- Capsule Container (Avatar + Personal Info in a capsule/ellipse shape) -->
+        <div 
+          class="absolute top-[-22.5mm] left-[6mm] w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center pt-[6mm] pb-[10mm] px-[4mm] gap-[3mm] z-30"
+        >
+          <!-- Avatar Circular -->
+          <div class="relative w-[45mm] h-[45mm] rounded-full overflow-hidden border-[4px] border-[#fafafa] shadow-inner bg-slate-100 shrink-0">
+            <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
+              <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Contact Items -->
+          <div class="w-full flex flex-col gap-[3mm] text-center" style="margin:0;padding:0;">
+            <div v-if="!isEmpty(resumeData.general.gender)" style="margin:0;padding:0;">
+              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Giới tính</p>
+              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.gender"></p>
+            </div>
+            <div v-if="!isEmpty(resumeData.general.birthDate)" style="margin:0;padding:0;">
+              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Ngày sinh</p>
+              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.birthDate"></p>
+            </div>
+            <div v-if="!isEmpty(resumeData.general.email)" style="margin:0;padding:0;">
+              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Email</p>
+              <p class="text-[13px] font-bold text-gray-800 break-all px-2 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.email"></p>
+            </div>
+            <div v-if="!isEmpty(resumeData.general.phone)" style="margin:0;padding:0;">
+              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Điện thoại</p>
+              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.phone"></p>
+            </div>
+            <div v-if="!isEmpty(resumeData.general.address)" style="margin:0;padding:0;">
+              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Địa chỉ</p>
+              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.address"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar Dynamic Sections (Awards & References) -->
+        <div class="w-full flex flex-col gap-6">
+          <template v-for="section in sidebarSections" :key="section.id">
+            <div
+              v-if="section.isVisible"
+              class="section-block relative w-full -mx-[6mm] px-[6mm] py-[3mm]"
+              :class="{ 'section-active': selectedSectionId === section.id }"
+              :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
+              @click.stop="toggleSection(section.id)"
+            >
+              <!-- Navigation buttons -->
+              <transition name="fade-btns">
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" @click.stop>
+                  <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                  </button>
+                  <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                  </button>
+                  <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang phải">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                </div>
+              </transition>
+
+              <!-- Section Title Pill -->
+              <div class="paginated-item">
+                <h3 
+                  class="section-title text-white py-[5px] pl-[16px] pr-4 rounded-r-full font-bold uppercase tracking-wide mb-3 shrink-0 shadow-sm -ml-[6mm] w-[110%]"
+                  :style="{ backgroundColor: templatePrimaryColor, fontSize: '15px' }"
+                >
+                  {{ section.title }}
+                </h3>
+              </div>
+
+              <!-- Section Content -->
+              <div class="space-y-4 pl-[20px] pr-1" v-if="sectionHasContent(section)">
+                <!-- Awards (Danh hiệu và giải thưởng) -->
+                <div v-if="section.id.toLowerCase().includes('award') || section.id.toLowerCase().includes('cert')" class="space-y-4">
+                  <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed relative text-slate-700 text-[12.5px]">
+                    <p v-if="item.year" class="font-bold text-slate-900 mb-0.5">{{ item.year }}:</p>
+                    <div class="font-normal html-content" v-html="formatDesc(item.name || item.info || item.desc)"></div>
+                    <transition name="fade-btns">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </transition>
+                  </div>
+                </div>
+
+                <!-- References (Người tham chiếu) -->
+                <div v-else-if="section.id.toLowerCase().includes('reference')" class="space-y-4">
+                  <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed relative text-slate-700 text-[12px] font-medium">
+                    <div class="html-content" v-html="formatDesc(item.info || item.desc || item.name)"></div>
+                    <transition name="fade-btns">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </transition>
+                  </div>
+                </div>
+
+                <!-- Fallback rendering for any other sidebar section -->
+                <div v-else class="space-y-3">
+                  <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative text-slate-700 text-[12.5px] leading-relaxed">
+                    <div class="font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school">{{ item.name || item.title || item.company || item.school }}</div>
+                    <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
+                    <transition name="fade-btns">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
+                        <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </transition>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN (MAIN CONTENT) -->
+      <main class="flex-1 flex flex-col relative bg-white z-20 min-h-max" @click.self="selectedSectionId = null">
 
       <!-- Main Column Dynamic Sections (Summary, Education, Experience) -->
       <div class="px-[12mm] pt-[10mm] pb-[10mm] flex-1 flex flex-col gap-[8mm]">
@@ -240,8 +250,9 @@
         </template>
       </div>
     </main>
+  </div>
 
-    <!-- FIXED PAGE BORDER DECORATORS -->
+  <!-- FIXED PAGE BORDER DECORATORS -->
     <template v-for="p in pageCount" :key="'footer-border-' + p">
       <div
         class="absolute left-0 w-full flex items-center z-40 pointer-events-none"
