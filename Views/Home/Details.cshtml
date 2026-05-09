@@ -1,21 +1,167 @@
 @model DoAnCS.Models.JobDto
 
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .job-detail-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        border: none;
+    }
+
+    .company-logo-img {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        border-radius: 1rem;
+        border: 1px solid #f3f4f6;
+        background: #f8f9fa;
+        padding: 0.5rem;
+    }
+
+    .job-description {
+        color: #4b5563;
+        line-height: 1.8;
+        font-size: 1.05rem;
+    }
+
+    /* Buttons */
+    .btn-apply-1click {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-apply-1click:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+        color: white;
+    }
+    .btn-outline-primary {
+        color: #4f46e5;
+        border-color: #4f46e5;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-primary:hover {
+        background: #4f46e5;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+    }
+    .btn-login {
+        background: #e0e7ff;
+        color: #4338ca;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-login:hover {
+        background: #c7d2fe;
+        color: #3730a3;
+        transform: translateY(-2px);
+    }
+
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 1.5rem;
+        border: none;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .modal-header-gradient {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: white;
+        border-bottom: none;
+        padding: 1.5rem;
+        border-top-left-radius: 1.5rem;
+        border-top-right-radius: 1.5rem;
+    }
+    
+    .cursor-pointer { cursor: pointer; }
+    .transition-all { transition: all 0.2s ease-in-out; }
+    
+    .cv-card-inner {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 1rem !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .cv-card-inner:hover {
+        border-color: #a5b4fc !important;
+        background-color: #e0e7ff;
+        transform: translateY(-2px);
+    }
+    
+    .cv-card-inner.selected {
+        border-color: #4f46e5 !important;
+        border-width: 2px !important;
+        background-color: #e0e7ff;
+    }
+    
+    /* Custom Radio Styling */
+    .custom-radio {
+        width: 22px;
+        height: 22px;
+        border: 2px solid #d1d5db;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+    
+    .cv-card-inner.selected .custom-radio {
+        border-color: #4f46e5;
+    }
+    
+    .radio-dot {
+        width: 12px;
+        height: 12px;
+        background-color: #4f46e5;
+        border-radius: 50%;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.2s;
+    }
+    
+    .cv-card-inner.selected .radio-dot {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .cv-list-container::-webkit-scrollbar {
+        width: 6px;
+    }
+    .cv-list-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .cv-list-container::-webkit-scrollbar-track {
+        background: transparent;
+    }
+</style>
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm p-4" style="border-radius: 20px;">
-                <div class="d-flex align-items-center mb-4">
-                    <img src="@Model.employer_logo" class="me-3" style="width: 80px; border-radius: 12px; border: 1px solid #eee;">
+            <div class="card job-detail-card p-4 p-md-5">
+                <div class="d-flex align-items-center mb-4 flex-wrap">
+                    <img src="@Model.employer_logo" class="company-logo-img me-4 mb-3 mb-md-0" onerror="this.src='https://ui-avatars.com/api/?name=@(Model.employer_name)&background=e0e7ff&color=4338ca&size=80'">
                     <div>
-                        <h2 class="fw-bold mb-1">@Model.job_title</h2>
-                        <p class="text-primary mb-0">@Model.employer_name • @Model.job_city</p>
+                        <h2 class="fw-bold mb-2 text-dark">@Model.job_title</h2>
+                        <p class="mb-0 text-secondary fs-5">
+                            <i class='bx bx-building-house text-primary me-1'></i><span class="text-dark fw-bold me-3">@Model.employer_name</span>
+                            <i class='bx bx-map text-primary me-1'></i>@Model.job_city
+                        </p>
                     </div>
                 </div>
 
-                <hr class="text-muted opacity-25">
+                <hr class="text-muted opacity-25 my-4">
 
-                <h5 class="fw-bold mb-3">Mô tả công việc</h5>
-                <div class="job-description text-secondary" style="line-height: 1.8;">
+                <h5 class="fw-bold mb-3 text-dark"><i class='bx bx-detail text-primary me-2'></i>Mô tả công việc</h5>
+                <div class="job-description">
                     @Model.job_description
                 </div>
 
@@ -23,19 +169,19 @@
                     @if (!string.IsNullOrEmpty(Model.job_apply_link) && Model.job_apply_link != "#")
                     {
                         <a href="@Model.job_apply_link" target="_blank" class="btn btn-outline-primary btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 30%;">
-                            <i class="fas fa-external-link-alt me-2"></i>Website Công ty
+                            Website Công ty <i class="fas fa-external-link-alt ms-2"></i>
                         </a>
                     }
 
                     @if (User.Identity?.IsAuthenticated == true && User.IsInRole("User"))
                     {
-                        <button type="button" class="btn btn-primary btn-lg rounded-pill fw-bold flex-grow-1 shadow-sm" style="flex-basis: 60%;" data-bs-toggle="modal" data-bs-target="#applyModal">
+                        <button type="button" class="btn btn-apply-1click btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 60%;" data-bs-toggle="modal" data-bs-target="#applyModal">
                             Ứng tuyển nhanh 1-Click <i class="fas fa-paper-plane ms-2"></i>
                         </button>
                     }
                     else if (!User.Identity.IsAuthenticated)
                     {
-                        <a href="/Account/Login?returnUrl=/Home/Details/@Model.job_id" class="btn btn-primary btn-lg rounded-pill fw-bold flex-grow-1 shadow-sm" style="flex-basis: 60%;">
+                        <a href="/Account/Login?returnUrl=/Home/Details/@Model.job_id" class="btn btn-login btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 60%;">
                             Đăng nhập để Ứng tuyển <i class="fas fa-sign-in-alt ms-2"></i>
                         </a>
                     }
@@ -48,26 +194,26 @@
 <!-- Modal Ứng tuyển Nhanh -->
 <div class="modal fade" id="applyModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg overflow-hidden" style="border-radius: 16px;">
-            <!-- Modal Header: Blue background with Icon -->
-            <div class="modal-header bg-primary text-white border-bottom-0 py-3">
+        <div class="modal-content overflow-hidden">
+            <!-- Modal Header -->
+            <div class="modal-header modal-header-gradient">
                 <h5 class="modal-title fw-bold d-flex align-items-center">
                     <i class="fas fa-paper-plane me-2"></i> Xác nhận ứng tuyển
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="modal-body p-4 bg-light bg-opacity-10">
+            <div class="modal-body p-4 bg-light">
                 <!-- Job Selection Card (Read only) -->
                 <div class="mb-4">
                     <label class="form-label small fw-bold text-secondary text-uppercase mb-2">Vị trí ứng tuyển</label>
-                    <div class="card border-0 shadow-sm p-3 bg-white" style="border-radius: 12px;">
+                    <div class="card border-0 shadow-sm p-3 bg-white" style="border-radius: 1rem;">
                         <div class="d-flex align-items-center">
-                            <div class="bg-primary bg-opacity-10 text-primary p-3 me-3" style="border-radius: 10px;">
+                            <div class="bg-primary bg-opacity-10 text-primary p-3 me-3" style="border-radius: 0.75rem;">
                                 <i class="fas fa-briefcase fa-lg"></i>
                             </div>
                             <div class="overflow-hidden">
-                                <h6 class="fw-bold mb-0 text-truncate text-dark">@Model.job_title</h6>
+                                <h6 class="fw-bold mb-1 text-truncate text-dark">@Model.job_title</h6>
                                 <p class="small text-muted mb-0 text-truncate">@Model.employer_name</p>
                             </div>
                         </div>
@@ -76,8 +222,8 @@
 
                 <!-- CV Selection -->
                 <div class="mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-file-alt text-primary me-2"></i>
                         <label class="form-label small fw-bold text-secondary text-uppercase mb-0">Chọn CV gửi nhà tuyển dụng</label>
                     </div>
                     
@@ -89,27 +235,31 @@
                             var cvs = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
                             if (cvs.Any())
                             {
-                                <div class="cv-list-container" style="max-height: 300px; overflow-y: auto;">
+                                <div class="cv-list-container pe-2" style="max-height: 300px; overflow-y: auto;">
                                     @foreach (var cv in cvs)
                                     {
                                         var isPdf = !string.IsNullOrEmpty(cv.FileUploadUrl);
-                                        <div class="cv-item-wrapper mb-2">
-                                            <label class="cv-card cursor-pointer w-100 mb-0">
+                                        <div class="cv-item-wrapper mb-3">
+                                            <label class="cv-card cursor-pointer w-100 mb-0 d-block">
                                                 <input class="form-check-input d-none" type="radio" name="selectedResumeId" value="@cv.ResumeID" required>
-                                                <div class="card border p-3 cv-card-inner transition-all" style="border-radius: 12px;">
+                                                <div class="card p-3 cv-card-inner transition-all">
                                                     <div class="d-flex align-items-center">
-                                                        <div class="custom-radio me-3">
+                                                        <div class="custom-radio me-3 shadow-sm">
                                                             <div class="radio-dot"></div>
                                                         </div>
                                                         <div class="flex-grow-1 overflow-hidden">
                                                             <div class="d-flex align-items-center gap-2 mb-1">
-                                                                <h6 class="fw-bold mb-0 text-dark text-truncate">@(cv.Title ?? "CV Chưa đặt tên")</h6>
+                                                                <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.95rem;">@(cv.Title ?? "CV Chưa đặt tên")</h6>
                                                                 @if (isPdf)
                                                                 {
-                                                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 py-1" style="font-size: 10px;">PDF</span>
+                                                                    <span class="badge bg-white text-danger border border-danger border-opacity-25 py-1 px-2 shadow-sm" style="font-size: 0.65rem; border-radius: 0.4rem;">PDF</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="badge bg-white text-primary border border-primary border-opacity-25 py-1 px-2 shadow-sm" style="font-size: 0.65rem; border-radius: 0.4rem;">Vue CV</span>
                                                                 }
                                                             </div>
-                                                            <p class="small text-muted mb-0">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                                                            <p class="small text-muted mb-0"><i class='bx bx-time-five me-1'></i>Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -120,12 +270,13 @@
                             }
                             else
                             {
-                                <div class="alert alert-warning rounded-3 border-0 py-3 shadow-sm">
+                                <div class="alert alert-warning rounded-4 border-0 p-4 shadow-sm">
                                     <div class="d-flex align-items-center">
-                                        <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                                        <i class="fas fa-exclamation-triangle fs-2 text-warning me-3"></i>
                                         <div>
-                                            <p class="mb-0 fw-bold">Bạn chưa có CV nào.</p>
-                                            <a href="/Resume/Templates" class="alert-link small">Tạo CV mới ngay để ứng tuyển!</a>
+                                            <p class="mb-1 fw-bold text-dark fs-5">Chưa có CV nào</p>
+                                            <p class="mb-2 text-muted small">Bạn cần có ít nhất 1 CV để ứng tuyển vào vị trí này.</p>
+                                            <a href="/Resume/Templates" class="btn btn-warning btn-sm rounded-pill fw-bold">Tạo CV ngay</a>
                                         </div>
                                     </div>
                                 </div>
@@ -136,10 +287,10 @@
             </div>
             
             <!-- Modal Footer -->
-            <div class="modal-footer border-top-0 bg-white p-3 d-flex gap-2">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 flex-grow-1 fw-bold border-2" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4 flex-grow-1 fw-bold shadow-sm d-flex align-items-center justify-content-center" id="btnSubmitApply">
-                    <i class="fas fa-paper-plane me-2"></i> Ứng tuyển
+            <div class="modal-footer border-top-0 bg-white p-4 d-flex gap-3">
+                <button type="button" class="btn btn-light rounded-pill px-4 flex-grow-1 fw-bold border-0 text-secondary" style="background: #f1f5f9;" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-apply-1click rounded-pill px-4 flex-grow-1 fw-bold d-flex align-items-center justify-content-center" id="btnSubmitApply">
+                    <i class="fas fa-paper-plane me-2"></i> Gửi Ứng tuyển
                 </button>
             </div>
         </div>
@@ -188,7 +339,7 @@
 
                 btnSubmit.disabled = true;
                 const originalHtml = btnSubmit.innerHTML;
-                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xử lý...';
+                btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...';
 
                 try {
                     const response = await fetch('/Jobs/ApplyOneClick', {
@@ -237,62 +388,4 @@
         }
     });
 </script>
-
-<style>
-    .cursor-pointer { cursor: pointer; }
-    .transition-all { transition: all 0.2s ease-in-out; }
-    
-    .cv-card-inner:hover {
-        border-color: #0d6efd !important;
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-    
-    .cv-card-inner.selected {
-        border-color: #0d6efd !important;
-        border-width: 2px !important;
-        background-color: rgba(13, 110, 253, 0.05);
-    }
-    
-    /* Custom Radio Styling */
-    .custom-radio {
-        width: 20px;
-        height: 20px;
-        border: 2px solid #ccc;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-    }
-    
-    .cv-card-inner.selected .custom-radio {
-        border-color: #0d6efd;
-    }
-    
-    .radio-dot {
-        width: 10px;
-        height: 10px;
-        background-color: #0d6efd;
-        border-radius: 50%;
-        opacity: 0;
-        transform: scale(0.5);
-        transition: all 0.2s;
-    }
-    
-    .cv-card-inner.selected .radio-dot {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .cv-list-container::-webkit-scrollbar {
-        width: 6px;
-    }
-    .cv-list-container::-webkit-scrollbar-thumb {
-        background: #ddd;
-        border-radius: 10px;
-    }
-    .cv-list-container::-webkit-scrollbar-track {
-        background: transparent;
-    }
-</style>
 </div>
