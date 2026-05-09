@@ -15,6 +15,18 @@ GO
 -- chạy sql mới
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
+    N'Lê Minh Anh', 
+    N'LeMinhAnh', 
+    N'https://static.topcv.vn/cms/mau-cv-ke-toan-noi-bo-topcv69e74aa3d82da.jpg', -- Đường dẫn ảnh preview trên giao diện chọn mẫu
+    1,                                   -- 1: Mẫu Premium (hoặc đặt 0 nếu muốn miễn phí)
+    1,                                   -- 1: Trạng thái kích hoạt (hoạt động)
+    N'Kế toán, Văn phòng, Chuyên nghiệp', 
+    GETDATE()                            -- Ngày tạo mẫu
+);
+GO
+
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
     N'Nguyễn Thị Lan Anh', 
     N'NguyenThiLanAnh', 
     N'https://cv.timviec.com.vn/images/detail/thumb_v2/mau_72.jpg?v=2', 
