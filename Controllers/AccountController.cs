@@ -328,8 +328,11 @@ namespace DoAnCS.Controllers
                 // Cập nhật các thông tin khác
                 user.FullName = model.FullName;
                 user.Phone = model.Phone;
-                user.Summary = model.Summary;
-                user.Skills = model.Skills;
+                if (user.Role != "Admin")
+                {
+                    user.Summary = model.Summary;
+                    user.Skills = model.Skills;
+                }
 
                 // --- XỬ LÝ THÔNG TIN CÔNG TY CHO NHÀ TUYỂN DỤNG ---
                 if (user.Role == "Recruiter" && (!string.IsNullOrEmpty(companyName) || !string.IsNullOrEmpty(companyAddress)))

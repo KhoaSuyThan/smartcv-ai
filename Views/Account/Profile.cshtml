@@ -410,15 +410,18 @@
                                     </div>
                                 }
 
-                                <div class="col-md-12">
-                                    <label class="custom-label text-dark"><i class="bi bi-card-text me-2"></i>Giới thiệu bản thân</label>
-                                    <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="3" placeholder="Chia sẻ một chút về bản thân bạn..."></textarea>
-                                </div>
+                                @if (!isAdmin)
+                                {
+                                    <div class="col-md-12">
+                                        <label class="custom-label text-dark"><i class="bi bi-card-text me-2"></i>Giới thiệu bản thân</label>
+                                        <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="3" placeholder="Chia sẻ một chút về bản thân bạn..."></textarea>
+                                    </div>
 
-                                <div class="col-md-12">
-                                    <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
-                                    <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
-                                </div>
+                                    <div class="col-md-12">
+                                        <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
+                                        <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
+                                    </div>
+                                }
 
                                 <div class="col-md-12">
                                     <label class="custom-label text-dark">Email đăng nhập (không thể thay đổi)</label>
@@ -765,7 +768,11 @@
         const imageElement = document.getElementById('imageToCrop');
 
         function getEditableFields() {
-            let fields = ['FullName', 'Phone', 'Summary', 'Skills'];
+            let fields = ['FullName', 'Phone'];
+            const summaryEl = document.getElementById('Summary');
+            const skillsEl = document.getElementById('Skills');
+            if (summaryEl) fields.push('Summary');
+            if (skillsEl) fields.push('Skills');
             if (isRecruiter) {
                 fields.push('CompanyName', 'CompanyAddress');
             }
@@ -788,8 +795,14 @@
         function disableEditing() {
             document.getElementById('FullName').value = oldName;
             document.getElementById('Phone').value = oldPhone;
-            document.getElementById('Summary').value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
-            document.getElementById('Skills').value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
+            const summaryEl = document.getElementById('Summary');
+            const skillsEl = document.getElementById('Skills');
+            if (summaryEl) {
+                summaryEl.value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
+            }
+            if (skillsEl) {
+                skillsEl.value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
+            }
             if (isRecruiter) {
                 let cn = document.getElementById('CompanyName');
                 let ca = document.getElementById('CompanyAddress');
