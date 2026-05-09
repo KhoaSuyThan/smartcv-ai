@@ -12,6 +12,19 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+-- nhớ chạy 
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Blue Style Professional', 
+    N'BlueStyle', 
+    N'https://cdn1.vieclam24h.vn/images/assets/img/072-blue-simple-professional.jpg?v=1',
+    1,                                   -- 1: Premium
+    1,                                   -- 1: Active
+    N'Chuyên nghiệp, 2 cột, Xanh dương', 
+    GETDATE()
+);
+
+
 -- chạy sql mới
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
