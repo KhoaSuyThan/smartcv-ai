@@ -14,6 +14,14 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     @await RenderSectionAsync("Styles", required: false)
 
+    <!-- Script chống FOUC (Flash of Unstyled Content) cho Dark Mode -->
+    <script>
+        const storedTheme = localStorage.getItem('theme') || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        if (storedTheme) {
+            document.documentElement.setAttribute('data-bs-theme', storedTheme);
+        }
+    </script>
+
     <style>
         html {
             zoom: 80%; /* Ép toàn bộ trang về 80% */
@@ -186,6 +194,11 @@
                     </ul>
                     
                     <div class="d-flex align-items-center gap-2">
+                        <!-- Nút bật/tắt Dark Mode -->
+                        <button id="theme-toggle" class="btn btn-light rounded-circle shadow-sm me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border: 1px solid #dee2e6; transition: all 0.3s;" title="Chuyển đổi Chế độ Tối/Sáng">
+                            <i class="fas fa-moon text-secondary" id="theme-icon"></i>
+                        </button>
+
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             @if (!User.HasClaim("IsPro", "True") && !User.IsInRole("Admin"))
@@ -418,6 +431,40 @@
                     }
                 }, 3000);
             });
+
+            // 2. Cấu hình nút Dark Mode Toggle
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            function updateThemeIcon(theme) {
+                if (theme === 'dark') {
+                    themeIcon.classList.remove('fa-moon', 'text-secondary');
+                    themeIcon.classList.add('fa-sun', 'text-warning');
+                    themeToggleBtn.classList.remove('btn-light');
+                    themeToggleBtn.classList.add('btn-dark');
+                    themeToggleBtn.style.borderColor = '#495057';
+                } else {
+                    themeIcon.classList.remove('fa-sun', 'text-warning');
+                    themeIcon.classList.add('fa-moon', 'text-secondary');
+                    themeToggleBtn.classList.remove('btn-dark');
+                    themeToggleBtn.classList.add('btn-light');
+                    themeToggleBtn.style.borderColor = '#dee2e6';
+                }
+            }
+
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            updateThemeIcon(currentTheme);
+
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    
+                    document.documentElement.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    updateThemeIcon(newTheme);
+                });
+            }
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

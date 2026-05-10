@@ -161,3 +161,333 @@ footer {
 .footer-link:hover {
   color: #0d6efd;
 }
+/* =========================================
+   DARK MODE OVERRIDES (Bootstrap 5)
+   ========================================= */
+:root {
+  --step-bg-bottom: #ffffff;
+}
+[data-bs-theme="dark"] {
+  --step-bg-bottom: #1e1e1e;
+}
+
+[data-bs-theme="dark"] body,
+[data-bs-theme="dark"] .bg-light,
+[data-bs-theme="dark"] section,
+[data-bs-theme="dark"] .container-fluid,
+[data-bs-theme="dark"] .bg-mesh {
+  background-color: #121212 !important;
+  background-image: none !important;
+}
+
+[data-bs-theme="dark"] .bg-white {
+  background-color: #1a1d20 !important;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .admin-sidebar-container {
+  background-color: #1e1e1e !important;
+  border-color: #2b3035 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-bs-theme="dark"] .card-body h5,
+[data-bs-theme="dark"] .card-body p,
+[data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
+[data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6,
+[data-bs-theme="dark"] .text-dark {
+  color: #e9ecef !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] footer {
+  background-color: #1a1d20 !important;
+  border-top-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .sidebar-group {
+  background-color: #1e1e1e !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .menu-item {
+  color: #ced4da !important;
+}
+
+[data-bs-theme="dark"] .menu-item:hover {
+  background-color: #2b3035 !important;
+  color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .menu-item.active {
+  background-color: #2b3035 !important;
+  border-color: #343a40 !important;
+  color: #6ea8fe !important;
+  border-left-color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .navbar {
+  background-color: #1a1d20 !important;
+  border-bottom: 1px solid #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .nav-link {
+  color: #ced4da !important;
+}
+
+[data-bs-theme="dark"] .glass-card {
+  background: rgba(30, 30, 30, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix chatbox AI widget for dark mode */
+[data-bs-theme="dark"] #chatbox-window {
+  background: #1a1d20 !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
+}
+
+[data-bs-theme="dark"] #chatbox-messages,
+[data-bs-theme="dark"] #chatbox-faq {
+  background: #121212 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] #chatbox-input-area {
+  background: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] #chatbox-input {
+  background: #212529 !important;
+  color: #fff !important;
+  border-color: #343a40 !important;
+}
+
+[data-bs-theme="dark"] .chat-bubble.bot {
+  background: #2b3035 !important;
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .faq-chip {
+  background: #212529 !important;
+  border-color: #343a40 !important;
+  color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .faq-chip:hover {
+  background: #6ea8fe !important;
+  color: #121212 !important;
+}
+
+/* Fix CV Template cards (keep light mode style for images to blend) */
+[data-bs-theme="dark"] .template-card,
+[data-bs-theme="dark"] .template-card .bg-white {
+  background-color: #ffffff !important;
+}
+[data-bs-theme="dark"] .template-card h5,
+[data-bs-theme="dark"] .template-card h6,
+[data-bs-theme="dark"] .template-card .text-dark {
+  color: #212529 !important;
+}
+[data-bs-theme="dark"] .template-card .text-muted {
+  color: #6c757d !important;
+}
+
+/* Fix Blog cards */
+[data-bs-theme="dark"] .blog-card-premium {
+  background-color: #1e1e1e !important;
+  border: 1px solid #2b3035 !important;
+}
+[data-bs-theme="dark"] .blog-card-premium .card-title {
+  color: #e9ecef !important;
+}
+[data-bs-theme="dark"] .blog-card-premium .card-text {
+  color: #adb5bd !important;
+}
+[data-bs-theme="dark"] .blog-card-premium:hover {
+  background-color: #2b3035 !important;
+}
+
+/* Fix btn-outline-dark visibility in dark mode */
+[data-bs-theme="dark"] .btn-outline-dark {
+  color: #f8f9fa !important;
+  border-color: #f8f9fa !important;
+}
+[data-bs-theme="dark"] .btn-outline-dark:hover {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+}
+
+/* Fix template-card bg-light image background */
+[data-bs-theme="dark"] .template-card .bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Fix Jobs page UI in dark mode */
+[data-bs-theme="dark"] .job-filter-sidebar,
+[data-bs-theme="dark"] .job-item-row {
+  background-color: #1e1e1e !important;
+  border: 1px solid #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .filter-scroll-container,
+[data-bs-theme="dark"] .company-logo-container {
+  background-color: #121212 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select,
+[data-bs-theme="dark"] .cv-selector-card {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+  color: #e9ecef !important;
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+  color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .form-check-label {
+  color: #ced4da !important;
+}
+
+[data-bs-theme="dark"] .job-item-row:hover {
+  border-color: #495057 !important;
+  background-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .job-item-row.match-highlight {
+  border-color: #064e3b !important;
+  background: linear-gradient(to right, #064e3b, #1e1e1e) !important;
+}
+
+/* Fix Companies page UI in dark mode */
+[data-bs-theme="dark"] .companies-wrapper {
+  background-color: #121212 !important;
+}
+
+[data-bs-theme="dark"] .company-logo-wrapper.bg-white {
+  background-color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .company-card {
+  background-color: #1e1e1e !important;
+  border-color: #198754 !important;
+}
+
+[data-bs-theme="dark"] .company-card .description-text {
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .company-card:hover {
+  background-color: #2b3035 !important;
+}
+
+/* Fix My Resumes page UI in dark mode (keep white background for CV to blend) */
+[data-bs-theme="dark"] .transition-hover,
+[data-bs-theme="dark"] .transition-hover .bg-white,
+[data-bs-theme="dark"] .transition-hover .bg-light {
+  background-color: #ffffff !important;
+  border-color: #eee !important;
+}
+
+[data-bs-theme="dark"] .transition-hover h6,
+[data-bs-theme="dark"] .transition-hover .text-dark {
+  color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .transition-hover .text-muted {
+  color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .transition-hover:hover {
+  border-color: #0d6efd !important;
+}
+
+/* Fix Profile page UI in dark mode */
+[data-bs-theme="dark"] .form-control.edit-locked,
+[data-bs-theme="dark"] textarea.form-control.edit-locked {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .stat-badge {
+  background-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .form-control:not(.edit-locked) {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+  color: #e9ecef !important;
+}
+
+/* Fix Guide page UI in dark mode */
+[data-bs-theme="dark"] .guide-wrapper {
+  background-color: #121212 !important;
+}
+
+[data-bs-theme="dark"] .guide-wrapper .glass-card,
+[data-bs-theme="dark"] .guide-wrapper .glass-panel {
+  background: rgba(30, 30, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .guide-wrapper .hero-title {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .guide-wrapper .text-secondary {
+  color: #adb5bd !important;
+}
+
+/* Fix Contact & Terms pages UI in dark mode */
+[data-bs-theme="dark"] .contact-page-wrapper,
+[data-bs-theme="dark"] .terms-page-wrapper {
+  background-color: #121212 !important;
+}
+
+[data-bs-theme="dark"] .premium-glass-card {
+  background: rgba(30, 30, 30, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .input-group-premium input,
+[data-bs-theme="dark"] .textarea-group-premium textarea {
+  color: #e9ecef !important;
+}
+
+[data-bs-theme="dark"] .textarea-group-premium textarea {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .info-card:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .terms-block-primary { background-color: rgba(13, 110, 253, 0.15) !important; }
+[data-bs-theme="dark"] .terms-block-success { background-color: rgba(25, 135, 84, 0.15) !important; }
+[data-bs-theme="dark"] .terms-block-warning { background-color: rgba(255, 193, 7, 0.15) !important; }
+[data-bs-theme="dark"] .terms-block-danger { background-color: rgba(220, 53, 69, 0.15) !important; }
+[data-bs-theme="dark"] .terms-block-dark { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+[data-bs-theme="dark"] .terms-block { border-color: rgba(255,255,255,0.1) !important; }
+[data-bs-theme="dark"] .nav-link-terms:hover { background: rgba(255,255,255,0.1) !important; }
+[data-bs-theme="dark"] .nav-link-terms.active { background: rgba(13, 110, 253, 0.2) !important; }
+[data-bs-theme="dark"] .terms-page-wrapper p,
+[data-bs-theme="dark"] .terms-page-wrapper .list-group-item {
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .btn-light {
+  background-color: #212529 !important;
+  color: #e9ecef !important;
+  border-color: #343a40 !important;
+}
+
+[data-bs-theme="dark"] .btn-light:hover {
+  background-color: #343a40 !important;
+}
