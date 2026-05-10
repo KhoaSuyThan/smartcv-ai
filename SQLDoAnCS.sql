@@ -31,7 +31,7 @@ INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, 
 VALUES (
     N'Blue Style Professional', 
     N'BlueStyle', 
-    N'https://cdn1.vieclam24h.vn/images/assets/img/072-blue-simple-professional.jpg?v=1',
+    N'/images/templates/BlueStyle.png',
     1,                                   -- 1: Premium
     1,                                   -- 1: Active
     N'Chuyên nghiệp, 2 cột, Xanh dương', 
