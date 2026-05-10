@@ -213,6 +213,10 @@ footer {
   border-color: #2b3035 !important;
 }
 
+[data-bs-theme="dark"] .admin-sidebar-container .menu-label {
+  color: #6ea8fe !important;
+}
+
 [data-bs-theme="dark"] .menu-item {
   color: #ced4da !important;
 }
@@ -482,10 +486,123 @@ footer {
   color: #adb5bd !important;
 }
 
+/* =========================================
+   ADMIN DASHBOARD DARK MODE OVERRIDES
+========================================= */
+/* Override inline light backgrounds in wrappers */
+[data-bs-theme="dark"] div[style*="#f8fbff"],
+[data-bs-theme="dark"] div[style*="#f0f4f8"],
+[data-bs-theme="dark"] div[style*="#f4f7f6"] {
+  background-color: #121212 !important;
+}
+
+/* Cards & Containers */
+[data-bs-theme="dark"] .bg-white {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+/* Tables in Admin */
+[data-bs-theme="dark"] .table {
+  color: #e9ecef !important;
+  border-color: #2b3035 !important;
+}
+[data-bs-theme="dark"] .table thead,
+[data-bs-theme="dark"] .table thead th,
+[data-bs-theme="dark"] .table .bg-light {
+  background-color: #1e1e1e !important;
+  color: #adb5bd !important;
+  border-color: #2b3035 !important;
+}
+[data-bs-theme="dark"] .table tbody tr:hover td,
+[data-bs-theme="dark"] .table tbody tr:hover th {
+  background-color: #2b3035 !important;
+  color: #fff !important;
+}
+
+/* Soft Badges */
+[data-bs-theme="dark"] .bg-success-soft { background-color: rgba(46, 125, 50, 0.2) !important; border-color: rgba(46, 125, 50, 0.3) !important; color: #81c784 !important; }
+[data-bs-theme="dark"] .bg-warning-soft { background-color: rgba(245, 127, 23, 0.2) !important; border-color: rgba(245, 127, 23, 0.3) !important; color: #ffd54f !important; }
+[data-bs-theme="dark"] .bg-info-soft { background-color: rgba(25, 118, 210, 0.2) !important; border-color: rgba(25, 118, 210, 0.3) !important; color: #64b5f6 !important; }
+[data-bs-theme="dark"] .bg-danger-soft { background-color: rgba(198, 40, 40, 0.2) !important; border-color: rgba(198, 40, 40, 0.3) !important; color: #e57373 !important; }
+[data-bs-theme="dark"] .bg-secondary-soft { background-color: rgba(97, 97, 97, 0.2) !important; border-color: rgba(97, 97, 97, 0.3) !important; color: #e0e0e0 !important; }
+
+/* Admin Job Feed / Lists */
+[data-bs-theme="dark"] .job-row-v2 {
+  background-color: #1a1d20 !important;
+  border-left-color: #0d6efd !important;
+}
+[data-bs-theme="dark"] .job-row-v2:hover {
+  background-color: #2b3035 !important;
+}
+
+/* Skill Pills (Admin Dashboard) */
+[data-bs-theme="dark"] .skill-pill-v2[class*="-subtle"] { background-color: #2b3035 !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-indigo-subtle { background-color: rgba(67, 56, 202, 0.2) !important; color: #818cf8 !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-emerald-subtle { background-color: rgba(5, 150, 105, 0.2) !important; color: #34d399 !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-amber-subtle { background-color: rgba(217, 119, 6, 0.2) !important; color: #fbbf24 !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-rose-subtle { background-color: rgba(225, 29, 72, 0.2) !important; color: #fb7185 !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-blue-subtle { background-color: rgba(37, 99, 235, 0.2) !important; color: #60a5fa !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-orange-subtle { background-color: rgba(234, 88, 12, 0.2) !important; color: #fb923c !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-purple-subtle { background-color: rgba(147, 51, 234, 0.2) !important; color: #c084fc !important; }
+[data-bs-theme="dark"] .skill-pill-v2.bg-cyan-subtle { background-color: rgba(8, 145, 178, 0.2) !important; color: #22d3ee !important; }
+
+/* Dashboard Trends */
+[data-bs-theme="dark"] .trend-card-small {
+  background-color: #1e1e1e !important;
+  border-color: #2b3035 !important;
+}
+[data-bs-theme="dark"] .trend-card-small:hover {
+  background-color: #2b3035 !important;
+}
+
+/* Pagination */
+[data-bs-theme="dark"] .custom-pagination .page-link {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+  color: #adb5bd !important;
+}
+[data-bs-theme="dark"] .custom-pagination .page-item.active .page-link {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+}
+[data-bs-theme="dark"] .custom-pagination .page-item.disabled .page-link {
+  background-color: #121212 !important;
+  color: #6c757d !important;
+}
+
+/* Admin Buttons */
+[data-bs-theme="dark"] .btn-white {
+  background-color: #2b3035 !important;
+  color: #e9ecef !important;
+  border-color: #495057 !important;
+}
+[data-bs-theme="dark"] .btn-white:hover {
+  background-color: #343a40 !important;
+  color: #fff !important;
+}
+
 [data-bs-theme="dark"] .btn-light {
   background-color: #212529 !important;
   color: #e9ecef !important;
   border-color: #343a40 !important;
+}
+
+/* Fix inputs and borders in Gemini Config */
+[data-bs-theme="dark"] .border-light {
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .input-group[style*="#f1f5f9"] {
+  background: #1a1d20 !important;
+}
+
+[data-bs-theme="dark"] .form-control.bg-light,
+[data-bs-theme="dark"] .input-group-text.bg-light,
+[data-bs-theme="dark"] .form-select.bg-light {
+  background-color: #1a1d20 !important;
+  color: #e9ecef !important;
+  border-color: #2b3035 !important;
 }
 
 [data-bs-theme="dark"] .btn-light:hover {
