@@ -12,6 +12,20 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
+
+--Thêm cv Nguyễn Mai Anh
+INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
+VALUES (
+    N'Nguyễn Mai Anh (IT Browser)', 
+    'NguyenMaiAnh', 
+    'https://www.topcv.vn/v4/image/cv-template/screenshots/thumbs/cv-template-thumbnails-v1.4/vi/chrome.webp?v=3.5&lang=vi', -- Bạn nhớ thay bằng link ảnh thumbnail đúng
+    1,                                   
+    1,                                   
+    N'IT, Lập trình viên, Sáng tạo, Khối bo tròn', 
+    GETDATE()
+);
+GO
+
 -- nhớ chạy 
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
