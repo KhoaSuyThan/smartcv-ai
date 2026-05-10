@@ -161,3 +161,162 @@ footer {
 .footer-link:hover {
   color: #0d6efd;
 }
+/* =========================================
+   DARK MODE OVERRIDES (Bootstrap 5)
+   ========================================= */
+:root {
+  --step-bg-bottom: #ffffff;
+}
+[data-bs-theme="dark"] {
+  --step-bg-bottom: #1e1e1e;
+}
+
+[data-bs-theme="dark"] body,
+[data-bs-theme="dark"] .bg-light,
+[data-bs-theme="dark"] section,
+[data-bs-theme="dark"] .container-fluid,
+[data-bs-theme="dark"] .bg-mesh {
+  background-color: #121212 !important;
+  background-image: none !important;
+}
+
+[data-bs-theme="dark"] .bg-white {
+  background-color: #1a1d20 !important;
+}
+
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .admin-sidebar-container {
+  background-color: #1e1e1e !important;
+  border-color: #2b3035 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-bs-theme="dark"] .card-body h5,
+[data-bs-theme="dark"] .card-body p,
+[data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
+[data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6,
+[data-bs-theme="dark"] .text-dark {
+  color: #e9ecef !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] footer {
+  background-color: #1a1d20 !important;
+  border-top-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .sidebar-group {
+  background-color: #1e1e1e !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .menu-item {
+  color: #ced4da !important;
+}
+
+[data-bs-theme="dark"] .menu-item:hover {
+  background-color: #2b3035 !important;
+  color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .menu-item.active {
+  background-color: #2b3035 !important;
+  border-color: #343a40 !important;
+  color: #6ea8fe !important;
+  border-left-color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .navbar {
+  background-color: #1a1d20 !important;
+  border-bottom: 1px solid #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .nav-link {
+  color: #ced4da !important;
+}
+
+[data-bs-theme="dark"] .glass-card {
+  background: rgba(30, 30, 30, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix chatbox AI widget for dark mode */
+[data-bs-theme="dark"] #chatbox-window {
+  background: #1a1d20 !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5) !important;
+}
+
+[data-bs-theme="dark"] #chatbox-messages,
+[data-bs-theme="dark"] #chatbox-faq {
+  background: #121212 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] #chatbox-input-area {
+  background: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] #chatbox-input {
+  background: #212529 !important;
+  color: #fff !important;
+  border-color: #343a40 !important;
+}
+
+[data-bs-theme="dark"] .chat-bubble.bot {
+  background: #2b3035 !important;
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .faq-chip {
+  background: #212529 !important;
+  border-color: #343a40 !important;
+  color: #6ea8fe !important;
+}
+
+[data-bs-theme="dark"] .faq-chip:hover {
+  background: #6ea8fe !important;
+  color: #121212 !important;
+}
+
+/* Fix CV Template cards (keep light mode style for images to blend) */
+[data-bs-theme="dark"] .template-card,
+[data-bs-theme="dark"] .template-card .bg-white {
+  background-color: #ffffff !important;
+}
+[data-bs-theme="dark"] .template-card h5,
+[data-bs-theme="dark"] .template-card h6,
+[data-bs-theme="dark"] .template-card .text-dark {
+  color: #212529 !important;
+}
+[data-bs-theme="dark"] .template-card .text-muted {
+  color: #6c757d !important;
+}
+
+/* Fix Blog cards */
+[data-bs-theme="dark"] .blog-card-premium {
+  background-color: #1e1e1e !important;
+  border: 1px solid #2b3035 !important;
+}
+[data-bs-theme="dark"] .blog-card-premium .card-title {
+  color: #e9ecef !important;
+}
+[data-bs-theme="dark"] .blog-card-premium .card-text {
+  color: #adb5bd !important;
+}
+[data-bs-theme="dark"] .blog-card-premium:hover {
+  background-color: #2b3035 !important;
+}
+
+/* Fix btn-outline-dark visibility in dark mode */
+[data-bs-theme="dark"] .btn-outline-dark {
+  color: #f8f9fa !important;
+  border-color: #f8f9fa !important;
+}
+[data-bs-theme="dark"] .btn-outline-dark:hover {
+  background-color: #f8f9fa !important;
+  color: #212529 !important;
+}
