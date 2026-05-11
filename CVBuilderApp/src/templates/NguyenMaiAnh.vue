@@ -45,25 +45,33 @@
           </div>
         </div>
         <div class="header-info">
-          <h1 class="fullname">{{ !isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'NGUYỄN MAI ANH' }}</h1>
-          <p class="job-title">{{ !isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Kỹ sư phần mềm IT' }}</p>
+          
+          <h1 class="fullname" v-if="!isEmpty(resumeData.general.fullName)" v-html="resumeData.general.fullName"></h1>
+          <h1 class="fullname" v-else>NGUYỄN MAI ANH</h1>
+          
+          <p class="job-title" v-if="!isEmpty(resumeData.general.jobTitle)" v-html="resumeData.general.jobTitle"></p>
+          <p class="job-title" v-else>Kỹ sư phần mềm IT</p>
           
           <div class="contact-grid">
             <div class="contact-item">
               <i class="fas fa-calendar-alt"></i>
-              <span>{{ !isEmpty(resumeData.general.birthDate) ? resumeData.general.birthDate : '18/12/1997' }}</span>
+              <span v-if="!isEmpty(resumeData.general.birthDate)" v-html="resumeData.general.birthDate"></span>
+              <span v-else>18/12/1997</span>
             </div>
             <div class="contact-item">
               <i class="fas fa-phone-alt"></i>
-              <span>{{ !isEmpty(resumeData.general.phone) ? resumeData.general.phone : '(024) 6680 5588' }}</span>
+              <span v-if="!isEmpty(resumeData.general.phone)" v-html="resumeData.general.phone"></span>
+              <span v-else>(024) 6680 5588</span>
             </div>
             <div class="contact-item">
               <i class="fas fa-envelope"></i>
-              <span>{{ !isEmpty(resumeData.general.email) ? resumeData.general.email : 'hotro@topcv.vn' }}</span>
+              <span v-if="!isEmpty(resumeData.general.email)" v-html="resumeData.general.email"></span>
+              <span v-else>hotro@topcv.vn</span>
             </div>
             <div class="contact-item">
               <i class="fas fa-map-marker-alt"></i>
-              <span>{{ !isEmpty(resumeData.general.address) ? resumeData.general.address : 'Quận A, Hà Nội' }}</span>
+              <span v-if="!isEmpty(resumeData.general.address)" v-html="resumeData.general.address"></span>
+              <span v-else>Quận A, Hà Nội</span>
             </div>
           </div>
         </div>
@@ -82,7 +90,7 @@
           </transition>
 
           <div class="card-body">
-            <div v-if="section.desc || section.description || section.content || section.value || !isEmpty(resumeData.general.summary)" 
+            <div v-if="!(isEmpty(section.desc) && isEmpty(section.description) && isEmpty(section.content) && isEmpty(section.value) && isEmpty(resumeData.general.summary))" 
                  class="html-content text-justify text-gray-500" v-html="formatDesc(section.desc || section.description || section.content || section.value || resumeData.general.summary)"></div>
             <div v-else class="html-content text-gray-400 italic paginated-item">
               Hãy nói 1 chút về mục tiêu nghề nghiệp của bạn...
@@ -146,16 +154,17 @@
                 <div class="detailed-list" v-else>
                   <div v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="item-container relative mb-5 last:mb-0">
                     <template v-if="typeof item === 'object'">
-                      <div class="flex justify-between items-start mb-1 paginated-item" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
-                        <span class="entry-entity">
-                          <template v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)"><span v-html="item.name"></span></template>
-                          <template v-else>{{ item.company || item.school || item.organization || item.name || item.title }}</template>
-                        </span>
-                        <span class="entry-time badge-time" v-if="item.time || item.year || item.date">{{ item.time || item.year || item.date }}</span>
-                      </div>
-                      
-                      <div class="entry-role paginated-item" v-if="item.role || item.position || item.major">
-                        {{ item.role || item.position || item.major }}
+                      <div class="paginated-item">
+                        <div class="flex justify-between items-start mb-1" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
+                          <span class="entry-entity">
+                            <template v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)"><span v-html="item.name"></span></template>
+                            <template v-else>{{ item.company || item.school || item.organization || item.name || item.title }}</template>
+                          </span>
+                          <span class="entry-time badge-time" v-if="item.time || item.year || item.date">{{ item.time || item.year || item.date }}</span>
+                        </div>
+                        <div class="entry-role" v-if="item.role || item.position || item.major">
+                          {{ item.role || item.position || item.major }}
+                        </div>
                       </div>
 
                       <div class="text-[13px] text-gray-500 mt-1" v-if="item.gradType || item.info || item.contact">
@@ -230,16 +239,17 @@
                 <div class="detailed-list" v-else>
                   <div v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="item-container relative mb-5 last:mb-0">
                     <template v-if="typeof item === 'object'">
-                      <div class="flex justify-between items-start mb-1 paginated-item" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
-                        <span class="entry-entity">
-                          <template v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)"><span v-html="item.name"></span></template>
-                          <template v-else>{{ item.company || item.school || item.organization || item.name || item.title }}</template>
-                        </span>
-                        <span class="entry-time badge-time" v-if="item.time || item.year || item.date">{{ item.time || item.year || item.date }}</span>
-                      </div>
-                      
-                      <div class="entry-role paginated-item" v-if="item.role || item.position || item.major">
-                        {{ item.role || item.position || item.major }}
+                      <div class="paginated-item">
+                        <div class="flex justify-between items-start mb-1" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
+                          <span class="entry-entity">
+                            <template v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)"><span v-html="item.name"></span></template>
+                            <template v-else>{{ item.company || item.school || item.organization || item.name || item.title }}</template>
+                          </span>
+                          <span class="entry-time badge-time" v-if="item.time || item.year || item.date">{{ item.time || item.year || item.date }}</span>
+                        </div>
+                        <div class="entry-role" v-if="item.role || item.position || item.major">
+                          {{ item.role || item.position || item.major }}
+                        </div>
                       </div>
 
                       <div class="text-[13px] text-gray-500 mt-1" v-if="item.gradType || item.info || item.contact">
@@ -286,9 +296,13 @@ const props = defineProps({
 
 const emit = defineEmits(['moveUp', 'moveDown', 'removeItem', 'moveHorizontal'])
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  const cleanStr = val.replace(/<\/?[^>]+(>|$)/g, "").replace(/&[#a-z0-9]+;/ig, "").trim().toLowerCase();
+  return cleanStr === '' || cleanStr === 'br';
+}
 
-// ── DATA MẪU RÚT GỌN CHỈ TRẢ VỀ "CHƯA CÓ DỮ LIỆU" ──────────────────────────────────────
 const getMockData = (sectionId) => {
   return [{ name: 'Chưa có dữ liệu' }]
 }
@@ -310,7 +324,6 @@ const moveHorizontal = (id) => {
   }
   emit('moveHorizontal', id, toRaw(localLeftKeys.value))
   
-  // ĐÃ FIX: Yêu cầu tính toán lại chiều cao sau khi mục nhảy sang cột mới
   nextTick(() => {
     requestPagination()
   })
@@ -342,7 +355,7 @@ onMounted(() => {
 
 // ── UTILITIES & HTML FORMAT ──────────────────────────────────────────────
 const formatDesc = (text) => {
-  if (!text) return ''
+  if (isEmpty(text)) return '';
   if (!/<[a-z][\s\S]*>/i.test(text)) {
     return text.split('\n').map(l => l.trim()).filter(Boolean)
       .map(l => `<div class="paginated-item">${l}</div>`).join('')
@@ -359,6 +372,7 @@ const formatDesc = (text) => {
       if (node.tagName === 'BR') {
         const d = document.createElement('div'); d.className = 'paginated-item h-[14px]'; out.appendChild(d)
       } else if (['UL','OL'].includes(node.tagName)) {
+        // UL/OL sinh ra các LI được gắn paginated-item => Mỗi thẻ LI sẽ rớt dòng độc lập
         Array.from(node.children).forEach(li => li.classList.add('paginated-item'))
         out.appendChild(node.cloneNode(true))
       } else {
@@ -369,7 +383,7 @@ const formatDesc = (text) => {
   return out.innerHTML
 }
 
-// ── PAGINATION LOGIC TỪ CVTemplate.vue ──────────────────────────────────
+// ── PAGINATION LOGIC ──────────────────────────────────
 const A4_W_MM = 210
 const A4_H_MM = 297
 
@@ -414,7 +428,9 @@ const doPagination = async () => {
        let targetEl = el
        const parentCard = el.closest('.custom-card')
 
-       // Nếu là Tiêu đề card HOẶC card đủ ngắn, thì đẩy nguyên Card đi (Không rớt đáy, không tạo mảng dư)
+       // CHỈ kéo cả Thẻ (Card) xuống dòng NẾU như cái bị đẩy là cái Tiêu Đề của Thẻ đó (để tiêu đề không bị bơ vơ)
+       // HOẶC toàn bộ nội dung cái thẻ đó siêu ngắn (nhỏ hơn 30% trang).
+       // CÒN LẠI: Cắt ngang dòng nào, rớt dòng đó, nền thẻ sẽ tự động chải dài!
        if (parentCard && (el.classList.contains('card-header') || parentCard.offsetHeight < (pageH * 0.3))) {
            targetEl = parentCard
        }
@@ -558,7 +574,7 @@ onUnmounted(() => {
 
 .fade-btns-enter-active, .fade-btns-leave-active { transition: opacity 0.2s ease, transform 0.2s ease; }
 .fade-btns-enter-from, .fade-btns-leave-to { opacity: 0; transform: scale(0.9); }
-.nav-btns { position: absolute; right: 20px; top: -16px; display: flex; gap: 6px; z-index: 100; }
+.nav-btns { position: absolute; right: 20px; top: 18px; display: flex; gap: 6px; z-index: 100; }
 .nav-btn { 
   background: #3B82F6; color: #fff; border: none; width: 28px; height: 28px; 
   border-radius: 6px; cursor: pointer; display: flex; align-items: center; 
