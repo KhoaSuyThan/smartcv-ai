@@ -192,19 +192,19 @@ footer {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-[data-bs-theme="dark"] .card-body h5,
-[data-bs-theme="dark"] .card-body p,
-[data-bs-theme="dark"] h1:not(.cv-preview-card h1),
-[data-bs-theme="dark"] h2:not(.cv-preview-card h2),
-[data-bs-theme="dark"] h3:not(.cv-preview-card h3), 
-[data-bs-theme="dark"] h4:not(.cv-preview-card h4),
-[data-bs-theme="dark"] h5:not(.cv-preview-card h5),
-[data-bs-theme="dark"] h6:not(.cv-preview-card h6),
-[data-bs-theme="dark"] .text-dark:not(.cv-preview-card .text-dark) {
+[data-bs-theme="dark"] .card-body h5:not(.template-card h5):not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5),
+[data-bs-theme="dark"] .card-body p:not(.template-card p):not(.cv-preview-card p):not(.cv-preview-wrapper p):not(#resume-preview p),
+[data-bs-theme="dark"] h1:not(.cv-preview-card h1):not(.cv-preview-wrapper h1):not(#resume-preview h1):not(.template-card h1),
+[data-bs-theme="dark"] h2:not(.cv-preview-card h2):not(.cv-preview-wrapper h2):not(#resume-preview h2):not(.template-card h2),
+[data-bs-theme="dark"] h3:not(.cv-preview-card h3):not(.cv-preview-wrapper h3):not(#resume-preview h3):not(.template-card h3), 
+[data-bs-theme="dark"] h4:not(.cv-preview-card h4):not(.cv-preview-wrapper h4):not(#resume-preview h4):not(.template-card h4),
+[data-bs-theme="dark"] h5:not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5):not(.template-card h5),
+[data-bs-theme="dark"] h6:not(.cv-preview-card h6):not(.cv-preview-wrapper h6):not(#resume-preview h6):not(.template-card h6),
+[data-bs-theme="dark"] .text-dark:not(.cv-preview-card .text-dark):not(.cv-preview-wrapper .text-dark):not(#resume-preview .text-dark):not(.template-card .text-dark) {
   color: #e9ecef !important;
 }
 
-[data-bs-theme="dark"] .text-muted:not(.cv-preview-card .text-muted) {
+[data-bs-theme="dark"] .text-muted:not(.cv-preview-card .text-muted):not(.cv-preview-wrapper .text-muted):not(#resume-preview .text-muted):not(.template-card .text-muted) {
   color: #adb5bd !important;
 }
 
@@ -1056,3 +1056,311 @@ footer {
 [data-bs-theme="dark"] #exportPreviewModalContent > div:last-child button:last-child:hover {
   background: #3b82f6 !important;
 }
+
+/* Fix Cẩm nang nghề nghiệp blog modal content in dark mode */
+[data-bs-theme="dark"] .blog-modal-content h2,
+[data-bs-theme="dark"] .blog-modal-content h4 {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .blog-modal-content p,
+[data-bs-theme="dark"] .blog-modal-content li,
+[data-bs-theme="dark"] .blog-modal-content span:not(.badge),
+[data-bs-theme="dark"] .blog-modal-content strong,
+[data-bs-theme="dark"] .blog-modal-content em {
+  color: #dee2e6 !important;
+}
+
+[data-bs-theme="dark"] .badge.bg-warning.text-dark {
+  color: #1a202c !important;
+}
+
+/* Fix CV Template card text visibility in dark mode (keeps dark text on white cards with high specificity) */
+[data-bs-theme="dark"] .template-card h1,
+[data-bs-theme="dark"] .template-card h2,
+[data-bs-theme="dark"] .template-card h3,
+[data-bs-theme="dark"] .template-card h4,
+[data-bs-theme="dark"] .template-card h5,
+[data-bs-theme="dark"] .template-card h6,
+[data-bs-theme="dark"] .template-card p,
+[data-bs-theme="dark"] .template-card span,
+[data-bs-theme="dark"] .template-card div,
+[data-bs-theme="dark"] .template-card .text-dark,
+[data-bs-theme="dark"] .template-card .fw-bold,
+[data-bs-theme="dark"] .template-card .card-body h5.text-dark,
+[data-bs-theme="dark"] .template-card .card-body h5,
+[data-bs-theme="dark"] .template-card .card-body h6,
+[data-bs-theme="dark"] .template-card .card-body .text-dark {
+  color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .template-card .text-muted,
+[data-bs-theme="dark"] .template-card p.text-muted,
+[data-bs-theme="dark"] .template-card .small,
+[data-bs-theme="dark"] .template-card .card-body .text-muted,
+[data-bs-theme="dark"] .template-card .card-body p {
+  color: #6c757d !important;
+}
+
+/* ==========================================================
+   TỐI ƯU GIAO DIỆN TRANG TALENT (ỨNG VIÊN) TRONG CHẾ ĐỘ DARK MODE
+   ========================================================== */
+[data-bs-theme="dark"] .search-glass {
+  background: rgba(30, 41, 59, 0.7) !important; /* Slate-800 bán trong suốt */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .input-wrapper {
+  background: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .input-wrapper input {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .input-wrapper i {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .candidate-card {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .candidate-card .card-title {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .candidate-card .card-bio {
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .candidate-card .skill-pill {
+  background-color: #2b3035 !important;
+  color: #dee2e6 !important;
+  border-color: #3a3f44 !important;
+}
+
+[data-bs-theme="dark"] .candidate-card:hover .skill-pill {
+  background-color: #343a40 !important;
+}
+
+[data-bs-theme="dark"] .candidate-card .skill-pill:hover {
+  background-color: var(--primary) !important;
+  color: white !important;
+}
+
+[data-bs-theme="dark"] .btn-bookmark-quick {
+  background: #2b3035 !important;
+  border-color: #3a3f44 !important;
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .btn-bookmark-quick:hover {
+  background: #fee2e2 !important;
+  color: var(--accent) !important;
+}
+
+[data-bs-theme="dark"] .btn-bookmark-quick.active {
+  background: var(--accent) !important;
+  color: white !important;
+  border-color: var(--accent) !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-premium {
+  border-color: #818cf8 !important;
+  color: #818cf8 !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-premium:hover {
+  background: #818cf8 !important;
+  color: white !important;
+}
+
+/* Sidebar và danh sách đã lưu */
+[data-bs-theme="dark"] .glass-sidebar {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .sidebar-head {
+  background: linear-gradient(to right, #212529, #1a1d20) !important;
+  border-bottom: 1px solid #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .sidebar-head h5 {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .saved-item {
+  border-bottom-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .saved-item:hover {
+  background-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .saved-item h6 {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .empty-icon {
+  background-color: #2b3035 !important;
+  color: #94a3b8 !important;
+}
+
+/* Tối ưu hóa modal chi tiết ứng viên */
+[data-bs-theme="dark"] #talentDetailContent div[style*="background: #f8fafc"] {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .info-card {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .info-card h6,
+[data-bs-theme="dark"] .info-card div {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .info-card .text-muted {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .skill-tag {
+  background-color: #2b3035 !important;
+  border-color: #3a3f44 !important;
+  color: #dee2e6 !important;
+}
+
+[data-bs-theme="dark"] .skill-tag:hover {
+  background-color: #4f46e5 !important;
+  color: white !important;
+}
+
+[data-bs-theme="dark"] .cv-premium-card {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .cv-premium-card:hover {
+  background-color: #2b3035 !important;
+  border-color: #818cf8 !important;
+}
+
+[data-bs-theme="dark"] .cv-premium-card h6 {
+  color: #f8f9fa !important;
+}
+
+/* ==========================================================
+   TỐI ƯU GIAO DIỆN TRANG UPGRADE (NÂNG CẤP) TRONG CHẾ ĐỘ DARK MODE
+   ========================================================== */
+[data-bs-theme="dark"] .upgrade-container {
+  background-color: #0f172a !important; /* Nền xanh tối sâu cao cấp */
+}
+
+[data-bs-theme="dark"] .upgrade-header {
+  background: linear-gradient(135deg, #1e1b4b 0%, #311084 100%) !important; /* Header chuyển màu huyền ảo */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) {
+  background-color: #1e293b !important; /* Thẻ dịch vụ miễn phí dạng Slate dark */
+  border: 1px solid #334155 !important;
+}
+
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) .card-title,
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) .h1,
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) span:not(.badge) {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) .text-muted,
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) .badge.text-muted {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) li {
+  color: #cbd5e1 !important;
+}
+
+[data-bs-theme="dark"] .plan-card:not(.pro-featured) .btn-outline-secondary {
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+/* ==========================================================
+   TỐI ƯU GIAO DIỆN TRÌNH BIÊN TẬP CV RAZOR TRONG CHẾ ĐỘ DARK MODE
+   ========================================================== */
+[data-bs-theme="dark"] .resume-container {
+  background: #0f172a !important;
+}
+
+[data-bs-theme="dark"] .editor-column {
+  background-color: #1a1d20 !important; /* Xám đen sâu lắng */
+  border-right-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .editor-column h3,
+[data-bs-theme="dark"] .editor-column h4,
+[data-bs-theme="dark"] .editor-column h5,
+[data-bs-theme="dark"] .editor-column h6,
+[data-bs-theme="dark"] .editor-column .form-label {
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .form-section {
+  background-color: #212529 !important; /* Đen nhạt */
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .editor-column .form-control {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+  color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .editor-column .form-control:focus {
+  background-color: #1a1d20 !important;
+  border-color: #818cf8 !important;
+  color: #f8f9fa !important;
+  box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.25) !important;
+}
+
+[data-bs-theme="dark"] .dynamic-item {
+  background-color: #1a1d20 !important;
+  border-color: #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .editor-column .card {
+  background-color: #212529 !important;
+  border: 1px solid #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .editor-column .card-header {
+  background-color: #212529 !important;
+  border-bottom: 1px solid #2b3035 !important;
+}
+
+[data-bs-theme="dark"] .editor-column .bg-light {
+  background-color: #1a1d20 !important;
+}
+
+[data-bs-theme="dark"] .editor-column .text-muted {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .editor-column input::placeholder,
+[data-bs-theme="dark"] .editor-column textarea::placeholder {
+  color: #64748b !important;
+}
+
+
+
+
+
+
