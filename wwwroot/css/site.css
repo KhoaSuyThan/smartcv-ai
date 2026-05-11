@@ -306,6 +306,29 @@ footer {
   color: #94a3b8 !important; /* Tailwind slate-400 giúp placeholder nổi bật rõ nét */
 }
 
+/* Ép màu chữ cho RichTextEditor hoạt động chuẩn xác ở cả chế độ sáng và tối */
+.cv-builder-editor-panel .rich-text-editor {
+  color: #1e293b !important; /* Chế độ sáng */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .rich-text-editor,
+[data-bs-theme="dark"] .cv-builder-editor-panel .rich-text-editor * {
+  color: #f8fafc !important; /* Chế độ tối: trắng sáng (slate-50) */
+}
+
+/* Ép màu chữ cho tất cả các thẻ input, textarea chuẩn bên trong cv-builder-editor-panel ở chế độ tối */
+[data-bs-theme="dark"] .cv-builder-editor-panel input,
+[data-bs-theme="dark"] .cv-builder-editor-panel textarea {
+  color: #f8fafc !important; /* Chữ trắng sáng rõ nét */
+}
+
+/* Tối ưu hóa hiển thị placeholder cho các input, textarea ở chế độ tối */
+[data-bs-theme="dark"] .cv-builder-editor-panel input::placeholder,
+[data-bs-theme="dark"] .cv-builder-editor-panel textarea::placeholder {
+  color: #94a3b8 !important; /* Màu xám sáng dễ đọc */
+}
+
+
+
 /* FIX: Tối ưu hóa các nút bấm, nút thêm dòng đứt nét (border-dashed) */
 [data-bs-theme="dark"] .cv-builder-editor-panel .border-dashed {
   border-color: #334155 !important;
