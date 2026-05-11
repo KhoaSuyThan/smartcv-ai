@@ -68,13 +68,34 @@ const onPaste = (e) => {
   min-height: 30px;
   cursor: text;
   position: relative;
+  color: #1e293b; /* Màu chữ chế độ sáng mặc định */
 }
+
+/* HỖ TRỢ CHẾ ĐỘ DARK MODE (BOOTSTRAP [data-bs-theme="dark"]) */
+:global([data-bs-theme="dark"]) .rich-text-editor {
+  color: #f8fafc !important; /* Chữ trắng sáng (slate-50) nổi bật trên nền tối */
+}
+
+/* HỖ TRỢ CHẾ ĐỘ DARK MODE (TAILWIND .dark) */
+:global(.dark) .rich-text-editor {
+  color: #f8fafc !important;
+}
+
 .rich-text-editor.is-empty:before {
   content: attr(data-placeholder);
   color: #94a3b8; /* Tailwind slate-400 */
   pointer-events: none;
   position: absolute;
 }
+
+:global([data-bs-theme="dark"]) .rich-text-editor.is-empty:before {
+  color: #64748b; /* slate-500 sáng và tương tương dễ đọc ở nền tối */
+}
+
+:global(.dark) .rich-text-editor.is-empty:before {
+  color: #64748b;
+}
+
 /* Tuỳ chọn CSS để các ul, ol trong editor sẽ hiển thị rõ */
 .rich-text-editor :deep(ul) {
   list-style-type: disc !important;

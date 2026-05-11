@@ -11,23 +11,24 @@
     <div class="absolute bottom-0 left-0 w-[72mm] h-[80mm] bg-[#EDE4DC] z-0 pointer-events-none"></div>
 
     <!-- LEFT COLUMN (CỘT TRÁI) -->
-    <aside class="w-[72mm] z-10 flex flex-col pt-0 shrink-0 relative bg-transparent">
-      <!-- Avatar Section (Mục ảnh đại diện) -->
-      <div class="pt-[14mm] pb-[4mm] flex flex-col paginated-item relative z-20 items-center">
-        <div class="relative w-[48mm] h-[48mm] rounded-full overflow-hidden mx-auto bg-[#EAE5DF] shadow-sm border-[3px] border-white z-10">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
-          <div v-else class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
-            <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+    <aside class="w-[72mm] z-10 flex flex-col pt-[14mm] pb-[12mm] shrink-0 relative bg-transparent">
+      <!-- WHITE CARD CONTAINER (Khung chữ nhật màu trắng viền đen bao quanh toàn bộ avt và nội dung cột trái) -->
+      <div class="mx-auto w-[62mm] bg-white border border-[#2F2926] px-[20px] pt-[20px] pb-[20px] flex flex-col gap-6 relative z-10 flex-1">
+
+        
+        <!-- Avatar Section (Đặt bên trong khung chữ nhật trắng viền đen) -->
+        <div class="pb-[2mm] flex flex-col paginated-item items-center">
+          <div class="relative w-[48mm] h-[48mm] rounded-full overflow-hidden mx-auto bg-[#EAE5DF] shadow-sm border-[3px] border-white">
+            <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+            <div v-else class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
+              <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- WHITE CARD CONTAINER (Khung chữ nhật màu trắng viền đen) -->
-      <div class="mx-auto w-[62mm] bg-white border border-[#2F2926] px-[4.5mm] py-[6mm] flex flex-col gap-6 relative z-10 my-[2mm] flex-1">
-        
-        <!-- LIÊN LẠC SECTION (Luôn hiển thị đề mục) -->
+        <!-- LIÊN LẠC SECTION -->
         <div class="section-block relative group" :class="{ 'section-active': selectedSectionId === 'contact' }" @click.stop="toggleSection('contact')">
           <div class="paginated-item">
             <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-4" style="font-size: 20px !important;">
@@ -544,6 +545,7 @@ onUnmounted(() => {
   border: 1.5px solid transparent;
   cursor: pointer;
   transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  padding: 15px 20px; /* Padding giúp viền cách nội dung trên 15px và trái/phải đúng 20px cực kỳ cân đối */
 }
 
 .section-block.section-active {
@@ -581,8 +583,8 @@ onUnmounted(() => {
 
 .delete-item-btn {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: -12px; /* Nằm cân đối chính giữa khoảng đệm 20px bên phải */
+  top: 6px;    /* Đứng thẳng hàng với dòng đầu tiên của mục con */
   width: 16px;
   height: 16px;
   display: flex;
@@ -594,19 +596,23 @@ onUnmounted(() => {
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  transition: transform 0.15s;
+  transition: transform 0.15s, opacity 0.15s;
   z-index: 30;
   opacity: 0;
 }
 .item-container:hover .delete-item-btn {
   opacity: 1;
 }
+/* KHI CLICK VÀO SECTION (ACTIVE), HIỆN NÚT X LUÔN KHÔNG CẦN PHẢI DI CHUỘT VÀO NỘI DUNG */
+.section-block.section-active .delete-item-btn {
+  opacity: 1 !important;
+}
 .delete-item-btn:hover { transform: scale(1.15); background: #dc2626; }
 .delete-item-btn--lg {
   width: 18px;
   height: 18px;
-  right: -8px;
-  top: -4px;
+  right: -12px; /* Nằm cân đối chính giữa khoảng đệm 20px bên phải */
+  top: 6px;    /* Đứng thẳng hàng với dòng đầu tiên của mục con */
 }
 
 .item-container {
