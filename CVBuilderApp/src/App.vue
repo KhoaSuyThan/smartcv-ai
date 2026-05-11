@@ -375,7 +375,7 @@
     <div class="flex-1 overflow-auto bg-slate-800 relative scroll-smooth pattern-dots" :style="{ height: '100%', '--theme-color': resumeData.theme.primaryColor }">
         
         <!-- RICH TEXT TOOLBAR (Chiết xuất lên Top toàn bộ) -->
-        <div class="no-print sticky top-0 left-0 w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm px-6 py-3 flex items-center justify-between transition-all select-none gap-4">
+        <div class="no-print sticky top-0 left-0 w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm px-6 py-3 flex items-center justify-between transition-all select-none gap-4 cv-builder-toolbar">
             
             <!-- Nhóm công cụ Rich Text -->
             <div class="flex flex-wrap items-center gap-1">
@@ -623,7 +623,7 @@
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-500" @click="showExportModal = false"></div>
     
     <!-- Modal Content -->
-    <div class="relative bg-white w-[85vw] h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
+    <div id="exportPreviewModalContent" class="relative bg-white w-[85vw] h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
         <!-- Modal Header - Thu gọn chiều cao -->
         <div class="px-6 py-2 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur-md sticky top-0 z-10 transition-all">
             <div class="flex items-center gap-3">
@@ -710,7 +710,7 @@
         <div class="modal-body p-6 bg-slate-50">
           <div class="space-y-5">
             <div class="space-y-2">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển</label>
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển <span class="text-red-500">*</span></label>
                 <input 
                     type="text" 
                     v-model="targetCompany" 
@@ -719,13 +719,29 @@
                 >
             </div>
 
+            <div class="space-y-2 mt-4">
+                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả công việc (Tùy chọn - Giúp AI viết sát hơn)</label>
+                <textarea 
+                    v-model="coverLetterJD" 
+                    class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none resize-none custom-scrollbar" 
+                    rows="3"
+                    placeholder="Dán nội dung yêu cầu công việc (JD) vào đây..."
+                ></textarea>
+            </div>
+
             <div class="space-y-2">
                 <div class="flex items-center justify-between px-1">
                     <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Nội dung thư gợi ý</label>
-                    <button v-if="coverLetterResult" @click="copyCoverLetter" class="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                        Sao chép nội dung
-                    </button>
+                    <div class="flex items-center gap-4">
+                        <button v-if="coverLetterResult" @click="downloadCoverLetter" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Tải TXT
+                        </button>
+                        <button v-if="coverLetterResult" @click="copyCoverLetter" class="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            Sao chép
+                        </button>
+                    </div>
                 </div>
                 <div class="relative group">
                     <textarea 
@@ -769,7 +785,7 @@
     
     <!-- Modal Content -->
     <!-- Modal Content -->
-    <div class="relative bg-white w-[95vw] max-w-[1400px] h-auto max-h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col">
+    <div id="jobMatcherModalContent" class="relative bg-white w-[95vw] max-w-[1400px] h-auto max-h-[96vh] rounded-[1.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col">
         <!-- Modal Header -->
         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
             <div class="flex items-center gap-3">
@@ -1840,6 +1856,7 @@ const generateAISkills = async (sectionIndex) => {
 };
 
 const targetCompany = ref('');
+const coverLetterJD = ref('');
 const coverLetterResult = ref('');
 
 const generateAICoverLetter = async () => {
@@ -1863,10 +1880,38 @@ const generateAICoverLetter = async () => {
         });
     }
 
-    const fullInfo = `Ứng viên: ${fullName}. Vị trí: ${jobTitle}. Mục tiêu: ${summary}. Kinh nghiệm: ${experiences}`;
+    // Thu thập Kỹ năng
+    let skills = "";
+    ['skills', 'it_skills', 'languages'].forEach(secId => {
+        const sec = resumeData.value.sections.find(s => s.id === secId);
+        if (sec && sec.items) {
+            sec.items.forEach(item => {
+                if (item.name) skills += `${item.name}, `;
+            });
+        }
+    });
+
+    // Thu thập Học vấn
+    const eduSection = resumeData.value.sections.find(s => s.id === 'education');
+    let educations = "";
+    if (eduSection && eduSection.items) {
+        eduSection.items.forEach(item => {
+            if (item.school || item.major) {
+                educations += `${item.school || ''} - ${item.major || ''}; `;
+            }
+        });
+    }
+
+    const fullInfo = `Ứng viên: ${fullName}. Vị trí: ${jobTitle}. Mục tiêu: ${summary}. Kỹ năng: ${skills}. Kinh nghiệm: ${experiences}. Học vấn: ${educations}.`;
+    
+    // Khớp Context JD và Company
+    let targetInfo = targetCompany.value;
+    if (coverLetterJD.value.trim()) {
+        targetInfo += `\n\nMô tả công việc (JD):\n${coverLetterJD.value.trim()}`;
+    }
 
     isAIProcessing.value['cover_letter'] = true;
-    const result = await callAIService('cover_letter', fullInfo, targetCompany.value);
+    const result = await callAIService('cover_letter', fullInfo, targetInfo);
     if (result) {
         coverLetterResult.value = result;
     }
@@ -1882,6 +1927,25 @@ const copyCoverLetter = () => {
         console.error('Không thể sao chép:', err);
         alert("Lỗi khi sao chép. Vui lòng thử lại!");
     });
+};
+
+const downloadCoverLetter = () => {
+    if (!coverLetterResult.value) return;
+    
+    const blob = new Blob([coverLetterResult.value], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Tạo tên file an toàn
+    let companyName = targetCompany.value.split('-')[0].trim().replace(/\s+/g, '_');
+    if (!companyName) companyName = "CVBuilder";
+    
+    link.download = `Cover_Letter_${companyName}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 };
 
 // --- TÍNH NĂNG JOB MATCHER ---
