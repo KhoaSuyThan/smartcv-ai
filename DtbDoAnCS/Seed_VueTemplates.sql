@@ -86,4 +86,14 @@ VALUES
     (N'Vũ Hoàng Việt', 'VuHoangViet', 'https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?https://www.topcv.vn/cv/snapshot/template-cv/mau-cv-sinh-vien-3-_AwIHClUID1cFCQQAAgRUVAlYV1FSBAQDXFdWUQ2ff4.webp?t=1763719062&color=3C9B68&template_name=student_3&lang=vi', 1, 1, N'Kế toán, Thực tập, Chuyên nghiệp', GETDATE()),
     
     -- 28. Nguyễn Khánh Huyền
-    (N'Nguyễn Khánh Huyền', 'NguyenKhanhHuyen', '/images/templates/NguyenKhanhHuyen.png', 1, 1, N'Kế toán, Chuyên nghiệp, Văn phòng', GETDATE());
+    (N'Nguyễn Khánh Huyền', 'NguyenKhanhHuyen', '/images/templates/NguyenKhanhHuyen.png', 1, 1, N'Kế toán, Chuyên nghiệp, Văn phòng', GETDATE()),
+    
+    
+    -- 29. Samira Nguyễn
+    (N'Samira Nguyễn', 'SamiraNguyen', 'https://careers.langmaster.edu.vn/storage/images/2023/10/09/cv-nhan-vien-ban-hang-1.webp', 1, 1, N'Bán hàng, Kinh doanh, Chuyên nghiệp', GETDATE()),
+    
+    -- 30. Nguyễn Mai Anh (IT Browser)
+    (N'Nguyễn Mai Anh (IT Browser)', 'NguyenMaiAnh', 'https://www.topcv.vn/v4/image/cv-template/screenshots/thumbs/cv-template-thumbnails-v1.4/vi/chrome.webp?v=3.5&lang=vi', 1, 1, N'IT, Lập trình viên, Sáng tạo, Khối bo tròn', GETDATE()),
+    
+    -- 31. Blue Style Professional
+    (N'Blue Style Professional', 'BlueStyle', '/images/templates/BlueStyle.png', 1, 1, N'Chuyên nghiệp, 2 cột, Xanh dương', GETDATE());

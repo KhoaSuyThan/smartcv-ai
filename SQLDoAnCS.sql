@@ -12,8 +12,21 @@ GO
 CREATE DATABASE DoAnWebCS;
 GO
 
-
+INSERT INTO [dbo].[VueTemplates] 
+    ([TemplateName], [ComponentName], [ThumbnailUrl], [IsPremium], [IsActive], [Category], [CreatedAt])
+VALUES 
+    (
+        N'Samira Nguyễn',                         -- Tên hiển thị của Template
+        N'SamiraNguyen',                          -- Tên Component Vue tương ứng
+        N'https://careers.langmaster.edu.vn/storage/images/2023/10/09/cv-nhan-vien-ban-hang-1.webp',     -- Đường dẫn ảnh đại diện mẫu CV
+        1,                                        -- IsPremium (1: Mẫu VIP cần tài khoản VIP/PRO)
+        1,                                        -- IsActive (1: Cho phép hiển thị lên danh sách chọn mẫu)
+        N'Bán hàng, Kinh doanh, Chuyên nghiệp',    -- Thể loại ngành nghề phù hợp
+        GETDATE()                                 -- Thời gian tạo
+    );
+GO
 --Thêm cv Nguyễn Mai Anh
+
 INSERT INTO VueTemplates (TemplateName, ComponentName, ThumbnailUrl, IsPremium, IsActive, Category, CreatedAt)
 VALUES (
     N'Nguyễn Mai Anh (IT Browser)', 
