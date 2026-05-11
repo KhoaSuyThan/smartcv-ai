@@ -59,6 +59,7 @@ section,
 }
 
 /* Giữ nguyên màu trắng cho các "tấm thẻ" (Cards) để tạo độ nổi khối */
+.cv-preview-card, .cv-preview-card .bg-white, .cv-preview-card .bg-light,
 .card {
   background-color: #ffffff !important;
   border: none;
@@ -193,13 +194,17 @@ footer {
 
 [data-bs-theme="dark"] .card-body h5,
 [data-bs-theme="dark"] .card-body p,
-[data-bs-theme="dark"] h1, [data-bs-theme="dark"] h2, [data-bs-theme="dark"] h3, 
-[data-bs-theme="dark"] h4, [data-bs-theme="dark"] h5, [data-bs-theme="dark"] h6,
-[data-bs-theme="dark"] .text-dark {
+[data-bs-theme="dark"] h1:not(.cv-preview-card h1),
+[data-bs-theme="dark"] h2:not(.cv-preview-card h2),
+[data-bs-theme="dark"] h3:not(.cv-preview-card h3), 
+[data-bs-theme="dark"] h4:not(.cv-preview-card h4),
+[data-bs-theme="dark"] h5:not(.cv-preview-card h5),
+[data-bs-theme="dark"] h6:not(.cv-preview-card h6),
+[data-bs-theme="dark"] .text-dark:not(.cv-preview-card .text-dark) {
   color: #e9ecef !important;
 }
 
-[data-bs-theme="dark"] .text-muted {
+[data-bs-theme="dark"] .text-muted:not(.cv-preview-card .text-muted) {
   color: #adb5bd !important;
 }
 
@@ -245,6 +250,320 @@ footer {
 [data-bs-theme="dark"] .glass-card {
   background: rgba(30, 30, 30, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Tinh chỉnh Cột Nhập liệu CV Builder (Dark Mode) để dễ đọc hơn */
+[data-bs-theme="dark"] .cv-builder-editor-panel {
+  background-color: #0f172a !important; /* Slate-900 */
+  border-color: #1e293b !important; /* Slate-800 */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .bg-slate-50,
+[data-bs-theme="dark"] .cv-builder-editor-panel .bg-slate-100 {
+  background-color: #0f172a !important;
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .bg-slate-50\/50,
+[data-bs-theme="dark"] .cv-builder-editor-panel .bg-blue-50\/50 {
+  background-color: #1e293b !important; /* Slate-800 */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .bg-white {
+  background-color: #1e293b !important; /* Slate-800 */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .text-slate-800,
+[data-bs-theme="dark"] .cv-builder-editor-panel .text-slate-700,
+[data-bs-theme="dark"] .cv-builder-editor-panel .text-slate-600 {
+  color: #f8fafc !important; /* Chữ trắng sáng */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .text-slate-500,
+[data-bs-theme="dark"] .cv-builder-editor-panel .placeholder-slate-400::placeholder {
+  color: #94a3b8 !important; /* Chữ xám nhạt */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .text-blue-700,
+[data-bs-theme="dark"] .cv-builder-editor-panel .text-blue-600 {
+  color: #60a5fa !important; /* Chữ xanh lam sáng */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .border-slate-200,
+[data-bs-theme="dark"] .cv-builder-editor-panel .border-slate-100,
+[data-bs-theme="dark"] .cv-builder-editor-panel .border-blue-200,
+[data-bs-theme="dark"] .cv-builder-editor-panel .border-blue-100 {
+  border-color: #334155 !important; /* Viền xám đậm vừa phải */
+}
+
+/* FIX: Sửa lỗi hover/focus của ô nhập liệu có nền trắng biến chữ thành tàng hình */
+[data-bs-theme="dark"] .cv-builder-editor-panel .hover\:bg-slate-50:hover,
+[data-bs-theme="dark"] .cv-builder-editor-panel .hover\:bg-blue-50:hover,
+[data-bs-theme="dark"] .cv-builder-editor-panel .hover\:bg-white:hover {
+  background-color: #334155 !important; /* Slate-700 */
+  color: #f8fafc !important;
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .focus\:bg-white:focus,
+[data-bs-theme="dark"] .cv-builder-editor-panel .focus-within\:bg-blue-50:focus-within,
+[data-bs-theme="dark"] .cv-builder-editor-panel .focus-within\:bg-blue-50\/60:focus-within {
+  background-color: #1e293b !important; /* Slate-800 */
+  color: #f8fafc !important;
+  border-bottom-color: #3b82f6 !important; /* Viền sáng màu xanh lam dưới */
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .rich-text-editor.is-empty:before {
+  color: #94a3b8 !important; /* Tailwind slate-400 giúp placeholder nổi bật rõ nét */
+}
+
+/* FIX: Tối ưu hóa các nút bấm, nút thêm dòng đứt nét (border-dashed) */
+[data-bs-theme="dark"] .cv-builder-editor-panel .border-dashed {
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+[data-bs-theme="dark"] .cv-builder-editor-panel .border-dashed:hover {
+  border-color: #3b82f6 !important;
+  color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* ==========================================================
+   TỐI ƯU HÓA RICH TEXT TOOLBAR TRONG DARK MODE (PREMIUM LOOK)
+   ========================================================== */
+[data-bs-theme="dark"] .cv-builder-toolbar {
+  background-color: rgba(15, 23, 42, 0.9) !important; /* Slate-900 mờ cao cấp */
+  border-color: #1e293b !important; /* Slate-800 border */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+  color: #f8fafc !important;
+}
+
+/* Định dạng select (Font Family, Font Size) trong Toolbar */
+[data-bs-theme="dark"] .cv-builder-toolbar select {
+  background-color: #1e293b !important; /* Slate-800 */
+  border-color: #334155 !important; /* Slate-700 */
+  color: #f1f5f9 !important; /* Chữ sáng rõ */
+}
+[data-bs-theme="dark"] .cv-builder-toolbar select:hover {
+  border-color: #3b82f6 !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar select option {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+/* Các nút định dạng (Bold, Italic, Underline, Canh lề, List,...) */
+[data-bs-theme="dark"] .cv-builder-toolbar button {
+  color: #cbd5e1 !important; /* Slate-300 */
+}
+[data-bs-theme="dark"] .cv-builder-toolbar button:hover {
+  background-color: #1e293b !important; /* Nền Slate-800 khi hover */
+  color: #ffffff !important;
+}
+
+/* FIX: Nổi bật trạng thái Active khi nút định dạng đang được bật */
+[data-bs-theme="dark"] .cv-builder-toolbar button.bg-blue-100 {
+  background-color: #2563eb !important; /* Nền xanh lam đậm nổi bật hẳn */
+  color: #ffffff !important; /* Chữ trắng rực rỡ */
+  border-color: #3b82f6 !important;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.25) !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar button.bg-blue-100 svg {
+  color: #ffffff !important;
+}
+
+/* FIX: Tăng độ sáng cho label "MÀU NỀN" và "MÀU CHỮ" */
+[data-bs-theme="dark"] .cv-builder-toolbar .text-slate-500 {
+  color: #cbd5e1 !important; /* Màu chữ xám sáng rõ rệt */
+}
+
+/* Dropdown chọn Màu nền / Màu chữ */
+[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown button {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown button:hover {
+  background-color: #334155 !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown .absolute {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.4) !important;
+}
+
+/* FIX: Làm nổi bật nút AI SCAN thành màu vàng hổ phách tối mờ rực rỡ */
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="text-amber-700"] {
+  background: rgba(245, 158, 11, 0.15) !important; /* Amber mờ cực đẹp */
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fbbf24 !important; /* Chữ vàng hổ phách rực rỡ */
+}
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="text-amber-700"]:hover {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #ffffff !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="text-amber-700"] svg {
+  color: #fbbf24 !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="text-amber-700"]:hover svg {
+  color: #ffffff !important;
+}
+
+/* ==========================================================
+   TỐI ƯU HÓA MODALS (COVER LETTER & JOB MATCHER) TRONG DARK MODE
+   ========================================================== */
+[data-bs-theme="dark"] #coverLetterModal .modal-content,
+[data-bs-theme="dark"] #jobMatcherModalContent {
+  background-color: #0f172a !important; /* Slate-900 làm nền thống nhất */
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] #coverLetterModal .modal-header,
+[data-bs-theme="dark"] #jobMatcherModalContent > div:first-child {
+  background: #0f172a !important; /* Đổi nền header thành Slate-900 */
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-bs-theme="dark"] #coverLetterModal .modal-body,
+[data-bs-theme="dark"] #jobMatcherModalContent .flex-1.overflow-y-auto {
+  background-color: #0f172a !important; /* Nền body đồng bộ */
+}
+
+[data-bs-theme="dark"] #coverLetterModal .modal-footer {
+  background-color: #0f172a !important; /* Nền footer đồng bộ */
+  border-top: 1px solid #1e293b !important;
+}
+
+/* Các nhãn text labels */
+[data-bs-theme="dark"] #coverLetterModal label,
+[data-bs-theme="dark"] #jobMatcherModalContent label {
+  color: #cbd5e1 !important; /* Chuyển màu nhãn xám sáng rõ ràng */
+}
+
+/* Các ô input và textarea trong Modal */
+[data-bs-theme="dark"] #coverLetterModal input,
+[data-bs-theme="dark"] #coverLetterModal textarea,
+[data-bs-theme="dark"] #jobMatcherModalContent input,
+[data-bs-theme="dark"] #jobMatcherModalContent textarea {
+  background-color: #1e293b !important; /* Slate-800 thay vì màu trắng */
+  color: #f8fafc !important; /* Chữ trắng sáng */
+  border-color: #334155 !important; /* Viền Slate-700 */
+}
+
+[data-bs-theme="dark"] #coverLetterModal input:focus,
+[data-bs-theme="dark"] #coverLetterModal textarea:focus,
+[data-bs-theme="dark"] #jobMatcherModalContent input:focus,
+[data-bs-theme="dark"] #jobMatcherModalContent textarea:focus {
+  border-color: #3b82f6 !important; /* Viền sáng khi active */
+  background-color: #1e293b !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25) !important;
+}
+
+/* Placeholder trong các ô nhập liệu của Modal */
+[data-bs-theme="dark"] #coverLetterModal input::placeholder,
+[data-bs-theme="dark"] #coverLetterModal textarea::placeholder,
+[data-bs-theme="dark"] #jobMatcherModalContent input::placeholder,
+[data-bs-theme="dark"] #jobMatcherModalContent textarea::placeholder {
+  color: #64748b !important; /* Đọc rõ nét trên nền sẫm màu */
+}
+
+/* Thẻ điểm số match trong Job Matcher (Match Score Card) */
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-gradient-to-br.from-slate-50.to-white {
+  background: #1e293b !important; /* Đổi nền sang Slate-800 thay vì trắng kem */
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-gradient-to-br.from-slate-50.to-white p,
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-gradient-to-br.from-slate-50.to-white span {
+  color: #f8fafc !important; /* Chữ sáng */
+}
+
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-gradient-to-br.from-slate-50.to-white circle[stroke="#e2e8f0"] {
+  stroke: #334155 !important; /* Sửa màu vòng tròn nền của biểu đồ match score */
+}
+
+/* Các hộp chi tiết phân tích kết quả match */
+/* 1. Kỹ năng đã khớp */
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-emerald-50\/50 {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .text-emerald-700 {
+  color: #34d399 !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+/* 2. Kỹ năng còn thiếu */
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-rose-50\/50 {
+  background-color: rgba(244, 63, 94, 0.08) !important;
+  border-color: rgba(244, 63, 94, 0.2) !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .text-rose-700 {
+  color: #fb7185 !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-rose-100 {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  color: #fb7185 !important;
+  border-color: rgba(244, 63, 94, 0.3) !important;
+}
+
+/* 3. Gợi ý cải thiện */
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-blue-50\/50 {
+  background-color: rgba(59, 130, 246, 0.08) !important;
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .text-blue-700 {
+  color: #60a5fa !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent li.bg-white {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent li.bg-white .bg-blue-100 {
+  background-color: rgba(59, 130, 246, 0.2) !important;
+  color: #60a5fa !important;
+}
+
+/* 4. Nhận xét tổng quan */
+[data-bs-theme="dark"] #jobMatcherModalContent .bg-amber-50\/50 {
+  background-color: rgba(245, 158, 11, 0.08) !important;
+  border-color: rgba(245, 158, 11, 0.2) !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .text-amber-700 {
+  color: #fbbf24 !important;
+}
+[data-bs-theme="dark"] #jobMatcherModalContent .italic.text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+/* Sửa đổi chung các nhãn chỉ dẫn text trong Matcher */
+[data-bs-theme="dark"] #jobMatcherModalContent .text-slate-600,
+[data-bs-theme="dark"] #jobMatcherModalContent .text-slate-700,
+[data-bs-theme="dark"] #jobMatcherModalContent .text-slate-800 {
+  color: #f1f5f9 !important;
+}
+
+/* Nút Đóng */
+[data-bs-theme="dark"] #coverLetterModal .modal-footer button[data-bs-dismiss="modal"] {
+  color: #cbd5e1 !important;
+}
+[data-bs-theme="dark"] #coverLetterModal .modal-footer button[data-bs-dismiss="modal"]:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* Nút Submit (Bắt đầu viết / Bắt đầu tạo) */
+[data-bs-theme="dark"] #coverLetterModal .modal-footer button.bg-slate-900,
+[data-bs-theme="dark"] #coverLetterModal .modal-footer button[class*="bg-slate-900"] {
+  background: #2563eb !important; /* Thay nền tối bằng nền xanh dương công nghệ nổi bật */
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+[data-bs-theme="dark"] #coverLetterModal .modal-footer button.bg-slate-900:hover {
+  background: #3b82f6 !important;
+}
+
+/* Loading Overlay */
+[data-bs-theme="dark"] #coverLetterModal .bg-white\/60 {
+  background-color: rgba(15, 23, 42, 0.7) !important; /* Backdrop mờ tối */
+}
+[data-bs-theme="dark"] #coverLetterModal .text-blue-600 {
+  color: #60a5fa !important;
 }
 
 /* Fix chatbox AI widget for dark mode */
@@ -486,6 +805,45 @@ footer {
   color: #adb5bd !important;
 }
 
+/* Fix My Resumes & Live CV Preview in dark mode (keep white background for CV to blend) */
+[data-bs-theme="dark"] .transition-hover,
+[data-bs-theme="dark"] .transition-hover .bg-white,
+[data-bs-theme="dark"] .transition-hover .bg-light {
+  background-color: #ffffff !important;
+  border-color: #eee !important;
+}
+
+[data-bs-theme="dark"] .cv-preview-card {
+  color-scheme: light !important; /* Ép trình duyệt render như Light Mode */
+  background-color: #ffffff !important;
+  border-color: #eee !important;
+  color: #212529 !important;
+  --bs-body-color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .cv-preview-card .bg-white,
+[data-bs-theme="dark"] .cv-preview-card .bg-light {
+  background-color: #ffffff !important;
+  border-color: transparent !important; /* Xóa viền thừa do bị override */
+}
+
+[data-bs-theme="dark"] .cv-preview-card * {
+  /* Prevent child elements without specific color classes from turning white */
+}
+
+[data-bs-theme="dark"] .transition-hover h6,
+[data-bs-theme="dark"] .transition-hover .text-dark {
+  color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .transition-hover .text-muted {
+  color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .transition-hover:hover {
+  border-color: #0d6efd !important;
+}
+
 /* =========================================
    ADMIN DASHBOARD DARK MODE OVERRIDES
 ========================================= */
@@ -605,6 +963,96 @@ footer {
   border-color: #2b3035 !important;
 }
 
+/* Fix Admin Sidebar Headers */
+[data-bs-theme="dark"] .menu-label {
+  color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .input-group[style*="#f1f5f9"] {
+  background: #1a1d20 !important;
+}
+
+[data-bs-theme="dark"] .form-control.bg-light,
+[data-bs-theme="dark"] .input-group-text.bg-light,
+[data-bs-theme="dark"] .form-select.bg-light {
+  background-color: #1a1d20 !important;
+  color: #e9ecef !important;
+  border-color: #2b3035 !important;
+}
+
 [data-bs-theme="dark"] .btn-light:hover {
   background-color: #343a40 !important;
+}
+
+/* ==========================================================
+   TỐI ƯU HÓA MODAL KIỂM TRA BẢN IN (EXPORT PREVIEW) TRONG DARK MODE
+   ========================================================== */
+[data-bs-theme="dark"] #exportPreviewModalContent {
+  background-color: #0f172a !important; /* Nền chính Slate-900 */
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Header và Footer của Modal */
+[data-bs-theme="dark"] #exportPreviewModalContent > div:first-child,
+[data-bs-theme="dark"] #exportPreviewModalContent > div:last-child {
+  background-color: #0f172a !important; /* Nền tối đồng nhất */
+  border-color: #1e293b !important;
+}
+
+/* Tiêu đề "Kiểm tra bản in..." */
+[data-bs-theme="dark"] #exportPreviewModalContent h3 {
+  color: #f8fafc !important; /* Chữ trắng sáng */
+}
+
+/* Bộ điều khiển Zoom gọn hơn */
+[data-bs-theme="dark"] #exportPreviewModalContent .flex.items-center.bg-slate-100 {
+  background-color: #1e293b !important; /* Đổi nền thành Slate-800 */
+  border-color: #334155 !important;
+}
+[data-bs-theme="dark"] #exportPreviewModalContent .flex.items-center.bg-slate-100 span {
+  color: #cbd5e1 !important; /* Chữ zoom % sáng */
+}
+[data-bs-theme="dark"] #exportPreviewModalContent .flex.items-center.bg-slate-100 button {
+  background-color: #334155 !important; /* Nút +/- màu Slate-700 */
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+[data-bs-theme="dark"] #exportPreviewModalContent .flex.items-center.bg-slate-100 button:hover {
+  background-color: #2563eb !important; /* Hover xanh lam công nghệ */
+  color: #ffffff !important;
+}
+
+/* Nút Close góc phải */
+[data-bs-theme="dark"] #exportPreviewModalContent button:has(svg.w-7) {
+  color: #94a3b8 !important;
+}
+[data-bs-theme="dark"] #exportPreviewModalContent button:has(svg.w-7):hover {
+  background-color: #1e293b !important;
+  color: #f43f5e !important; /* Hover chuyển sang màu đỏ tinh tế */
+}
+
+/* Vùng cuộn bản xem trước chứa CV giấy */
+[data-bs-theme="dark"] #exportPreviewModalContent .flex-1.overflow-y-auto {
+  background-color: #090d16 !important; /* Nền đen sẫm đặc biệt làm nổi rõ tờ giấy CV A4 trắng */
+  border-color: #1e293b !important;
+}
+
+/* Nút Quay lại ở Footer */
+[data-bs-theme="dark"] #exportPreviewModalContent > div:last-child button:first-child {
+  color: #94a3b8 !important; /* Chữ xám sáng */
+}
+[data-bs-theme="dark"] #exportPreviewModalContent > div:last-child button:first-child:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* Nút Tải xuống PDF ở Footer */
+[data-bs-theme="dark"] #exportPreviewModalContent > div:last-child button:last-child {
+  background: #2563eb !important; /* Chuyển nền xám đen thành xanh lam premium */
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+[data-bs-theme="dark"] #exportPreviewModalContent > div:last-child button:last-child:hover {
+  background: #3b82f6 !important;
 }
