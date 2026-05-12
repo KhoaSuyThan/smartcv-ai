@@ -5,6 +5,7 @@ namespace DoAnCS.Models
     {
         // Danh sách lấy từ DB
         public List<Template> PopularTemplates { get; set; } = new List<Template>();
+        public List<VueTemplate> VueTemplates { get; set; } = new List<VueTemplate>();
         
         // Tạm thời để đây, chưa dùng DB
         //public List<Job> LatestJobs { get; set; } = new List<Job>();

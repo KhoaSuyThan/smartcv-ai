@@ -358,24 +358,25 @@
     <div class="container">
         <div class="text-center mb-4">
             <h2 class="display-6 fw-bold">Kho mẫu CV chuẩn chỉnh ATS</h2>
-            <p class="text-muted">Được thiết kế bởi các chuyên gia nhân sự hàng đầu.</p>
+            <p class="text-muted">Mẫu CV được thiết kế bởi các chuyên gia nhân sự hàng đầu.</p>
         </div>
         
         <div class="row g-4">
-            @if (Model.PopularTemplates != null && Model.PopularTemplates.Any())
+            @if (Model.VueTemplates != null && Model.VueTemplates.Any())
             {
-                @foreach (var template in Model.PopularTemplates.Take(4))
+                @foreach (var template in Model.VueTemplates.Take(4))
                 {
                     <div class="col-lg-3 col-md-6">
                         <div class="card border-0 shadow-sm overflow-hidden h-100 template-card" style="border-radius: 15px;">
                             <div class="position-relative">
-                                <img src="@template.PreviewImageUrl" class="card-img-top p-2" alt="@template.Name" style="height: 350px; object-fit: contain;">
+                                <img src="@template.ThumbnailUrl" class="card-img-top p-2" alt="@template.TemplateName" style="height: 350px; object-fit: contain;"
+                                     onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
                                 <div class="template-overlay d-flex align-items-center justify-content-center opacity-0 hover-opacity-1 transition-all">
-                                    <a asp-controller="Resume" asp-action="Create" asp-route-id="@template.TemplateID" class="btn btn-light rounded-pill px-4 fw-bold shadow">Sử dụng ngay</a>
+                                    <a asp-controller="Resume" asp-action="CreateVue" asp-route-id="@template.Id" class="btn btn-light rounded-pill px-4 fw-bold shadow">Sử dụng ngay</a>
                                 </div>
                             </div>
                             <div class="card-body text-center bg-white">
-                                <h6 class="fw-bold mb-0">@template.Name</h6>
+                                <h6 class="fw-bold mb-0">@template.TemplateName</h6>
                             </div>
                         </div>
                     </div>
@@ -384,7 +385,7 @@
             else
             {
                 <div class="col-12 text-center py-5">
-                    <p class="text-muted">Đang cập nhật các mẫu CV mới nhất...</p>
+                    <p class="text-muted">Đang cập nhật các mẫu VueCV mới nhất...</p>
                 </div>
             }
         </div>

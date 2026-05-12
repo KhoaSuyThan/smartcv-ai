@@ -48,6 +48,10 @@ namespace DoAnCS.Controllers
                 PopularTemplates = await _context.Templates
                     .Where(t => t.IsActive == true)
                     .Take(4)
+                    .ToListAsync(),
+                VueTemplates = await _context.VueTemplates
+                    .Where(t => t.IsActive == true)
+                    .Take(4)
                     .ToListAsync()
             };
 
