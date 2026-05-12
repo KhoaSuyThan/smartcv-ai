@@ -3,7 +3,7 @@
     
     <!-- PANEL GỢI Ý HÀNH ĐỘNG (Đặt ở Root để đảm bảo luôn hiển thị) -->
     <div v-if="showTips && !isPreviewMode" 
-         class="absolute left-[715px] top-24 w-72 z-[9999] bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-slate-200 overflow-hidden text-slate-800 transition-all duration-500"
+         class="absolute left-[715px] top-24 w-72 z-[9999] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border overflow-hidden transition-all duration-500 completion-tips-panel"
     >
         <div class="bg-slate-900 px-4 py-2 flex items-center justify-between border-b border-white/10">
             <div class="flex items-center gap-2">
@@ -14,7 +14,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
-        <div class="max-h-[400px] overflow-y-auto custom-scrollbar p-2 bg-white">
+        <div class="max-h-[400px] overflow-y-auto custom-scrollbar p-2 completion-tips-body">
             <div v-if="completionTips.length === 0" class="py-10 text-center px-4">
                 <div class="text-4xl mb-2">🏆</div>
                 <div class="text-[11px] font-black text-emerald-600 uppercase tracking-widest leading-relaxed text-center">Hoàn hảo!</div>
@@ -24,13 +24,13 @@
                     v-for="tip in completionTips" 
                     :key="tip.id"
                     @click.stop="scrollToField(tip.targetId)"
-                    class="w-full text-left p-2.5 rounded-xl transition-all flex items-center gap-3 group border border-transparent hover:bg-slate-50 hover:border-slate-100"
+                    class="w-full text-left p-2.5 rounded-xl transition-all flex items-center gap-3 group border completion-tip-item"
                 >
-                    <div class="shrink-0 flex items-center justify-center w-5 h-5 rounded-lg border transition-colors" :class="tip.isDone ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'bg-white border-slate-100 text-slate-400 group-hover:border-blue-100 group-hover:bg-blue-50 group-hover:text-blue-600'">
+                    <div class="shrink-0 flex items-center justify-center w-5 h-5 rounded-lg border transition-colors" :class="tip.isDone ? 'bg-emerald-50 border-emerald-100 text-emerald-600' : 'completion-tip-icon-unread'">
                         <svg v-if="tip.isDone" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                         <span v-else class="text-[10px] font-black italic">!</span>
                     </div>
-                    <div class="text-[12px] font-bold text-slate-700 leading-tight group-hover:text-blue-700 transition-colors">{{ tip.label }}</div>
+                    <div class="text-[12px] font-bold leading-tight transition-colors completion-tip-label">{{ tip.label }}</div>
                 </button>
             </div>
         </div>
@@ -2186,5 +2186,104 @@ onUnmounted(() => {
         z-index: 10;
         pointer-events: none;
         user-select: none;
+    }
+
+    /* ==========================================
+       STYLING CHO PANEL GỢI Ý HOÀN THIỆN
+       ========================================== */
+    .completion-tips-panel {
+        background-color: #ffffff !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    .completion-tips-body {
+        background-color: #ffffff !important;
+    }
+
+    .completion-tip-item {
+        border-color: transparent !important;
+    }
+
+    .completion-tip-item:hover {
+        background-color: #f8fafc !important;
+        border-color: #e2e8f0 !important;
+    }
+
+    .completion-tip-label {
+        color: #334155 !important; /* slate-700 */
+    }
+
+    .completion-tip-item:hover .completion-tip-label {
+        color: #1d4ed8 !important; /* blue-700 */
+    }
+
+    /* Icon chưa hoàn thành */
+    .completion-tip-icon-unread {
+        background-color: #ffffff !important;
+        border-color: #e2e8f0 !important;
+        color: #94a3b8 !important;
+    }
+
+    .completion-tip-item:hover .completion-tip-icon-unread {
+        background-color: #eff6ff !important;
+        border-color: #bfdbfe !important;
+        color: #2563eb !important;
+    }
+
+    /* --- ĐỒNG BỘ DARK MODE CHO PANEL GỢI Ý --- */
+    [data-bs-theme="dark"] .completion-tips-panel,
+    .dark .completion-tips-panel {
+        background-color: #0f172a !important; /* Slate-900 */
+        border-color: #1e293b !important; /* Slate-800 */
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+    }
+
+    [data-bs-theme="dark"] .completion-tips-body,
+    .dark .completion-tips-body {
+        background-color: #1e293b !important; /* Slate-800 */
+    }
+
+    [data-bs-theme="dark"] .completion-tip-item:hover,
+    .dark .completion-tip-item:hover {
+        background-color: #334155 !important; /* Slate-700 */
+        border-color: #475569 !important; /* Slate-600 */
+    }
+
+    [data-bs-theme="dark"] .completion-tip-label,
+    .dark .completion-tip-label {
+        color: #cbd5e1 !important; /* Slate-300 */
+    }
+
+    [data-bs-theme="dark"] .completion-tip-item:hover .completion-tip-label,
+    .dark .completion-tip-item:hover .completion-tip-label {
+        color: #60a5fa !important; /* Blue-400 */
+    }
+
+    [data-bs-theme="dark"] .completion-tip-icon-unread,
+    .dark .completion-tip-icon-unread {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .completion-tip-item:hover .completion-tip-icon-unread,
+    .dark .completion-tip-item:hover .completion-tip-icon-unread {
+        background-color: rgba(59, 130, 246, 0.2) !important;
+        border-color: #3b82f6 !important;
+        color: #60a5fa !important;
+    }
+
+    /* Trạng thái đã hoàn thành (Done) trong dark mode */
+    [data-bs-theme="dark"] .bg-emerald-50,
+    .dark .bg-emerald-50 {
+        background-color: rgba(16, 185, 129, 0.15) !important;
+    }
+    [data-bs-theme="dark"] .border-emerald-100,
+    .dark .border-emerald-100 {
+        border-color: rgba(16, 185, 129, 0.3) !important;
+    }
+    [data-bs-theme="dark"] .text-emerald-600,
+    .dark .text-emerald-600 {
+        color: #34d399 !important;
     }
 </style>

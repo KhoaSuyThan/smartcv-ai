@@ -141,6 +141,88 @@
     .cv-list-container::-webkit-scrollbar-track {
         background: transparent;
     }
+
+    /* ==========================================
+       ĐỒNG BỘ DARK MODE CAO CẤP (PREMIUM LOOK)
+       ========================================== */
+    [data-bs-theme="dark"] .job-detail-card {
+        background: #111827 !important; /* Nền Slate-900 sang trọng */
+        border: 1px solid #1e293b !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    [data-bs-theme="dark"] .job-description {
+        color: #cbd5e1 !important; /* Chữ mô tả màu Slate-300 dễ đọc, tương phản xuất sắc */
+    }
+
+    [data-bs-theme="dark"] .company-logo-img {
+        background: #1f2937 !important;
+        border-color: #374151 !important;
+    }
+
+    [data-bs-theme="dark"] .text-secondary {
+        color: #9ca3af !important; /* Slate-400 */
+    }
+
+    [data-bs-theme="dark"] .text-dark {
+        color: #f3f4f6 !important; /* Slate-100 */
+    }
+
+    [data-bs-theme="dark"] hr {
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        opacity: 0.15;
+    }
+
+    /* Modal & CV Selection trong Dark Mode */
+    [data-bs-theme="dark"] .modal-content {
+        background-color: #0f172a !important; /* Nền Slate-900 */
+        border: 1px solid #1e293b !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    [data-bs-theme="dark"] .modal-body,
+    [data-bs-theme="dark"] .modal-footer {
+        background-color: #0f172a !important;
+    }
+
+    [data-bs-theme="dark"] .modal-body .bg-white {
+        background-color: #1e293b !important; /* Slate-800 */
+    }
+
+    [data-bs-theme="dark"] .modal-body .text-dark {
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] .modal-body .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .cv-card-inner {
+        background: #1e293b !important; /* Slate-800 */
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] .cv-card-inner:hover {
+        border-color: #6366f1 !important;
+        background-color: #25235c !important; /* Dark Indigo-950 */
+    }
+
+    [data-bs-theme="dark"] .cv-card-inner.selected {
+        border-color: #6366f1 !important;
+        background-color: #25235c !important;
+    }
+
+    [data-bs-theme="dark"] .cv-card-inner .text-dark {
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] .cv-card-inner .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .btn-close {
+        filter: invert(1) grayscale(1) brightness(2); /* Làm sáng nút close của modal */
+    }
 </style>
 
 <div class="container py-5">

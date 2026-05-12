@@ -268,18 +268,62 @@
             this.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Đang xử lý...";
             this.disabled = true;
 
-            // Kỹ thuật xử lý lỗi Zoom khi in PDF
+            // Kỹ thuật xử lý lỗi Zoom và loại bỏ chế độ tối khi in PDF
             html2canvas(element, {
                 scale: 2,           // Giữ độ nét cao
                 useCORS: true,
                 logging: false,
                 backgroundColor: "#ffffff",
-                // QUAN TRỌNG: Xóa hiệu ứng zoom khi đang chụp ảnh
+                // QUAN TRỌNG: Chuyển đổi bản in về Light Mode trước khi chụp ảnh
                 onclone: (clonedDoc) => {
                     clonedDoc.documentElement.style.zoom = "100%"; 
+
+                    // --- KHẮC PHỤC HOÀN TOÀN DARK MODE CHO BẢN IN PDF ---
+                    // Gỡ bỏ thuộc tính và class chế độ tối để ép toàn bộ bản sao in ấn về Light Mode chuẩn
+                    clonedDoc.documentElement.removeAttribute('data-bs-theme');
+                    clonedDoc.documentElement.classList.remove('dark');
+                    if (clonedDoc.body) {
+                        clonedDoc.body.removeAttribute('data-bs-theme');
+                        clonedDoc.body.classList.remove('dark');
+                    }
+
                     // Đảm bảo vùng nội dung trong bản sao không bị bó hẹp
                     const clonedElement = clonedDoc.getElementById('termsContent');
                     clonedElement.style.width = "1100px"; // Cố định chiều rộng chuẩn để dàn trang đẹp
+                    
+                    // Cưỡng bức các thuộc tính hiển thị quan trọng trên bản sao in ấn để chống lỗi lem màu của các thư viện CSS khác
+                    clonedElement.style.setProperty('background-color', '#ffffff', 'important');
+                    clonedElement.style.setProperty('color', '#212529', 'important');
+                    clonedElement.style.setProperty('box-shadow', 'none', 'important');
+
+                    // Reset các khối hộp nội dung điều khoản về tông màu sáng rõ ràng
+                    const blocks = clonedElement.querySelectorAll('.terms-block');
+                    blocks.forEach(block => {
+                        block.style.setProperty('color', '#212529', 'important');
+                        block.style.setProperty('border-color', '#e5e7eb', 'important');
+                        if (block.classList.contains('terms-block-primary')) {
+                            block.style.setProperty('background-color', '#e0f2fe', 'important');
+                        } else if (block.classList.contains('terms-block-success')) {
+                            block.style.setProperty('background-color', '#d1fae5', 'important');
+                        } else if (block.classList.contains('terms-block-warning')) {
+                            block.style.setProperty('background-color', '#fef3c7', 'important');
+                        } else if (block.classList.contains('terms-block-danger')) {
+                            block.style.setProperty('background-color', '#fee2e2', 'important');
+                        } else if (block.classList.contains('terms-block-dark')) {
+                            block.style.setProperty('background-color', '#f1f5f9', 'important');
+                        }
+                    });
+
+                    // Khôi phục màu chữ đen sẫm chuẩn in ấn cho toàn bộ tiêu đề và đoạn văn trong bản sao
+                    const headings = clonedElement.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                    headings.forEach(h => {
+                        h.style.setProperty('color', '#1e293b', 'important');
+                    });
+
+                    const texts = clonedElement.querySelectorAll('p, li, .terms-content');
+                    texts.forEach(t => {
+                        t.style.setProperty('color', '#334155', 'important');
+                    });
                 }
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
