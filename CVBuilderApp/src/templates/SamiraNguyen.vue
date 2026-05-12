@@ -11,9 +11,9 @@
     <div class="absolute bottom-0 left-0 w-[72mm] h-[80mm] bg-[#EDE4DC] z-0 pointer-events-none"></div>
 
     <!-- LEFT COLUMN (CỘT TRÁI) -->
-    <aside class="w-[72mm] z-10 flex flex-col pt-[14mm] pb-[12mm] shrink-0 relative bg-transparent">
+    <aside class="w-[72mm] z-10 flex flex-col pt-[8mm] pb-[8mm] shrink-0 relative bg-transparent">
       <!-- WHITE CARD CONTAINER (Khung chữ nhật màu trắng viền đen bao quanh toàn bộ avt và nội dung cột trái) -->
-      <div class="mx-auto w-[62mm] bg-white border border-[#2F2926] px-[20px] pt-[20px] pb-[20px] flex flex-col gap-6 relative z-10 flex-1">
+      <div class="mx-auto w-[62mm] bg-white border border-[#2F2926] px-[12px] pt-[12px] pb-[12px] flex flex-col gap-3 relative z-10 flex-1">
 
         
         <!-- Avatar Section (Đặt bên trong khung chữ nhật trắng viền đen) -->
@@ -31,10 +31,10 @@
         <!-- LIÊN LẠC SECTION -->
         <div class="section-block relative group" :class="{ 'section-active': selectedSectionId === 'contact' }" @click.stop="toggleSection('contact')">
           <div class="paginated-item">
-            <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-4" style="font-size: 20px !important;">
+            <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-2" style="font-size: 18px !important;">
               LIÊN LẠC
             </h3>
-            <div class="space-y-3 text-[11px] font-medium text-[#2F2926] pl-0.5">
+            <div class="space-y-2 text-[11px] font-medium text-[#2F2926] pl-0.5">
               <!-- Email (Chỉ hiển thị dòng nếu có dữ liệu) -->
               <div class="flex items-start gap-3" v-if="!isEmpty(resumeData.general.email)">
                 <div class="shrink-0 mt-[2px] text-[#2F2926]">
@@ -100,15 +100,15 @@
               </div>
             </transition>
 
-            <!-- Tiêu đề đề mục (Cỡ chữ 20px) -->
+            <!-- Tiêu đề đề mục (Cỡ chữ 18px) -->
             <div class="paginated-item">
-              <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-4" style="font-size: 20px !important;">
+              <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-2" style="font-size: 18px !important;">
                 {{ section.title }}
               </h3>
             </div>
 
             <!-- Content of Section -->
-            <div class="space-y-3" v-if="sectionHasContent(section)">
+            <div class="space-y-2" v-if="sectionHasContent(section)">
               <!-- KỸ NĂNG (skills) -->
               <div v-if="section.id.toLowerCase().includes('skill')" class="space-y-3">
                 <div
@@ -171,7 +171,7 @@
     <!-- RIGHT COLUMN (CỘT PHẢI) -->
     <main class="flex-1 flex flex-col relative bg-white z-20 min-h-max" @click.self="selectedSectionId = null">
       <!-- HEADER: TÊN + VỊ TRÍ TRÊN CỘT PHẢI (Luôn hiển thị với dữ liệu thực tế hoặc mặc định của mẫu) -->
-      <header class="paginated-item pt-[20mm] px-[12mm] pb-[10mm] flex flex-col min-h-min">
+      <header class="paginated-item pt-[10mm] px-[12mm] pb-[4mm] flex flex-col min-h-min">
         <h1 class="font-black uppercase tracking-wide leading-[0.95] mb-2 text-[#2F2926]" style="font-size: 38px !important; font-family: 'Montserrat', sans-serif;">
           <span v-html="nameLines.firstLine"></span><br>
           <span v-html="nameLines.secondLine"></span>
@@ -182,7 +182,7 @@
       </header>
 
       <!-- CONTENT SECTIONS (SUMMARY, KINH NGHIỆM, HỌC VẤN) -->
-      <div class="px-[12mm] pb-[12mm] flex-1 flex flex-col gap-[7mm]">
+      <div class="px-[12mm] pb-[12mm] flex-1 flex flex-col gap-[3mm]">
         <!-- SUMMARY / GIỚI THIỆU BẢN THÂN -->
         <div class="section-block relative group py-1" v-if="!isEmpty(resumeData.general.summary)" :class="{ 'section-active': selectedSectionId === 'summary' }" @click.stop="toggleSection('summary')">
           <div class="paginated-item leading-[1.8] text-[#4A433F] text-justify text-[11.5px] font-medium html-content" v-html="formatDesc(resumeData.general.summary)"></div>
@@ -212,17 +212,17 @@
               </div>
             </transition>
 
-            <!-- Tiêu đề đề mục (Cỡ chữ 20px) -->
+            <!-- Tiêu đề đề mục (Cỡ chữ 18px) -->
             <div class="paginated-item">
-              <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-5" style="font-size: 20px !important;">
+              <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-3" style="font-size: 18px !important;">
                 {{ section.title }}
               </h3>
             </div>
 
             <!-- Content -->
-            <div class="space-y-6" v-if="sectionHasContent(section)">
+            <div class="space-y-3" v-if="sectionHasContent(section)">
               <!-- KINH NGHIỆM (experience) -->
-              <div v-if="section.id.toLowerCase().includes('experience')" class="space-y-6">
+              <div v-if="section.id.toLowerCase().includes('experience')" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative group/item">
                   <div class="paginated-item">
                     <div class="flex justify-between items-baseline mb-2">
@@ -426,20 +426,9 @@ const nameLines = computed(() => {
 const sidebarSections = computed(() =>
   props.resumeData.sections.filter(s => s.column === 'left' && s.id !== 'summary')
 )
-const mainSections = computed(() => {
-  const sections = props.resumeData.sections.filter(s => 
-    (s.column === 'right' || s.id === 'education') && s.id !== 'summary'
-  )
-  // Sắp xếp: education luôn nằm dưới experience
-  const expIndex = sections.findIndex(s => s.id === 'experience')
-  const eduIndex = sections.findIndex(s => s.id === 'education')
-  if (expIndex !== -1 && eduIndex !== -1 && eduIndex < expIndex) {
-    const [edu] = sections.splice(eduIndex, 1)
-    const newExpIndex = sections.findIndex(s => s.id === 'experience')
-    sections.splice(newExpIndex + 1, 0, edu)
-  }
-  return sections
-})
+const mainSections = computed(() =>
+  props.resumeData.sections.filter(s => s.column === 'right' && s.id !== 'summary')
+)
 
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
@@ -545,7 +534,7 @@ onUnmounted(() => {
   border: 1.5px solid transparent;
   cursor: pointer;
   transition: box-shadow 0.18s ease, border-color 0.18s ease;
-  padding: 15px 20px; /* Padding giúp viền cách nội dung trên 15px và trái/phải đúng 20px cực kỳ cân đối */
+  padding: 6px 12px; /* Đã giảm bớt khoảng trống dư thừa cực kỳ gọn gàng */
 }
 
 .section-block.section-active {
@@ -583,7 +572,7 @@ onUnmounted(() => {
 
 .delete-item-btn {
   position: absolute;
-  right: -12px; /* Nằm cân đối chính giữa khoảng đệm 20px bên phải */
+  right: -6px; /* Cân chỉnh hoàn hảo thẳng hàng thẳng cột bên dưới mũi tên bên phải khi padding thay đổi */
   top: 6px;    /* Đứng thẳng hàng với dòng đầu tiên của mục con */
   width: 16px;
   height: 16px;
@@ -611,7 +600,7 @@ onUnmounted(() => {
 .delete-item-btn--lg {
   width: 18px;
   height: 18px;
-  right: -12px; /* Nằm cân đối chính giữa khoảng đệm 20px bên phải */
+  right: -6px; /* Cân chỉnh hoàn hảo thẳng hàng thẳng cột bên dưới mũi tên bên phải khi padding thay đổi */
   top: 6px;    /* Đứng thẳng hàng với dòng đầu tiên của mục con */
 }
 
