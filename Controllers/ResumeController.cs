@@ -485,6 +485,49 @@ namespace DoAnCS.Controllers
                 return Json(new { success = false, message = "Không thể xóa CV: " + ex.Message });
             }
         }
+
+        // Chức năng xóa tất cả CV của người dùng hiện tại
+        [HttpPost]
+        public async Task<IActionResult> DeleteAll()
+        {
+            int userId = GetCurrentUserId();
+            if (userId == 0)
+            {
+                return Json(new { success = false, message = "Phiên đăng nhập đã hết hạn." });
+            }
+
+            try
+            {
+                var myResumes = await _context.Resumes
+                    .Where(r => r.UserID == userId)
+                    .ToListAsync();
+
+                if (myResumes.Any())
+                {
+                    // Xóa file vật lý của các CV tải lên nếu có
+                    foreach (var resume in myResumes)
+                    {
+                        if (!string.IsNullOrEmpty(resume.FileUploadUrl))
+                        {
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", resume.FileUploadUrl.TrimStart('/'));
+                            if (System.IO.File.Exists(filePath))
+                            {
+                                System.IO.File.Delete(filePath);
+                            }
+                        }
+                    }
+
+                    _context.Resumes.RemoveRange(myResumes);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Json(new { success = true, message = "Đã xóa tất cả CV thành công." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Không thể xóa tất cả CV: " + ex.Message });
+            }
+        }
         // 7. Hiển thị trang Builder (Vue SPA)
         [HttpGet]
         public IActionResult Builder(int id)
