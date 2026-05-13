@@ -163,21 +163,29 @@
       <!-- CỘT PHẢI (MAIN) -->
       <main class="flex-1 min-w-[100mm] flex flex-col gap-2" @click.self="selectedSectionId = null">
 
-        <!-- LIÊN HỆ CỐ ĐỊNH -->
-        <div class="contact-block py-2 px-3 border-2 border-slate-50 rounded-2xl bg-white/50 backdrop-blur-sm paginated-item">
+        <!-- LIÊN HỆ -->
+        <div class="contact-section py-2 px-3 border-2 border-slate-50 rounded-2xl bg-white/50 backdrop-blur-sm paginated-item"
+          :class="{ 'contact-active': selectedSectionId === 'contact' }"
+          @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'">
           <h3 class="font-black uppercase mb-1.5 tracking-wider text-slate-900" style="font-size: 18px !important; font-weight: bold !important;">LIÊN HỆ</h3>
           <div class="space-y-1.5 text-[12.5px] font-bold text-slate-700">
-            <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.phone)">
-              <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z" /></svg></div>
-              <span v-html="resumeData.general.phone"></span>
-            </div>
-            <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.email)">
-              <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,8L12,13L4,8V6L12,11L20,6V8Z" /></svg></div>
-              <span v-html="resumeData.general.email"></span>
-            </div>
-            <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.address)">
-              <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2C8.13,2 5,5.13 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9C19,5.13 15.87,2 12,2M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5Z" /></svg></div>
-              <span v-html="resumeData.general.address"></span>
+            <div v-for="(ci, ciIdx) in contactItems" :key="ci.key"
+              class="flex items-center gap-3 relative contact-item-container">
+              <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" v-html="ci.icon"></svg>
+              </div>
+              <span v-html="ci.value"></span>
+              <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Di chuyển lên" style="padding:3px">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Di chuyển xuống" style="padding:3px">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn-danger" title="Ẩn mục này" style="padding:3px">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -333,6 +341,65 @@ const sidebarSections = computed(() => props.resumeData.sections.filter(s => s.c
 const mainSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right'))
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
+
+// ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
+const contactIcons = {
+  phone: '<path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z" />',
+  email: '<path d="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,8L12,13L4,8V6L12,11L20,6V8Z" />',
+  address: '<path d="M12,2C8.13,2 5,5.13 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9C19,5.13 15.87,2 12,2M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5Z" />'
+}
+
+const contactOrder = ref(['phone', 'email', 'address'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'phone': return isEmpty(g.phone) ? '' : g.phone
+    case 'email': return isEmpty(g.email) ? '' : g.email
+    case 'address': return isEmpty(g.address) ? '' : g.address
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => getContactValue(key) !== '')
+    .map(key => ({
+      key,
+      icon: contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  if (idx <= 0) return
+  const keyA = visible[idx], keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx], keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  if (idx >= 0 && idx < visible.length) {
+    hiddenContacts.value.push(visible[idx])
+  }
+}
 
 // HÀM CHÉM NHỎ DÒNG
 const formatDesc = (text) => {
@@ -575,6 +642,31 @@ onUnmounted(() => {
 .delete-btn:active { transform: scale(0.9) !important; }
 
 /* ── Contact block ── */
+.contact-section {
+  border-width: 2px;
+  border-style: solid;
+  border-color: #f1f5f9;
+  cursor: pointer;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.contact-section.contact-active {
+  border-color: #f9a8d4 !important;
+  box-shadow: 0 6px 20px rgba(244, 114, 182, 0.20) !important;
+  z-index: 10;
+}
+.contact-item-container { position: relative; }
+.contact-item-btns {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  z-index: 9999;
+}
+
+/* ── Contact block (old name kept for compat) ── */
 .contact-block {
   border-width: 2px;
   border-style: solid;
@@ -593,7 +685,9 @@ onUnmounted(() => {
 @media print {
   .no-print { display: none !important; }
   .section-block,
-  .section-block.section-active {
+  .section-block.section-active,
+  .contact-section,
+  .contact-section.contact-active {
     cursor: default !important;
     box-shadow: none !important;
     background: transparent !important;
@@ -607,7 +701,9 @@ onUnmounted(() => {
 
 :global(.is-exporting-pdf .no-print) { display: none !important; }
 :global(.is-exporting-pdf .section-block),
-:global(.is-exporting-pdf .section-block.section-active) {
+:global(.is-exporting-pdf .section-block.section-active),
+:global(.is-exporting-pdf .contact-section),
+:global(.is-exporting-pdf .contact-section.contact-active) {
   cursor: default !important;
   box-shadow: none !important;
   background: transparent !important;
