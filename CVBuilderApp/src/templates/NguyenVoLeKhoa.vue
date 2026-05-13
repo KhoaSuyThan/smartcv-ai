@@ -83,7 +83,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group mb-6"
+            class="section-block relative group mb-1"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templateSecondaryColor } : {}"
             @click.stop="toggleSection(section.id)"
@@ -100,6 +100,9 @@
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </button>
+                <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
               </div>
             </transition>
 
@@ -107,12 +110,12 @@
               <h3 class="section-title font-bold uppercase mb-1 tracking-wider flex items-center gap-2">
                 {{ section.title }}
               </h3>
-              <div class="w-full border-b-[1.5px] border-[#333]/30 mb-4"></div>
+              <div class="w-full border-b-[1.5px] border-[#333]/30 mb-2"></div>
             </div>
 
             <div class="space-y-4" v-if="sectionHasContent(section)">
               <!-- Skills / Languages / IT Skills -->
-              <div v-if="['skills'].includes(section.id)" class="space-y-3">
+              <div v-if="['skills'].includes(section.id)" class="space-y-2">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
@@ -136,7 +139,7 @@
               </div>
 
               <!-- Awards / Certifications -->
-              <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-5">
+              <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-3">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
@@ -251,11 +254,11 @@
       </header>
 
       <!-- Main Sections -->
-      <div class="px-[12mm] pt-[8mm] pb-[8mm] flex-1 flex flex-col gap-[7mm]">
+      <div class="px-[12mm] pt-[8mm] pb-[8mm] flex-1 flex flex-col gap-[3.5mm]">
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group my-0 py-1"
+            class="section-block relative group my-0"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"
@@ -272,6 +275,9 @@
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </button>
+                <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
               </div>
             </transition>
 
@@ -279,12 +285,12 @@
               <h3 class="section-title font-bold uppercase mb-1 tracking-wide flex items-center gap-2">
                 {{ section.title }}
               </h3>
-              <div class="w-full border-b-[1.5px] border-[#333]/30 mb-4"></div>
+              <div class="w-full border-b-[1.5px] border-[#333]/30 mb-2"></div>
             </div>
 
-            <div class="space-y-6" v-if="sectionHasContent(section)">
+            <div class="space-y-3" v-if="sectionHasContent(section)">
               <!-- Education -->
-              <div v-if="section.id === 'education'" class="space-y-6">
+              <div v-if="section.id === 'education'" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                   <div class="paginated-item">
                     <div class="flex justify-between items-start gap-4 mb-1">
@@ -310,7 +316,7 @@
               </div>
 
               <!-- Experience / Project / Activities -->
-              <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-6">
+              <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                   <div class="paginated-item">
                     <div class="flex justify-between items-start gap-4 mb-1.5">
@@ -609,6 +615,7 @@ onUnmounted(() => {
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  padding: 10px;
 }
 
 .section-block.section-active {
@@ -644,6 +651,14 @@ onUnmounted(() => {
 }
 .nav-btn:hover { background: #1d4ed8; transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
+
+.nav-btn-danger {
+  background: #ef4444 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+.nav-btn-danger:hover {
+  background: #dc2626 !important;
+}
 
 .delete-item-btn {
   position: absolute;
@@ -737,5 +752,7 @@ main {
   background: transparent !important;
   border-color: transparent !important;
   transform: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 </style>
