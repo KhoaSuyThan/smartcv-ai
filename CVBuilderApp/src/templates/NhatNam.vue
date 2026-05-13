@@ -92,7 +92,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block section-block-sidebar relative mb-5"
+            class="section-block section-block-sidebar relative mb-3"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -105,7 +105,10 @@
                 <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Sang Phải">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg>
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+              </button>
+              <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
 
@@ -195,7 +198,7 @@
             </div>
 
             <!-- Đường kẻ dưới section -->
-            <div class="w-full border-b opacity-30 mt-6" :style="{ borderColor: templatePrimaryColor }"></div>
+            <div class="w-full border-b opacity-30 mt-3" :style="{ borderColor: templatePrimaryColor }"></div>
           </div>
         </template>
       </div>
@@ -203,7 +206,7 @@
 
     <!-- ==================== CỘT PHẢI (MAIN) ==================== -->
     <main class="flex-1 flex flex-col bg-white z-20 relative" @click.self="selectedSectionId = null">
-      <div class="px-[10mm] pt-[15mm] pb-[10mm] flex-1 flex flex-col gap-[8mm]">
+      <div class="px-[10mm] pt-[15mm] pb-[10mm] flex-1 flex flex-col gap-[4mm]">
 
         <!-- CÁC SECTIONS CHÍNH -->
         <template v-for="section in mainSections" :key="section.id">
@@ -224,10 +227,13 @@
               <button @click.stop.prevent="moveSectionHorizontal(section.id, 'left')" class="nav-btn" title="Sang Trái">
                 <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
               </button>
+              <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
             </div>
 
             <!-- Tiêu đề section -->
-            <div class="mb-4 paginated-item">
+            <div class="mb-2 paginated-item">
               <h3 class="font-bold" :style="{ fontSize: '18px', color: templatePrimaryColor, fontWeight: '700' }">
                 {{ section.title }}
               </h3>
@@ -258,7 +264,7 @@
             </div>
 
             <!-- Học vấn (main) -->
-            <div v-else-if="section.id === 'education'" class="space-y-5">
+            <div v-else-if="section.id === 'education'" class="space-y-3.5">
               <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative">
@@ -280,7 +286,7 @@
             </div>
 
             <!-- Kinh nghiệm / Dự án / Hoạt động (main) -->
-            <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-6">
+            <div v-else-if="section.id === 'experience' || section.id === 'project' || section.id === 'activities'" class="space-y-4">
               <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative">
@@ -332,7 +338,7 @@
               </div>
             </div>
 
-            <div class="w-full border-b border-slate-200 mt-6" :style="{ borderColor: templatePrimaryColor, opacity: 0.3 }"></div>
+            <div class="w-full border-b border-slate-200 mt-3" :style="{ borderColor: templatePrimaryColor, opacity: 0.3 }"></div>
           </div>
         </template>
       </div>
@@ -710,8 +716,8 @@ const mainSections = computed(() => {
 /* ==================== NAV BUTTONS ==================== */
 .nav-btns {
     position: absolute;
-    right: 4px;
-    top: -12px;
+    right: 10px;
+    top: 10px;
     display: flex;
     flex-direction: row;
     gap: 4px;
@@ -732,6 +738,14 @@ const mainSections = computed(() => {
 }
 .nav-btn:hover { background: #1d4ed8; transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
+
+.nav-btn-danger {
+    background: #ef4444 !important;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+.nav-btn-danger:hover {
+    background: #dc2626 !important;
+}
 
 /* ==================== PRINT ==================== */
 @media print {
