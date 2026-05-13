@@ -46,7 +46,7 @@
     <div class="flex px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-2" @click.self="selectedSectionId = null">
 
       <!-- CỘT TRÁI (SIDEBAR) -->
-      <aside class="flex-[1.1] min-w-[75mm] flex flex-col gap-5" @click.self="selectedSectionId = null">
+      <aside class="flex-[1.1] min-w-[75mm] flex flex-col gap-2" @click.self="selectedSectionId = null">
         <template v-for="section in sidebarSections" :key="section.id">
           <!-- GỠ paginated-item Ở THẺ BỌC CHÍNH ĐỂ TRÁNH KÉO CẢ CỤC -->
           <div
@@ -64,7 +64,7 @@
 
             <!-- Tiêu đề có phân trang riêng -->
             <div class="paginated-item">
-              <h3 class="font-black uppercase mb-3 tracking-wider text-slate-900" style="font-size: 20px !important; font-weight: bold !important;">{{ section.title }}</h3>
+              <h3 class="font-black uppercase mb-1.5 tracking-wider text-slate-900" style="font-size: 18px !important; font-weight: bold !important;">{{ section.title }}</h3>
             </div>
 
             <div class="space-y-3">
@@ -75,12 +75,14 @@
               </div>
 
               <!-- NÂNG CẤP: Xử lý Experience / Project / Activities giống hệt cột phải -->
-              <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-5 relative">
-                <div class="absolute left-[7px] top-2 bottom-6 w-[2px] bg-pink-50 z-0"></div>
+              <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-3 relative">
+                <div class="absolute left-[7px] top-2 bottom-3 w-[2px] bg-pink-50 z-0"></div>
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-8 item-container z-10">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="left: -2px; top: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                   <div class="paginated-item relative">
-                    <div class="absolute -left-8 top-1.5 text-pink-500 bg-white shadow-sm ring-4 ring-white rounded-full"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                    <div class="absolute -left-[34px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                    </div>
                     <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide flex flex-col">
                       <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
                       <span class="text-slate-500 ...">
@@ -96,11 +98,13 @@
               </div>
 
               <!-- Education -->
-              <div v-else-if="section.id === 'education'" class="space-y-4">
+              <div v-else-if="section.id === 'education'" class="space-y-2">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                   <div class="paginated-item relative">
-                    <div class="absolute -left-6 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                    <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                      <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                    </div>
                     <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
                     <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
                     <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
@@ -114,10 +118,10 @@
               </div>
 
               <!-- Skills / Languages -->
-              <div v-else-if="['skills','languages','it_skills'].includes(section.id)" class="space-y-2.5">
+              <div v-else-if="['skills','languages','it_skills'].includes(section.id)" class="space-y-1.5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -5px; right: -5px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                  <div class="flex justify-between items-end mb-1">
+                  <div class="flex justify-between items-end mb-0.5">
                     <span class="text-[12px] font-bold text-slate-800 leading-tight">{{ item.name }}</span>
                     <span class="text-[10px] font-bold text-pink-500 whitespace-nowrap ml-2">{{ getLevelInfo(item.level).text }}</span>
                   </div>
@@ -127,11 +131,13 @@
                 </div>
               </div>
 
-              <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-3">
+              <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-1.5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="paginated-item item-container pl-6 relative">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                  <div class="absolute left-0 top-1 text-pink-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                  <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                  </div>
                   <div v-if="item.year" class="text-[11px] font-black text-pink-500 mb-0.5">{{ item.year }}</div>
                   <div class="text-[12.5px] font-bold text-slate-800">{{ item.name }}</div>
                   <div v-if="item.organization" class="text-[11px] font-normal text-slate-500 italic">{{ item.organization }}</div>
@@ -139,11 +145,13 @@
               </div>
 
               <!-- Các mục khác (Fallback) -->
-              <div v-else class="space-y-2.5">
+              <div v-else class="space-y-1.5">
                 <!-- ĐÃ GỠ paginated-item Ở ĐÂY ĐỂ TRÁNH LỖI KÉO CẢ CỤC -->
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container pl-6 relative">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                  <div class="absolute left-0 top-1 text-pink-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                  <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                  </div>
                   <div class="text-[12.5px] font-bold text-slate-800 html-content" v-html="formatDesc(item.name || item.desc || item.info)"></div>
                 </div>
               </div>
@@ -153,21 +161,21 @@
       </aside>
 
       <!-- CỘT PHẢI (MAIN) -->
-      <main class="flex-1 min-w-[100mm] flex flex-col gap-5" @click.self="selectedSectionId = null">
+      <main class="flex-1 min-w-[100mm] flex flex-col gap-2" @click.self="selectedSectionId = null">
 
         <!-- LIÊN HỆ CỐ ĐỊNH -->
-        <div class="contact-block p-3 border-2 border-slate-50 rounded-2xl bg-white/50 backdrop-blur-sm paginated-item">
-          <h3 class="font-black uppercase mb-3 tracking-wider text-slate-900" style="font-size: 20px !important; font-weight: bold !important;">LIÊN HỆ</h3>
-          <div class="space-y-2.5 text-[12.5px] font-bold text-slate-700">
-            <div class="flex items-center gap-4" v-if="!isEmpty(resumeData.general.phone)">
+        <div class="contact-block py-2 px-3 border-2 border-slate-50 rounded-2xl bg-white/50 backdrop-blur-sm paginated-item">
+          <h3 class="font-black uppercase mb-1.5 tracking-wider text-slate-900" style="font-size: 18px !important; font-weight: bold !important;">LIÊN HỆ</h3>
+          <div class="space-y-1.5 text-[12.5px] font-bold text-slate-700">
+            <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.phone)">
               <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z" /></svg></div>
               <span v-html="resumeData.general.phone"></span>
             </div>
-            <div class="flex items-center gap-4" v-if="!isEmpty(resumeData.general.email)">
+            <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.email)">
               <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4M20,8L12,13L4,8V6L12,11L20,6V8Z" /></svg></div>
               <span v-html="resumeData.general.email"></span>
             </div>
-            <div class="flex items-center gap-4" v-if="!isEmpty(resumeData.general.address)">
+            <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.address)">
               <div class="w-7 h-7 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 flex-shrink-0"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2C8.13,2 5,5.13 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9C19,5.13 15.87,2 12,2M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5Z" /></svg></div>
               <span v-html="resumeData.general.address"></span>
             </div>
@@ -195,7 +203,7 @@
 
             <!-- Tiêu đề -->
             <div class="paginated-item">
-              <h3 class="font-black uppercase mb-4 tracking-wider text-slate-900 border-b border-pink-50 pb-2" style="font-size: 20px !important; font-weight: bold !important;">{{ section.title }}</h3>
+              <h3 class="font-black uppercase mb-2 tracking-wider text-slate-900 border-b border-pink-50 pb-1" style="font-size: 18px !important; font-weight: bold !important;">{{ section.title }}</h3>
             </div>
 
             <div v-if="section.id === 'summary'"
@@ -203,12 +211,14 @@
               v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mô tả mục tiêu nghề nghiệp của bạn...')">
             </div>
 
-            <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-6 relative">
-              <div class="absolute left-[7px] top-2 bottom-6 w-[2px] bg-pink-50 z-0"></div>
+            <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-3 relative">
+              <div class="absolute left-[7px] top-2 bottom-3 w-[2px] bg-pink-50 z-0"></div>
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-8 item-container z-10">
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="left: -2px; top: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="right: -2px; top: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 <div class="paginated-item relative">
-                  <div class="absolute -left-8 top-1.5 text-pink-500 bg-white shadow-sm ring-4 ring-white rounded-full"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                  <div class="absolute -left-[34px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                  </div>
                   <div class="text-[12.5px] font-black text-pink-500 mb-1 tracking-wide flex justify-between">
                     <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
                     <span class="text-slate-500 ...">
@@ -224,11 +234,13 @@
               </div>
             </div>
 
-            <div v-else-if="section.id === 'education'" class="space-y-4">
+            <div v-else-if="section.id === 'education'" class="space-y-2">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 <div class="paginated-item relative">
-                  <div class="absolute -left-6 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                  <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                  </div>
                   <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
                   <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
                   <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
@@ -238,11 +250,13 @@
               </div>
             </div>
 
-            <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-3" style="padding-left: 4px;">
+            <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-1.5" style="padding-left: 4px;">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="relative pl-6 item-container">
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                <div class="absolute left-0 top-1 text-pink-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                </div>
                 <div v-if="item.year" class="text-[11px] font-black text-pink-500 mb-0.5">{{ item.year }}</div>
                 <div class="text-[12.5px] font-bold text-slate-800">{{ item.name }}</div>
                 <div v-if="item.organization" class="text-[11px] font-normal text-slate-500 italic">{{ item.organization }}</div>
@@ -250,10 +264,12 @@
             </div>
 
             <!-- Các mục khác -->
-            <div v-else class="space-y-3" style="padding-left: 4px;">
+            <div v-else class="space-y-1.5" style="padding-left: 4px;">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -2px; right: -2px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
-                <div class="absolute left-0 top-1 text-pink-500"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
+                <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
+                  <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
+                </div>
                 <div class="html-content font-medium text-justify text-[12.5px] text-slate-800" v-html="formatDesc(item.desc || item.info || item.name)"></div>
               </div>
             </div>
@@ -468,7 +484,7 @@ onUnmounted(() => {
 
 /* ── Section block ── */
 .section-block {
-  padding: 12px;
+  padding: 6px 10px;
   border-width: 2px !important;
   border-style: solid !important;
   border-color: transparent !important;

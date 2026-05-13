@@ -6,9 +6,17 @@
             <h2 class="fw-bold text-primary mb-0"><i class="bi bi-file-earmark-person-fill me-2"></i>Hồ sơ của tôi</h2>
             <p class="text-muted">Danh sách các bản CV đã tạo và bản nháp đang thực hiện</p>
         </div>
-        <a href="@Url.Action("VueTemplates", "Resume")" class="btn btn-primary shadow-sm px-4">
-            <i class="bi bi-plus-lg"></i> Tạo CV mới
-        </a>
+        <div class="d-flex gap-2">
+            @if (Model != null && Model.Any())
+            {
+                <button onclick="deleteAllCVs()" class="btn btn-danger shadow-sm px-4">
+                    <i class="bi bi-trash-fill me-1"></i> Xóa tất cả
+                </button>
+            }
+            <a href="@Url.Action("VueTemplates", "Resume")" class="btn btn-primary shadow-sm px-4">
+                <i class="bi bi-plus-lg"></i> Tạo CV mới
+            </a>
+        </div>
     </div>
 
     @if (Model == null || !Model.Any())
@@ -233,6 +241,25 @@
                             alert(res.message || "Lỗi khi xóa.");
                         }
                     }
+                });
+            }
+        }
+
+        // Hàm xóa tất cả CV qua AJAX
+        function deleteAllCVs() {
+            if (confirm("Bạn có chắc chắn muốn xóa TẤT CẢ các bản hồ sơ này? Hành động này không thể hoàn tác!")) {
+                $.ajax({
+                    url: '@Url.Action("DeleteAll", "Resume")',
+                    type: 'POST',
+                    success: function(res) {
+                        if (res.success) {
+                            alert(res.message || "Đã xóa tất cả CV thành công.");
+                            location.reload();
+                        } else {
+                            alert(res.message || "Lỗi khi xóa tất cả CV.");
+                        }
+                    },
+                    error: function() { alert("Lỗi kết nối máy chủ."); }
                 });
             }
         }
