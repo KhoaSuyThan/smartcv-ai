@@ -456,7 +456,9 @@ onMounted(() => {
         sec.column = 'right'
       }
       const inDesign = [...DESIGN_SIDEBAR, ...DESIGN_MAIN, 'summary'].includes(sec.id)
-      sec.isVisible = inDesign
+      if (sec.isVisible === undefined) {
+        sec.isVisible = inDesign
+      }
     })
   }
 

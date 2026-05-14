@@ -567,14 +567,22 @@ onMounted(() => {
   const isRight = (id) => ['summary', 'experience', 'activit', 'cert', 'award'].some(k => id.toLowerCase().includes(k))
   
   props.resumeData?.sections?.forEach(sec => {
-    if (isLeft(sec.id)) {
-      sec.isVisible = true
-      sec.column = 'left'
-    } else if (isRight(sec.id)) {
-      sec.isVisible = true
-      sec.column = 'right'
+    if (sec.isVisible === undefined) {
+      if (isLeft(sec.id)) {
+        sec.isVisible = true
+        sec.column = 'left'
+      } else if (isRight(sec.id)) {
+        sec.isVisible = true
+        sec.column = 'right'
+      } else {
+        sec.isVisible = false
+      }
     } else {
-      sec.isVisible = false
+      if (isLeft(sec.id)) {
+        sec.column = 'left'
+      } else if (isRight(sec.id)) {
+        sec.column = 'right'
+      }
     }
   })
 

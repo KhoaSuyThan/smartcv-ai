@@ -412,13 +412,13 @@ onMounted(() => {
   
   props.resumeData?.sections?.forEach(sec => {
     if (isLeft(sec.id)) {
-      sec.isVisible = true
-      sec.column = 'left'
+      if (sec.isVisible === undefined) sec.isVisible = true;
+      if (!sec.column) sec.column = 'left';
     } else if (isRight(sec.id)) {
-      sec.isVisible = true
-      sec.column = 'right'
+      if (sec.isVisible === undefined) sec.isVisible = true;
+      if (!sec.column) sec.column = 'right';
     } else {
-      sec.isVisible = false
+      if (sec.isVisible === undefined) sec.isVisible = false;
     }
   })
 

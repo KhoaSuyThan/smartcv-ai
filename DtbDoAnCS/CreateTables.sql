@@ -251,3 +251,20 @@ CREATE TABLE VueTemplates (
 	Category NVARCHAR(255) NULL,
     CreatedAt DATETIME DEFAULT GETDATE()
 );
+
+-- 18. Kết quả Smart CV Matcher (AI so khớp CV với Job Description)
+CREATE TABLE CVMatchResults (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    JobID INT NOT NULL,
+    ResumeID INT NOT NULL,
+    MatchScore INT NOT NULL DEFAULT 0,
+    MatchedSkills NVARCHAR(MAX) NULL,
+    MissingSkills NVARCHAR(MAX) NULL,
+    Suggestions NVARCHAR(MAX) NULL,
+    Strengths NVARCHAR(MAX) NULL,
+    Summary NVARCHAR(MAX) NULL,
+    Recommendation NVARCHAR(100) NULL,
+    AnalyzedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_CVMatchResults_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID) ON DELETE CASCADE,
+    CONSTRAINT FK_CVMatchResults_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
+);

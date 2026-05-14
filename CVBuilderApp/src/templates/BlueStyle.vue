@@ -445,8 +445,16 @@ onMounted(() => {
     const LEFT = ['education', 'experience']
     const RIGHT = ['awards', 'certifications', 'skills']
     props.resumeData.sections.forEach(sec => {
-      sec.isVisible = [...LEFT, ...RIGHT].includes(sec.id) || sec.id === 'summary'
-      sec.column = LEFT.includes(sec.id) ? 'left' : 'right'
+      if (sec.isVisible === undefined) {
+        sec.isVisible = [...LEFT, ...RIGHT].includes(sec.id) || sec.id === 'summary'
+        sec.column = LEFT.includes(sec.id) ? 'left' : 'right'
+      } else {
+        if (LEFT.includes(sec.id)) {
+          sec.column = 'left'
+        } else if (RIGHT.includes(sec.id)) {
+          sec.column = 'right'
+        }
+      }
     })
   }
   requestPagination()

@@ -498,18 +498,26 @@ onMounted(() => {
     const HIDDEN_IDS  = ['project', 'activities', 'awards', 'hobbies', 'certificates']
 
     props.resumeData.sections.forEach(sec => {
-      if (SIDEBAR_IDS.includes(sec.id)) {
-        sec.isVisible = true
-        sec.column    = 'left'
-      } else if (MAIN_IDS.includes(sec.id)) {
-        sec.isVisible = true
-        sec.column    = 'right'
-      } else if (sec.id === 'summary') {
-        sec.isVisible = true
-        sec.column    = 'right'
-      } else if (HIDDEN_IDS.includes(sec.id)) {
-        sec.isVisible = false
-        if (!sec.column) sec.column = 'right'
+      if (sec.isVisible === undefined) {
+        if (SIDEBAR_IDS.includes(sec.id)) {
+          sec.isVisible = true
+          sec.column    = 'left'
+        } else if (MAIN_IDS.includes(sec.id)) {
+          sec.isVisible = true
+          sec.column    = 'right'
+        } else if (sec.id === 'summary') {
+          sec.isVisible = true
+          sec.column    = 'right'
+        } else if (HIDDEN_IDS.includes(sec.id)) {
+          sec.isVisible = false
+          if (!sec.column) sec.column = 'right'
+        }
+      } else {
+        if (SIDEBAR_IDS.includes(sec.id)) {
+          sec.column    = 'left'
+        } else if (MAIN_IDS.includes(sec.id) || sec.id === 'summary') {
+          sec.column    = 'right'
+        }
       }
     })
   }

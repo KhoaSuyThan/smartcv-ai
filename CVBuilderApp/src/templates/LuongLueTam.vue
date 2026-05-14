@@ -217,7 +217,7 @@
           <!-- ĐÃ GỠ BỎ paginated-item Ở ĐÂY -->
           <div
             v-show="section.isVisible"
-            class="section-block mb-6"
+            class="section-block mb-3"
             :class="{ 'section-active--main': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -234,7 +234,7 @@
             </div>
 
             <!-- Tiêu đề section (Paginated) -->
-            <div class="flex items-center gap-3 mb-5 paginated-item" style="margin-left: -22px;">
+            <div class="flex items-center gap-3 mb-3 paginated-item" style="margin-left: -22px;">
               <div class="rounded-full flex items-center justify-center shrink-0"
                 :style="{ width: '34px', height: '34px', border: `4px solid ${templateSecondaryColor}`, backgroundColor: '#dce4cd' }">
                 <div class="rounded-full" :style="{ width: '10px', height: '10px', backgroundColor: templatePrimaryColor }"></div>
@@ -252,14 +252,14 @@
             </div>
 
             <!-- Experience / Project / Activities -->
-            <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-5">
+            <div v-else-if="['experience','project','activities'].includes(section.id)" class="space-y-3">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative flex items-stretch">
                 <!-- Cột trái: Tách thành paginated-item riêng -->
                 <div class="pr-3 relative shrink-0 paginated-item" style="width: 36%;">
                   <div class="absolute rounded-full bg-slate-400" style="left: -14px; top: 7px; width: 7px; height: 7px;"></div>
                   <h4 class="font-bold leading-snug mb-1" style="font-size: 11.5px !important; color: #222;">
-                    <span v-html="section.id === 'experience' ? item.company : item.name"></span>
+                    <span v-html="section.id === 'experience' ? item.company : (item.name || item.title)"></span>
                   </h4>
                   <div v-if="item.year || item.time"
                     class="inline-block text-white font-bold tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.15)]"
@@ -292,9 +292,9 @@
             </div>
 
             <!-- Education -->
-            <div v-else-if="section.id === 'education'" class="space-y-4">
+            <div v-else-if="section.id === 'education'" class="space-y-2.5">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="relative pl-6 item-container">
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 <div class="paginated-item relative">
                   <div class="absolute -left-6 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
                   <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
@@ -307,7 +307,7 @@
             </div>
 
             <!-- Awards / Certifications -->
-            <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-4">
+            <div v-else-if="['awards','certifications'].includes(section.id)" class="space-y-2">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative flex items-stretch paginated-item">
                 <div class="pr-3 relative shrink-0" style="width: 36%;">
@@ -331,7 +331,7 @@
             </div>
 
             <!-- Các mục khác (Mặc định) -->
-            <div v-else class="space-y-3" style="padding-left: 4px;">
+            <div v-else class="space-y-2" style="padding-left: 4px;">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative text-[#333] leading-relaxed"
                 style="font-size: 11px !important;">
@@ -523,6 +523,12 @@ const DEFAULT_VISIBLE_MAIN    = ['experience', 'education']
 const SIDEBAR_IDS = ['summary', 'skills', 'languages', 'it_skills', 'certifications', 'awards', 'references', 'hobbies']
 const MAIN_IDS    = ['education', 'experience', 'project', 'activities']
 
+const handleOutsideClick = (e) => {
+  if (!e.target.closest('.section-block')) {
+    selectedSectionId.value = null
+  }
+}
+
 onMounted(() => {
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
@@ -531,20 +537,24 @@ onMounted(() => {
       else if (MAIN_IDS.includes(sec.id)) sec.column = 'right'
       else if (!sec.column) sec.column = 'right'
 
-      if (DEFAULT_VISIBLE_SIDEBAR.includes(sec.id)) sec.isVisible = true
-      else if (DEFAULT_VISIBLE_MAIN.includes(sec.id)) sec.isVisible = true
-      else sec.isVisible = false
+      if (sec.isVisible === undefined) {
+        if (DEFAULT_VISIBLE_SIDEBAR.includes(sec.id)) sec.isVisible = true
+        else if (DEFAULT_VISIBLE_MAIN.includes(sec.id)) sec.isVisible = true
+        else sec.isVisible = false
+      }
     })
   }
 
   requestPagination()
   window.addEventListener('resize', requestPagination)
   document.addEventListener('keyup', requestPagination)
+  document.addEventListener('click', handleOutsideClick)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', requestPagination)
   document.removeEventListener('keyup', requestPagination)
+  document.removeEventListener('click', handleOutsideClick)
   if (paginateTimer) clearTimeout(paginateTimer)
 })
 

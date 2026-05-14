@@ -344,8 +344,8 @@ onMounted(() => {
   if (props.resumeData?.sections) {
     const ACTIVE_SECTIONS = ['summary', 'education', 'experience', 'skills', 'project', 'projects']
     props.resumeData.sections.forEach(sec => {
-      if (ACTIVE_SECTIONS.includes(sec.id) && !sec.isVisible) {
-        sec.isVisible = true
+      if (sec.isVisible === undefined) {
+        sec.isVisible = ACTIVE_SECTIONS.includes(sec.id)
       }
     })
   }

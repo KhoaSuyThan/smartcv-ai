@@ -446,9 +446,11 @@ onMounted(() => {
           sec.column = 'right';
         }
       }
-      // 2. Set default visibility: only active those in ACTIVE_IDS
-      const isActive = ACTIVE_IDS.some(k => sec.id.toLowerCase().includes(k));
-      sec.isVisible = isActive;
+      // 2. Set default visibility: only active those in ACTIVE_IDS if not set
+      if (sec.isVisible === undefined) {
+        const isActive = ACTIVE_IDS.some(k => sec.id.toLowerCase().includes(k));
+        sec.isVisible = isActive;
+      }
     });
   }
 

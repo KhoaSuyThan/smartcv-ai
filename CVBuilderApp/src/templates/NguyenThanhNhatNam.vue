@@ -591,8 +591,10 @@ onMounted(() => {
   
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
-      // 1. Chỉ active những mục có trong ảnh
-      sec.isVisible = activeDefault.includes(sec.id);
+      // 1. Chỉ active những mục có trong ảnh nếu chưa có giá trị
+      if (sec.isVisible === undefined) {
+        sec.isVisible = activeDefault.includes(sec.id);
+      }
       
       // 2. Quy chuẩn vị trí cột để tương thích (chỉ set nếu chưa có column)
       if (!sec.column) {

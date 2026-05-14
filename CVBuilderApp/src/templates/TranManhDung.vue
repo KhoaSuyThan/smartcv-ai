@@ -533,10 +533,10 @@ onMounted(() => {
 
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
-      // Chỉ kích hoạt các mục có trong ảnh của Trần Mạnh Dũng
-      sec.isVisible = defaultVisible.includes(sec.id);
+      if (sec.isVisible === undefined) {
+        sec.isVisible = defaultVisible.includes(sec.id);
+      }
 
-      // Phân bổ cột chính xác 100% theo ảnh mẫu
       if (LEFT_IDS.includes(sec.id)) {
         sec.column = 'left';
       } else if (RIGHT_IDS.includes(sec.id)) {
