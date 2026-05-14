@@ -58,7 +58,7 @@
             flex-shrink: 0;
         }
         .navbar-brand { font-weight: 800; color: #0d6efd !important; white-space: nowrap; font-size: 1.65rem; }
-        .nav-link { font-weight: 600; color: #444 !important; transition: all 0.3s ease; position: relative; padding: 0.5rem 1rem !important; white-space: nowrap; }
+        .nav-link { font-weight: 600; color: #444 !important; transition: all 0.3s ease; position: relative; padding: 0.5rem 0.6rem !important; white-space: nowrap; font-size: 0.9rem; }
         .nav-link:hover, .nav-link.active { color: #0d6efd !important; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 5px; left: 50%; background: #0d6efd; transition: 0.3s; transform: translateX(-50%); }
         .nav-link:hover::after, .nav-link.active::after { width: 70%; }
@@ -177,6 +177,13 @@
                                     <a class="nav-link text-success fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Talent" ? "active" : "")" 
                                        asp-controller="Talent" asp-action="Index">
                                         <i class="fas fa-users me-1"></i> Tìm ứng viên
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "SmartMatch" ? "active" : "")" 
+                                       asp-controller="SmartMatch" asp-action="Index"
+                                       style="color: #7c3aed !important;">
+                                        <i class="fas fa-brain me-1"></i> Smart Match
                                     </a>
                                 </li>
                             }

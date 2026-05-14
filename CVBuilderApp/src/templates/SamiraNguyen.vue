@@ -494,7 +494,9 @@ onMounted(() => {
   
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
-      sec.isVisible = allowedIds.includes(sec.id.toLowerCase())
+      if (sec.isVisible === undefined) {
+        sec.isVisible = allowedIds.includes(sec.id.toLowerCase())
+      }
       
       // Gán cột chuẩn theo thiết kế
       if (['skills', 'references'].includes(sec.id.toLowerCase())) {

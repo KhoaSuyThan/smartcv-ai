@@ -524,7 +524,9 @@ onMounted(() => {
     const SIDEBAR = ['summary', 'education', 'skills']
     const MAIN = ['experience', 'project']
     props.resumeData.sections.forEach(sec => {
-      sec.isVisible = [...SIDEBAR, ...MAIN].includes(sec.id)
+      if (sec.isVisible === undefined) {
+        sec.isVisible = [...SIDEBAR, ...MAIN].includes(sec.id)
+      }
       sec.column = SIDEBAR.includes(sec.id) ? 'left' : 'right'
     })
   }

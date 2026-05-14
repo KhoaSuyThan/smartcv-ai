@@ -526,7 +526,9 @@ const hasData = (sec) => {
 onMounted(() => {
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
-      sec.isVisible = DEFAULT_VISIBLE_IDS.has(sec.id) || hasData(sec)
+      if (sec.isVisible === undefined) {
+        sec.isVisible = DEFAULT_VISIBLE_IDS.has(sec.id) || hasData(sec)
+      }
     })
   }
   requestPagination()

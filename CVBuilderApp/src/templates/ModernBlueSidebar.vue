@@ -496,9 +496,11 @@ onMounted(() => {
   const defaultVisible = new Set(['summary', 'education', 'experience', 'skills', 'certifications'])
   props.resumeData?.sections?.forEach(sec => {
     const hasData = sec.items?.length > 0
-    sec.isVisible = defaultVisible.has(sec.id) || hasData
+    if (sec.isVisible === undefined) {
+      sec.isVisible = defaultVisible.has(sec.id) || hasData
+    }
   })
-   const refSection = props.resumeData?.sections?.find(s => s.id === 'references')
+  const refSection = props.resumeData?.sections?.find(s => s.id === 'references')
   if (refSection) refSection.column = 'right'
 
   requestPagination()

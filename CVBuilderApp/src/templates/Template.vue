@@ -53,10 +53,10 @@
     </header>
 
     <!-- CONTENT BODY - 2 COLUMNS -->
-    <div class="flex px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
+    <div class="flex px-[15mm] py-[2mm] gap-[7mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
         
         <!-- CỘT TRÁI (SIDEBAR) -->
-        <aside class="w-[68mm] flex flex-col gap-2 pr-4 pl-6">
+        <aside class="w-[88mm] flex flex-col gap-2 pr-1 pl-1">
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
@@ -94,9 +94,9 @@
                     <div class="space-y-3">
                         <!-- Kỹ năng / Ngôn ngữ -->
                         <div v-if="['skill', 'lang', 'it_skill'].some(k => section.id.toLowerCase().includes(k))" class="space-y-2">
-                           <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium item-container pr-8 min-h-[22px] flex flex-col justify-center">
-                               <div class="paginated-item w-full flex items-center">
-                                   - <span class="text-[#333] font-bold ml-1">{{ item.name }}</span> 
+                           <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium item-container pr-5 min-h-[22px] flex flex-col justify-center">
+                               <div class="paginated-item w-full leading-snug">
+                                   <span class="text-[#333] font-bold">- {{ item.name }}</span> 
                                    <span v-if="item.level || item.info" class="text-slate-500 font-normal ml-1">({{ item.level || item.info }})</span>
                                </div>
                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">

@@ -630,7 +630,9 @@ watch(() => props.resumeData, requestPagination, { deep: true })
 onMounted(() => {
   const defaultVisible = ['education', 'experience', 'activities', 'project', 'skills', 'certifications', 'awards', 'hobbies']
   props.resumeData?.sections?.forEach(sec => {
-    if (defaultVisible.includes(sec.id) && !sec.isVisible) sec.isVisible = true
+    if (sec.isVisible === undefined) {
+      sec.isVisible = defaultVisible.includes(sec.id)
+    }
   })
 
   requestPagination()

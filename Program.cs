@@ -169,6 +169,29 @@ using (var scope = app.Services.CreateScope())
             ALTER TABLE [Resumes] ADD [FileUploadUrl] NVARCHAR(MAX) NULL;
         END
         ");
+
+        // AUTO-CREATE bảng CVMatchResults cho tính năng Smart CV Matcher
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CVMatchResults' and xtype='U')
+        BEGIN
+            CREATE TABLE [CVMatchResults] (
+                [Id] int IDENTITY(1,1) NOT NULL,
+                [JobID] int NOT NULL,
+                [ResumeID] int NOT NULL,
+                [MatchScore] int NOT NULL DEFAULT 0,
+                [MatchedSkills] nvarchar(max) NULL,
+                [MissingSkills] nvarchar(max) NULL,
+                [Suggestions] nvarchar(max) NULL,
+                [Strengths] nvarchar(max) NULL,
+                [Summary] nvarchar(max) NULL,
+                [Recommendation] nvarchar(100) NULL,
+                [AnalyzedAt] datetime2 NOT NULL DEFAULT GETDATE(),
+                CONSTRAINT [PK_CVMatchResults] PRIMARY KEY ([Id]),
+                CONSTRAINT [FK_CVMatchResults_Jobs] FOREIGN KEY ([JobID]) REFERENCES [Jobs]([JobID]) ON DELETE CASCADE,
+                CONSTRAINT [FK_CVMatchResults_Resumes] FOREIGN KEY ([ResumeID]) REFERENCES [Resumes]([ResumeID]) ON DELETE CASCADE
+            );
+        END
+        ");
     } 
     catch(Exception ex) 
     { 

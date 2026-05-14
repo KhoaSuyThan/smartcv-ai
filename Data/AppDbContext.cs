@@ -23,6 +23,7 @@ namespace DoAnCS.Data
         public DbSet<GeminiConfig> GeminiConfigs { get; set; }
         public DbSet<VueTemplate> VueTemplates { get; set; }
         public DbSet<SavedCandidate> SavedCandidates { get; set; }
+        public DbSet<CVMatchResult> CVMatchResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

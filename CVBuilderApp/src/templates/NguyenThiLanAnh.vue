@@ -605,14 +605,22 @@ onMounted(() => {
   if (props.resumeData && props.resumeData.sections) {
     props.resumeData.sections.forEach(sec => {
       const id = sec.id.toLowerCase()
-      if (activeLeft.includes(id)) {
-        sec.isVisible = true
-        sec.column = 'left'
-      } else if (activeRight.includes(id)) {
-        sec.isVisible = true
-        sec.column = 'right'
+      if (sec.isVisible === undefined) {
+        if (activeLeft.includes(id)) {
+          sec.isVisible = true
+          sec.column = 'left'
+        } else if (activeRight.includes(id)) {
+          sec.isVisible = true
+          sec.column = 'right'
+        } else {
+          sec.isVisible = false
+        }
       } else {
-        sec.isVisible = false
+        if (activeLeft.includes(id)) {
+          sec.column = 'left'
+        } else if (activeRight.includes(id)) {
+          sec.column = 'right'
+        }
       }
     })
   }

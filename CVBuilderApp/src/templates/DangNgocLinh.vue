@@ -378,10 +378,14 @@ onMounted(() => {
   
   if (props.resumeData?.sections) {
     props.resumeData.sections.forEach(sec => {
-      // Chỉ hiển thị các mục xuất hiện trong thiết kế ảnh
-      sec.isVisible = activeDefault.includes(sec.id);
-      // Quy chuẩn toàn bộ về cột chính cho giao diện 1 cột phẳng
-      sec.column = 'right';
+      if (sec.isVisible === undefined) {
+        // Chỉ hiển thị các mục xuất hiện trong thiết kế ảnh
+        sec.isVisible = activeDefault.includes(sec.id);
+        // Quy chuẩn toàn bộ về cột chính cho giao diện 1 cột phẳng
+        sec.column = 'right';
+      } else {
+        sec.column = 'right';
+      }
     });
   }
 
