@@ -74,7 +74,10 @@
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn phần này">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
             </transition>
@@ -92,18 +95,16 @@
               <!-- Education -->
               <div v-if="section.id === 'education'" class="space-y-4">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                  <div class="paginated-item">
-                    <div class="font-bold text-white mb-0.5" style="font-size: 12px !important">
-                      <span v-html="item.school"></span>
-                      <span v-if="item.year" class="font-normal text-white"> ({{ item.year }})</span>
-                    </div>
-                    <div v-if="item.major" class="font-normal text-white mb-0.5" style="font-size: 11px !important">{{ item.major }}</div>
-                    <div v-if="item.gradType" class="text-white font-normal italic" style="font-size: 11px !important">
-                      Tốt nghiệp loại <span class="font-medium">{{ item.gradType }}</span>
-                    </div>
+                  <div class="paginated-item font-bold text-white mb-0.5" style="font-size: 12px !important">
+                    <span v-html="item.school"></span>
+                    <span v-if="item.year" class="font-normal text-white"> ({{ item.year }})</span>
+                  </div>
+                  <div v-if="item.major" class="paginated-item font-normal text-white mb-0.5" style="font-size: 11px !important">{{ item.major }}</div>
+                  <div v-if="item.gradType" class="paginated-item text-white font-normal italic" style="font-size: 11px !important">
+                    Tốt nghiệp loại <span class="font-medium">{{ item.gradType }}</span>
                   </div>
                   <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: 50%; right: -8px; transform: translateY(-50%)">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                   </transition>
@@ -117,12 +118,10 @@
                   :key="item._refId"
                   class="item-container relative"
                 >
-                  <div class="paginated-item">
-                    <div class="font-bold text-white mb-1 leading-snug" style="font-size: 11.5px !important">{{ item.name }}</div>
-                    <div v-if="item.desc || item.info" class="text-white/90 font-normal leading-relaxed text-justify html-content" style="font-size: 10px !important" v-html="formatDesc(item.desc || item.info)"></div>
-                  </div>
+                  <div class="paginated-item font-bold text-white mb-1 leading-snug" style="font-size: 11.5px !important">{{ item.name }}</div>
+                  <div v-if="item.desc || item.info || item.level" class="text-white/90 font-normal leading-relaxed text-justify html-content" style="font-size: 10px !important" v-html="formatDesc(item.desc || item.info || item.level)"></div>
                   <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: 50%; right: -8px; transform: translateY(-50%)">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                   </transition>
@@ -131,11 +130,15 @@
 
               <!-- Generic fallback for left column -->
               <div v-else class="space-y-3">
-                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed">
-                  <div class="font-bold text-white mb-0.5" style="font-size: 12px !important">{{ item.name }} <span v-if="item.role || item.title" class="font-normal text-white/90">- {{ item.role || item.title }}</span></div>
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container leading-relaxed">
+                  <div class="paginated-item font-bold text-white mb-0.5" style="font-size: 12px !important">
+                    <span v-html="item.company || item.name || item.organization"></span>
+                    <span v-if="item.role || item.title || item.major" class="font-normal text-white/90"> - {{ item.role || item.title || item.major }}</span>
+                    <span v-if="item.time || item.year" class="font-normal text-white/80 block mt-0.5" style="font-size: 10px !important">{{ item.time || item.year }}</span>
+                  </div>
                   <div class="text-white/90 font-normal html-content" style="font-size: 10px !important" v-html="formatDesc(item.contact || item.info || item.desc)"></div>
                   <transition name="fade-btns">
-                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
+                    <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: 50%; right: -8px; transform: translateY(-50%)">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                   </transition>
@@ -171,6 +174,9 @@
                   </button>
                   <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái">
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                  </button>
+                  <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn phần này">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
               </transition>
@@ -258,6 +264,24 @@
                   </div>
                 </div>
 
+                <!-- Skills / Languages / IT Skills (Right Column) -->
+                <div v-else-if="['skill', 'lang', 'it_skill'].some(k => section.id.toLowerCase().includes(k))" class="space-y-4">
+                  <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
+                    <div class="paginated-item relative z-10">
+                      <div class="flex justify-between items-baseline gap-4 mb-0.5 border-b border-gray-100 pb-1">
+                        <div class="font-bold text-[#222]" style="font-size: 13px !important">{{ item.name }}</div>
+                        <div v-if="item.level || item.info" class="font-medium text-[#666] shrink-0" style="font-size: 11px !important">{{ item.level || item.info }}</div>
+                      </div>
+                      <div v-if="item.desc" class="leading-[1.6] text-[#555] html-content mt-1" style="font-size: 11.5px !important" v-html="formatDesc(item.desc)"></div>
+                    </div>
+                    <transition name="fade-btns">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
+                        <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </transition>
+                  </div>
+                </div>
+
                 <!-- Other main sections -->
                 <div v-else class="space-y-4">
                   <div
@@ -330,16 +354,43 @@ const sectionHasContent = (section) => {
 
 const formatDesc = (text) => {
   if (!text) return ''
+  
   if (!/<[a-z][\s\S]*>/i.test(text)) {
-     return text.split('\n')
-                .map(l => l.trim())
-                .filter(Boolean)
-                .map(l => `<li>${l}</li>`)
-                .join('')
-                .replace(/^/, '<ul class="list-disc pl-4 space-y-1">')
-                .replace(/$/, '</ul>')
+    return text.split('\n')
+               .map(l => l.trim())
+               .filter(Boolean)
+               .map(l => `<div class="paginated-item">${l}</div>`)
+               .join('')
   }
-  return text
+
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = text
+  
+  const wrapTextNodes = (element) => {
+    Array.from(element.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.trim()) {
+           const wrapper = document.createElement('div')
+           wrapper.className = 'paginated-item inline-block w-full'
+           node.replaceWith(wrapper)
+           wrapper.appendChild(node)
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'BR') {
+           node.outerHTML = '<div class="paginated-item h-[10px] w-full"></div>'
+        } else if (['P', 'DIV', 'LI'].includes(node.tagName)) {
+           node.classList.add('paginated-item')
+           wrapTextNodes(node)
+        } else if (['UL', 'OL'].includes(node.tagName)) {
+           node.classList.add('paginated-item')
+           wrapTextNodes(node)
+        }
+      }
+    })
+  }
+
+  wrapTextNodes(tempDiv)
+  return tempDiv.innerHTML
 }
 
 const sidebarSections = computed(() => {
@@ -364,44 +415,63 @@ const requestPagination = () => {
 
 const doPagination = async () => {
   if (!cvRoot.value) return
-  
-  const allElements = cvRoot.value.querySelectorAll('.paginated-item')
-  allElements.forEach(el => { el.style.marginTop = '0px' })
+
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item'))
+  allElements.forEach(el => {
+    el.style.setProperty('margin-top', '0px', 'important')
+  })
   await nextTick()
 
-  const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM
+  const cvRect = cvRoot.value.getBoundingClientRect()
+  const pxPerMm = cvRect.width / A4_W_MM
   const pageH = A4_H_MM * pxPerMm
   
   const bottomSafeZone = 20 * pxPerMm 
   const topMargin = 20 * pxPerMm 
 
-  const getOffsetTop = (el) => {
-    let offset = 0
-    let current = el
-    while (current && current !== cvRoot.value) {
-      offset += current.offsetTop
-      current = current.offsetParent
+  let stable = false
+  let passes = 0
+
+  while (!stable && passes < 30) {
+    stable = true
+    passes++
+    
+    const currentCvRect = cvRoot.value.getBoundingClientRect()
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      if (el.offsetHeight === 0) continue
+
+      const elRect = el.getBoundingClientRect()
+      const top = elRect.top - currentCvRect.top
+      const height = elRect.height
+      const bottom = top + height
+
+      const pageIndex = Math.floor(top / pageH)
+      const topInPage = top - (pageIndex * pageH)
+      const bottomInPage = topInPage + height
+
+      if (height > (pageH - bottomSafeZone - topMargin)) continue
+
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const distToNextPage = pageH - topInPage + topMargin
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         stable = false
+         break 
+      }
     }
-    return offset
   }
 
-  allElements.forEach((el) => {
-    if(el.offsetHeight === 0) return
-    const top = getOffsetTop(el)
-    const topInPage = top % pageH
-    const bottomInPage = topInPage + el.offsetHeight
-    
-    if (bottomInPage > (pageH - bottomSafeZone)) {
-       const distToNextPage = pageH - topInPage + topMargin
-       el.style.marginTop = `${distToNextPage}px`
-    } else if (top > pageH && topInPage < topMargin) {
-       el.style.marginTop = `${topMargin - topInPage}px`
-    }
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
+  let maxBottom = 0
+  allElements.forEach(el => {
+    const rect = el.getBoundingClientRect()
+    const bottom = rect.bottom - finalCvRect.top
+    if (bottom > maxBottom) maxBottom = bottom
   })
 
-  await nextTick()
-  const contentHeight = cvRoot.value.scrollHeight
-  pageCount.value = Math.ceil(contentHeight / pageH)
+  pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
 }
 
 watch(() => props.resumeData, requestPagination, { deep: true })
@@ -409,14 +479,17 @@ watch(() => props.resumeData, requestPagination, { deep: true })
 onMounted(() => {
   const isLeft = (id) => ['education', 'skill', 'reference', 'hobbi', 'lang'].some(k => id.toLowerCase().includes(k))
   const isRight = (id) => ['summary', 'experience', 'activit', 'cert', 'award', 'project'].some(k => id.toLowerCase().includes(k))
+  const defaultVisible = ['summary', 'skill', 'education', 'experience']
   
   props.resumeData?.sections?.forEach(sec => {
     if (isLeft(sec.id)) {
-      sec.isVisible = true
       sec.column = 'left'
     } else if (isRight(sec.id)) {
-      sec.isVisible = true
       sec.column = 'right'
+    }
+    
+    if (defaultVisible.some(k => sec.id.toLowerCase().includes(k))) {
+      sec.isVisible = true
     } else {
       sec.isVisible = false
     }
@@ -472,34 +545,40 @@ onUnmounted(() => {
 
 .nav-btns {
   position: absolute;
-  right: 0px;
-  top: -30px;
+  right: 6px;
+  top: 6px;
   display: flex;
   gap: 4px;
   z-index: 50;
-  background: white;
+  background: #f4f5f7;
   padding: 4px;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  border: 1px solid #eee;
+  border: 1px solid #e2e8f0;
 }
 
 .nav-btn {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: #222b36;
+  color: white;
+  border: none;
   cursor: pointer;
   transition: all 0.2s;
 }
 .nav-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #1a202c;
+  transform: scale(1.05);
+}
+.nav-btn.nav-btn-danger {
+  background: #ef4444;
+}
+.nav-btn.nav-btn-danger:hover {
+  background: #dc2626;
 }
 
 .delete-item-btn {
