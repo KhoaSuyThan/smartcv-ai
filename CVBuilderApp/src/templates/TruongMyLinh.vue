@@ -66,7 +66,7 @@
           >
             <!-- Nav Buttons -->
             <transition name="fade-btns">
-              <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
+              <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                 <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                 </button>
@@ -165,7 +165,7 @@
             >
               <!-- Nav Buttons -->
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên">
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
                   </button>
@@ -307,12 +307,13 @@
 
     <!-- ĐƯỜNG PHÂN TRANG -->
     <template v-for="p in (pageCount - 1)" :key="'div-' + p">
-      <div
-        class="absolute left-0 w-full z-50 flex flex-col items-center justify-center pointer-events-none no-print"
-        :style="{ top: `calc(${p * 297}mm - 8px)` }"
+      <div 
+        class="page-break-indicator no-print" 
+        data-html2canvas-ignore="true" 
+        :style="{ top: `calc(${p * 297}mm - 25px)` }"
       >
-        <div class="w-[105%] h-[16px] bg-slate-800/95 shadow-inner overflow-hidden border-y border-black/30 backdrop-blur-sm"></div>
-        <span class="absolute text-[9px] uppercase font-bold text-slate-300 tracking-widest bg-slate-700 px-3 py-0.5 rounded border border-slate-600 shadow-md">Ngắt trang {{ p + 1 }}</span>
+        <div class="page-break-mask"></div>
+        <span class="page-break-label">Ngắt trang {{ p + 1 }}</span>
       </div>
     </template>
   </div>
@@ -527,6 +528,38 @@ onUnmounted(() => {
 }
 :deep(.html-content p) {
   margin-bottom: 0.25rem !important;
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
+
+:global(.is-exporting-pdf .no-print) { display: none !important; }
+:global(.is-exporting-pdf .section-block),
+:global(.is-exporting-pdf .section-active),
+:global(.is-exporting-pdf .page-break-indicator) {
+  cursor: default !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  transform: none !important;
+}
+
+.page-break-indicator { 
+  position: absolute; left: 0; width: 100%; 
+  z-index: 5000; display: flex; align-items: center; justify-content: center; 
+  height: 50px; pointer-events: none; 
+}
+.page-break-mask {
+  position: absolute; left: -20px; width: calc(100% + 40px); height: 100%;
+  background: #1e293b; 
+}
+.page-break-label { 
+  position: relative; background: #334155; color: #f8fafc; 
+  padding: 6px 16px; border-radius: 6px; font-size: 10px; 
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  border: 1px solid #475569; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
 .section-block {

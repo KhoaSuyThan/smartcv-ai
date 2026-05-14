@@ -44,9 +44,11 @@
           <template v-for="section in sidebarSections.filter(s => s.id === 'summary')" :key="section.id">
             <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToRight(section.id)" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
               
@@ -64,9 +66,11 @@
           <template v-for="section in sidebarSections.filter(s => ['skills', 'it_skills', 'languages'].includes(s.id))" :key="section.id">
             <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToRight(section.id)" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -75,7 +79,9 @@
               <div class="content-area">
                 <ul class="left-list">
                   <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
-                    <template v-if="item.name">{{ item.name }} {{ item.level ? ' - ' + item.level : '' }}</template>
+                    <template v-if="typeof item === 'object'">
+                      {{ item.name || '' }} {{ item.level ? ' - ' + item.level : '' }}
+                    </template>
                     <template v-else>{{ item }}</template>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                   </li>
@@ -87,9 +93,11 @@
           <template v-for="section in sidebarSections.filter(s => s.id === 'hobbies')" :key="section.id">
             <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToRight(section.id)" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -98,7 +106,43 @@
               <div class="content-area">
                 <ul class="left-list">
                   <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
-                    {{ item.name || item.title || item }}
+                    {{ typeof item === 'object' ? (item.name || item.title || '') : item }}
+                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </template>
+
+          <template v-for="section in sidebarSections.filter(s => !['summary', 'skills', 'it_skills', 'languages', 'hobbies'].includes(s.id))" :key="section.id">
+            <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+              <transition name="fade-btns">
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToRight(section.id)" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
+                </div>
+              </transition>
+
+              <div class="pill-header paginated-item">{{ section.name || section.title || section.id.toUpperCase() }}</div>
+              
+              <div class="content-area">
+                <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-2 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
+                
+                <ul class="left-list">
+                  <li v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container paginated-item">
+                    <template v-if="typeof item === 'object'">
+                      <div v-if="item.year || item.time || item.date" class="text-time font-bold">{{ item.year || item.time || item.date }}</div>
+                      <div v-if="item.company || item.school || item.organization || item.name || item.title" class="font-bold">{{ item.company || item.school || item.organization || item.name || item.title }}</div>
+                      <div v-if="item.role || item.position || item.degree || item.major || item.level" class="text-role">{{ item.role || item.position || item.degree || item.major || item.level }}</div>
+                      <div v-if="item.gradType" class="text-role"><strong>Xếp loại:</strong> {{ item.gradType }}</div>
+                      <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
+                      <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
+                    </template>
+                    <template v-else>
+                      <div class="html-content" v-html="formatDesc(item)"></div>
+                    </template>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                   </li>
                 </ul>
@@ -114,30 +158,29 @@
           
           <div v-show="rightIds.length > 0" class="timeline-line no-print-line"></div>
 
+          <!-- Education -->
           <template v-for="section in mainSections.filter(s => s.id === 'education')" :key="section.id">
             <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="top: -10px;">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToLeft(section.id)" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
-
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
                 <h3 class="right-title paginated-item">{{ section.name || section.title || 'Quá trình Học vấn' }}</h3>
-                
                 <div class="green-card">
-                  <div v-for="(item, i) in (section.items?.length ? section.items : [{school: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0">
-                    <div v-if="item.year || item.time" class="paginated-item text-time">{{ item.year || item.time }}</div>
-                    <div v-if="item.school || item.name" class="paginated-item text-entity">{{ item.school || item.name }}</div>
-                    <div v-if="item.major || item.degree" class="paginated-item text-role">{{ item.major || item.degree }}</div>
-                    
-                    <div v-if="item.gradType || item.info" class="paginated-item text-role" style="margin-top: 2px;">
+                  <div v-for="(item, i) in (section.items?.length ? section.items : [{school: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
+                    <div v-if="item.year || item.time" class="text-time">{{ item.year || item.time }}</div>
+                    <div v-if="item.school || item.name" class="text-entity font-bold">{{ item.school || item.name }}</div>
+                    <div v-if="item.major || item.degree" class="text-role">{{ item.major || item.degree }}</div>
+                    <div v-if="item.gradType || item.info" class="text-role" style="margin-top: 2px;">
                       <strong>Xếp loại:</strong> {{ item.gradType || item.info }}
                     </div>
-
-                    <div v-if="item.desc || item.description" class="html-content mt-2" v-html="formatDesc(item.desc || item.description)"></div>
+                    <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                   </div>
                 </div>
@@ -145,26 +188,27 @@
             </div>
           </template>
 
+          <!-- Experience -->
           <template v-for="section in mainSections.filter(s => s.id === 'experience')" :key="section.id">
             <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="top: -10px;">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToLeft(section.id)" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
-
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
                 <h3 class="right-title paginated-item">{{ section.name || section.title || 'Kinh nghiệm làm việc' }}</h3>
-                
                 <div class="green-card">
-                  <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0">
-                    <div v-if="item.year || item.time" class="paginated-item text-time">{{ item.year || item.time }}</div>
-                    <div v-if="item.company || item.name" class="paginated-item text-entity font-normal">{{ item.company || item.name }}</div>
-                    <div v-if="item.role || item.position" class="paginated-item text-role font-bold">{{ item.role || item.position }}</div>
-                    <div v-if="item.role || item.position || item.desc || item.description" class="divider-line paginated-item"></div>
-                    <div v-if="item.desc || item.description" class="html-content mt-2" v-html="formatDesc(item.desc || item.description)"></div>
+                  <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
+                    <div v-if="item.year || item.time" class="text-time">{{ item.year || item.time }}</div>
+                    <div v-if="item.company || item.name" class="text-entity font-normal">{{ item.company || item.name }}</div>
+                    <div v-if="item.role || item.position" class="text-role font-bold">{{ item.role || item.position }}</div>
+                    <div v-if="item.role || item.position || item.desc || item.description" class="divider-line"></div>
+                    <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                   </div>
                 </div>
@@ -172,26 +216,27 @@
             </div>
           </template>
 
+          <!-- Activities -->
           <template v-for="section in mainSections.filter(s => s.id === 'activities')" :key="section.id">
             <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="top: -10px;">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToLeft(section.id)" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
-
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
                 <h3 class="right-title paginated-item">{{ section.name || section.title || 'Hoạt động' }}</h3>
-                
                 <div class="green-card">
-                  <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-5 last:mb-0">
-                    <div v-if="item.year || item.time || item.date" class="paginated-item text-time">{{ item.year || item.time || item.date }}</div>
-                    <div v-if="item.company || item.organization || item.name" class="paginated-item text-entity">{{ item.company || item.organization || item.name }}</div>
-                    <div v-if="item.role" class="paginated-item text-role font-normal mt-1">{{ item.role }}</div>
-                    <div v-if="item.role || item.desc || item.description" class="divider-line paginated-item"></div>
-                    <div v-if="item.desc || item.description" class="html-content mt-2" v-html="formatDesc(item.desc || item.description)"></div>
+                  <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-5 last:mb-0 paginated-item">
+                    <div v-if="item.year || item.time || item.date" class="text-time">{{ item.year || item.time || item.date }}</div>
+                    <div v-if="item.company || item.organization || item.name" class="text-entity">{{ item.company || item.organization || item.name }}</div>
+                    <div v-if="item.role" class="text-role font-normal mt-1">{{ item.role }}</div>
+                    <div v-if="item.role || item.desc || item.description" class="divider-line"></div>
+                    <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                   </div>
                 </div>
@@ -199,35 +244,33 @@
             </div>
           </template>
 
+          <!-- Catch-all for other right column sections -->
           <template v-for="section in mainSections.filter(s => !['education', 'experience', 'activities'].includes(s.id))" :key="section.id">
             <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" style="top: -10px;">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
+                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="moveToLeft(section.id)" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
-
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
                 <h3 class="right-title paginated-item">{{ section.name || section.title || section.id.toUpperCase() }}</h3>
-                
                 <div class="green-card">
-                  <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
-                  
-                  <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container relative mb-4 last:mb-0">
-                    <template v-if="typeof item === 'object'">
-                      <div v-if="item.year || item.time" class="paginated-item text-time">{{ item.year || item.time }}</div>
+                  <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
+                  <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
+                    <div v-if="typeof item === 'object'">
+                      <div v-if="item.year || item.time" class="text-time">{{ item.year || item.time }}</div>
                       <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                      <div v-else-if="item.name || item.title" class="paginated-item text-entity">{{ item.name || item.title }}</div>
-                      <div v-if="item.role || item.position || item.level" class="paginated-item text-role font-normal mt-1">{{ item.role || item.position || item.level }}</div>
+                      <div v-else-if="item.name || item.title" class="text-entity">{{ item.name || item.title }}</div>
+                      <div v-if="item.role || item.position || item.level" class="text-role font-normal mt-1">{{ item.role || item.position || item.level }}</div>
                       <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
-                      <div v-if="item.desc || item.description" class="html-content mt-2" v-html="formatDesc(item.desc || item.description)"></div>
-                    </template>
-                    <template v-else>
-                      <div class="html-content" v-html="formatDesc(item)"></div>
-                    </template>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
+                    </div>
+                    <div v-else class="html-content" v-html="formatDesc(item)"></div>
+                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" data-html2canvas-ignore="true"><i class="fas fa-times"></i></button>
                   </div>
                 </div>
               </div>
@@ -239,9 +282,14 @@
 
     </div>
 
+    <!-- ĐƯỜNG PHÂN TRANG -->
     <template v-for="p in (pageCount - 1)" :key="'pb-' + p">
-      <div class="page-break-indicator no-print" :style="{ top: `calc(${p * 297}mm - 8px)` }">
-        <div class="page-break-bar"></div>
+      <div 
+        class="page-break-indicator no-print" 
+        data-html2canvas-ignore="true" 
+        :style="{ top: `calc(${p * 297}mm - 25px)` }"
+      >
+        <div class="page-break-mask"></div>
         <span class="page-break-label">Ngắt trang {{ p + 1 }}</span>
       </div>
     </template>
@@ -264,15 +312,27 @@ const emit = defineEmits(['moveUp', 'moveDown', 'removeItem'])
 const isEmpty = (v) => !v || v.toString().trim() === ''
 
 // ── QUẢN LÝ ẨN/HIỆN & CHIA CỘT ──────────────────────────────────────
-const leftColKeys = ['summary', 'skills', 'it_skills', 'languages', 'hobbies']
+const leftColKeys = ref(['summary', 'skills', 'it_skills', 'languages', 'hobbies'])
 
 const sidebarSections = computed(() => {
-  return (props.resumeData?.sections || []).filter(s => leftColKeys.includes(s.id))
+  return (props.resumeData?.sections || []).filter(s => leftColKeys.value.includes(s.id))
 })
 
 const mainSections = computed(() => {
-  return (props.resumeData?.sections || []).filter(s => !leftColKeys.includes(s.id))
+  return (props.resumeData?.sections || []).filter(s => !leftColKeys.value.includes(s.id))
 })
+
+const moveToLeft = (id) => {
+  if (!leftColKeys.value.includes(id)) leftColKeys.value.push(id)
+}
+const moveToRight = (id) => {
+  leftColKeys.value = leftColKeys.value.filter(k => k !== id)
+}
+const hideSection = (id) => {
+  const sec = props.resumeData.sections.find(s => s.id === id)
+  if (sec) sec.isVisible = false
+  selectedSectionId.value = null
+}
 
 const getActiveIds = (sourceArray) => {
   return sourceArray.filter(s => s.isVisible).map(s => s.id)
@@ -292,8 +352,9 @@ onMounted(() => {
   if (props.resumeData?.sections) {
     const ACTIVE_SECTIONS = ['summary', 'skills', 'experience', 'education', 'activities']
     props.resumeData.sections.forEach(sec => {
-      if (sec.isVisible === undefined) {
-        sec.isVisible = ACTIVE_SECTIONS.includes(sec.id)
+      // Ép hiển thị các mục mặc định nếu chưa được set hoặc đang ẩn
+      if (ACTIVE_SECTIONS.includes(sec.id)) {
+        sec.isVisible = true
       }
     })
   }
@@ -304,34 +365,49 @@ onMounted(() => {
 // ── UTILITIES & HTML FORMAT ──────────────────────────────────────────────
 const formatDesc = (text) => {
   if (!text) return ''
+  
   if (!/<[a-z][\s\S]*>/i.test(text)) {
-    return text.split('\n').map(l => l.trim()).filter(Boolean)
-      .map(l => `<div class="paginated-item">${l}</div>`).join('')
+    return text.split('\n')
+               .map(l => l.trim())
+               .filter(Boolean)
+               .map(l => `<div class="paginated-item">${l}</div>`)
+               .join('')
   }
-  const tmp = document.createElement('div')
-  tmp.innerHTML = text
-  const out = document.createElement('div')
-  Array.from(tmp.childNodes).forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      if (node.textContent.trim()) {
-        const d = document.createElement('div'); d.className = 'paginated-item'; d.appendChild(node.cloneNode(true)); out.appendChild(d)
+
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = text
+  
+  const wrapTextNodes = (element) => {
+    Array.from(element.childNodes).forEach(node => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.trim()) {
+           const wrapper = document.createElement('div')
+           wrapper.className = 'paginated-item inline-block w-full'
+           node.replaceWith(wrapper)
+           wrapper.appendChild(node)
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'BR') {
+           node.outerHTML = '<div class="paginated-item h-[10px] w-full"></div>'
+        } else if (['P', 'DIV', 'LI'].includes(node.tagName)) {
+           node.classList.add('paginated-item')
+           wrapTextNodes(node)
+        } else if (['UL', 'OL'].includes(node.tagName)) {
+           node.classList.add('paginated-item')
+           wrapTextNodes(node)
+        }
       }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      if (node.tagName === 'BR') {
-        const d = document.createElement('div'); d.className = 'paginated-item h-[14px]'; out.appendChild(d)
-      } else if (['UL','OL'].includes(node.tagName)) {
-        Array.from(node.children).forEach(li => li.classList.add('paginated-item'))
-        out.appendChild(node.cloneNode(true))
-      } else {
-        node.classList.add('paginated-item'); out.appendChild(node.cloneNode(true))
-      }
-    }
-  })
-  return out.innerHTML
+    })
+  }
+
+  wrapTextNodes(tempDiv)
+  return tempDiv.innerHTML
 }
 
-// ── PAGINATION LOGIC (SPACER) ──────────────────────────────────
+// ── PAGINATION LOGIC (FOOLPROOF MARGIN) ─────────────────────────
+const A4_W_MM = 210
 const A4_H_MM = 297
+const MM_TO_PX = 3.779527559 // Chuẩn CSS 1mm = 3.7795px
 let paginateTimer = null
 
 const requestPagination = () => {
@@ -341,49 +417,78 @@ const requestPagination = () => {
 
 const doPagination = async () => {
   if (!cvRoot.value) return
-  
-  // Xóa toàn bộ spacer cũ
-  const oldSpacers = cvRoot.value.querySelectorAll('.page-spacer')
-  oldSpacers.forEach(el => el.remove())
+
+  // Khôi phục margin ban đầu
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item'))
+  allElements.forEach(el => {
+    el.style.setProperty('margin-top', '0px', 'important')
+  })
   
   await nextTick()
 
-  const pxPerMm = cvRoot.value.offsetWidth / 210
-  const pageH = A4_H_MM * pxPerMm
-  const safeBottom = 15 * pxPerMm
-
-  const getTop = (el) => {
-    let offset = 0, curr = el
-    while (curr && curr !== cvRoot.value) { offset += curr.offsetTop; curr = curr.offsetParent }
-    return offset
-  }
-
-  const allEls = cvRoot.value.querySelectorAll('.paginated-item')
+  const currentCvRect = cvRoot.value.getBoundingClientRect()
+  // Tính tỷ lệ Zoom của trình duyệt/ứng dụng
+  const unscaledWidth = 210 * MM_TO_PX
+  const scale = (currentCvRect.width || unscaledWidth) / unscaledWidth
   
-  for (let i = 0; i < allEls.length; i++) {
-    const el = allEls[i]
-    if (!el.offsetHeight) continue
+  const pageH = 297 * MM_TO_PX
+  // Vùng đệm 30mm
+  const bottomSafeZone = 30 * MM_TO_PX 
+  const topPadding = 30 * MM_TO_PX 
+
+  let stable = false
+  let passes = 0
+
+  while (!stable && passes < 30) {
+    stable = true
+    passes++
     
-    const top = getTop(el)
-    const bottomInPage = (top % pageH) + el.offsetHeight
-    
-    // Nếu bị tràn lề dưới, bơm 1 khối tàng hình để ngắt trang
-    if (bottomInPage > pageH - safeBottom) {
-      const gapToNextPage = pageH - (top % pageH)
-      const spacer = document.createElement('div')
-      spacer.className = 'page-spacer'
-      spacer.style.height = `${gapToNextPage + 10}px`
-      spacer.style.width = '100%'
-      el.parentNode.insertBefore(spacer, el)
-      await nextTick() 
+    const cvRectLoop = cvRoot.value.getBoundingClientRect()
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      // Bỏ qua các phần tử ẩn hoặc không có nội dung text
+      if (el.offsetHeight === 0 || el.textContent.trim() === '') continue
+
+      const elRect = el.getBoundingClientRect()
+      // Loại bỏ ảnh hưởng của scale
+      const top = (elRect.top - cvRectLoop.top) / scale
+      const height = elRect.height / scale
+      const bottomInPage = (top % pageH) + height
+
+      // Bỏ qua nếu nội dung quá lớn
+      if (height > (pageH - bottomSafeZone - topPadding)) continue
+
+      // Nếu tràn vùng an toàn, đẩy margin
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const topInPage = top % pageH
+         const distToNextPage = pageH - topInPage + topPadding
+         
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         // Margin được gán bằng kích thước CSS chuẩn (chưa scale)
+         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         
+         stable = false
+         break 
+      }
     }
   }
 
+  // Tính toán lại maxBottom để cập nhật số trang
+  await nextTick()
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
   let maxB = 0
-  cvRoot.value.querySelectorAll('.paginated-item').forEach(el => { 
-    maxB = Math.max(maxB, getTop(el) + el.offsetHeight) 
-  })
-  pageCount.value = Math.max(1, Math.ceil(maxB / pageH))
+  
+  for (let i = 0; i < allElements.length; i++) {
+    const el = allElements[i]
+    if (el.offsetHeight === 0 || el.textContent.trim() === '') continue
+    const elRect = el.getBoundingClientRect()
+    const bottom = (elRect.bottom - finalCvRect.top) / scale
+    if (bottom > maxB) maxB = bottom
+  }
+
+  // Ép trang mới, dùng dung sai âm (-5px) để tránh tạo trang trống do sai số làm tròn
+  pageCount.value = Math.max(1, Math.ceil((maxB - 5) / pageH))
 }
 
 watch(() => props.resumeData, requestPagination, { deep: true })
@@ -474,14 +579,47 @@ onUnmounted(() => {
 /* INTERACTION & BUTTONS */
 .section-block { border: 2px solid transparent; transition: 0.2s; border-radius: 8px; }
 .section-active { border-color: #43936C !important; box-shadow: 0 0 10px rgba(67, 147, 108, 0.2); z-index: 20; }
-.nav-btns { position: absolute; right: 5px; top: -10px; display: flex; gap: 5px; z-index: 100; }
-.nav-btn { background: #43936C; color: #fff; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
-.nav-btn:hover { background: #2f6b4e; }
+.nav-btns { 
+  position: absolute; right: 6px; top: 6px; display: flex; gap: 4px; z-index: 100; 
+  background: #fff; padding: 4px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #E2E8F0;
+}
+.nav-btn { 
+  background: #fff; color: #4A5568; border: 1px solid transparent; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: 0.2s;
+}
+.nav-btn:hover { background: #E2EFE6; color: #43936C; }
+.btn-danger { color: #E53E3E !important; }
+.btn-danger:hover { background: #FFF5F5 !important; color: #C53030 !important; }
 .delete-item-btn { position: absolute; right: -5px; top: -5px; width: 18px; height: 18px; background: #ff4d4f; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 50; }
 
-.page-break-indicator { position: absolute; left: 0; width: 100%; z-index: 50; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
-.page-break-bar { width: 100%; height: 2px; background: rgba(0,0,0,0.1); border-top: 1px dashed rgba(0,0,0,0.2); }
-.page-break-label { font-size: 9px; text-transform: uppercase; font-weight: 700; color: #999; background: #fff; padding: 2px 10px; margin-top: -8px; }
+.page-break-indicator { 
+  position: absolute; left: 0; width: 100%; 
+  z-index: 5000; display: flex; align-items: center; justify-content: center; 
+  height: 50px; pointer-events: none; 
+}
+.page-break-mask {
+  position: absolute; left: -20px; width: calc(100% + 40px); height: 100%;
+  background: #1e293b; /* Màu nền app để tạo khoảng cách vật lý giữa 2 trang */
+}
+.page-break-label { 
+  position: relative; background: #334155; color: #f8fafc; 
+  padding: 6px 16px; border-radius: 6px; font-size: 10px; 
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  border: 1px solid #475569; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
 
-@media print { .no-print { display: none !important; } }
+@media print {
+  .no-print { display: none !important; }
+}
+
+:global(.is-exporting-pdf .no-print) { display: none !important; }
+:global(.is-exporting-pdf .section-block),
+:global(.is-exporting-pdf .section-active),
+:global(.is-exporting-pdf .page-break-indicator) {
+  cursor: default !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  transform: none !important;
+}
 </style>
