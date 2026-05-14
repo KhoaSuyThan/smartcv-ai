@@ -192,6 +192,21 @@ using (var scope = app.Services.CreateScope())
             );
         END
         ");
+
+        // AUTO-CREATE bảng CVEmbeddings cho tính năng RAG Vector Search
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CVEmbeddings' and xtype='U')
+        BEGIN
+            CREATE TABLE [CVEmbeddings] (
+                [Id] int IDENTITY(1,1) NOT NULL,
+                [ResumeID] int NOT NULL,
+                [VectorJson] nvarchar(max) NOT NULL DEFAULT '[]',
+                [UpdatedAt] datetime2 NOT NULL DEFAULT GETDATE(),
+                CONSTRAINT [PK_CVEmbeddings] PRIMARY KEY ([Id]),
+                CONSTRAINT [FK_CVEmbeddings_Resumes] FOREIGN KEY ([ResumeID]) REFERENCES [Resumes]([ResumeID]) ON DELETE CASCADE
+            );
+        END
+        ");
     } 
     catch(Exception ex) 
     { 

@@ -268,3 +268,12 @@ CREATE TABLE CVMatchResults (
     CONSTRAINT FK_CVMatchResults_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID) ON DELETE CASCADE,
     CONSTRAINT FK_CVMatchResults_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
 );
+
+-- 19. Lưu Vector nhúng (Text Embeddings) phục vụ RAG
+CREATE TABLE CVEmbeddings (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    ResumeID INT NOT NULL,
+    VectorJson NVARCHAR(MAX) NOT NULL DEFAULT '[]',
+    UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_CVEmbeddings_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
+);

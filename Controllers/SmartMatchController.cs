@@ -49,7 +49,7 @@ namespace DoAnCS.Controllers
         }
 
         /// <summary>
-        /// API: Phân tích batch - So khớp tất cả CV công khai với 1 Job Description
+        /// API: Phân tích RAG (Level 3 AI Maturity) - Lọc nhanh qua Vector DB và phân tích chuyên sâu bằng LLM
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> AnalyzeJob(int jobId)
@@ -58,7 +58,6 @@ namespace DoAnCS.Controllers
             if (job == null)
                 return Json(new { success = false, message = "Không tìm thấy tin tuyển dụng." });
 
-            // Kiểm tra quyền sở hữu nếu là Recruiter
             if (User.IsInRole("Recruiter"))
             {
                 var companyIdClaim = User.FindFirst("CompanyID")?.Value;
@@ -66,61 +65,121 @@ namespace DoAnCS.Controllers
                     return Json(new { success = false, message = "Bạn không có quyền phân tích tin này." });
             }
 
-            // Lấy CV công khai có nội dung — giới hạn tối đa 10 để tránh quá tải API
+            // Lấy toàn bộ CV công khai có nội dung (Không giới hạn 10 nữa vì đã có RAG lọc)
             var publicResumes = await _context.Resumes
                 .Include(r => r.User)
                 .Where(r => r.IsPublic && !string.IsNullOrEmpty(r.JsonContent))
-                .OrderByDescending(r => r.UpdatedAt)
-                .Take(10)
                 .ToListAsync();
 
             if (!publicResumes.Any())
                 return Json(new { success = false, message = "Chưa có ứng viên nào công khai CV." });
 
-            // Xóa kết quả cũ cho job này
-            var oldResults = await _context.CVMatchResults.Where(r => r.JobID == jobId).ToListAsync();
-            if (oldResults.Any())
+            Console.WriteLine($"[SmartMatch RAG] Bắt đầu đồng bộ Vector cho {publicResumes.Count} CV công khai...");
+
+            // BƯỚC 1: ĐỒNG BỘ VECTOR EMBEDDINGS (AUTO-SYNC)
+            foreach (var resume in publicResumes)
             {
-                _context.CVMatchResults.RemoveRange(oldResults);
-                await _context.SaveChangesAsync();
+                var existingEmbedding = await _context.CVEmbeddings
+                    .FirstOrDefaultAsync(e => e.ResumeID == resume.ResumeID);
+
+                // Nếu CV chưa được nhúng hoặc mới cập nhật, tiến hành nhúng lại
+                if (existingEmbedding == null || existingEmbedding.UpdatedAt < resume.UpdatedAt)
+                {
+                    string cvText = ExtractCVText(resume);
+                    if (!string.IsNullOrWhiteSpace(cvText))
+                    {
+                        var vector = await _aiService.GenerateEmbeddingAsync(cvText);
+                        if (vector != null && vector.Length > 0)
+                        {
+                            string vectorJson = JsonConvert.SerializeObject(vector);
+                            if (existingEmbedding == null)
+                            {
+                                _context.CVEmbeddings.Add(new CVEmbedding
+                                {
+                                    ResumeID = resume.ResumeID,
+                                    VectorJson = vectorJson,
+                                    UpdatedAt = DateTime.Now
+                                });
+                            }
+                            else
+                            {
+                                existingEmbedding.VectorJson = vectorJson;
+                                existingEmbedding.UpdatedAt = DateTime.Now;
+                            }
+                            await _context.SaveChangesAsync(); // Lưu ngay để dùng
+                        }
+                    }
+                }
             }
 
-            // Tạo JD text
+            // BƯỚC 2: NHÚNG JOB DESCRIPTION THÀNH VECTOR
             string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {job.Description}\nYêu cầu: {job.Requirements}\nMức lương: {job.Salary}";
+            var jdVector = await _aiService.GenerateEmbeddingAsync(jdText);
 
-            var results = new List<object>();
+            if (jdVector == null || jdVector.Length == 0)
+                return Json(new { success = false, message = "Lỗi tạo vector cho Job Description." });
+
+            // BƯỚC 3: TÌM KIẾM TƯƠNG ĐỒNG COSINE (RAG FILTERING)
+            Console.WriteLine("[SmartMatch RAG] Đang so khớp toán học Cosine Similarity...");
+            var candidateScores = new List<(Resume Resume, double Similarity)>();
+
+            foreach (var resume in publicResumes)
+            {
+                var embeddingRecord = await _context.CVEmbeddings.AsNoTracking()
+                    .FirstOrDefaultAsync(e => e.ResumeID == resume.ResumeID);
+
+                if (embeddingRecord != null && !string.IsNullOrEmpty(embeddingRecord.VectorJson))
+                {
+                    try
+                    {
+                        var cvVector = JsonConvert.DeserializeObject<float[]>(embeddingRecord.VectorJson);
+                        if (cvVector != null)
+                        {
+                            double similarity = CalculateCosineSimilarity(jdVector, cvVector);
+                            candidateScores.Add((resume, similarity));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[SmartMatch RAG] Lỗi parse vector CV #{resume.ResumeID}: {ex.Message}");
+                    }
+                }
+            }
+
+            // Chọn Top 10 CV xuất sắc nhất theo Cosine Similarity
+            var topCandidates = candidateScores
+                .OrderByDescending(c => c.Similarity)
+                .Take(10)
+                .Select(c => c.Resume)
+                .ToList();
+
+            Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm chi tiết...");
+
+            var newMatchResults = new List<CVMatchResult>();
             int successCount = 0;
-
-            // Kiểm tra rate limit & cấu hình
             var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
             int userId = CurrentUserId;
             var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
             bool isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");
 
             int current = 0;
-            foreach (var resume in publicResumes)
+            foreach (var resume in topCandidates)
             {
                 current++;
                 try
                 {
-                    Console.WriteLine($"[SmartMatch] Đang phân tích CV {current}/{publicResumes.Count}: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
+                    Console.WriteLine($"[SmartMatch RAG] LLM đánh giá {current}/{topCandidates.Count}: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
 
-                    // Trích xuất nội dung CV từ JSON
                     string cvText = ExtractCVText(resume);
                     if (string.IsNullOrWhiteSpace(cvText)) continue;
 
-                    // Tạo prompt phân tích
                     string prompt = BuildMatchPrompt(cvText, jdText);
-
-                    // Gọi AI
                     var aiResult = await _aiService.GenerateContent(prompt, isPro);
-
-                    // Parse JSON kết quả
                     var matchData = ParseMatchResult(aiResult);
 
                     if (matchData != null)
                     {
-                        var matchResult = new CVMatchResult
+                        newMatchResults.Add(new CVMatchResult
                         {
                             JobID = jobId,
                             ResumeID = resume.ResumeID,
@@ -132,47 +191,57 @@ namespace DoAnCS.Controllers
                             Summary = matchData.Summary,
                             Recommendation = matchData.Recommendation,
                             AnalyzedAt = DateTime.Now
-                        };
-
-                        _context.CVMatchResults.Add(matchResult);
+                        });
                         successCount++;
 
-                        // Ghi log AI
                         int estimatedTokens = (prompt.Length / 4) + (aiResult.Length / 4);
                         _context.AILogs.Add(new AILog
                         {
                             UserID = userId,
-                            RequestType = "smart_match",
+                            RequestType = "smart_match_rag",
                             InputText = $"Job #{jobId} vs Resume #{resume.ResumeID}",
                             OutputText = aiResult.Length > 500 ? aiResult.Substring(0, 500) + "..." : aiResult,
                             UsedTokens = estimatedTokens,
                             CreatedAt = DateTime.Now
                         });
 
-                        // Cập nhật token tích lũy
                         if (configData != null)
                         {
                             var trackedConfig = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == configData.Id);
                             if (trackedConfig != null) trackedConfig.TotalTokensUsed += estimatedTokens;
                         }
                     }
+                    else
+                    {
+                        Console.WriteLine($"[SmartMatch RAG] ⚠️ Rớt ứng viên #{resume.ResumeID} do AI trả về lỗi hoặc sai định dạng JSON.");
+                    }
 
-                    // Delay 2 giây giữa mỗi lần gọi AI để tránh rate limit 429
-                    if (current < publicResumes.Count)
-                        await Task.Delay(2000);
+                    // Tăng delay lên 4 giây (4000ms) để tránh bị Google Gemini phạt Rate Limit (Free Tier)
+                    if (current < topCandidates.Count)
+                        await Task.Delay(4000);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[SmartMatch] Error analyzing Resume #{resume.ResumeID}: {ex.Message}");
+                    Console.WriteLine($"[SmartMatch RAG] Error LLM analyzing Resume #{resume.ResumeID}: {ex.Message}");
                 }
             }
 
-            await _context.SaveChangesAsync();
+            // BƯỚC CUỐI CÙNG: CHỈ XÓA DỮ LIỆU CŨ KHI ĐÃ CÓ DỮ LIỆU MỚI THÀNH CÔNG
+            if (newMatchResults.Any())
+            {
+                var oldResults = await _context.CVMatchResults.Where(r => r.JobID == jobId).ToListAsync();
+                if (oldResults.Any())
+                {
+                    _context.CVMatchResults.RemoveRange(oldResults);
+                }
+                _context.CVMatchResults.AddRange(newMatchResults);
+                await _context.SaveChangesAsync();
+            }
 
             return Json(new
             {
                 success = true,
-                message = $"Đã phân tích {successCount}/{publicResumes.Count} ứng viên thành công!",
+                message = $"RAG Pipeline: Đã lọc và chấm điểm {successCount}/{topCandidates.Count} ứng viên hàng đầu thành công!",
                 analyzed = successCount,
                 total = publicResumes.Count
             });
@@ -385,6 +454,27 @@ TUYỆT ĐỐI chỉ trả về JSON thuần (KHÔNG có markdown, KHÔNG có ``
             {
                 return new List<string>();
             }
+        }
+
+        /// <summary>Tính toán độ tương đồng Cosine (Cosine Similarity) giữa 2 mảng vector</summary>
+        private double CalculateCosineSimilarity(float[] vectorA, float[] vectorB)
+        {
+            if (vectorA == null || vectorB == null || vectorA.Length != vectorB.Length || vectorA.Length == 0)
+                return 0;
+
+            double dotProduct = 0;
+            double normA = 0;
+            double normB = 0;
+
+            for (int i = 0; i < vectorA.Length; i++)
+            {
+                dotProduct += vectorA[i] * vectorB[i];
+                normA += vectorA[i] * vectorA[i];
+                normB += vectorB[i] * vectorB[i];
+            }
+
+            if (normA == 0 || normB == 0) return 0;
+            return dotProduct / (Math.Sqrt(normA) * Math.Sqrt(normB));
         }
 
         /// <summary>DTO tạm cho việc parse kết quả AI</summary>

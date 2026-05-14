@@ -83,5 +83,60 @@ namespace DoAnCS.Services
                 return "Lỗi kết nối hệ thống AI!";
             }
         }
+
+        public async Task<float[]> GenerateEmbeddingAsync(string text)
+        {
+            try
+            {
+                var config = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
+                if (config == null || string.IsNullOrEmpty(config.ApiKey))
+                {
+                    Console.WriteLine("CRITICAL ERROR: API Key is NULL in Database!");
+                    return Array.Empty<float>();
+                }
+
+                if (string.IsNullOrWhiteSpace(text)) return Array.Empty<float>();
+
+                // Sử dụng chính xác model gemini-embedding-001 từ danh sách API của bạn
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={config.ApiKey}";
+
+                // Payload chuẩn của Google Gemini API embedContent
+                var requestBody = new
+                {
+                    content = new
+                    {
+                        parts = new[] { new { text = text } }
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    dynamic result = JsonConvert.DeserializeObject(responseString);
+                    if (result?.embedding?.values != null)
+                    {
+                        var values = new List<float>();
+                        foreach (var val in result.embedding.values)
+                        {
+                            values.Add((float)val);
+                        }
+                        return values.ToArray();
+                    }
+                }
+
+                Console.WriteLine($"Embedding API Error: {responseString}");
+                return Array.Empty<float>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Embedding Exception: {ex.Message}");
+                return Array.Empty<float>();
+            }
+        }
     }
 }
