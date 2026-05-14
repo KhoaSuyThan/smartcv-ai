@@ -4,7 +4,7 @@
     ref="cvRoot"
     class="cv-browser-wrapper"
     :style="{ height: `${Math.max(1, pageCount) * 297}mm` }"
-    @click.self="selectedSectionId = null"
+    @click.self="closeAllSections"
   >
     <div class="browser-header paginated-item">
       <div class="browser-tabs">
@@ -46,31 +46,31 @@
         </div>
         <div class="header-info">
           
-          <h1 class="fullname" v-if="!isEmpty(resumeData.general.fullName)" v-html="resumeData.general.fullName"></h1>
+          <h1 class="fullname" v-if="!isEmpty(resumeData.general.fullName)" v-html="stripTags(resumeData.general.fullName)"></h1>
           <h1 class="fullname" v-else>NGUYỄN MAI ANH</h1>
           
-          <p class="job-title" v-if="!isEmpty(resumeData.general.jobTitle)" v-html="resumeData.general.jobTitle"></p>
+          <p class="job-title" v-if="!isEmpty(resumeData.general.jobTitle)" v-html="stripTags(resumeData.general.jobTitle)"></p>
           <p class="job-title" v-else>Kỹ sư phần mềm IT</p>
           
           <div class="contact-grid">
             <div class="contact-item">
               <i class="fas fa-calendar-alt"></i>
-              <span v-if="!isEmpty(resumeData.general.birthDate)" v-html="resumeData.general.birthDate"></span>
+              <span v-if="!isEmpty(resumeData.general.birthDate)" v-html="stripTags(resumeData.general.birthDate)"></span>
               <span v-else>18/12/1997</span>
             </div>
             <div class="contact-item">
               <i class="fas fa-phone-alt"></i>
-              <span v-if="!isEmpty(resumeData.general.phone)" v-html="resumeData.general.phone"></span>
+              <span v-if="!isEmpty(resumeData.general.phone)" v-html="stripTags(resumeData.general.phone)"></span>
               <span v-else>(024) 6680 5588</span>
             </div>
             <div class="contact-item">
               <i class="fas fa-envelope"></i>
-              <span v-if="!isEmpty(resumeData.general.email)" v-html="resumeData.general.email"></span>
-              <span v-else>hotro@topcv.vn</span>
+              <span v-if="!isEmpty(resumeData.general.email)" v-html="stripTags(resumeData.general.email)"></span>
+              <span v-else>hotro@cvbuilder.vn</span>
             </div>
             <div class="contact-item">
               <i class="fas fa-map-marker-alt"></i>
-              <span v-if="!isEmpty(resumeData.general.address)" v-html="resumeData.general.address"></span>
+              <span v-if="!isEmpty(resumeData.general.address)" v-html="stripTags(resumeData.general.address)"></span>
               <span v-else>Quận A, Hà Nội</span>
             </div>
           </div>
@@ -86,6 +86,7 @@
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
               <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, [])"><i class="fas fa-chevron-up"></i></button>
               <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, [])"><i class="fas fa-chevron-down"></i></button>
+              <button class="nav-btn close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
             </div>
           </transition>
 
@@ -113,6 +114,7 @@
                   <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
                   <button class="nav-btn" @click.stop.prevent="moveHorizontal(section.id)"><i class="fas fa-exchange-alt"></i></button>
+                  <button class="nav-btn close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -167,8 +169,8 @@
                         </div>
                       </div>
 
-                      <div class="text-[13px] text-gray-500 mt-1" v-if="item.gradType || item.info || item.contact">
-                        <div v-if="item.gradType" class="text-gray-400 paginated-item">{{ item.gradType }}</div>
+                      <div class="text-[13px] text-gray-500 mt-1 paginated-item" v-if="item.gradType || item.info || item.contact">
+                        <div v-if="item.gradType" class="text-gray-400">{{ item.gradType }}</div>
                         <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                       </div>
 
@@ -198,6 +200,7 @@
                   <button class="nav-btn" @click.stop.prevent="moveHorizontal(section.id)"><i class="fas fa-exchange-alt"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -252,8 +255,8 @@
                         </div>
                       </div>
 
-                      <div class="text-[13px] text-gray-500 mt-1" v-if="item.gradType || item.info || item.contact">
-                        <div v-if="item.gradType" class="text-gray-400 paginated-item">{{ item.gradType }}</div>
+                      <div class="text-[13px] text-gray-500 mt-1 paginated-item" v-if="item.gradType || item.info || item.contact">
+                        <div v-if="item.gradType" class="text-gray-400">{{ item.gradType }}</div>
                         <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                       </div>
 
@@ -299,8 +302,20 @@ const emit = defineEmits(['moveUp', 'moveDown', 'removeItem', 'moveHorizontal'])
 const isEmpty = (val) => {
   if (!val) return true;
   if (typeof val !== 'string') return false;
-  const cleanStr = val.replace(/<\/?[^>]+(>|$)/g, "").replace(/&[#a-z0-9]+;/ig, "").trim().toLowerCase();
-  return cleanStr === '' || cleanStr === 'br';
+  const clean = val
+    .replace(/<\/?[^>]+(>|$)/g, "")
+    .replace(/&[#a-z0-9]+;/ig, "")
+    .replace(/\s+/g, "")
+    .toLowerCase();
+  return clean === '' || clean === 'br';
+}
+
+const stripTags = (val) => {
+  if (!val || typeof val !== 'string') return val;
+  return val
+    .replace(/<\/?[^>]+(>|$)/g, '')
+    .replace(/&[#a-z0-9]+;/ig, '')
+    .trim();
 }
 
 const getMockData = (sectionId) => {
@@ -329,8 +344,28 @@ const moveHorizontal = (id) => {
   })
 }
 
-const sidebarSections = computed(() => (props.resumeData?.sections || []).filter(s => localLeftKeys.value.includes(s.id) && s.id !== 'summary'))
-const mainSections = computed(() => (props.resumeData?.sections || []).filter(s => !localLeftKeys.value.includes(s.id) && s.id !== 'summary'))
+// ĐÃ FIX: Thuật toán tự động đảo "Học vấn" lên trên "Kinh nghiệm" nếu cả 2 cùng chung cột
+const sidebarSections = computed(() => {
+  const arr = (props.resumeData?.sections || []).filter(s => localLeftKeys.value.includes(s.id) && s.id !== 'summary')
+  const eduIdx = arr.findIndex(s => s.id === 'education')
+  const expIdx = arr.findIndex(s => s.id === 'experience')
+  if (eduIdx !== -1 && expIdx !== -1 && eduIdx > expIdx) {
+    const edu = arr.splice(eduIdx, 1)[0]
+    arr.splice(expIdx, 0, edu)
+  }
+  return arr
+})
+
+const mainSections = computed(() => {
+  const arr = (props.resumeData?.sections || []).filter(s => !localLeftKeys.value.includes(s.id) && s.id !== 'summary')
+  const eduIdx = arr.findIndex(s => s.id === 'education')
+  const expIdx = arr.findIndex(s => s.id === 'experience')
+  if (eduIdx !== -1 && expIdx !== -1 && eduIdx > expIdx) {
+    const edu = arr.splice(eduIdx, 1)[0]
+    arr.splice(expIdx, 0, edu)
+  }
+  return arr
+})
 
 const getActiveIds = (sourceArray) => sourceArray.filter(s => s.isVisible).map(s => s.id)
 const leftIds = computed(() => getActiveIds(sidebarSections.value))
@@ -340,13 +375,16 @@ const getOrder = (id, activeArray) => activeArray.indexOf(id) + 1
 
 const toggleSection = (id) => { selectedSectionId.value = selectedSectionId.value === id ? null : id }
 
+const closeAllSections = () => {
+  selectedSectionId.value = null;
+}
+
 onMounted(() => {
   if (props.resumeData?.sections) {
-    const ACTIVE_SECTIONS = ['summary', 'education', 'experience', 'skills', 'project', 'projects']
+    // ĐÃ FIX: Bật sẵn Mục tiêu nghề nghiệp (summary), Học vấn, Kinh nghiệm, Kỹ năng
+    const ACTIVE_SECTIONS = ['summary', 'education', 'experience', 'skills']
     props.resumeData.sections.forEach(sec => {
-      if (ACTIVE_SECTIONS.includes(sec.id) && !sec.isVisible) {
-        sec.isVisible = true
-      }
+      sec.isVisible = ACTIVE_SECTIONS.includes(sec.id)
     })
   }
   requestPagination()
@@ -372,7 +410,6 @@ const formatDesc = (text) => {
       if (node.tagName === 'BR') {
         const d = document.createElement('div'); d.className = 'paginated-item h-[14px]'; out.appendChild(d)
       } else if (['UL','OL'].includes(node.tagName)) {
-        // UL/OL sinh ra các LI được gắn paginated-item => Mỗi thẻ LI sẽ rớt dòng độc lập
         Array.from(node.children).forEach(li => li.classList.add('paginated-item'))
         out.appendChild(node.cloneNode(true))
       } else {
@@ -397,14 +434,14 @@ const requestPagination = () => {
 const doPagination = async () => {
   if (!cvRoot.value) return
 
-  const allElements = cvRoot.value.querySelectorAll('.paginated-item, .custom-card')
+  const allElements = cvRoot.value.querySelectorAll('.paginated-item')
   allElements.forEach(el => { el.style.marginTop = '0px' })
   await nextTick()
 
   const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM
   const pageH = A4_H_MM * pxPerMm
-  const bottomSafeZone = 14 * pxPerMm 
-  const topMargin = 10 * pxPerMm 
+  const bottomSafeZone = 20 * pxPerMm 
+  const topMargin = 25 * pxPerMm 
 
   const getOffsetTop = (el) => {
     let offset = 0
@@ -425,27 +462,16 @@ const doPagination = async () => {
     const bottomInPage = topInPage + el.offsetHeight
     
     if (bottomInPage > (pageH - bottomSafeZone)) {
-       let targetEl = el
-       const parentCard = el.closest('.custom-card')
-
-       // CHỈ kéo cả Thẻ (Card) xuống dòng NẾU như cái bị đẩy là cái Tiêu Đề của Thẻ đó (để tiêu đề không bị bơ vơ)
-       // HOẶC toàn bộ nội dung cái thẻ đó siêu ngắn (nhỏ hơn 30% trang).
-       // CÒN LẠI: Cắt ngang dòng nào, rớt dòng đó, nền thẻ sẽ tự động chải dài!
-       if (parentCard && (el.classList.contains('card-header') || parentCard.offsetHeight < (pageH * 0.3))) {
-           targetEl = parentCard
-       }
-
-       if (!targetEl.style.marginTop || targetEl.style.marginTop === '0px') {
-           const targetTop = getOffsetTop(targetEl)
-           const targetTopInPage = targetTop % pageH
-           const distToNextPage = pageH - targetTopInPage + topMargin
-           targetEl.style.marginTop = `${distToNextPage}px`
+       if (!el.style.marginTop || el.style.marginTop === '0px') {
+           const distToNextPage = pageH - topInPage + topMargin
+           el.style.marginTop = `${distToNextPage}px`
        }
     }
   })
 
   let maxBottom = 0
-  allElements.forEach(el => {
+  const blocks = cvRoot.value.querySelectorAll('.section-block, .paginated-item')
+  blocks.forEach(el => {
     const b = getOffsetTop(el) + el.offsetHeight
     if (b > maxBottom) maxBottom = b
   })
@@ -538,7 +564,7 @@ onUnmounted(() => {
 .contact-item i { width: 14px; text-align: center; font-size: 13px; color: #94A3B8; }
 
 /* 2 COLUMNS LAYOUT */
-.main-layout { display: flex; gap: 25px; align-items: flex-start; }
+.main-layout { display: flex; gap: 25px; align-items: flex-start; position: relative; z-index: 10; margin-top: 15px; }
 .left-column { width: 55%; display: flex; flex-direction: column; gap: 25px; }
 .right-column { width: 45%; display: flex; flex-direction: column; gap: 25px; }
 
@@ -560,7 +586,11 @@ onUnmounted(() => {
 .bullet-list li.no-bullet::before { display: none; }
 
 /* ================== HTML CONTENT ================== */
-.paginated-item { transition: none; }
+.paginated-item { 
+  transition: none; 
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
 
 :deep(.html-content) { font-size: 12.5px; line-height: 1.6; color: #64748B; text-align: justify; }
 :deep(.html-content ul) { list-style-type: none !important; padding-left: 12px !important; margin: 0; }
@@ -582,6 +612,14 @@ onUnmounted(() => {
 }
 .nav-btn:hover { background: #2563EB; }
 
+/* NÚT TẮT ACTIVE MÀU ĐỎ */
+.nav-btn.close-active-btn {
+  background: #EF4444; 
+}
+.nav-btn.close-active-btn:hover {
+  background: #DC2626;
+}
+
 .delete-item-btn { position: absolute; right: -5px; top: 0; width: 18px; height: 18px; background: #EF4444; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 50; }
 
 .page-break-indicator { position: absolute; left: 0; width: 100%; z-index: 50; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
@@ -589,6 +627,8 @@ onUnmounted(() => {
 .page-break-label { font-size: 9px; text-transform: uppercase; font-weight: 700; color: #999; background: #fff; padding: 2px 10px; margin-top: -8px; }
 
 @media print { 
+  @page { margin: 0; size: A4; }
+  
   .no-print { display: none !important; } 
   .no-print-bg { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .section-block,
