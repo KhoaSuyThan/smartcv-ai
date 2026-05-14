@@ -4,7 +4,6 @@
     :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }"
     @click.self="selectedSectionId = null">
 
-    <!-- HEADER: Name & Job Title -->
     <header class="pt-[15mm] px-[12mm] pb-[45mm] flex justify-between items-start paginated-item relative z-20">
       <div class="flex-1">
         <h1 class="text-[34px] font-black uppercase text-[#5ba4b5] tracking-tight leading-none mb-2" 
@@ -13,7 +12,6 @@
           v-html="resumeData.general.jobTitle || 'VỊ TRÍ ỨNG TUYỂN'"></h2>
       </div>
       
-      <!-- Decoration and Avatar -->
       <div class="relative flex-shrink-0 mr-4 z-30">
         <div class="absolute -top-10 right-0 w-[25mm] h-[25mm] bg-[#5ba4b5] opacity-80 z-0"></div>
         <div class="w-[48mm] h-[58mm] rounded-lg border-[6px] border-white shadow-lg overflow-hidden bg-slate-100 relative z-10">
@@ -27,17 +25,24 @@
       </div>
     </header>
 
-    <!-- SUMMARY BLOCK (TEAL) WRAPPER -->
     <div class="relative z-10" style="margin-top: -65mm;">
-      <!-- SUMMARY BLOCK (TEAL) -->
-      <div class="mx-0 bg-[#5ba4b5] text-white py-[8mm] px-[12mm] relative" 
+      <div class="mx-0 bg-[#5ba4b5] text-white !py-[8mm] !px-[12mm] relative section-block"
+           :class="{ 'section-active': selectedSectionId === 'summary' }"
            @click.stop="selectedSectionId = 'summary'">
+           
+        <transition name="fade-btns">
+          <div v-show="selectedSectionId === 'summary'" class="nav-btns no-print">
+            <button @click.stop.prevent="resumeData.sections.find(s => s.id === 'summary').isVisible = false; selectedSectionId = null" class="nav-btn" style="background-color: #ef4444;" title="Ẩn mục này">
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+        </transition>
+
         <h3 class="text-[15px] font-bold uppercase mb-3 tracking-wider paginated-item">Mục tiêu nghề nghiệp</h3>
         <div class="text-[15px] leading-relaxed text-justify font-medium mb-8 opacity-95 html-content"
           v-html="formatDesc(resumeData.general.summary || 'Mô tả mục tiêu nghề nghiệp...')">
         </div>
 
-        <!-- Contact Info Grid (3 Columns) -->
         <div class="grid grid-cols-3 gap-y-4 text-[13px] font-medium paginated-item">
           <div class="flex items-center gap-3" v-if="!isEmpty(resumeData.general.gender)">
             <svg class="w-5 h-5 opacity-80" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" /></svg>
@@ -67,112 +72,113 @@
       </div>
     </div>
 
-    <!-- BODY: 2 COLUMNS -->
     <div class="flex px-[12mm] py-[8mm] gap-[10mm] relative z-10" @click.self="selectedSectionId = null">
       
-      <!-- LEFT COLUMN: Education & Experience -->
       <div class="flex-[1.5] flex flex-col gap-8">
         <template v-for="section in leftSections" :key="section.id">
           <div v-show="section.isVisible" class="section-block relative"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id">
             
-            <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
-              <button @click.stop.prevent="moveSectionUp(section.id, 'left')" class="nav-btn">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
-              </button>
-              <button @click.stop.prevent="moveSectionDown(section.id, 'left')" class="nav-btn">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
-              </button>
-              <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
-              </button>
-            </div>
+            <transition name="fade-btns">
+              <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
+                <button @click.stop.prevent="moveSectionUp(section.id, 'left')" class="nav-btn" title="Lên trên">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button @click.stop.prevent="moveSectionDown(section.id, 'left')" class="nav-btn" title="Xuống dưới">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Chuyển cột">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn" style="background-color: #ef4444;" title="Ẩn mục này">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </transition>
 
             <div class="paginated-item">
               <div class="flex flex-col mb-2">
-                <h3 
-                  class="font-extrabold uppercase tracking-[0.08em] text-black" 
-                  style="font-size: 15px !important;"
-                >
+                <h3 class="font-extrabold uppercase tracking-[0.08em] text-black" style="font-size: 15px !important;">
                   {{ section.title }}
                 </h3>
                 <div class="h-[1.5px] bg-black w-full mt-1"></div>
               </div>
             </div>
 
-            <!-- Education -->
             <div v-if="section.id === 'education'" class="space-y-6">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <transition name="fade-btns">
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
+                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </transition>
+                
                 <div class="paginated-item">
                   <div class="flex justify-between items-start mb-1">
                     <h4 class="text-[10px] font-bold text-slate-800 flex items-center gap-2">
-                      <span class="text-[10px]">▶</span> {{ item.school }}
+                      <span class="text-[10px]">▶</span> <span v-html="item.school"></span>
                     </h4>
                     <span class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.year }}</span>
                   </div>
                   <div class="pl-5">
-                    <div class="text-[14.5px] font-bold italic text-slate-600">{{ item.major }}</div>
+                    <div class="text-[14.5px] font-bold italic text-slate-600" v-html="item.major"></div>
                     <div v-if="item.gradType" class="text-[14px] text-slate-500 font-medium">Học lực: {{ item.gradType }}</div>
                   </div>
                 </div>
+                
                 <div v-if="item.desc" class="text-[10px] leading-relaxed text-slate-600 text-justify html-content mt-2 pl-5" v-html="formatDesc(item.desc)"></div>
               </div>
             </div>
 
-            <!-- Experience / Project / Activities -->
             <div v-else-if="['experience', 'project', 'activities'].includes(section.id)" class="space-y-8">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <transition name="fade-btns">
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
+                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </transition>
+                
                 <div class="paginated-item">
                   <div class="flex justify-between items-start mb-1">
                     <h4 class="text-[10px] font-bold text-slate-800 flex items-center gap-2 uppercase">
-                      <span class="text-[10px]">▶</span> {{ section.id === 'experience' ? item.company : (item.name || item.title) }}
+                      <span class="text-[10px]">▶</span> <span v-html="section.id === 'experience' ? item.company : (item.name || item.title)"></span>
                     </h4>
                     <span v-if="item.time || item.year" class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.time || item.year }}</span>
                     <span v-else-if="item.level || item.info" class="text-[14px] font-bold italic text-slate-500 shrink-0">{{ item.level || item.info }}</span>
                   </div>
-                  <div v-if="section.id === 'experience' || item.role || item.company" class="pl-5 text-[14.5px] font-bold italic text-slate-600 mb-2">
-                    {{ section.id === 'experience' ? item.role : (item.role || item.company) }}
-                  </div>
+                  <div v-if="section.id === 'experience' || item.role || item.company" class="pl-5 text-[14.5px] font-bold italic text-slate-600 mb-2" v-html="section.id === 'experience' ? item.role : (item.role || item.company)"></div>
                 </div>
+                
                 <div class="text-[15px] leading-relaxed text-slate-600 text-justify html-content pl-5" v-html="formatDesc(item.desc || item.info || item.content)"></div>
               </div>
             </div>
 
-            <!-- Other Generic Sections (Skills, Languages, etc.) -->
             <div v-else class="space-y-4">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-                <div class="paginated-item">
-                  <div class="flex items-start gap-2">
-                    <span class="text-[10px] mt-[4px] shrink-0">▶</span>
-                    <div class="flex-1 min-w-0">
-                      <!-- Main Line: prioritized name/title, fallback to desc/info if nothing else -->
-                      <div class="flex justify-between items-start gap-2">
-                        <div style="font-size: 15px !important;" class="font-bold text-slate-800 break-words flex-1">
-                          <span v-html="item.name || item.title || (!item.desc ? item.info : '') || (!item.name && !item.title && !item.info ? item.desc : '') || 'Chưa có nội dung'"></span>
-                        </div>
-                        <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0">
-                          {{ item.level || item.info }}
-                        </span>
-                        <span v-else-if="item.year || item.time" class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.year || item.time }}</span>
+                <transition name="fade-btns">
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
+                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </transition>
+                
+                <div class="flex items-start gap-2 paginated-item">
+                  <span class="text-[10px] mt-[4px] shrink-0">▶</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex justify-between items-start gap-2 mb-0.5">
+                      <div style="font-size: 15px !important;" class="font-bold text-slate-800 break-words flex-1">
+                        <span v-html="item.name || item.title || (!item.desc ? item.info : '') || (!item.name && !item.title && !item.info ? item.desc : '') || 'Chưa có nội dung'"></span>
                       </div>
-                      <!-- Sub content: only if different from the main line and exists -->
-                      <div v-if="item.desc && item.desc !== item.name && item.desc !== item.title" 
-                           style="font-size: 15px !important;"
-                           class="leading-relaxed text-slate-600 text-justify html-content mt-1" 
-                           v-html="formatDesc(item.desc)">
-                      </div>
+                      <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0">{{ item.level || item.info }}</span>
+                      <span v-else-if="item.year || item.time" class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.year || item.time }}</span>
                     </div>
                   </div>
+                </div>
+                
+                <div v-if="item.desc && item.desc !== item.name && item.desc !== item.title" 
+                     style="font-size: 15px !important;"
+                     class="leading-relaxed text-slate-600 text-justify html-content mt-1 pl-4" 
+                     v-html="formatDesc(item.desc)">
                 </div>
               </div>
             </div>
@@ -180,24 +186,28 @@
         </template>
       </div>
 
-      <!-- RIGHT COLUMN: Awards & Certs -->
       <div class="flex-1 flex flex-col gap-8">
         <template v-for="section in rightSections" :key="section.id">
           <div v-show="section.isVisible" class="section-block relative"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id">
             
-            <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
-              <button @click.stop.prevent="moveSectionUp(section.id, 'right')" class="nav-btn">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
-              </button>
-              <button @click.stop.prevent="moveSectionDown(section.id, 'right')" class="nav-btn">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
-              </button>
-              <button @click.stop.prevent="moveSectionHorizontal(section.id, 'left')" class="nav-btn">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
-              </button>
-            </div>
+            <transition name="fade-btns">
+              <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
+                <button @click.stop.prevent="moveSectionUp(section.id, 'right')" class="nav-btn">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <button @click.stop.prevent="moveSectionDown(section.id, 'right')" class="nav-btn">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button @click.stop.prevent="moveSectionHorizontal(section.id, 'left')" class="nav-btn">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn" style="background-color: #ef4444;" title="Ẩn mục này">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
+            </transition>
 
             <div class="paginated-item">
               <div class="flex flex-col mb-2">
@@ -213,48 +223,59 @@
 
             <div class="space-y-6">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <transition name="fade-btns">
+                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)" class="delete-btn no-print">
+                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </transition>
+
+                <template v-if="['awards','certifications'].includes(section.id)">
+                  <div v-if="item.year" class="paginated-item font-bold text-[#333] mb-0.5">{{ item.year }}</div>
+                  <div class="font-normal html-content" v-html="formatDesc(item.name || item.info)"></div>
+                </template>
+
+                <template v-else-if="['skills','languages','it_skills'].includes(section.id)">
+                  <div class="paginated-item flex items-start gap-2">
+                    <span class="mt-[0.5px] text-slate-500 shrink-0"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg></span>
+                    <span class="flex-1">
+                      <span class="font-bold">{{ item.name }}:</span>
+                      <span v-if="item.info" class="font-normal"> {{ item.info }}</span>
+                      <span v-else-if="item.level" class="font-normal"> ({{ item.level }})</span>
+                    </span>
+                  </div>
+                </template>
                 
-                <div class="paginated-item">
+                <template v-else>
                   <div class="flex items-start gap-2">
-                    <span class="text-[10px] mt-[4px] shrink-0">▶</span>
+                    <span class="text-[10px] mt-[4px] shrink-0 paginated-item">▶</span>
                     <div class="flex-1 min-w-0">
-                      <!-- Title/Name Line -->
-                      <div class="flex justify-between items-start gap-2 mb-0.5">
-                        <h4 style="font-size: 15px !important;" class="font-bold text-slate-800 flex-1 break-words">
-                          {{ section.id === 'experience' ? item.company : 
-                             section.id === 'education' ? item.school : 
-                             (item.name || item.title || (!item.desc ? item.info : '')) }}
-                        </h4>
-                        <span v-if="item.year || item.time" style="font-size: 14px !important;" class="font-bold text-slate-500 shrink-0">{{ item.year || item.time }}</span>
-                        <span v-else-if="item.level" style="font-size: 14px !important;" class="font-bold italic text-slate-500 shrink-0">{{ item.level }}</span>
-                        <span v-else-if="item.info && (item.name || item.title)" style="font-size: 14px !important;" class="font-bold italic text-slate-500 shrink-0">{{ item.info }}</span>
+                      
+                      <div v-if="item.time || item.year" class="paginated-item font-bold text-[#333] mb-0.5" style="font-size: 14px !important;">
+                        {{ item.time || item.year }}
+                      </div>
+                      
+                      <div class="flex justify-between items-start gap-2 mb-0.5 paginated-item" v-if="item.company || item.school || item.title || (item.name && !isRichText(item.name))">
+                        <div style="font-size: 15px !important;" class="font-bold text-slate-800 break-words flex-1">
+                          <span v-html="item.company || item.school || item.title || item.name || 'Chưa có nội dung'"></span>
+                        </div>
+                        <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0">{{ item.level || item.info }}</span>
                       </div>
 
-                      <!-- Subtitle Line (Role/Major) -->
-                      <div v-if="section.id === 'experience' || section.id === 'education' || item.role || item.position || item.major" 
-                           class="text-[14.5px] font-bold italic text-slate-600 mb-0.5">
-                        {{ section.id === 'experience' ? item.role : 
-                           section.id === 'education' ? item.major : 
-                           (item.role || item.position || item.major) }}
+                      <div v-if="item.major" class="paginated-item font-normal mb-0.5" style="font-size: 14.5px !important; color: #555;">{{ item.major }}</div>
+                      <div v-if="(item.company || item.school || item.title || item.name) && item.role" class="paginated-item font-normal italic mb-1" style="font-size: 14.5px !important; color: #555;">{{ item.role }}</div>
+                      
+                      <div v-if="item.gradType || item.gpa" class="paginated-item font-normal mb-1" style="font-size: 14px !important; color: #555;">
+                        <span v-if="item.gradType">Tốt nghiệp loại: <strong>{{ item.gradType }}</strong></span>
+                        <span v-if="item.gradType && item.gpa"> | </span>
+                        <span v-if="item.gpa">GPA: <strong>{{ item.gpa }}</strong></span>
                       </div>
 
-                      <!-- Education Grade -->
-                      <div v-if="section.id === 'education' && item.gradType" 
-                           class="text-[14px] text-slate-500 font-medium mb-1">
-                        Học lực: {{ item.gradType }}
+                      <div style="font-size: 15px !important;" class="leading-relaxed text-slate-600 text-justify html-content mt-1" 
+                          v-html="formatDesc(item.desc || item.info || (item.name && isRichText(item.name) ? item.name : ''))">
                       </div>
-
-                      <!-- Description -->
-                      <div v-if="(item.desc || item.info || item.content) && (item.desc !== item.name && item.desc !== item.title)"
-                           style="font-size: 15px !important;"
-                           class="leading-relaxed text-slate-600 text-justify html-content" 
-                           v-html="formatDesc(item.desc || item.info || item.content)"></div>
                     </div>
                   </div>
-                </div>
+                </template>
               </div>
             </div>
           </div>
@@ -262,7 +283,6 @@
       </div>
     </div>
 
-    <!-- PAGINATION INDICATORS -->
     <template v-for="p in (pageCount - 1)" :key="'div-'+p">
       <div class="absolute left-0 w-full z-50 flex flex-col items-center justify-center pointer-events-none no-print" 
         :style="{ top: `calc(${p * 297}mm - 12px)` }">
@@ -287,40 +307,103 @@ const cvRoot = ref(null)
 const pageCount = ref(1)
 const selectedSectionId = ref(null)
 
+const decodeHTML = (html) => {
+  if (!html) return '';
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
 const isEmpty = (val) => {
   if (!val) return true
   if (typeof val !== 'string') return false
-  return val.replace(/<[^>]*>/g, '').trim() === ''
+  const cleanStr = val.replace(/<\/?[^>]+(>|$)/g, "").replace(/&[#a-z0-9]+;/ig, "").trim().toLowerCase();
+  return cleanStr === '' || cleanStr === 'br';
+}
+
+const isRichText = (val) => {
+  if (!val) return false;
+  let text = val;
+  if (text.includes('&lt;')) {
+    text = decodeHTML(text);
+  }
+  return /<[a-z][\s\S]*>/i.test(text);
+}
+
+// ── UTILITIES ──────────────────────────────────────────────
+const formatDesc = (rawText) => {
+  if (!rawText) return ''
+  
+  let text = rawText;
+  if (text.includes('&lt;')) {
+    text = decodeHTML(text);
+  }
+
+  if (!/<[a-z][\s\S]*>/i.test(text)) {
+    return text.split('\n').map(l => l.trim()).filter(Boolean)
+      .map(l => `<div class="paginated-item min-h-[14px]">${l}</div>`).join('')
+  }
+
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = text
+  
+  tempDiv.querySelectorAll('li').forEach(li => {
+    const child = li.firstElementChild
+    if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
+      if (child.color) li.style.color = child.color
+      if (child.style && child.style.color) li.style.color = child.style.color
+    }
+  })
+
+  const container = document.createElement('div')
+  
+  const processNode = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.trim()) {
+            const div = document.createElement('div')
+            div.className = 'paginated-item min-h-[14px]'
+            div.appendChild(node.cloneNode(true))
+            container.appendChild(div)
+        }
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        if (node.tagName === 'BR') {
+            const div = document.createElement('div')
+            div.className = 'paginated-item h-[14px]'
+            container.appendChild(div)
+        } else if (['UL', 'OL'].includes(node.tagName)) {
+            const listClone = node.cloneNode(false)
+            Array.from(node.children).forEach(li => {
+              if (li.tagName === 'LI') {
+                  li.classList.add('paginated-item')
+                  listClone.appendChild(li.cloneNode(true))
+              }
+            })
+            container.appendChild(listClone)
+        } else if (['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(node.tagName)) {
+            const hasBlock = Array.from(node.querySelectorAll('p, div, ul, ol, li, h1, h2, h3, h4, h5, h6')).length > 0;
+            if (!hasBlock) {
+              node.classList.add('paginated-item')
+              node.classList.add('min-h-[14px]')
+              container.appendChild(node.cloneNode(true))
+            } else {
+              Array.from(node.childNodes).forEach(child => processNode(child))
+            }
+        } else {
+            const div = document.createElement('div')
+            div.className = 'paginated-item min-h-[14px]'
+            div.appendChild(node.cloneNode(true))
+            container.appendChild(div)
+        }
+      }
+  }
+
+  Array.from(tempDiv.childNodes).forEach(child => processNode(child))
+
+  return container.innerHTML
 }
 
 const leftSections = computed(() => props.resumeData.sections.filter(s => s.column === 'left' && s.id !== 'summary'))
 const rightSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right' && s.id !== 'summary'))
-
-const formatDesc = (text) => {
-  if (!text) return ''
-  if (!/<[a-z][\s\S]*>/i.test(text)) {
-    return text.split('\n').map(l => l.trim()).filter(Boolean)
-      .map(l => `<div class="paginated-item">${l}</div>`).join('')
-  }
-  const tempDiv = document.createElement('div')
-  tempDiv.innerHTML = text
-  const blockTags = ['P', 'DIV', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
-  tempDiv.querySelectorAll('*').forEach(el => {
-    if (blockTags.includes(el.tagName.toUpperCase())) {
-      const hasBlockChild = Array.from(el.children).some(child => blockTags.includes(child.tagName.toUpperCase()))
-      if (!hasBlockChild) el.classList.add('paginated-item')
-    }
-  })
-  Array.from(tempDiv.childNodes).forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-      const wrapper = document.createElement('div')
-      wrapper.className = 'paginated-item'
-      node.replaceWith(wrapper)
-      wrapper.appendChild(node)
-    }
-  })
-  return tempDiv.innerHTML
-}
 
 // --- SECTION MOVEMENT FUNCTIONS ---
 const moveSectionUp = (id, currentColumn) => {
@@ -377,6 +460,7 @@ const handleRemoveItem = (sectionId, itemIndex) => {
   }
 }
 
+// ─── PAGINATION ENGINE CHUẨN XÁC ───
 let paginateTimer = null
 const requestPagination = () => {
   if (paginateTimer) clearTimeout(paginateTimer)
@@ -385,15 +469,8 @@ const requestPagination = () => {
 
 const doPagination = async () => {
   if (!cvRoot.value) return
-  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
-    if (el.offsetHeight === 0) return false
-    let parent = el.parentElement
-    while (parent && parent !== cvRoot.value) {
-      if (parent.classList.contains('paginated-item')) return false
-      parent = parent.parentElement
-    }
-    return true
-  })
+  
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item'))
   allElements.forEach(el => { el.style.marginTop = '0px' })
   await nextTick()
 
@@ -413,13 +490,17 @@ const doPagination = async () => {
     const currentCvRect = cvRoot.value.getBoundingClientRect()
     for (let i = 0; i < allElements.length; i++) {
       const el = allElements[i]
+      if (el.offsetHeight === 0) continue
+      
       const elRect = el.getBoundingClientRect()
       const top = (elRect.top - currentCvRect.top) / scale
       const height = elRect.height / scale
       const pageIndex = Math.floor(top / pageH)
       const topInPage = top - (pageIndex * pageH)
       const bottomInPage = topInPage + height
+      
       if (height > (pageH - bottomSafeZone - topMargin)) continue
+      
       if (bottomInPage > (pageH - bottomSafeZone)) {
         const distToNextPage = pageH - topInPage + topMargin
         const currentMt = parseFloat(el.style.marginTop || '0')
@@ -443,10 +524,30 @@ watch(() => props.resumeData, requestPagination, { deep: true })
 onMounted(() => {
   if (props.resumeData?.sections) {
     const LEFT = ['education', 'experience']
-    const RIGHT = ['awards', 'certifications', 'skills']
+    
+    // ĐÃ FIX: Chỉ bật 5 mục theo đúng yêu cầu, và tự động sắp xếp ưu tiên
+    const ACTIVE_SECTIONS = ['summary', 'education', 'experience', 'awards', 'certifications']
+
     props.resumeData.sections.forEach(sec => {
-      sec.isVisible = [...LEFT, ...RIGHT].includes(sec.id) || sec.id === 'summary'
-      sec.column = LEFT.includes(sec.id) ? 'left' : 'right'
+      // Ép bật/tắt đúng như yêu cầu
+      sec.isVisible = ACTIVE_SECTIONS.includes(sec.id)
+
+      // ÉP CỘT cứng để chống ghi đè: Học vấn & Kinh nghiệm vào Trái, còn lại vào Phải
+      if (LEFT.includes(sec.id)) {
+         sec.column = 'left'
+      } else {
+         sec.column = 'right'
+      }
+    })
+
+    // Sắp xếp lại danh sách gốc để đẩy ưu tiên theo thứ tự
+    const orderList = ['summary', 'education', 'experience', 'awards', 'certifications', 'skills', 'project', 'languages', 'it_skills', 'activities', 'references', 'hobbies']
+    props.resumeData.sections.sort((a, b) => {
+      let idxA = orderList.indexOf(a.id)
+      let idxB = orderList.indexOf(b.id)
+      if (idxA === -1) idxA = 999
+      if (idxB === -1) idxB = 999
+      return idxA - idxB
     })
   }
   requestPagination()
@@ -499,6 +600,9 @@ onUnmounted(() => {
   color: white;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .item-container {
@@ -526,13 +630,18 @@ onUnmounted(() => {
   opacity: 1;
 }
 
-.paginated-item { transition: none !important; }
+.paginated-item { 
+  transition: none !important; 
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
 
 :deep(.html-content ul) { list-style-type: decimal; padding-left: 1.25rem; }
 :deep(.html-content li) { margin-bottom: 0.25rem; }
 :deep(.html-content b), :deep(.html-content strong) { font-weight: 800; }
 
 @media print {
+  @page { margin: 0; size: A4; }
   .no-print { display: none !important; }
   .section-block {
     border-color: transparent !important;
