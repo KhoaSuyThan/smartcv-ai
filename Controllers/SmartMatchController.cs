@@ -65,7 +65,7 @@ namespace DoAnCS.Controllers
                     return Json(new { success = false, message = "Bạn không có quyền phân tích tin này." });
             }
 
-            // Lấy toàn bộ CV công khai có nội dung (Không giới hạn 10 nữa vì đã có RAG lọc)
+            // Lấy toàn bộ CV công khai có nội dung
             var publicResumes = await _context.Resumes
                 .Include(r => r.User)
                 .Where(r => r.IsPublic && !string.IsNullOrEmpty(r.JsonContent))
@@ -74,45 +74,68 @@ namespace DoAnCS.Controllers
             if (!publicResumes.Any())
                 return Json(new { success = false, message = "Chưa có ứng viên nào công khai CV." });
 
-            Console.WriteLine($"[SmartMatch RAG] Bắt đầu đồng bộ Vector cho {publicResumes.Count} CV công khai...");
+            // Lấy toàn bộ embeddings hiện có của các CV này
+            var resumeIds = publicResumes.Select(r => r.ResumeID).ToList();
+            var existingEmbeddings = await _context.CVEmbeddings
+                .Where(e => resumeIds.Contains(e.ResumeID))
+                .ToListAsync();
 
-            // BƯỚC 1: ĐỒNG BỘ VECTOR EMBEDDINGS (AUTO-SYNC)
+            var embeddingsDict = existingEmbeddings.ToDictionary(e => e.ResumeID, e => e);
+
+            // BƯỚC 1: ĐỒNG BỘ VECTOR EMBEDDINGS (BATCH SYNC)
+            var resumesToEmbed = new List<Resume>();
             foreach (var resume in publicResumes)
             {
-                var existingEmbedding = await _context.CVEmbeddings
-                    .FirstOrDefaultAsync(e => e.ResumeID == resume.ResumeID);
-
-                // Nếu CV chưa được nhúng hoặc mới cập nhật, tiến hành nhúng lại
-                if (existingEmbedding == null || existingEmbedding.UpdatedAt < resume.UpdatedAt)
+                embeddingsDict.TryGetValue(resume.ResumeID, out var existing);
+                // Nếu chưa có vector hoặc CV đã cập nhật mới hơn vector
+                if (existing == null || existing.UpdatedAt < resume.UpdatedAt)
                 {
-                    string cvText = ExtractCVText(resume);
-                    if (!string.IsNullOrWhiteSpace(cvText))
+                    resumesToEmbed.Add(resume);
+                }
+            }
+
+            if (resumesToEmbed.Any())
+            {
+                Console.WriteLine($"[SmartMatch RAG] Đang đồng bộ Vector cho {resumesToEmbed.Count} CV mới/cập nhật...");
+                // Chia batch 100 (giới hạn của Google Gemini Batch Embedding)
+                for (int i = 0; i < resumesToEmbed.Count; i += 100)
+                {
+                    var batch = resumesToEmbed.Skip(i).Take(100).ToList();
+                    var texts = batch.Select(r => ExtractCVText(r)).ToList();
+                    
+                    var vectors = await _aiService.GenerateEmbeddingsAsync(texts);
+
+                    if (vectors != null && vectors.Count == batch.Count)
                     {
-                        var vector = await _aiService.GenerateEmbeddingAsync(cvText);
-                        if (vector != null && vector.Length > 0)
+                        for (int j = 0; j < batch.Count; j++)
                         {
+                            var resume = batch[j];
+                            var vector = vectors[j];
                             string vectorJson = JsonConvert.SerializeObject(vector);
-                            if (existingEmbedding == null)
+
+                            if (embeddingsDict.TryGetValue(resume.ResumeID, out var existing))
                             {
-                                _context.CVEmbeddings.Add(new CVEmbedding
+                                existing.VectorJson = vectorJson;
+                                existing.UpdatedAt = DateTime.Now;
+                            }
+                            else
+                            {
+                                var newEmb = new CVEmbedding
                                 {
                                     ResumeID = resume.ResumeID,
                                     VectorJson = vectorJson,
                                     UpdatedAt = DateTime.Now
-                                });
+                                };
+                                _context.CVEmbeddings.Add(newEmb);
+                                embeddingsDict[resume.ResumeID] = newEmb;
                             }
-                            else
-                            {
-                                existingEmbedding.VectorJson = vectorJson;
-                                existingEmbedding.UpdatedAt = DateTime.Now;
-                            }
-                            await _context.SaveChangesAsync(); // Lưu ngay để dùng
                         }
+                        await _context.SaveChangesAsync(); // Lưu theo batch 100 để đảm bảo an toàn dữ liệu
                     }
                 }
             }
 
-            // BƯỚC 2: NHÚNG JOB DESCRIPTION THÀNH VECTOR
+            // BƯỚC 2: NHÚNG JOB DESCRIPTION
             string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {job.Description}\nYêu cầu: {job.Requirements}\nMức lương: {job.Salary}";
             var jdVector = await _aiService.GenerateEmbeddingAsync(jdText);
 
@@ -125,10 +148,7 @@ namespace DoAnCS.Controllers
 
             foreach (var resume in publicResumes)
             {
-                var embeddingRecord = await _context.CVEmbeddings.AsNoTracking()
-                    .FirstOrDefaultAsync(e => e.ResumeID == resume.ResumeID);
-
-                if (embeddingRecord != null && !string.IsNullOrEmpty(embeddingRecord.VectorJson))
+                if (embeddingsDict.TryGetValue(resume.ResumeID, out var embeddingRecord) && !string.IsNullOrEmpty(embeddingRecord.VectorJson))
                 {
                     try
                     {
@@ -146,32 +166,34 @@ namespace DoAnCS.Controllers
                 }
             }
 
-            // Chọn Top 10 CV xuất sắc nhất theo Cosine Similarity
+            // Chọn Top 10 CV xuất sắc nhất
             var topCandidates = candidateScores
                 .OrderByDescending(c => c.Similarity)
                 .Take(10)
                 .Select(c => c.Resume)
                 .ToList();
 
-            Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm chi tiết...");
+            Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm song song...");
 
             var newMatchResults = new List<CVMatchResult>();
-            int successCount = 0;
             var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
             int userId = CurrentUserId;
             var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
             bool isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");
 
-            int current = 0;
-            foreach (var resume in topCandidates)
+            var semaphore = new SemaphoreSlim(isPro ? 3 : 2); // Chạy tối đa 2-3 task cùng lúc để tránh Rate Limit
+            var scoringTasks = topCandidates.Select(async (resume, index) =>
             {
-                current++;
+                await semaphore.WaitAsync();
                 try
                 {
-                    Console.WriteLine($"[SmartMatch RAG] LLM đánh giá {current}/{topCandidates.Count}: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
+                    // Thêm một chút delay lệch nhau giữa các task để không gọi API cùng 1 miligiây
+                    await Task.Delay(index * (isPro ? 500 : 1000));
+
+                    Console.WriteLine($"[SmartMatch RAG] AI đang đánh giá: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
 
                     string cvText = ExtractCVText(resume);
-                    if (string.IsNullOrWhiteSpace(cvText)) continue;
+                    if (string.IsNullOrWhiteSpace(cvText)) return null;
 
                     string prompt = BuildMatchPrompt(cvText, jdText);
                     var aiResult = await _aiService.GenerateContent(prompt, isPro);
@@ -179,7 +201,7 @@ namespace DoAnCS.Controllers
 
                     if (matchData != null)
                     {
-                        newMatchResults.Add(new CVMatchResult
+                        var result = new CVMatchResult
                         {
                             JobID = jobId,
                             ResumeID = resume.ResumeID,
@@ -191,11 +213,17 @@ namespace DoAnCS.Controllers
                             Summary = matchData.Summary,
                             Recommendation = matchData.Recommendation,
                             AnalyzedAt = DateTime.Now
-                        });
-                        successCount++;
+                        };
 
+                        // Log tokens (sử dụng biến cục bộ để tránh xung đột)
                         int estimatedTokens = (prompt.Length / 4) + (aiResult.Length / 4);
-                        _context.AILogs.Add(new AILog
+                        lock (newMatchResults) // Lock list vì add từ nhiều thread
+                        {
+                            newMatchResults.Add(result);
+                        }
+
+                        // Thêm log cho Admin
+                        var log = new AILog
                         {
                             UserID = userId,
                             RequestType = "smart_match_rag",
@@ -203,28 +231,30 @@ namespace DoAnCS.Controllers
                             OutputText = aiResult.Length > 500 ? aiResult.Substring(0, 500) + "..." : aiResult,
                             UsedTokens = estimatedTokens,
                             CreatedAt = DateTime.Now
-                        });
-
-                        if (configData != null)
+                        };
+                        lock (_context) // DBContext không thread-safe
                         {
-                            var trackedConfig = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == configData.Id);
-                            if (trackedConfig != null) trackedConfig.TotalTokensUsed += estimatedTokens;
+                            _context.AILogs.Add(log);
                         }
+                        
+                        return result;
                     }
-                    else
-                    {
-                        Console.WriteLine($"[SmartMatch RAG] ⚠️ Rớt ứng viên #{resume.ResumeID} do AI trả về lỗi hoặc sai định dạng JSON.");
-                    }
-
-                    // Tăng delay lên 4 giây (4000ms) để tránh bị Google Gemini phạt Rate Limit (Free Tier)
-                    if (current < topCandidates.Count)
-                        await Task.Delay(4000);
+                    return null;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"[SmartMatch RAG] Error LLM analyzing Resume #{resume.ResumeID}: {ex.Message}");
+                    return null;
                 }
-            }
+                finally
+                {
+                    semaphore.Release();
+                }
+            });
+
+            // Chờ tất cả các task hoàn tất
+            await Task.WhenAll(scoringTasks);
+
 
             // BƯỚC CUỐI CÙNG: CHỈ XÓA DỮ LIỆU CŨ KHI ĐÃ CÓ DỮ LIỆU MỚI THÀNH CÔNG
             if (newMatchResults.Any())
@@ -235,14 +265,26 @@ namespace DoAnCS.Controllers
                     _context.CVMatchResults.RemoveRange(oldResults);
                 }
                 _context.CVMatchResults.AddRange(newMatchResults);
+
+                // Cập nhật tổng Token đã dùng
+                if (configData != null)
+                {
+                    var trackedConfig = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == configData.Id);
+                    if (trackedConfig != null)
+                    {
+                        long totalBatchTokens = newMatchResults.Count * 2000; // Ước tính trung bình 2k tokens mỗi lần match (Prompt + Result)
+                        trackedConfig.TotalTokensUsed += totalBatchTokens;
+                    }
+                }
+
                 await _context.SaveChangesAsync();
             }
 
             return Json(new
             {
                 success = true,
-                message = $"RAG Pipeline: Đã lọc và chấm điểm {successCount}/{topCandidates.Count} ứng viên hàng đầu thành công!",
-                analyzed = successCount,
+                message = $"RAG Pipeline hoàn tất: Đã chấm điểm chuyên sâu {newMatchResults.Count}/{topCandidates.Count} ứng viên hàng đầu.",
+                analyzed = newMatchResults.Count,
                 total = publicResumes.Count
             });
         }

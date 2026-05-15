@@ -300,9 +300,9 @@
         document.getElementById('resultsSection').innerHTML = '';
         document.getElementById('statsSection').style.display = 'none';
 
-        // Timeout 3 phút
+        // Timeout 5 phút (300.000ms) để AI xử lý song song hoàn tất
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 180000);
+        const timeout = setTimeout(() => controller.abort(), 300000);
 
         fetch('/SmartMatch/AnalyzeJob', {
             method: 'POST',
@@ -335,8 +335,13 @@
         fetch('/SmartMatch/GetResults?jobId=' + jobId)
         .then(r => r.json())
         .then(data => {
-            if (data.success) renderResults(data);
-            else document.getElementById('resultsSection').innerHTML = renderEmpty(data.message);
+            if (data.success) {
+                renderResults(data);
+            } else {
+                // Ẩn phần thống kê nếu không có dữ liệu
+                document.getElementById('statsSection').style.display = 'none';
+                document.getElementById('resultsSection').innerHTML = renderEmpty(data.message);
+            }
         });
     }
 

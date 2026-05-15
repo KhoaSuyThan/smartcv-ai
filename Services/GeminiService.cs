@@ -138,5 +138,65 @@ namespace DoAnCS.Services
                 return Array.Empty<float>();
             }
         }
+        public async Task<List<float[]>> GenerateEmbeddingsAsync(List<string> texts)
+        {
+            if (texts == null || texts.Count == 0) return new List<float[]>();
+
+            try
+            {
+                var config = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
+                if (config == null || string.IsNullOrEmpty(config.ApiKey))
+                {
+                    Console.WriteLine("CRITICAL ERROR: API Key is NULL in Database!");
+                    return new List<float[]>();
+                }
+
+                // URL cho batch embedding
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents?key={config.ApiKey}";
+
+                // Payload chuẩn cho batchEmbedContents
+                var requestBody = new
+                {
+                    requests = texts.Select(t => new
+                    {
+                        model = "models/gemini-embedding-001",
+                        content = new { parts = new[] { new { text = t } } }
+                    }).ToArray()
+                };
+
+                var json = JsonConvert.SerializeObject(requestBody);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode)
+                {
+                    dynamic result = JsonConvert.DeserializeObject(responseString);
+                    if (result?.embeddings != null)
+                    {
+                        var allEmbeddings = new List<float[]>();
+                        foreach (var emb in result.embeddings)
+                        {
+                            var values = new List<float>();
+                            foreach (var val in emb.values)
+                            {
+                                values.Add((float)val);
+                            }
+                            allEmbeddings.Add(values.ToArray());
+                        }
+                        return allEmbeddings;
+                    }
+                }
+
+                Console.WriteLine($"Batch Embedding API Error: {responseString}");
+                return new List<float[]>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Batch Embedding Exception: {ex.Message}");
+                return new List<float[]>();
+            }
+        }
     }
 }
