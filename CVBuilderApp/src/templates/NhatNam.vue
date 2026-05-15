@@ -10,10 +10,10 @@
       <div class="pt-[16mm] px-[8mm] pb-[6mm] flex flex-col items-center text-center paginated-item">
         <h1 class="font-bold leading-tight mb-2"
           :style="{ fontSize: '26px', color: templatePrimaryColor }"
-          v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Nguyễn Văn A'">
+          v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : ''">
         </h1>
         <h2 class="font-medium mb-6 text-[#333]" style="font-size: 13.5px"
-          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Lập trình viên'">
+          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : ''">
         </h2>
 
         <!-- Ảnh đại diện tròn -->
@@ -370,11 +370,11 @@ const getContactValue = (key) => {
   const g = props.resumeData?.general
   if (!g) return ''
   switch (key) {
-    case 'birthDate': return isEmpty(g.birthDate) ? '1996' : g.birthDate
-    case 'gender': return isEmpty(g.gender) ? 'Nam' : g.gender
-    case 'phone': return isEmpty(g.phone) ? '0123 456 789' : g.phone
-    case 'email': return isEmpty(g.email) ? 'nguyenvana@gmail.com' : g.email
-    case 'address': return isEmpty(g.address) ? 'Thanh Xuân, Hà Nội' : g.address
+    case 'birthDate': return g.birthDate || ''
+    case 'gender': return g.gender || ''
+    case 'phone': return g.phone || ''
+    case 'email': return g.email || ''
+    case 'address': return g.address || ''
     default: return ''
   }
 }
@@ -382,6 +382,7 @@ const getContactValue = (key) => {
 const contactItems = computed(() => {
   return contactOrder.value
     .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
     .map(key => ({
       key,
       icon: contactIcons[key],
@@ -410,9 +411,14 @@ const moveContactDown = (idx) => {
 }
 
 const removeContactItem = (idx) => {
-  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k))
+  const visible = contactItems.value
   if (idx >= 0 && idx < visible.length) {
-    hiddenContacts.value.push(visible[idx])
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
   }
 }
 

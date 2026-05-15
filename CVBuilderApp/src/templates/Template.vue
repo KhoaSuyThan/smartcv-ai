@@ -503,7 +503,7 @@ const getContactValue = (key) => {
 const contactItems = computed(() => {
   return contactOrder.value
     .filter(key => !hiddenContacts.value.includes(key))
-    .filter(key => getContactValue(key) !== '')
+    .filter(key => !isEmpty(getContactValue(key)))
     .map(key => ({
       key,
       icon: contactIcons[key],
@@ -532,9 +532,14 @@ const moveContactDown = (idx) => {
 }
 
 const removeContactItem = (idx) => {
-  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  const visible = contactItems.value
   if (idx >= 0 && idx < visible.length) {
-    hiddenContacts.value.push(visible[idx])
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
   }
 }
 

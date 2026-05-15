@@ -16,7 +16,7 @@
         </h1>
         <div class="flex items-center gap-3 mt-3">
           <span class="font-bold uppercase tracking-[0.18em] text-[#334155]" style="font-size: 12px !important;"
-            v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Vị trí ứng tuyển'">
+            v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : ''">
           </span>
           <div class="flex-1 h-[2px] bg-[#334155]/50 max-w-[100px]"></div>
         </div>
@@ -123,7 +123,7 @@
             <div v-if="section.id === 'summary'"
               class="leading-relaxed text-justify html-content font-medium"
               style="font-size: 11px !important; color: rgba(255,255,255,0.9);"
-              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Trình bày ngắn gọn từ 2-3 câu về số năm kinh nghiệm...')">
+              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : '')">
             </div>
 
             <!-- NÂNG CẤP: Timeline xịn xò cho Sidebar -->
@@ -451,7 +451,7 @@ const templateSecondaryColor = '#9db078'
 const splitName = computed(() => {
   const raw   = props.resumeData.general.fullName || ''
   const clean = raw.replace(/<[^>]*>/g, '').replace(/&nbsp;|\u00a0/g, ' ').trim()
-  const full  = clean || 'HỌ Và Tên'
+  const full  = clean || ''
   const parts = full.trim().split(' ')
   return parts.length > 1
     ? { last: parts[0], first: parts.slice(1).join(' ') }
@@ -473,14 +473,11 @@ const getContactValue = (key) => {
   const g = props.resumeData?.general
   if (!g) return ''
   switch (key) {
-    case 'phone': return isEmpty(g.phone) ? '0123.456.789' : g.phone
-    case 'email': return isEmpty(g.email) ? 'email@example.com' : g.email
+    case 'phone': return g.phone || ''
+    case 'email': return g.email || ''
     case 'web':
-      if (!isEmpty(g.website)) return g.website
-      if (!isEmpty(g.github)) return g.github
-      if (!isEmpty(g.linkedin)) return g.linkedin
-      return 'https://github.com/khoa'
-    case 'address': return isEmpty(g.address) ? 'TP. Hồ Chí Minh' : g.address
+      return g.github || g.linkedin || g.website || ''
+    case 'address': return g.address || ''
     default: return ''
   }
 }
@@ -488,6 +485,7 @@ const getContactValue = (key) => {
 const contactItems = computed(() => {
   return contactOrder.value
     .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
     .map(key => ({
       key,
       icon: contactIcons[key],
@@ -522,9 +520,17 @@ const moveContactDown = (idx) => {
 }
 
 const removeContactItem = (idx) => {
-  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k))
+  const visible = contactItems.value
   if (idx >= 0 && idx < visible.length) {
-    hiddenContacts.value.push(visible[idx])
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'web') {
+      if (props.resumeData.general.github !== undefined) props.resumeData.general.github = ''
+      if (props.resumeData.general.linkedin !== undefined) props.resumeData.general.linkedin = ''
+      if (props.resumeData.general.website !== undefined) props.resumeData.general.website = ''
+    }
+    hiddenContacts.value.push(key)
     requestPagination()
   }
 }

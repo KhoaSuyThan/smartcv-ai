@@ -231,11 +231,11 @@
         class="paginated-item pt-[12mm] px-[12mm] pb-[8mm] flex flex-col min-h-min"
         :style="{ backgroundColor: templatePrimaryColor, color: 'white' }"
       >
-        <h1 class="font-bold uppercase tracking-wide mb-1 leading-tight" style="font-size: 26px !important" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN ỨNG VIÊN'"></h1>
+        <h1 class="font-bold uppercase tracking-wide mb-1 leading-tight" style="font-size: 26px !important" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : ''"></h1>
         <div class="border-b border-white pb-3 w-fit pr-12 mb-4">
-          <h2 class="font-medium uppercase tracking-[0.08em] opacity-90" style="font-size: 13.5px !important" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
+          <h2 class="font-medium uppercase tracking-[0.08em] opacity-90" style="font-size: 13.5px !important" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : ''"></h2>
         </div>
-        <div class="leading-relaxed text-justify html-content font-medium opacity-90 mt-1" style="font-size: 11px !important" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mục tiêu nghề nghiệp...'"></div>
+        <div class="leading-relaxed text-justify html-content font-medium opacity-90 mt-1" style="font-size: 11px !important" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : ''"></div>
       </header>
 
       <!-- Main Sections -->
@@ -419,14 +419,11 @@ const getContactValue = (key) => {
   const g = props.resumeData?.general
   if (!g) return ''
   switch (key) {
-    case 'phone': return isEmpty(g.phone) ? '0123.456.789' : g.phone
-    case 'email': return isEmpty(g.email) ? 'email@example.com' : g.email
+    case 'phone': return g.phone || ''
+    case 'email': return g.email || ''
     case 'web':
-      if (!isEmpty(g.github)) return g.github
-      if (!isEmpty(g.linkedin)) return g.linkedin
-      if (!isEmpty(g.website)) return g.website
-      return 'https://github.com/khoa'
-    case 'address': return isEmpty(g.address) ? 'TP. Hồ Chí Minh' : g.address
+      return g.github || g.linkedin || g.website || ''
+    case 'address': return g.address || ''
     default: return ''
   }
 }
@@ -434,6 +431,7 @@ const getContactValue = (key) => {
 const contactItems = computed(() => {
   return contactOrder.value
     .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
     .map(key => ({
       key,
       icon: contactIcons[key],
@@ -466,9 +464,18 @@ const moveContactDown = (idx) => {
 }
 
 const removeContactItem = (idx) => {
-  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k))
+  const visible = contactItems.value
   if (idx >= 0 && idx < visible.length) {
-    hiddenContacts.value.push(visible[idx])
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'web') {
+      if (props.resumeData.general.github !== undefined) props.resumeData.general.github = ''
+      if (props.resumeData.general.linkedin !== undefined) props.resumeData.general.linkedin = ''
+      if (props.resumeData.general.website !== undefined) props.resumeData.general.website = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
   }
 }
 
