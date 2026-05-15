@@ -25,7 +25,9 @@
         
         <!-- Capsule Container (Avatar + Personal Info in a capsule/ellipse shape) -->
         <div 
-          class="absolute top-[-22.5mm] left-[6mm] w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center pt-[6mm] pb-[10mm] px-[4mm] gap-[3mm] z-30"
+          class="absolute top-[-22.5mm] left-[6mm] w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center pt-[6mm] pb-[10mm] px-[4mm] gap-[3mm] z-30 section-block"
+          :class="{ 'section-active': selectedSectionId === 'contact' }"
+          @click.stop="toggleSection('contact')"
         >
           <!-- Avatar Circular -->
           <div class="relative w-[45mm] h-[45mm] rounded-full overflow-hidden border-[4px] border-[#fafafa] shadow-inner bg-slate-100 shrink-0">
@@ -37,27 +39,25 @@
             </div>
           </div>
 
-          <!-- Contact Items -->
+          <!-- Contact Items (Dynamic) -->
           <div class="w-full flex flex-col gap-[3mm] text-center" style="margin:0;padding:0;">
-            <div v-if="!isEmpty(resumeData.general.gender)" style="margin:0;padding:0;">
-              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Giới tính</p>
-              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.gender"></p>
-            </div>
-            <div v-if="!isEmpty(resumeData.general.birthDate)" style="margin:0;padding:0;">
-              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Ngày sinh</p>
-              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.birthDate"></p>
-            </div>
-            <div v-if="!isEmpty(resumeData.general.email)" style="margin:0;padding:0;">
-              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Email</p>
-              <p class="text-[13px] font-bold text-gray-800 break-all px-2 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.email"></p>
-            </div>
-            <div v-if="!isEmpty(resumeData.general.phone)" style="margin:0;padding:0;">
-              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Điện thoại</p>
-              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.phone"></p>
-            </div>
-            <div v-if="!isEmpty(resumeData.general.address)" style="margin:0;padding:0;">
-              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">Địa chỉ</p>
-              <p class="text-[13px] font-bold text-gray-800 mt-0.5" style="margin:0;padding:0;" v-html="resumeData.general.address"></p>
+            <div 
+              v-for="(ci, ciIdx) in contactItems" 
+              :key="ci.key" 
+              class="relative group/item"
+              style="margin:0;padding:0;"
+            >
+              <p class="text-[10px] text-gray-400 font-medium tracking-wide uppercase" style="margin:0;padding:0;">{{ ci.label }}</p>
+              <p class="text-[13px] font-bold text-gray-800 mt-0.5 break-all px-2" style="margin:0;padding:0;" v-html="ci.value"></p>
+
+              <!-- Individual contact item buttons -->
+              <transition name="fade-btns">
+                <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                  <button @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                  <button @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                  <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Ẩn"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -83,6 +83,9 @@
                   </button>
                   <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang phải">
                     <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                  <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
               </transition>
@@ -166,6 +169,9 @@
                 </button>
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang trái">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
             </transition>
@@ -289,6 +295,73 @@ const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
+  requestPagination()
+}
+
+// ─── CONTACT ITEMS LOGIC ───
+const contactLabels = {
+  gender: 'Giới tính',
+  birthDate: 'Ngày sinh',
+  email: 'Email',
+  phone: 'Điện thoại',
+  address: 'Địa chỉ'
+}
+
+const contactOrder = ref(['gender', 'birthDate', 'email', 'phone', 'address'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  return g[key] || ''
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key) && !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      label: contactLabels[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx]
+  const keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx]
+  const keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
 }
 
 const handleOutsideClick = (e) => {
@@ -522,6 +595,25 @@ onUnmounted(() => {
 
 .nav-btn:hover { background: #1d4ed8; transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
+.nav-btn-danger { background: #ef4444 !important; }
+.nav-btn-danger:hover { background: #dc2626 !important; }
+
+.nav-btn--xs {
+  padding: 2px !important;
+  border-radius: 3px !important;
+}
+
+.contact-item-btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 50;
+  background: white;
+  padding-left: 5px;
+}
 
 .delete-item-btn {
   position: absolute;

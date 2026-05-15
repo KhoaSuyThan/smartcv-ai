@@ -24,56 +24,45 @@
             <div class="flex flex-col flex-1 pb-[8mm]">
                 <!-- THÔNG TIN CÁ NHÂN (cố định) -->
                 <!-- ĐÃ XÓA paginated-item Ở THẺ BỌC -->
-                <div class="section-block section-block-sidebar py-[4mm] px-[8mm]">
+                <!-- THÔNG TIN CÁ NHÂN -->
+                <div 
+                    class="section-block section-block-sidebar py-[4mm] px-[8mm] ml-[4mm]"
+                    :class="{ 'section-active--sidebar': selectedSectionId === 'contact' }"
+                    @click.stop="toggleSection('contact')"
+                >
+                    <!-- Nav Buttons for Contact Block - Removed eye button -->
                     <div class="sidebar-section-header mb-3 paginated-item">
                         <h3 class="font-bold uppercase tracking-wide" :style="{ color: '#6a2a31', fontSize: '15px !important' }">Thông tin cá nhân</h3>
                         <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31;"></div>
                     </div>
-                <div class="space-y-3 font-medium">
-                    <div class="flex items-center gap-3 paginated-item" v-if="!isEmpty(resumeData.general.birthDate)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                       </div>
-                       <span style="font-size: 12px !important; color: #6a2a31;" v-html="resumeData.general.birthDate"></span>
-                    </div>
-                    <div class="flex items-center gap-3 paginated-item" v-if="!isEmpty(resumeData.general.gender)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                       </div>
-                       <span style="font-size: 12px !important; color: #6a2a31;" v-html="resumeData.general.gender"></span>
-                    </div>
-                    <div class="flex items-center gap-3 paginated-item" v-if="!isEmpty(resumeData.general.phone)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
-                           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79a15.091 15.091 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.12.37 2.33.57 3.58.57a1 1 0 011 1v3.5a1 1 0 01-1 1A16 16 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.21 1.11l-2.24 2.1z" /></svg>
-                       </div>
-                       <span style="font-size: 12px !important; color: #6a2a31;" class="break-all" v-html="resumeData.general.phone"></span>
-                    </div>
-                    <div class="flex items-center gap-3 paginated-item" v-if="!isEmpty(resumeData.general.email)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                       </div>
-                       <span style="font-size: 12px !important; color: #6a2a31;" class="break-all" v-html="resumeData.general.email"></span>
-                    </div>
-                    <div class="flex items-center gap-3 paginated-item" v-if="!isEmpty(resumeData.general.facebook) || !isEmpty(resumeData.general.website)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0" style="color: #6a2a31;">
-                           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                       </div>
-                       <span style="font-size: 12px !important; color: #6a2a31;" class="break-all" v-html="resumeData.general.facebook || resumeData.general.website"></span>
-                    </div>
-                    <div class="flex items-start gap-3 paginated-item" v-if="!isEmpty(resumeData.general.address)">
-                       <div class="w-[14px] h-[14px] flex-shrink-0 mt-0.5" style="color: #6a2a31;">
-                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                       </div>
-                       <span style="font-size: 12px !important; color: #6a2a31;" class="leading-snug" v-html="resumeData.general.address"></span>
+                    <div class="space-y-3 font-medium">
+                        <div 
+                            v-for="(ci, ciIdx) in contactItems" 
+                            :key="ci.key" 
+                            class="flex items-start gap-3 paginated-item relative group/item"
+                        >
+                           <div class="w-[14px] h-[14px] flex-shrink-0 mt-0.5" style="color: #6a2a31;">
+                               <svg viewBox="0 0 24 24" fill="ci.fill || 'none'" :stroke="ci.stroke || 'currentColor'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" v-html="ci.icon"></svg>
+                           </div>
+                           <span style="font-size: 12px !important; color: #6a2a31;" class="break-all leading-snug flex-1" v-html="ci.value"></span>
+
+                           <!-- Individual contact item buttons -->
+                           <transition name="fade-btns">
+                             <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                               <button @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                               <button @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                               <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Ẩn"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                             </div>
+                           </transition>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             <!-- DYNAMIC SECTIONS CHO SIDEBAR -->
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block section-block-sidebar py-[4mm] px-[8mm] mb-1"
+                    class="section-block section-block-sidebar py-[4mm] px-[8mm] mb-1 ml-[4mm]"
                     :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
                     @click.stop="toggleSection(section.id)"
                 >
@@ -85,7 +74,10 @@
                             <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Sang Phải">
-                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg>
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                        </button>
+                        <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                            <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
 
@@ -168,6 +160,9 @@
                     </button>
                     <button @click.stop.prevent="moveSectionHorizontal(section.id, 'left')" class="nav-btn" title="Sang Trái">
                         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
 
@@ -263,6 +258,84 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// ─── CONTACT ITEMS LOGIC ───
+const contactIcons = {
+  birthDate: { icon: '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>', stroke: 'currentColor', fill: 'none' },
+  gender: { icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>', stroke: 'currentColor', fill: 'none' },
+  phone: { icon: '<path d="M6.62 10.79a15.091 15.091 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.21c1.12.37 2.33.57 3.58.57a1 1 0 011 1v3.5a1 1 0 01-1 1A16 16 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.21 1.11l-2.24 2.1z" />', fill: 'currentColor', stroke: 'none' },
+  email: { icon: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>', stroke: 'currentColor', fill: 'none' },
+  facebook: { icon: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>', fill: 'currentColor', stroke: 'none' },
+  address: { icon: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle>', stroke: 'currentColor', fill: 'none' }
+}
+
+const contactOrder = ref(['birthDate', 'gender', 'phone', 'email', 'facebook', 'address'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'birthDate': return g.birthDate
+    case 'gender': return g.gender
+    case 'phone': return g.phone
+    case 'email': return g.email
+    case 'facebook': return g.facebook || g.website
+    case 'address': return g.address
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key) && !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      ...contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx]
+  const keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx]
+  const keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'facebook') {
+      props.resumeData.general.facebook = ''
+      props.resumeData.general.website = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
+}
 
 const cvRoot = ref(null);
 const pageCount = ref(1);
@@ -651,6 +724,31 @@ h3 {
 
 .nav-btn:active {
     transform: scale(0.92) !important;
+}
+
+.nav-btn--xs {
+  padding: 2px !important;
+  border-radius: 3px !important;
+}
+
+.nav-btn-danger {
+  background: #ef4444 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+.nav-btn-danger:hover {
+  background: #dc2626 !important;
+}
+
+.contact-item-btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 50;
+  background: #f8e8e8;
+  padding-left: 5px;
 }
 
 /* XÓA BỎ LỆNH ĐỔI PADDING KHI IN (ĐỂ PDF GIỐNG Y HỆT WEB) */

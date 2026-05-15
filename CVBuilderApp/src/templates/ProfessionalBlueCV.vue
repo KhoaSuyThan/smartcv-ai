@@ -14,35 +14,34 @@
         </div>
       </div>
 
-      <!-- Liên hệ (Cố định) -->
-      <div class="w-full mb-[15px]">
+      <!-- Liên hệ (Dynamic) -->
+      <div 
+        class="section-block relative group w-full mb-[15px] ml-[4mm]"
+        :class="{ 'section-selected-sidebar': selectedSectionId === 'contact' }"
+        @click.stop="toggleSection('contact')"
+      >
         <h3 class="uppercase block paginated-item" :style="{ fontSize: '16px !important', fontWeight: 'bold !important', paddingBottom: '8px !important', margin: '0 0 15px 0 !important', letterSpacing: '1px' }">
           LIÊN HỆ VỚI TÔI
         </h3>
         <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '13px !important', lineHeight: '1.4' }">
-          <li class="flex items-start relative gap-[10px] paginated-item">
+          <li 
+            v-for="(ci, ciIdx) in contactItems" 
+            :key="ci.key" 
+            class="flex items-start relative gap-[10px] paginated-item group/item"
+          >
             <div class="w-[15px] text-center shrink-0 mt-[3px]">
-              <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+              <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20" v-html="ci.icon"></svg>
             </div>
-            <span class="break-words" :style="{ opacity: isEmpty(resumeData.general.address) ? '0.45' : '1' }" v-html="!isEmpty(resumeData.general.address) ? resumeData.general.address : 'TP. Hồ Chí Minh'"></span>
-          </li>
-          <li class="flex items-start relative gap-[10px] paginated-item">
-            <div class="w-[15px] text-center shrink-0 mt-[3px]">
-              <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path></svg>
-            </div>
-            <span class="break-words" :style="{ opacity: isEmpty(resumeData.general.email) ? '0.45' : '1' }" v-html="!isEmpty(resumeData.general.email) ? resumeData.general.email : 'email@example.com'"></span>
-          </li>
-          <li class="flex items-start relative gap-[10px] paginated-item">
-            <div class="w-[15px] text-center shrink-0 mt-[3px]">
-              <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
-            </div>
-            <span class="break-words" :style="{ opacity: isEmpty(resumeData.general.phone) ? '0.45' : '1' }" v-html="!isEmpty(resumeData.general.phone) ? resumeData.general.phone : '0123.456.789'"></span>
-          </li>
-          <li v-if="!isEmpty(resumeData.general.dob)" class="flex items-start relative gap-[10px] paginated-item">
-            <div class="w-[15px] text-center shrink-0 mt-[3px]">
-              <svg class="w-[12px] h-[12px] inline-block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
-            </div>
-            <span class="break-words" v-html="resumeData.general.dob"></span>
+            <span class="break-words flex-1" v-html="ci.value"></span>
+
+            <!-- Individual contact item buttons -->
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                <button @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Ẩn"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </transition>
           </li>
         </ul>
       </div>
@@ -53,18 +52,16 @@
           <!-- BỎ HIỆU ỨNG SCALE TRONG :style -->
           <div
             v-if="section.isVisible"
-            class="section-block relative group w-full mb-[15px]"
+            class="section-block relative group w-full mb-[15px] ml-[4mm]"
             :class="{ 'section-selected-sidebar': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { zIndex: 10 } : {}"
             @click.stop="toggleSection(section.id)"
           >
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print" @click.stop>
-              <div class="nav-btns-row">
-                <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg></button>
-              </div>
-              <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn phần này"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+              <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn phần này"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
 
             <h3 class="uppercase w-full block paginated-item" :style="{ fontSize: '16px !important', fontWeight: 'bold !important', paddingBottom: '8px !important', margin: '30px 0 15px 0 !important', letterSpacing: '1px' }">
@@ -122,12 +119,10 @@
         @click.stop="toggleSection(summarySection.id)"
       >
         <div v-if="selectedSectionId === summarySection.id" class="nav-btns no-print" @click.stop>
-          <div class="nav-btns-row">
-            <button @click.stop.prevent="$emit('moveUp', summarySection.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-            <button @click.stop.prevent="$emit('moveDown', summarySection.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-            <button @click.stop.prevent="$emit('moveHorizontal', summarySection.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
-          </div>
-          <button @click.stop.prevent="summarySection.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn phần này"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+          <button @click.stop.prevent="$emit('moveUp', summarySection.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+          <button @click.stop.prevent="$emit('moveDown', summarySection.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+          <button @click.stop.prevent="$emit('moveHorizontal', summarySection.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+          <button @click.stop.prevent="summarySection.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn phần này"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
 
         <h3 class="uppercase w-full block paginated-item" :style="{ fontSize: '16px !important', color: templateAccentColor, borderBottom: '2px solid #c8d8e8', paddingBottom: '8px !important', margin: '0 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: 'bold !important', letterSpacing: '2px' }">
@@ -154,12 +149,10 @@
             @click.stop="toggleSection(section.id)"
           >
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print" @click.stop>
-              <div class="nav-btns-row">
-                <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-                <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
-              </div>
-              <button @click.stop.prevent="section.isVisible = false" class="nav-btn nav-btn-danger" title="Ẩn phần này"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+              <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn phần này"><svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
 
             <h3 class="uppercase w-full block paginated-item" :style="{ fontSize: '16px !important', color: templateAccentColor, borderBottom: '2px solid #c8d8e8', paddingBottom: '8px !important', margin: '20px 0 15px 0 !important', paddingLeft: '20px !important', fontWeight: 'bold !important', letterSpacing: '2px' }">
@@ -221,6 +214,80 @@ import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 
 const props = defineProps({ resumeData: { type: Object, required: true } })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// ─── CONTACT ITEMS LOGIC ───
+const contactIcons = {
+  address: '<path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>',
+  email: '<path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>',
+  phone: '<path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>',
+  dob: '<path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>'
+}
+
+const contactOrder = ref(['address', 'email', 'phone', 'dob'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'phone': return g.phone
+    case 'email': return g.email
+    case 'dob': return g.dob || g.birthDate
+    case 'address': return g.address
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key) && !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      icon: contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx]
+  const keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx]
+  const keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'dob') {
+       if (props.resumeData.general.dob !== undefined) props.resumeData.general.dob = ''
+       if (props.resumeData.general.birthDate !== undefined) props.resumeData.general.birthDate = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
+}
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -459,8 +526,8 @@ onUnmounted(() => {
   right: 10px;
   top: 10px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
   gap: 8px;
   z-index: 9999;
 }
@@ -489,6 +556,33 @@ onUnmounted(() => {
 .nav-btn:active { transform: scale(0.95); }
 .nav-btn-danger { background: #ef4444 !important; }
 .nav-btn-danger:hover { background: #dc2626 !important; }
+
+.nav-btn--xs {
+  padding: 2px !important;
+  border-radius: 3px !important;
+}
+
+.contact-item-btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 50;
+  background: v-bind('templatePrimaryColor');
+  padding-left: 5px;
+}
+
+.fade-btns-enter-active,
+.fade-btns-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.fade-btns-enter-from,
+.fade-btns-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
 
 :deep(.html-content) { margin: 0 !important; padding: 0 !important; }
 :deep(.html-content p) { margin: 0 !important; padding: 0 !important; }

@@ -12,46 +12,30 @@
     <!-- MAIN FLOW -->
     <main class="flex-1 flex flex-col relative z-20 min-h-max" @click.self="selectedSectionId = null">
       
-      <!-- 1. HEADER THÔNG TIN LIÊN HỆ NẰM NGANG -->
-      <header class="paginated-item !mt-[20px] !mx-[20px] bg-[#E9DCD6] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border border-[#DCD0C9] rounded-[4px]">
-        <!-- Điện thoại -->
-        <div class="flex items-center gap-2" v-if="!isEmpty(resumeData.general.phone)">
-          <div class="w-[18px] h-[18px] flex items-center justify-center text-[#D03B29]">
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-            </svg>
-          </div>
-          <span class="break-all" v-html="resumeData.general.phone"></span>
-        </div>
+      <!-- 1. HEADER THÔNG TIN LIÊN HỆ NẰM NGANG (Dynamic) -->
+      <header 
+        class="section-block paginated-item !mt-[20px] !mx-[20px] bg-[#E9DCD6] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border border-[#DCD0C9] rounded-[4px] relative"
+        :class="{ 'section-active': selectedSectionId === 'contact' }"
+        @click.stop="toggleSection('contact')"
+      >
+        <div class="flex flex-wrap justify-between items-center w-full gap-4">
+          <div 
+            v-for="(ci, ciIdx) in contactItems" 
+            :key="ci.key" 
+            class="flex items-center gap-2 relative group/item"
+          >
+            <div class="w-[18px] h-[18px] flex items-center justify-center text-[#D03B29]" v-html="ci.icon"></div>
+            <span class="break-all" v-html="ci.value"></span>
 
-        <!-- Email -->
-        <div class="flex items-center gap-2" v-if="!isEmpty(resumeData.general.email)">
-          <div class="w-[18px] h-[18px] flex items-center justify-center text-[#D03B29]">
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-            </svg>
+            <!-- Individual contact item buttons -->
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                <button @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Sang trái"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+                <button @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Sang phải"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+                <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Ẩn"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </transition>
           </div>
-          <span class="break-all" v-html="resumeData.general.email"></span>
-        </div>
-
-        <!-- Github / Link -->
-        <div class="flex items-center gap-2" v-if="!isEmpty(resumeData.general.github) || !isEmpty(resumeData.general.website)">
-          <div class="w-[18px] h-[18px] flex items-center justify-center text-[#D03B29]">
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-            </svg>
-          </div>
-          <span class="break-all">{{ resumeData.general.github || resumeData.general.website }}</span>
-        </div>
-
-        <!-- Địa chỉ -->
-        <div class="flex items-center gap-2" v-if="!isEmpty(resumeData.general.address)">
-          <div class="w-[18px] h-[18px] flex items-center justify-center text-[#D03B29]">
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-          </div>
-          <span class="break-all" v-html="resumeData.general.address"></span>
         </div>
       </header>
 
@@ -109,6 +93,9 @@
                 </button>
                 <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống">
                   <svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                  <svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
             </transition>
@@ -420,6 +407,81 @@ const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
+  requestPagination()
+}
+
+// ─── CONTACT ITEMS LOGIC ───
+const contactIcons = {
+  phone: '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>',
+  email: '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>',
+  address: '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>',
+  github: '<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>'
+}
+
+const contactOrder = ref(['phone', 'email', 'github', 'address'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'phone': return g.phone
+    case 'email': return g.email
+    case 'address': return g.address
+    case 'github': return g.github || g.website
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key) && !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      icon: contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx]
+  const keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx]
+  const keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'github') {
+       if (props.resumeData.general.github !== undefined) props.resumeData.general.github = ''
+       if (props.resumeData.general.website !== undefined) props.resumeData.general.website = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
 }
 
 const handleOutsideClick = (e) => {
@@ -686,6 +748,25 @@ onUnmounted(() => {
 }
 .nav-btn:hover { background: #32231F; transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
+.nav-btn-danger { background: #ef4444 !important; }
+.nav-btn-danger:hover { background: #dc2626 !important; }
+
+.nav-btn--xs {
+  padding: 2px !important;
+  border-radius: 3px !important;
+}
+
+.contact-item-btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 50;
+  background: #E9DCD6;
+  padding-left: 5px;
+}
 
 /* Nút xóa item */
 .delete-item-btn {

@@ -44,22 +44,28 @@
             <div class="h-[1px] w-full bg-[#cbd5e0] mt-[5px]"></div>
           </div>
 
-          <div class="flex flex-col gap-[8px] text-[#333]" :style="{ fontSize: '14px' }">
-            <div class="flex gap-[5px]" v-if="!isEmpty(resumeData.general.birthDate) || !isEmpty(resumeData.general.dob)">
-              <span class="font-bold shrink-0">Ngày sinh:</span>
-              <span>{{ resumeData.general.birthDate || resumeData.general.dob }}</span>
-            </div>
-            <div class="flex gap-[5px]" v-if="!isEmpty(resumeData.general.address)">
-              <span class="font-bold shrink-0">Địa chỉ:</span>
-              <span v-html="resumeData.general.address"></span>
-            </div>
-            <div class="flex gap-[5px]" v-if="!isEmpty(resumeData.general.email)">
-              <span class="font-bold shrink-0">Email:</span>
-              <span v-html="resumeData.general.email"></span>
-            </div>
-            <div class="flex gap-[5px]" v-if="!isEmpty(resumeData.general.phone)">
-              <span class="font-bold shrink-0">Số điện thoại:</span>
-              <span v-html="resumeData.general.phone"></span>
+          <div 
+            class="section-block flex flex-col gap-[8px] text-[#333] relative" 
+            :class="{ 'section-selected': selectedSectionId === 'contact' }"
+            :style="selectedSectionId === 'contact' ? { '--sel-color': templatePrimaryColor, borderColor: templatePrimaryColor, fontSize: '14px' } : { fontSize: '14px' }"
+            @click.stop="toggleSection('contact')"
+          >
+            <div 
+              v-for="(ci, ciIdx) in contactItems" 
+              :key="ci.key" 
+              class="flex gap-[5px] relative group/item paginated-item"
+            >
+              <span class="font-bold shrink-0">{{ ci.label }}:</span>
+              <span class="flex-1" v-html="ci.value"></span>
+
+              <!-- Individual contact item buttons -->
+              <transition name="fade-btns">
+                <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                  <button @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                  <button @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                  <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Ẩn"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                </div>
+              </transition>
             </div>
           </div>
         </div>
@@ -133,6 +139,9 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                         d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                 </svg>
+              </button>
+              <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
 
@@ -298,6 +307,85 @@ import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 const cvRoot            = ref(null)
 const pageCount         = ref(1)
 const selectedSectionId = ref(null)
+
+// ─── CONTACT ITEMS LOGIC ───
+const contactLabels = {
+  dob: 'Ngày sinh',
+  address: 'Địa chỉ',
+  email: 'Email',
+  phone: 'Số điện thoại'
+}
+
+const contactOrder = ref(['dob', 'address', 'email', 'phone'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'phone': return g.phone
+    case 'email': return g.email
+    case 'dob': return g.dob || g.birthDate
+    case 'address': return g.address
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key) && !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      label: contactLabels[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx]
+  const keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx]
+  const keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA)
+  const idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+  requestPagination()
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'dob') {
+       if (props.resumeData.general.dob !== undefined) props.resumeData.general.dob = ''
+       if (props.resumeData.general.birthDate !== undefined) props.resumeData.general.birthDate = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
+}
+
+const toggleSection = (id) => {
+  selectedSectionId.value = selectedSectionId.value === id ? null : id
+  requestPagination()
+}
 
 const isEmpty = (val) => {
   if (!val) return true
@@ -600,6 +688,41 @@ onUnmounted(() => {
 }
 .nav-btn:hover  { filter: brightness(0.88); }
 .nav-btn:active { transform: scale(0.92); }
+
+.nav-btn--xs {
+  padding: 2px !important;
+  border-radius: 3px !important;
+}
+
+.nav-btn-danger {
+  background: #ef4444 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+.nav-btn-danger:hover {
+  background: #dc2626 !important;
+}
+
+.contact-item-btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 50;
+  background: white;
+  padding-left: 5px;
+}
+
+.fade-btns-enter-active,
+.fade-btns-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.fade-btns-enter-from,
+.fade-btns-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
 
 :deep(.html-content) { margin: 0 !important; padding: 0 !important; }
 :deep(.html-content p) { margin: 0 !important; padding: 0 !important; }
