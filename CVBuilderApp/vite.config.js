@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/cvbuilder/',
+  base: './',
   plugins: [vue(), tailwindcss()],
   build: {
     outDir: '../wwwroot/cvbuilder',
