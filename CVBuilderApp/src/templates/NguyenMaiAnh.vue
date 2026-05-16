@@ -52,26 +52,36 @@
           <p class="job-title" v-if="!isEmpty(resumeData.general.jobTitle)" v-html="stripTags(resumeData.general.jobTitle)"></p>
           <p class="job-title" v-else>Kỹ sư phần mềm IT</p>
           
-          <div class="contact-grid">
-            <div class="contact-item">
-              <i class="fas fa-calendar-alt"></i>
-              <span v-if="!isEmpty(resumeData.general.birthDate)" v-html="stripTags(resumeData.general.birthDate)"></span>
-              <span v-else>18/12/1997</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-phone-alt"></i>
-              <span v-if="!isEmpty(resumeData.general.phone)" v-html="stripTags(resumeData.general.phone)"></span>
-              <span v-else>(024) 6680 5588</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-envelope"></i>
-              <span v-if="!isEmpty(resumeData.general.email)" v-html="stripTags(resumeData.general.email)"></span>
-              <span v-else>hotro@cvbuilder.vn</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-map-marker-alt"></i>
-              <span v-if="!isEmpty(resumeData.general.address)" v-html="stripTags(resumeData.general.address)"></span>
-              <span v-else>Quận A, Hà Nội</span>
+          <div v-if="contactItems.length > 0" class="contact-grid relative contact-block"
+               :class="{ 'contact-active': selectedSectionId === 'contact' }"
+               @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'">
+            <div v-for="(ci, ciIdx) in contactItems" :key="ci.key"
+                 class="contact-item relative contact-item-container">
+              <i v-html="ci.icon"></i>
+              <span v-html="ci.value"></span>
+              
+              <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                <!-- Move Up -->
+                <button v-if="ciIdx >= 2" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Di chuyển lên" style="padding:2px">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                </button>
+                <!-- Move Down -->
+                <button v-if="ciIdx + 2 < contactItems.length" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Di chuyển xuống" style="padding:2px">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <!-- Move Left -->
+                <button v-if="ciIdx % 2 === 1" @click.stop.prevent="moveContactLeft(ciIdx)" class="nav-btn" title="Di chuyển sang trái" style="padding:2px">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <!-- Move Right -->
+                <button v-if="ciIdx % 2 === 0 && ciIdx + 1 < contactItems.length" @click.stop.prevent="moveContactRight(ciIdx)" class="nav-btn" title="Di chuyển sang phải" style="padding:2px">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                </button>
+                
+                <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn-danger" title="Ẩn mục này" style="padding:2px">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -86,7 +96,7 @@
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
               <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, [])"><i class="fas fa-chevron-up"></i></button>
               <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, [])"><i class="fas fa-chevron-down"></i></button>
-              <button class="nav-btn close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
+              <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
             </div>
           </transition>
 
@@ -114,7 +124,7 @@
                   <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
                   <button class="nav-btn" @click.stop.prevent="moveHorizontal(section.id)"><i class="fas fa-exchange-alt"></i></button>
-                  <button class="nav-btn close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
+                  <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -200,7 +210,7 @@
                   <button class="nav-btn" @click.stop.prevent="moveHorizontal(section.id)"><i class="fas fa-exchange-alt"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
+                  <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -292,6 +302,76 @@ import { computed, ref, onMounted, nextTick, watch, onUnmounted, toRaw } from 'v
 const cvRoot = ref(null)
 const pageCount = ref(1)
 const selectedSectionId = ref(null)
+
+// ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
+const contactIcons = {
+  birthDate: '<i class="fas fa-calendar-alt"></i>',
+  phone: '<i class="fas fa-phone-alt"></i>',
+  email: '<i class="fas fa-envelope"></i>',
+  address: '<i class="fas fa-map-marker-alt"></i>'
+}
+
+const contactOrder = ref(['birthDate', 'phone', 'email', 'address'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  return g[key] || ''
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      icon: contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  if (idx < 2) return
+  swapContact(idx, idx - 2)
+}
+
+const moveContactDown = (idx) => {
+  if (idx + 2 >= contactItems.value.length) return
+  swapContact(idx, idx + 2)
+}
+
+const moveContactLeft = (idx) => {
+  if (idx % 2 === 0) return
+  swapContact(idx, idx - 1)
+}
+
+const moveContactRight = (idx) => {
+  if (idx % 2 !== 0 || idx + 1 >= contactItems.value.length) return
+  swapContact(idx, idx + 1)
+}
+
+const swapContact = (idxA, idxB) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  const keyA = visible[idxA], keyB = visible[idxB]
+  const realIdxA = contactOrder.value.indexOf(keyA)
+  const realIdxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[realIdxA], arr[realIdxB]] = [arr[realIdxB], arr[realIdxA]]
+  contactOrder.value = arr
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
+}
 
 const props = defineProps({
   resumeData: { type: Object, required: true }
@@ -613,11 +693,36 @@ onUnmounted(() => {
 .nav-btn:hover { background: #2563EB; }
 
 /* NÚT TẮT ACTIVE MÀU ĐỎ */
-.nav-btn.close-active-btn {
-  background: #EF4444; 
+.nav-btn.close-active-btn, .nav-btn-danger {
+  background: #EF4444 !important; 
 }
-.nav-btn.close-active-btn:hover {
-  background: #DC2626;
+.nav-btn.close-active-btn:hover, .nav-btn-danger:hover {
+  background: #DC2626 !important;
+}
+
+.contact-block {
+    border-radius: 12px;
+    border: 2px solid transparent;
+    padding: 6px 10px;
+    margin: -6px -10px;
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.contact-block.contact-active {
+    border: 2px solid #3B82F6 !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+    z-index: 10;
+}
+.contact-item-container { position: relative; }
+.contact-item-btns {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    z-index: 9999;
 }
 
 .delete-item-btn { position: absolute; right: -5px; top: 0; width: 18px; height: 18px; background: #EF4444; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 50; }
