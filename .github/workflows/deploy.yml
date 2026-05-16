@@ -3,7 +3,7 @@ name: Deploy to AWS EC2
 on:
   push:
     branches:
-      - main  # Hoặc tên branch bạn đang dùng
+      - main  # Hoặc tên branch bạn đang dùng a
 
 jobs:
   deploy:
