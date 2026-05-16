@@ -76,6 +76,9 @@
               <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang phải (Cột phụ)">
                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </button>
+              <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
             </div>
 
             <h1
@@ -106,12 +109,30 @@
               </template>
 
               <template v-else-if="section.id === 'contact'">
-                <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '14px', lineHeight: '1.7', color: '#4a3728', paddingLeft: '20px' }">
-                  <li v-if="!isEmpty(resumeData.general.dob) || !isEmpty(resumeData.general.birthDate)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#8b7355]">Ngày sinh:</strong><span v-html="resumeData.general.birthDate || resumeData.general.dob"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.phone)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#8b7355]">Di động:</strong><span v-html="resumeData.general.phone"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.email)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#8b7355]">Email:</strong><span v-html="resumeData.general.email"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.website) || !isEmpty(resumeData.general.linkedin) || !isEmpty(resumeData.general.github)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#8b7355]">Trang web:</strong><span v-html="!isEmpty(resumeData.general.website) ? resumeData.general.website : (!isEmpty(resumeData.general.linkedin) ? resumeData.general.linkedin : resumeData.general.github)"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.address)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#8b7355]">Địa chỉ:</strong><span v-html="resumeData.general.address"></span></li>
+                <ul
+                  v-if="contactItems.length > 0"
+                  class="w-full list-none p-0 m-0 flex flex-col gap-[12px] relative contact-block"
+                  :class="{ 'contact-active': selectedSectionId === 'contact' }"
+                  @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
+                  :style="{ fontSize: '14px', lineHeight: '1.7', color: '#4a3728', paddingLeft: '20px' }"
+                >
+                  <li
+                    v-for="(ci, ciIdx) in contactItems"
+                    :key="ci.key"
+                    class="paginated-item flex items-start break-words w-full relative contact-item-container"
+                  >
+                    <strong class="font-bold mr-1 shrink-0 text-[#8b7355]">{{ ci.label }}:</strong>
+                    <span v-html="ci.value"></span>
+
+                    <!-- Move Up / Move Down / Delete buttons -->
+                    <transition name="fade-btns">
+                      <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                        <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                        <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                        <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Xóa"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                      </div>
+                    </transition>
+                  </li>
                 </ul>
               </template>
 
@@ -192,6 +213,9 @@
               <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
               <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
               <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang trái (Cột chính)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+              <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
             </div>
 
             <h1 class="paginated-item uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
@@ -204,12 +228,30 @@
               </template>
 
               <template v-else-if="section.id === 'contact'">
-                <ul class="w-full list-none p-0 m-0 flex flex-col gap-[12px]" :style="{ fontSize: '13px !important', lineHeight: '1.6', color: '#e8e8e8' }">
-                  <li v-if="!isEmpty(resumeData.general.dob) || !isEmpty(resumeData.general.birthDate)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Ngày sinh:</strong><span v-html="resumeData.general.birthDate || resumeData.general.dob"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.phone)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Di động:</strong><span v-html="resumeData.general.phone"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.email)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Email:</strong><span v-html="resumeData.general.email"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.website)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Website:</strong><span v-html="resumeData.general.website"></span></li>
-                  <li v-if="!isEmpty(resumeData.general.address)" class="paginated-item flex items-start break-words w-full"><strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">Địa chỉ:</strong><span v-html="resumeData.general.address"></span></li>
+                <ul
+                  v-if="contactItems.length > 0"
+                  class="w-full list-none p-0 m-0 flex flex-col gap-[12px] relative contact-block"
+                  :class="{ 'contact-active-sidebar': selectedSectionId === 'contact' }"
+                  @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
+                  :style="{ fontSize: '13px !important', lineHeight: '1.6', color: '#e8e8e8' }"
+                >
+                  <li
+                    v-for="(ci, ciIdx) in contactItems"
+                    :key="ci.key"
+                    class="paginated-item flex items-start break-words w-full relative contact-item-container"
+                  >
+                    <strong class="font-bold mr-1 shrink-0 text-[#fdf5e6]">{{ ci.label }}:</strong>
+                    <span v-html="ci.value"></span>
+
+                    <!-- Move Up / Move Down / Delete buttons -->
+                    <transition name="fade-btns">
+                      <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                        <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                        <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                        <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Xóa"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                      </div>
+                    </transition>
+                  </li>
                 </ul>
               </template>
 
@@ -269,6 +311,81 @@ const isEmpty = (val) => {
   if (!val) return true
   if (typeof val !== 'string') return false
   return val.replace(/<[^>]*>/g, '').trim() === ''
+}
+
+// ─── CONTACT ITEMS LOGIC ───
+const contactLabels = {
+  phone: 'Di động',
+  email: 'Email',
+  dob: 'Ngày sinh',
+  address: 'Địa chỉ',
+  website: 'Website',
+  linkedin: 'Linkedin',
+  github: 'Github'
+}
+
+const contactOrder = ref(['phone', 'email', 'dob', 'address', 'website', 'linkedin', 'github'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'phone': return g.phone || ''
+    case 'email': return g.email || ''
+    case 'dob': return g.dob || g.birthDate || ''
+    case 'address': return g.address || ''
+    case 'website': return g.website || ''
+    case 'linkedin': return g.linkedin || ''
+    case 'github': return g.github || ''
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      label: contactLabels[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx], keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx], keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'dob') {
+       if (props.resumeData.general.dob !== undefined) props.resumeData.general.dob = ''
+       if (props.resumeData.general.birthDate !== undefined) props.resumeData.general.birthDate = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
 }
 
 // BỘ LỌC CHUẨN: Tự động băm nhỏ lá và tạo block riêng rẽ
@@ -497,6 +614,43 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 
 .item-container { position: relative; }
 
+/* ── Contact block ─────────────────────────────────────────────────────── */
+.contact-block {
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+  border-radius: 4px;
+  padding: 8px !important; /* Constant padding to prevent shift */
+}
+.contact-active {
+  border: 1px solid rgba(139, 115, 85, 0.4) !important;
+  background: rgba(139, 115, 85, 0.1);
+}
+.contact-active-sidebar {
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.contact-item-container {
+  position: relative;
+  padding: 2px 0;
+}
+
+.contact-item-btns {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 2px;
+  z-index: 50;
+}
+
+.nav-btn--xs {
+  padding: 2px !important;
+  border-radius: 2px !important;
+}
+
 .delete-btn {
   position: absolute;
   right: 20px;
@@ -524,7 +678,6 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
   border-radius: 0 !important;
   cursor: pointer;
   transition:
-    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.2s ease,
     border-color 0.15s ease,
     border-radius 0.15s ease,
@@ -576,6 +729,14 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 }
 .nav-btn:hover { background: #1d4ed8 !important; }
 .nav-btn:active { transform: scale(0.92) !important; }
+
+.nav-btn-danger {
+  background: #ef4444 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+.nav-btn-danger:hover {
+  background: #dc2626 !important;
+}
 
 /* CSS hỗ trợ băm lá mượt mà */
 :deep(.html-content) { margin: 0 !important; padding: 0 !important; }

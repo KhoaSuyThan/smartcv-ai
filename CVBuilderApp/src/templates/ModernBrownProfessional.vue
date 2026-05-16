@@ -34,9 +34,9 @@
             <!-- Individual contact item buttons -->
             <transition name="fade-btns">
               <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
-                <button @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-                <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Ẩn"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn nav-btn--xs" title="Lên"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn nav-btn--xs" title="Xuống"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn--xs nav-btn-danger" title="Xóa"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
               </div>
             </transition>
           </li>
@@ -51,19 +51,18 @@
             :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
             @click.stop="toggleSection(section.id)"
           >
-            <!-- Nav: chỉ hiện khi click -->
-            <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
+            <div v-show="selectedSectionId === section.id" class="nav-btns no-print" style="right: 5px;">
               <button @click.stop.prevent="moveSectionUp(section.id, 'left')" class="nav-btn" title="Di chuyển lên">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
               </button>
               <button @click.stop.prevent="moveSectionDown(section.id, 'left')" class="nav-btn" title="Di chuyển xuống">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Sang Phải">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
               </button>
               <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
-                <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
 
@@ -140,7 +139,7 @@
           <!-- Nav Buttons for Summary - Added X button -->
           <div v-show="selectedSectionId === summarySection.id" class="nav-btns no-print" style="top: -20px; right: 0;">
             <button @click.stop.prevent="summarySection.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
-              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
         </div>
@@ -157,16 +156,16 @@
             <!-- Nav: chỉ hiện khi click -->
             <div v-show="selectedSectionId === section.id" class="nav-btns no-print">
               <button @click.stop.prevent="moveSectionUp(section.id, 'right')" class="nav-btn" title="Di chuyển lên">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7"/></svg>
               </button>
               <button @click.stop.prevent="moveSectionDown(section.id, 'right')" class="nav-btn" title="Di chuyển xuống">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/></svg>
               </button>
               <button @click.stop.prevent="moveSectionHorizontal(section.id, 'left')" class="nav-btn" title="Sang Trái">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
               </button>
               <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
             </div>
 
@@ -571,6 +570,8 @@ watch(() => props.resumeData, requestPagination, { deep: true })
 const summarySection  = computed(() => props.resumeData.sections.find(s => s.id === 'summary'))
 const sidebarSections = computed(() => props.resumeData.sections.filter(s => s.column === 'left'  && s.id !== 'summary'))
 const mainSections    = computed(() => props.resumeData.sections.filter(s => s.column === 'right' && s.id !== 'summary'))
+const sidebarIds      = computed(() => sidebarSections.value.map(s => s.id))
+const mainIds         = computed(() => mainSections.value.map(s => s.id))
 </script>
 
 <style scoped>
@@ -620,7 +621,6 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   border-radius: 0 !important;
   cursor: pointer !important;
   transition:
-    transform     0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow    0.2s ease,
     border-color  0.15s ease,
     border-radius 0.15s ease,
@@ -678,15 +678,15 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   align-items: center !important;
   justify-content: center !important;
   padding: 4px !important;
-  background: #2563eb !important;
+  background: #634c46 !important;
   color: white !important;
   border: none !important;
   border-radius: 4px !important;
   cursor: pointer !important;
-  box-shadow: 0 2px 6px rgba(37,99,235,0.4) !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
   transition: background 0.12s, transform 0.1s !important;
 }
-.nav-btn:hover  { background: #1d4ed8 !important; }
+.nav-btn:hover  { filter: brightness(1.2) !important; }
 .nav-btn:active { transform: scale(0.91) !important; }
 
 .nav-btn--xs {
@@ -710,13 +710,13 @@ const mainSections    = computed(() => props.resumeData.sections.filter(s => s.c
   display: flex;
   gap: 3px;
   z-index: 50;
-  background: white;
+  background: transparent;
   padding-left: 5px;
 }
 
 .fade-btns-enter-active,
 .fade-btns-leave-active {
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: none !important;
 }
 .fade-btns-enter-from,
 .fade-btns-leave-to {

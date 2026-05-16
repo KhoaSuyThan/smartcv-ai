@@ -24,22 +24,40 @@
       </div>
 
       <div class="middle-grid">
-        <div class="grid-col" style="order: 0;">
+        <div class="grid-col section-block" 
+             v-if="contactItems.length > 0"
+             :class="{ 'section-active': selectedSectionId === 'contact' }"
+             @click.stop="toggleSection('contact')">
           <h3 class="section-title">THÔNG TIN CÁ NHÂN</h3>
           <ul class="contact-list">
-            <li><i class="fas fa-calendar-alt"></i><span>{{ !isEmpty(resumeData.general.birthDate) ? resumeData.general.birthDate : '27/01/1998' }}</span></li>
-            <li><i class="fas fa-envelope"></i><span>{{ !isEmpty(resumeData.general.email) ? resumeData.general.email : 'email@example.com' }}</span></li>
-            <li><i class="fas fa-phone-alt"></i><span>{{ !isEmpty(resumeData.general.phone) ? resumeData.general.phone : '0123.456.789' }}</span></li>
-            <li><i class="fas fa-globe"></i><span>{{ !isEmpty(resumeData.general.website) ? resumeData.general.website : 'https://github.com/khoa' }}</span></li>
-            <li><i class="fas fa-map-marker-alt"></i><span>{{ !isEmpty(resumeData.general.address) ? resumeData.general.address : 'TP. Hồ Chí Minh' }}</span></li>
+            <li v-for="(ci, ciIdx) in contactItems" :key="ci.key" class="item-container group/ci">
+              <i :class="ci.icon"></i>
+              <span v-html="ci.value"></span>
+              
+              <!-- Move Up / Move Down / Delete buttons -->
+              <transition name="fade-btns">
+                <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                  <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Di chuyển lên" style="padding:2px">
+                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg>
+                  </button>
+                  <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Di chuyển xuống" style="padding:2px">
+                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                  </button>
+                  <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn-danger" title="Ẩn mục này" style="padding:2px">
+                    <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </transition>
+            </li>
           </ul>
         </div>
 
         <div class="grid-col section-block" :style="{ order: getOrder('education', gridIds) }" :class="{ 'section-active': selectedSectionId === 'education' }" @click.stop="toggleSection('education')">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'education'" class="nav-btns no-print">
-              <button class="nav-btn" @click.stop="moveUp('education',gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button class="nav-btn" @click.stop="moveDown('education',gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveUp(educationSection.id, gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveDown(educationSection.id, gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+              <button class="nav-btn nav-btn-danger" @click.stop="hideSection('education')"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
           </transition>
           <h3 class="section-title">HỌC VẤN</h3>
@@ -62,8 +80,9 @@
         <div class="grid-col section-block" :style="{ order: getOrder('certifications', gridIds) }" :class="{ 'section-active': selectedSectionId === 'certifications' }" @click.stop="toggleSection('certifications')">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'certifications'" class="nav-btns no-print">
-              <button class="nav-btn" @click.stop="moveUp('certifications',gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button class="nav-btn" @click.stop="moveDown('certifications',gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveUp(certSection.id, gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveDown(certSection.id, gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
+              <button class="nav-btn nav-btn-danger" @click.stop="hideSection('certifications')"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
           </transition>
           <h3 class="section-title">CHỨNG CHỈ</h3>
@@ -77,238 +96,149 @@
         </div>
       </div>
 
-      <div class="main-sections-wrapper" style="display: flex; flex-direction: column;">
-        <div v-if="experienceSection && experienceSection.isVisible" class="main-section section-block" :style="{ order: getOrder('experience', mainIds) }" :class="{ 'section-active': selectedSectionId === 'experience' }" @click.stop="toggleSection('experience')">
+      <div class="vertical-container">
+        <!-- Experience -->
+        <div v-if="experienceSection && experienceSection.isVisible" 
+             class="main-section section-block span-full" 
+             :style="{ order: getOrder(experienceSection.id, verticalIds) }" 
+             :class="{ 'section-active': selectedSectionId === 'experience' }" 
+             @click.stop="toggleSection('experience')">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'experience'" class="nav-btns no-print">
-              <button class="nav-btn" @click.stop="moveUp('experience',mainIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button class="nav-btn" @click.stop="moveDown('experience',mainIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveUp(experienceSection.id, verticalIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveDown(experienceSection.id, verticalIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button class="nav-btn nav-btn-danger" @click.stop="hideSection('experience')"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
           </transition>
           <h3 class="section-title">KINH NGHIỆM LÀM VIỆC</h3>
           <div class="timeline-container">
             <div v-for="(item, idx) in experienceSection.items" :key="item._refId || idx" class="exp-item item-container">
               <div class="exp-year paginated-item">{{ item.time || item.year }}</div>
-              
               <div class="exp-content">
-                <div class="info-line paginated-item">
-                  <strong v-if="item.company || item.name">{{ item.company || item.name }}</strong>
-                </div>
-                <div v-if="item.role || item.title || item.info" class="info-line paginated-item">
-                  <strong>{{ item.role || item.title || item.info }}</strong>
-                </div>
+                <div class="info-line paginated-item"><strong v-if="item.company || item.name">{{ item.company || item.name }}</strong></div>
+                <div v-if="item.role || item.title || item.info" class="info-line paginated-item"><strong>{{ item.role || item.title || item.info }}</strong></div>
                 <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
               </div>
-
               <transition name="fade-btns"><button v-if="selectedSectionId === 'experience'" @click.stop="$emit('removeItem','experience',idx)" class="delete-item-btn delete-item-btn--lg no-print"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
             </div>
           </div>
         </div>
 
-        <div v-if="projectSection && projectSection.isVisible" class="main-section section-block" :style="{ order: getOrder('project', mainIds) }" :class="{ 'section-active': selectedSectionId === 'project' }" @click.stop="toggleSection('project')">
+        <!-- Project -->
+        <div v-if="projectSection && projectSection.isVisible" 
+             class="main-section section-block span-full" 
+             :style="{ order: getOrder(projectSection.id, verticalIds) }" 
+             :class="{ 'section-active': selectedSectionId === 'project' }" 
+             @click.stop="toggleSection('project')">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'project'" class="nav-btns no-print">
-              <button class="nav-btn" @click.stop="moveUp('project',mainIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-              <button class="nav-btn" @click.stop="moveDown('project',mainIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveUp(projectSection.id, verticalIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+              <button class="nav-btn" @click.stop="moveDown(projectSection.id, verticalIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <button class="nav-btn nav-btn-danger" @click.stop="hideSection('project')"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
           </transition>
           <h3 class="section-title">DỰ ÁN NỔI BẬT</h3>
           <div class="timeline-container">
             <div v-for="(item, idx) in projectSection.items" :key="item._refId || idx" class="exp-item item-container">
               <div class="exp-year paginated-item">{{ item.time || item.year }}</div>
-              
               <div class="exp-content">
-                <div class="info-line paginated-item">
-                  <strong v-if="item.name || item.company">{{ item.name || item.company }}</strong>
-                </div>
-                <div v-if="item.role || item.title || item.info" class="info-line paginated-item">
-                  <strong>{{ item.role || item.title || item.info }}</strong>
-                </div>
+                <div class="info-line paginated-item"><strong v-if="item.name || item.company">{{ item.name || item.company }}</strong></div>
+                <div v-if="item.role || item.title || item.info" class="info-line paginated-item"><strong>{{ item.role || item.title || item.info }}</strong></div>
                 <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
               </div>
-
               <transition name="fade-btns"><button v-if="selectedSectionId === 'project'" @click.stop="$emit('removeItem','project',idx)" class="delete-item-btn delete-item-btn--lg no-print"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="footer-grid">
-
-        <div class="footer-left" style="display: flex; flex-direction: column;">
-          
-          <div v-if="skillsSection && skillsSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('skills', footerLeftIds) }" :class="{ 'section-active': selectedSectionId === 'skills' }" @click.stop="toggleSection('skills')">
+        <!-- Footer Left Area Sections -->
+        <template v-for="id in ['skills', 'it_skills', 'languages', 'otherSkills', 'hobbies']" :key="id">
+          <div v-if="sec(id).value?.isVisible" 
+               class="sub-section section-block col-left" 
+               :style="{ order: getOrder(id, verticalIds) }" 
+               :class="{ 'section-active': selectedSectionId === id }" 
+               @click.stop="toggleSection(id)">
             <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'skills'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('skills', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('skills', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <div v-if="selectedSectionId === id" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="moveUp(id, verticalIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button class="nav-btn" @click.stop="moveDown(id, verticalIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideSection(id)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
               </div>
             </transition>
-            <h3 class="section-title">{{ isEmpty(skillsSection.name) ? 'KỸ NĂNG' : skillsSection.name }}</h3>
+            <h3 class="section-title">{{ getSectionDisplayTitle(id) }}</h3>
             <div class="content-text">
-              <ul>
-                <li v-for="(item, i) in skillsSection.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
+              <ul v-if="id !== 'hobbies'">
+                <li v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
                   <div class="paginated-item" style="width: 100%;">
                     <strong style="color: #111; font-size: 13px;">{{ item.name }}</strong>
                     <span v-if="item.info || item.level" style="color: #444; font-size: 12.5px;"> — {{ item.info || item.level }}</span>
                   </div>
                   <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === 'skills'" @click.stop="$emit('removeItem','skills',i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
                 </li>
               </ul>
+              <div v-else style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <span v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="paginated-item item-container" style="display: inline-flex; align-items: center; background: #f1f5f9; padding: 5px 12px; border-radius: 20px; font-size: 12.5px; color: #334155; border: 1px solid #e2e8f0; position: relative;">
+                  {{ item.name }}
+                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="width: 16px; height: 16px; top: -6px; right: -6px;"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                </span>
+              </div>
             </div>
           </div>
+        </template>
 
-          <div v-if="itSkillsSection && itSkillsSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('it_skills', footerLeftIds) }" :class="{ 'section-active': selectedSectionId === 'it_skills' }" @click.stop="toggleSection('it_skills')">
+        <!-- Footer Right Area Sections -->
+        <template v-for="id in ['awards', 'activities', 'references']" :key="id">
+          <div v-if="sec(id).value?.isVisible" 
+               class="sub-section section-block col-right" 
+               :style="{ order: getOrder(id, verticalIds) }" 
+               :class="{ 'section-active': selectedSectionId === id }" 
+               @click.stop="toggleSection(id)">
             <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'it_skills'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('it_skills', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('it_skills', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+              <div v-if="selectedSectionId === id" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="moveUp(id, verticalIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
+                <button class="nav-btn" @click.stop="moveDown(id, verticalIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideSection(id)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
               </div>
             </transition>
-            <h3 class="section-title">{{ isEmpty(itSkillsSection.name) ? 'TIN HỌC' : itSkillsSection.name }}</h3>
+            <h3 class="section-title">{{ getSectionDisplayTitle(id) }}</h3>
             <div class="content-text">
-              <ul>
-                <li v-for="(item, i) in itSkillsSection.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
-                  <div class="paginated-item" style="width: 100%;">
-                    <strong style="color: #111; font-size: 13px;">{{ item.name }}</strong>
-                    <span v-if="item.info || item.level" style="color: #444; font-size: 12.5px;"> — {{ item.info || item.level }}</span>
-                  </div>
-                  <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === 'it_skills'" @click.stop="$emit('removeItem','it_skills',i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div v-if="languagesSection && languagesSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('languages', footerLeftIds) }" :class="{ 'section-active': selectedSectionId === 'languages' }" @click.stop="toggleSection('languages')">
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'languages'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('languages', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('languages', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              </div>
-            </transition>
-            <h3 class="section-title">{{ isEmpty(languagesSection.name) ? 'NGOẠI NGỮ' : languagesSection.name }}</h3>
-            <div class="content-text">
-              <ul>
-                <li v-for="(item, i) in languagesSection.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
-                  <div class="paginated-item" style="width: 100%;">
-                    <strong style="color: #111; font-size: 13px;">{{ item.name }}</strong>
-                    <span v-if="item.info || item.level" style="color: #444; font-size: 12.5px;"> — {{ item.info || item.level }}</span>
-                  </div>
-                  <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === 'languages'" @click.stop="$emit('removeItem','languages',i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div v-if="otherSkillsSection && otherSkillsSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('otherSkills', footerLeftIds) }" :class="{ 'section-active': selectedSectionId === 'otherSkills' }" @click.stop="toggleSection('otherSkills')">
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'otherSkills'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('otherSkills', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('otherSkills', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              </div>
-            </transition>
-            <h3 class="section-title">{{ isEmpty(otherSkillsSection.name) ? 'KỸ NĂNG KHÁC' : otherSkillsSection.name }}</h3>
-            <div class="content-text">
-              <ul>
-                <li v-for="(item, i) in otherSkillsSection.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
-                  <div class="paginated-item" style="width: 100%;">
-                    <strong style="color: #111; font-size: 13px;">{{ item.name }}</strong>
-                    <span v-if="item.info || item.level" style="color: #444; font-size: 12.5px;"> — {{ item.info || item.level }}</span>
-                  </div>
-                  <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === 'otherSkills'" @click.stop="$emit('removeItem','otherSkills',i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div v-if="hobbiesSection && hobbiesSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('hobbies', footerLeftIds) }" :class="{ 'section-active': selectedSectionId === 'hobbies' }" @click.stop="toggleSection('hobbies')">
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'hobbies'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('hobbies', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('hobbies', footerLeftIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              </div>
-            </transition>
-            <h3 class="section-title">{{ isEmpty(hobbiesSection.name) ? 'SỞ THÍCH' : hobbiesSection.name }}</h3>
-            <div class="content-text" style="display: flex; flex-wrap: wrap; gap: 8px;">
-              <span v-for="(item, i) in hobbiesSection.items" :key="item._refId || i" class="paginated-item item-container" style="display: inline-flex; align-items: center; background: #f1f5f9; padding: 5px 12px; border-radius: 20px; font-size: 12.5px; color: #334155; border: 1px solid #e2e8f0; position: relative;">
-                {{ item.name }}
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'hobbies'" @click.stop="$emit('removeItem','hobbies',i)" class="delete-item-btn no-print" style="width: 16px; height: 16px; top: -6px; right: -6px;"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-              </span>
-            </div>
-          </div>
-
-        </div><div class="footer-right" style="display: flex; flex-direction: column;">
-          <div v-if="awardsSection && awardsSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('awards', footerRightIds) }" :class="{ 'section-active': selectedSectionId === 'awards' }" @click.stop="toggleSection('awards')">
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'awards'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('awards',footerRightIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('awards',footerRightIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              </div>
-            </transition>
-            <h3 class="section-title">{{ isEmpty(awardsSection.name) ? 'DANH HIỆU & GIẢI THƯỞNG' : awardsSection.name }}</h3>
-            <div class="content-text">
-              <ul v-if="awardsSection && awardsSection.items.length">
-                <li v-for="(item, i) in awardsSection.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
+              <ul v-if="id === 'awards'">
+                <li v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
                   <div class="paginated-item" style="width: 100%;">
                     <strong v-if="item.time || item.year" style="color: #111; font-size: 13px;">{{ item.time || item.year }}</strong>
                     <span v-if="(item.time || item.year) && (item.name || item.info)"> — </span>
                     <span style="color: #333; font-size: 12.5px;">{{ item.name || item.info }}</span>
                   </div>
                   <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === 'awards'" @click.stop="$emit('removeItem','awards',i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
                 </li>
               </ul>
-            </div>
-          </div>
-
-          <div v-if="activitiesSection && activitiesSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('activities', footerRightIds) }" :class="{ 'section-active': selectedSectionId === 'activities' }" @click.stop="toggleSection('activities')">
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'activities'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('activities',footerRightIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('activities',footerRightIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              </div>
-            </transition>
-            <h3 class="section-title">{{ isEmpty(activitiesSection.name) ? 'HOẠT ĐỘNG' : activitiesSection.name }}</h3>
-            <div class="timeline-container small-timeline">
-              <div v-for="(item, i) in activitiesSection.items" :key="item._refId || i" class="exp-item item-container">
-                <div class="exp-year paginated-item">{{ item.time || item.year }}</div>
-                
-                <div class="exp-content">
-                  <div class="info-line paginated-item">{{ item.name || item.company }}</div>
-                  <div class="info-line paginated-item">{{ item.role || item.title || item.info }}</div>
-                  <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
+              <div v-else-if="id === 'activities'" class="timeline-container small-timeline">
+                <div v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="exp-item item-container">
+                  <div class="exp-year paginated-item">{{ item.time || item.year }}</div>
+                  <div class="exp-content">
+                    <div class="info-line paginated-item">{{ item.name || item.company }}</div>
+                    <div class="info-line paginated-item">{{ item.role || item.title || item.info }}</div>
+                    <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
+                  </div>
+                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
                 </div>
-
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'activities'" @click.stop="$emit('removeItem','activities',i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
               </div>
-            </div>
-          </div>
-
-          <div v-if="referencesSection && referencesSection.isVisible" class="sub-section section-block" :style="{ order: getOrder('references', footerRightIds) }" :class="{ 'section-active': selectedSectionId === 'references' }" @click.stop="toggleSection('references')">
-            <transition name="fade-btns">
-              <div v-if="selectedSectionId === 'references'" class="nav-btns no-print">
-                <button class="nav-btn" @click.stop="moveUp('references',footerRightIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
-                <button class="nav-btn" @click.stop="moveDown('references',footerRightIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
-              </div>
-            </transition>
-            <h3 class="section-title">{{ isEmpty(referencesSection.name) ? 'NGƯỜI GIỚI THIỆU' : referencesSection.name }}</h3>
-            <div class="content-text">
-              <div v-for="(item, i) in referencesSection.items" :key="item._refId || i" class="item-container" style="position:relative; margin-bottom: 12px;">
-                <div class="paginated-item" v-if="item.name || item.title || item.role" style="margin-bottom: 3px; font-size: 13px;">
-                  <strong v-if="item.name" style="color: #111;">{{ item.name }}</strong>
-                  <span v-if="(item.title || item.role) && item.name"> — </span>
-                  <span v-if="item.title || item.role" style="color: #444;">{{ item.title || item.role }}</span>
+              <div v-else-if="id === 'references'">
+                <div v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="item-container" style="position:relative; margin-bottom: 12px;">
+                  <div class="paginated-item" v-if="item.name || item.title || item.role" style="margin-bottom: 3px; font-size: 13px;">
+                    <strong v-if="item.name" style="color: #111;">{{ item.name }}</strong>
+                    <span v-if="(item.title || item.role) && item.name"> — </span>
+                    <span v-if="item.title || item.role" style="color: #444;">{{ item.title || item.role }}</span>
+                  </div>
+                  <div class="html-content" v-if="item.contact || item.info" v-html="formatDesc(item.contact || item.info)"></div>
+                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
                 </div>
-                <div class="html-content" v-if="item.contact || item.info" v-html="formatDesc(item.contact || item.info)"></div>
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'references'" @click.stop="$emit('removeItem','references',i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
 
     </div>
@@ -351,6 +281,73 @@ const handleOutsideClick = (e) => {
   if (cvRoot.value && !cvRoot.value.contains(e.target)) selectedSectionId.value = null
 }
 
+// ─── CONTACT ITEMS ───
+const contactIcons = {
+  birthDate: 'fas fa-calendar-alt',
+  email: 'fas fa-envelope',
+  phone: 'fas fa-phone-alt',
+  website: 'fas fa-globe',
+  address: 'fas fa-map-marker-alt',
+  facebook: 'fab fa-facebook-f'
+}
+
+const contactOrder = ref(['birthDate', 'email', 'phone', 'website', 'address', 'facebook'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  return g[key] || ''
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      icon: contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx <= 0) return
+  const keyA = visible[idx], keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && !isEmpty(getContactValue(k)))
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx], keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
+}
+
+const hideSection = (id) => {
+  const s = props.resumeData.sections?.find(s => s.id === id)
+  if (s) s.isVisible = false
+}
+
 const formatDesc = (text) => {
   if (!text) return ''
   if (!/<[a-z][\s\S]*>/i.test(text)) {
@@ -382,6 +379,23 @@ const formatDesc = (text) => {
 const getOrder = (id, arr) => {
   const idx = arr.indexOf(id)
   return idx !== -1 ? idx + 1 : 99
+}
+
+const getSectionDisplayTitle = (id) => {
+  const s = sec(id).value
+  if (s && !isEmpty(s.name)) return s.name
+  
+  const defaults = {
+    skills: 'Kỹ năng',
+    it_skills: 'TIN HỌC',
+    languages: 'NGOẠI NGỮ',
+    otherSkills: 'KỸ NĂNG KHÁC',
+    hobbies: 'SỞ THÍCH',
+    awards: 'DANH HIỆU & GIẢI THƯỞNG',
+    activities: 'HOẠT ĐỘNG',
+    references: 'NGƯỜI GIỚI THIỆU'
+  }
+  return defaults[id] || id.toUpperCase()
 }
 
 const primaryColor = computed(() => {
@@ -422,6 +436,11 @@ const gridIds = computed(() => getActiveSortedIds(['education', 'certifications'
 const mainIds = computed(() => getActiveSortedIds(['experience', 'project']))
 const footerLeftIds = computed(() => getActiveSortedIds(['skills', 'it_skills', 'languages', 'otherSkills', 'hobbies']))
 const footerRightIds = computed(() => getActiveSortedIds(['awards', 'activities', 'references']))
+
+const verticalIds = computed(() => {
+  const allVisible = (props.resumeData?.sections || []).filter(s => s.isVisible).map(s => s.id)
+  return allVisible.filter(id => id !== 'education' && id !== 'certifications')
+})
 
 const A4_W_MM = 210, A4_H_MM = 297
 let paginateTimer = null
@@ -547,9 +566,6 @@ onUnmounted(() => {
   font-size: 14px; font-weight: 700; color: v-bind(primaryColor); border-bottom: 2px solid v-bind(primaryColor);
   padding-bottom: 5px; margin: 0 0 14px 0 !important; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.main-section { margin-bottom: 28px; }
-.main-section:empty { display: none; }
-
 .middle-grid { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 25px; margin-bottom: 28px; }
 .contact-list { list-style: none; padding: 0; margin: 0; }
 .contact-list li { margin-bottom: 9px; display: flex; gap: 10px; align-items: center; font-size: 12.5px; color: #333; }
@@ -567,14 +583,14 @@ onUnmounted(() => {
 .timeline-container .exp-year { position: absolute; left: 0; top: 3px; width: 28%; font-weight: bold; font-size: 13px; color: #222; }
 .timeline-container .exp-content { padding-left: 20px; }
 .timeline-container .info-line:first-child { position: absolute; left: 0; top: 22px; width: 28%; font-weight: bold; font-size: 13px; color: #111; }
-
 .timeline-container .info-line:nth-child(2) { font-weight: bold; font-size: 14px; color: #000; margin-bottom: 5px; }
-
 .timeline-container .desc-text { font-size: 12.5px; line-height: 1.6; color: #333; text-align: justify; }
 
-.footer-grid { display: flex; gap: 45px; }
-.footer-left { flex: 4; }
-.footer-right { flex: 6; }
+.vertical-container { display: grid; grid-template-columns: 4fr 6fr; gap: 28px; margin-bottom: 28px; }
+.span-full { grid-column: 1 / -1; }
+.col-left { grid-column: 1; }
+.col-right { grid-column: 2; }
+
 .sub-section { margin-bottom: 22px; }
 
 .small-timeline .exp-item { padding-left: 18px; margin-bottom: 14px; }
@@ -590,13 +606,41 @@ onUnmounted(() => {
 .content-text li:last-child { border-bottom: none; }
 .content-text p { font-size: 13px; font-style: italic; color: #555; margin-bottom: 5px; }
 
-.section-block { border-radius: 5px; border: 2px solid transparent; cursor: pointer; transition: border-color 0.18s ease, box-shadow 0.18s ease; position: relative; }
+.section-block { 
+  border-radius: 5px; 
+  border: 2px solid transparent; 
+  cursor: pointer; 
+  transition: border-color 0.18s ease, box-shadow 0.18s ease; 
+  position: relative;
+  padding: 6px;
+  margin: -6px;
+}
 .section-block.section-active { border: 2px solid v-bind(primaryColor) !important; box-shadow: 0 4px 18px rgba(0,0,0,0.09); z-index: 10; }
 
 .nav-btns { position: absolute; right: 6px; top: 6px; display: flex; flex-direction: row; gap: 5px; z-index: 9999; }
 .nav-btn { display: flex; align-items: center; justify-content: center; padding: 4px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.35); transition: background 0.15s, transform 0.15s; }
 .nav-btn:hover { background: #1d4ed8; transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
+
+.nav-btn-danger {
+  background: #ef4444 !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4) !important;
+}
+.nav-btn-danger:hover {
+  background: #dc2626 !important;
+}
+
+.contact-item-container { position: relative; }
+.contact-item-btns {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+    z-index: 9999;
+}
 
 .delete-item-btn { position: absolute; right: 0; top: 0; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; background: #ef4444; color: white; border: none; border-radius: 50%; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: transform 0.15s; z-index: 30; }
 .delete-item-btn:hover { transform: scale(1.15); background: #dc2626; }

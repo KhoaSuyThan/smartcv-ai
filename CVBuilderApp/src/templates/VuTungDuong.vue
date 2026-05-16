@@ -37,12 +37,12 @@
         <h1
           style="font-size: 26px; font-weight: 900; text-transform: uppercase; line-height: 1.15; margin-bottom: 4px; word-break: break-word;"
           :style="{ color: resumeData.theme.primaryColor || '#dfa234' }"
-          v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'VŨ TÙNG DƯƠNG'"
+          v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : ''"
         ></h1>
         <h2
           style="font-size: 13.5px; font-weight: 700; line-height: 1.3;"
           :style="{ color: resumeData.theme.primaryColor || '#dfa234' }"
-          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Senior Digital Marketing'"
+          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : ''"
         ></h2>
       </div>
 
@@ -101,7 +101,7 @@
               <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Sang Phải">
-              <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7-7"/></svg>
+              <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
             </button>
             <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn--delete" title="Ẩn mục này">
               <svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -442,14 +442,11 @@ const getContactValue = (key) => {
   const g = props.resumeData?.general
   if (!g) return ''
   switch (key) {
-    case 'phone': return isEmpty(g.phone) ? '0123.456.789' : g.phone
-    case 'email': return isEmpty(g.email) ? 'email@example.com' : g.email
+    case 'phone': return g.phone || ''
+    case 'email': return g.email || ''
     case 'web':
-      if (!isEmpty(g.website)) return g.website
-      if (!isEmpty(g.github)) return g.github
-      if (!isEmpty(g.linkedin)) return g.linkedin
-      return 'https://github.com/khoa'
-    case 'address': return isEmpty(g.address) ? 'TP. Hồ Chí Minh' : g.address
+      return g.github || g.linkedin || g.website || ''
+    case 'address': return g.address || ''
     default: return ''
   }
 }
@@ -457,6 +454,7 @@ const getContactValue = (key) => {
 const contactItems = computed(() => {
   return contactOrder.value
     .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
     .map(key => ({
       key,
       icon: contactIcons[key],
@@ -491,9 +489,17 @@ const moveContactDown = (idx) => {
 }
 
 const removeContactItem = (idx) => {
-  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k))
+  const visible = contactItems.value
   if (idx >= 0 && idx < visible.length) {
-    hiddenContacts.value.push(visible[idx])
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    } else if (key === 'web') {
+      if (props.resumeData.general.github !== undefined) props.resumeData.general.github = ''
+      if (props.resumeData.general.linkedin !== undefined) props.resumeData.general.linkedin = ''
+      if (props.resumeData.general.website !== undefined) props.resumeData.general.website = ''
+    }
+    hiddenContacts.value.push(key)
     requestPagination()
   }
 }
