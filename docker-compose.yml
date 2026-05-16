@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sql_server
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  app:
+    build: .
+    container_name: smartcv_app
+    ports:
+      - "80:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=DoAnWebCS;User Id=sa;Password=Password123!;TrustServerCertificate=True
+    depends_on:
+      - db
+
+volumes:
+  mssql_data:
