@@ -27,28 +27,31 @@
         
         <aside class="left-column">
           
-          <div class="custom-card">
+          <!-- CONTACT INFO (Dynamic) -->
+          <div
+            v-if="contactItems.length > 0"
+            class="custom-card relative contact-block"
+            :class="{ 'contact-active': selectedSectionId === 'contact' }"
+            @click.stop="toggleSection('contact')"
+          >
             <div class="card-badge paginated-item">Thông tin cá nhân</div>
             <div class="card-body">
-              <div class="contact-item paginated-item">
-                <div class="icon-circle"><i class="fas fa-calendar-alt"></i></div>
-                <span>{{ !isEmpty(resumeData.general.birthDate) ? resumeData.general.birthDate : '18/12/1997' }}</span>
-              </div>
-              <div class="contact-item paginated-item">
-                <div class="icon-circle"><i class="fas fa-phone-alt"></i></div>
-                <span>{{ !isEmpty(resumeData.general.phone) ? resumeData.general.phone : '0123.456.789' }}</span>
-              </div>
-              <div class="contact-item paginated-item">
-                <div class="icon-circle"><i class="fas fa-envelope"></i></div>
-                <span>{{ !isEmpty(resumeData.general.email) ? resumeData.general.email : 'hotro@topcv.vn' }}</span>
-              </div>
-              <div class="contact-item paginated-item">
-                <div class="icon-circle"><i class="fas fa-home"></i></div>
-                <span>{{ !isEmpty(resumeData.general.address) ? resumeData.general.address : 'Quận A, Hà Nội' }}</span>
-              </div>
-              <div class="contact-item paginated-item" v-if="!isEmpty(resumeData.general.website)">
-                <div class="icon-circle"><i class="fas fa-link"></i></div>
-                <span>{{ resumeData.general.website }}</span>
+              <div v-for="(ci, ciIdx) in contactItems" :key="ci.key"
+                  class="contact-item paginated-item relative contact-item-container">
+                <div class="icon-circle" v-html="ci.icon"></div>
+                <span v-html="ci.value"></span>
+                
+                <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print">
+                    <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Di chuyển lên">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Di chuyển xuống">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn-danger" title="Xóa mục này">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
               </div>
             </div>
           </div>
@@ -66,14 +69,15 @@
                     <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
                     <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
                     <button class="nav-btn" @click.stop="moveHorizontal(section.id)"><i class="fas fa-chevron-right"></i></button>
+                    <button class="nav-btn nav-btn-danger" @click.stop="section.isVisible = false"><i class="fas fa-times"></i></button>
                   </div>
                 </transition>
 
                 <div class="card-badge paginated-item">{{ section.name || section.title || section.id }}</div>
                 
                 <div class="card-body">
-                  <ul class="bullet-list">
-                    <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
+                  <ul class="bullet-list" v-if="section.items?.length">
+                    <li v-for="(item, i) in section.items" :key="i" class="item-container paginated-item">
                       <div class="flex flex-col">
                         <span class="font-bold text-[#FF9500]" v-if="item.time || item.year">{{ item.time || item.year }}</span>
                         <span class="font-semibold text-[#2B4C7E]" v-else-if="item.name && item.level">{{ item.name }}</span>
@@ -105,6 +109,7 @@
                     <button class="nav-btn" @click.stop="moveHorizontal(section.id)"><i class="fas fa-chevron-left"></i></button>
                     <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
                     <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                    <button class="nav-btn nav-btn-danger" @click.stop="section.isVisible = false"><i class="fas fa-times"></i></button>
                   </div>
                 </transition>
 
@@ -113,9 +118,6 @@
                 <div class="card-body">
                   <div v-if="section.desc || section.description || section.content || section.value || !isEmpty(resumeData.general.summary)" 
                        class="html-content" v-html="formatDesc(section.desc || section.description || section.content || section.value || resumeData.general.summary)"></div>
-                  <div v-else class="html-content text-placeholder">
-                    <div class="paginated-item">Hãy nói 1 chút về mục tiêu nghề nghiệp của bạn..</div>
-                  </div>
                 </div>
               </div>
             </template>
@@ -131,6 +133,7 @@
                     <button class="nav-btn" @click.stop="moveHorizontal(section.id)"><i class="fas fa-chevron-left"></i></button>
                     <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
                     <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                    <button class="nav-btn nav-btn-danger" @click.stop="section.isVisible = false"><i class="fas fa-times"></i></button>
                   </div>
                 </transition>
 
@@ -139,8 +142,8 @@
                 <div class="card-body">
                   <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
                   
-                  <div class="timeline-wrapper">
-                    <div v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="timeline-item item-container">
+                  <div class="timeline-wrapper" v-if="section.items?.length">
+                    <div v-for="(item, i) in section.items" :key="i" class="timeline-item item-container">
                       
                       <div class="timeline-icon no-print-bg">
                         <i v-if="section.id === 'education'" class="fas fa-graduation-cap"></i>
@@ -182,6 +185,7 @@
                     <button class="nav-btn" @click.stop="moveHorizontal(section.id)"><i class="fas fa-chevron-left"></i></button>
                     <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
                     <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
+                    <button class="nav-btn nav-btn-danger" @click.stop="section.isVisible = false"><i class="fas fa-times"></i></button>
                   </div>
                 </transition>
 
@@ -190,21 +194,23 @@
                 <div class="card-body">
                   <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
                   
-                  <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container relative mb-4 last:mb-0">
-                    <template v-if="typeof item === 'object'">
-                      <div v-if="item.year || item.time" class="paginated-item entry-time mb-1 inline-block">{{ item.year || item.time }}</div>
-                      
-                      <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                      <div v-else-if="item.name || item.title" class="paginated-item entry-entity">{{ item.name || item.title }}</div>
-                      
-                      <div v-if="item.role || item.position || item.level" class="paginated-item entry-role mt-1">{{ item.role || item.position || item.level }}</div>
-                      <div v-if="item.info || item.contact" class="html-content mt-1" v-html="formatDesc(item.info || item.contact)"></div>
-                      <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
-                    </template>
-                    <template v-else>
-                      <div class="html-content" v-html="formatDesc(item)"></div>
-                    </template>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                  <div v-if="section.items?.length">
+                    <div v-for="(item, i) in section.items" :key="i" class="item-container relative mb-4 last:mb-0">
+                      <template v-if="typeof item === 'object'">
+                        <div v-if="item.year || item.time" class="paginated-item entry-time mb-1 inline-block">{{ item.year || item.time }}</div>
+                        
+                        <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
+                        <div v-else-if="item.name || item.title" class="paginated-item entry-entity">{{ item.name || item.title }}</div>
+                        
+                        <div v-if="item.role || item.position || item.level" class="paginated-item entry-role mt-1">{{ item.role || item.position || item.level }}</div>
+                        <div v-if="item.info || item.contact" class="html-content mt-1" v-html="formatDesc(item.info || item.contact)"></div>
+                        <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
+                      </template>
+                      <template v-else>
+                        <div class="html-content" v-html="formatDesc(item)"></div>
+                      </template>
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -242,17 +248,7 @@ const isEmpty = (v) => !v || v.toString().trim() === ''
 
 // ── DATA MẪU RÚT GỌN ──────────────────────────────────────
 const getMockData = (sectionId) => {
-  if (sectionId === 'experience') return [
-    { company: 'Công ty ABC', time: '03/2020 - 03/2023', role: 'Senior Product Designer', desc: '<ul><li>Nghiên cứu thị trường và đối thủ, phối hợp với Product Owner.</li><li>Tạo dựng prototype, wireframe, journey map.</li></ul>' },
-    { company: 'Công ty DEF', time: '12/2018 - 03/2020', role: 'Graphic & UI/UX Designer', desc: '<ul><li>Tạo dựng wireframe và prototype cho app.</li></ul>' }
-  ]
-  if (sectionId === 'education') return [
-    { school: 'Đại học Ngoại thương Hà Nội', time: '2021 - 2025', major: 'Ngân hàng và Tài chính', gradType: 'Xuất sắc' }
-  ]
-  if (sectionId === 'activities') return [
-    { organization: 'CLB Nguồn nhân lực', time: '2022 - 2025', role: 'Thành viên Ban Sự kiện' }
-  ]
-  return [{ name: 'Chưa có dữ liệu' }]
+  return []
 }
 
 // ── QUẢN LÝ ẨN/HIỆN & CHIA CỘT ──────────────────────────────────────
@@ -272,6 +268,74 @@ const toggleSection = (id) => { selectedSectionId.value = selectedSectionId.valu
 const moveUp = (id, arr) => emit('moveUp', id, toRaw(arr))
 const moveDown = (id, arr) => emit('moveDown', id, toRaw(arr))
 const moveHorizontal = (id) => emit('moveHorizontal', id)
+
+// --- CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ---
+const contactIcons = {
+  birthDate: '<i class="fas fa-calendar-alt"></i>',
+  phone: '<i class="fas fa-phone-alt"></i>',
+  email: '<i class="fas fa-envelope"></i>',
+  address: '<i class="fas fa-home"></i>',
+  website: '<i class="fas fa-link"></i>'
+}
+
+const contactOrder = ref(['birthDate', 'phone', 'email', 'address', 'website'])
+const hiddenContacts = ref([])
+
+const getContactValue = (key) => {
+  const g = props.resumeData?.general
+  if (!g) return ''
+  switch (key) {
+    case 'birthDate': return isEmpty(g.birthDate) ? '' : g.birthDate
+    case 'phone': return isEmpty(g.phone) ? '' : g.phone
+    case 'email': return isEmpty(g.email) ? '' : g.email
+    case 'address': return isEmpty(g.address) ? '' : g.address
+    case 'website': return isEmpty(g.website) ? '' : g.website
+    default: return ''
+  }
+}
+
+const contactItems = computed(() => {
+  return contactOrder.value
+    .filter(key => !hiddenContacts.value.includes(key))
+    .filter(key => !isEmpty(getContactValue(key)))
+    .map(key => ({
+      key,
+      icon: contactIcons[key],
+      value: getContactValue(key)
+    }))
+})
+
+const moveContactUp = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  if (idx <= 0) return
+  const keyA = visible[idx], keyB = visible[idx - 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const moveContactDown = (idx) => {
+  const visible = contactOrder.value.filter(k => !hiddenContacts.value.includes(k) && getContactValue(k) !== '')
+  if (idx >= visible.length - 1) return
+  const keyA = visible[idx], keyB = visible[idx + 1]
+  const idxA = contactOrder.value.indexOf(keyA), idxB = contactOrder.value.indexOf(keyB)
+  const arr = [...contactOrder.value]
+  ;[arr[idxA], arr[idxB]] = [arr[idxB], arr[idxA]]
+  contactOrder.value = arr
+}
+
+const removeContactItem = (idx) => {
+  const visible = contactItems.value
+  if (idx >= 0 && idx < visible.length) {
+    const key = visible[idx].key
+    if (props.resumeData.general[key] !== undefined) {
+      props.resumeData.general[key] = ''
+    }
+    hiddenContacts.value.push(key)
+    requestPagination()
+  }
+}
 
 onMounted(() => {
   if (props.resumeData?.sections) {
@@ -454,9 +518,33 @@ onUnmounted(() => {
 /* INTERACTION & BUTTONS */
 .section-block { border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
 .section-active { border-color: #FF9500 !important; box-shadow: 0 0 10px rgba(255, 149, 0, 0.2); z-index: 20; }
-.nav-btns { position: absolute; right: 5px; top: -12px; display: flex; gap: 5px; z-index: 100; }
+.nav-btns { position: absolute; right: 10px; top: 10px; display: flex; gap: 5px; z-index: 100; }
 .nav-btn { background: #FF9500; color: #fff; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; }
 .nav-btn:hover { background: #e68600; }
+.nav-btn-danger { background: #ff4d4f !important; }
+.nav-btn-danger:hover { background: #d9363e !important; }
+
+.contact-block {
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+.contact-block.contact-active {
+  border-color: #FF9500 !important;
+  background-color: rgba(255, 149, 0, 0.05);
+  box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+  z-index: 20;
+}
+.contact-item-container { position: relative; }
+.contact-item-btns {
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 3px;
+  z-index: 100;
+}
+
 .delete-item-btn { position: absolute; right: -10px; top: 0; width: 18px; height: 18px; background: #ff4d4f; color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 50; }
 
 .page-break-indicator { position: absolute; left: 0; width: 100%; z-index: 50; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
