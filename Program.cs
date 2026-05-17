@@ -2,6 +2,7 @@ using DoAnCS.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using DoAnCS.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,6 +93,11 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 // --- 4. CẤU HÌNH PIPELINE (MIDDLEWARE) ---
 if (!app.Environment.IsDevelopment())
