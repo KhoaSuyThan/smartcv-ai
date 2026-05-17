@@ -88,7 +88,6 @@ VALUES
     -- 28. Nguyễn Khánh Huyền
     (N'Nguyễn Khánh Huyền', 'NguyenKhanhHuyen', '/images/templates/NguyenKhanhHuyen.png', 1, 1, N'Kế toán, Chuyên nghiệp, Văn phòng', GETDATE()),
     
-    
     -- 29. Samira Nguyễn
     (N'Samira Nguyễn', 'SamiraNguyen', 'https://careers.langmaster.edu.vn/storage/images/2023/10/09/cv-nhan-vien-ban-hang-1.webp', 1, 1, N'Bán hàng, Kinh doanh, Chuyên nghiệp', GETDATE()),
     
