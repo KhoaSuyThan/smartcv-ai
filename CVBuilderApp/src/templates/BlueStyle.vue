@@ -28,7 +28,7 @@
     <div class="relative z-20" style="margin-top: -65mm;">
       <div class="mx-0 bg-[#5ba4b5] text-white !py-[8mm] !px-[12mm] relative">
         <!-- Section: Summary -->
-        <div class="section-block relative mb-4"
+        <div class="section-block relative mb-4 cursor-pointer hover:bg-black/5 transition-colors"
              :class="{ 'section-active': selectedSectionId === 'summary' }"
              @click.stop="selectedSectionId = selectedSectionId === 'summary' ? null : 'summary'">
              
@@ -47,7 +47,7 @@
         </div>
 
         <!-- Section: Contact -->
-        <div v-if="contactItems.length > 0" class="section-block relative contact-block"
+        <div v-if="contactItems.length > 0" class="section-block relative contact-block cursor-pointer hover:bg-black/5 transition-colors"
              :class="{ 'contact-active': selectedSectionId === 'contact' }"
              @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'">
           <div class="grid grid-cols-3 gap-y-4 text-[13px] font-medium paginated-item">
@@ -88,7 +88,7 @@
       
       <div class="flex-[1.5] flex flex-col gap-8">
         <template v-for="section in leftSections" :key="section.id">
-          <div v-show="section.isVisible" class="section-block relative"
+          <div v-show="section.isVisible" :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id">
             
@@ -200,7 +200,7 @@
 
       <div class="flex-1 flex flex-col gap-8">
         <template v-for="section in rightSections" :key="section.id">
-          <div v-show="section.isVisible" class="section-block relative"
+          <div v-show="section.isVisible" :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id">
             

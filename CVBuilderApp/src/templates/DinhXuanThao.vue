@@ -28,7 +28,7 @@
       <div class="w-full pl-0 pr-0 flex-1 pb-8 flex flex-col mt-4">
         <!-- CONTACT INFOMATION -->
         <div 
-          class="section-block relative group mb-6 -my-[4mm] px-[8mm] py-[4mm] ml-[4mm]" 
+          class="section-block relative group mb-6 -my-[4mm] px-[8mm] py-[4mm] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors" 
           :class="{ 'section-active': selectedSectionId === 'contact' }"
           :style="selectedSectionId === 'contact' ? { '--active-bg': templatePrimaryColor } : {}"
           @click.stop="toggleSection('contact')"
@@ -67,7 +67,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group mb-6 -my-[4mm] px-[8mm] py-[4mm] ml-[4mm]"
+            :data-section-id="section.id" class="section-block relative group mb-6 -my-[4mm] px-[8mm] py-[4mm] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"
@@ -169,7 +169,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group -mx-[8mm] -my-[4mm] px-[8mm] py-[4mm]"
+            :data-section-id="section.id" class="section-block relative group -mx-[8mm] -my-[4mm] px-[8mm] py-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"

@@ -25,7 +25,7 @@
         ></h2>
         
         <!-- Hàng ngang liên hệ -->
-        <div v-if="contactItems.length > 0" class="section-block relative group -mx-2 px-2 py-1" 
+        <div v-if="contactItems.length > 0" class="section-block relative group -mx-2 px-2 py-1 cursor-pointer hover:bg-black/5 transition-colors" 
              :class="{ 'section-active': selectedSectionId === 'contact' }"
              @click.stop="toggleSection('contact')">
           <div class="flex flex-wrap justify-center items-center gap-x-9 gap-y-1.5 text-[11.5px] text-gray-600 font-medium">
@@ -58,7 +58,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group -mx-[4mm] px-[4mm] py-[1mm]"
+            :data-section-id="section.id" class="section-block relative group -mx-[4mm] px-[4mm] py-[1mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#333333' } : {}"
             @click.stop="toggleSection(section.id)"

@@ -14,7 +14,7 @@
       
       <!-- 1. HEADER THÔNG TIN LIÊN HỆ NẰM NGANG (Dynamic) -->
       <header 
-        class="section-block paginated-item !mt-[20px] !mx-[20px] bg-[#E9DCD6] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border border-[#DCD0C9] rounded-[4px] relative"
+        class="section-block paginated-item !mt-[20px] !mx-[20px] bg-[#E9DCD6] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border border-[#DCD0C9] rounded-[4px] relative cursor-pointer hover:bg-black/5 transition-colors"
         :class="{ 'section-active': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
       >
@@ -80,7 +80,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
+            :data-section-id="section.id" class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#4A352F' } : {}"
             @click.stop="toggleSection(section.id)"
@@ -281,7 +281,7 @@
         <!-- Cột: Interests (Hobbies) -->
         <div
           v-if="hobbiesSection && hobbiesSection.isVisible"
-          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
+          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'section-active': selectedSectionId === hobbiesSection.id }"
           :style="[
             selectedSectionId === hobbiesSection.id ? { '--active-bg': '#4A352F' } : {},
@@ -326,7 +326,7 @@
         <!-- Cột: Additional Information (Languages / Awards) -->
         <div
           v-if="additionalSection && additionalSection.isVisible"
-          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group"
+          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'section-active': selectedSectionId === additionalSection.id }"
           :style="[
             selectedSectionId === additionalSection.id ? { '--active-bg': '#4A352F' } : {},

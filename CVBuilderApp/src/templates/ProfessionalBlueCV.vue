@@ -16,7 +16,7 @@
 
       <!-- Liên hệ (Dynamic) -->
       <div 
-        class="section-block relative group w-full mb-[15px] ml-[4mm]"
+        class="section-block relative group w-full mb-[15px] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
         :class="{ 'section-selected-sidebar': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
       >
@@ -52,7 +52,7 @@
           <!-- BỎ HIỆU ỨNG SCALE TRONG :style -->
           <div
             v-if="section.isVisible"
-            class="section-block relative group w-full mb-[15px] ml-[4mm]"
+            :data-section-id="section.id" class="section-block relative group w-full mb-[15px] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-selected-sidebar': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { zIndex: 10 } : {}"
             @click.stop="toggleSection(section.id)"
@@ -110,7 +110,7 @@
       <!-- Summary -->
       <div
         v-if="summarySection && summarySection.isVisible"
-        class="section-block relative group w-full mb-[20px]"
+        class="section-block relative group w-full mb-[20px] cursor-pointer hover:bg-black/5 transition-colors"
         :class="{ 'section-selected-main': selectedSectionId === summarySection.id }"
         :style="[
           { marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' },
@@ -140,7 +140,7 @@
           <!-- BỎ HIỆU ỨNG SCALE TRONG :style -->
           <div
             v-if="section.isVisible"
-            class="section-block relative group w-full mb-[20px]"
+            :data-section-id="section.id" class="section-block relative group w-full mb-[20px] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-selected-main': selectedSectionId === section.id }"
             :style="[
               { marginLeft: '20px !important', marginRight: '20px !important', width: 'calc(100% - 40px)' },

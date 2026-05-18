@@ -59,10 +59,10 @@
           <div class="left-sortable-area" style="display: flex; flex-direction: column;">
             
             <template v-for="section in sidebarSections" :key="section.id">
-              <div v-show="section.isVisible" class="custom-card section-block"
+              <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
                    :style="{ order: getOrder(section.id, leftIds) }"
                    :class="{ 'section-active': selectedSectionId === section.id }"
-                   @click.stop="toggleSection(section.id)">
+                   @click.stop="toggleSection(section.id)" :data-section-id="section.id">
                 
                 <transition name="fade-btns">
                   <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
@@ -99,10 +99,10 @@
           <div class="right-sortable-area" style="display: flex; flex-direction: column;">
             
             <template v-for="section in mainSections.filter(s => s.id === 'summary')" :key="section.id">
-              <div v-show="section.isVisible" class="custom-card section-block"
+              <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
                    :style="{ order: getOrder(section.id, rightIds) }"
                    :class="{ 'section-active': selectedSectionId === section.id }"
-                   @click.stop="toggleSection(section.id)">
+                   @click.stop="toggleSection(section.id)" :data-section-id="section.id">
                 
                 <transition name="fade-btns">
                   <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
@@ -123,10 +123,10 @@
             </template>
 
             <template v-for="section in mainSections.filter(s => ['experience', 'education', 'activities'].includes(s.id))" :key="section.id">
-              <div v-show="section.isVisible" class="custom-card section-block"
+              <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
                    :style="{ order: getOrder(section.id, rightIds) }"
                    :class="{ 'section-active': selectedSectionId === section.id }"
-                   @click.stop="toggleSection(section.id)">
+                   @click.stop="toggleSection(section.id)" :data-section-id="section.id">
                 
                 <transition name="fade-btns">
                   <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
@@ -175,10 +175,10 @@
             </template>
 
             <template v-for="section in mainSections.filter(s => !['summary', 'experience', 'education', 'activities'].includes(s.id))" :key="section.id">
-              <div v-show="section.isVisible" class="custom-card section-block"
+              <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
                    :style="{ order: getOrder(section.id, rightIds) }"
                    :class="{ 'section-active': selectedSectionId === section.id }"
-                   @click.stop="toggleSection(section.id)">
+                   @click.stop="toggleSection(section.id)" :data-section-id="section.id">
                 
                 <transition name="fade-btns">
                   <div v-if="selectedSectionId === section.id" class="nav-btns no-print">

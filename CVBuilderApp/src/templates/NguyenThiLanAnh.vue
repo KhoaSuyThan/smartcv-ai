@@ -74,7 +74,7 @@
         <!-- THÔNG TIN LIÊN HỆ (Dynamic) -->
         <div
           v-if="contactItems.length > 0"
-          class="section-block px-3 py-2.5 rounded-lg border border-transparent transition-all relative contact-block"
+          class="section-block px-3 py-2.5 rounded-lg border border-transparent transition-all relative contact-block cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'contact-active': selectedSectionId === 'contact' }"
           @click.stop="toggleSection('contact')"
         >
@@ -108,7 +108,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group px-3 py-2.5 rounded-lg border border-transparent transition-all"
+            :data-section-id="section.id" class="section-block relative group px-3 py-2.5 rounded-lg border border-transparent transition-all cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#901A1E' } : {}"
             @click.stop="toggleSection(section.id)"
@@ -259,7 +259,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group px-4 py-2.5 rounded-lg border border-transparent transition-all"
+            :data-section-id="section.id" class="section-block relative group px-4 py-2.5 rounded-lg border border-transparent transition-all cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#901A1E' } : {}"
             @click.stop="toggleSection(section.id)"

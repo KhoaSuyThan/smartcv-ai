@@ -51,7 +51,7 @@
           <!-- GỠ paginated-item Ở THẺ BỌC CHÍNH ĐỂ TRÁNH KÉO CẢ CỤC -->
           <div
             v-show="section.isVisible"
-            class="section-block relative"
+            :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -195,7 +195,7 @@
           <!-- GỠ paginated-item -->
           <div
             v-show="section.isVisible"
-            class="section-block relative group my-0 py-1"
+            :data-section-id="section.id" class="section-block relative group my-0 py-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >

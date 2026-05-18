@@ -24,7 +24,7 @@
       </div>
 
       <div class="middle-grid">
-        <div class="grid-col section-block" 
+        <div class="grid-col section-block cursor-pointer hover:bg-black/5 transition-colors" 
              v-if="contactItems.length > 0"
              :class="{ 'section-active': selectedSectionId === 'contact' }"
              @click.stop="toggleSection('contact')">
@@ -52,7 +52,7 @@
           </ul>
         </div>
 
-        <div class="grid-col section-block" :style="{ order: getOrder('education', gridIds) }" :class="{ 'section-active': selectedSectionId === 'education' }" @click.stop="toggleSection('education')">
+        <div class="grid-col section-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder('education', gridIds) }" :class="{ 'section-active': selectedSectionId === 'education' }" @click.stop="toggleSection('education')" data-section-id="education">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'education'" class="nav-btns no-print">
               <button class="nav-btn" @click.stop="moveUp(educationSection.id, gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
@@ -77,7 +77,7 @@
           </div>
         </div>
 
-        <div class="grid-col section-block" :style="{ order: getOrder('certifications', gridIds) }" :class="{ 'section-active': selectedSectionId === 'certifications' }" @click.stop="toggleSection('certifications')">
+        <div class="grid-col section-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder('certifications', gridIds) }" :class="{ 'section-active': selectedSectionId === 'certifications' }" @click.stop="toggleSection('certifications')" data-section-id="certifications">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'certifications'" class="nav-btns no-print">
               <button class="nav-btn" @click.stop="moveUp(certSection.id, gridIds)"><svg width="11" height="11" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
@@ -99,10 +99,10 @@
       <div class="vertical-container">
         <!-- Experience -->
         <div v-if="experienceSection && experienceSection.isVisible" 
-             class="main-section section-block span-full" 
+             class="main-section section-block span-full cursor-pointer hover:bg-black/5 transition-colors" 
              :style="{ order: getOrder(experienceSection.id, verticalIds) }" 
              :class="{ 'section-active': selectedSectionId === 'experience' }" 
-             @click.stop="toggleSection('experience')">
+             @click.stop="toggleSection('experience')" data-section-id="experience">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'experience'" class="nav-btns no-print">
               <button class="nav-btn" @click.stop="moveUp(experienceSection.id, verticalIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
@@ -126,10 +126,10 @@
 
         <!-- Project -->
         <div v-if="projectSection && projectSection.isVisible" 
-             class="main-section section-block span-full" 
+             class="main-section section-block span-full cursor-pointer hover:bg-black/5 transition-colors" 
              :style="{ order: getOrder(projectSection.id, verticalIds) }" 
              :class="{ 'section-active': selectedSectionId === 'project' }" 
-             @click.stop="toggleSection('project')">
+             @click.stop="toggleSection('project')" data-section-id="project">
           <transition name="fade-btns">
             <div v-if="selectedSectionId === 'project'" class="nav-btns no-print">
               <button class="nav-btn" @click.stop="moveUp(projectSection.id, verticalIds)"><svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
@@ -154,10 +154,10 @@
         <!-- Footer Left Area Sections -->
         <template v-for="id in ['skills', 'it_skills', 'languages', 'otherSkills', 'hobbies']" :key="id">
           <div v-if="sec(id).value?.isVisible" 
-               class="sub-section section-block col-left" 
+               class="sub-section section-block col-left cursor-pointer hover:bg-black/5 transition-colors" 
                :style="{ order: getOrder(id, verticalIds) }" 
                :class="{ 'section-active': selectedSectionId === id }" 
-               @click.stop="toggleSection(id)">
+               @click.stop="toggleSection(id)" :data-section-id="id">
             <transition name="fade-btns">
               <div v-if="selectedSectionId === id" class="nav-btns no-print">
                 <button class="nav-btn" @click.stop="moveUp(id, verticalIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
@@ -190,10 +190,10 @@
         <!-- Footer Right Area Sections -->
         <template v-for="id in ['awards', 'activities', 'references']" :key="id">
           <div v-if="sec(id).value?.isVisible" 
-               class="sub-section section-block col-right" 
+               class="sub-section section-block col-right cursor-pointer hover:bg-black/5 transition-colors" 
                :style="{ order: getOrder(id, verticalIds) }" 
                :class="{ 'section-active': selectedSectionId === id }" 
-               @click.stop="toggleSection(id)">
+               @click.stop="toggleSection(id)" :data-section-id="id">
             <transition name="fade-btns">
               <div v-if="selectedSectionId === id" class="nav-btns no-print">
                 <button class="nav-btn" @click.stop="moveUp(id, verticalIds)"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>

@@ -10,7 +10,7 @@
     <aside class="w-[75mm] z-10 flex flex-col shrink-0 relative bg-[#e5e7eb]">
       
       <!-- HEADER LEFT -->
-      <div class="pt-[20mm] px-[8mm] flex flex-col items-center paginated-item relative z-20">
+      <div data-section-id="personal" class="pt-[20mm] px-[8mm] flex flex-col items-center paginated-item relative z-20 cursor-pointer hover:bg-black/5 transition-colors">
         <h1 class="font-bold text-[22px] text-center text-[#222] leading-tight mb-1" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HOÀNG TƯỜNG VY'"></h1>
         <h2 class="font-normal text-[13.5px] text-center text-[#444] mb-6" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Content Marketing'"></h2>
 
@@ -28,7 +28,7 @@
       <!-- SIDEBAR SECTIONS -->
       <div class="w-full flex-1 pb-[20mm] flex flex-col">
         <!-- FIXED CONTACT INFO SECTION (Bản chất nó là thông tin cá nhân) -->
-        <div class="section-block relative group contact-block" style="margin-bottom: 15mm;"
+        <div data-section-id="contact" class="section-block relative group contact-block cursor-pointer hover:bg-black/5 transition-colors" style="margin-bottom: 15mm;"
              :class="{ 'contact-active': selectedSectionId === 'contact' }"
              @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'">
           <div class="paginated-item">
@@ -63,7 +63,8 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group" style="margin-bottom: 15mm;"
+            :data-section-id="section.id"
+            class="section-block relative group cursor-pointer hover:bg-black/5 transition-colors" style="margin-bottom: 15mm;"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="toggleSection(section.id)"
           >
@@ -238,7 +239,8 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group" style="margin-bottom: 15mm;"
+            :data-section-id="section.id"
+            class="section-block relative group cursor-pointer hover:bg-black/5 transition-colors" style="margin-bottom: 15mm;"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="toggleSection(section.id)"
           >

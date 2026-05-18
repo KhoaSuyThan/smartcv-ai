@@ -50,7 +50,7 @@
         <div class="left-sortable-area" style="display: flex; flex-direction: column;">
           
           <template v-for="section in sidebarSections.filter(s => s.id === 'summary')" :key="section.id">
-            <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -72,7 +72,7 @@
           </template>
 
           <template v-for="section in sidebarSections.filter(s => ['skills', 'it_skills', 'languages'].includes(s.id))" :key="section.id">
-            <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -99,7 +99,7 @@
           </template>
 
           <template v-for="section in sidebarSections.filter(s => s.id === 'hobbies')" :key="section.id">
-            <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -123,7 +123,7 @@
           </template>
 
           <template v-for="section in sidebarSections.filter(s => !['summary', 'skills', 'it_skills', 'languages', 'hobbies'].includes(s.id))" :key="section.id">
-            <div v-show="section.isVisible" class="section-block left-block" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -168,7 +168,7 @@
 
           <!-- Education -->
           <template v-for="section in mainSections.filter(s => s.id === 'education')" :key="section.id">
-            <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -198,7 +198,7 @@
 
           <!-- Experience -->
           <template v-for="section in mainSections.filter(s => s.id === 'experience')" :key="section.id">
-            <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -226,7 +226,7 @@
 
           <!-- Activities -->
           <template v-for="section in mainSections.filter(s => s.id === 'activities')" :key="section.id">
-            <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
@@ -254,7 +254,7 @@
 
           <!-- Catch-all for other right column sections -->
           <template v-for="section in mainSections.filter(s => !['education', 'experience', 'activities'].includes(s.id))" :key="section.id">
-            <div v-show="section.isVisible" class="section-block right-block" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
                   <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>

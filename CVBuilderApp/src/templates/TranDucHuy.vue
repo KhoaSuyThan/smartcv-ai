@@ -22,7 +22,7 @@
       <div class="px-[6mm] py-[8mm] flex flex-col gap-6">
         <!-- Contact Info (Dynamic) -->
         <div 
-          class="section-block relative group w-full mb-6 ml-[4mm]"
+          class="section-block relative group w-full mb-6 ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'section-selected': selectedSectionId === 'contact' }"
           :style="selectedSectionId === 'contact' ? { '--sel-color': '#b1b8c6', color: 'white' } : { color: 'white' }"
           @click.stop="toggleSection('contact')"
@@ -54,7 +54,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
             <div
                 v-show="section.isVisible"
-                class="section-block ml-[4mm]"
+                :data-section-id="section.id" class="section-block ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
                 :class="{ 'section-selected': selectedSectionId === section.id }"
                 :style="selectedSectionId === section.id ? { '--sel-color': '#b1b8c6' } : {}"
                 @mouseenter="showNav(section.id)"
@@ -155,7 +155,7 @@
             <template v-for="section in mainSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block"
+                    :data-section-id="section.id" class="section-block cursor-pointer hover:bg-black/5 transition-colors"
                     :class="{ 'section-selected': selectedSectionId === section.id }"
                     :style="selectedSectionId === section.id ? { '--sel-color': '#b1b8c6' } : {}"
                     @mouseenter="showNav(section.id)"

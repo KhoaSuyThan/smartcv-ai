@@ -60,7 +60,7 @@
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block"
+                    :data-section-id="section.id" class="section-block cursor-pointer hover:bg-black/5 transition-colors"
                     :class="{ 'section-selected': selectedSectionId === section.id }"
                     :style="selectedSectionId === section.id ? { '--sel-color': resumeData.theme.primaryColor || '#2d7fb2' } : {}"
                     @mouseenter="showNav(section.id)"
@@ -167,7 +167,7 @@
             <template v-for="section in mainSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block"
+                    :data-section-id="section.id" class="section-block cursor-pointer hover:bg-black/5 transition-colors"
                     :class="{ 'section-selected': selectedSectionId === section.id }"
                     :style="selectedSectionId === section.id ? { '--sel-color': resumeData.theme.primaryColor || '#2d7fb2' } : {}"
                     @mouseenter="showNav(section.id)"

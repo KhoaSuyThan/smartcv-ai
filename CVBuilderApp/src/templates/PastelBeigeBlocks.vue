@@ -58,11 +58,11 @@
 
     <div class="sections-container" style="display: flex; flex-direction: column;">
       
-      <div class="pastel-block section-block" 
+      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
            v-if="educationSection?.isVisible || certSection?.isVisible"
            :style="{ order: getOrder(getRepId('edu_cert'), blockRepIds) }"
            :class="{ 'section-active': selectedSectionId === 'edu_cert' }"
-           @click.stop="toggleSection('edu_cert')">
+           @click.stop="toggleSection('edu_cert')" data-section-id="edu_cert">
         
         <transition name="fade-btns">
           <div v-if="selectedSectionId === 'edu_cert'" class="nav-btns no-print">
@@ -109,11 +109,11 @@
         </div>
       </div>
 
-      <div class="pastel-block section-block" 
+      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
            v-if="projectSection?.isVisible || experienceSection?.isVisible"
            :style="{ order: getOrder(getRepId('work'), blockRepIds) }"
            :class="{ 'section-active': selectedSectionId === 'work' }"
-           @click.stop="toggleSection('work')">
+           @click.stop="toggleSection('work')" data-section-id="work">
         
         <transition name="fade-btns">
           <div v-if="selectedSectionId === 'work'" class="nav-btns no-print">
@@ -164,11 +164,11 @@
         </div>
       </div>
 
-      <div class="pastel-block section-block" 
+      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
            v-if="activitiesSection?.isVisible"
            :style="{ order: getOrder(getRepId('activities'), blockRepIds) }"
            :class="{ 'section-active': selectedSectionId === 'activities' }"
-           @click.stop="toggleSection('activities')">
+           @click.stop="toggleSection('activities')" data-section-id="activities">
         <transition name="fade-btns">
           <div v-if="selectedSectionId === 'activities'" class="nav-btns no-print">
             <button class="nav-btn" @click.stop="moveUp(getRepId('activities'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
@@ -194,11 +194,11 @@
         </div>
       </div>
 
-      <div class="pastel-block section-block" 
+      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
            v-if="skillsSection?.isVisible"
            :style="{ order: getOrder(getRepId('skills'), blockRepIds) }"
            :class="{ 'section-active': selectedSectionId === 'skills' }"
-           @click.stop="toggleSection('skills')">
+           @click.stop="toggleSection('skills')" data-section-id="skills">
            
         <transition name="fade-btns">
           <div v-if="selectedSectionId === 'skills'" class="nav-btns no-print">
@@ -222,11 +222,11 @@
         </div>
       </div>
 
-      <div class="pastel-block bottom-split section-block"
+      <div class="pastel-block bottom-split section-block cursor-pointer hover:bg-black/5 transition-colors"
            v-if="hobbiesSection?.isVisible || awardsSection?.isVisible"
            :style="{ order: getOrder(getRepId('footer'), blockRepIds) }"
            :class="{ 'section-active': selectedSectionId === 'footer' }"
-           @click.stop="toggleSection('footer')">
+           @click.stop="toggleSection('footer')" data-section-id="footer">
         
         <transition name="fade-btns">
           <div v-if="selectedSectionId === 'footer'" class="nav-btns no-print">
@@ -271,11 +271,11 @@
       </div>
 
       <template v-for="section in unmappedSections" :key="section.id">
-        <div class="pastel-block section-block"
+        <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors"
              v-if="section.isVisible"
              :style="{ order: getOrder(section.id, blockRepIds) }"
              :class="{ 'section-active': selectedSectionId === section.id }"
-             @click.stop="toggleSection(section.id)">
+             @click.stop="toggleSection(section.id)" :data-section-id="section.id">
 
           <transition name="fade-btns">
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print">

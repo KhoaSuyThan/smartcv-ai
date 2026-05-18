@@ -45,7 +45,7 @@
 
         <!-- Liên hệ (cố định) -->
         <div
-          class="section-block mb-3 relative"
+          class="section-block mb-3 relative cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'section-active--sidebar': selectedSectionId === 'contact' }"
           @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
         >
@@ -89,7 +89,7 @@
           <!-- ĐÃ GỠ BỎ paginated-item Ở ĐÂY ĐỂ TRÁNH KÉO CẢ CỤC -->
           <div
             v-show="section.isVisible"
-            class="section-block mb-3 relative"
+            :data-section-id="section.id" class="section-block mb-3 relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -228,7 +228,7 @@
           <!-- ĐÃ GỠ BỎ paginated-item Ở ĐÂY -->
           <div
             v-show="section.isVisible"
-            class="section-block mb-1"
+            :data-section-id="section.id" class="section-block mb-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active--main': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
