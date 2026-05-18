@@ -216,8 +216,8 @@
 
 
         <!-- CÁC MỤC ĐỘNG -->
-        <div v-show="activeEditorTab !== 'basic'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <div class="flex items-center justify-between mb-4 px-1">
+        <div class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div v-show="activeEditorTab !== 'basic'" class="flex items-center justify-between mb-4 px-1 mt-6">
               <h2 class="text-xs uppercase font-extrabold text-slate-800 tracking-wider">Quản lý Bố cục</h2>
               <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">DRAG & DROP</span>
           </div>
@@ -579,6 +579,7 @@
         <!-- Vùng chứa CV: Dùng flex-col items-center và margin động để thanh cuộn khớp với tỉ lệ scale -->
         <div class="flex flex-col items-center pt-8 pb-32 min-w-max">
             <div class="cv-preview-card transition-transform duration-300 origin-top shadow-2xl bg-white flex-shrink-0" 
+                 @click.capture="handlePreviewClick"
                  :style="{ 
                      transform: `scale(${previewScale})`, 
                      width: '210mm',
@@ -1207,6 +1208,28 @@ const scrollToField = (targetId) => {
             }, 2000);
         }
     });
+};
+
+const handlePreviewClick = (event) => {
+    // Không can thiệp nếu đang trong trạng thái xem xuất file
+    if (isExporting.value || showExportModal.value) return;
+
+    const target = event.target;
+    // Tìm phần tử gần nhất có nhãn data-section-id
+    const sectionEl = target.closest('[data-section-id]');
+    
+    if (sectionEl) {
+        const sectionId = sectionEl.getAttribute('data-section-id');
+        
+        // Chuyển hướng click đến đúng id của Form bên trái
+        if (sectionId === 'contact' || sectionId === 'avatar' || sectionId === 'personal') {
+            scrollToField('field-general');
+        } else if (sectionId === 'summary') {
+            scrollToField('section-summary');
+        } else {
+            scrollToField(`section-${sectionId}`);
+        }
+    }
 };
 
 const progressColorClass = computed(() => {

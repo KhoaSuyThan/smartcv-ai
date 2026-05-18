@@ -42,7 +42,7 @@
       <!-- Sidebar Dynamic Content & Contact -->
       <div class="w-full px-[8mm] flex-1 pb-8 flex flex-col mt-2 z-10 relative">
         <!-- CONTACT INFORMATION SECTION -->
-        <div v-if="contactItems.length > 0" class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1" 
+        <div v-if="contactItems.length > 0" class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1 cursor-pointer hover:bg-black/5 transition-colors" 
              :class="{ 'section-active': selectedSectionId === 'contact' }"
              @click.stop="toggleSection('contact')">
           <div class="paginated-item">
@@ -85,7 +85,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1"
+            :data-section-id="section.id" class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#5c4542' } : {}"
             @click.stop="toggleSection(section.id)"
@@ -207,7 +207,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group -mx-[8mm] -my-[1.5mm] px-[8mm] py-[1.5mm]"
+            :data-section-id="section.id" class="section-block relative group -mx-[8mm] -my-[1.5mm] px-[8mm] py-[1.5mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#5c4542' } : {}"
             @click.stop="toggleSection(section.id)"

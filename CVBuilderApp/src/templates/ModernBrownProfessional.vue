@@ -14,7 +14,7 @@
       </div>
 
       <div 
-        class="section-block mb-[20px] ml-[4mm]"
+        class="section-block mb-[20px] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
         :class="{ 'section-active--sidebar': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
         :style="{ borderTop: '1px solid #c9beae', borderBottom: '1px solid #c9beae', padding: '12px 0' }"
@@ -47,7 +47,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block relative w-full mb-[20px]"
+            :data-section-id="section.id" class="section-block relative w-full mb-[20px] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
             @click.stop="toggleSection(section.id)"
           >
@@ -149,7 +149,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block relative w-full mb-[20px]"
+            :data-section-id="section.id" class="section-block relative w-full mb-[20px] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active--main': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >

@@ -29,7 +29,7 @@
         </div>
 
         <!-- LIÊN LẠC SECTION -->
-        <div v-if="contactItems.length > 0" class="section-block relative group contact-block" :class="{ 'contact-active': selectedSectionId === 'contact' }" @click.stop="toggleSection('contact')">
+        <div v-if="contactItems.length > 0" class="section-block relative group contact-block cursor-pointer hover:bg-black/5 transition-colors" :class="{ 'contact-active': selectedSectionId === 'contact' }" @click.stop="toggleSection('contact')">
           <div class="paginated-item">
             <h3 class="font-bold uppercase tracking-[0.15em] text-[#2F2926] mb-2" style="font-size: 18px !important;">
               LIÊN LẠC
@@ -60,7 +60,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group"
+            :data-section-id="section.id" class="section-block relative group cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#2F2926' } : {}"
             @click.stop="toggleSection(section.id)"
@@ -167,7 +167,7 @@
       <!-- CONTENT SECTIONS (SUMMARY, KINH NGHIỆM, HỌC VẤN) -->
       <div class="px-[12mm] pb-[12mm] flex-1 flex flex-col gap-[3mm]">
         <!-- SUMMARY / GIỚI THIỆU BẢN THÂN -->
-        <div class="section-block relative group py-1" v-if="!isEmpty(resumeData.general.summary)" :class="{ 'section-active': selectedSectionId === 'summary' }" @click.stop="toggleSection('summary')">
+        <div class="section-block relative group py-1 cursor-pointer hover:bg-black/5 transition-colors" v-if="!isEmpty(resumeData.general.summary)" :class="{ 'section-active': selectedSectionId === 'summary' }" @click.stop="toggleSection('summary')">
           <div class="paginated-item leading-[1.8] text-[#4A433F] text-justify text-[11.5px] font-medium html-content" v-html="formatDesc(resumeData.general.summary)"></div>
         </div>
 
@@ -175,7 +175,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group py-1"
+            :data-section-id="section.id" class="section-block relative group py-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#2F2926' } : {}"
             @click.stop="toggleSection(section.id)"

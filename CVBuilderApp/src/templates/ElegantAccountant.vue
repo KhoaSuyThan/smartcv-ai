@@ -45,7 +45,7 @@
           </div>
 
           <div 
-            class="section-block flex flex-col gap-[8px] text-[#333] relative" 
+            class="section-block flex flex-col gap-[8px] text-[#333] relative cursor-pointer hover:bg-black/5 transition-colors" 
             :class="{ 'section-selected': selectedSectionId === 'contact' }"
             :style="selectedSectionId === 'contact' ? { '--sel-color': templatePrimaryColor, borderColor: templatePrimaryColor, fontSize: '14px' } : { fontSize: '14px' }"
             @click.stop="toggleSection('contact')"
@@ -106,7 +106,7 @@
         <template v-for="section in allVisibleSections" :key="section.id">
           <!-- Đã xóa nhãn paginated-item ở lớp bọc ngoài cùng -->
           <div
-            class="section-block relative w-full mb-[30px]"
+            class="section-block relative w-full mb-[30px] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-selected': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id
               ? { '--sel-color': templatePrimaryColor, borderColor: templatePrimaryColor }

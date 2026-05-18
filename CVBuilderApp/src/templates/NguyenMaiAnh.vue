@@ -88,9 +88,9 @@
       </header>
 
       <template v-for="section in (resumeData.sections || []).filter(s => s.id === 'summary')" :key="section.id">
-        <div v-show="section.isVisible" class="custom-card section-block mb-6"
+        <div v-show="section.isVisible" class="custom-card section-block mb-6 cursor-pointer hover:bg-black/5 transition-colors"
              :class="{ 'section-active': selectedSectionId === section.id }"
-             @click.stop="toggleSection(section.id)">
+             @click.stop="toggleSection(section.id)" :data-section-id="section.id">
           
           <transition name="fade-btns">
             <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
@@ -114,10 +114,10 @@
         
         <aside class="left-column">
           <template v-for="section in sidebarSections" :key="section.id">
-            <div v-show="section.isVisible" class="custom-card section-block"
+            <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
                  :style="{ order: getOrder(section.id, leftIds) }"
                  :class="{ 'section-active': selectedSectionId === section.id }"
-                 @click.stop="toggleSection(section.id)">
+                 @click.stop="toggleSection(section.id)" :data-section-id="section.id">
               
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
@@ -200,10 +200,10 @@
 
         <main class="right-column">
           <template v-for="section in mainSections" :key="section.id">
-            <div v-show="section.isVisible" class="custom-card section-block"
+            <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
                  :style="{ order: getOrder(section.id, rightIds) }"
                  :class="{ 'section-active': selectedSectionId === section.id }"
-                 @click.stop="toggleSection(section.id)">
+                 @click.stop="toggleSection(section.id)" :data-section-id="section.id">
               
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print">

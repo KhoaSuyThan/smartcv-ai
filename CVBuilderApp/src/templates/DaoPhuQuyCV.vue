@@ -83,7 +83,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block relative w-full mb-[5px]"
+            :data-section-id="section.id" class="section-block relative w-full mb-[5px] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -189,7 +189,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-show="section.isVisible"
-            class="section-block relative w-full mb-[20px]"
+            :data-section-id="section.id" class="section-block relative w-full mb-[20px] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active--main': selectedSectionId === section.id }"
             :style="{ paddingLeft: '35px', paddingRight: '10px' }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"

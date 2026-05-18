@@ -48,7 +48,7 @@
 
       <!-- THÔNG TIN CÁ NHÂN (cố định) -->
       <div
-        class="section-block"
+        class="section-block cursor-pointer hover:bg-black/5 transition-colors"
         style="padding: 4mm 8mm;"
         :class="{ 'section-active--sidebar': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
@@ -88,7 +88,7 @@
       <template v-for="section in sidebarSections" :key="section.id">
         <div
           v-show="section.isVisible"
-          class="section-block section-block-sidebar"
+          :data-section-id="section.id" class="section-block section-block-sidebar cursor-pointer hover:bg-black/5 transition-colors"
           style="padding: 4mm 8mm;"
           :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
           @click.stop="toggleSection(section.id)"
@@ -202,7 +202,7 @@
       <template v-for="section in mainSections" :key="section.id">
         <div
           v-show="section.isVisible"
-          class="section-block section-block-main"
+          :data-section-id="section.id" class="section-block section-block-main cursor-pointer hover:bg-black/5 transition-colors"
           style="padding: 4mm 4mm 3.5mm 4mm; margin-bottom: 1px;"
           :class="{ 'section-active--main': selectedSectionId === section.id }"
           @click.stop="toggleSection(section.id)"

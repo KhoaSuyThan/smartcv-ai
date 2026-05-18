@@ -59,7 +59,7 @@
 
         <!-- Tóm tắt/Mục tiêu nghề nghiệp -->
         <div 
-          class="section-block p-1 rounded-md"
+          class="section-block p-1 rounded-md cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'section-active': selectedSectionId === 'summary' }"
           @click.stop="toggleSection('summary')"
         >
@@ -79,7 +79,7 @@
       <aside class="w-[75mm] shrink-0 flex flex-col gap-8 pr-[6mm] relative" @click.self="selectedSectionId = null">
         
         <!-- THÔNG TIN CÁ NHÂN (Dynamic block) -->
-        <div v-if="contactItems.length > 0" class="section-block px-1 py-1 rounded-md transition-all relative contact-block"
+        <div v-if="contactItems.length > 0" class="section-block px-1 py-1 rounded-md transition-all relative contact-block cursor-pointer hover:bg-black/5 transition-colors"
              :class="{ 'contact-active': selectedSectionId === 'contact' }"
              @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'">
           <h3 class="font-bold uppercase text-[#1e293b] tracking-wider mb-2 pb-1 border-b-[2px] border-[#b36b2b]" style="font-size: 16px !important;">
@@ -112,7 +112,7 @@
         <template v-for="section in sidebarSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group px-1 py-1 rounded-md transition-all"
+            :data-section-id="section.id" class="section-block relative group px-1 py-1 rounded-md transition-all cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#b36b2b' } : {}"
             @click.stop="toggleSection(section.id)"
@@ -196,7 +196,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group px-1 py-1 rounded-md transition-all"
+            :data-section-id="section.id" class="section-block relative group px-1 py-1 rounded-md transition-all cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#b36b2b' } : {}"
             @click.stop="toggleSection(section.id)"

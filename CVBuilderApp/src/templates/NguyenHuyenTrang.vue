@@ -26,7 +26,7 @@
                 <!-- ĐÃ XÓA paginated-item Ở THẺ BỌC -->
                 <!-- THÔNG TIN CÁ NHÂN -->
                 <div 
-                    class="section-block section-block-sidebar py-[4mm] px-[8mm] ml-[4mm]"
+                    class="section-block section-block-sidebar py-[4mm] px-[8mm] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
                     :class="{ 'section-active--sidebar': selectedSectionId === 'contact' }"
                     @click.stop="toggleSection('contact')"
                 >
@@ -62,7 +62,7 @@
             <template v-for="section in sidebarSections" :key="section.id">
                 <div
                     v-show="section.isVisible"
-                    class="section-block section-block-sidebar py-[4mm] px-[8mm] mb-1 ml-[4mm]"
+                    :data-section-id="section.id" class="section-block section-block-sidebar py-[4mm] px-[8mm] mb-1 ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
                     :class="{ 'section-active--sidebar': selectedSectionId === section.id }"
                     @click.stop="toggleSection(section.id)"
                 >
@@ -144,7 +144,7 @@
         <template v-for="section in mainSections" :key="section.id">
             <div
                 v-show="section.isVisible"
-                class="section-block section-block-main"
+                :data-section-id="section.id" class="section-block section-block-main cursor-pointer hover:bg-black/5 transition-colors"
                 :class="{ 'section-active--main': selectedSectionId === section.id }"
                 :style="[
                     (section.id.toLowerCase().includes('summary') || section.id.toLowerCase().includes('objective')) ? { marginTop: '10mm !important' } : {}

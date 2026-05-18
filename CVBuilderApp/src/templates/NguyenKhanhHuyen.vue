@@ -67,7 +67,7 @@
           <template v-for="section in sidebarSections" :key="section.id">
             <div
               v-if="section.isVisible"
-              class="section-block relative w-full -mx-[6mm] px-[6mm] py-[3mm]"
+              :data-section-id="section.id" class="section-block relative w-full -mx-[6mm] px-[6mm] py-[3mm] cursor-pointer hover:bg-black/5 transition-colors"
               :class="{ 'section-active': selectedSectionId === section.id }"
               :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
               @click.stop="toggleSection(section.id)"
@@ -153,7 +153,7 @@
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            class="section-block relative group my-0 py-1"
+            :data-section-id="section.id" class="section-block relative group my-0 py-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"
