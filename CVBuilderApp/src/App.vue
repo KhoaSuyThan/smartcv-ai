@@ -106,11 +106,30 @@
         </div>
       </div>
 
+      <!-- TABS NAVIGATION CHO EDITOR -->
+      <div class="flex items-center p-2 bg-slate-100/80 rounded-xl mx-6 mt-4 shadow-inner gap-1 shrink-0 border border-slate-200/60 backdrop-blur-sm">
+          <button @click="activeEditorTab = 'basic'" :class="activeEditorTab === 'basic' ? 'bg-white text-blue-600 shadow-[0_2px_10px_rgba(37,99,235,0.1)] font-bold ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all relative">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              Cá nhân
+              <span v-if="basicTipsCount > 0" class="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.6)]"></span>
+          </button>
+          <button @click="activeEditorTab = 'main'" :class="activeEditorTab === 'main' ? 'bg-white text-blue-600 shadow-[0_2px_10px_rgba(37,99,235,0.1)] font-bold ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all relative">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+              Nội dung chính
+              <span v-if="mainTipsCount > 0" class="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.6)]"></span>
+          </button>
+          <button @click="activeEditorTab = 'skills'" :class="activeEditorTab === 'skills' ? 'bg-white text-blue-600 shadow-[0_2px_10px_rgba(37,99,235,0.1)] font-bold ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'" class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all relative">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              Kỹ năng & Khác
+              <span v-if="skillsTipsCount > 0" class="absolute top-1.5 right-2 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_5px_rgba(239,68,68,0.6)]"></span>
+          </button>
+      </div>
+
       <!-- FORMS -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth custom-scrollbar bg-slate-50">
+      <div class="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth custom-scrollbar bg-slate-50 relative">
         
         <!-- THÔNG TIN CHUNG -->
-        <div id="field-general" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative">
+        <div id="field-general" v-show="activeEditorTab === 'basic'" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
           
           <h2 class="text-xs uppercase font-bold text-slate-800 mb-4 tracking-wider flex items-center gap-2">Thông tin Cá nhân</h2>
@@ -197,7 +216,7 @@
 
 
         <!-- CÁC MỤC ĐỘNG -->
-        <div>
+        <div v-show="activeEditorTab !== 'basic'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div class="flex items-center justify-between mb-4 px-1">
               <h2 class="text-xs uppercase font-extrabold text-slate-800 tracking-wider">Quản lý Bố cục</h2>
               <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">DRAG & DROP</span>
@@ -212,7 +231,7 @@
             animation="300"
           >
             <template #item="{ element: section, index: sectionIndex }">
-              <div :id="'section-' + section.id" class="bg-white border text-sm border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col relative overflow-hidden group focus-within:ring-2 ring-blue-100" :class="!section.isVisible ? 'opacity-60 bg-slate-50' : ''">
+              <div v-show="isSectionInActiveTab(section.id)" :id="'section-' + section.id" class="bg-white border text-sm border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col relative overflow-hidden group focus-within:ring-2 ring-blue-100 mb-4" :class="!section.isVisible ? 'opacity-60 bg-slate-50' : ''">
                 
                 <!-- Section Header -->
                 <div class="flex items-center justify-between p-3.5 border-b border-slate-100 bg-slate-50/50">
@@ -922,7 +941,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, shallowRef, defineAsyncComponent, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, shallowRef, defineAsyncComponent, computed, nextTick } from 'vue'
 import draggable from 'vuedraggable'
 import RichTextEditor from './components/RichTextEditor.vue'
 import { toJpeg } from 'html-to-image'
@@ -1143,27 +1162,51 @@ const completionTips = computed(() => {
 
 const pendingTipsCount = computed(() => completionTips.value.filter(t => !t.isDone).length);
 
+// State điều khiển Tabs
+const activeEditorTab = ref('basic'); // 'basic', 'main', 'skills'
+const basicTipsCount = computed(() => completionTips.value.filter(t => !t.isDone && ['avatar', 'fullName', 'jobTitle', 'contact', 'summary'].includes(t.id)).length);
+const mainTipsCount = computed(() => completionTips.value.filter(t => !t.isDone && ['experience', 'education', 'project'].includes(t.id)).length);
+const skillsTipsCount = computed(() => completionTips.value.filter(t => !t.isDone && t.id === 'skills').length);
+
+const isSectionInActiveTab = (sectionId) => {
+    if (sectionId === 'summary') return activeEditorTab.value === 'basic';
+    if (['experience', 'education', 'project', 'activities'].includes(sectionId)) return activeEditorTab.value === 'main';
+    return activeEditorTab.value === 'skills';
+};
+
 const scrollToField = (targetId) => {
-    const el = document.getElementById(targetId);
-    if (el) {
-        // Tìm container cuộn (là div có class overflow-y-auto bên trong editor panel)
-        const container = el.closest('.overflow-y-auto');
-        if (container) {
-            const topPos = el.offsetTop;
-            container.scrollTo({
-                top: topPos - 100, // Cuộn đến vị trí cách top 100px để không bị sát mép
-                behavior: 'smooth'
-            });
-        } else {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        
-        // Hiệu ứng Highlight tạm thời
-        el.classList.add('ring-4', 'ring-blue-500/20', 'border-blue-400', 'bg-blue-50/50');
-        setTimeout(() => {
-            el.classList.remove('ring-4', 'ring-blue-500/20', 'border-blue-400', 'bg-blue-50/50');
-        }, 2000);
+    // Tự động chuyển Tab trước khi scroll
+    if (targetId.startsWith('field-') || targetId === 'section-summary') {
+        activeEditorTab.value = 'basic';
+    } else if (['section-experience', 'section-education', 'section-project'].includes(targetId)) {
+        activeEditorTab.value = 'main';
+    } else {
+        activeEditorTab.value = 'skills';
     }
+
+    // Đợi Vue render DOM của Tab mới rồi mới cuộn
+    nextTick(() => {
+        const el = document.getElementById(targetId);
+        if (el) {
+            // Tìm container cuộn (là div có class overflow-y-auto bên trong editor panel)
+            const container = el.closest('.overflow-y-auto');
+            if (container) {
+                const topPos = el.offsetTop;
+                container.scrollTo({
+                    top: topPos - 100, // Cuộn đến vị trí cách top 100px để không bị sát mép
+                    behavior: 'smooth'
+                });
+            } else {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            // Hiệu ứng Highlight tạm thời
+            el.classList.add('ring-4', 'ring-blue-500/20', 'border-blue-400', 'bg-blue-50/50');
+            setTimeout(() => {
+                el.classList.remove('ring-4', 'ring-blue-500/20', 'border-blue-400', 'bg-blue-50/50');
+            }, 2000);
+        }
+    });
 };
 
 const progressColorClass = computed(() => {

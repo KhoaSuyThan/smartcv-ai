@@ -1,0 +1,146 @@
+CHƯƠNG 1. TỔNG QUAN VÀ CƠ SỞ LÝ THUYẾT
+
+1.1. Tổng quan về mô hình tuyển dụng trực tuyến và thị trường CV trực tuyến
+
+1.1.1. Định nghĩa và đặc điểm chung của mô hình tạo lập CV và tuyển dụng trực tuyến
+
+Mô hình tạo lập CV trực tuyến (Online CV Builder) kết hợp cổng tuyển dụng nhân sự là một xu hướng kinh tế hiện đại trong chuyển đổi số. Với mô hình này, người lao động cá nhân sẽ tham gia thiết kế, lưu trữ và xuất bản hồ sơ năng lực (CV) của mình thông qua nền tảng web hoặc ứng dụng di động một cách nhanh chóng. Đồng thời, nhà tuyển dụng có thể dễ dàng tiếp cận, sàng lọc hồ sơ và kết nối trực tiếp với ứng viên trên cùng một không gian số. Mô hình này sở hữu các điểm mạnh cốt lõi như:
+
+- Sự linh hoạt và trực quan: Người dùng dễ dàng tùy biến thông tin cá nhân, cập nhật kỹ năng chuyên môn thời gian thực, lưu trữ trên nền tảng đám mây và chia sẻ trực tiếp với doanh nghiệp bằng đường dẫn liên kết công khai (Public Slug).
+
+- Kết nối hiệu quả dựa trên nền tảng công nghệ số: Hệ thống đóng vai trò làm cầu nối trung gian tối ưu hóa dòng chảy thông tin giữa ứng viên và nhà tuyển dụng, giảm thiểu các khâu trung gian, rút ngắn thời gian và tối ưu hóa chi phí tuyển dụng cho doanh nghiệp.
+
+- Khả năng mở rộng dịch vụ gia tăng: Nền tảng hỗ trợ tích hợp cổng thanh toán trực tuyến MoMo để người dùng nâng cấp lên các gói tài khoản cao cấp VIP (sử dụng thêm nhiều mẫu CV chuyên nghiệp, tính năng AI) và nhà tuyển dụng mua các gói tin đăng tuyển nổi bật.
+
+- Hỗ trợ công nghệ thông minh: Ứng dụng trí tuệ nhân tạo (AI Gemini) và công nghệ tìm kiếm ngữ nghĩa (RAG Vector Search) để tự động hóa việc sàng lọc, tính điểm tương đồng kỹ năng (Match Score) giữa CV ứng viên và mô tả công việc, nâng cao độ chính xác trong tuyển dụng.
+
+1.1.2. Cách thức vận hành của hệ thống tạo lập CV và tuyển dụng trực tuyến
+
+Hệ thống vận hành dựa trên sự kết hợp hài hòa giữa công nghệ web hiện đại và nhu cầu thực tiễn của thị trường lao động (ứng viên, nhà tuyển dụng). Quy trình cơ bản bao gồm các bước sau:
+
+- Đăng ký và Thiết lập tài khoản: Người dùng đăng ký tài khoản nhanh chóng thông qua xác thực liên kết (Google, Facebook, GitHub, LinkedIn) hoặc tài khoản hệ thống truyền thống. Người dùng chọn vai trò là Ứng viên hoặc Nhà tuyển dụng.
+
+- Kiến tạo và Xuất bản hồ sơ (Phía Ứng viên): Ứng viên sử dụng trình biên soạn CV trực tuyến tương tác cao (CVBuilderApp) để nhập thông tin, kỹ năng, kinh nghiệm, chọn mẫu thiết kế phù hợp và xuất bản công khai CV kèm đường dẫn tĩnh (Slug).
+
+- Đăng tin tuyển dụng và Tiếp nhận hồ sơ (Phía Nhà tuyển dụng): Nhà tuyển dụng tạo và đăng tải các tin tuyển dụng chi tiết lên hệ thống. Ứng viên tìm kiếm công việc và nộp trực tiếp CV đã tạo trên hệ thống vào tin tuyển dụng.
+
+- Sàng lọc và Kết nối thông minh: Nhà tuyển dụng quản lý danh sách ứng viên ứng tuyển, lưu trữ hồ sơ tiềm năng (SavedCandidates), thay đổi trạng thái quy trình phỏng vấn của ứng viên. Hệ thống tự động kích hoạt Gemini AI để chấm điểm độ tương thích và gợi ý kỹ năng; đồng thời sử dụng RAG Vector Search để gợi ý nhanh các ứng viên tiềm năng phù hợp nhất dựa trên từ khóa ngữ nghĩa.
+
+1.1.3. Ứng dụng thực tế của mô hình tạo lập CV và cổng tuyển dụng trực tuyến tại Việt Nam
+
+Tại Việt Nam, với cơ cấu dân số trẻ và tỷ lệ phổ cập internet cao, các nền tảng tạo lập CV trực tuyến và kết nối tuyển dụng đang phát triển vô cùng mạnh mẽ trong vòng 5 năm qua. Các nền tảng tiêu biểu bao gồm:
+
+- Lĩnh vực tạo dựng CV và tuyển dụng tích hợp: Các hệ thống như TopCV, VietnamWorks, hay CareerBuilder là những ví dụ điển hình. Các nền tảng này không chỉ cung cấp công cụ tạo CV trực quan mà còn tích hợp các phân hệ đăng tuyển dụng và quản lý hồ sơ ứng viên lớn.
+
+- Sự bùng nổ của các giải pháp thiết kế kéo thả: Nền tảng Canva cung cấp hàng ngàn mẫu hồ sơ chuyên nghiệp nhưng đang gặp hạn chế do định dạng tĩnh (PDF/Ảnh) không hỗ trợ dữ liệu động cấu trúc hóa cho hệ thống quản lý nhân sự đọc hiểu trực tiếp.
+
+- Xu hướng ứng dụng AI trong tuyển dụng tại Việt Nam: Việc ứng dụng AI để tối ưu hóa hồ sơ và lọc ứng viên bắt đầu được triển khai ở một số doanh nghiệp lớn, tuy nhiên các giải pháp mức độ vừa và nhỏ còn khá hạn chế về chi phí vận hành và rào cản kỹ thuật.
+
+1.1.4. Kết luận
+
+Mô hình website quản lý, tạo lập CV trực tuyến và hỗ trợ tuyển dụng đang đóng vai trò thiết yếu giúp kết nối cung - cầu lao động hiệu quả trong nền kinh tế số. Để phát triển bền vững tại thị trường Việt Nam, hệ thống cần đáp ứng trải nghiệm sử dụng trực quan, thanh toán nhanh chóng, an toàn bảo mật thông tin và tích hợp các công nghệ thông minh hỗ trợ sàng lọc tự động nhằm gia tăng giá trị cho cả ứng viên và nhà tuyển dụng.
+
+1.2. Khảo sát hiện trạng
+
+1.2.1. Khảo sát thực tế
+
+Xu hướng ứng tuyển và tuyển dụng trực tuyến đang bùng nổ mạnh mẽ. Nhu cầu sở hữu một CV chuyên nghiệp và theo dõi lượt tiếp cận của nhà tuyển dụng của các ứng viên trẻ là rất lớn. Tuy nhiên, hiện nay nhiều ứng viên vẫn gặp khó khăn trong việc tự thiết kế một CV có bố cục khoa học, hoặc gặp trở ngại khi chia sẻ CV động tới nhà tuyển dụng qua liên kết cá nhân bảo mật.
+
+Bên cạnh đó, các nhà tuyển dụng tại nhiều doanh nghiệp vẫn quản lý hồ sơ ứng viên một cách thủ công, lưu trữ rời rạc qua thư mục cục bộ hoặc email cá nhân, dẫn đến nguy cơ mất mát thông tin và tốn thời gian lọc thủ công. Từ thực trạng này, chúng tôi đã khảo sát nhu cầu người dùng và đề xuất giải pháp xây dựng hệ thống website với các phân hệ tính năng chính như sau:
+
+- Phân hệ Quản lý và Thiết kế CV trực tuyến: Bao gồm công cụ biên soạn CV động tương tác cao, tạo mẫu định dạng kéo thả, lưu trữ trực tuyến, xuất bản đường dẫn công khai (Public Slug), thống kê lượt xem CV (View Count), tải xuống tệp PDF, nâng cấp tài khoản VIP thông qua cổng MoMo.
+
+- Phân hệ Quản lý Tin đăng và Tuyển dụng: Hỗ trợ nhà tuyển dụng tạo tin đăng việc làm, quản lý thông tin hồ sơ ứng tuyển của ứng viên, lưu trữ danh mục ứng viên tiềm năng (SavedCandidates), cập nhật trạng thái phỏng vấn của ứng viên.
+
+- Phân hệ Trải nghiệm người dùng và Quản lý hệ thống: Cho phép đăng nhập nhanh qua Google, Facebook, GitHub, LinkedIn; trang bị cơ chế bảo mật Cookie và Session trong ASP.NET Core để phân quyền người dùng (Admin, Recruiter, Candidate); xây dựng bảng điều khiển quản trị viên theo dõi hoạt động và cấu hình động các thông số của mô hình Gemini AI.
+
+1.2.2. Đánh giá hiện trạng
+
+Để xây dựng một website tạo CV và quản lý tuyển dụng một cách hiệu quả, hệ thống cần lưu trữ và theo dõi chặt chẽ mọi dữ liệu tương tác giữa ứng viên và nhà tuyển dụng. Hiện nay, nhiều tương tác tuyển dụng tự phát vẫn diễn ra không có hệ thống quản lý trung tâm, dẫn đến việc bảo mật thông tin ứng viên kém, quy trình lọc hồ sơ chậm chạp và không nhất quán.
+
+Do đó, việc thiết lập quy trình dữ liệu lưu trữ khoa học là cực kỳ cần thiết. Hệ thống của chúng tôi ghi nhận các luồng thông tin cụ thể:
+
+- Luồng thông tin CV ứng viên: 
++ Tên ứng viên và thông tin liên hệ.
++ Học vấn, kinh nghiệm làm việc, kỹ năng, các dự án thực tế.
++ Đường dẫn liên kết công khai (Slug), lượt xem (View Count), trạng thái hiển thị (IsPublic), tệp tải lên (FileUploadUrl).
+
+- Luồng thông tin đăng tuyển và ứng tuyển:
++ Thông tin chi tiết tin tuyển dụng (Tiêu đề, mô tả công việc, kỹ năng yêu cầu, mức lương).
++ Thông tin đơn ứng tuyển (Ngày ứng tuyển, tài liệu đính kèm, trạng thái duyệt hồ sơ).
++ Bảng kết quả so khớp AI (CVMatchResults) bao gồm: Điểm tương đồng kỹ năng (MatchScore), danh sách kỹ năng khớp (MatchedSkills), kỹ năng thiếu (MissingSkills), các điểm mạnh (Strengths) và gợi ý cải thiện (Suggestions).
++ Bảng cơ sở dữ liệu nhúng (CVEmbeddings) bao gồm VectorJson phục vụ tìm kiếm ngữ nghĩa RAG.
+
+1.3. Nhiệm vụ thực hiện của đồ án
+
+1.3.1. Khám phá và phân tích nhu cầu
+
+Chúng tôi tiến hành nghiên cứu sâu sắc quy trình nghiệp vụ tạo CV và hoạt động tuyển dụng nhân sự trong thực tế doanh nghiệp; thu thập ý kiến đóng góp từ ứng viên và nhà tuyển dụng để xác định chính xác các tính năng cần thiết phục vụ quản lý CV động, hỗ trợ thanh toán trực tuyến, quản lý tuyển dụng và chấm điểm hồ sơ tự động bằng công nghệ AI.
+
+1.3.2. Thiết kế hệ thống
+
+Lên kế hoạch tổng thể kiến trúc phần mềm, thiết kế sơ đồ ca sử dụng (Use Case), sơ đồ lớp thực thể (Class Diagram), sơ đồ tuần tự (Sequence Diagram) bằng ngôn ngữ UML thể hiện luồng xử lý gửi phân tích dữ liệu qua Gemini API và quy trình tìm kiếm ứng viên tương đồng qua RAG Vector Search; thiết kế giao diện người dùng responsive đảm bảo độ hoàn thiện thẩm mỹ cao và thân thiện.
+
+1.3.3. Xây dựng cơ sở dữ liệu
+
+Thiết kế sơ đồ thực thể liên kết (ERD) và thiết lập cơ sở dữ liệu quan hệ SQL Server tối ưu. Thiết kế các bảng đáp ứng nhu cầu lưu trữ dữ liệu tài khoản, CV, tin đăng, kết quả chấm điểm AI (CVMatchResults), dữ liệu nhúng (CVEmbeddings), đảm bảo hệ thống truy xuất dữ liệu an toàn, chính xác và có khả năng mở rộng.
+
+1.3.4. Phát triển và triển khai hệ thống
+
+Thực hiện lập trình các tính năng website theo thiết kế kiến trúc Backend (ASP.NET Core Web API) và Frontend (Vue.js); tích hợp đăng nhập OAuth2, thanh toán MoMo, kết nối Gemini AI. Kiểm thử chi tiết các chức năng, sửa lỗi tối ưu hiệu năng; xây dựng tài liệu hướng dẫn nghiệp vụ cụ thể cho quản trị viên; đóng gói và ảo hóa toàn bộ hệ thống bằng Docker Compose để triển khai an toàn trên môi trường máy chủ đám mây với HTTPS/SSL.
+
+1.4. Đối tượng và khách thể nghiên cứu
+
+- Người dùng hệ thống: Là ứng viên có nhu cầu tạo lập CV và tìm kiếm việc làm; nhà tuyển dụng cần tuyển nhân sự; quản trị viên chịu trách nhiệm cấu hình và vận hành website.
+
+- Giao diện và trải nghiệm người dùng: Tập trung vào thiết kế công cụ tạo lập CV động trực quan (CVBuilderApp) đảm bảo sự tiện lợi, chuyên nghiệp và giao diện quản lý tin đăng khoa học dành cho doanh nghiệp.
+
+- Hệ thống quản lý và cơ sở dữ liệu: Hệ thống dữ liệu đồng bộ quản lý thông tin CV, kết quả chấm điểm AI, thanh toán nâng cấp tài khoản và danh sách ứng viên tiềm năng.
+
+- Quy trình nghiệp vụ: Quy trình khép kín từ đăng ký tài khoản liên kết, tạo CV, nâng cấp tài khoản qua MoMo, đăng tuyển dụng, ứng tuyển, cho đến quét hồ sơ và tính điểm tương đồng AI tự động.
+
+1.5. Phương pháp và phạm vi đồ án
+
+1.5.1. Phương pháp nghiên cứu
+
+- Phương pháp nghiên cứu thực tiễn: Khảo sát thực tế nhu cầu người dùng và cách vận hành của các cổng tuyển dụng phổ biến tại Việt Nam để định hình các tính năng thiết yếu cho dự án.
+
+- Phương pháp phân tích và mô hình hóa: Áp dụng ngôn ngữ UML để thiết kế kiến trúc luồng dữ liệu của hệ thống web và cơ chế tương tác bất đồng bộ của ứng dụng.
+
+- Phương pháp thực nghiệm phần mềm: Tiến hành lập trình xây dựng sản phẩm thực tế, tích hợp công nghệ AI/RAG và cổng thanh toán, liên tục chạy thử nghiệm để tinh chỉnh sửa lỗi hệ thống.
+
+1.5.2. Phạm vi đồ án
+
+Đồ án tập trung xây dựng giải pháp website quản lý, tạo lập CV trực tuyến và hỗ trợ tuyển dụng trực tuyến cơ bản. Hệ thống ưu tiên giải quyết nghiệp vụ thiết kế hồ sơ, quản lý tin đăng tuyển, ứng tuyển, quản lý ứng viên của nhà tuyển dụng, tính năng AI hỗ trợ tối ưu CV và chấm điểm tự động. Hệ thống không đi sâu vào các chức năng quảng cáo dịch vụ bên ngoài hay các nghiệp vụ tài chính, kế toán doanh nghiệp phức tạp.
+
+Hệ thống được thiết kế hướng tới hoạt động hiệu quả trên nền tảng Web thông thường, tối ưu giao diện hiển thị cho các thiết bị máy tính và di động qua trình duyệt web phổ biến, không phát triển thành ứng dụng di động (Mobile App) riêng biệt.
+
+1.6. Giới thiệu ngôn ngữ, framework, thư viện, nền tảng
+
+1.6.1. Ngôn ngữ lập trình C# và nền tảng .NET
+
+C# là một ngôn ngữ lập trình hướng đối tượng mạnh mẽ, an toàn kiểu dữ liệu, được Microsoft giới thiệu cùng với nền tảng .NET. C# kế thừa những ưu điểm của C++ và Java, đồng thời liên tục được cập nhật các cú pháp hiện đại để phục vụ xây dựng các hệ thống phần mềm doanh nghiệp hiệu năng cao, bảo mật chặt chẽ và khả năng mở rộng tuyệt vời. Nền tảng .NET cung cấp thư viện lớp phong phú và môi trường thực thi (CLR) hiệu suất cực cao giúp tối ưu hóa tài nguyên máy chủ.
+
+1.6.2. Kiến trúc ASP.NET Core MVC và RESTful Web API
+
+ASP.NET Core là một web framework mã nguồn mở, đa nền tảng, có hiệu năng vượt trội do Microsoft phát triển. Hệ thống ứng dụng kiến trúc MVC (Model-View-Controller) giúp tách biệt rõ ràng mã nguồn giao diện và xử lý nghiệp vụ. Đồng thời, phân hệ RESTful Web API đóng vai trò xử lý các yêu cầu HTTP từ client một cách bất đồng bộ, trao đổi dữ liệu dạng JSON nhanh chóng, làm nền tảng kết nối mượt mà với ứng dụng Client.
+
+1.6.3. Công nghệ Frontend Vue.js và các thư viện hỗ trợ
+
+Vue.js là một framework JavaScript mã nguồn mở tiến trình (progressive framework) dùng để xây dựng giao diện người dùng. Hoạt động trên cơ chế Virtual DOM giúp tối ưu hóa hiệu năng render giao diện, Vue.js cho phép xây dựng trình tạo CV động CVBuilderApp với trải nghiệm tương tác kéo thả mượt mà, quản lý trạng thái dữ liệu hai chiều (Two-way Data Binding) tức thì, giúp ứng viên thay đổi nội dung CV và nhìn thấy kết quả trực quan ngay lập tức.
+
+1.6.4. Hệ quản trị cơ sở dữ liệu SQL Server và Entity Framework Core
+
+Hệ quản trị cơ sở dữ liệu quan hệ Microsoft SQL Server cung cấp khả năng lưu trữ dữ liệu an toàn, xử lý các truy vấn phức tạp hiệu quả và độ tin cậy cực cao. Entity Framework Core (EF Core) hoạt động như một bộ ánh xạ đối tượng quan hệ (ORM) hiện đại, giúp nhà phát triển dễ dàng tương tác với SQL Server thông qua các lớp thực thể trong ngôn ngữ C# mà không cần viết mã SQL thuần thục thủ công, rút ngắn thời gian phát triển và hạn chế tối đa các lỗ hổng SQL Injection.
+
+1.6.5. Cổng thanh toán trực tuyến MoMo API
+
+MoMo là ví điện tử hàng đầu tại Việt Nam cung cấp giải pháp thanh toán điện tử an toàn, tiện lợi. Tích hợp MoMo API giúp hệ thống tự động sinh mã QR thanh toán động cho từng giao dịch nâng cấp tài khoản VIP của ứng viên hoặc dịch vụ tin tuyển dụng của nhà tuyển dụng. Hệ thống xử lý an toàn các gói tin callback từ máy chủ MoMo (IPN) để tự động kích hoạt tính năng tài khoản người dùng ngay khi giao dịch thành công.
+
+1.6.6. Tìm hiểu về Google Gemini AI API và kỹ thuật RAG Vector Search
+
+Google Gemini AI là dòng mô hình ngôn ngữ lớn (LLM) tiên tiến sở hữu khả năng hiểu ngữ nghĩa văn bản xuất sắc. Kết nối hệ thống với Gemini API cho phép tự động phân tích kỹ năng, chấm điểm độ phù hợp của CV với tin tuyển dụng. Kỹ thuật RAG (Retrieval-Augmented Generation) kết hợp lưu trữ Vector nhúng (VectorJson trong bảng CVEmbeddings) giúp mã hóa toàn bộ nội dung CV thành các chuỗi số học biểu diễn ngữ nghĩa, hỗ trợ nhà tuyển dụng tìm kiếm và ghép nối ứng viên tương đồng dựa trên mức độ phù hợp về mặt năng lực thay vì so khớp từ khóa thô sơ.
+
+1.6.7. Công nghệ ảo hóa Container Docker và Docker Compose
+
+Docker là một nền tảng mã nguồn mở cho phép tự động hóa việc đóng gói và triển khai ứng dụng dưới dạng các container ảo hóa độc lập. Mỗi container chứa đầy đủ mã nguồn, thư viện và môi trường chạy cần thiết. Docker Compose giúp định nghĩa và quản trị hệ thống đa container (gồm Backend, SQL Server, và các dịch vụ khác) một cách thống nhất chỉ bằng một tệp cấu hình duy nhất, đảm bảo tính nhất quán của hệ thống từ môi trường phát triển cục bộ lên máy chủ đám mây thực tế.
