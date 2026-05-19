@@ -364,8 +364,8 @@
                                     }
                                 </p>
                             </div>
-                            <div class="text-md-end mt-4 mt-md-0 ms-md-4" style="min-width: 160px;">
-                                <div class="text-primary fw-bold mb-3 fs-5">@job.job_salary</div>
+                            <div class="text-md-end mt-4 mt-md-0 ms-md-4" style="min-width: 220px; flex-shrink: 0;">
+                                <div class="text-primary fw-bold mb-3 fs-5 text-nowrap">@job.job_salary</div>
                                 @if (!string.IsNullOrEmpty(job.job_apply_link) && job.job_apply_link != "#")
                                 {
                                     <a href="@job.job_apply_link" target="_blank" class="btn btn-sm btn-outline-primary px-3 py-2 rounded-pill mb-1 d-block w-100 fw-bold">
