@@ -17,6 +17,13 @@
         --sm-muted: #64748b;
         --sm-border: #e2e8f0;
     }
+    [data-bs-theme="dark"] {
+        --sm-bg: #121212;
+        --sm-card: #1e1e1e;
+        --sm-text: #f8fafc;
+        --sm-muted: #94a3b8;
+        --sm-border: rgba(255, 255, 255, 0.08);
+    }
     .sm-hero {
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
         border-radius: 2rem;
@@ -55,7 +62,7 @@
         margin-top: -3rem; position: relative; z-index: 10;
     }
     .sm-select-wrapper {
-        position: relative; background: #f8fafc;
+        position: relative; background: var(--sm-bg);
         border-radius: 1rem; border: 2px solid var(--sm-border);
         transition: all 0.3s;
     }
@@ -68,6 +75,10 @@
         padding: 1rem 1.25rem; font-weight: 600;
         color: var(--sm-text); width: 100%; font-size: 1rem;
         appearance: none; cursor: pointer;
+    }
+    .sm-select-wrapper select option {
+        background-color: var(--sm-card);
+        color: var(--sm-text);
     }
     .sm-select-wrapper select:focus { outline: none; box-shadow: none; }
     .sm-select-wrapper::after {
@@ -91,7 +102,7 @@
     .sm-stats-row { display: flex; gap: 1rem; flex-wrap: wrap; }
     .sm-stat-card {
         flex: 1; min-width: 140px;
-        background: linear-gradient(135deg, #f8fafc, #fff);
+        background: linear-gradient(135deg, var(--sm-bg), var(--sm-card));
         border: 1px solid var(--sm-border); border-radius: 1rem;
         padding: 1.25rem; text-align: center;
         transition: all 0.3s;
@@ -119,7 +130,7 @@
     .sm-rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #78350f; box-shadow: 0 4px 15px rgba(245,158,11,0.3); }
     .sm-rank-2 { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: #374151; }
     .sm-rank-3 { background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; }
-    .sm-rank-other { background: #f1f5f9; color: var(--sm-muted); }
+    .sm-rank-other { background: var(--sm-bg); color: var(--sm-muted); }
     .sm-avatar-sm {
         width: 52px; height: 52px; border-radius: 0.85rem;
         object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;
@@ -152,9 +163,9 @@
     .sm-rec-partial { background: #fef3c7; color: #92400e; }
     .sm-rec-weak { background: #fee2e2; color: #991b1b; }
     .sm-detail-panel {
-        background: #f8fafc; border-radius: 1rem;
+        background: var(--sm-bg); border-radius: 1rem;
         padding: 1.25rem; margin-top: 1rem;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--sm-border);
         display: none;
     }
     .sm-detail-panel.show { display: block; animation: smSlideDown 0.3s ease; }
@@ -178,10 +189,13 @@
     }
     .sm-loading-overlay.show { display: flex; }
     .sm-loading-card {
-        background: white; border-radius: 1.5rem;
+        background: var(--sm-card); border-radius: 1.5rem;
         padding: 3rem; text-align: center;
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         max-width: 400px; width: 90%;
+    }
+    .sm-loading-card h4 {
+        color: var(--sm-text) !important;
     }
     .sm-pulse-icon {
         width: 80px; height: 80px; border-radius: 50%;
@@ -201,7 +215,7 @@
     }
     .sm-empty-icon {
         width: 100px; height: 100px; border-radius: 50%;
-        background: #f1f5f9; display: flex; align-items: center;
+        background: var(--sm-bg); display: flex; align-items: center;
         justify-content: center; margin: 0 auto 1.5rem;
         font-size: 2.5rem; color: #94a3b8;
     }
@@ -223,7 +237,7 @@
     <div class="sm-control-panel mx-auto" style="max-width:900px">
         <div class="row g-3 align-items-end">
             <div class="col-md-8">
-                <label class="fw-bold text-dark mb-2"><i class="fas fa-briefcase me-2 text-primary"></i>Chọn vị trí tuyển dụng</label>
+                <label class="fw-bold mb-2" style="color: var(--sm-text);"><i class="fas fa-briefcase me-2 text-primary"></i>Chọn vị trí tuyển dụng</label>
                 <div class="sm-select-wrapper">
                     <select id="jobSelect">
                         <option value="">-- Chọn tin tuyển dụng để phân tích --</option>
@@ -385,7 +399,7 @@
         // Header
         let html = `<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
             <div>
-                <h4 class="fw-bold text-dark mb-1"><i class="fas fa-trophy text-warning me-2"></i>Bảng Xếp Hạng Ứng Viên</h4>
+                <h4 class="fw-bold mb-1" style="color: var(--sm-text);"><i class="fas fa-trophy text-warning me-2"></i>Bảng Xếp Hạng Ứng Viên</h4>
                 <span class="text-muted small">${data.jobTitle} — ${data.companyName || ''}</span>
             </div>
         </div>`;
@@ -438,8 +452,8 @@
                         <ul class="mb-0 small">${c.suggestions.map(s => `<li>${s}</li>`).join('')}</ul>
                     </div>
                     <div class="col-12">
-                        <div class="p-3 bg-white rounded-3 border mt-2">
-                            <h6 class="fw-bold mb-1"><i class="fas fa-comment-dots me-1 text-info"></i>Nhận xét AI</h6>
+                        <div class="p-3 rounded-3 border mt-2" style="background: var(--sm-bg); border-color: var(--sm-border) !important;">
+                            <h6 class="fw-bold mb-1" style="color: var(--sm-text);"><i class="fas fa-comment-dots me-1 text-info"></i>Nhận xét AI</h6>
                             <p class="mb-0 text-muted small">${c.summary}</p>
                         </div>
                     </div>
@@ -461,7 +475,7 @@
     function renderEmpty(msg) {
         return `<div class="sm-empty-state mt-4">
             <div class="sm-empty-icon"><i class="fas fa-search"></i></div>
-            <h5 class="fw-bold text-dark">${msg || 'Chưa có kết quả'}</h5>
+            <h5 class="fw-bold" style="color: var(--sm-text);">${msg || 'Chưa có kết quả'}</h5>
             <p class="text-muted">Chọn một vị trí tuyển dụng và nhấn "Phân tích AI" để bắt đầu</p>
         </div>`;
     }

@@ -716,6 +716,11 @@ footer {
   background-color: #121212 !important;
 }
 
+[data-bs-theme="dark"] .company-hero,
+[data-bs-theme="dark"] .company-header {
+  background: linear-gradient(135deg, #09301e 0%, #0f4831 100%) !important;
+}
+
 [data-bs-theme="dark"] .company-logo-wrapper.bg-white {
   background-color: #ffffff !important;
 }
