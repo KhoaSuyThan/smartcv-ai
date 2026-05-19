@@ -17,6 +17,12 @@
         position: relative;
         overflow: hidden;
         box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.3);
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    [data-bs-theme="dark"] .hero-section {
+        background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%) !important;
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5) !important;
     }
     
     .hero-pattern {
