@@ -24,18 +24,214 @@
         </div>
     }
 
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <!-- ==================== DASHBOARD SECTION ==================== -->
+    <!-- Dashboard Stats Grid -->
+    <div class="row g-3 mb-4">
+        <!-- Card 1: Total Jobs -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center justify-content-between stat-card-jobs">
+                <div>
+                    <h6 class="stat-title small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">Tin tuyển dụng</h6>
+                    <h3 class="fw-extrabold stat-value mb-0">@ViewBag.TotalJobs</h3>
+                </div>
+                <div class="rounded-circle bg-white d-flex align-items-center justify-content-center text-primary" style="width: 44px; height: 44px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <i class="bi bi-briefcase-fill fs-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Total Applications -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center justify-content-between stat-card-apps">
+                <div>
+                    <h6 class="stat-title small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">Lượt ứng tuyển</h6>
+                    <h3 class="fw-extrabold stat-value mb-0">@ViewBag.TotalApplications</h3>
+                </div>
+                <div class="rounded-circle bg-white d-flex align-items-center justify-content-center text-info" style="width: 44px; height: 44px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <i class="bi bi-people-fill fs-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Selection Rate -->
+        <div class="col-md-3">
+            @{
+                int totalApps = ViewBag.TotalApplications ?? 0;
+                int acceptedApps = ViewBag.AcceptedApps ?? 0;
+                int rate = totalApps > 0 ? (int)Math.Round((double)acceptedApps / totalApps * 100) : 0;
+            }
+            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center justify-content-between stat-card-rate">
+                <div>
+                    <h6 class="stat-title small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">Tỷ lệ duyệt hồ sơ</h6>
+                    <h3 class="fw-extrabold stat-value mb-0">@rate%</h3>
+                </div>
+                <div class="rounded-circle bg-white d-flex align-items-center justify-content-center text-success" style="width: 44px; height: 44px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <i class="bi bi-check-circle-fill fs-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Pending Jobs -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 d-flex flex-row align-items-center justify-content-between stat-card-pending">
+                <div>
+                    <h6 class="stat-title small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px; font-size: 0.7rem;">Tin chờ duyệt</h6>
+                    <h3 class="fw-extrabold stat-value mb-0">@ViewBag.PendingJobs</h3>
+                </div>
+                <div class="rounded-circle bg-white d-flex align-items-center justify-content-center text-warning" style="width: 44px; height: 44px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <i class="bi bi-hourglass-split fs-5"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Analytics Charts -->
+    <div class="row g-3 mb-4">
+        <!-- Left: Applications Trend Chart -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                    <h5 class="fw-bold mb-0" style="font-size: 1.05rem;" id="chartTitle">
+                        <i class="bi bi-graph-up-arrow text-primary me-2"></i>Xu hướng nộp hồ sơ
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Selector for Time Range -->
+                        <div class="btn-group btn-group-sm rounded-pill overflow-hidden border border-secondary-subtle" role="group">
+                            <button type="button" class="btn btn-light btn-sm px-3 py-1 fw-bold active" id="btn-range-7d" onclick="switchTimeRange('7d')" style="font-size: 0.7rem;">7 ngày qua</button>
+                            <button type="button" class="btn btn-light btn-sm px-3 py-1 fw-bold" id="btn-range-30d" onclick="switchTimeRange('30d')" style="font-size: 0.7rem;">Tháng qua</button>
+                        </div>
+                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 py-1.5 fw-semibold d-none d-md-inline-block" id="trend-badge" style="font-size: 0.65rem;">Lượt ứng tuyển/Ngày</span>
+                    </div>
+                </div>
+                <div class="card-body px-4 pb-3">
+                    <div style="position: relative; height: 210px;">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Status Distribution & Skill Cloud -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-header bg-transparent border-0 pt-3 px-4">
+                    <h5 class="fw-bold mb-0" style="font-size: 1.05rem;"><i class="bi bi-pie-chart text-primary me-2"></i>Hồ sơ & Kỹ năng yêu cầu</h5>
+                </div>
+                <div class="card-body px-4 pb-3">
+                    <!-- Nav Tabs for Stats -->
+                    <ul class="nav nav-pills mb-3 stat-tabs-bg p-1 rounded-pill" id="statTabs" role="tablist" style="font-size: 0.75rem;">
+                        <li class="nav-item flex-fill text-center" role="presentation">
+                            <button class="nav-link active rounded-pill fw-bold small w-100 text-nowrap" id="status-tab" data-bs-toggle="pill" data-bs-target="#tab-status" type="button" role="tab" style="padding: 6px 12px !important; line-height: 1.5;">Trạng thái đơn</button>
+                        </li>
+                        <li class="nav-item flex-fill text-center" role="presentation">
+                            <button class="nav-link rounded-pill fw-bold small w-100 text-nowrap" id="skills-tab" data-bs-toggle="pill" data-bs-target="#tab-skills" type="button" role="tab" style="padding: 6px 12px !important; line-height: 1.5;">Yêu cầu kỹ năng</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="statTabsContent">
+                        <!-- Tab 1: Application Status Chart -->
+                        <div class="tab-pane fade show active" id="tab-status" role="tabpanel" style="min-height: 175px;">
+                            @if (ViewBag.TotalApplications > 0)
+                            {
+                                <div style="position: relative; height: 120px;" class="mb-2">
+                                    <canvas id="statusChart"></canvas>
+                                </div>
+                                <div class="d-flex justify-content-around text-center mt-3 pt-2 border-top" style="font-size: 0.75rem;">
+                                    <div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Chờ duyệt</div>
+                                        <div class="fw-bold text-warning">@ViewBag.PendingApps</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Đang xem</div>
+                                        <div class="fw-bold text-info">@ViewBag.ReviewingApps</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Duyệt</div>
+                                        <div class="fw-bold text-success">@ViewBag.AcceptedApps</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Từ chối</div>
+                                        <div class="fw-bold text-danger">@ViewBag.RejectedApps</div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-people-fill text-muted mb-2 fs-3 opacity-50"></i>
+                                    <p class="text-muted small mb-0">Chưa có ứng viên nộp hồ sơ</p>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Tab 2: Top Skills requested -->
+                        <div class="tab-pane fade" id="tab-skills" role="tabpanel" style="min-height: 175px;">
+                            @{
+                                var topSkills = ViewBag.TopSkills as List<DoAnCS.Controllers.SkillStat> ?? new List<DoAnCS.Controllers.SkillStat>();
+                            }
+                            @if (topSkills.Any())
+                            {
+                                <div class="d-flex flex-column gap-2" style="font-size: 0.8rem;">
+                                    @foreach (var skill in topSkills)
+                                    {
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-0.5">
+                                                <span class="fw-bold small text-body">@skill.Skill</span>
+                                                <span class="text-muted small" style="font-size: 0.75rem;">@skill.Count tin (@skill.Percentage%)</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px; border-radius: 3px; background-color: #f3f4f6;">
+                                                <div class="progress-bar rounded-pill" role="progressbar" style="width: @skill.Percentage%; background: linear-gradient(90deg, #6366f1, #818cf8);" aria-valuenow="@skill.Percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-tags text-muted mb-2 fs-3 opacity-50"></i>
+                                    <p class="text-muted small mb-0">Chưa phân tích được yêu cầu kỹ năng</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- =========================================================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
+        <div class="card-header bg-transparent border-0 pt-4 pb-3 px-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <h5 class="fw-bold mb-0 d-flex align-items-center">
+                <i class="bi bi-list-task text-primary me-2 fs-4"></i>Danh sách tin tuyển dụng
+            </h5>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <!-- Search Box -->
+                <div class="input-group input-group-sm rounded-pill overflow-hidden border border-secondary-subtle" style="width: 260px; max-width: 100%;">
+                    <span class="input-group-text bg-light border-0 pe-1"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="jobSearchInput" class="form-control border-0 ps-1" style="box-shadow: none;" placeholder="Tìm kiếm tin tuyển dụng..." onkeyup="filterJobsTable()">
+                </div>
+                <!-- Status Filter -->
+                <select id="jobStatusFilter" class="form-select form-select-sm rounded-pill border border-secondary-subtle" style="width: 150px; font-size: 0.8rem; height: 31px;" onchange="filterJobsTable()">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="active">Đã đăng</option>
+                    <option value="pending">Chờ duyệt</option>
+                    <option value="rejected">Từ chối</option>
+                </select>
+            </div>
+        </div>
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
+                    <thead class="table-light border-bottom border-top border-secondary-subtle">
                         <tr>
-                            <th class="ps-4">Vị trí tuyển dụng</th>
-                            <th>Công ty</th>
-                            <th>Ngày đăng</th>
-                            <th>Hạn nộp</th>
-                            <th>Trạng thái</th>
-                            <th class="text-center pe-4">Thao tác</th>
+                            <th class="ps-4" style="width: 35%;">Vị trí tuyển dụng</th>
+                            <th style="width: 25%;">Công ty</th>
+                            <th style="width: 12%;">Ngày đăng</th>
+                            <th style="width: 13%;">Hạn nộp</th>
+                            <th style="width: 15%;">Trạng thái</th>
+                            <th class="text-center pe-4" style="width: 10%;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -116,17 +312,112 @@
 </div>
 
 <style>
-    .table thead th { 
-        font-size: 0.75rem; 
-        text-transform: uppercase; 
-        letter-spacing: 1px; 
-        font-weight: 700;
-        color: #6c757d;
-        border-bottom: none;
+    /* Styling for Timeline Toggle Buttons */
+    .btn-group .btn {
+        border: none !important;
+        transition: all 0.2s ease;
     }
-    .table tbody td { border-bottom: 1px solid #f8f9fa; }
-    .badge { font-size: 0.7rem; letter-spacing: 0.3px; }
+    .btn-group .btn-light {
+        background-color: var(--bs-tertiary-bg);
+        color: var(--bs-body-color);
+    }
+    .btn-group .btn-light.active {
+        background-color: var(--bs-primary) !important;
+        color: #ffffff !important;
+    }
+    html[data-bs-theme="dark"] .btn-group .btn-light {
+        background-color: #1e293b;
+        color: #cbd5e1;
+    }
+    html[data-bs-theme="dark"] .btn-group .btn-light.active {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+    }
+
+    /* Default light mode for stats cards */
+    .stat-card-jobs { background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); }
+    .stat-card-jobs .stat-title { color: #4f46e5 !important; }
+    .stat-card-jobs .stat-value { color: #1e1b4b !important; }
+
+    .stat-card-apps { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+    .stat-card-apps .stat-title { color: #0891b2 !important; }
+    .stat-card-apps .stat-value { color: #083344 !important; }
+
+    .stat-card-rate { background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
+    .stat-card-rate .stat-title { color: #059669 !important; }
+    .stat-card-rate .stat-value { color: #064e3b !important; }
+
+    .stat-card-pending { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); }
+    .stat-card-pending .stat-title { color: #d97706 !important; }
+    .stat-card-pending .stat-value { color: #78350f !important; }
+
+    /* Custom tabs background */
+    .stat-tabs-bg { background-color: #f3f4f6; }
+
+    /* Dark mode overrides */
+    html[data-bs-theme="dark"] .stat-card-jobs { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); }
+    html[data-bs-theme="dark"] .stat-card-jobs .stat-title { color: #c7d2fe !important; }
+    html[data-bs-theme="dark"] .stat-card-jobs .stat-value { color: #ffffff !important; }
+    html[data-bs-theme="dark"] .stat-card-jobs .rounded-circle { background-color: #312e81 !important; color: #a5b4fc !important; }
+
+    html[data-bs-theme="dark"] .stat-card-apps { background: linear-gradient(135deg, #083344 0%, #155e75 100%); }
+    html[data-bs-theme="dark"] .stat-card-apps .stat-title { color: #a5f3fc !important; }
+    html[data-bs-theme="dark"] .stat-card-apps .stat-value { color: #ffffff !important; }
+    html[data-bs-theme="dark"] .stat-card-apps .rounded-circle { background-color: #155e75 !important; color: #22d3ee !important; }
+
+    html[data-bs-theme="dark"] .stat-card-rate { background: linear-gradient(135deg, #064e3b 0%, #065f46 100%); }
+    html[data-bs-theme="dark"] .stat-card-rate .stat-title { color: #a7f3d0 !important; }
+    html[data-bs-theme="dark"] .stat-card-rate .stat-value { color: #ffffff !important; }
+    html[data-bs-theme="dark"] .stat-card-rate .rounded-circle { background-color: #065f46 !important; color: #34d399 !important; }
+
+    html[data-bs-theme="dark"] .stat-card-pending { background: linear-gradient(135deg, #78350f 0%, #92400e 100%); }
+    html[data-bs-theme="dark"] .stat-card-pending .stat-title { color: #fde68a !important; }
+    html[data-bs-theme="dark"] .stat-card-pending .stat-value { color: #ffffff !important; }
+    html[data-bs-theme="dark"] .stat-card-pending .rounded-circle { background-color: #92400e !important; color: #fbbf24 !important; }
+
+    html[data-bs-theme="dark"] .stat-tabs-bg { background-color: #1e293b !important; }
+    html[data-bs-theme="dark"] .nav-pills .nav-link { color: #94a3b8 !important; }
+    html[data-bs-theme="dark"] .nav-pills .nav-link:hover { color: #f8fafc !important; }
+
+    /* Dark Mode styling for Search & Filter inputs */
+    html[data-bs-theme="dark"] .input-group-text { background-color: #1e293b !important; border-color: #334155 !important; }
+    html[data-bs-theme="dark"] #jobSearchInput { background-color: #0f172a !important; color: #f8fafc !important; }
+    html[data-bs-theme="dark"] #jobStatusFilter { background-color: #0f172a !important; color: #f8fafc !important; }
+
+    .table thead th { 
+        font-size: 0.8rem; 
+        text-transform: uppercase; 
+        letter-spacing: 0.5px; 
+        font-weight: 700;
+        color: #475569;
+        border-bottom: none;
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+    html[data-bs-theme="dark"] .table thead th {
+        color: #94a3b8;
+    }
+    .table tbody td { 
+        padding-top: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #f1f5f9; 
+    }
+    html[data-bs-theme="dark"] .table tbody td {
+        border-bottom: 1px solid #334155;
+    }
+    .badge { font-size: 0.72rem; letter-spacing: 0.3px; font-weight: 600; }
     
+    /* Hover effects for jobs */
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    .table tbody tr:hover {
+        background-color: #f8fafc;
+    }
+    html[data-bs-theme="dark"] .table tbody tr:hover {
+        background-color: #1e293b;
+    }
+
     /* Fix lỗi hiển thị nút thao tác */
     .action-btn {
         width: 34px;
@@ -145,4 +436,221 @@
         font-size: 1rem;
         line-height: 1;
     }
+
+    /* Modern Dashboard Styling */
+    .fw-extrabold { font-weight: 800; }
+    .nav-pills .nav-link {
+        color: #4b5563;
+        transition: all 0.3s ease;
+    }
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        color: #ffffff !important;
+        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+    }
+    .progress-bar {
+        transition: width 1s ease-in-out;
+    }
 </style>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Store charts instances globally
+        let timelineChartInstance = null;
+        let statusChartInstance = null;
+
+        // Dữ liệu từ ViewBag cho biểu đồ xu hướng
+        const timelineLabels7d = @Json.Serialize(ViewBag.TimelineLabels);
+        const timelineValues7d = @Json.Serialize(ViewBag.TimelineValues);
+        const timelineLabels30d = @Json.Serialize(ViewBag.TimelineMonthLabels);
+        const timelineValues30d = @Json.Serialize(ViewBag.TimelineMonthValues);
+
+        // Dynamic Chart themes updater
+        function updateChartThemes() {
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const textCol = isDark ? '#94a3b8' : '#64748b';
+            const gridCol = isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9';
+            const legendCol = isDark ? '#f8fafc' : '#475569';
+
+            if (timelineChartInstance) {
+                timelineChartInstance.options.scales.x.ticks.color = textCol;
+                timelineChartInstance.options.scales.y.ticks.color = textCol;
+                timelineChartInstance.options.scales.y.grid.color = gridCol;
+                timelineChartInstance.update();
+            }
+
+            if (statusChartInstance) {
+                statusChartInstance.options.plugins.legend.labels.color = legendCol;
+                statusChartInstance.update();
+            }
+        }
+
+        // Time Range Switcher logic
+        window.switchTimeRange = function(range) {
+            const btn7d = document.getElementById('btn-range-7d');
+            const btn30d = document.getElementById('btn-range-30d');
+            const trendBadge = document.getElementById('trend-badge');
+            
+            if (!timelineChartInstance) return;
+
+            if (range === '7d') {
+                btn7d.classList.add('active');
+                btn30d.classList.remove('active');
+                if (trendBadge) trendBadge.textContent = 'Lượt ứng tuyển/Ngày';
+                timelineChartInstance.data.labels = timelineLabels7d;
+                timelineChartInstance.data.datasets[0].data = timelineValues7d;
+                timelineChartInstance.update();
+            } else if (range === '30d') {
+                btn30d.classList.add('active');
+                btn7d.classList.remove('active');
+                if (trendBadge) trendBadge.textContent = 'Lượt ứng tuyển/Tuần';
+                timelineChartInstance.data.labels = timelineLabels30d;
+                timelineChartInstance.data.datasets[0].data = timelineValues30d;
+                timelineChartInstance.update();
+            }
+        };
+
+        // Client-side filtering function
+        function filterJobsTable() {
+            const searchVal = document.getElementById('jobSearchInput').value.toLowerCase().trim();
+            const statusVal = document.getElementById('jobStatusFilter').value;
+            const rows = document.querySelectorAll('table tbody tr');
+
+            rows.forEach(row => {
+                const titleEl = row.querySelector('td:first-child div.fw-bold');
+                const titleText = titleEl ? titleEl.textContent.toLowerCase() : '';
+                
+                const badgeEl = row.querySelector('td:nth-child(5) span.badge');
+                let status = 'all';
+                if (badgeEl) {
+                    const txt = badgeEl.textContent.toLowerCase();
+                    if (txt.includes('đã đăng')) status = 'active';
+                    else if (txt.includes('chờ duyệt')) status = 'pending';
+                    else if (txt.includes('từ chối')) status = 'rejected';
+                }
+
+                const matchSearch = titleText.includes(searchVal);
+                const matchStatus = statusVal === 'all' || status === statusVal;
+
+                if (matchSearch && matchStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Listen to layout theme toggle btn
+            const themeBtn = document.getElementById('theme-toggle');
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    setTimeout(updateChartThemes, 80);
+                });
+            }
+
+            const isDarkInit = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const initTextCol = isDarkInit ? '#94a3b8' : '#64748b';
+            const initGridCol = isDarkInit ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9';
+            const initLegendCol = isDarkInit ? '#f8fafc' : '#475569';
+
+            // 1. Biểu đồ Xu hướng Ứng tuyển (Line Chart)
+            const canvasTimeline = document.getElementById('timelineChart');
+            if (canvasTimeline) {
+                const ctxTimeline = canvasTimeline.getContext('2d');
+                
+                // Tạo Gradient fill cho biểu đồ đường
+                const gradientBg = ctxTimeline.createLinearGradient(0, 0, 0, 200);
+                gradientBg.addColorStop(0, 'rgba(79, 70, 229, 0.25)');
+                gradientBg.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+                timelineChartInstance = new Chart(ctxTimeline, {
+                    type: 'line',
+                    data: {
+                        labels: timelineLabels7d,
+                        datasets: [{
+                            label: 'Số hồ sơ',
+                            data: timelineValues7d,
+                            borderColor: '#4f46e5',
+                            borderWidth: 2.5,
+                            backgroundColor: gradientBg,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#4f46e5',
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#ffffff',
+                            pointHoverBorderColor: '#4f46e5',
+                            pointHoverBorderWidth: 2.5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                padding: 8,
+                                cornerRadius: 6,
+                                displayColors: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { weight: '600', size: 10 }, color: initTextCol }
+                            },
+                            y: {
+                                grid: { borderDash: [5, 5], color: initGridCol },
+                                ticks: { stepSize: 1, beginAtZero: true, font: { weight: '600', size: 10 }, color: initTextCol }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 2. Biểu đồ Trạng thái Đơn ứng tuyển (Doughnut Chart)
+            const statusCanvas = document.getElementById('statusChart');
+            if (statusCanvas) {
+                const ctxStatus = statusCanvas.getContext('2d');
+                statusChartInstance = new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Chờ xử lý', 'Đang xem xét', 'Chấp nhận', 'Từ chối'],
+                        datasets: [{
+                            data: [@ViewBag.PendingApps, @ViewBag.ReviewingApps, @ViewBag.AcceptedApps, @ViewBag.RejectedApps],
+                            backgroundColor: ['#eab308', '#06b6d4', '#10b981', '#ef4444'],
+                            borderWidth: 1.5,
+                            borderColor: isDarkInit ? '#1e293b' : '#ffffff',
+                            hoverOffset: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    boxWidth: 8,
+                                    font: { weight: '600', size: 9.5 },
+                                    color: initLegendCol,
+                                    padding: 8
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                padding: 8,
+                                cornerRadius: 6
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        });
+    </script>
+}

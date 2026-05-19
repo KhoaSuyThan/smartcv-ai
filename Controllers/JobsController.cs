@@ -64,6 +64,131 @@ namespace DoAnCS.Controllers
                 .ThenByDescending(j => j.CreatedAt)
                 .ToListAsync();
 
+            // === DASHBOARD STATS CALCULATION ===
+            var jobIds = jobs.Select(j => j.JobID).ToList();
+            int totalApps = 0;
+            int pendingApps = 0;
+            int reviewingApps = 0;
+            int acceptedApps = 0;
+            int rejectedApps = 0;
+
+            var timelineLabels = new List<string>();
+            var timelineValues = new List<int>();
+            var timelineMonthLabels = new List<string>();
+            var timelineMonthValues = new List<int>();
+            var topSkills = new List<SkillStat>();
+
+            if (jobIds.Any())
+            {
+                // Total Applications
+                totalApps = await _context.Applications.CountAsync(a => jobIds.Contains(a.JobID));
+
+                // Application Status Counts
+                var appStatusCounts = await _context.Applications
+                    .Where(a => jobIds.Contains(a.JobID))
+                    .GroupBy(a => a.Status)
+                    .Select(g => new { Status = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(g => g.Status, g => g.Count);
+
+                pendingApps = appStatusCounts.ContainsKey("Pending") ? appStatusCounts["Pending"] : 0;
+                reviewingApps = appStatusCounts.ContainsKey("Reviewing") ? appStatusCounts["Reviewing"] : 0;
+                acceptedApps = appStatusCounts.ContainsKey("Accepted") ? appStatusCounts["Accepted"] : 0;
+                rejectedApps = appStatusCounts.ContainsKey("Rejected") ? appStatusCounts["Rejected"] : 0;
+
+                // Timeline: last 7 days
+                var last7Days = Enumerable.Range(0, 7)
+                    .Select(i => DateTime.Today.AddDays(-i))
+                    .OrderBy(d => d)
+                    .ToList();
+
+                var timelineCounts = await _context.Applications
+                    .Where(a => jobIds.Contains(a.JobID) && a.AppliedAt >= last7Days.First())
+                    .GroupBy(a => a.AppliedAt.Date)
+                    .Select(g => new { Date = g.Key, Count = g.Count() })
+                    .ToDictionaryAsync(g => g.Date, g => g.Count);
+
+                timelineLabels = last7Days.Select(d => d.ToString("dd/MM")).ToList();
+                timelineValues = last7Days.Select(d => timelineCounts.ContainsKey(d) ? timelineCounts[d] : 0).ToList();
+
+                // Timeline: last 4 weeks (Month)
+                var last4Weeks = new List<(DateTime Start, DateTime End, string Label)>();
+                for (int i = 3; i >= 0; i--)
+                {
+                    DateTime start = DateTime.Today.AddDays(-((i + 1) * 7 - 1));
+                    DateTime end = DateTime.Today.AddDays(-(i * 7));
+                    if (i == 3)
+                    {
+                        // Đảm bảo tuần đầu bao gồm trọn vẹn 30 ngày (9 ngày đầu tiên)
+                        start = DateTime.Today.AddDays(-29);
+                    }
+                    string label = $"Tuần {(4 - i)} ({start:dd/MM}-{end:dd/MM})";
+                    last4Weeks.Add((start, end, label));
+                }
+
+                var allMonthApps = await _context.Applications
+                    .Where(a => jobIds.Contains(a.JobID) && a.AppliedAt >= DateTime.Today.AddDays(-29))
+                    .Select(a => a.AppliedAt.Date)
+                    .ToListAsync();
+
+                timelineMonthLabels = new List<string>();
+                timelineMonthValues = new List<int>();
+
+                foreach (var week in last4Weeks)
+                {
+                    timelineMonthLabels.Add(week.Label);
+                    int count = allMonthApps.Count(a => a >= week.Start && a <= week.End);
+                    timelineMonthValues.Add(count);
+                }
+
+                // Top Skills Required
+                var techTerms = new[] {
+                    "C#", ".NET", "ASP.NET", "Java", "Spring Boot", "Python", "Django", "JavaScript", "TypeScript",
+                    "React", "Angular", "Vue", "Node.js", "Express", "Next.js", "HTML", "CSS", "SQL", "SQL Server",
+                    "MySQL", "PostgreSQL", "MongoDB", "Redis", "Docker", "Kubernetes", "AWS", "Azure", "CI/CD",
+                    "Git", "GitHub", "REST", "API", "Microservices", "Figma", "UI/UX", "DevOps"
+                };
+
+                var skillCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var job in jobs)
+                {
+                    var jobText = $"{job.Title} {job.Description} {job.Requirements}".ToLower();
+                    foreach (var term in techTerms)
+                    {
+                        if (jobText.Contains(term.ToLower()))
+                        {
+                            if (skillCounts.ContainsKey(term))
+                                skillCounts[term]++;
+                            else
+                                skillCounts[term] = 1;
+                        }
+                    }
+                }
+
+                topSkills = skillCounts
+                    .OrderByDescending(x => x.Value)
+                    .Take(5)
+                    .Select(x => new SkillStat 
+                    { 
+                        Skill = x.Key, 
+                        Count = x.Value, 
+                        Percentage = jobs.Any() ? (int)Math.Round((double)x.Value / jobs.Count * 100) : 0 
+                    })
+                    .ToList();
+            }
+
+            ViewBag.TotalJobs = jobs.Count;
+            ViewBag.PendingJobs = jobs.Count(j => j.Status == 0);
+            ViewBag.TotalApplications = totalApps;
+            ViewBag.PendingApps = pendingApps;
+            ViewBag.ReviewingApps = reviewingApps;
+            ViewBag.AcceptedApps = acceptedApps;
+            ViewBag.RejectedApps = rejectedApps;
+            ViewBag.TimelineLabels = timelineLabels;
+            ViewBag.TimelineValues = timelineValues;
+            ViewBag.TimelineMonthLabels = timelineMonthLabels;
+            ViewBag.TimelineMonthValues = timelineMonthValues;
+            ViewBag.TopSkills = topSkills;
+
             return View(jobs);
         }
 
@@ -424,5 +549,12 @@ namespace DoAnCS.Controllers
     {
         public int JobId { get; set; }
         public int ResumeId { get; set; }
+    }
+
+    public class SkillStat
+    {
+        public string Skill { get; set; }
+        public int Count { get; set; }
+        public int Percentage { get; set; }
     }
 }
