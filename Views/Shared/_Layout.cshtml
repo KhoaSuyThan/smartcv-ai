@@ -58,7 +58,7 @@
             flex-shrink: 0;
         }
         .navbar-brand { font-weight: 800; color: #0d6efd !important; white-space: nowrap; font-size: 1.65rem; }
-        .nav-link { font-weight: 600; color: #444 !important; transition: all 0.3s ease; position: relative; padding: 0.5rem 0.6rem !important; white-space: nowrap; font-size: 0.9rem; }
+        .nav-link { font-weight: 600; color: #444 !important; transition: all 0.3s ease; position: relative; padding: 0.5rem 0.8rem !important; white-space: nowrap; font-size: 1.05rem; }
         .nav-link:hover, .nav-link.active { color: #0d6efd !important; }
         .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 5px; left: 50%; background: #0d6efd; transition: 0.3s; transform: translateX(-50%); }
         .nav-link:hover::after, .nav-link.active::after { width: 70%; }
@@ -173,18 +173,25 @@
                                         <i class="fas fa-briefcase me-1"></i> Tuyển dụng
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-success fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Talent" ? "active" : "")" 
-                                       asp-controller="Talent" asp-action="Index">
-                                        <i class="fas fa-users me-1"></i> Tìm ứng viên
+                                <li class="nav-item dropdown dropdown-hover">
+                                    <a class="nav-link text-success fw-bold d-inline-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Talent" || ViewContext.RouteData.Values["controller"]?.ToString() == "SmartMatch" ? "active" : "")" 
+                                       asp-controller="Talent" asp-action="Index"
+                                       id="talentDropdown" role="button" aria-expanded="false">
+                                        <i class="fas fa-users me-1"></i> Tìm ứng viên <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity: 0.85;"></i>
                                     </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "SmartMatch" ? "active" : "")" 
-                                       asp-controller="SmartMatch" asp-action="Index"
-                                       style="color: #7c3aed !important;">
-                                        <i class="fas fa-brain me-1"></i> Smart Match
-                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-hover shadow border-0 mt-0" aria-labelledby="talentDropdown">
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 fw-bold text-success @(ViewContext.RouteData.Values["controller"]?.ToString() == "Talent" ? "active-item" : "")" asp-controller="Talent" asp-action="Index">
+                                                <i class="fas fa-users me-2"></i> Tìm ứng viên
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-1 opacity-10"></li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "SmartMatch" ? "active-item" : "")" asp-controller="SmartMatch" asp-action="Index" style="color: #7c3aed !important;">
+                                                <i class="fas fa-brain me-2"></i> Smart Match (AI)
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
                             }
 
