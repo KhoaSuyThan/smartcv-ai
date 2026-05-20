@@ -51,7 +51,6 @@ namespace DoAnCS.Controllers
                     .ToListAsync(),
                 VueTemplates = await _context.VueTemplates
                     .Where(t => t.IsActive == true)
-                    .Take(4)
                     .ToListAsync()
             };
 
