@@ -21,5 +21,6 @@ namespace DoAnCS.Models
         public List<string> AllCompanies { get; set; } = new List<string>();
         public List<string> SelectedCompanies { get; set; } = new List<string>();
         public string SortBy { get; set; }
+        public List<Company> PartnerCompanies { get; set; } = new List<Company>();
     }
 }

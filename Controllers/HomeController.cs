@@ -51,6 +51,11 @@ namespace DoAnCS.Controllers
                     .ToListAsync(),
                 VueTemplates = await _context.VueTemplates
                     .Where(t => t.IsActive == true)
+                    .ToListAsync(),
+                PartnerCompanies = await _context.Companies
+                    .Where(c => !string.IsNullOrEmpty(c.LogoUrl))
+                    .OrderByDescending(c => c.CreatedAt)
+                    .Take(15)
                     .ToListAsync()
             };
 
