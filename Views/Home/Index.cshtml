@@ -344,6 +344,34 @@
     }
     .btn-cv-explore i { transition: transform 0.3s ease; }
     .btn-cv-explore:hover i { transform: translateX(4px); }
+
+    /* PARTNERS SECTION */
+    .partners-section {
+        background-color: #f8f9fa;
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+    .partner-logo-item {
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 110px;
+        padding: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .partner-logo-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    }
+    .partner-logo-img {
+        max-height: 60px;
+        max-width: 160px;
+        object-fit: contain;
+    }
 </style>
 
 <!-- HERO SECTION -->
@@ -659,6 +687,33 @@
         </div>
     </div>
 </section>
+
+@if (Model.PartnerCompanies != null && Model.PartnerCompanies.Any())
+{
+    <!-- PARTNERS SECTION -->
+    <section class="partners-section" data-aos="fade-up">
+        <div class="container">
+            <div class="text-center mb-5">
+                <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3">ĐỐI TÁC TIN CẬY</span>
+                <h2 class="display-5 fw-bold mb-0" style="color: #1a202c;">Là lựa chọn của nhiều công ty lớn</h2>
+                <p class="text-muted mt-3">Đồng hành cùng hàng ngàn nhà tuyển dụng uy tín trên toàn quốc để mang đến cơ hội việc làm tốt nhất cho bạn.</p>
+            </div>
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-4 justify-content-center align-items-center">
+                @foreach (var company in Model.PartnerCompanies)
+                {
+                    <div class="col">
+                        <a href="/Companies/Details/@company.CompanyID" title="Xem chi tiết @company.Name" class="text-decoration-none">
+                            <div class="partner-logo-item">
+                                <img src="@company.LogoUrl" class="partner-logo-img" alt="@company.Name" 
+                                     onerror="this.onerror=null; this.src='https://placehold.co/150x50/f8f9fa/6c757d?text=Logo';">
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+}
 
 <!-- BLOG SECTION -->
 <section id="blog-section" class="py-5 bg-light" data-aos="fade-up">
