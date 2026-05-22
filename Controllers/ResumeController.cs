@@ -255,9 +255,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex) 
             {
-                // Lấy thông báo lỗi chi tiết bên trong nếu có
-                string innerError = ex.InnerException != null ? ex.InnerException.Message : "";
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message + " | Chi tiết: " + innerError });
+                Console.WriteLine("Lỗi SaveResume: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
@@ -321,9 +320,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex) 
             {
-                // Lấy thông báo lỗi chi tiết bên trong nếu có
-                string innerError = ex.InnerException != null ? ex.InnerException.Message : "";
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message + " | Chi tiết: " + innerError });
+                Console.WriteLine("Lỗi AutoSave: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
@@ -434,7 +432,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+                Console.WriteLine("Lỗi UpdateName: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
@@ -459,7 +458,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi khi lưu dữ liệu: " + ex.Message });
+                Console.WriteLine("Lỗi UpdateJobTitle: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
@@ -482,7 +482,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Không thể xóa CV: " + ex.Message });
+                Console.WriteLine("Lỗi Delete CV: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
@@ -525,7 +526,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Không thể xóa tất cả CV: " + ex.Message });
+                Console.WriteLine("Lỗi DeleteAll CV: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
         // 7. Hiển thị trang Builder (Vue SPA)
@@ -656,7 +658,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                Console.WriteLine("Lỗi TogglePublic: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
