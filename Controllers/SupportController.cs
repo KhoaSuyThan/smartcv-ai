@@ -56,7 +56,8 @@ public class SupportController : Controller
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Lỗi: " + ex.Message);
+                Console.WriteLine("Lỗi Contact: " + ex.Message);
+                ModelState.AddModelError("", "Lỗi hệ thống, hãy liên hệ admin để giải quyết");
             }
         }
         return View(model);

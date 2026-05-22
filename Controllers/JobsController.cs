@@ -509,7 +509,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Có lỗi xảy ra: " + ex.Message });
+                Console.WriteLine("Lỗi ApplyOneClick: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
 
@@ -540,7 +541,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi hệ thống: " + ex.Message });
+                Console.WriteLine("Lỗi WithdrawApplication: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
             }
         }
     }

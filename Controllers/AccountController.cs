@@ -462,7 +462,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                TempData["PasswordErrorMessage"] = "Lỗi khi gửi email: " + ex.Message;
+                Console.WriteLine("Lỗi SendEmail Password: " + ex.Message);
+                TempData["PasswordErrorMessage"] = "Lỗi hệ thống, hãy liên hệ admin để giải quyết";
             }
 
             return RedirectToAction("Profile", new { t = "password" });
@@ -582,7 +583,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                TempData["PasswordErrorMessage"] = "Lỗi hệ thống khi tạo thanh toán: " + ex.Message;
+                Console.WriteLine("Lỗi CreateMomoPayment: " + ex.Message);
+                TempData["PasswordErrorMessage"] = "Lỗi hệ thống, hãy liên hệ admin để giải quyết";
                 return RedirectToAction("Upgrade");
             }
         }
@@ -702,7 +704,8 @@ namespace DoAnCS.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Lỗi khi gửi email: " + ex.Message;
+                Console.WriteLine("Lỗi ForgotPassword SendEmail: " + ex.Message);
+                ViewBag.Error = "Lỗi hệ thống, hãy liên hệ admin để giải quyết";
                 return View();
             }
         }
