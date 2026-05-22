@@ -46,7 +46,7 @@ namespace DoAnCS.Controllers
                 chatbotApiKey = _configuration["Gemini:ChatbotApiKey"];
 
             if (string.IsNullOrEmpty(chatbotApiKey))
-                return Json(new { success = false, reply = "Chatbot chưa được cấu hình. Admin vui lòng cài đặt <strong>Key riêng (Chatbox API Key)</strong> để tránh ảnh hưởng đến giới hạn tạo CV!" });
+                return Json(new { success = false, reply = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
 
             chatbotApiKey = chatbotApiKey.Trim();
 
@@ -121,9 +121,9 @@ Quy tắc:
                 // Lỗi API - trả về status code cụ thể
                 string errorMsg = (int)response.StatusCode switch
                 {
-                    429 => "Chatbot đang bị quá tải (rate limit). Google đã giới hạn key của bạn, vui lòng thử lại sau vài giây hoặc đổi Key khác!",
-                    401 or 403 => "API Key chatbot không hợp lệ. Admin vui lòng kiểm tra lại cấu hình Key dành riêng cho Chatbox!",
-                    400 => "Yêu cầu không hợp lệ. Có thể do bạn copy-paste Key bị dính khoảng trắng hoặc ký tự lạ!",
+                    429 => "Chatbot đang bị quá tải, vui lòng thử lại sau vài phút!",
+                    401 or 403 => "Lỗi hệ thống, hãy liên hệ admin để giải quyết",
+                    400 => "Yêu cầu không hợp lệ.",
                     _ => $"Lỗi kết nối AI ({(int)response.StatusCode}). Vui lòng liên hệ Admin!"
                 };
                 return Json(new { success = false, reply = errorMsg });
