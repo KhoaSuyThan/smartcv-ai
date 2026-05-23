@@ -421,6 +421,81 @@
                                         <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
                                         <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
                                     </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-geo-alt-fill me-2"></i>Địa chỉ hiện tại</label>
+                                        <input asp-for="Address" id="Address" class="form-control edit-locked" readonly placeholder="Ví dụ: Quận 1, TP.HCM" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-pin-map-fill me-2"></i>Địa điểm làm việc mong muốn</label>
+                                        <select asp-for="ExpectedLocation" id="ExpectedLocation" class="form-select form-control edit-locked" disabled>
+                                            <option value="">Chọn tỉnh/thành phố</option>
+                                            <option value="Hà Nội">Hà Nội</option>
+                                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                            <option value="Đà Nẵng">Đà Nẵng</option>
+                                            <option value="Hải Phòng">Hải Phòng</option>
+                                            <option value="Cần Thơ">Cần Thơ</option>
+                                            <option value="An Giang">An Giang</option>
+                                            <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                                            <option value="Bắc Giang">Bắc Giang</option>
+                                            <option value="Bắc Kạn">Bắc Kạn</option>
+                                            <option value="Bạc Liêu">Bạc Liêu</option>
+                                            <option value="Bắc Ninh">Bắc Ninh</option>
+                                            <option value="Bến Tre">Bến Tre</option>
+                                            <option value="Bình Định">Bình Định</option>
+                                            <option value="Bình Dương">Bình Dương</option>
+                                            <option value="Bình Phước">Bình Phước</option>
+                                            <option value="Bình Thuận">Bình Thuận</option>
+                                            <option value="Cà Mau">Cà Mau</option>
+                                            <option value="Cao Bằng">Cao Bằng</option>
+                                            <option value="Đắk Lắk">Đắk Lắk</option>
+                                            <option value="Đắk Nông">Đắk Nông</option>
+                                            <option value="Điện Biên">Điện Biên</option>
+                                            <option value="Đồng Nai">Đồng Nai</option>
+                                            <option value="Đồng Tháp">Đồng Tháp</option>
+                                            <option value="Gia Lai">Gia Lai</option>
+                                            <option value="Hà Giang">Hà Giang</option>
+                                            <option value="Hà Nam">Hà Nam</option>
+                                            <option value="Hà Tĩnh">Hà Tĩnh</option>
+                                            <option value="Hải Dương">Hải Dương</option>
+                                            <option value="Hậu Giang">Hậu Giang</option>
+                                            <option value="Hòa Bình">Hòa Bình</option>
+                                            <option value="Hưng Yên">Hưng Yên</option>
+                                            <option value="Khánh Hòa">Khánh Hòa</option>
+                                            <option value="Kiên Giang">Kiên Giang</option>
+                                            <option value="Kon Tum">Kon Tum</option>
+                                            <option value="Lai Châu">Lai Châu</option>
+                                            <option value="Lâm Đồng">Lâm Đồng</option>
+                                            <option value="Lạng Sơn">Lạng Sơn</option>
+                                            <option value="Lào Cai">Lào Cai</option>
+                                            <option value="Long An">Long An</option>
+                                            <option value="Nam Định">Nam Định</option>
+                                            <option value="Nghệ An">Nghệ An</option>
+                                            <option value="Ninh Bình">Ninh Bình</option>
+                                            <option value="Ninh Thuận">Ninh Thuận</option>
+                                            <option value="Phú Thọ">Phú Thọ</option>
+                                            <option value="Phú Yên">Phú Yên</option>
+                                            <option value="Quảng Bình">Quảng Bình</option>
+                                            <option value="Quảng Nam">Quảng Nam</option>
+                                            <option value="Quảng Ngãi">Quảng Ngãi</option>
+                                            <option value="Quảng Ninh">Quảng Ninh</option>
+                                            <option value="Quảng Trị">Quảng Trị</option>
+                                            <option value="Sóc Trăng">Sóc Trăng</option>
+                                            <option value="Sơn La">Sơn La</option>
+                                            <option value="Tây Ninh">Tây Ninh</option>
+                                            <option value="Thái Bình">Thái Bình</option>
+                                            <option value="Thái Nguyên">Thái Nguyên</option>
+                                            <option value="Thanh Hóa">Thanh Hóa</option>
+                                            <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+                                            <option value="Tiền Giang">Tiền Giang</option>
+                                            <option value="Trà Vinh">Trà Vinh</option>
+                                            <option value="Tuyên Quang">Tuyên Quang</option>
+                                            <option value="Vĩnh Long">Vĩnh Long</option>
+                                            <option value="Vĩnh Phúc">Vĩnh Phúc</option>
+                                            <option value="Yên Bái">Yên Bái</option>
+                                        </select>
+                                    </div>
                                 }
 
                                 <div class="col-md-12">
@@ -759,6 +834,8 @@
     <script>
         let oldName = "@Html.Raw(Model.FullName)";
         let oldPhone = "@Html.Raw(Model.Phone)";
+        let oldAddress = "@Html.Raw(Model.Address)";
+        let oldExpectedLocation = "@Html.Raw(Model.ExpectedLocation)";
         let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
         let oldCompanyAddress = "@Html.Raw(Model.Company?.Address)";
         let isRecruiter = @(isRecruiter ? "true" : "false");
@@ -771,8 +848,12 @@
             let fields = ['FullName', 'Phone'];
             const summaryEl = document.getElementById('Summary');
             const skillsEl = document.getElementById('Skills');
+            const addressEl = document.getElementById('Address');
+            const expectedLocationEl = document.getElementById('ExpectedLocation');
             if (summaryEl) fields.push('Summary');
             if (skillsEl) fields.push('Skills');
+            if (addressEl) fields.push('Address');
+            if (expectedLocationEl) fields.push('ExpectedLocation');
             if (isRecruiter) {
                 fields.push('CompanyName', 'CompanyAddress');
             }
@@ -786,6 +867,7 @@
                 const el = document.getElementById(id);
                 if (el) {
                     el.readOnly = false;
+                    el.disabled = false;
                     el.classList.remove('edit-locked');
                 }
             });
@@ -797,11 +879,19 @@
             document.getElementById('Phone').value = oldPhone;
             const summaryEl = document.getElementById('Summary');
             const skillsEl = document.getElementById('Skills');
+            const addressEl = document.getElementById('Address');
+            const expectedLocationEl = document.getElementById('ExpectedLocation');
             if (summaryEl) {
                 summaryEl.value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
             }
             if (skillsEl) {
                 skillsEl.value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
+            }
+            if (addressEl) {
+                addressEl.value = oldAddress;
+            }
+            if (expectedLocationEl) {
+                expectedLocationEl.value = oldExpectedLocation;
             }
             if (isRecruiter) {
                 let cn = document.getElementById('CompanyName');
@@ -815,6 +905,7 @@
                 const el = document.getElementById(id);
                 if (el) {
                     el.readOnly = true;
+                    el.disabled = true;
                     el.classList.add('edit-locked');
                 }
             });

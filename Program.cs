@@ -161,6 +161,19 @@ using (var scope = app.Services.CreateScope())
         END
         ");
 
+        // Thêm cột Address và ExpectedLocation cho Users
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'Address')
+        BEGIN
+            ALTER TABLE [Users] ADD [Address] NVARCHAR(MAX) NULL;
+        END
+
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'ExpectedLocation')
+        BEGIN
+            ALTER TABLE [Users] ADD [ExpectedLocation] NVARCHAR(MAX) NULL;
+        END
+        ");
+
         // AUTO-CREATE bảng CVMatchResults cho tính năng Smart CV Matcher
         db.Database.ExecuteSqlRaw(@"
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CVMatchResults' and xtype='U')
