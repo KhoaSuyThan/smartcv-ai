@@ -378,18 +378,40 @@
     <div class="search-container mb-5">
         <div class="search-glass">
             <form method="get" asp-action="Index" class="row g-3">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <div class="input-wrapper">
                         <i class="bi bi-search"></i>
                         <input type="text" name="searchTerm" 
                                placeholder="Kỹ năng, tên ứng viên..." value="@ViewBag.SearchTerm">
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-3">
+                    <div class="input-wrapper">
+                        <i class="bi bi-briefcase"></i>
+                        <input type="text" name="jobTitle" 
+                               placeholder="Vị trí ứng tuyển..." value="@ViewBag.JobTitleFilter">
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="input-wrapper">
                         <i class="bi bi-geo-alt"></i>
-                        <input type="text" name="jobTitle" 
-                               placeholder="Vị trí tuyển dụng..." value="@ViewBag.JobTitleFilter">
+                        <select name="location" class="form-select border-0 bg-transparent text-dark fw-medium" style="padding: 0.75rem 0.75rem; box-shadow: none; cursor: pointer;">
+                            <option value="">Tất cả địa điểm</option>
+                            @{
+                                var locations = new[] { "Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cao Bằng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Tĩnh", "Hải Dương", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái" };
+                                foreach (var loc in locations)
+                                {
+                                    if (ViewBag.LocationFilter == loc)
+                                    {
+                                        <option value="@loc" selected>@loc</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@loc">@loc</option>
+                                    }
+                                }
+                            }
+                        </select>
                     </div>
                 </div>
                 <div class="col-md-2">
@@ -409,7 +431,7 @@
                     <h3 class="fw-bold text-dark mb-1">Ứng viên tiềm năng</h3>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary-subtle text-primary rounded-pill px-3">@Model.Count() Kết quả</span>
-                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.JobTitleFilter))
+                        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm) || !string.IsNullOrEmpty(ViewBag.JobTitleFilter) || !string.IsNullOrEmpty(ViewBag.LocationFilter))
                         {
                             <a href="@Url.Action("Index", "Talent")" class="text-muted small text-decoration-none hover-primary">
                                 <i class="bi bi-arrow-counterclockwise"></i> Đặt lại

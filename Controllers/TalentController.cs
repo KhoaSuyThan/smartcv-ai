@@ -16,7 +16,7 @@ namespace DoAnCS.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm, string jobTitle)
+        public async Task<IActionResult> Index(string searchTerm, string jobTitle, string location)
         {
             var query = _context.Resumes
                 .Include(r => r.User)
@@ -40,6 +40,16 @@ namespace DoAnCS.Controllers
             {
                 jobTitle = jobTitle.ToLower();
                 query = query.Where(r => r.JobTitle != null && r.JobTitle.ToLower().Contains(jobTitle));
+            }
+
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                // Tìm kiếm theo địa điểm: có thể tìm theo ExpectedLocation của User
+                // hoặc Address của User
+                query = query.Where(r => r.User != null && (
+                    (r.User.ExpectedLocation != null && r.User.ExpectedLocation == location) ||
+                    (r.User.Address != null && r.User.Address.Contains(location))
+                ));
             }
 
             // Nhóm theo UserID để mỗi người chỉ xuất hiện 1 lần
@@ -82,6 +92,7 @@ namespace DoAnCS.Controllers
             ViewBag.SavedResumeIds = savedCandidates.Select(s => s.ResumeId).ToList();
             ViewBag.SearchTerm = searchTerm;
             ViewBag.JobTitleFilter = jobTitle;
+            ViewBag.LocationFilter = location;
 
             return View(resumes);
         }

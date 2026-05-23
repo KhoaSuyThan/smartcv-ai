@@ -280,7 +280,7 @@ namespace DoAnCS.Controllers
         [Authorize]
         [ValidateAntiForgeryToken]
         // BỔ SUNG: Nhận thêm tham số IFormFile từ View gửi lên
-        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,Skills")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null)
+        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,Skills,Address,ExpectedLocation")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null)
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -332,6 +332,8 @@ namespace DoAnCS.Controllers
                 {
                     user.Summary = model.Summary;
                     user.Skills = model.Skills;
+                    user.Address = model.Address;
+                    user.ExpectedLocation = model.ExpectedLocation;
                 }
 
                 // --- XỬ LÝ THÔNG TIN CÔNG TY CHO NHÀ TUYỂN DỤNG ---

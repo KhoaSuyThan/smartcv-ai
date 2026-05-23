@@ -27,6 +27,8 @@ namespace DoAnCS.Models {
         
         public string? Summary { get; set; } // Giới thiệu bản thân
         public string? Skills { get; set; }  // Các kỹ năng (ví dụ: C#, React, SQL)
+        public string? Address { get; set; } // Địa chỉ
+        public string? ExpectedLocation { get; set; } // Địa điểm làm việc mong muốn
 
         public virtual ICollection<Resume> Resumes { get; set; }   
     }
