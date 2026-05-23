@@ -16,7 +16,7 @@ namespace DoAnCS.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm, string jobTitle, string location)
+        public async Task<IActionResult> Index(string searchTerm, string jobTitle, string location, string district)
         {
             var query = _context.Resumes
                 .Include(r => r.User)
@@ -42,13 +42,19 @@ namespace DoAnCS.Controllers
                 query = query.Where(r => r.JobTitle != null && r.JobTitle.ToLower().Contains(jobTitle));
             }
 
-            if (!string.IsNullOrWhiteSpace(location))
+            if (!string.IsNullOrWhiteSpace(location) || !string.IsNullOrWhiteSpace(district))
             {
                 // Tìm kiếm theo địa điểm: có thể tìm theo ExpectedLocation của User
-                // hoặc Address của User
+                // hoặc Address của User, kết hợp cả Tỉnh (location) và Quận (district)
                 query = query.Where(r => r.User != null && (
-                    (r.User.ExpectedLocation != null && r.User.ExpectedLocation == location) ||
-                    (r.User.Address != null && r.User.Address.Contains(location))
+                    (r.User.ExpectedLocation != null && 
+                        (string.IsNullOrWhiteSpace(location) || r.User.ExpectedLocation.Contains(location)) &&
+                        (string.IsNullOrWhiteSpace(district) || r.User.ExpectedLocation.Contains(district))
+                    ) ||
+                    (r.User.Address != null && 
+                        (string.IsNullOrWhiteSpace(location) || r.User.Address.Contains(location)) &&
+                        (string.IsNullOrWhiteSpace(district) || r.User.Address.Contains(district))
+                    )
                 ));
             }
 
@@ -93,6 +99,7 @@ namespace DoAnCS.Controllers
             ViewBag.SearchTerm = searchTerm;
             ViewBag.JobTitleFilter = jobTitle;
             ViewBag.LocationFilter = location;
+            ViewBag.DistrictFilter = district;
 
             return View(resumes);
         }
