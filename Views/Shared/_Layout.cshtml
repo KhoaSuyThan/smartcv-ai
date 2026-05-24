@@ -124,19 +124,22 @@
                         </li>
 
                         @* Quyền hạn chung cho khách và Ứng viên *@
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "Templates" ? "active" : "")" 
-                               asp-controller="Resume" asp-action="Templates">
-                                <i class="fas fa-id-card me-1"></i> Mẫu CV
-                            </a>
-                        </li>
+                        @if (!User.IsInRole("Recruiter"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "Templates" ? "active" : "")" 
+                                   asp-controller="Resume" asp-action="Templates">
+                                    <i class="fas fa-id-card me-1"></i> Mẫu CV
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "VueTemplates" ? "active" : "")" 
-                               asp-controller="Resume" asp-action="VueTemplates">
-                                <i class="fas fa-flask me-1"></i> Vue CV
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "VueTemplates" ? "active" : "")" 
+                                   asp-controller="Resume" asp-action="VueTemplates">
+                                    <i class="fas fa-flask me-1"></i> Vue CV
+                                </a>
+                            </li>
+                        }
 
                         <li class="nav-item">
                             <a class="nav-link @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" || ViewContext.RouteData.Values["action"]?.ToString() == "Details")) || (ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" && ViewContext.RouteData.Values["action"]?.ToString() == "Index") ? "active" : "")" 
