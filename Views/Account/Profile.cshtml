@@ -369,7 +369,7 @@
                             </div>
                         }
 
-                        <form id="profileForm" asp-controller="Account" asp-action="Profile" method="post" enctype="multipart/form-data">
+                        <form id="profileForm" asp-controller="Account" asp-action="Profile" method="post" enctype="multipart/form-data" onsubmit="prepareProfileSubmit()">
                             <input type="hidden" asp-for="UserID" />
                             <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="submitAvatar(this)">
                             <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
@@ -393,9 +393,17 @@
                                             placeholder="Nhập địa chỉ công ty" />
                                     </div>
 
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Người đại diện</label>
                                         <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-receipt me-2"></i>Mã số thuế</label>
+                                        <input type="text" name="taxCode" id="TaxCode" 
+                                            value="@(Model.Company?.TaxCode)" 
+                                            class="form-control edit-locked" readonly 
+                                            placeholder="Nhập mã số thuế" />
                                     </div>
                                 }
                                 else
@@ -407,6 +415,21 @@
                                     <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
                                         <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-briefcase-fill me-2"></i>Chức danh chuyên môn</label>
+                                        <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control edit-locked" readonly placeholder="VD: Senior React Developer" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-star-fill me-2"></i>Số năm kinh nghiệm</label>
+                                        <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-control edit-locked" disabled>
+                                            <option value="">Chọn số năm kinh nghiệm</option>
+                                            <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
+                                            <option value="Dưới 1 năm">Dưới 1 năm</option>
+                                            <option value="1-3 năm">1-3 năm</option>
+                                            <option value="3-5 năm">3-5 năm</option>
+                                            <option value="Trên 5 năm">Trên 5 năm</option>
+                                        </select>
                                     </div>
                                 }
 
@@ -434,8 +457,10 @@
                                 @if (!isAdmin)
                                 {
                                     <div class="col-md-12">
-                                        <label class="custom-label text-dark"><i class="bi bi-card-text me-2"></i>Giới thiệu bản thân</label>
-                                        <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="1" placeholder="Chia sẻ một chút về bản thân bạn..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" style="overflow-y: hidden;"></textarea>
+                                        <label class="custom-label text-dark">
+                                            <i class="bi bi-card-text me-2"></i>@(isRecruiter ? "Giới thiệu công ty" : "Giới thiệu bản thân")
+                                        </label>
+                                        <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="1" placeholder="@(isRecruiter ? "Chia sẻ một chút về công ty..." : "Chia sẻ một chút về bản thân bạn...")" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" style="overflow-y: hidden;"></textarea>
                                     </div>
 
                                     @if (!isRecruiter)
@@ -443,6 +468,38 @@
                                         <div class="col-md-12">
                                             <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
                                             <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="custom-label text-dark"><i class="bi bi-link-45deg me-2"></i>Liên kết mạng xã hội / Portfolio</label>
+                                            <div id="portfolioContainer" class="d-flex flex-column gap-2">
+                                                @if (!string.IsNullOrEmpty(Model.PortfolioLinks))
+                                                {
+                                                    var links = Model.PortfolioLinks.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                                                    foreach (var link in links)
+                                                    {
+                                                        <div class="portfolio-item d-flex gap-2">
+                                                            <input type="text" class="form-control portfolio-input edit-locked" readonly value="@link" placeholder="Nhập đường dẫn..." />
+                                                            <button type="button" class="btn btn-outline-danger btn-remove-portfolio d-none" onclick="this.parentElement.remove()">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <div class="portfolio-item d-flex gap-2">
+                                                        <input type="text" class="form-control portfolio-input edit-locked" readonly value="" placeholder="Nhập đường dẫn (VD: https://linkedin.com/...)" />
+                                                        <button type="button" class="btn btn-outline-danger btn-remove-portfolio d-none" onclick="this.parentElement.remove()">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <button type="button" id="btnAddPortfolio" class="btn btn-sm btn-outline-primary mt-2 d-none" onclick="addPortfolioInput()">
+                                                <i class="bi bi-plus-circle me-1"></i>Thêm liên kết
+                                            </button>
+                                            <input type="hidden" asp-for="PortfolioLinks" id="PortfolioLinks" />
                                         </div>
 
                                         <div class="col-md-12">
@@ -789,8 +846,11 @@
         let oldPhone = "@Html.Raw(Model.Phone)";
         let oldAddress = "@Html.Raw(Model.Address)";
         let oldExpectedLocation = "@Html.Raw(Model.ExpectedLocation)";
+        let oldProfessionalTitle = `@Html.Raw(Model.ProfessionalTitle?.Replace("`", "\\`"))`;
+        let oldYearsOfExperience = "@Html.Raw(Model.YearsOfExperience)";
         let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
         let oldCompanyAddress = "@Html.Raw(Model.Company?.Address)";
+        let oldTaxCode = "@Html.Raw(Model.Company?.TaxCode)";
         let isRecruiter = @(isRecruiter ? "true" : "false");
 
         let cropper;
@@ -896,6 +956,47 @@
             if (hiddenEl) hiddenEl.value = val;
         }
 
+        function addPortfolioInput() {
+            const container = document.getElementById('portfolioContainer');
+            const div = document.createElement('div');
+            div.className = 'portfolio-item d-flex gap-2';
+            div.innerHTML = `
+                <input type="text" class="form-control portfolio-input" value="" placeholder="Nhập đường dẫn (VD: https://linkedin.com/...)" />
+                <button type="button" class="btn btn-outline-danger btn-remove-portfolio" onclick="this.parentElement.remove()">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+            div.querySelector('input').focus();
+        }
+
+        function addPortfolioLinkReadOnly(value) {
+            const container = document.getElementById('portfolioContainer');
+            const div = document.createElement('div');
+            div.className = 'portfolio-item d-flex gap-2';
+            // Escape quotes to prevent HTML injection
+            const safeValue = value.replace(/"/g, '&quot;');
+            div.innerHTML = `
+                <input type="text" class="form-control portfolio-input edit-locked" readonly value="${safeValue}" placeholder="Nhập đường dẫn..." />
+                <button type="button" class="btn btn-outline-danger btn-remove-portfolio d-none" onclick="this.parentElement.remove()">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function prepareProfileSubmit() {
+            const inputs = document.querySelectorAll('.portfolio-input');
+            const links = [];
+            inputs.forEach(input => {
+                if (input.value.trim()) links.push(input.value.trim());
+            });
+            const hidden = document.getElementById('PortfolioLinks');
+            if (hidden) {
+                hidden.value = links.join('\n');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             loadProvinces();
             var summary = document.getElementById('Summary');
@@ -909,11 +1010,19 @@
             const summaryEl = document.getElementById('Summary');
             const skillsEl = document.getElementById('Skills');
             const addressEl = document.getElementById('Address');
+            const titleEl = document.getElementById('ProfessionalTitle');
+            const yearsEl = document.getElementById('YearsOfExperience');
+            
+            if (summaryEl) fields.push('Summary');
+            if (skillsEl) fields.push('Skills');
             if (addressEl) fields.push('Address');
+            if (titleEl) fields.push('ProfessionalTitle');
+            if (yearsEl) fields.push('YearsOfExperience');
+            
             fields.push('ProvinceSelect');
             fields.push('DistrictSelect');
             if (isRecruiter) {
-                fields.push('CompanyName', 'CompanyAddress');
+                fields.push('CompanyName', 'CompanyAddress', 'TaxCode');
             }
             return fields;
         }
@@ -929,6 +1038,15 @@
                     el.classList.remove('edit-locked');
                 }
             });
+            document.querySelectorAll('.portfolio-input').forEach(el => {
+                el.readOnly = false;
+                el.classList.remove('edit-locked');
+            });
+            const btnAdd = document.getElementById('btnAddPortfolio');
+            if (btnAdd) btnAdd.classList.remove('d-none');
+            document.querySelectorAll('.btn-remove-portfolio').forEach(btn => {
+                btn.classList.remove('d-none');
+            });
             document.getElementById('FullName').focus();
         }
 
@@ -938,11 +1056,29 @@
             const summaryEl = document.getElementById('Summary');
             const skillsEl = document.getElementById('Skills');
             const addressEl = document.getElementById('Address');
+            const titleEl = document.getElementById('ProfessionalTitle');
+            const yearsEl = document.getElementById('YearsOfExperience');
             
             if (summaryEl) {
                 summaryEl.value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
                 summaryEl.style.height = 'auto';
                 summaryEl.style.height = summaryEl.scrollHeight + 'px';
+            }
+            const portfolioContainer = document.getElementById('portfolioContainer');
+            if (portfolioContainer) {
+                portfolioContainer.innerHTML = '';
+                if (oldPortfolioLinks) {
+                    const links = oldPortfolioLinks.split(/\r?\n/).filter(l => l.trim() !== '');
+                    if (links.length > 0) {
+                        links.forEach(link => addPortfolioLinkReadOnly(link));
+                    } else {
+                        addPortfolioLinkReadOnly('');
+                    }
+                } else {
+                    addPortfolioLinkReadOnly('');
+                }
+                const btnAdd = document.getElementById('btnAddPortfolio');
+                if (btnAdd) btnAdd.classList.add('d-none');
             }
             if (skillsEl) {
                 skillsEl.value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
@@ -950,14 +1086,18 @@
             if (addressEl) {
                 addressEl.value = oldAddress;
             }
+            if (titleEl) titleEl.value = oldProfessionalTitle;
+            if (yearsEl) yearsEl.value = oldYearsOfExperience;
             
             setDropdownsFromExpectedLocation(oldExpectedLocation);
             
             if (isRecruiter) {
                 let cn = document.getElementById('CompanyName');
                 let ca = document.getElementById('CompanyAddress');
+                let tc = document.getElementById('TaxCode');
                 if (cn) cn.value = oldCompanyName;
                 if (ca) ca.value = oldCompanyAddress;
+                if (tc) tc.value = oldTaxCode;
             }
             document.getElementById('editActions').style.setProperty('display', 'none', 'important');
             document.getElementById('btnEdit').classList.remove('d-none');

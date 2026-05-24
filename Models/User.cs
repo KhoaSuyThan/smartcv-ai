@@ -26,6 +26,9 @@ namespace DoAnCS.Models {
         public int? OTPFailCount { get; set; } = 0;
         
         public string? Summary { get; set; } // Giới thiệu bản thân
+        public string? ProfessionalTitle { get; set; } // Chức danh chuyên môn
+        public string? PortfolioLinks { get; set; } // Các liên kết Portfolio/Mạng xã hội
+        public string? YearsOfExperience { get; set; } // Số năm kinh nghiệm
         public string? Skills { get; set; }  // Các kỹ năng (ví dụ: C#, React, SQL)
         public string? Address { get; set; } // Địa chỉ
         public string? ExpectedLocation { get; set; } // Địa điểm làm việc mong muốn
