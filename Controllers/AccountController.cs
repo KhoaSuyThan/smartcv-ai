@@ -279,8 +279,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        // BỔ SUNG: Nhận thêm tham số IFormFile từ View gửi lên
-        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,Skills,Address,ExpectedLocation")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null)
+        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,ProfessionalTitle,PortfolioLinks,YearsOfExperience,Skills,Address,ExpectedLocation")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null, string? taxCode = null)
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -331,19 +330,23 @@ namespace DoAnCS.Controllers
                 if (user.Role != "Admin")
                 {
                     user.Summary = model.Summary;
+                    user.ProfessionalTitle = model.ProfessionalTitle;
+                    user.PortfolioLinks = model.PortfolioLinks;
+                    user.YearsOfExperience = model.YearsOfExperience;
                     user.Skills = model.Skills;
                     user.Address = model.Address;
                     user.ExpectedLocation = model.ExpectedLocation;
                 }
 
                 // --- XỬ LÝ THÔNG TIN CÔNG TY CHO NHÀ TUYỂN DỤNG ---
-                if (user.Role == "Recruiter" && (!string.IsNullOrEmpty(companyName) || !string.IsNullOrEmpty(companyAddress)))
+                if (user.Role == "Recruiter" && (!string.IsNullOrEmpty(companyName) || !string.IsNullOrEmpty(companyAddress) || !string.IsNullOrEmpty(taxCode)))
                 {
                     if (user.Company != null)
                     {
                         // Cập nhật công ty đã có
                         if (!string.IsNullOrEmpty(companyName)) user.Company.Name = companyName;
                         if (companyAddress != null) user.Company.Address = companyAddress;
+                        if (taxCode != null) user.Company.TaxCode = taxCode;
                     }
                     else
                     {
@@ -352,6 +355,7 @@ namespace DoAnCS.Controllers
                         {
                             Name = companyName ?? "Chưa cập nhật",
                             Address = companyAddress,
+                            TaxCode = taxCode,
                             CreatedAt = DateTime.Now
                         };
                         _context.Companies.Add(newCompany);

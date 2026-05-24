@@ -172,6 +172,29 @@ using (var scope = app.Services.CreateScope())
         BEGIN
             ALTER TABLE [Users] ADD [ExpectedLocation] NVARCHAR(MAX) NULL;
         END
+
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'ProfessionalTitle')
+        BEGIN
+            ALTER TABLE [Users] ADD [ProfessionalTitle] NVARCHAR(MAX) NULL;
+        END
+
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'PortfolioLinks')
+        BEGIN
+            ALTER TABLE [Users] ADD [PortfolioLinks] NVARCHAR(MAX) NULL;
+        END
+
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'YearsOfExperience')
+        BEGIN
+            ALTER TABLE [Users] ADD [YearsOfExperience] NVARCHAR(MAX) NULL;
+        END
+        ");
+
+        // Thêm cột TaxCode cho Companies
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Companies') AND name = 'TaxCode')
+        BEGIN
+            ALTER TABLE [Companies] ADD [TaxCode] NVARCHAR(MAX) NULL;
+        END
         ");
 
         // AUTO-CREATE bảng CVMatchResults cho tính năng Smart CV Matcher
