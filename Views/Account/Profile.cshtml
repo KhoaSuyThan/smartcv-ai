@@ -133,8 +133,8 @@
     
     .form-control.edit-locked {
         background-color: transparent !important;
-        border: none !important;
-        padding-left: 0 !important;
+        border: 1.5px solid transparent !important;
+        padding: 10px 15px !important;
         font-size: 1.05rem;
         font-weight: 600;
         color: #1a202c !important;
@@ -347,9 +347,15 @@
                                 <h4 class="info-card-title mb-1">@(isRecruiter ? "Thông tin doanh nghiệp" : "Cài đặt tài khoản")</h4>
                                 <p class="text-muted small mb-0">@(isRecruiter ? "Quản lý và cập nhật thông tin thương hiệu của doanh nghiệp." : "Quản lý và cập nhật thông tin định danh của bạn.")</p>
                             </div>
-                            <button type="button" id="btnEdit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold transition-base" onclick="enableEditing()">
-                                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button" id="btnEdit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold transition-base" onclick="enableEditing()">
+                                    <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+                                </button>
+                                <div id="editActions" class="d-flex gap-2" style="display: none !important;">
+                                    <button type="button" class="btn btn-light px-4 rounded-pill border fw-bold text-muted" onclick="disableEditing()">Bỏ qua</button>
+                                    <button type="submit" form="profileForm" class="btn btn-primary px-4 rounded-pill shadow fw-bold">Lưu</button>
+                                </div>
+                            </div>
                         </div>
 
                         @if (TempData["SuccessMessage"] != null)
@@ -368,10 +374,10 @@
                             <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="submitAvatar(this)">
                             <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
 
-                            <div class="row g-5">
+                            <div class="row g-4">
                                 @if (isRecruiter)
                                 {
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <label class="custom-label"><i class="bi bi-building me-2"></i>Đơn vị tuyển dụng</label>
                                         <input type="text" name="companyName" id="CompanyName" 
                                             value="@(Model.Company?.Name)" 
@@ -379,7 +385,7 @@
                                             placeholder="Nhập tên công ty" />
                                     </div>
 
-                                    <div class="col-md-12">
+                                    <div class="col-md-6">
                                         <label class="custom-label"><i class="bi bi-geo-alt me-2"></i>Địa chỉ văn phòng</label>
                                         <input type="text" name="companyAddress" id="CompanyAddress" 
                                             value="@(Model.Company?.Address)" 
@@ -387,14 +393,9 @@
                                             placeholder="Nhập địa chỉ công ty" />
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Người đại diện</label>
                                         <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại liên hệ</label>
-                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
                                     </div>
                                 }
                                 else
@@ -403,45 +404,9 @@
                                         <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
                                         <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
                                     </div>
-
                                     <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
                                         <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
-                                    </div>
-                                }
-
-                                @if (!isAdmin)
-                                {
-                                    <div class="col-md-12">
-                                        <label class="custom-label text-dark"><i class="bi bi-card-text me-2"></i>Giới thiệu bản thân</label>
-                                        <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="3" placeholder="Chia sẻ một chút về bản thân bạn..."></textarea>
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
-                                        <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <label class="custom-label text-dark"><i class="bi bi-geo-alt-fill me-2"></i>Địa chỉ hiện tại</label>
-                                        <input asp-for="Address" id="Address" class="form-control edit-locked" readonly placeholder="Ví dụ: 123 Đường Nguyễn Trãi, Quận 1, TP.HCM" />
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <label class="custom-label text-dark"><i class="bi bi-pin-map-fill me-2"></i>Địa điểm làm việc</label>
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <select id="ProvinceSelect" class="form-select form-control edit-locked" disabled>
-                                                    <option value="">Chọn tỉnh/thành phố</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <select id="DistrictSelect" class="form-select form-control edit-locked" disabled>
-                                                    <option value="">Chọn quận/huyện</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" asp-for="ExpectedLocation" id="ExpectedLocation" />
                                     </div>
                                 }
 
@@ -457,11 +422,52 @@
                                         }
                                     </div>
                                 </div>
-                            </div>
 
-                            <div id="editActions" class="mt-5 pt-4 border-top d-flex justify-content-end gap-3" style="display: none !important;">
-                                <button type="button" class="btn btn-light px-4 rounded-pill border fw-bold text-muted" onclick="disableEditing()">Bỏ qua</button>
-                                <button type="submit" class="btn btn-primary px-5 rounded-pill shadow fw-bold">Lưu thông tin</button>
+                                @if (isRecruiter)
+                                {
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại liên hệ</label>
+                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
+                                    </div>
+                                }
+
+                                @if (!isAdmin)
+                                {
+                                    <div class="col-md-12">
+                                        <label class="custom-label text-dark"><i class="bi bi-card-text me-2"></i>Giới thiệu bản thân</label>
+                                        <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="1" placeholder="Chia sẻ một chút về bản thân bạn..." oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" style="overflow-y: hidden;"></textarea>
+                                    </div>
+
+                                    @if (!isRecruiter)
+                                    {
+                                        <div class="col-md-12">
+                                            <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
+                                            <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="custom-label text-dark"><i class="bi bi-geo-alt-fill me-2"></i>Địa chỉ hiện tại</label>
+                                            <input asp-for="Address" id="Address" class="form-control edit-locked" readonly placeholder="Ví dụ: 123 Đường Nguyễn Trãi, Quận 1, TP.HCM" />
+                                        </div>
+
+                                        <div class="col-md-12">
+                                            <label class="custom-label text-dark"><i class="bi bi-pin-map-fill me-2"></i>Địa điểm làm việc</label>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <select id="ProvinceSelect" class="form-select form-control edit-locked" disabled>
+                                                        <option value="">Chọn tỉnh/thành phố</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <select id="DistrictSelect" class="form-select form-control edit-locked" disabled>
+                                                        <option value="">Chọn quận/huyện</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" asp-for="ExpectedLocation" id="ExpectedLocation" />
+                                        </div>
+                                    }
+                                }
                             </div>
                         </form>
                     </div>
@@ -795,10 +801,12 @@
         
         async function loadProvinces() {
             try {
+                const provinceSelect = document.getElementById('ProvinceSelect');
+                if (!provinceSelect) return; // Bỏ qua nếu không có trường này (dành cho Recruiter)
+
                 const response = await fetch('/data/provinces.json');
                 provincesData = await response.json();
                 
-                const provinceSelect = document.getElementById('ProvinceSelect');
                 provincesData.forEach(p => {
                     const option = document.createElement('option');
                     option.value = p.name;
@@ -814,9 +822,12 @@
                     updateExpectedLocationHidden();
                 });
                 
-                document.getElementById('DistrictSelect').addEventListener('change', function() {
-                    updateExpectedLocationHidden();
-                });
+                const districtSelect = document.getElementById('DistrictSelect');
+                if (districtSelect) {
+                    districtSelect.addEventListener('change', function() {
+                        updateExpectedLocationHidden();
+                    });
+                }
                 
             } catch(e) {
                 console.error("Error loading provinces:", e);
@@ -825,6 +836,8 @@
         
         function populateDistricts(provinceName) {
             const districtSelect = document.getElementById('DistrictSelect');
+            if (!districtSelect) return;
+            
             districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
             
             if(!provinceName) return;
@@ -843,6 +856,8 @@
         function setDropdownsFromExpectedLocation(locString) {
             const provinceSelect = document.getElementById('ProvinceSelect');
             const districtSelect = document.getElementById('DistrictSelect');
+            
+            if (!provinceSelect || !districtSelect) return;
             
             if (!locString) {
                 provinceSelect.value = '';
@@ -867,15 +882,27 @@
         }
         
         function updateExpectedLocationHidden() {
-            const p = document.getElementById('ProvinceSelect').value;
-            const d = document.getElementById('DistrictSelect').value;
+            const pEl = document.getElementById('ProvinceSelect');
+            const dEl = document.getElementById('DistrictSelect');
+            if (!pEl || !dEl) return;
+            
+            const p = pEl.value;
+            const d = dEl.value;
             let val = '';
             if (p && d) val = d + ', ' + p;
             else if (p) val = p;
-            document.getElementById('ExpectedLocation').value = val;
+            
+            const hiddenEl = document.getElementById('ExpectedLocation');
+            if (hiddenEl) hiddenEl.value = val;
         }
 
-        document.addEventListener('DOMContentLoaded', loadProvinces);
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProvinces();
+            var summary = document.getElementById('Summary');
+            if (summary) {
+                summary.style.height = summary.scrollHeight + 'px';
+            }
+        });
 
         function getEditableFields() {
             let fields = ['FullName', 'Phone'];
@@ -914,6 +941,8 @@
             
             if (summaryEl) {
                 summaryEl.value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
+                summaryEl.style.height = 'auto';
+                summaryEl.style.height = summaryEl.scrollHeight + 'px';
             }
             if (skillsEl) {
                 skillsEl.value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
