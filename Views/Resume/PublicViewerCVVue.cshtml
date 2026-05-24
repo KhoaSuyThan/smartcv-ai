@@ -12,7 +12,29 @@
         .cv-builder-editor-panel { display: none !important; }
         .no-print.sticky.top-0 { display: none !important; }
         .absolute.top-7.z-40 { display: none !important; }
-        .sticky.top-\[80px\] { display: none !important; } /* Hide Zoom Bar & AI Tools */
+        .sticky.top-\[80px\], .sticky.top-\[110px\] { display: none !important; } /* Hide Zoom Bar & AI Tools */
+        
+        /* Ẩn tất cả các công cụ tương tác nổi trong CV */
+        div.nav-btns, button.nav-btn, button.delete-btn, div.contact-item-btns,
+        .cv-preview-card .nav-btns, .cv-preview-card .nav-btn, .cv-preview-card .delete-btn { 
+            display: none !important; 
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        
+        .cv-preview-card .section-block:hover, 
+        .cv-preview-card .item-container:hover,
+        .cv-preview-card .section-active,
+        .cv-preview-card .section-selected,
+        .cv-preview-card .section-selected-main,
+        .cv-preview-card .section-selected-sidebar { 
+            background-color: transparent !important; 
+            border-color: transparent !important; 
+            box-shadow: none !important; 
+            cursor: text !important; 
+            outline: none !important;
+        }
         
         /* Disable clicks on contenteditable elements inside preview */
         .cv-preview-card [contenteditable], .cv-preview-card input, .cv-preview-card textarea, .cv-preview-card button {
@@ -78,6 +100,14 @@ else
             if (footer) footer.style.display = 'none';
             
             document.body.classList.add('cv-builder-page');
+
+            // Bắt sự kiện click ở giai đoạn Capture (trước khi Vue nhận được)
+            // để ngăn chặn hoàn toàn các thao tác chọn section/kích hoạt edit trong Vue
+            document.addEventListener('click', function(e) {
+                if (window.IS_PUBLIC_VIEW && e.target.closest('.cv-preview-card')) {
+                    e.stopPropagation();
+                }
+            }, true);
 
             // Inject watermark cho CV công khai của user Free
             if (!window.IS_PRO_USER) {
