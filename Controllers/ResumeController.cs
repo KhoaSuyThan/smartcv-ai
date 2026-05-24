@@ -9,7 +9,7 @@ using DoAnCS.Models.ViewModels;
 
 namespace DoAnCS.Controllers
 {
-    [Authorize(Roles = "User,Admin, Recruiter")] // Chỉ cho phép các vai trò này truy cập vào ResumeController
+    [Authorize(Roles = "User,Admin")] // Chỉ cho phép Ứng viên (User) và Admin truy cập. Đã khóa với Nhà tuyển dụng (Recruiter).
     public class ResumeController : Controller
     {
         private readonly AppDbContext _context;
