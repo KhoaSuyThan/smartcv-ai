@@ -11,9 +11,26 @@ var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineCo
 var localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 
 // Mặc định dùng Online nếu có (đặc biệt là trong Docker), nếu không thì dùng Local
-string activeConnectionString = !string.IsNullOrEmpty(onlineConnectionString) ? onlineConnectionString : localConnectionString;
+string activeConnectionString = localConnectionString;
 
-Console.WriteLine($"Using Connection String: {activeConnectionString}");
+try
+{
+    Console.WriteLine("Checking connection to Online Server...");
+    var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(onlineConnectionString) 
+    { 
+        ConnectTimeout = 3 // Giới hạn thời gian chờ là 3 giây để không bị treo lâu
+    };
+    using (var connection = new Microsoft.Data.SqlClient.SqlConnection(csb.ConnectionString))
+    {
+        connection.Open();
+        activeConnectionString = onlineConnectionString;
+        Console.WriteLine("-> Connected to Online Server successfully!");
+    }
+}
+catch (Exception)
+{
+    Console.WriteLine("-> Online Server is unreachable. Falling back to Local Server (.).");
+}
 
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
@@ -197,40 +214,6 @@ using (var scope = app.Services.CreateScope())
         END
         ");
 
-        // Thêm các cột còn thiếu cho bảng Users
-        db.Database.ExecuteSqlRaw(@"
-        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'Summary')
-            ALTER TABLE [Users] ADD [Summary] NVARCHAR(MAX) NULL;
-        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'Skills')
-            ALTER TABLE [Users] ADD [Skills] NVARCHAR(MAX) NULL;
-        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'ExpectedSalary')
-            ALTER TABLE [Users] ADD [ExpectedSalary] INT NULL;
-        
-        -- Các cột cho tính năng quên / đổi mật khẩu
-        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'PasswordChangeToken')
-            ALTER TABLE [Users] ADD [PasswordChangeToken] NVARCHAR(MAX) NULL,
-                                    [PasswordChangeTokenExpires] DATETIME2 NULL,
-                                    [PendingPasswordHash] NVARCHAR(MAX) NULL,
-                                    [PasswordResetOTP] NVARCHAR(MAX) NULL,
-                                    [OTPExpires] DATETIME2 NULL,
-                                    [OTPFailCount] INT NULL;
-        ");
-
-        // Thêm các cột còn thiếu cho bảng Resumes (Tính năng Vue CV)
-        db.Database.ExecuteSqlRaw(@"
-        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Resumes') AND name = 'JsonContent')
-            ALTER TABLE [Resumes] ADD [JsonContent] NVARCHAR(MAX) NULL,
-                                      [FullName] NVARCHAR(MAX) NULL,
-                                      [JobTitle] NVARCHAR(MAX) NULL,
-                                      [Email] NVARCHAR(MAX) NULL,
-                                      [Phone] NVARCHAR(MAX) NULL,
-                                      [Address] NVARCHAR(MAX) NULL,
-                                      [BirthDate] DATETIME2 NULL,
-                                      [AvatarUrl] NVARCHAR(MAX) NULL,
-                                      [Summary] NVARCHAR(MAX) NULL,
-                                      [ThemeColor] NVARCHAR(MAX) NULL;
-        ");
-
         // AUTO-CREATE bảng CVMatchResults cho tính năng Smart CV Matcher
         db.Database.ExecuteSqlRaw(@"
         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='CVMatchResults' and xtype='U')
@@ -274,7 +257,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("SQL Create/Alter Table Error: " + ex.Message); 
     }
 }
-// END AUTO-CREATE TABLES
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
