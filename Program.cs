@@ -33,7 +33,6 @@ catch (Exception)
     Console.WriteLine("-> Online Server is unreachable. Falling back to Local Server (.).");
 }
 
-Console.WriteLine($"Using Connection String: {activeConnectionString}");
 
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
