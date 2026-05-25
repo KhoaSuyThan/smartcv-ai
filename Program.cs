@@ -7,13 +7,31 @@ using Microsoft.AspNetCore.HttpOverrides;
 var builder = WebApplication.CreateBuilder(args);
 
 // Lấy chuỗi kết nối
+// Lấy chuỗi kết nối
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
 var localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 
 // Mặc định dùng Online nếu có (đặc biệt là trong Docker), nếu không thì dùng Local
-string activeConnectionString = !string.IsNullOrEmpty(onlineConnectionString) ? onlineConnectionString : localConnectionString;
+string activeConnectionString = localConnectionString;
 
-Console.WriteLine($"Using Connection String: {activeConnectionString}");
+try
+{
+    Console.WriteLine("Checking connection to Online Server...");
+    var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(onlineConnectionString) 
+    { 
+        ConnectTimeout = 3 // Giới hạn thời gian chờ là 3 giây để không bị treo lâu
+    };
+    using (var connection = new Microsoft.Data.SqlClient.SqlConnection(csb.ConnectionString))
+    {
+        connection.Open();
+        activeConnectionString = onlineConnectionString;
+        Console.WriteLine("-> Connected to Online Server successfully!");
+    }
+}
+catch (Exception)
+{
+    Console.WriteLine("-> Online Server is unreachable. Falling back to Local Server (.).");
+}
 
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
