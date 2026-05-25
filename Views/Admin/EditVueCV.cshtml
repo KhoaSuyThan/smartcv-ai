@@ -15,6 +15,10 @@
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="CreatedAt" />
+                @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl))
+                {
+                    <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                }
 
                 <div class="row g-4">
                     <div class="col-md-7">
@@ -108,7 +112,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between mt-5 pt-4 border-top">
-                    <a asp-action="VueTemplates" class="btn btn-light rounded-pill px-4">Hủy bỏ</a>
+                    <a href="@(string.IsNullOrEmpty(ViewBag.ReturnUrl) ? "/Admin/VueTemplates" : ViewBag.ReturnUrl)" class="btn btn-light rounded-pill px-4">Hủy bỏ</a>
                     <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu thay đổi</button>
                 </div>
             </form>

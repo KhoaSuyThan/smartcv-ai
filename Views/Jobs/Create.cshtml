@@ -64,11 +64,19 @@
                         <div class="row">
                             @* LƯƠNG *@
                             <div class="col-md-6 mb-4">
-                                <label asp-for="Salary" class="form-label fw-bold text-dark">Mức lương</label>
-                                <div class="input-group">
+                                <label class="form-label fw-bold text-dark">Mức lương</label>
+                                <select id="salaryType" class="form-select border-2 py-2 px-3 rounded-3 mb-2">
+                                    <option value="Thỏa thuận">Thỏa thuận</option>
+                                    <option value="Cạnh tranh">Cạnh tranh</option>
+                                    <option value="Nhập liệu">Nhập liệu cụ thể</option>
+                                </select>
+
+                                <div class="input-group" id="salaryInputGroup" style="display: none;">
                                     <span class="input-group-text border-2 bg-light"><i class='bx bx-money'></i></span>
-                                    <input asp-for="Salary" class="form-control border-2 py-2 px-3 rounded-end-3" placeholder="Ví dụ: 15 - 20 triệu" />
+                                    <input type="text" id="customSalary" class="form-control border-2 py-2 px-3" placeholder="Ví dụ: 20-30" />
+                                    <span class="input-group-text border-2 bg-light">triệu VNĐ/Tháng</span>
                                 </div>
+                                <input type="hidden" asp-for="Salary" id="Salary" />
                                 <span asp-validation-for="Salary" class="text-danger small"></span>
                             </div>
                             
@@ -119,6 +127,44 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var salaryHidden = document.getElementById("Salary");
+            if (!salaryHidden) return;
+            
+            var salaryType = document.getElementById("salaryType");
+            var salaryInputGroup = document.getElementById("salaryInputGroup");
+            var customSalary = document.getElementById("customSalary");
+
+            function updateHiddenValue() {
+                if (salaryType.value === "Nhập liệu") {
+                    if (customSalary.value.trim() !== "") {
+                        salaryHidden.value = customSalary.value.trim() + " triệu VNĐ/Tháng";
+                    } else {
+                        salaryHidden.value = "";
+                    }
+                } else {
+                    salaryHidden.value = salaryType.value;
+                }
+            }
+
+            salaryType.addEventListener("change", function () {
+                if (this.value === "Nhập liệu") {
+                    salaryInputGroup.style.display = "flex";
+                } else {
+                    salaryInputGroup.style.display = "none";
+                }
+                updateHiddenValue();
+            });
+
+            customSalary.addEventListener("input", function () {
+                updateHiddenValue();
+            });
+
+            // Initialize
+            updateHiddenValue();
+        });
+    </script>
 }
 
 <style>

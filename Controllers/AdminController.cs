@@ -182,18 +182,19 @@ namespace DoAnCS.Controllers
         
         // [GET] Load dữ liệu mẫu CV lên form
         [HttpGet]
-        public async Task<IActionResult> EditCV(int id)
+        public async Task<IActionResult> EditCV(int id, string returnUrl = null)
         {
             var template = await _context.Templates.FindAsync(id);
             if (template == null) return NotFound();
             
+            ViewBag.ReturnUrl = returnUrl;
             return View(template);
         }
 
         // [POST] Xử lý lưu dữ liệu sau khi sửa
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditCV(int id, Template template, IFormFile? uploadImage, string[] selectedCategories)
+        public async Task<IActionResult> EditCV(int id, Template template, IFormFile? uploadImage, string[] selectedCategories, string returnUrl = null)
         {
             if (id != template.TemplateID) return NotFound();
 
@@ -234,6 +235,7 @@ namespace DoAnCS.Controllers
                     await _context.SaveChangesAsync();
                     
                     TempData["Success"] = "Cập nhật mẫu thiết kế thành công!";
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
                     return RedirectToAction(nameof(Templates));
                 }
                 catch (Exception ex)
@@ -241,6 +243,7 @@ namespace DoAnCS.Controllers
                     ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
                 }
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View(template);
         }
 
@@ -514,16 +517,17 @@ namespace DoAnCS.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditVueCV(int id)
+        public async Task<IActionResult> EditVueCV(int id, string returnUrl = null)
         {
             var template = await _context.VueTemplates.FindAsync(id);
             if (template == null) return NotFound();
+            ViewBag.ReturnUrl = returnUrl;
             return View(template);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditVueCV(int id, VueTemplate template, IFormFile? uploadImage, string[] selectedCategories)
+        public async Task<IActionResult> EditVueCV(int id, VueTemplate template, IFormFile? uploadImage, string[] selectedCategories, string returnUrl = null)
         {
             if (id != template.Id) return NotFound();
 
@@ -570,6 +574,7 @@ namespace DoAnCS.Controllers
                     await _context.SaveChangesAsync();
                     
                     TempData["Success"] = "Cập nhật mẫu Vue CV thành công!";
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
                     return RedirectToAction(nameof(VueTemplates));
                 }
                 catch (Exception ex)
@@ -577,6 +582,7 @@ namespace DoAnCS.Controllers
                     ModelState.AddModelError("", "Lỗi hệ thống: " + ex.Message);
                 }
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View(template);
         }
 

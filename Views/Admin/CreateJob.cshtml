@@ -24,7 +24,17 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Mức lương</label>
-                        <input asp-for="Salary" class="form-control border-2" placeholder="Ví dụ: 15-20 Triệu" />
+                        <select id="salaryType" class="form-select border-2 mb-2">
+                            <option value="Thỏa thuận">Thỏa thuận</option>
+                            <option value="Cạnh tranh">Cạnh tranh</option>
+                            <option value="Nhập liệu">Nhập liệu cụ thể</option>
+                        </select>
+                        
+                        <div class="input-group" id="salaryInputGroup" style="display: none;">
+                            <input type="text" id="customSalary" class="form-control border-2" placeholder="Ví dụ: 15-20" />
+                            <span class="input-group-text border-2 bg-light">triệu VNĐ/Tháng</span>
+                        </div>
+                        <input type="hidden" asp-for="Salary" id="Salary" />
                     </div>
                     
                     <div class="col-12">
@@ -84,4 +94,53 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var salaryHidden = document.getElementById("Salary");
+            if (!salaryHidden) return;
+            
+            var salaryType = document.getElementById("salaryType");
+            var salaryInputGroup = document.getElementById("salaryInputGroup");
+            var customSalary = document.getElementById("customSalary");
+
+            // Khởi tạo từ dữ liệu cũ
+            var initialValue = salaryHidden.value;
+            if (!initialValue || initialValue === "Thỏa thuận") {
+                salaryType.value = "Thỏa thuận";
+                salaryHidden.value = "Thỏa thuận";
+            } else if (initialValue === "Cạnh tranh") {
+                salaryType.value = "Cạnh tranh";
+            } else {
+                salaryType.value = "Nhập liệu";
+                var num = initialValue.replace(" triệu VNĐ/Tháng", "").replace(" Triệu", "").replace(" triệu", "").trim();
+                customSalary.value = num;
+                salaryInputGroup.style.display = "flex";
+            }
+
+            function updateHiddenValue() {
+                if (salaryType.value === "Nhập liệu") {
+                    if (customSalary.value.trim() !== "") {
+                        salaryHidden.value = customSalary.value.trim() + " triệu VNĐ/Tháng";
+                    } else {
+                        salaryHidden.value = "";
+                    }
+                } else {
+                    salaryHidden.value = salaryType.value;
+                }
+            }
+
+            salaryType.addEventListener("change", function () {
+                if (this.value === "Nhập liệu") {
+                    salaryInputGroup.style.display = "flex";
+                } else {
+                    salaryInputGroup.style.display = "none";
+                }
+                updateHiddenValue();
+            });
+
+            customSalary.addEventListener("input", function () {
+                updateHiddenValue();
+            });
+        });
+    </script>
 }
