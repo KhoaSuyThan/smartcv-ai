@@ -279,7 +279,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,ProfessionalTitle,PortfolioLinks,YearsOfExperience,Skills,Address,ExpectedLocation")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null, string? taxCode = null)
+        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,ProfessionalTitle,PortfolioLinks,YearsOfExperience,Skills,Address,ExpectedLocation,ExpectedSalary")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null, string? taxCode = null)
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -336,6 +336,7 @@ namespace DoAnCS.Controllers
                     user.Skills = model.Skills;
                     user.Address = model.Address;
                     user.ExpectedLocation = model.ExpectedLocation;
+                    user.ExpectedSalary = model.ExpectedSalary;
                 }
 
                 // --- XỬ LÝ THÔNG TIN CÔNG TY CHO NHÀ TUYỂN DỤNG ---

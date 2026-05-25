@@ -32,6 +32,7 @@ namespace DoAnCS.Models {
         public string? Skills { get; set; }  // Các kỹ năng (ví dụ: C#, React, SQL)
         public string? Address { get; set; } // Địa chỉ
         public string? ExpectedLocation { get; set; } // Địa điểm làm việc mong muốn
+        public int? ExpectedSalary { get; set; } // Mức lương mong muốn (triệu VNĐ/tháng)
 
         public virtual ICollection<Resume> Resumes { get; set; }   
     }
