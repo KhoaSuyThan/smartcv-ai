@@ -36,7 +36,7 @@ namespace DoAnCS.Controllers
         public async Task<IActionResult> Manage()
         {
             // 1. Khởi tạo Query lấy kèm thông tin Công ty
-            IQueryable<Job> query = _context.Jobs.Include(j => j.Company);
+            IQueryable<Job> query = _context.Jobs.Include(j => j.Company).Include(j => j.Applications);
 
             // 2. Kiểm tra quyền của người dùng đang đăng nhập
             if (User.IsInRole("Recruiter"))

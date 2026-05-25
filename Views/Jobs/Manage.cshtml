@@ -130,7 +130,7 @@
 
                     <div class="tab-content" id="statTabsContent">
                         <!-- Tab 1: Application Status Chart -->
-                        <div class="tab-pane fade show active" id="tab-status" role="tabpanel" style="min-height: 175px;">
+                        <div class="tab-pane fade show active" id="tab-status" role="tabpanel" style="height: 200px; overflow-y: hidden;">
                             @if (ViewBag.TotalApplications > 0)
                             {
                                 <div style="position: relative; height: 120px;" class="mb-2">
@@ -138,7 +138,7 @@
                                 </div>
                                 <div class="d-flex justify-content-around text-center mt-3 pt-2 border-top" style="font-size: 0.75rem;">
                                     <div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">Chờ duyệt</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Chờ xử lý</div>
                                         <div class="fw-bold text-warning">@ViewBag.PendingApps</div>
                                     </div>
                                     <div>
@@ -146,7 +146,7 @@
                                         <div class="fw-bold text-info">@ViewBag.ReviewingApps</div>
                                     </div>
                                     <div>
-                                        <div class="text-muted" style="font-size: 0.7rem;">Duyệt</div>
+                                        <div class="text-muted" style="font-size: 0.7rem;">Chấp nhận</div>
                                         <div class="fw-bold text-success">@ViewBag.AcceptedApps</div>
                                     </div>
                                     <div>
@@ -165,7 +165,7 @@
                         </div>
 
                         <!-- Tab 2: Top Skills requested -->
-                        <div class="tab-pane fade" id="tab-skills" role="tabpanel" style="min-height: 175px;">
+                        <div class="tab-pane fade" id="tab-skills" role="tabpanel" style="height: 200px; overflow-y: hidden;">
                             @{
                                 var topSkills = ViewBag.TopSkills as List<DoAnCS.Controllers.SkillStat> ?? new List<DoAnCS.Controllers.SkillStat>();
                             }
@@ -226,12 +226,13 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light border-bottom border-top border-secondary-subtle">
                         <tr>
-                            <th class="ps-4" style="width: 35%;">Vị trí tuyển dụng</th>
-                            <th style="width: 25%;">Công ty</th>
+                            <th class="ps-4" style="width: 30%;">Vị trí tuyển dụng</th>
+                            <th style="width: 20%;">Công ty</th>
                             <th style="width: 12%;">Ngày đăng</th>
                             <th style="width: 13%;">Hạn nộp</th>
-                            <th style="width: 15%;">Trạng thái</th>
-                            <th class="text-center pe-4" style="width: 10%;">Thao tác</th>
+                            <th class="text-center" style="width: 10%;">Ứng viên</th>
+                            <th style="width: 10%;">Trạng thái</th>
+                            <th class="text-center pe-4" style="width: 5%;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -248,6 +249,11 @@
                                     <span class="@(item.Deadline < DateTime.Now ? "text-danger fw-bold" : "text-muted")">
                                         <i class="bi bi-calendar3 me-1"></i>
                                         @(item.Deadline?.ToString("dd/MM/yyyy") ?? "Không thời hạn")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-light text-primary border border-primary-subtle rounded-pill px-3 shadow-sm">
+                                        <i class="bi bi-people-fill me-1"></i> @(item.Applications?.Count ?? 0)
                                     </span>
                                 </td>
                                 <td>
