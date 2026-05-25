@@ -6,30 +6,39 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Lấy chuỗi kết nối
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
 var localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 
-// Mặc định dùng Online nếu có (đặc biệt là trong Docker), nếu không thì dùng Local
 string activeConnectionString = localConnectionString;
 
-try
+// 1. Kiểm tra xem chuỗi có bị null trên server không
+if (!string.IsNullOrEmpty(onlineConnectionString))
 {
-    Console.WriteLine("Checking connection to Online Server...");
-    var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(onlineConnectionString) 
-    { 
-        ConnectTimeout = 3 // Giới hạn thời gian chờ là 3 giây để không bị treo lâu
-    };
-    using (var connection = new Microsoft.Data.SqlClient.SqlConnection(csb.ConnectionString))
+    try
     {
-        connection.Open();
-        activeConnectionString = onlineConnectionString;
-        Console.WriteLine("-> Connected to Online Server successfully!");
+        Console.WriteLine("Checking connection to Online Server...");
+        var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(onlineConnectionString) 
+        { 
+            ConnectTimeout = 3 
+        };
+        
+        using (var connection = new Microsoft.Data.SqlClient.SqlConnection(csb.ConnectionString))
+        {
+            connection.Open();
+            activeConnectionString = onlineConnectionString;
+            Console.WriteLine("-> Connected to Online Server successfully!");
+        }
+    }
+    catch (Exception ex)
+    {
+        // 2. RẤT QUAN TRỌNG: In ra lý do thực sự khiến kết nối online thất bại
+        Console.WriteLine($"-> Online Server is unreachable. Reason: {ex.Message}");
+        Console.WriteLine("-> Falling back to Local Server...");
     }
 }
-catch (Exception)
+else
 {
-    Console.WriteLine("-> Online Server is unreachable. Falling back to Local Server (.).");
+    Console.WriteLine("-> OnlineConnectionString is NULL or EMPTY. Using LocalConnection by default.");
 }
 
 // --- 1. ĐĂNG KÝ SERVICES ---
