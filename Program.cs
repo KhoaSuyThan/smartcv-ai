@@ -274,7 +274,7 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("SQL Create/Alter Table Error: " + ex.Message); 
     }
 }
-
+// END AUTO-CREATE TABLES
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
