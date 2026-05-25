@@ -9,38 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
 var localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
 
-string activeConnectionString = localConnectionString;
+string activeConnectionString = !string.IsNullOrEmpty(onlineConnectionString) ? onlineConnectionString : localConnectionString;
 
-// 1. Kiểm tra xem chuỗi có bị null trên server không
-if (!string.IsNullOrEmpty(onlineConnectionString))
-{
-    try
-    {
-        Console.WriteLine("Checking connection to Online Server...");
-        var csb = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(onlineConnectionString) 
-        { 
-            ConnectTimeout = 3 
-        };
-        
-        using (var connection = new Microsoft.Data.SqlClient.SqlConnection(csb.ConnectionString))
-        {
-            connection.Open();
-            activeConnectionString = onlineConnectionString;
-            Console.WriteLine("-> Connected to Online Server successfully!");
-        }
-    }
-    catch (Exception ex)
-    {
-        // 2. RẤT QUAN TRỌNG: In ra lý do thực sự khiến kết nối online thất bại
-        Console.WriteLine($"-> Online Server is unreachable. Reason: {ex.Message}");
-        Console.WriteLine("-> Falling back to Local Server...");
-    }
-}
-else
-{
-    Console.WriteLine("-> OnlineConnectionString is NULL or EMPTY. Using LocalConnection by default.");
-}
-
+Console.WriteLine($"Using Connection String: {activeConnectionString}");
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<JobApiService>();
