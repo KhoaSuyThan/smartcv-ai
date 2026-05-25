@@ -126,6 +126,7 @@
                                         
                                         @* Nút Sửa *@
                                         <a asp-controller="Jobs" asp-action="Edit" asp-route-id="@job.JobID" 
+                                           asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
                                            class="btn btn-sm btn-light border rounded-circle" style="width: 32px; height: 32px;" title="Sửa">
                                             <i class='bx bxs-edit-alt text-primary'></i>
                                         </a>

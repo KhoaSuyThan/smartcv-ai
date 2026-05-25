@@ -77,6 +77,7 @@
                                 <div class="d-flex gap-1 align-items-center">
                                     @* Nút Sửa *@
                                     <a asp-action="EditVueCV" asp-route-id="@item.Id" 
+                                       asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
                                        class="btn btn-sm text-warning p-1" title="Chỉnh sửa">
                                         <i class='bx bxs-edit-alt fs-4'></i>
                                     </a>

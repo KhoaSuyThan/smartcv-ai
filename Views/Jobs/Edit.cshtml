@@ -11,12 +11,16 @@
                     <h4 class="fw-bold text-primary mb-0">
                         <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa tin tuyển dụng
                     </h4>
-                    <a href="@(User.IsInRole("Admin") ? "/Admin/Jobs" : "/Jobs/Manage")" class="btn btn-outline-secondary btn-sm rounded-pill">
+                    <a href="@(string.IsNullOrEmpty(ViewBag.ReturnUrl) ? (User.IsInRole("Admin") ? "/Admin/Jobs" : "/Jobs/Manage") : ViewBag.ReturnUrl)" class="btn btn-outline-secondary btn-sm rounded-pill">
                         <i class="bi bi-arrow-left me-1"></i>Quay lại
                     </a>
                 </div>
 
                 <form asp-action="Edit" method="post">
+                    @if (!string.IsNullOrEmpty(ViewBag.ReturnUrl))
+                    {
+                        <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
+                    }
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                     
                     @* Các trường ẩn để giữ ID và dữ liệu gốc *@
@@ -33,8 +37,19 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label asp-for="Salary" class="form-label fw-bold small text-uppercase text-muted">Mức lương</label>
-                            <input asp-for="Salary" class="form-control" placeholder="Ví dụ: 15 - 25 triệu" />
+                            <label class="form-label fw-bold small text-uppercase text-muted">Mức lương</label>
+                            <select id="salaryType" class="form-select mb-2">
+                                <option value="Thỏa thuận">Thỏa thuận</option>
+                                <option value="Cạnh tranh">Cạnh tranh</option>
+                                <option value="Nhập liệu">Nhập liệu cụ thể</option>
+                            </select>
+
+                            <div class="input-group" id="salaryInputGroup" style="display: none;">
+                                <span class="input-group-text bg-light"><i class="bi bi-cash"></i></span>
+                                <input type="text" id="customSalary" class="form-control" placeholder="Ví dụ: 15-25" />
+                                <span class="input-group-text bg-light">triệu VNĐ/Tháng</span>
+                            </div>
+                            <input type="hidden" asp-for="Salary" id="Salary" />
                             <span asp-validation-for="Salary" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
@@ -77,4 +92,53 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var salaryHidden = document.getElementById("Salary");
+            if (!salaryHidden) return;
+            
+            var salaryType = document.getElementById("salaryType");
+            var salaryInputGroup = document.getElementById("salaryInputGroup");
+            var customSalary = document.getElementById("customSalary");
+
+            // Khởi tạo từ dữ liệu cũ
+            var initialValue = salaryHidden.value;
+            if (!initialValue || initialValue === "Thỏa thuận") {
+                salaryType.value = "Thỏa thuận";
+                salaryHidden.value = "Thỏa thuận";
+            } else if (initialValue === "Cạnh tranh") {
+                salaryType.value = "Cạnh tranh";
+            } else {
+                salaryType.value = "Nhập liệu";
+                var num = initialValue.replace(" triệu VNĐ/Tháng", "").replace(" triệu", "").trim();
+                customSalary.value = num;
+                salaryInputGroup.style.display = "flex";
+            }
+
+            function updateHiddenValue() {
+                if (salaryType.value === "Nhập liệu") {
+                    if (customSalary.value.trim() !== "") {
+                        salaryHidden.value = customSalary.value.trim() + " triệu VNĐ/Tháng";
+                    } else {
+                        salaryHidden.value = "";
+                    }
+                } else {
+                    salaryHidden.value = salaryType.value;
+                }
+            }
+
+            salaryType.addEventListener("change", function () {
+                if (this.value === "Nhập liệu") {
+                    salaryInputGroup.style.display = "flex";
+                } else {
+                    salaryInputGroup.style.display = "none";
+                }
+                updateHiddenValue();
+            });
+
+            customSalary.addEventListener("input", function () {
+                updateHiddenValue();
+            });
+        });
+    </script>
 }

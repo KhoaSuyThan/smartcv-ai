@@ -258,7 +258,7 @@ namespace DoAnCS.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Recruiter,Admin")]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string returnUrl = null)
         {
             var job = await _context.Jobs.FindAsync(id);
             if (job == null) return NotFound();
@@ -267,13 +267,15 @@ namespace DoAnCS.Controllers
             if (CurrentRole == "Recruiter" && job.CompanyID != CurrentCompanyId) return Forbid();
 
             if (CurrentRole == "Admin") ViewBag.Companies = await _context.Companies.ToListAsync();
+            
+            ViewBag.ReturnUrl = returnUrl;
             return View(job);
         }
 
         [HttpPost]
         [Authorize(Roles = "Recruiter,Admin")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Job job)
+        public async Task<IActionResult> Edit(int id, Job job, string returnUrl = null)
         {
             if (id != job.JobID) return NotFound();
 
@@ -320,6 +322,11 @@ namespace DoAnCS.Controllers
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Cập nhật thành công!";
                     
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    {
+                        return Redirect(returnUrl);
+                    }
+
                     if (User.IsInRole("Admin"))
                     {
                         return RedirectToAction("Jobs", "Admin");
@@ -334,6 +341,7 @@ namespace DoAnCS.Controllers
             }
             
             // Nếu lỗi, trả lại dữ liệu gốc từ DB để View không bị trắng các trường ẩn
+            ViewBag.ReturnUrl = returnUrl;
             return View(job);
         }
 
