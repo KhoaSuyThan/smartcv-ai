@@ -231,6 +231,16 @@
         color: #0d6efd;
         background-color: rgba(13, 110, 253, 0.1);
     }
+
+    /* Ẩn mũi tên lên/xuống của input number */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield; /* Firefox */
+    }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
@@ -502,9 +512,17 @@
                                             <input type="hidden" asp-for="PortfolioLinks" id="PortfolioLinks" />
                                         </div>
 
-                                        <div class="col-md-12">
+                                        <div class="col-md-6">
                                             <label class="custom-label text-dark"><i class="bi bi-geo-alt-fill me-2"></i>Địa chỉ hiện tại</label>
                                             <input asp-for="Address" id="Address" class="form-control edit-locked" readonly placeholder="Ví dụ: 123 Đường Nguyễn Trãi, Quận 1, TP.HCM" />
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <label class="custom-label text-dark"><i class="bi bi-cash-stack me-2"></i>Mức lương mong muốn</label>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <input asp-for="ExpectedSalary" type="number" id="ExpectedSalary" class="form-control edit-locked text-center" style="max-width: 120px;" readonly placeholder="VD: 15" />
+                                                <span class="text-muted fw-medium">Triệu VNĐ/Tháng</span>
+                                            </div>
                                         </div>
 
                                         <div class="col-md-12">
@@ -846,6 +864,7 @@
         let oldPhone = "@Html.Raw(Model.Phone)";
         let oldAddress = "@Html.Raw(Model.Address)";
         let oldExpectedLocation = "@Html.Raw(Model.ExpectedLocation)";
+        let oldExpectedSalary = "@Model.ExpectedSalary";
         let oldProfessionalTitle = `@Html.Raw(Model.ProfessionalTitle?.Replace("`", "\\`"))`;
         let oldYearsOfExperience = "@Html.Raw(Model.YearsOfExperience)";
         let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
@@ -1019,6 +1038,9 @@
             if (titleEl) fields.push('ProfessionalTitle');
             if (yearsEl) fields.push('YearsOfExperience');
             
+            const expectedSalaryEl = document.getElementById('ExpectedSalary');
+            if (expectedSalaryEl) fields.push('ExpectedSalary');
+            
             fields.push('ProvinceSelect');
             fields.push('DistrictSelect');
             if (isRecruiter) {
@@ -1088,6 +1110,9 @@
             }
             if (titleEl) titleEl.value = oldProfessionalTitle;
             if (yearsEl) yearsEl.value = oldYearsOfExperience;
+            
+            const expectedSalaryEl = document.getElementById('ExpectedSalary');
+            if (expectedSalaryEl) expectedSalaryEl.value = oldExpectedSalary;
             
             setDropdownsFromExpectedLocation(oldExpectedLocation);
             

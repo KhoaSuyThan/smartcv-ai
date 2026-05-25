@@ -16,7 +16,7 @@ namespace DoAnCS.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm, string jobTitle, string location, string district)
+        public async Task<IActionResult> Index(string searchTerm, string jobTitle, string location, string district, int? minSalary, int? maxSalary)
         {
             var query = _context.Resumes
                 .Include(r => r.User)
@@ -57,7 +57,15 @@ namespace DoAnCS.Controllers
                     )
                 ));
             }
-
+            // Lọc theo Mức lương mong muốn (ExpectedSalary)
+            if (minSalary.HasValue)
+            {
+                query = query.Where(r => r.User != null && r.User.ExpectedSalary >= minSalary.Value);
+            }
+            if (maxSalary.HasValue)
+            {
+                query = query.Where(r => r.User != null && r.User.ExpectedSalary <= maxSalary.Value);
+            }
             // Nhóm theo UserID để mỗi người chỉ xuất hiện 1 lần
             var aggregatedResumes = await query
                 .GroupBy(r => r.UserID)
@@ -100,6 +108,8 @@ namespace DoAnCS.Controllers
             ViewBag.JobTitleFilter = jobTitle;
             ViewBag.LocationFilter = location;
             ViewBag.DistrictFilter = district;
+            ViewBag.MinSalaryFilter = minSalary;
+            ViewBag.MaxSalaryFilter = maxSalary;
 
             return View(resumes);
         }

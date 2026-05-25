@@ -4,6 +4,16 @@
 }
 
 <style>
+    /* Ẩn mũi tên lên/xuống của input number */
+    input.hide-arrows::-webkit-inner-spin-button, 
+    input.hide-arrows::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input.hide-arrows {
+        -moz-appearance: textfield;
+    }
+
     :root {
         --primary: #6366f1;
         --primary-light: #818cf8;
@@ -359,6 +369,14 @@
     .scrollbar-thin::-webkit-scrollbar-thumb:hover {
         background: var(--primary-light);
     }
+
+    @@media (min-width: 768px) {
+        .custom-col-search { width: 22% !important; }
+        .custom-col-job { width: 20% !important; }
+        .custom-col-loc { width: 26% !important; }
+        .custom-col-sal { width: 18% !important; }
+        .custom-col-btn { width: 14% !important; }
+    }
 </style>
 
 <div class="container-fluid px-xl-5 pb-5">
@@ -378,38 +396,46 @@
     <div class="search-container mb-5">
         <div class="search-glass">
             <form method="get" asp-action="Index" class="row g-3">
-                <div class="col-md-3">
+                <div class="col-12 custom-col-search">
+                    <label class="form-label text-dark fw-bold small ms-2 mb-1">Từ khóa tìm kiếm</label>
                     <div class="input-wrapper">
                         <i class="bi bi-search"></i>
                         <input type="text" name="searchTerm" 
                                placeholder="Kỹ năng, ứng viên..." value="@ViewBag.SearchTerm">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 custom-col-job">
+                    <label class="form-label text-dark fw-bold small ms-2 mb-1">Vị trí chuyên môn</label>
                     <div class="input-wrapper">
                         <i class="bi bi-briefcase"></i>
                         <input type="text" name="jobTitle" 
                                placeholder="Vị trí..." value="@ViewBag.JobTitleFilter">
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <div class="input-wrapper">
+                <div class="col-12 custom-col-loc">
+                    <label class="form-label text-dark fw-bold small ms-2 mb-1">Khu vực làm việc</label>
+                    <div class="input-wrapper d-flex align-items-center pe-2">
                         <i class="bi bi-geo-alt"></i>
-                        <select id="SearchProvince" name="location" class="form-select border-0 bg-transparent text-dark fw-medium" style="padding: 0.75rem 0.75rem; box-shadow: none; cursor: pointer;">
+                        <select id="SearchProvince" name="location" class="form-select border-0 bg-transparent text-dark fw-medium px-1" style="padding: 0.75rem 0.25rem 0.75rem 0.5rem; box-shadow: none; cursor: pointer; flex: 1;">
                             <option value="">Tỉnh/Thành</option>
                         </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="input-wrapper">
-                        <i class="bi bi-geo"></i>
-                        <select id="SearchDistrict" name="district" class="form-select border-0 bg-transparent text-dark fw-medium" style="padding: 0.75rem 0.75rem; box-shadow: none; cursor: pointer;">
+                        <div class="vr mx-1" style="height: 20px; align-self: center;"></div>
+                        <select id="SearchDistrict" name="district" class="form-select border-0 bg-transparent text-dark fw-medium px-1" style="padding: 0.75rem 0.25rem 0.75rem 0.5rem; box-shadow: none; cursor: pointer; flex: 1;">
                             <option value="">Quận/Huyện</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn-gradient w-100 h-100">
+                <div class="col-12 custom-col-sal">
+                    <label class="form-label text-dark fw-bold small ms-2 mb-1">Mức lương (Triệu VNĐ)</label>
+                    <div class="input-wrapper d-flex align-items-center pe-2">
+                        <i class="bi bi-cash-stack"></i>
+                        <input type="number" name="minSalary" class="form-control border-0 bg-transparent text-center px-1 fw-medium hide-arrows" placeholder="Từ" value="@ViewBag.MinSalaryFilter" style="box-shadow: none; flex: 1; min-width: 0;" />
+                        <span class="text-muted fw-bold">-</span>
+                        <input type="number" name="maxSalary" class="form-control border-0 bg-transparent text-center px-1 fw-medium hide-arrows" placeholder="Đến" value="@ViewBag.MaxSalaryFilter" style="box-shadow: none; flex: 1; min-width: 0;" />
+                    </div>
+                </div>
+                <div class="col-12 custom-col-btn d-flex align-items-end">
+                    <button type="submit" class="btn-gradient w-100" style="height: 48px;">
                         <i class="bi bi-funnel"></i> Tìm kiếm
                     </button>
                 </div>
@@ -491,34 +517,19 @@
                                     </div>
                                 </div>
                                 
-                                <p class="card-bio">
-                                    @if (!string.IsNullOrEmpty(resume.User?.Summary))
-                                    {
-                                        @resume.User.Summary
-                                    }
-                                    else
-                                    {
-                                        @(string.IsNullOrEmpty(resume.Summary) ? "Ứng viên này hiện chưa cung cấp thông tin giới thiệu bản thân chi tiết." : resume.Summary)
-                                    }
-                                </p>
-
-                                <div class="d-flex flex-wrap gap-2 mb-4">
-                                    @if (!string.IsNullOrEmpty(resume.User?.Skills))
-                                    {
-                                        var skills = resume.User.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
-                                        foreach (var skill in skills.Take(2))
-                                        {
-                                            <span class="skill-pill">@skill</span>
-                                        }
-                                        if (skills.Count > 2)
-                                        {
-                                            <span class="skill-pill">+@(skills.Count - 2)</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small">Chưa có kỹ năng</span>
-                                    }
+                                <div class="d-flex flex-wrap gap-3 mb-4 mt-2">
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <div class="d-flex align-items-center justify-content-center bg-danger-subtle rounded-circle me-2" style="width: 28px; height: 28px;">
+                                            <i class="bi bi-geo-alt-fill text-danger" style="font-size: 0.85rem;"></i>
+                                        </div>
+                                        <span class="fw-medium">@(string.IsNullOrEmpty(resume.User?.ExpectedLocation) ? "Việt Nam" : resume.User.ExpectedLocation)</span>
+                                    </div>
+                                    <div class="d-flex align-items-center text-muted small">
+                                        <div class="d-flex align-items-center justify-content-center bg-success-subtle rounded-circle me-2" style="width: 28px; height: 28px;">
+                                            <i class="bi bi-cash-stack text-success" style="font-size: 0.85rem;"></i>
+                                        </div>
+                                        <span class="fw-medium">@(resume.User?.ExpectedSalary.HasValue == true ? resume.User.ExpectedSalary.Value + " Triệu VNĐ/Tháng" : "Thỏa thuận")</span>
+                                    </div>
                                 </div>
 
                                 <button onclick="showTalentDetails(@resume.UserID)" class="btn-outline-premium">

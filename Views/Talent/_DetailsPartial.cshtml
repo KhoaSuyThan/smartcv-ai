@@ -18,9 +18,12 @@
                       title="Sẵn sàng làm việc"></span>
             </div>
             <h3 class="fw-bold mt-3 mb-1 text-dark">@Model.FullName</h3>
-            <div class="d-flex align-items-center justify-content-center gap-3">
+            @if (!string.IsNullOrEmpty(Model.ProfessionalTitle))
+            {
+                <h6 class="text-primary fw-bold mb-2">@Model.ProfessionalTitle</h6>
+            }
+            <div class="d-flex align-items-center justify-content-center gap-3 mt-2">
                 <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1">Ứng viên xác thực</span>
-                <span class="text-muted small fw-medium"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Việt Nam</span>
             </div>
         </div>
     </div>
@@ -28,17 +31,6 @@
     <div class="px-4 pb-4">
         <!-- Info Grid -->
         <div class="row g-3 mb-5">
-            <div class="col-md-6">
-                <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
-                    <div class="icon-circle bg-primary-subtle text-primary">
-                        <i class="bi bi-envelope-at"></i>
-                    </div>
-                    <div class="overflow-hidden">
-                        <div class="text-muted small fw-medium">Email liên hệ</div>
-                        <div class="fw-bold text-dark text-truncate">@Model.Email</div>
-                    </div>
-                </div>
-            </div>
             <div class="col-md-6">
                 <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
                     <div class="icon-circle bg-success-subtle text-success">
@@ -50,27 +42,47 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Section: Summary -->
-        @if (!string.IsNullOrEmpty(Model.Summary))
-        {
-            <div class="mb-5">
-                <h6 class="section-title">
-                    <i class="bi bi-person-lines-fill me-2"></i> Tóm tắt bản thân
-                </h6>
-                <div class="p-4 bg-light-subtle rounded-4 border-start border-primary border-4 shadow-sm" style="background: #f8fafc;">
-                    <p class="text-muted mb-0 lh-lg" style="text-align: justify;">@Model.Summary</p>
+            <div class="col-md-6">
+                <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
+                    <div class="icon-circle bg-primary-subtle text-primary">
+                        <i class="bi bi-geo-alt"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="text-muted small fw-medium">Địa điểm làm việc</div>
+                        <div class="fw-bold text-dark text-truncate">@(string.IsNullOrEmpty(Model.ExpectedLocation) ? "Việt Nam" : Model.ExpectedLocation)</div>
+                    </div>
                 </div>
             </div>
-        }
+            <div class="col-md-6">
+                <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
+                    <div class="icon-circle bg-warning-subtle text-warning">
+                        <i class="bi bi-cash-stack"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="text-muted small fw-medium">Mức lương mong muốn</div>
+                        <div class="fw-bold text-dark text-truncate">@(Model.ExpectedSalary.HasValue ? Model.ExpectedSalary.Value + " Triệu VNĐ" : "Thỏa thuận")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="info-card p-3 rounded-4 border bg-white shadow-sm d-flex align-items-center gap-3">
+                    <div class="icon-circle bg-info-subtle text-info">
+                        <i class="bi bi-briefcase"></i>
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="text-muted small fw-medium">Năm kinh nghiệm</div>
+                        <div class="fw-bold text-dark text-truncate">@(!string.IsNullOrEmpty(Model.YearsOfExperience) ? Model.YearsOfExperience + " năm" : "Chưa cập nhật")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Section: Skills -->
         @if (!string.IsNullOrEmpty(Model.Skills))
         {
             <div class="mb-5">
                 <h6 class="section-title">
-                    <i class="bi bi-lightning-charge me-2"></i> Kỹ năng chuyên môn
+                    <i class="bi bi-lightning-charge me-2"></i> Kỹ năng chính
                 </h6>
                 <div class="d-flex flex-wrap gap-2">
                     @foreach (var skill in Model.Skills.Split(',', StringSplitOptions.RemoveEmptyEntries))
