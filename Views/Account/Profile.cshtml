@@ -405,7 +405,7 @@
 
                                     <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Người đại diện</label>
-                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
+                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly oninput="this.value = this.value.replace(/[0-9]/g, '')" />
                                     </div>
 
                                     <div class="col-md-6">
@@ -420,27 +420,30 @@
                                 {
                                     <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
-                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly />
+                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly oninput="this.value = this.value.replace(/[0-9]/g, '')" />
                                     </div>
                                     <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
-                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
+                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-briefcase-fill me-2"></i>Chức danh chuyên môn</label>
-                                        <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control edit-locked" readonly placeholder="VD: Senior React Developer" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-star-fill me-2"></i>Số năm kinh nghiệm</label>
-                                        <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-control edit-locked" disabled>
-                                            <option value="">Chọn số năm kinh nghiệm</option>
-                                            <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
-                                            <option value="Dưới 1 năm">Dưới 1 năm</option>
-                                            <option value="1-3 năm">1-3 năm</option>
-                                            <option value="3-5 năm">3-5 năm</option>
-                                            <option value="Trên 5 năm">Trên 5 năm</option>
-                                        </select>
-                                    </div>
+                                    @if (!isAdmin)
+                                    {
+                                        <div class="col-md-6">
+                                            <label class="custom-label text-dark"><i class="bi bi-briefcase-fill me-2"></i>Chức danh chuyên môn</label>
+                                            <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control edit-locked" readonly placeholder="VD: Senior React Developer" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="custom-label text-dark"><i class="bi bi-star-fill me-2"></i>Số năm kinh nghiệm</label>
+                                            <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-control edit-locked" disabled>
+                                                <option value="">Chọn số năm kinh nghiệm</option>
+                                                <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
+                                                <option value="Dưới 1 năm">Dưới 1 năm</option>
+                                                <option value="1-3 năm">1-3 năm</option>
+                                                <option value="3-5 năm">3-5 năm</option>
+                                                <option value="Trên 5 năm">Trên 5 năm</option>
+                                            </select>
+                                        </div>
+                                    }
                                 }
 
                                 <div class="col-md-12">
@@ -460,7 +463,7 @@
                                 {
                                     <div class="col-md-6">
                                         <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại liên hệ</label>
-                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" />
+                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                     </div>
                                 }
 
@@ -520,7 +523,7 @@
                                         <div class="col-md-6">
                                             <label class="custom-label text-dark"><i class="bi bi-cash-stack me-2"></i>Mức lương mong muốn</label>
                                             <div class="d-flex align-items-center gap-2">
-                                                <input asp-for="ExpectedSalary" type="number" id="ExpectedSalary" class="form-control edit-locked text-center" style="max-width: 120px;" readonly placeholder="VD: 15" />
+                                                <input asp-for="ExpectedSalary" type="number" id="ExpectedSalary" class="form-control edit-locked text-center" style="max-width: 120px;" readonly placeholder="VD: 15" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                                 <span class="text-muted fw-medium">Triệu VNĐ/Tháng</span>
                                             </div>
                                         </div>
@@ -867,6 +870,7 @@
         let oldExpectedSalary = "@Model.ExpectedSalary";
         let oldProfessionalTitle = `@Html.Raw(Model.ProfessionalTitle?.Replace("`", "\\`"))`;
         let oldYearsOfExperience = "@Html.Raw(Model.YearsOfExperience)";
+        let oldPortfolioLinks = `@Html.Raw(Model.PortfolioLinks?.Replace("`", "\\`"))`;
         let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
         let oldCompanyAddress = "@Html.Raw(Model.Company?.Address)";
         let oldTaxCode = "@Html.Raw(Model.Company?.TaxCode)";
