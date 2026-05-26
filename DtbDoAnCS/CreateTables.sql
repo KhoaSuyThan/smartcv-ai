@@ -24,6 +24,7 @@ CREATE TABLE Companies (
     Description NVARCHAR(MAX),
     Address NVARCHAR(500),
     Industry NVARCHAR(100), -- Ngành nghề (IT, Marketing,...)
+    TaxCode NVARCHAR(MAX),
     CreatedAt DATETIME DEFAULT GETDATE()
 );
 
@@ -98,6 +99,12 @@ CREATE TABLE Users (
 	PasswordResetOTP NVARCHAR(6) NULL,
     OTPExpires DATETIME NULL,
     OTPFailCount INT DEFAULT 0,
+    ProfessionalTitle NVARCHAR(MAX) NULL,
+    PortfolioLinks NVARCHAR(MAX) NULL,
+    YearsOfExperience NVARCHAR(MAX) NULL,
+    Address NVARCHAR(MAX) NULL,
+    ExpectedLocation NVARCHAR(MAX) NULL,
+    ExpectedSalary INT NULL,
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
