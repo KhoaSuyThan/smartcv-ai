@@ -73,7 +73,7 @@
 
                                 <div class="input-group" id="salaryInputGroup" style="display: none;">
                                     <span class="input-group-text border-2 bg-light"><i class='bx bx-money'></i></span>
-                                    <input type="text" id="customSalary" class="form-control border-2 py-2 px-3" placeholder="Ví dụ: 20-30" />
+                                    <input type="text" id="customSalary" class="form-control border-2 py-2 px-3" placeholder="Ví dụ: 20-30" oninput="this.value = this.value.replace(/[^0-9\-\s]/g, '')" />
                                     <span class="input-group-text border-2 bg-light">triệu VNĐ/Tháng</span>
                                 </div>
                                 <input type="hidden" asp-for="Salary" id="Salary" />

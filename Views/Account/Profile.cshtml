@@ -426,21 +426,24 @@
                                         <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
                                         <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-briefcase-fill me-2"></i>Chức danh chuyên môn</label>
-                                        <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control edit-locked" readonly placeholder="VD: Senior React Developer" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-star-fill me-2"></i>Số năm kinh nghiệm</label>
-                                        <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-control edit-locked" disabled>
-                                            <option value="">Chọn số năm kinh nghiệm</option>
-                                            <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
-                                            <option value="Dưới 1 năm">Dưới 1 năm</option>
-                                            <option value="1-3 năm">1-3 năm</option>
-                                            <option value="3-5 năm">3-5 năm</option>
-                                            <option value="Trên 5 năm">Trên 5 năm</option>
-                                        </select>
-                                    </div>
+                                    @if (!isAdmin)
+                                    {
+                                        <div class="col-md-6">
+                                            <label class="custom-label text-dark"><i class="bi bi-briefcase-fill me-2"></i>Chức danh chuyên môn</label>
+                                            <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control edit-locked" readonly placeholder="VD: Senior React Developer" />
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="custom-label text-dark"><i class="bi bi-star-fill me-2"></i>Số năm kinh nghiệm</label>
+                                            <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-control edit-locked" disabled>
+                                                <option value="">Chọn số năm kinh nghiệm</option>
+                                                <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
+                                                <option value="Dưới 1 năm">Dưới 1 năm</option>
+                                                <option value="1-3 năm">1-3 năm</option>
+                                                <option value="3-5 năm">3-5 năm</option>
+                                                <option value="Trên 5 năm">Trên 5 năm</option>
+                                            </select>
+                                        </div>
+                                    }
                                 }
 
                                 <div class="col-md-12">
