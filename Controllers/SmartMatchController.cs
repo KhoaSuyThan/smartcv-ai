@@ -136,7 +136,8 @@ namespace DoAnCS.Controllers
             }
 
             // BƯỚC 2: NHÚNG JOB DESCRIPTION
-            string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {job.Description}\nYêu cầu: {job.Requirements}\nMức lương: {job.Salary}";
+            // [TỐI ƯU 2]: Xóa thẻ HTML khỏi Job Description trước khi nhúng và gửi cho AI để giảm cực mạnh số lượng Token.
+            string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {StripHTML(job.Description)}\nYêu cầu: {StripHTML(job.Requirements)}\nMức lương: {job.Salary}";
             var jdVector = await _aiService.GenerateEmbeddingAsync(jdText);
 
             if (jdVector == null || jdVector.Length == 0)
@@ -156,7 +157,14 @@ namespace DoAnCS.Controllers
                         if (cvVector != null)
                         {
                             double similarity = CalculateCosineSimilarity(jdVector, cvVector);
-                            candidateScores.Add((resume, similarity));
+                            
+                            // [TỐI ƯU 1]: Lọc Vector RAG ngay từ đầu.
+                            // Những CV hoàn toàn trái ngành (VD: Dược sĩ, Marketing) sẽ có độ tương đồng Vector rất thấp (< 0.5)
+                            // Ta loại bỏ chúng ngay lập tức để tiết kiệm 100% token AI.
+                            if (similarity >= 0.50)
+                            {
+                                candidateScores.Add((resume, similarity));
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -386,7 +394,7 @@ namespace DoAnCS.Controllers
                                         if (item.major != null) sb.AppendLine($"Chuyên ngành: {item.major}");
                                         if (item.name != null) sb.AppendLine($"Tên: {item.name}");
                                         if (item.role != null) sb.AppendLine($"Vai trò: {item.role}");
-                                        if (item.description != null) sb.AppendLine($"Mô tả: {item.description}");
+                                        if (item.description != null) sb.AppendLine($"Mô tả: {StripHTML(item.description.ToString())}"); // [TỐI ƯU 3]: Xóa HTML trong CV
                                         if (item.period != null) sb.AppendLine($"Thời gian: {item.period}");
                                         if (item.startDate != null) sb.AppendLine($"Bắt đầu: {item.startDate}");
                                         if (item.endDate != null) sb.AppendLine($"Kết thúc: {item.endDate}");
@@ -429,25 +437,47 @@ namespace DoAnCS.Controllers
         /// <summary>Tạo prompt phân tích so khớp CV với JD</summary>
         private string BuildMatchPrompt(string cvText, string jdText)
         {
-            return $@"Bạn là hệ thống AI chuyên phân tích và so khớp CV với Job Description cho các công ty tuyển dụng IT tại Việt Nam.
+            return $@"Bạn là Tech Recruiter AI cực kỳ khắt khe. Phân tích độ phù hợp của CV với Job Description (JD).
 
-=== MÔ TẢ CÔNG VIỆC (JD) ===
+=== JD ===
 {jdText}
 
-=== CV ỨNG VIÊN ===
+=== CV ===
 {cvText}
 
-YÊU CẦU PHÂN TÍCH CHI TIẾT:
-1. matchScore (số nguyên 0-100): Dựa trên kỹ năng kỹ thuật (35%), kinh nghiệm liên quan (25%), trình độ học vấn (20%), kỹ năng mềm (20%).
-2. matchedSkills: Mảng các kỹ năng/từ khóa trong CV đã khớp với JD.
-3. missingSkills: Mảng các yêu cầu trong JD mà CV chưa có.
-4. strengths: Mảng 3 điểm mạnh nổi bật nhất của ứng viên cho vị trí này.
-5. suggestions: Mảng 3 gợi ý CỤ THỂ để cải thiện CV nhằm tăng tỷ lệ trúng tuyển.
-6. summary: Nhận xét tổng quan 2-3 câu bằng tiếng Việt.
-7. recommendation: Một trong bốn giá trị: ""strong_match"", ""good_match"", ""partial_match"", ""weak_match"".
+[LUẬT ĐÁNH GIÁ NGHIÊM NGẶT - BẮT BUỘC TUÂN THỦ]
+1. KIỂM TRA CHỨC DANH (QUAN TRỌNG NHẤT): Nếu vị trí ứng viên không liên quan (VD: JD cần Backend, CV là Frontend/Security/BA), trừ điểm nặng, matchScore KHÔNG ĐƯỢC VƯỢT QUÁ 49.
+2. NỀN TẢNG CỐT LÕI: Nếu CV thiếu các công nghệ lõi mà JD yêu cầu (VD: JD cần .NET, CV chỉ có Nodejs), matchScore KHÔNG ĐƯỢC VƯỢT QUÁ 49.
+3. THANG ĐIỂM (matchScore): 
+   - Dưới 30: Không phù hợp (Sai ngành, không có kỹ năng).
+   - Từ 30 đến 49: Ít phù hợp (Thiếu nhiều kỹ năng cốt lõi).
+   - Từ 50 đến 79: Phù hợp 1 phần (Đáp ứng cơ bản, còn thiếu vài kỹ năng).
+   - Từ 80 đến 100: Phù hợp (Đáp ứng rất tốt yêu cầu).
+4. TIẾT KIỆM TỪ NGỮ: Trả lời ngắn gọn nhất có thể để tiết kiệm token.
 
-TUYỆT ĐỐI chỉ trả về JSON thuần (KHÔNG có markdown, KHÔNG có ```json, KHÔNG có lời dẫn hay giải thích):
-{{""matchScore"": 75, ""matchedSkills"": [""C#"", "".NET""], ""missingSkills"": [""Docker""], ""strengths"": [""Nền tảng kỹ thuật vững""], ""suggestions"": [""Bổ sung Docker""], ""summary"": ""Ứng viên phù hợp..."", ""recommendation"": ""good_match""}}";
+Output JSON thuần (KHÔNG markdown, KHÔNG text phụ):
+{{
+""matchScore"": <0-100, khắt khe>,
+""matchedSkills"": [<các kỹ năng trùng khớp, tối đa 5>],
+""missingSkills"": [<kỹ năng JD cần mà CV KHÔNG CÓ, tối đa 5>],
+""strengths"": [<2 điểm mạnh cực kỳ ngắn gọn>],
+""suggestions"": [<2 gợi ý CỤ THỂ để cải thiện CV>],
+""summary"": ""<Nhận xét tổng quan tối đa 2 câu sắc bén>"",
+""recommendation"": ""<strong_match|good_match|partial_match|weak_match>""
+}}";
+        }
+
+        /// <summary>Xóa toàn bộ thẻ HTML và khoảng trắng thừa để tiết kiệm Token</summary>
+        private string StripHTML(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+            // Xóa thẻ HTML
+            var stripped = Regex.Replace(input, "<.*?>", string.Empty);
+            // Chuẩn hóa khoảng trắng thừa thành 1 dấu cách
+            stripped = Regex.Replace(stripped, @"\s+", " ");
+            // Giới hạn độ dài tối đa 1 phần văn bản để chống tràn token (VD: max 3000 ký tự)
+            if (stripped.Length > 3000) stripped = stripped.Substring(0, 3000) + "...";
+            return stripped.Trim();
         }
 
         /// <summary>Parse JSON từ kết quả AI trả về</summary>
