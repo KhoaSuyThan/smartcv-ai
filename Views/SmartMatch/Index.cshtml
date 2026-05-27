@@ -161,7 +161,8 @@
     .sm-rec-strong { background: #dcfce7; color: #166534; }
     .sm-rec-good { background: #dbeafe; color: #1e40af; }
     .sm-rec-partial { background: #fef3c7; color: #92400e; }
-    .sm-rec-weak { background: #fee2e2; color: #991b1b; }
+    .sm-rec-weak { background: #ffedd5; color: #c2410c; }
+    .sm-rec-none { background: #fee2e2; color: #991b1b; }
     .sm-detail-panel {
         background: var(--sm-bg); border-radius: 1rem;
         padding: 1.25rem; margin-top: 1rem;
@@ -407,9 +408,24 @@
         data.candidates.forEach((c, i) => {
             const rankClass = i === 0 ? 'sm-rank-1' : i === 1 ? 'sm-rank-2' : i === 2 ? 'sm-rank-3' : 'sm-rank-other';
             const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + c.rank;
-            const recClass = c.recommendation === 'strong_match' ? 'sm-rec-strong' : c.recommendation === 'good_match' ? 'sm-rec-good' : c.recommendation === 'partial_match' ? 'sm-rec-partial' : 'sm-rec-weak';
-            const recText = c.recommendation === 'strong_match' ? 'Rất phù hợp' : c.recommendation === 'good_match' ? 'Phù hợp' : c.recommendation === 'partial_match' ? 'Phù hợp 1 phần' : 'Ít phù hợp';
-            const scoreColor = c.matchScore >= 75 ? '#10b981' : c.matchScore >= 50 ? '#f59e0b' : '#ef4444';
+            let recClass, recText, scoreColor;
+            if (c.matchScore >= 80) {
+                recClass = 'sm-rec-strong';
+                recText = 'Phù hợp';
+                scoreColor = '#10b981';
+            } else if (c.matchScore >= 50) {
+                recClass = 'sm-rec-partial';
+                recText = 'Phù hợp 1 phần';
+                scoreColor = '#f59e0b';
+            } else if (c.matchScore >= 30) {
+                recClass = 'sm-rec-weak';
+                recText = 'Ít phù hợp';
+                scoreColor = '#f97316';
+            } else {
+                recClass = 'sm-rec-none';
+                recText = 'Không phù hợp';
+                scoreColor = '#ef4444';
+            }
             const avatarUrl = c.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}&background=random`;
             const circumference = 2 * Math.PI * 24;
             const offset = circumference - (c.matchScore / 100) * circumference;
