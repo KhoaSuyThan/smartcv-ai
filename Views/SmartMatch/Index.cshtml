@@ -392,8 +392,8 @@
         document.getElementById('statsSection').style.display = 'block';
         document.getElementById('statTotal').textContent = data.totalCandidates;
         document.getElementById('statAvg').textContent = data.avgScore;
-        const strong = data.candidates.filter(c => c.recommendation === 'strong_match' || c.recommendation === 'good_match').length;
-        const partial = data.candidates.filter(c => c.recommendation === 'partial_match' || c.recommendation === 'weak_match').length;
+        const strong = data.candidates.filter(c => c.matchScore >= 80).length;
+        const partial = data.candidates.filter(c => c.matchScore >= 50 && c.matchScore < 80).length;
         document.getElementById('statStrong').textContent = strong;
         document.getElementById('statPartial').textContent = partial;
 

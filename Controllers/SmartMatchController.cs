@@ -351,18 +351,13 @@ namespace DoAnCS.Controllers
         // PRIVATE HELPER METHODS
         // ===========================
 
-        /// <summary>Trích xuất text từ JSON CV để gửi cho AI phân tích</summary>
+        /// <summary>Trích xuất text từ JSON CV để gửi cho AI phân tích (Đã được tối ưu nén Token)</summary>
         private string ExtractCVText(Resume resume)
         {
             var sb = new StringBuilder();
 
-            // Thông tin cơ bản
-            sb.AppendLine($"Họ tên: {resume.FullName ?? resume.User?.FullName ?? "N/A"}");
-            sb.AppendLine($"Vị trí: {resume.JobTitle ?? "N/A"}");
-            sb.AppendLine($"Email: {resume.Email ?? resume.User?.Email ?? "N/A"}");
-
-            if (!string.IsNullOrEmpty(resume.Summary))
-                sb.AppendLine($"Mục tiêu nghề nghiệp: {resume.Summary}");
+            // Thông tin cơ bản (Đã loại bỏ Email và Summary để tiết kiệm Token)
+            sb.AppendLine($"[Profile] {resume.FullName ?? resume.User?.FullName ?? "N/A"} | Vị trí: {resume.JobTitle ?? "N/A"}");
 
             // Parse JsonContent nếu có
             if (!string.IsNullOrEmpty(resume.JsonContent))
@@ -380,41 +375,58 @@ namespace DoAnCS.Controllers
                                 string sectionType = section.type?.ToString() ?? "";
                                 string sectionTitle = section.title?.ToString() ?? sectionType;
 
-                                sb.AppendLine($"\n--- {sectionTitle} ---");
+                                sb.AppendLine($"\n[{sectionTitle}]");
 
                                 if (section.items != null)
                                 {
                                     foreach (var item in section.items)
                                     {
-                                        // Xử lý linh hoạt cho các loại section khác nhau
-                                        if (item.company != null) sb.AppendLine($"Công ty: {item.company}");
-                                        if (item.position != null) sb.AppendLine($"Vị trí: {item.position}");
-                                        if (item.school != null) sb.AppendLine($"Trường: {item.school}");
-                                        if (item.degree != null) sb.AppendLine($"Bằng cấp: {item.degree}");
-                                        if (item.major != null) sb.AppendLine($"Chuyên ngành: {item.major}");
-                                        if (item.name != null) sb.AppendLine($"Tên: {item.name}");
-                                        if (item.role != null) sb.AppendLine($"Vai trò: {item.role}");
-                                        if (item.description != null) sb.AppendLine($"Mô tả: {StripHTML(item.description.ToString())}"); // [TỐI ƯU 3]: Xóa HTML trong CV
-                                        if (item.period != null) sb.AppendLine($"Thời gian: {item.period}");
-                                        if (item.startDate != null) sb.AppendLine($"Bắt đầu: {item.startDate}");
-                                        if (item.endDate != null) sb.AppendLine($"Kết thúc: {item.endDate}");
-                                        if (item.technologies != null) sb.AppendLine($"Công nghệ: {item.technologies}");
-                                        sb.AppendLine();
+                                        var parts = new List<string>();
+                                        
+                                        // Gom nhóm thực thể chính (Công ty / Trường học / Tên dự án)
+                                        if (item.company != null) parts.Add(item.company.ToString());
+                                        else if (item.school != null) parts.Add(item.school.ToString());
+                                        else if (item.name != null) parts.Add(item.name.ToString());
+
+                                        // Gom nhóm Vai trò / Chuyên ngành / Bằng cấp
+                                        if (item.position != null) parts.Add(item.position.ToString());
+                                        if (item.role != null && item.role.ToString() != item.position?.ToString()) parts.Add(item.role.ToString());
+                                        if (item.major != null) parts.Add(item.major.ToString());
+                                        if (item.degree != null) parts.Add(item.degree.ToString());
+
+                                        // Gom nhóm thời gian
+                                        string dateStr = "";
+                                        if (item.period != null) dateStr = item.period.ToString();
+                                        else if (item.startDate != null || item.endDate != null) 
+                                            dateStr = $"{item.startDate}-{item.endDate}".Trim('-');
+                                        if (!string.IsNullOrWhiteSpace(dateStr)) parts.Add($"({dateStr})");
+
+                                        // Gom nhóm công nghệ
+                                        if (item.technologies != null) parts.Add($"Tech: {item.technologies}");
+
+                                        // Gom nhóm mô tả (đã strip HTML)
+                                        if (item.description != null) {
+                                            string desc = StripHTML(item.description.ToString());
+                                            if (!string.IsNullOrWhiteSpace(desc)) parts.Add(desc);
+                                        }
+
+                                        if (parts.Any()) sb.AppendLine("- " + string.Join(" | ", parts));
                                     }
                                 }
                             }
                         }
 
-                        // Trích xuất skills
+                        // Trích xuất skills nén trên 1 dòng
                         if (json.skills != null)
                         {
-                            sb.AppendLine("\n--- Kỹ năng ---");
+                            var skillsList = new List<string>();
                             foreach (var skill in json.skills)
                             {
                                 string skillName = skill.name?.ToString() ?? skill.ToString();
                                 string level = skill.level?.ToString() ?? "";
-                                sb.AppendLine($"- {skillName} {(string.IsNullOrEmpty(level) ? "" : $"({level})")}");
+                                skillsList.Add($"{skillName}{(string.IsNullOrEmpty(level) ? "" : $"({level})")}");
                             }
+                            if (skillsList.Any()) sb.AppendLine($"\n[Kỹ năng] {string.Join(", ", skillsList)}");
                         }
                     }
                 }
@@ -426,10 +438,7 @@ namespace DoAnCS.Controllers
 
             // Thêm skills từ User profile
             if (!string.IsNullOrEmpty(resume.User?.Skills))
-                sb.AppendLine($"\nKỹ năng (Profile): {resume.User.Skills}");
-
-            if (!string.IsNullOrEmpty(resume.User?.Summary))
-                sb.AppendLine($"Giới thiệu: {resume.User.Summary}");
+                sb.AppendLine($"\n[Profile Skills] {resume.User.Skills}");
 
             return sb.ToString();
         }
