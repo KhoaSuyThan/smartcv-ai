@@ -521,6 +521,120 @@ namespace DoAnCS.Controllers
         }
 
         // ==========================================
+        // NÂNG CẤP LÊN NHÀ TUYỂN DỤNG (UPGRADE TO EMPLOYER)
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpgradeToEmployer(string companyName, string companyAddress, string taxCode)
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) 
+                return RedirectToAction("Login");
+
+            if (string.IsNullOrEmpty(companyName))
+            {
+                TempData["EmployerErrorMessage"] = "Vui lòng nhập tên công ty.";
+                return RedirectToAction("Profile", new { t = "employer" });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            if (user.Role == "Recruiter" || user.Role == "Admin")
+            {
+                return RedirectToAction("Profile");
+            }
+
+            // Tạo mới công ty
+            var newCompany = new Company
+            {
+                Name = companyName,
+                Address = string.IsNullOrEmpty(companyAddress) ? null : companyAddress,
+                TaxCode = string.IsNullOrEmpty(taxCode) ? null : taxCode,
+                CreatedAt = DateTime.Now
+            };
+            
+            _context.Companies.Add(newCompany);
+            await _context.SaveChangesAsync();
+
+            // Cập nhật User
+            user.Role = "Recruiter";
+            user.CompanyID = newCompany.CompanyID;
+            
+            await _context.SaveChangesAsync();
+
+            // Cập nhật lại Claims để phiên đăng nhập nhận Role mới ngay lập tức
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("UserID", user.UserID.ToString()),
+                new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"),
+                new Claim("IsPro", user.IsPro.ToString()),
+                new Claim(ClaimTypes.Role, user.Role), // Quan trọng: đã thành Recruiter
+                new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            TempData["SuccessMessage"] = "Chúc mừng! Bạn đã trở thành Nhà Tuyển Dụng. Hãy bắt đầu đăng tin tuyển dụng nhé.";
+            return RedirectToAction("Profile", new { t = "info" });
+        }
+
+        // ==========================================
+        // HỦY TƯ CÁCH NHÀ TUYỂN DỤNG (CANCEL EMPLOYER ROLE)
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "Recruiter")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelEmployerRole()
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) 
+                return RedirectToAction("Login");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            if (user.Role != "Recruiter")
+            {
+                return RedirectToAction("Profile");
+            }
+
+            // Gỡ thông tin công ty khỏi người dùng
+            user.Role = "User";
+            user.CompanyID = null;
+            
+            await _context.SaveChangesAsync();
+
+            // Cập nhật lại Claims để phiên đăng nhập nhận Role mới ngay lập tức
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("UserID", user.UserID.ToString()),
+                new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"),
+                new Claim("IsPro", user.IsPro.ToString()),
+                new Claim(ClaimTypes.Role, user.Role), // Quan trọng: đã trở về User
+                new Claim("CompanyID", "")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            TempData["SuccessMessage"] = "Bạn đã hủy tư cách Nhà tuyển dụng và trở về vai trò Ứng viên thành công.";
+            return RedirectToAction("Profile", new { t = "info" });
+        }
+
+        // ==========================================
         // NÂNG CẤP TÀI KHOẢN (UPGRADE)
         // ==========================================
         [HttpGet]

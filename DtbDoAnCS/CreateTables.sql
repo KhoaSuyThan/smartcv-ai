@@ -49,6 +49,7 @@ CREATE TABLE Skills (
 CREATE TABLE [GeminiConfigs] (
     [Id] int NOT NULL,
     [ApiKey] nvarchar(max) NULL,
+    [GroqApiKey] nvarchar(max) NULL,
     [ModelName] nvarchar(max) NOT NULL DEFAULT 'gemini-2.5-flash',
     [Temperature] float NOT NULL DEFAULT 0.7,
     [MaxOutputTokens] int NOT NULL DEFAULT 2048,
