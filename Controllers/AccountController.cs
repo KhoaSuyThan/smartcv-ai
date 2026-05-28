@@ -63,8 +63,19 @@ namespace DoAnCS.Controllers
                 };
 
                 // XỬ LÝ TỰ ĐỘNG TẠO CÔNG TY
-                if (user.Role == "Recruiter" && !string.IsNullOrEmpty(model.Register.CompanyName))
+                if (user.Role == "Recruiter")
                 {
+                    if (string.IsNullOrEmpty(model.Register.CompanyName))
+                    {
+                        ModelState.AddModelError("Register.CompanyName", "Vui lòng nhập tên công ty.");
+                        return View("Login", model);
+                    }
+                    if (string.IsNullOrEmpty(model.Register.TaxCode))
+                    {
+                        ModelState.AddModelError("Register.TaxCode", "Vui lòng nhập mã số thuế.");
+                        return View("Login", model);
+                    }
+
                     // Tìm xem tên công ty đã có trong database chưa
                     var company = await _context.Companies
                         .FirstOrDefaultAsync(c => c.Name == model.Register.CompanyName);
@@ -74,6 +85,7 @@ namespace DoAnCS.Controllers
                         // Nếu chưa có thì tạo mới công ty
                         company = new Company { 
                             Name = model.Register.CompanyName,
+                            TaxCode = model.Register.TaxCode,
                             CreatedAt = DateTime.Now 
                         };
                         _context.Companies.Add(company);
@@ -535,6 +547,11 @@ namespace DoAnCS.Controllers
             if (string.IsNullOrEmpty(companyName))
             {
                 TempData["EmployerErrorMessage"] = "Vui lòng nhập tên công ty.";
+                return RedirectToAction("Profile", new { t = "employer" });
+            }
+            if (string.IsNullOrEmpty(taxCode))
+            {
+                TempData["EmployerErrorMessage"] = "Vui lòng nhập mã số thuế công ty.";
                 return RedirectToAction("Profile", new { t = "employer" });
             }
 
