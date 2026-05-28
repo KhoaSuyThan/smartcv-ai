@@ -21,67 +21,159 @@ namespace DoAnCS.Services
 
         public async Task<string> GenerateContent(string prompt, bool isPro = false)
         {
-            try {
-                // 1. Lấy cấu hình - Thêm .AsNoTracking() để tăng tốc độ đọc dữ liệu
-                var config = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
-                
-                if (config == null || string.IsNullOrEmpty(config.ApiKey)) {
-                    Console.WriteLine("CRITICAL ERROR: API Key is NULL in Database!");
-                    return "Lỗi: Hệ thống chưa lấy được mã API!";
-                }
+            int maxRetries = 5;
+            int delayMs = 5000;
 
-                // Chọn Model dựa trên trạng thái Pro
-                string selectedModel = isPro ? (config.ProModelName ?? "gemini-2.5-pro") : config.ModelName;
-                double selectedTemp = isPro ? config.ProTemperature : config.Temperature;
-                int selectedMaxTokens = isPro ? config.ProMaxOutputTokens : config.MaxOutputTokens;
-                if (selectedMaxTokens < 8192) selectedMaxTokens = 8192; // Tăng lên 8192 vì tiếng Việt tốn rất nhiều token
-
-                // 2. Build URL (Sử dụng v1beta để dùng được tính năng System Instruction)
-                string url = $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={config.ApiKey}";
-
-                // 2. Đảm bảo Prompt không rỗng
-                if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";
-
-                var requestBody = new { 
-                    // Ngăn riêng cho "Cái tôi" của AI - Giúp AI bám sát vai trò chuyên gia CV
-                    system_instruction = new {
-                        parts = new { text = config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp." }
-                    },
-                    contents = new[] { 
-                        new { parts = new[] { new { text = prompt } } } 
-                    },
-                    generationConfig = new {
-                        temperature = selectedTemp,
-                        maxOutputTokens = selectedMaxTokens,
-                        topP = 0.95,
-                        topK = 64
-                    }
-                };
-
-                var json = JsonConvert.SerializeObject(requestBody);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var response = await _httpClient.PostAsync(url, content);
-                var responseString = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode) {
-                    dynamic result = JsonConvert.DeserializeObject(responseString);
+            for (int i = 0; i < maxRetries; i++)
+            {
+                try {
+                    // 1. Lấy cấu hình - Thêm .AsNoTracking() để tăng tốc độ đọc dữ liệu
+                    var config = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
                     
-                    // 3. Kiểm tra xem có kết quả trả về không (phòng trường hợp bị chặn nội dung)
-                    if (result?.candidates != null && result.candidates.Count > 0) {
-                        return result.candidates[0].content.parts[0].text;
+                    if (config == null || string.IsNullOrEmpty(config.ApiKey)) {
+                        Console.WriteLine("CRITICAL ERROR: API Key is NULL in Database!");
+                        return "Lỗi: Hệ thống chưa lấy được mã API!";
                     }
-                    return "AI không thể tạo nội dung cho yêu cầu này.";
+
+                    // Chọn Model dựa trên trạng thái Pro
+                    string selectedModel = isPro ? (config.ProModelName ?? "gemini-2.5-pro") : config.ModelName;
+                    double selectedTemp = isPro ? config.ProTemperature : config.Temperature;
+                    int selectedMaxTokens = isPro ? config.ProMaxOutputTokens : config.MaxOutputTokens;
+                    
+                    bool isGroq = selectedModel.Contains("llama") || selectedModel.Contains("mixtral");
+                    
+                    if (!isGroq && selectedMaxTokens < 8192) {
+                        selectedMaxTokens = 8192; // Tăng lên 8192 vì tiếng Việt tốn rất nhiều token (Chỉ áp dụng cho Gemini)
+                    } else if (isGroq) {
+                        // Groq Free Tier TPM is often 6000. 
+                        // If we request too many max_tokens, it instantly hits TPM limit.
+                        if (selectedMaxTokens > 4000) selectedMaxTokens = 4000;
+                    }
+
+                    if (isGroq && string.IsNullOrEmpty(config.GroqApiKey)) {
+                        Console.WriteLine("CRITICAL ERROR: Groq API Key is NULL in Database!");
+                        return "Lỗi: Hệ thống chưa có mã Groq API Key!";
+                    }
+
+                    // 2. Build URL
+                    string url = isGroq ? "https://api.groq.com/openai/v1/chat/completions" 
+                                        : $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={config.ApiKey}";
+
+                    // 2. Đảm bảo Prompt không rỗng
+                    if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";
+
+                    object requestBody;
+                    if (isGroq)
+                    {
+                        requestBody = new
+                        {
+                            model = selectedModel,
+                            messages = new[]
+                            {
+                                new { role = "system", content = config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp." },
+                                new { role = "user", content = prompt }
+                            },
+                            temperature = selectedTemp,
+                            max_tokens = selectedMaxTokens
+                        };
+                    }
+                    else
+                    {
+                        requestBody = new { 
+                            system_instruction = new {
+                                parts = new { text = config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp." }
+                            },
+                            contents = new[] { 
+                                new { parts = new[] { new { text = prompt } } } 
+                            },
+                            generationConfig = new {
+                                temperature = selectedTemp,
+                                maxOutputTokens = selectedMaxTokens,
+                                topP = 0.95,
+                                topK = 64
+                            }
+                        };
+                    }
+
+                    var json = JsonConvert.SerializeObject(requestBody);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var requestMsg = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+                    if (isGroq) {
+                        requestMsg.Headers.Add("Authorization", $"Bearer {config.GroqApiKey}");
+                    }
+
+                    var response = await _httpClient.SendAsync(requestMsg);
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    if (response.IsSuccessStatusCode) {
+                        dynamic result = JsonConvert.DeserializeObject(responseString);
+                        
+                        if (isGroq) {
+                            if (result?.choices != null && result.choices.Count > 0) {
+                                return result.choices[0].message.content;
+                            }
+                        } else {
+                            if (result?.candidates != null && result.candidates.Count > 0) {
+                                return result.candidates[0].content.parts[0].text;
+                            }
+                        }
+                        return "AI không thể tạo nội dung cho yêu cầu này.";
+                    }
+                    
+                    if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests || 
+                        response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                    {
+                        // Try to extract exact retry delay from Google's error message (Groq also sometimes provides retry-after)
+                        int exactDelayMs = delayMs;
+                        try {
+                            if (response.Headers.TryGetValues("Retry-After", out var values))
+                            {
+                                if (int.TryParse(values.FirstOrDefault(), out int retryAfterSecs)) {
+                                    exactDelayMs = (retryAfterSecs * 1000) + 1000;
+                                }
+                            }
+                            else 
+                            {
+                                dynamic errorJson = JsonConvert.DeserializeObject(responseString);
+                                if (errorJson?.error?.details != null) {
+                                    foreach (var detail in errorJson.error.details) {
+                                        if (detail["@type"]?.ToString() == "type.googleapis.com/google.rpc.RetryInfo" && detail.retryDelay != null) {
+                                            string delayStr = detail.retryDelay.ToString().Replace("s", "");
+                                            if (double.TryParse(delayStr, System.Globalization.CultureInfo.InvariantCulture, out double secs)) {
+                                                exactDelayMs = (int)(secs * 1000) + 2000; // Add 2s buffer
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch {}
+
+                        Console.WriteLine($"[API Error] Lỗi {response.StatusCode}. Thử lại lần {i + 1}/{maxRetries} sau {exactDelayMs}ms...");
+                        if (i < maxRetries - 1)
+                        {
+                            await Task.Delay(exactDelayMs);
+                            delayMs = exactDelayMs > 0 ? exactDelayMs : delayMs * 2;
+                            continue;
+                        }
+                    }
+
+                    // In lỗi chi tiết ra Console để bạn copy gửi tôi nếu vẫn lỗi
+                    Console.WriteLine("AI API Error: " + responseString);
+                    return $"Lỗi API: {response.StatusCode}";
                 }
-                
-                // In lỗi chi tiết ra Console để bạn copy gửi tôi nếu vẫn lỗi
-                Console.WriteLine("AI API Error: " + responseString);
-                return $"Lỗi API: {response.StatusCode}";
+                catch (Exception ex) {
+                    Console.WriteLine("Exception: " + ex.Message);
+                    if (i < maxRetries - 1)
+                    {
+                        await Task.Delay(delayMs);
+                        delayMs *= 2;
+                        continue;
+                    }
+                    return "Lỗi kết nối hệ thống AI!";
+                }
             }
-            catch (Exception ex) {
-                Console.WriteLine("Exception: " + ex.Message);
-                return "Lỗi kết nối hệ thống AI!";
-            }
+            return "Lỗi kết nối hệ thống AI sau nhiều lần thử!";
         }
 
         public async Task<float[]> GenerateEmbeddingAsync(string text)

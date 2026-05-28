@@ -661,15 +661,20 @@ namespace DoAnCS.Controllers
 
             // Lấy thêm Usage Tracker cho View
             var today = DateTime.Today;
-            var tokensToday = await _context.AILogs
-                .Where(l => l.CreatedAt.Date == today)
+            var tokensGemini = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today && (l.ApiProvider == "Gemini" || l.ApiProvider == null))
+                .SumAsync(l => (int?)l.UsedTokens) ?? 0;
+
+            var tokensGroq = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today && l.ApiProvider == "Groq")
                 .SumAsync(l => (int?)l.UsedTokens) ?? 0;
 
             var callsToday = await _context.AILogs
                 .Where(l => l.CreatedAt.Date == today)
                 .CountAsync();
 
-            ViewBag.TokensToday = tokensToday;
+            ViewBag.TokensGemini = tokensGemini;
+            ViewBag.TokensGroq = tokensGroq;
             ViewBag.CallsToday = callsToday;
 
             // Tổng token tích lũy toàn thời gian (lấy từ AILogs cho chính xác)
@@ -688,6 +693,7 @@ namespace DoAnCS.Controllers
             {
                 // Cập nhật giá trị
                 config.ApiKey = model.ApiKey;
+                config.GroqApiKey = model.GroqApiKey;
                 config.ChatbotApiKey = model.ChatbotApiKey; // Key riêng cho chatbox
                 config.ModelName = model.ModelName;
                 config.Temperature = model.Temperature;
@@ -715,8 +721,12 @@ namespace DoAnCS.Controllers
         public async Task<IActionResult> GetAIUsageStats()
         {
             var today = DateTime.Today;
-            var tokensToday = await _context.AILogs
-                .Where(l => l.CreatedAt.Date == today)
+            var tokensGemini = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today && (l.ApiProvider == "Gemini" || l.ApiProvider == null))
+                .SumAsync(l => (int?)l.UsedTokens) ?? 0;
+
+            var tokensGroq = await _context.AILogs
+                .Where(l => l.CreatedAt.Date == today && l.ApiProvider == "Groq")
                 .SumAsync(l => (int?)l.UsedTokens) ?? 0;
 
             var callsToday = await _context.AILogs
@@ -728,7 +738,8 @@ namespace DoAnCS.Controllers
             return Json(new { 
                 success = true, 
                 callsToday = callsToday, 
-                tokensToday = tokensToday, 
+                tokensGemini = tokensGemini, 
+                tokensGroq = tokensGroq, 
                 totalTokensAll = totalTokensAll.ToString("N0") 
             });
         }

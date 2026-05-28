@@ -189,14 +189,20 @@ namespace DoAnCS.Controllers
             var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
             bool isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");
 
-            var semaphore = new SemaphoreSlim(isPro ? 3 : 2); // Chạy tối đa 2-3 task cùng lúc để tránh Rate Limit
+            string selectedModel = isPro ? (configData?.ProModelName ?? "") : (configData?.ModelName ?? "");
+            string apiProvider = selectedModel.Contains("llama") || selectedModel.Contains("mixtral") ? "Groq" : "Gemini";
+
+            var semaphore = new SemaphoreSlim(isPro ? 2 : 1); // Giới hạn luồng chạy đồng thời để tránh Rate Limit
             var scoringTasks = topCandidates.Select(async (resume, index) =>
             {
                 await semaphore.WaitAsync();
                 try
                 {
-                    // Thêm một chút delay lệch nhau giữa các task để không gọi API cùng 1 miligiây
-                    await Task.Delay(index * (isPro ? 500 : 1000));
+                    // Delay để tránh gọi API liên tục (Free tier 15 RPM = 4s/req)
+                    if (index > 0)
+                    {
+                        await Task.Delay(isPro ? 1000 : 4000);
+                    }
 
                     Console.WriteLine($"[SmartMatch RAG] AI đang đánh giá: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
 
@@ -238,6 +244,7 @@ namespace DoAnCS.Controllers
                             InputText = $"Job #{jobId} vs Resume #{resume.ResumeID}",
                             OutputText = aiResult.Length > 500 ? aiResult.Substring(0, 500) + "..." : aiResult,
                             UsedTokens = estimatedTokens,
+                            ApiProvider = apiProvider,
                             CreatedAt = DateTime.Now
                         };
                         lock (_context) // DBContext không thread-safe
@@ -494,13 +501,17 @@ Output JSON thuần (KHÔNG markdown, KHÔNG text phụ):
         {
             try
             {
-                // Loại bỏ markdown wrapping nếu có
-                string cleaned = aiResult.Trim();
-                if (cleaned.StartsWith("```"))
+                // Tìm đoạn JSON hợp lệ bằng cách cắt từ '{' đến '}'
+                int startIndex = aiResult.IndexOf('{');
+                int endIndex = aiResult.LastIndexOf('}');
+                
+                if (startIndex < 0 || endIndex < startIndex)
                 {
-                    cleaned = Regex.Replace(cleaned, @"^```\w*\s*", "");
-                    cleaned = Regex.Replace(cleaned, @"\s*```$", "");
+                    Console.WriteLine($"[SmartMatch] Không tìm thấy JSON trong phản hồi:\n{aiResult}");
+                    return null;
                 }
+
+                string cleaned = aiResult.Substring(startIndex, endIndex - startIndex + 1);
 
                 dynamic json = JsonConvert.DeserializeObject(cleaned);
                 if (json == null) return null;
