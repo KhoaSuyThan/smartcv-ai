@@ -49,6 +49,16 @@
                                     </div>
                                     <small class="text-danger d-block mt-1">Lưu ý: Dùng chung API Key cho cả Free và Pro.</small>
                                 </div>
+                                <div class="col-md-12 mt-2">
+                                    <label class="form-label fw-semibold text-secondary small">Groq API Key <span class="badge bg-success bg-opacity-10 text-success ms-1">Mới</span></label>
+                                    <div class="input-group">
+                                        <input type="password" id="GroqApiKey" name="GroqApiKey" class="form-control rounded-start bg-light border-light" value="@Model.GroqApiKey" placeholder="Nhập API Key cung cấp bởi Groq (Bắt đầu bằng gsk_...)">
+                                        <button class="btn btn-light border-light border-start-0" type="button" onclick="toggleGroqPassword()">
+                                            <i class='bx bx-show text-muted' id="groqToggleIcon"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-success d-block mt-1">Dùng cho các Model siêu tốc độ của Groq (Llama, Mixtral). Lấy key tại <a href="https://console.groq.com/keys" target="_blank">console.groq.com</a>.</small>
+                                </div>
                                 
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold text-secondary small">Model AI</label>
@@ -57,6 +67,9 @@
                                         <!option value="gemini-2.5-pro" @(Model.ModelName == "gemini-2.5-pro" ? "selected" : "")>Gemini 2.5 Pro (Thông minh nhất)</!option>
                                         <!option value="gemini-2.0-flash" @(Model.ModelName == "gemini-2.0-flash" ? "selected" : "")>Gemini 2.0 Flash (Siêu nhanh)</!option>
                                         <!option value="gemini-2.0-flash-001" @(Model.ModelName == "gemini-2.0-flash-001" ? "selected" : "")>Gemini 2.0 Flash 001 (Bản ổn định 2025)</!option>
+                                        <!option value="llama-3.1-8b-instant" @(Model.ModelName == "llama-3.1-8b-instant" ? "selected" : "")>Llama 3.1 8B (Groq - Cực Nhanh)</!option>
+                                        <!option value="llama-3.3-70b-versatile" @(Model.ModelName == "llama-3.3-70b-versatile" ? "selected" : "")>Llama 3.3 70B (Groq - Đa năng)</!option>
+                                        <!option value="mixtral-8x7b-32768" @(Model.ModelName == "mixtral-8x7b-32768" ? "selected" : "")>Mixtral 8x7B (Groq - Lập trình)</!option>
                                     </select>
                                 </div>
 
@@ -130,6 +143,8 @@
                                     <select name="ProModelName" class="form-select bg-light border-light">
                                         <!option value="gemini-2.5-pro" @(Model.ProModelName == "gemini-2.5-pro" ? "selected" : "")>Gemini 2.5 Pro</!option>
                                         <!option value="gemini-2.5-flash" @(Model.ProModelName == "gemini-2.5-flash" ? "selected" : "")>Gemini 2.5 Flash</!option>
+                                        <!option value="llama-3.1-8b-instant" @(Model.ProModelName == "llama-3.1-8b-instant" ? "selected" : "")>Llama 3.1 8B (Groq)</!option>
+                                        <!option value="llama-3.3-70b-versatile" @(Model.ProModelName == "llama-3.3-70b-versatile" ? "selected" : "")>Llama 3.3 70B (Groq)</!option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
@@ -196,13 +211,17 @@
                         <h6 class="fw-bold mb-3 opacity-75"><i class='bx bx-trending-up me-2'></i>Hôm Nay (Usage)</h6>
                         
                         <div class="row text-center mb-3">
-                            <div class="col-6 border-end border-white border-opacity-25">
+                            <div class="col-4 border-end border-white border-opacity-25">
                                 <h3 class="fw-bold mb-0" id="callsToday">@ViewBag.CallsToday</h3>
-                                <p class="small mb-0 opacity-75">Tác vụ xử lý</p>
+                                <p class="small mb-0 opacity-75">Tác vụ</p>
                             </div>
-                            <div class="col-6">
-                                <h3 class="fw-bold mb-0" id="tokensToday">@ViewBag.TokensToday</h3>
-                                <p class="small mb-0 opacity-75">Token tiêu thụ</p>
+                            <div class="col-4 border-end border-white border-opacity-25">
+                                <h3 class="fw-bold mb-0 text-info" id="tokensGemini">@ViewBag.TokensGemini</h3>
+                                <p class="small mb-0 opacity-75">Gemini</p>
+                            </div>
+                            <div class="col-4">
+                                <h3 class="fw-bold mb-0 text-danger" id="tokensGroq">@ViewBag.TokensGroq</h3>
+                                <p class="small mb-0 opacity-75">Groq</p>
                             </div>
                         </div>
                         
@@ -316,6 +335,20 @@
         }
     }
 
+    function toggleGroqPassword() {
+        var input = document.getElementById("GroqApiKey");
+        var icon = document.getElementById("groqToggleIcon");
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bx-show");
+            icon.classList.add("bx-hide");
+        } else {
+            input.type = "password";
+            icon.classList.remove("bx-hide");
+            icon.classList.add("bx-show");
+        }
+    }
+
     function toggleChatbotKey() {
         var input = document.getElementById("ChatbotApiKey");
         var icon = document.getElementById("chatbotToggleIcon");
@@ -371,15 +404,17 @@
             .then(data => {
                 if (data.success) {
                     const callsEl = document.getElementById("callsToday");
-                    const tokensEl = document.getElementById("tokensToday");
+                    const tokensGeminiEl = document.getElementById("tokensGemini");
+                    const tokensGroqEl = document.getElementById("tokensGroq");
                     const totalEl = document.getElementById("totalTokens");
                     
                     if (callsEl) callsEl.innerText = data.callsToday;
-                    if (tokensEl) tokensEl.innerText = data.tokensToday;
+                    if (tokensGeminiEl) tokensGeminiEl.innerText = data.tokensGemini;
+                    if (tokensGroqEl) tokensGroqEl.innerText = data.tokensGroq;
                     if (totalEl) totalEl.innerText = data.totalTokensAll;
                     
                     // Thêm hiệu ứng nháy nhẹ khi cập nhật
-                    [callsEl, tokensEl, totalEl].forEach(el => {
+                    [callsEl, tokensGeminiEl, tokensGroqEl, totalEl].forEach(el => {
                         if (el) {
                             el.style.transition = "color 0.3s";
                             el.style.color = "#4ade80"; // xanh lá nhạt

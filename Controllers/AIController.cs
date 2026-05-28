@@ -102,6 +102,7 @@ Quy tắc:
                                 InputText = request.Message,
                                 OutputText = reply,
                                 UsedTokens = tokens,
+                                ApiProvider = "Gemini",
                                 CreatedAt = DateTime.Now
                             };
                             _context.AILogs.Add(log);
@@ -284,6 +285,9 @@ YÊU CẦU CỰC KỲ KHẮT KHE:
                 // 7. Ghi Log AI và Cập nhật Token (Chỉ khi không phải gọi từ test_playground, hoặc nếu Admin tự test thì vẫn có userID)
                 // Ước lượng Token đơn giản: 1 Token ~ 4 ký tự
                 int estimatedTokens = (prompt.Length / 4) + (aiResult.Length / 4);
+                
+                string selectedModel = isPro ? (configData?.ProModelName ?? "") : (configData?.ModelName ?? "");
+                string apiProvider = selectedModel.Contains("llama") || selectedModel.Contains("mixtral") ? "Groq" : "Gemini";
 
                 var log = new DoAnCS.Models.AILog {
                     UserID = userId,
@@ -291,6 +295,7 @@ YÊU CẦU CỰC KỲ KHẮT KHE:
                     InputText = prompt,
                     OutputText = aiResult,
                     UsedTokens = estimatedTokens,
+                    ApiProvider = apiProvider,
                     CreatedAt = DateTime.Now
                 };
 

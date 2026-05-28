@@ -14,6 +14,7 @@ namespace DoAnCS.Models
         public string InputText { get; set; }
         public string OutputText { get; set; }
         public int UsedTokens { get; set; }
+        public string? ApiProvider { get; set; } // "Gemini" or "Groq"
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

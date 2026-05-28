@@ -140,6 +140,21 @@ using (var scope = app.Services.CreateScope())
         END
         ");
 
+        // Thêm cột GroqApiKey nếu chưa có
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('GeminiConfigs') AND name = 'GroqApiKey')
+        BEGIN
+            ALTER TABLE [GeminiConfigs] ADD [GroqApiKey] nvarchar(max) NULL;
+        END
+        ");
+
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AILogs') AND name = 'ApiProvider')
+        BEGIN
+            ALTER TABLE [AILogs] ADD [ApiProvider] nvarchar(50) NULL;
+        END
+        ");
+
         // Thêm các cột cho tính năng Public CV và ViewCount
         db.Database.ExecuteSqlRaw(@"
         IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Resumes') AND name = 'IsPublic')

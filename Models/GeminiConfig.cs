@@ -9,6 +9,7 @@ namespace DoAnCS.Models
 
         // 1. Core Settings (Free)
         public string? ApiKey { get; set; }
+        public string? GroqApiKey { get; set; }
         public string? ChatbotApiKey { get; set; }  // Key riêng cho Chatbox AI (tách quota)
         public string? ModelName { get; set; } = "gemini-2.5-flash";
         public double Temperature { get; set; } = 0.7;
