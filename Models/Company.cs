@@ -8,6 +8,7 @@ public class Company
     public string? Website { get; set; }
     public string? Description { get; set; }
     public string? Address { get; set; }
+    public string? Industry { get; set; }
     public string? TaxCode { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public virtual ICollection<User>? Users { get; set; }
