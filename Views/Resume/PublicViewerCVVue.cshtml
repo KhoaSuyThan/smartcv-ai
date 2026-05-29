@@ -12,7 +12,8 @@
         .cv-builder-editor-panel { display: none !important; }
         .no-print.sticky.top-0 { display: none !important; }
         .absolute.top-7.z-40 { display: none !important; }
-        .sticky.top-\[80px\], .sticky.top-\[110px\] { display: none !important; } /* Hide Zoom Bar & AI Tools */
+        .sticky.top-\[80px\] { display: none !important; } /* Hide AI Tools */
+        .sticky.top-\[110px\] > div:not(:first-child) { display: none !important; } /* Hide Cover Letter and Job Matcher */
         
         /* Ẩn tất cả các công cụ tương tác nổi trong CV */
         div.nav-btns, button.nav-btn, button.delete-btn, div.contact-item-btns,
@@ -75,7 +76,6 @@
         .cv-preview-card {
             margin: 40px auto !important;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
-            transform: scale(1.0) !important; /* Force scale 1.0 or responsive */
         }
     </style>
 }

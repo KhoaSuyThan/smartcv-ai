@@ -855,10 +855,6 @@ footer {
   border-color: transparent !important; /* Xóa viền thừa do bị override */
 }
 
-[data-bs-theme="dark"] .cv-preview-card * {
-  /* Prevent child elements without specific color classes from turning white */
-}
-
 [data-bs-theme="dark"] .transition-hover h6,
 [data-bs-theme="dark"] .transition-hover .text-dark {
   color: #212529 !important;
