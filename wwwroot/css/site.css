@@ -199,12 +199,12 @@ footer {
 [data-bs-theme="dark"] h3:not(.cv-preview-card h3):not(.cv-preview-wrapper h3):not(#resume-preview h3):not(.template-card h3), 
 [data-bs-theme="dark"] h4:not(.cv-preview-card h4):not(.cv-preview-wrapper h4):not(#resume-preview h4):not(.template-card h4),
 [data-bs-theme="dark"] h5:not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5):not(.template-card h5),
-[data-bs-theme="dark"] h6:not(.cv-preview-card h6):not(.cv-preview-wrapper h6):not(#resume-preview h6):not(.template-card h6),
-[data-bs-theme="dark"] .text-dark:not(.cv-preview-card .text-dark):not(.cv-preview-wrapper .text-dark):not(#resume-preview .text-dark):not(.template-card .text-dark) {
+[data-bs-theme="dark"] h6:not(.cv-preview-card h6):not(.cv-preview-wrapper h6):not(#resume-preview h6):not(.template-card h6):not(.transition-hover h6),
+[data-bs-theme="dark"] .text-dark:not(.cv-preview-card .text-dark):not(.cv-preview-wrapper .text-dark):not(#resume-preview .text-dark):not(.template-card .text-dark):not(.transition-hover .text-dark) {
   color: #e9ecef !important;
 }
 
-[data-bs-theme="dark"] .text-muted:not(.cv-preview-card .text-muted):not(.cv-preview-wrapper .text-muted):not(#resume-preview .text-muted):not(.template-card .text-muted) {
+[data-bs-theme="dark"] .text-muted:not(.cv-preview-card .text-muted):not(.cv-preview-wrapper .text-muted):not(#resume-preview .text-muted):not(.template-card .text-muted):not(.transition-hover .text-muted) {
   color: #adb5bd !important;
 }
 
