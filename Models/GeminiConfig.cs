@@ -22,6 +22,7 @@ namespace DoAnCS.Models
 
         // 2. Prompt Management
         public string? SystemInstruction { get; set; }
+        public string? ChatbotSystemInstruction { get; set; }
         public string? SkillTemplate { get; set; }
         public string? SummaryTemplate { get; set; }
         public string? GrammarTemplate { get; set; }

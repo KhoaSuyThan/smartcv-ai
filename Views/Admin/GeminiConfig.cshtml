@@ -103,29 +103,33 @@
                     @* Card 1.1: Chatbox AI Settings *@
                     <div class="card border-0 shadow-sm rounded-4 mb-4" style="border-left: 4px solid #0d6efd !important;">
                         <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
-                            <h5 class="fw-bold text-primary"><i class='bx bxs-chat me-2'></i>Cài đặt Chatbox AI</h5>
-                            <p class="text-muted small mb-0">API Key riêng cho chatbot hỏi đáp góc phải. Để trống → dùng chung key ở trên.</p>
+                            <h5 class="fw-bold text-primary"><i class='bx bxs-chat me-2'></i>Cài đặt Chatbox AI (Groq)</h5>
+                            <p class="text-muted small mb-0">Thiết lập hệ thống hỏi đáp tốc độ cao bằng Groq API.</p>
                         </div>
                         <div class="card-body p-4">
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label class="form-label fw-semibold text-secondary small">
-                                        Chatbox API Key <span class="badge bg-primary bg-opacity-10 text-primary ms-1">Riêng biệt</span>
+                                        Chatbox Groq API Key <span class="badge bg-primary bg-opacity-10 text-primary ms-1">Riêng biệt</span>
                                     </label>
                                     <div class="input-group">
                                         <input type="password" id="ChatbotApiKey" name="ChatbotApiKey"
                                                class="form-control rounded-start bg-light border-light"
                                                value="@Model.ChatbotApiKey"
-                                               placeholder="Để trống = dùng chung key với AI CV">
+                                               placeholder="Nhập API Key cung cấp bởi Groq (Bắt đầu bằng gsk_...)">
                                         <button class="btn btn-light border-light border-start-0" type="button" onclick="toggleChatbotKey()">
                                             <i class='bx bx-show text-muted' id="chatbotToggleIcon"></i>
                                         </button>
                                     </div>
                                     <small class="text-primary d-block mt-1">
                                         <i class='bx bx-info-circle me-1'></i>
-                                        Dùng key riêng để chatbox không tiêu quota AI tạo CV. Lấy key miễn phí tại
-                                        <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a>.
+                                        Sử dụng Groq giúp Chatbot phản hồi cực nhanh. Lấy key miễn phí tại
+                                        <a href="https://console.groq.com/keys" target="_blank">Groq Console</a>.
                                     </small>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <label class="form-label fw-semibold text-secondary small">Văn phong Chatbot (System Instruction)</label>
+                                    <textarea name="ChatbotSystemInstruction" class="form-control bg-light border-light" rows="3" placeholder="Ví dụ: Bạn là trợ lý ảo thân thiện của website CVBuilder Pro...">@Model.ChatbotSystemInstruction</textarea>
                                 </div>
                             </div>
                         </div>
