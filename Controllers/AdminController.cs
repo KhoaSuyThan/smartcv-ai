@@ -706,6 +706,7 @@ namespace DoAnCS.Controllers
                 config.ProUserRateLimit = model.ProUserRateLimit;
 
                 config.SystemInstruction = model.SystemInstruction;
+                config.ChatbotSystemInstruction = model.ChatbotSystemInstruction;
                 config.SkillTemplate = model.SkillTemplate;
                 config.SummaryTemplate = model.SummaryTemplate;
                 config.GrammarTemplate = model.GrammarTemplate;

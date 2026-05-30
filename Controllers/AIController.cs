@@ -40,15 +40,18 @@ namespace DoAnCS.Controllers
             // 1. Lấy cấu hình từ DB
             var dbConfig = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
 
-            // 2. Chuyển sang sử dụng Groq API Key cho Chatbot
-            var groqApiKey = dbConfig?.GroqApiKey;
-            if (string.IsNullOrEmpty(groqApiKey))
+            // 2. Sử dụng ChatbotApiKey (dành riêng cho Groq Chatbot)
+            var chatbotApiKey = dbConfig?.ChatbotApiKey;
+            if (string.IsNullOrEmpty(chatbotApiKey))
                 return Json(new { success = false, reply = "Tính năng Chatbot đang được bảo trì. Vui lòng quay lại sau!" });
 
-            groqApiKey = groqApiKey.Trim();
+            chatbotApiKey = chatbotApiKey.Trim();
 
             // 3. Chuẩn bị Request Body cho Groq
-            var systemPrompt = @"Bạn là trợ lý ảo của website CVBuilder Pro - nền tảng tạo CV và tìm việc làm IT tại Việt Nam.
+            var systemPrompt = dbConfig?.ChatbotSystemInstruction;
+            if (string.IsNullOrWhiteSpace(systemPrompt)) 
+            {
+                systemPrompt = @"Bạn là trợ lý ảo của website CVBuilder Pro - nền tảng tạo CV và tìm việc làm IT tại Việt Nam.
 Nhiệm vụ: Giải đáp thắc mắc của người dùng về dịch vụ, hướng dẫn sử dụng, tư vấn CV/nghề nghiệp.
 Quy tắc:
 - Trả lời ngắn gọn, thân thiện, bằng tiếng Việt.
@@ -56,6 +59,7 @@ Quy tắc:
 - Nếu câu hỏi ngoài phạm vi, hướng dẫn liên hệ hỗ trợ.
 - KHÔNG tiết lộ thông tin kỹ thuật nội bộ.
 - Giới hạn câu trả lời trong 150 từ.";
+            }
 
             var requestBody = new
             {
@@ -78,7 +82,7 @@ Quy tắc:
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 var requestMsg = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
-                requestMsg.Headers.Add("Authorization", $"Bearer {groqApiKey}");
+                requestMsg.Headers.Add("Authorization", $"Bearer {chatbotApiKey}");
 
                 var response = await httpClient.SendAsync(requestMsg);
                 var responseString = await response.Content.ReadAsStringAsync();

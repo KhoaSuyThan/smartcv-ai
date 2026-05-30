@@ -54,6 +54,7 @@ CREATE TABLE [GeminiConfigs] (
     [Temperature] float NOT NULL DEFAULT 0.7,
     [MaxOutputTokens] int NOT NULL DEFAULT 2048,
     [SystemInstruction] nvarchar(max) NULL,
+    [ChatbotSystemInstruction] nvarchar(max) NULL,
     [SkillTemplate] nvarchar(max) NULL,
     [SummaryTemplate] nvarchar(max) NULL,
     [GrammarTemplate] nvarchar(max) NULL,
