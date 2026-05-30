@@ -40,17 +40,14 @@ namespace DoAnCS.Controllers
             // 1. Lấy cấu hình từ DB
             var dbConfig = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
 
-            // 2. Ưu tiên: DB ChatbotApiKey > appsettings ChatbotApiKey (Tách biệt hoàn toàn với Key chính)
-            var chatbotApiKey = dbConfig?.ChatbotApiKey;
-            if (string.IsNullOrEmpty(chatbotApiKey))
-                chatbotApiKey = _configuration["Gemini:ChatbotApiKey"];
+            // 2. Chuyển sang sử dụng Groq API Key cho Chatbot
+            var groqApiKey = dbConfig?.GroqApiKey;
+            if (string.IsNullOrEmpty(groqApiKey))
+                return Json(new { success = false, reply = "Tính năng Chatbot đang được bảo trì. Vui lòng quay lại sau!" });
 
-            if (string.IsNullOrEmpty(chatbotApiKey))
-                return Json(new { success = false, reply = "Lỗi hệ thống, hãy liên hệ admin để giải quyết" });
+            groqApiKey = groqApiKey.Trim();
 
-            chatbotApiKey = chatbotApiKey.Trim();
-
-            // 3. Chuẩn bị Request Body (Sửa schema parts thành mảng [])
+            // 3. Chuẩn bị Request Body cho Groq
             var systemPrompt = @"Bạn là trợ lý ảo của website CVBuilder Pro - nền tảng tạo CV và tìm việc làm IT tại Việt Nam.
 Nhiệm vụ: Giải đáp thắc mắc của người dùng về dịch vụ, hướng dẫn sử dụng, tư vấn CV/nghề nghiệp.
 Quy tắc:
@@ -62,22 +59,28 @@ Quy tắc:
 
             var requestBody = new
             {
-                system_instruction = new { parts = new[] { new { text = systemPrompt } } },
-                contents = new[] { new { parts = new[] { new { text = request.Message } } } },
-                generationConfig = new { temperature = 0.7, maxOutputTokens = 512, topP = 0.9 }
+                model = "llama-3.1-8b-instant", // Sử dụng model Llama 3.1 8B
+                messages = new[]
+                {
+                    new { role = "system", content = systemPrompt },
+                    new { role = "user", content = request.Message }
+                },
+                temperature = 0.7,
+                max_tokens = 512
             };
 
             try
             {
                 var httpClient = _httpClientFactory.CreateClient();
-                // Sử dụng model được cấu hình hoặc mặc định là 2.5-flash
-                string model = dbConfig?.ModelName ?? "gemini-2.5-flash";
-                var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={chatbotApiKey}";
+                var url = "https://api.groq.com/openai/v1/chat/completions";
                 
                 var json = JsonConvert.SerializeObject(requestBody);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync(url, content);
+                var requestMsg = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
+                requestMsg.Headers.Add("Authorization", $"Bearer {groqApiKey}");
+
+                var response = await httpClient.SendAsync(requestMsg);
                 var responseString = await response.Content.ReadAsStringAsync();
 
                 Console.WriteLine($"[Chatbox] HTTP {(int)response.StatusCode}");
@@ -85,9 +88,9 @@ Quy tắc:
                 if (response.IsSuccessStatusCode)
                 {
                     dynamic result = JsonConvert.DeserializeObject(responseString);
-                    if (result?.candidates != null && result.candidates.Count > 0)
+                    if (result?.choices != null && result.choices.Count > 0)
                     {
-                        string reply = result.candidates[0].content.parts[0].text;
+                        string reply = result.choices[0].message.content;
                         
                         // --- GHI LOG SỬ DỤNG VÀO DATABASE ---
                         try {
@@ -102,7 +105,7 @@ Quy tắc:
                                 InputText = request.Message,
                                 OutputText = reply,
                                 UsedTokens = tokens,
-                                ApiProvider = "Gemini",
+                                ApiProvider = "Groq",
                                 CreatedAt = DateTime.Now
                             };
                             _context.AILogs.Add(log);
