@@ -101,6 +101,69 @@
             /* Đảm bảo vị trí modal luôn chuẩn */
             perspective: none !important;
         }
+
+        /* Hỗ trợ chế độ tối (Dark Mode) cho các thành phần chính */
+        [data-bs-theme="dark"] body {
+            background-color: #121212 !important;
+            color: #e0e0e0 !important;
+        }
+        [data-bs-theme="dark"] .navbar {
+            background-color: #1e1e1e !important;
+            border-bottom: 1px solid #2d2d2d !important;
+        }
+        [data-bs-theme="dark"] .nav-link {
+            color: #b0b0b0 !important;
+        }
+        [data-bs-theme="dark"] .nav-link:hover,
+        [data-bs-theme="dark"] .nav-link.active {
+            color: #0d6efd !important;
+        }
+        [data-bs-theme="dark"] footer {
+            background-color: #1a1a1a !important;
+            border-top: 1px solid #2d2d2d !important;
+            color: #b0b0b0 !important;
+        }
+        [data-bs-theme="dark"] .footer-link {
+            color: #888888 !important;
+        }
+        [data-bs-theme="dark"] .footer-link:hover {
+            color: #0d6efd !important;
+        }
+        [data-bs-theme="dark"] .admin-sidebar-container {
+            background-color: #1e1e1e !important;
+            border-right: 2px solid #2d2d2d !important;
+        }
+        [data-bs-theme="dark"] .sidebar-group {
+            background-color: #1a1a1a !important;
+            border-color: #2d2d2d !important;
+        }
+        [data-bs-theme="dark"] .admin-sidebar-container .menu-item {
+            color: #c0c0c0 !important;
+        }
+        [data-bs-theme="dark"] .admin-sidebar-container .menu-item:hover {
+            background-color: #2d2d2d !important;
+            color: #0d6efd !important;
+        }
+        [data-bs-theme="dark"] .admin-sidebar-container .menu-item.active {
+            background-color: #252525 !important;
+            border-color: #0d6efd !important;
+            color: #0d6efd !important;
+        }
+        [data-bs-theme="dark"] .card,
+        [data-bs-theme="dark"] .modal-content {
+            background-color: #1e1e1e !important;
+            border-color: #2d2d2d !important;
+            color: #e0e0e0 !important;
+        }
+        [data-bs-theme="dark"] .text-dark {
+            color: #e0e0e0 !important;
+        }
+        [data-bs-theme="dark"] .bg-white {
+            background-color: #1e1e1e !important;
+        }
+        [data-bs-theme="dark"] .bg-light {
+            background-color: #121212 !important;
+        }
     </style>
 </head>
 <body>
