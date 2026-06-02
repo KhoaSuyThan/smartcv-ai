@@ -21,5 +21,6 @@ namespace DoAnCS.Models.ViewModels
         public string Role { get; set; } = "User"; 
         public string? CompanyID { get; set; }
         public string? CompanyName { get; set; }
+        public string? TaxCode { get; set; }
     }
 }

@@ -63,17 +63,30 @@ namespace DoAnCS.Controllers
                 };
 
                 // XỬ LÝ TỰ ĐỘNG TẠO CÔNG TY
-                if (user.Role == "Recruiter" && !string.IsNullOrEmpty(model.Register.CompanyName))
+                if (user.Role == "Recruiter")
                 {
+                    if (string.IsNullOrEmpty(model.Register.CompanyName))
+                    {
+                        ModelState.AddModelError("Register.CompanyName", "Vui lòng nhập tên công ty.");
+                        return View("Login", model);
+                    }
+                    if (string.IsNullOrEmpty(model.Register.TaxCode))
+                    {
+                        ModelState.AddModelError("Register.TaxCode", "Vui lòng nhập mã số thuế.");
+                        return View("Login", model);
+                    }
+
                     // Tìm xem tên công ty đã có trong database chưa
+                    string inputCompanyName = model.Register.CompanyName.Trim();
                     var company = await _context.Companies
-                        .FirstOrDefaultAsync(c => c.Name == model.Register.CompanyName);
+                        .FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompanyName.ToLower());
 
                     if (company == null)
                     {
                         // Nếu chưa có thì tạo mới công ty
                         company = new Company { 
-                            Name = model.Register.CompanyName,
+                            Name = inputCompanyName,
+                            TaxCode = model.Register.TaxCode,
                             CreatedAt = DateTime.Now 
                         };
                         _context.Companies.Add(company);
@@ -355,17 +368,27 @@ namespace DoAnCS.Controllers
                     }
                     else
                     {
-                        // Tạo mới công ty nếu chưa có
-                        var newCompany = new Company
+                        string inputCompName = (companyName ?? "Chưa cập nhật").Trim();
+                        var existingComp = await _context.Companies.FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompName.ToLower());
+                        
+                        if (existingComp != null)
                         {
-                            Name = companyName ?? "Chưa cập nhật",
-                            Address = companyAddress,
-                            TaxCode = taxCode,
-                            CreatedAt = DateTime.Now
-                        };
-                        _context.Companies.Add(newCompany);
-                        await _context.SaveChangesAsync();
-                        user.CompanyID = newCompany.CompanyID;
+                            user.CompanyID = existingComp.CompanyID;
+                        }
+                        else
+                        {
+                            // Tạo mới công ty nếu chưa có
+                            var newCompany = new Company
+                            {
+                                Name = inputCompName,
+                                Address = companyAddress,
+                                TaxCode = taxCode,
+                                CreatedAt = DateTime.Now
+                            };
+                            _context.Companies.Add(newCompany);
+                            await _context.SaveChangesAsync();
+                            user.CompanyID = newCompany.CompanyID;
+                        }
                     }
                 }
 
@@ -530,6 +553,138 @@ namespace DoAnCS.Controllers
         }
 
         // ==========================================
+        // NÂNG CẤP LÊN NHÀ TUYỂN DỤNG (UPGRADE TO EMPLOYER)
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpgradeToEmployer(string companyName, string companyAddress, string taxCode)
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) 
+                return RedirectToAction("Login");
+
+            if (string.IsNullOrEmpty(companyName))
+            {
+                TempData["EmployerErrorMessage"] = "Vui lòng nhập tên công ty.";
+                return RedirectToAction("Profile", new { t = "employer" });
+            }
+            if (string.IsNullOrEmpty(taxCode))
+            {
+                TempData["EmployerErrorMessage"] = "Vui lòng nhập mã số thuế công ty.";
+                return RedirectToAction("Profile", new { t = "employer" });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            if (user.Role == "Recruiter" || user.Role == "Admin")
+            {
+                return RedirectToAction("Profile");
+            }
+
+            // Tìm xem công ty đã có chưa
+            string inputCompName = companyName.Trim();
+            var existingComp = await _context.Companies.FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompName.ToLower());
+            
+            int compId;
+            if (existingComp != null)
+            {
+                compId = existingComp.CompanyID;
+            }
+            else
+            {
+                // Tạo mới công ty
+                var newCompany = new Company
+                {
+                    Name = inputCompName,
+                    Address = string.IsNullOrEmpty(companyAddress) ? null : companyAddress,
+                    TaxCode = string.IsNullOrEmpty(taxCode) ? null : taxCode,
+                    CreatedAt = DateTime.Now
+                };
+                
+                _context.Companies.Add(newCompany);
+                await _context.SaveChangesAsync();
+                compId = newCompany.CompanyID;
+            }
+
+            // Cập nhật User
+            user.Role = "Recruiter";
+            user.CompanyID = compId;
+            
+            await _context.SaveChangesAsync();
+
+            // Cập nhật lại Claims để phiên đăng nhập nhận Role mới ngay lập tức
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("UserID", user.UserID.ToString()),
+                new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"),
+                new Claim("IsPro", user.IsPro.ToString()),
+                new Claim(ClaimTypes.Role, user.Role), // Quan trọng: đã thành Recruiter
+                new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            TempData["SuccessMessage"] = "Chúc mừng! Bạn đã trở thành Nhà Tuyển Dụng. Hãy bắt đầu đăng tin tuyển dụng nhé.";
+            return RedirectToAction("Profile", new { t = "info" });
+        }
+
+        // ==========================================
+        // HỦY TƯ CÁCH NHÀ TUYỂN DỤNG (CANCEL EMPLOYER ROLE)
+        // ==========================================
+        [HttpPost]
+        [Authorize(Roles = "Recruiter")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CancelEmployerRole()
+        {
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) 
+                return RedirectToAction("Login");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null) return NotFound();
+
+            if (user.Role != "Recruiter")
+            {
+                return RedirectToAction("Profile");
+            }
+
+            // Gỡ thông tin công ty khỏi người dùng
+            user.Role = "User";
+            user.CompanyID = null;
+            
+            await _context.SaveChangesAsync();
+
+            // Cập nhật lại Claims để phiên đăng nhập nhận Role mới ngay lập tức
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim("UserID", user.UserID.ToString()),
+                new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"),
+                new Claim("IsPro", user.IsPro.ToString()),
+                new Claim(ClaimTypes.Role, user.Role), // Quan trọng: đã trở về User
+                new Claim("CompanyID", "")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                new AuthenticationProperties { IsPersistent = true });
+
+            TempData["SuccessMessage"] = "Bạn đã hủy tư cách Nhà tuyển dụng và trở về vai trò Ứng viên thành công.";
+            return RedirectToAction("Profile", new { t = "info" });
+        }
+
+        // ==========================================
         // NÂNG CẤP TÀI KHOẢN (UPGRADE)
         // ==========================================
         [HttpGet]
@@ -562,7 +717,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateMomoPayment()
+        public async Task<IActionResult> CreateMomoPayment(string packageType = "CandidatePro")
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -579,7 +734,7 @@ namespace DoAnCS.Controllers
                 UserID = userId,
                 RequestDate = DateTime.Now,
                 Status = 0,
-                Notes = "Thanh toán MoMo"
+                Notes = $"Thanh toán MoMo - {packageType}"
             };
 
             _context.UpgradeRequests.Add(request);
@@ -593,8 +748,10 @@ namespace DoAnCS.Controllers
             
             try
             {
-                // Số tiền 20.000đ
-                var payUrl = await momoService.CreatePaymentUrl(orderId, 20000, $"Nang cap CVBuilder Pro cho UserID {userId}");
+                int amount = packageType == "RecruiterPro" ? 100000 : 20000;
+                string description = packageType == "RecruiterPro" ? "Nang cap Recruiter Pro" : "Nang cap CVBuilder Pro";
+
+                var payUrl = await momoService.CreatePaymentUrl(orderId, amount, $"{description} cho UserID {userId}");
                 return Redirect(payUrl); // Chuyển hướng sang MoMo
             }
             catch (Exception ex)

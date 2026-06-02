@@ -149,6 +149,14 @@ using (var scope = app.Services.CreateScope())
         END
         ");
 
+        // Thêm cột ChatbotSystemInstruction nếu chưa có
+        db.Database.ExecuteSqlRaw(@"
+        IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('GeminiConfigs') AND name = 'ChatbotSystemInstruction')
+        BEGIN
+            ALTER TABLE [GeminiConfigs] ADD [ChatbotSystemInstruction] nvarchar(max) NULL;
+        END
+        ");
+
         db.Database.ExecuteSqlRaw(@"
         IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('AILogs') AND name = 'ApiProvider')
         BEGIN

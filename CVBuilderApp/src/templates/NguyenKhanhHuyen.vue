@@ -21,11 +21,11 @@
     <!-- TWO COLUMN BODY -->
     <div class="flex flex-row flex-1 w-full relative min-h-max z-20" @click.self="selectedSectionId = null">
       <!-- LEFT COLUMN (SIDEBAR) -->
-      <aside class="w-[72mm] shrink-0 bg-[#fafafa] flex flex-col pt-[102mm] pb-[10mm] px-[6mm] items-center gap-[2mm] z-30 relative">
+      <aside class="w-[72mm] shrink-0 bg-[#fafafa] flex flex-col pt-0 pb-[10mm] px-[6mm] items-center gap-[2mm] z-30 relative">
         
         <!-- Capsule Container (Avatar + Personal Info in a capsule/ellipse shape) -->
         <div 
-          class="absolute top-[-22.5mm] left-[6mm] w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center pt-[6mm] pb-[10mm] px-[4mm] gap-[3mm] z-30 section-block"
+          class="contact-capsule relative mt-[-22.5mm] mb-[6mm] w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center pt-[6mm] pb-[10mm] px-[4mm] gap-[3mm] z-30 section-block"
           :class="{ 'section-active': selectedSectionId === 'contact' }"
           @click.stop="toggleSection('contact')"
         >
@@ -556,6 +556,22 @@ onUnmounted(() => {
   border: 2px solid transparent;
   cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.contact-capsule {
+  position: relative !important;
+  border-radius: 30mm !important;
+}
+
+@media print {
+  .contact-capsule {
+    position: relative !important;
+    border-radius: 30mm !important;
+    padding-top: 6mm !important;
+    padding-bottom: 10mm !important;
+    padding-left: 4mm !important;
+    padding-right: 4mm !important;
+  }
 }
 
 .section-block:hover {

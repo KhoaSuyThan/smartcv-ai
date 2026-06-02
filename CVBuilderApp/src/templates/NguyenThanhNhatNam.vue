@@ -2,7 +2,8 @@
   <div
     id="cv-printable-area"
     ref="cvRoot"
-    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#4A352F] leading-relaxed overflow-hidden"
+    class="shadow-2xl w-[210mm] flex flex-col relative box-border text-[#4A352F] leading-relaxed overflow-hidden"
+    style="background-color: #ffffff !important;"
     :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
     @click.self="selectedSectionId = null"
   >
@@ -14,7 +15,8 @@
       
       <!-- 1. HEADER THÔNG TIN LIÊN HỆ NẰM NGANG (Dynamic) -->
       <header 
-        class="section-block paginated-item !mt-[20px] !mx-[20px] bg-[#E9DCD6] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border border-[#DCD0C9] rounded-[4px] relative cursor-pointer hover:bg-black/5 transition-colors"
+        class="section-block paginated-item !mt-[20px] !mx-[20px] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border rounded-[4px] relative cursor-pointer hover:bg-black/5 transition-colors"
+        style="background-color: #e9dcd6 !important; border-color: #dcd0c9 !important;"
         :class="{ 'section-active': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
       >
@@ -40,20 +42,21 @@
       </header>
 
       <!-- 2. KHỐI TÊN, SUMMARY VÀ AVATAR -->
-      <section class="paginated-item px-[10mm] pt-[6mm] pb-[4mm] flex gap-[6mm] items-stretch shrink-0">
+      <div class="paginated-item px-[10mm] pt-[6mm] pb-[4mm] flex gap-[6mm] items-stretch shrink-0">
         <!-- Khung Tên & Summary (Trái) -->
-        <div class="flex-1 bg-[#F5ECE8] p-[6mm] rounded-[4px] border border-[#E9DDD7] flex flex-col justify-center">
-          <h1 class="!text-[20px] font-extrabold uppercase tracking-tight text-[#4A352F] leading-none mb-2" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
+        <div class="flex-1 p-[6mm] rounded-[4px] border flex flex-col justify-center" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;">
+          <div class="!text-[20px] font-extrabold uppercase tracking-tight text-[#4A352F] leading-none mb-2" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></div>
           
           <!-- Vị trí ứng tuyển kèm đường kẻ ngang -->
           <div class="flex items-center gap-4 mb-4">
-            <h2 class="!text-[11px] font-extrabold text-[#4A352F] uppercase tracking-wider shrink-0" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'IT INTERNSHIP'"></h2>
+            <div class="!text-[11px] font-extrabold text-[#4A352F] uppercase tracking-wider shrink-0" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'IT INTERNSHIP'"></div>
             <div class="h-[2px] bg-[#D03B29] flex-1 max-w-[120px]"></div>
           </div>
 
           <!-- Đoạn Summary (Mục tiêu nghề nghiệp) -->
           <div 
-            class="section-block border border-transparent rounded cursor-pointer relative group !p-1.5"
+            class="section-block border rounded cursor-pointer relative group !p-1.5"
+            style="border-color: transparent !important;"
             :class="{ 'section-active': selectedSectionId === 'summary' }"
             :style="selectedSectionId === 'summary' ? { '--active-bg': '#4A352F' } : {}"
             @click.stop="toggleSection('summary')"
@@ -64,7 +67,7 @@
 
         <!-- Khung Avatar (Phải) -->
         <div class="w-[44mm] flex-shrink-0 flex items-center justify-center">
-          <div class="w-[44mm] h-[44mm] bg-gray-100 overflow-hidden relative shadow-sm border border-[#E9DDD7] avatar-clip">
+          <div class="w-[44mm] h-[44mm] overflow-hidden relative shadow-sm border avatar-clip" style="background-color: #f3f4f6 !important; border-color: #e9ddd7 !important;">
             <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-[#4A352F]/40">
               <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,14 +76,14 @@
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
       <!-- 3. DANH SÁCH CÁC SECTION BLOCK (EDUCATION, CERTIFICATIONS, PROJECTS, ACTIVITIES, SKILLS) -->
       <div class="px-[10mm] pb-[2mm] flex flex-col gap-[4mm]">
         <template v-for="section in mainSections" :key="section.id">
           <div
             v-if="section.isVisible"
-            :data-section-id="section.id" class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group cursor-pointer hover:bg-black/5 transition-colors"
+            :data-section-id="section.id" class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': '#4A352F' } : {}"
             @click.stop="toggleSection(section.id)"
@@ -103,9 +106,9 @@
             <!-- Tiêu đề Mục & Đường kẻ đỏ cam -->
             <div class="paginated-item">
               <div class="flex flex-col mb-3">
-                <h3 class="section-title">
+                <div class="section-title">
                   {{ section.title }}
-                </h3>
+                </div>
                 <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
               </div>
             </div>
@@ -117,9 +120,9 @@
               <div v-if="section.id === 'education'" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="flex justify-between items-baseline mb-1">
-                    <h4 class="font-bold text-[13px] text-[#4A352F] leading-tight flex-1">
+                    <div class="font-bold text-[13px] text-[#4A352F] leading-tight flex-1">
                       {{ item.school }}
-                    </h4>
+                    </div>
                     <span class="font-extrabold text-[12px] text-[#4A352F]/70 shrink-0 ml-4">
                       {{ item.year }}
                     </span>
@@ -146,9 +149,9 @@
               <div v-else-if="section.id === 'certifications' || section.id === 'cert'" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="flex justify-between items-baseline mb-0.5">
-                    <h4 class="font-bold text-[12.5px] text-[#4A352F] leading-tight flex-1">
+                    <div class="font-bold text-[12.5px] text-[#4A352F] leading-tight flex-1">
                       {{ item.name }}
-                    </h4>
+                    </div>
                     <span class="font-extrabold text-[11.5px] text-[#4A352F]/70 shrink-0 ml-4">
                       {{ item.year }}
                     </span>
@@ -184,9 +187,9 @@
                     </div>
 
                     <!-- Tên Dự án -->
-                    <h5 class="font-extrabold text-[12px] text-[#4A352F] uppercase mb-1.5">
+                    <div class="font-extrabold text-[12px] text-[#4A352F] uppercase mb-1.5">
                       {{ item.name || item.title }}
-                    </h5>
+                    </div>
 
                     <!-- Mô tả và Trách nhiệm -->
                     <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.65] text-justify html-content" v-html="formatDesc(item.desc)"></div>
@@ -221,9 +224,9 @@
                     </div>
 
                     <!-- Tên Đơn vị/Tổ chức -->
-                    <h5 class="font-bold text-[12px] text-[#4A352F] mb-1.5">
+                    <div class="font-bold text-[12px] text-[#4A352F] mb-1.5">
                       {{ item.name || item.company }}
-                    </h5>
+                    </div>
 
                     <!-- Mô tả hoạt động -->
                     <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.65] text-justify html-content" v-html="formatDesc(item.desc)"></div>
@@ -277,11 +280,11 @@
       </div>
 
       <!-- 4. HÀNG DƯỚI CÙNG (INTERESTS & ADDITIONAL INFORMATION - CHIA ĐÔI SONG SONG) -->
-      <section class="paginated-item px-[10mm] pb-[8mm] grid grid-cols-2 gap-[5mm] shrink-0">
+      <div class="paginated-item px-[10mm] pb-[8mm] grid grid-cols-2 gap-[5mm] shrink-0">
         <!-- Cột: Interests (Hobbies) -->
         <div
           v-if="hobbiesSection && hobbiesSection.isVisible"
-          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group cursor-pointer hover:bg-black/5 transition-colors"
+          class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
           :class="{ 'section-active': selectedSectionId === hobbiesSection.id }"
           :style="[
             selectedSectionId === hobbiesSection.id ? { '--active-bg': '#4A352F' } : {},
@@ -303,9 +306,9 @@
 
           <div class="paginated-item">
             <div class="flex flex-col mb-2.5">
-              <h3 class="section-title">
+              <div class="section-title">
                 Sở thích
-              </h3>
+              </div>
               <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
             </div>
           </div>
@@ -326,7 +329,7 @@
         <!-- Cột: Additional Information (Languages / Awards) -->
         <div
           v-if="additionalSection && additionalSection.isVisible"
-          class="section-block bg-[#F5ECE8] p-[5mm] rounded-[4px] border border-[#E9DDD7] relative group cursor-pointer hover:bg-black/5 transition-colors"
+          class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
           :class="{ 'section-active': selectedSectionId === additionalSection.id }"
           :style="[
             selectedSectionId === additionalSection.id ? { '--active-bg': '#4A352F' } : {},
@@ -347,9 +350,9 @@
           </transition>
           <div class="paginated-item">
             <div class="flex flex-col mb-2.5">
-              <h3 class="section-title">
+              <div class="section-title">
                 Thông tin thêm
-              </h3>
+              </div>
               <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
             </div>
           </div>
@@ -372,7 +375,7 @@
             <div v-if="additionalSection.items && additionalSection.items.length === 0" class="text-[#4A352F]/40 italic">Chưa có thông tin bổ sung.</div>
           </div>
         </div>
-      </section>
+      </div>
 
       <!-- Watermark chân trang -->
       <div class="absolute bottom-[4mm] right-[10mm] text-[10px] font-medium text-[#4A352F]/30 no-print tracking-wide">

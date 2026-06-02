@@ -15,6 +15,7 @@
     string tParam = Context.Request.Query["t"];
     string activeTab = "info";
     if (tParam == "password") activeTab = "password";
+    else if (tParam == "employer" && !isAdmin && !isRecruiter) activeTab = "employer";
     else if (tParam == "cv" && !isAdmin && !isRecruiter) activeTab = "cv";
 }
 
@@ -338,6 +339,13 @@
                                  <i class="bi bi-file-earmark-person-fill me-2"></i>Quản lý CV
                              </button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link border-0 fw-bold @(activeTab == "employer" ? "active text-primary" : "text-muted")"
+                                    id="employer-tab" data-bs-toggle="tab" data-bs-target="#employer" type="button" role="tab" aria-controls="employer" aria-selected="@(activeTab == "employer" ? "true" : "false")"
+                                    onclick="history.replaceState(null, null, '?t=employer')">
+                                <i class="bi bi-building-up me-2"></i>Nâng cấp vai trò
+                            </button>
+                        </li>
                     }
                     <li class="nav-item" role="presentation">
                         <button class="nav-link border-0 fw-bold @(activeTab == "password" ? "active text-primary" : "text-muted")" 
@@ -548,6 +556,19 @@
                                 }
                             </div>
                         </form>
+                        @if (isRecruiter)
+                        {
+                            <div class="mt-5 pt-4 border-top">
+                                <h5 class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Khu vực nguy hiểm</h5>
+                                <p class="text-muted small mb-3">Hủy bỏ tư cách Nhà tuyển dụng sẽ đưa bạn về vai trò Ứng viên. Các tin tuyển dụng của công ty vẫn sẽ được giữ lại trên hệ thống.</p>
+                                <form action="/Account/CancelEmployerRole" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy tư cách Nhà tuyển dụng và quay lại làm Ứng viên không?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger rounded-pill px-4 fw-bold">
+                                        <i class="bi bi-x-circle-fill me-2"></i>Hủy tư cách doanh nghiệp
+                                    </button>
+                                </form>
+                            </div>
+                        }
                     </div>
 
                     <!-- Tab Đổi mật khẩu -->
@@ -729,6 +750,48 @@
                                     </div>
                                 }
                             </div>
+                        </div>
+
+                        <!-- Tab Nâng cấp lên nhà tuyển dụng -->
+                        <div class="tab-pane fade @(activeTab == "employer" ? "show active" : "")" id="employer" role="tabpanel" aria-labelledby="employer-tab">
+                            <div class="mb-4 mt-3">
+                                <h4 class="info-card-title mb-1">Trở thành Nhà tuyển dụng</h4>
+                                <p class="text-muted small mb-0">Nâng cấp tài khoản để có thể đăng tin tuyển dụng, quản lý ứng viên và phát triển doanh nghiệp của bạn.</p>
+                            </div>
+                            
+                            @if (TempData["EmployerErrorMessage"] != null)
+                            {
+                                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4 rounded-4 p-3" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                                        <div><strong>Lỗi!</strong> @TempData["EmployerErrorMessage"]</div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            }
+
+                            <form action="/Account/UpgradeToEmployer" method="post">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-4">
+                                    <div class="col-md-12">
+                                        <label class="custom-label text-dark"><i class="bi bi-building me-2"></i>Tên công ty <span class="text-danger">*</span></label>
+                                        <input type="text" name="companyName" class="form-control" required placeholder="Nhập tên công ty của bạn" />
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="custom-label text-dark"><i class="bi bi-geo-alt me-2"></i>Địa chỉ công ty (Không bắt buộc)</label>
+                                        <input type="text" name="companyAddress" class="form-control" placeholder="Nhập địa chỉ trụ sở chính" />
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="custom-label text-dark"><i class="bi bi-receipt me-2"></i>Mã số thuế <span class="text-danger">*</span></label>
+                                        <input type="text" name="taxCode" class="form-control" required placeholder="Nhập mã số thuế công ty" />
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary px-5 rounded-pill shadow fw-bold">
+                                        <i class="bi bi-rocket-takeoff-fill me-2"></i>Nâng cấp ngay
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     }
                 </div>

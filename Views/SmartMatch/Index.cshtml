@@ -235,8 +235,22 @@
     </div>
 
     <!-- Control Panel -->
-    <div class="sm-control-panel mx-auto" style="max-width:900px">
-        <div class="row g-3 align-items-end">
+    <div class="sm-control-panel mx-auto position-relative" style="max-width:900px">
+        
+        @if (ViewBag.IsPro == false)
+        {
+            <!-- Lớp phủ bắt buộc nâng cấp Pro -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px); z-index: 20; border-radius: 1.5rem;">
+                <i class="fas fa-crown text-warning mb-2" style="font-size: 2.5rem;"></i>
+                <h5 class="fw-bold mb-1" style="color: #1e293b !important;">Tính năng dành riêng cho tài khoản Pro</h5>
+                <p class="small mb-3 text-center px-3" style="color: #475569 !important;">Mở khóa công nghệ AI Smart Match để phân tích và xếp hạng hàng trăm CV chỉ trong vài giây.</p>
+                <a href="/Account/Upgrade" class="btn btn-warning fw-bold px-4 rounded-pill shadow-sm" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">
+                    Nâng cấp Pro ngay
+                </a>
+            </div>
+        }
+
+        <div class="row g-3 align-items-end" style="@(ViewBag.IsPro == false ? "opacity: 0.3; pointer-events: none;" : "")">
             <div class="col-md-8">
                 <label class="fw-bold mb-2" style="color: var(--sm-text);"><i class="fas fa-briefcase me-2 text-primary"></i>Chọn vị trí tuyển dụng</label>
                 <div class="sm-select-wrapper">

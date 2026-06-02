@@ -27,6 +27,10 @@ namespace DoAnCS.Controllers
         /// </summary>
         public async Task<IActionResult> Index()
         {
+            var isProClaim = User.FindFirst("IsPro")?.Value;
+            bool isPro = (isProClaim == "True") || User.IsInRole("Admin");
+            ViewBag.IsPro = isPro;
+
             // Lấy danh sách Jobs theo quyền
             IQueryable<Job> jobQuery = _context.Jobs.Include(j => j.Company).Where(j => j.Status == 1);
 
@@ -54,6 +58,13 @@ namespace DoAnCS.Controllers
         [HttpPost]
         public async Task<IActionResult> AnalyzeJob(int jobId)
         {
+            var isProClaim = User.FindFirst("IsPro")?.Value;
+            bool isPro = (isProClaim == "True") || User.IsInRole("Admin");
+            if (!isPro)
+            {
+                return Json(new { success = false, message = "Vui lòng nâng cấp tài khoản Pro để sử dụng tính năng Smart Match." });
+            }
+
             var job = await _context.Jobs.Include(j => j.Company).FirstOrDefaultAsync(j => j.JobID == jobId);
             if (job == null)
                 return Json(new { success = false, message = "Không tìm thấy tin tuyển dụng." });
@@ -187,7 +198,7 @@ namespace DoAnCS.Controllers
             var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
             int userId = CurrentUserId;
             var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
-            bool isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");
+            isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");
 
             string selectedModel = isPro ? (configData?.ProModelName ?? "") : (configData?.ModelName ?? "");
             string apiProvider = selectedModel.Contains("llama") || selectedModel.Contains("mixtral") ? "Groq" : "Gemini";
@@ -310,6 +321,13 @@ namespace DoAnCS.Controllers
         [HttpGet]
         public async Task<IActionResult> GetResults(int jobId)
         {
+            var isProClaim = User.FindFirst("IsPro")?.Value;
+            bool isPro = (isProClaim == "True") || User.IsInRole("Admin");
+            if (!isPro)
+            {
+                return Json(new { success = false, message = "Vui lòng nâng cấp tài khoản Pro để sử dụng tính năng Smart Match." });
+            }
+
             var results = await _context.CVMatchResults
                 .Include(r => r.Resume)
                     .ThenInclude(r => r.User)
