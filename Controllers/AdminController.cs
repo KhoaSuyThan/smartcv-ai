@@ -589,10 +589,32 @@ namespace DoAnCS.Controllers
         // --- KẾT THÚC QUẢN LÝ VUE CV ---
 
         // 1. Danh sách công ty
-        public async Task<IActionResult> Companies()
+        public async Task<IActionResult> Companies(int page = 1)
         {
-            var companies = await _context.Companies.OrderByDescending(c => c.CreatedAt).ToListAsync();
-            return View(companies);
+            int pageSize = 8;
+            var query = _context.Companies.AsQueryable();
+
+            int totalCompanies = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling((double)totalCompanies / pageSize);
+
+            var companies = await query
+                .OrderByDescending(c => c.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var vm = new AdminDashboardVM
+            {
+                Companies = companies,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalUsers = await _context.Users.CountAsync(),
+                TotalCompanies = totalCompanies,
+                TotalJobs = await _context.Jobs.CountAsync(),
+                TotalResumes = await _context.Resumes.CountAsync()
+            };
+
+            return View(vm);
         }
 
         // 2. Thêm công ty (POST)
