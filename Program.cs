@@ -14,6 +14,7 @@ string activeConnectionString = !string.IsNullOrEmpty(onlineConnectionString) ? 
 Console.WriteLine($"Using Connection String: {activeConnectionString}");
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
@@ -299,6 +300,8 @@ app.UseAuthorization();
 
 // Đăng ký API Controllers (attribute routing - dùng cho [ApiController] + [Route(...)])
 app.MapControllers();
+
+app.MapHub<DoAnCS.Hubs.UserSessionHub>("/userSessionHub");
 
 // Đăng ký MVC Controllers (conventional routing - dùng cho Views)
 app.MapControllerRoute(

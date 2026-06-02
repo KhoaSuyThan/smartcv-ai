@@ -965,6 +965,60 @@
         });
     })();
     </script>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <!-- Modal báo trùng đăng nhập -->
+        <div id="session-conflict-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 9999999; align-items: center; justify-content: center; font-family: 'Outfit', 'Inter', sans-serif;">
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 40px 30px; border-radius: 24px; width: 90%; max-width: 440px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid rgba(255, 255, 255, 0.25); animation: modalPulseIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);">
+                <div style="width: 72px; height: 72px; background: #fee2e2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto; animation: iconPulse 2s infinite;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#dc2626" style="width: 36px; height: 36px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; letter-spacing: -0.025em;">Phát hiện đăng nhập mới</h3>
+                <p style="color: #475569; font-size: 0.95rem; margin-bottom: 32px; line-height: 1.6; font-weight: 400;">
+                    Tài khoản của bạn đã được đăng nhập từ một thiết bị hoặc trình duyệt khác. Nếu không phải bạn, hãy xác minh tài khoản bằng cách đổi mật khẩu ngay để tránh mất mát thông tin.
+                </p>
+                <a href="/Account/Logout" class="btn btn-danger btn-lg w-100 fw-semibold py-3 rounded-2" style="background: #dc2626; border: none; font-size: 1rem; border-radius: 12px; transition: all 0.2s ease-in-out; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2), 0 2px 4px -1px rgba(220, 38, 38, 0.1);" onmouseover="this.style.background='#b91c1c'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='#dc2626'; this.style.transform='translateY(0)';">
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+
+        <style>
+            @@keyframes modalPulseIn {
+                from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+            @@keyframes iconPulse {
+                0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+                70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            }
+        </style>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.min.js"></script>
+        <script>
+            (function () {
+                const connection = new signalR.HubConnectionBuilder()
+                    .withUrl("/userSessionHub")
+                    .withAutomaticReconnect()
+                    .build();
+
+                connection.on("ForceLogout", function () {
+                    const modal = document.getElementById("session-conflict-modal");
+                    if (modal) {
+                        modal.style.display = "flex";
+                        document.body.style.overflow = "hidden";
+                    }
+                });
+
+                connection.start().catch(function (err) {
+                    console.error("SignalR connection error: ", err.toString());
+                });
+            })();
+        </script>
+    }
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({

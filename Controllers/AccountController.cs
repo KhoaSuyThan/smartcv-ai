@@ -127,7 +127,9 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("UserID", user.UserID.ToString()),
                 new Claim("IsPro", user.IsPro.ToString()),
-                new Claim("CompanyID", user.CompanyID.ToString()?? "")
+                new Claim("CompanyID", user.CompanyID.ToString()?? ""),
+                new Claim("SessionId", Guid.NewGuid().ToString()),
+                new Claim("LoginTime", DateTime.UtcNow.Ticks.ToString())
             };
 
                     var claimsIdentity = new ClaimsIdentity(
@@ -216,7 +218,9 @@ namespace DoAnCS.Controllers
                 new Claim(ClaimTypes.Role, user.Role), // Quan trọng: Gán quyền từ DB
                 new Claim("UserID", user.UserID.ToString()),
                 new Claim("IsPro", user.IsPro.ToString()),
-                new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
+                new Claim("CompanyID", user.CompanyID?.ToString() ?? ""),
+                new Claim("SessionId", Guid.NewGuid().ToString()),
+                new Claim("LoginTime", DateTime.UtcNow.Ticks.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -368,6 +372,9 @@ namespace DoAnCS.Controllers
                 await _context.SaveChangesAsync();
 
                 // Cập nhật lại Claims để Header/Sidebar hiện tên mới ngay lập tức
+                var existingSessionId = User.FindFirst("SessionId")?.Value ?? Guid.NewGuid().ToString();
+                var existingLoginTime = User.FindFirst("LoginTime")?.Value ?? DateTime.UtcNow.Ticks.ToString();
+
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.FullName),
@@ -376,7 +383,9 @@ namespace DoAnCS.Controllers
                     new Claim("AvatarUrl", user.AvatarUrl ?? "/images/default-avatar.png"), // Thêm cả Claim ảnh cho xịn
                     new Claim("IsPro", user.IsPro.ToString()),
                     new Claim(ClaimTypes.Role, user.Role ?? "User"),
-                    new Claim("CompanyID", user.CompanyID?.ToString() ?? "")
+                    new Claim("CompanyID", user.CompanyID?.ToString() ?? ""),
+                    new Claim("SessionId", existingSessionId),
+                    new Claim("LoginTime", existingLoginTime)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
