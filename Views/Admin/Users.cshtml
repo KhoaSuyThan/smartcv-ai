@@ -12,7 +12,7 @@
             <h2 class="fw-bold m-0">
                 <i class='bx bxs-group text-primary me-2'></i>Quản lý người dùng
             </h2>
-            <p class="text-muted small mb-0">Hệ thống đang có <span class="badge bg-info text-dark rounded-pill">@Model.Count() thành viên</span></p>
+            <p class="text-muted small mb-0">Hệ thống đang có <span class="badge bg-info rounded-pill" style="color: #000 !important;">@Model.Count() thành viên</span></p>
         </div>
         <div class="d-flex gap-2">
             @* NÚT QUAY LẠI DASHBOARD QUAN TRỌNG *@
@@ -49,7 +49,7 @@
                                         <strong class="text-dark">@user.FullName</strong>
                                         @if (user.IsPro)
                                         {
-                                            <span class="ms-2 badge bg-warning text-dark rounded-pill" style="font-size: 0.6rem; vertical-align: middle;">
+                                            <span class="ms-2 badge bg-warning rounded-pill" style="font-size: 0.6rem; vertical-align: middle; color: #000 !important;">
                                                 <i class='bx bxs-crown'></i> PRO
                                             </span>
                                         }

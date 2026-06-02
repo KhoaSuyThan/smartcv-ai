@@ -77,14 +77,15 @@ namespace DoAnCS.Controllers
                     }
 
                     // Tìm xem tên công ty đã có trong database chưa
+                    string inputCompanyName = model.Register.CompanyName.Trim();
                     var company = await _context.Companies
-                        .FirstOrDefaultAsync(c => c.Name == model.Register.CompanyName);
+                        .FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompanyName.ToLower());
 
                     if (company == null)
                     {
                         // Nếu chưa có thì tạo mới công ty
                         company = new Company { 
-                            Name = model.Register.CompanyName,
+                            Name = inputCompanyName,
                             TaxCode = model.Register.TaxCode,
                             CreatedAt = DateTime.Now 
                         };
@@ -363,17 +364,27 @@ namespace DoAnCS.Controllers
                     }
                     else
                     {
-                        // Tạo mới công ty nếu chưa có
-                        var newCompany = new Company
+                        string inputCompName = (companyName ?? "Chưa cập nhật").Trim();
+                        var existingComp = await _context.Companies.FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompName.ToLower());
+                        
+                        if (existingComp != null)
                         {
-                            Name = companyName ?? "Chưa cập nhật",
-                            Address = companyAddress,
-                            TaxCode = taxCode,
-                            CreatedAt = DateTime.Now
-                        };
-                        _context.Companies.Add(newCompany);
-                        await _context.SaveChangesAsync();
-                        user.CompanyID = newCompany.CompanyID;
+                            user.CompanyID = existingComp.CompanyID;
+                        }
+                        else
+                        {
+                            // Tạo mới công ty nếu chưa có
+                            var newCompany = new Company
+                            {
+                                Name = inputCompName,
+                                Address = companyAddress,
+                                TaxCode = taxCode,
+                                CreatedAt = DateTime.Now
+                            };
+                            _context.Companies.Add(newCompany);
+                            await _context.SaveChangesAsync();
+                            user.CompanyID = newCompany.CompanyID;
+                        }
                     }
                 }
 
@@ -563,21 +574,34 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Profile");
             }
 
-            // Tạo mới công ty
-            var newCompany = new Company
-            {
-                Name = companyName,
-                Address = string.IsNullOrEmpty(companyAddress) ? null : companyAddress,
-                TaxCode = string.IsNullOrEmpty(taxCode) ? null : taxCode,
-                CreatedAt = DateTime.Now
-            };
+            // Tìm xem công ty đã có chưa
+            string inputCompName = companyName.Trim();
+            var existingComp = await _context.Companies.FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompName.ToLower());
             
-            _context.Companies.Add(newCompany);
-            await _context.SaveChangesAsync();
+            int compId;
+            if (existingComp != null)
+            {
+                compId = existingComp.CompanyID;
+            }
+            else
+            {
+                // Tạo mới công ty
+                var newCompany = new Company
+                {
+                    Name = inputCompName,
+                    Address = string.IsNullOrEmpty(companyAddress) ? null : companyAddress,
+                    TaxCode = string.IsNullOrEmpty(taxCode) ? null : taxCode,
+                    CreatedAt = DateTime.Now
+                };
+                
+                _context.Companies.Add(newCompany);
+                await _context.SaveChangesAsync();
+                compId = newCompany.CompanyID;
+            }
 
             // Cập nhật User
             user.Role = "Recruiter";
-            user.CompanyID = newCompany.CompanyID;
+            user.CompanyID = compId;
             
             await _context.SaveChangesAsync();
 
@@ -684,7 +708,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateMomoPayment()
+        public async Task<IActionResult> CreateMomoPayment(string packageType = "CandidatePro")
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -701,7 +725,7 @@ namespace DoAnCS.Controllers
                 UserID = userId,
                 RequestDate = DateTime.Now,
                 Status = 0,
-                Notes = "Thanh toán MoMo"
+                Notes = $"Thanh toán MoMo - {packageType}"
             };
 
             _context.UpgradeRequests.Add(request);
@@ -715,8 +739,10 @@ namespace DoAnCS.Controllers
             
             try
             {
-                // Số tiền 20.000đ
-                var payUrl = await momoService.CreatePaymentUrl(orderId, 20000, $"Nang cap CVBuilder Pro cho UserID {userId}");
+                int amount = packageType == "RecruiterPro" ? 100000 : 20000;
+                string description = packageType == "RecruiterPro" ? "Nang cap Recruiter Pro" : "Nang cap CVBuilder Pro";
+
+                var payUrl = await momoService.CreatePaymentUrl(orderId, amount, $"{description} cho UserID {userId}");
                 return Redirect(payUrl); // Chuyển hướng sang MoMo
             }
             catch (Exception ex)
