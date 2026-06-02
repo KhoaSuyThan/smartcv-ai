@@ -15,83 +15,168 @@
 
     <div class="container">
         <div class="row justify-content-center g-4">
-            <!-- Free Plan -->
-            <div class="col-lg-5 col-md-6">
-                <div class="card h-100 border-0 shadow-sm plan-card">
-                    <div class="card-body p-5">
-                        <div class="mb-4">
-                            <span class="badge bg-light text-muted px-3 py-2 rounded-pill fw-bold mb-3">MIỄN PHÍ</span>
-                            <h2 class="card-title fw-bold">Cá nhân</h2>
-                            <div class="d-flex align-items-baseline mb-3">
-                                <span class="h1 fw-bold mb-0">0đ</span>
-                                <span class="text-muted ms-2">/vĩnh viễn</span>
+            @if (User.IsInRole("Recruiter"))
+            {
+                <!-- Recruiter Free Plan -->
+                <div class="col-lg-5 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm plan-card">
+                        <div class="card-body p-5">
+                            <div class="mb-4">
+                                <span class="badge bg-light text-muted px-3 py-2 rounded-pill fw-bold mb-3">MIỄN PHÍ</span>
+                                <h2 class="card-title fw-bold">Doanh nghiệp Cơ bản</h2>
+                                <div class="d-flex align-items-baseline mb-3">
+                                    <span class="h1 fw-bold mb-0">0đ</span>
+                                    <span class="text-muted ms-2">/vĩnh viễn</span>
+                                </div>
+                                <p class="text-muted small">Cơ bản cho nhu cầu tuyển dụng quy mô nhỏ.</p>
                             </div>
-                            <p class="text-muted small">Cơ bản cho người mới bắt đầu tìm việc.</p>
-                        </div>
-                        
-                        <ul class="list-unstyled mb-5">
-                            <li class="mb-3 d-flex align-items-center">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <span>3 mẫu CV cơ bản</span>
-                            </li>
-                            <li class="mb-3 d-flex align-items-center">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <span>Tải xuống PDF (có logo)</span>
-                            </li>
-                            <li class="mb-3 d-flex align-items-center">
-                                <i class="fas fa-check-circle text-success me-2"></i>
-                                <span>Quản lý 1 CV</span>
-                            </li>
-                        </ul>
+                            
+                            <ul class="list-unstyled mb-5">
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Đăng tin tuyển dụng giới hạn</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Tìm kiếm ứng viên thủ công</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Quản lý hồ sơ cơ bản</span>
+                                </li>
+                            </ul>
 
-                        <div class="d-grid mt-auto">
-                            <button class="btn btn-outline-secondary py-3 rounded-pill fw-bold" disabled>Đang sử dụng</button>
+                            <div class="d-grid mt-auto">
+                                <button class="btn btn-outline-secondary py-3 rounded-pill fw-bold" disabled>Đang sử dụng</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Pro Plan -->
-            <div class="col-lg-6 col-md-6">
-                <div class="card h-100 border-0 shadow-lg plan-card pro-featured">
-                    <div class="card-body p-5 position-relative overflow-hidden">
-                        <div class="pro-ribbon">PHỔ BIẾN</div>
-                        
-                        <div class="mb-4">
-                            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
-                                <i class="fas fa-crown me-1"></i>PRO MEMBER
-                            </span>
-                            <h2 class="card-title fw-bold text-white">Chuyên nghiệp</h2>
-                            <div class="d-flex align-items-baseline mb-3">
-                                <span class="h1 fw-bold mb-0 text-white" style="font-size: 3rem;">20.000đ</span>
-                                <span class="text-white-50 ms-2">/vĩnh viễn</span>
+                <!-- Recruiter Pro Plan -->
+                <div class="col-lg-6 col-md-6">
+                    <div class="card h-100 border-0 shadow-lg plan-card pro-featured">
+                        <div class="card-body p-5 position-relative overflow-hidden">
+                            <div class="pro-ribbon">ĐỘC QUYỀN</div>
+                            
+                            <div class="mb-4">
+                                <span class="badge bg-warning px-3 py-2 rounded-pill fw-bold mb-3" style="color: #000 !important;">
+                                    <i class="fas fa-building me-1"></i>RECRUITER PRO
+                                </span>
+                                <h2 class="card-title fw-bold text-white">Tuyển Dụng Thông Minh</h2>
+                                <div class="d-flex align-items-baseline mb-3">
+                                    <span class="h1 fw-bold mb-0 text-white" style="font-size: 3rem;">100.000đ</span>
+                                    <span class="text-white-50 ms-2">/tháng</span>
+                                </div>
+                                <p class="text-white-50 small">Tối đa hóa hiệu suất tuyển dụng bằng công nghệ AI.</p>
                             </div>
-                            <p class="text-white-50 small">Tối ưu hóa mọi cơ hội nghề nghiệp của bạn.</p>
+                            
+                            <ul class="list-unstyled mb-4 text-white">
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Mở khóa công nghệ Smart Match AI</span></li>
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>AI phân tích điểm mạnh, điểm yếu ứng viên</span></li>
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Đăng tin tuyển dụng không giới hạn</span></li>
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Truy cập kho hồ sơ ứng viên cấp cao</span></li>
+                            </ul>
+
+                            <hr class="border-light opacity-25 mb-4">
+
+                            <!-- MOMO PAYMENT BUTTON -->
+                            <form asp-action="CreateMomoPayment" asp-controller="Account" method="post" class="text-center mt-4">
+                                <input type="hidden" name="packageType" value="RecruiterPro" />
+                                <button type="submit" class="btn w-100 momo-btn">
+                                    <i class="fas fa-wallet me-2"></i> THANH TOÁN QUA MOMO
+                                </button>
+                                <div class="d-flex justify-content-center align-items-center mt-3 gap-2 text-white-50 small">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Thanh toán an toàn, kích hoạt tức thì.</span>
+                                </div>
+                            </form>
+
                         </div>
-                        
-                        <ul class="list-unstyled mb-4 text-white">
-                            <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Truy cập 50+ mẫu CV Premium</span></li>
-                            <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Tải PDF chất lượng cao (Không logo)</span></li>
-                            <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>AI tư vấn nội dung & kỹ năng</span></li>
-                            <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Quản lý không giới hạn CV</span></li>
-                        </ul>
-
-                        <hr class="border-light opacity-25 mb-4">
-
-                        <!-- MOMO PAYMENT BUTTON -->
-                        <form asp-action="CreateMomoPayment" asp-controller="Account" method="post" class="text-center mt-4">
-                            <button type="submit" class="btn w-100 momo-btn">
-                                <i class="fas fa-wallet me-2"></i> THANH TOÁN QUA MOMO
-                            </button>
-                            <div class="d-flex justify-content-center align-items-center mt-3 gap-2 text-white-50 small">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Thanh toán an toàn, kích hoạt tức thì.</span>
-                            </div>
-                        </form>
-
                     </div>
                 </div>
-            </div>
+            }
+            else
+            {
+                <!-- Candidate Free Plan -->
+                <div class="col-lg-5 col-md-6">
+                    <div class="card h-100 border-0 shadow-sm plan-card">
+                        <div class="card-body p-5">
+                            <div class="mb-4">
+                                <span class="badge bg-light text-muted px-3 py-2 rounded-pill fw-bold mb-3">MIỄN PHÍ</span>
+                                <h2 class="card-title fw-bold">Cá nhân</h2>
+                                <div class="d-flex align-items-baseline mb-3">
+                                    <span class="h1 fw-bold mb-0">0đ</span>
+                                    <span class="text-muted ms-2">/vĩnh viễn</span>
+                                </div>
+                                <p class="text-muted small">Cơ bản cho người mới bắt đầu tìm việc.</p>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-5">
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>3 mẫu CV cơ bản</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Tải xuống PDF (có logo)</span>
+                                </li>
+                                <li class="mb-3 d-flex align-items-center">
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    <span>Quản lý 1 CV</span>
+                                </li>
+                            </ul>
+
+                            <div class="d-grid mt-auto">
+                                <button class="btn btn-outline-secondary py-3 rounded-pill fw-bold" disabled>Đang sử dụng</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Candidate Pro Plan -->
+                <div class="col-lg-6 col-md-6">
+                    <div class="card h-100 border-0 shadow-lg plan-card pro-featured">
+                        <div class="card-body p-5 position-relative overflow-hidden">
+                            <div class="pro-ribbon">PHỔ BIẾN</div>
+                            
+                            <div class="mb-4">
+                                <span class="badge bg-warning px-3 py-2 rounded-pill fw-bold mb-3" style="color: #000 !important;">
+                                    <i class="fas fa-crown me-1"></i>PRO MEMBER
+                                </span>
+                                <h2 class="card-title fw-bold text-white">Chuyên nghiệp</h2>
+                                <div class="d-flex align-items-baseline mb-3">
+                                    <span class="h1 fw-bold mb-0 text-white" style="font-size: 3rem;">20.000đ</span>
+                                    <span class="text-white-50 ms-2">/vĩnh viễn</span>
+                                </div>
+                                <p class="text-white-50 small">Tối ưu hóa mọi cơ hội nghề nghiệp của bạn.</p>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-4 text-white">
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Truy cập 50+ mẫu CV Premium</span></li>
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Tải PDF chất lượng cao (Không logo)</span></li>
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>AI tư vấn nội dung & kỹ năng</span></li>
+                                <li class="mb-2 d-flex align-items-center"><i class="fas fa-star text-warning me-2"></i><span>Quản lý không giới hạn CV</span></li>
+                            </ul>
+
+                            <hr class="border-light opacity-25 mb-4">
+
+                            <!-- MOMO PAYMENT BUTTON -->
+                            <form asp-action="CreateMomoPayment" asp-controller="Account" method="post" class="text-center mt-4">
+                                <input type="hidden" name="packageType" value="CandidatePro" />
+                                <button type="submit" class="btn w-100 momo-btn">
+                                    <i class="fas fa-wallet me-2"></i> THANH TOÁN QUA MOMO
+                                </button>
+                                <div class="d-flex justify-content-center align-items-center mt-3 gap-2 text-white-50 small">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span>Thanh toán an toàn, kích hoạt tức thì.</span>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
