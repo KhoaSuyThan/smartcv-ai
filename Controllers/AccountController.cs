@@ -7,7 +7,10 @@ using DoAnCS.Data;
 using DoAnCS.Models;
 using Microsoft.EntityFrameworkCore;
 using DoAnCS.Models.ViewModels;
-using DoAnCS.Services; // Thêm dòng này
+using DoAnCS.Services;
+using PayOS;
+using PayOS.Models.V2.PaymentRequests;
+using PayOS.Models.Webhooks;
 
 namespace DoAnCS.Controllers
 {
@@ -16,11 +19,15 @@ namespace DoAnCS.Controllers
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IEmailService _emailService;
+        private readonly PayOSClient _payOS;
+        private readonly IConfiguration _config;
 
-        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService) {
+        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService, PayOSClient payOS, IConfiguration config) {
             _webHostEnvironment = webHostEnvironment;
             _context = context;
             _emailService = emailService;
+            _payOS = payOS;
+            _config = config;
         }
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
@@ -717,7 +724,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateMomoPayment(string packageType = "CandidatePro")
+        public async Task<IActionResult> CreatePayOSPayment(string packageType = "CandidatePro")
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -734,71 +741,83 @@ namespace DoAnCS.Controllers
                 UserID = userId,
                 RequestDate = DateTime.Now,
                 Status = 0,
-                Notes = $"Thanh toán MoMo - {packageType}"
+                Notes = $"Thanh toán PayOS - {packageType}"
             };
 
             _context.UpgradeRequests.Add(request);
             await _context.SaveChangesAsync();
 
-            // Mã đơn hàng (Gắn Id cố định vào chuỗi để tránh trùng lặp)
-            var orderId = $"CVBUILDER_{request.Id}_{DateTime.Now.Ticks}";
+            // Tạo OrderCode bằng số (kiểu long) < 9007199254740991
+            long orderCode = long.Parse(DateTime.Now.ToString("yyMMddHHmmss") + (request.Id % 100).ToString("D2"));
 
-            // Lấy service
-            var momoService = HttpContext.RequestServices.GetRequiredService<DoAnCS.Services.MomoService>();
-            
+            // Lưu orderCode vào Notes để khi webhook gọi về còn biết id của bảng UpgradeRequests
+            request.Notes = $"Thanh toán PayOS - {packageType} - OrderCode: {orderCode}";
+            await _context.SaveChangesAsync();
+
             try
             {
                 int amount = packageType == "RecruiterPro" ? 100000 : 20000;
-                string description = packageType == "RecruiterPro" ? "Nang cap Recruiter Pro" : "Nang cap CVBuilder Pro";
+                string description = packageType == "RecruiterPro" ? $"Recruiter Pro {userId}" : $"CVBuilder Pro {userId}";
 
-                var payUrl = await momoService.CreatePaymentUrl(orderId, amount, $"{description} cho UserID {userId}");
-                return Redirect(payUrl); // Chuyển hướng sang MoMo
+                string returnUrl = _config["PayOS:ReturnUrl"] ?? "http://localhost:5170/Account/PaymentCallback";
+                string cancelUrl = _config["PayOS:CancelUrl"] ?? "http://localhost:5170/Account/PaymentCallback?cancel=true";
+
+                var requestData = new CreatePaymentLinkRequest {
+                    OrderCode = orderCode,
+                    Amount = amount,
+                    Description = description,
+                    CancelUrl = cancelUrl,
+                    ReturnUrl = returnUrl
+                };
+
+                CreatePaymentLinkResponse createPayment = await _payOS.PaymentRequests.CreateAsync(requestData);
+                
+                return Json(new { success = true, checkoutUrl = createPayment.CheckoutUrl });
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Lỗi CreateMomoPayment: " + ex.Message);
-                TempData["PasswordErrorMessage"] = "Lỗi hệ thống, hãy liên hệ admin để giải quyết";
-                return RedirectToAction("Upgrade");
+                Console.WriteLine("Lỗi CreatePayOSPayment: " + ex.Message);
+                return Json(new { success = false, message = "Lỗi hệ thống khi tạo thanh toán, hãy thử lại." });
             }
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult PaymentCallback(string partnerCode, string orderId, string requestId, int amount, string orderInfo, string orderType, long transId, int resultCode, string message, string payType, long responseTime, string extraData, string signature)
+        public IActionResult PaymentCallback(string code, string status, bool cancel)
         {
-            if (resultCode == 0)
+            if (code == "00" && status == "PAID" && !cancel)
             {
                 ViewBag.SuccessMessage = "Thanh toán thành công! Gói Pro của bạn sẽ được kích hoạt ngay lập tức.";
             }
             else
             {
-                ViewBag.ErrorMessage = $"Thanh toán thất bại hoặc bị hủy: {message}";
+                ViewBag.ErrorMessage = $"Thanh toán thất bại hoặc bị hủy.";
             }
             return View("PaymentResult");
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> MomoIpn([FromBody] DoAnCS.Models.ViewModels.MomoIpnRequest request)
+        public async Task<IActionResult> PayOSWebhook([FromBody] Webhook request)
         {
-            var momoService = HttpContext.RequestServices.GetRequiredService<DoAnCS.Services.MomoService>();
-            if (!momoService.ValidateSignature(request))
+            try
             {
-                return BadRequest("Invalid signature");
-            }
-
-            if (request.resultCode == 0)
-            {
-                // Tách lấy UpgradeRequest.Id từ chuỗi "CVBUILDER_{Id}_{Ticks}"
-                var parts = request.orderId.Split('_');
-                if (parts.Length > 1 && int.TryParse(parts[1], out int upgradeId))
+                WebhookData webhookData = await _payOS.Webhooks.VerifyAsync(request);
+                
+                if (webhookData.Code == "00") // Thanh toán thành công
                 {
-                    var upgradeRequest = await _context.UpgradeRequests.FirstOrDefaultAsync(u => u.Id == upgradeId);
-                    if (upgradeRequest != null && upgradeRequest.Status == 0)
+                    // Lấy OrderCode từ webhookData
+                    long orderCode = webhookData.OrderCode;
+
+                    // Tìm UpgradeRequest tương ứng dựa vào orderCode đã lưu trong Notes
+                    var upgradeRequest = await _context.UpgradeRequests
+                        .FirstOrDefaultAsync(u => u.Notes.Contains($"OrderCode: {orderCode}") && u.Status == 0);
+
+                    if (upgradeRequest != null)
                     {
                         upgradeRequest.Status = 1; // Đã thanh toán
                         upgradeRequest.DecisionDate = DateTime.Now;
-                        upgradeRequest.TransactionId = request.transId.ToString();
+                        upgradeRequest.TransactionId = webhookData.TransactionDateTime;
 
                         var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == upgradeRequest.UserID);
                         if (user != null)
@@ -809,10 +828,17 @@ namespace DoAnCS.Controllers
                         await _context.SaveChangesAsync();
                     }
                 }
+
+                return Ok(new { success = true });
             }
-            // MoMo yêu cầu HTTP 204 No Content
-            return NoContent(); 
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi PayOS Webhook: " + ex.Message);
+                return BadRequest("Invalid webhook data");
+            }
         }
+
+
 
         // ==========================================
         // QUÊN MẬT KHẨU (FORGOT PASSWORD)

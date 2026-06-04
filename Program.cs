@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using DoAnCS.Services;
 using Microsoft.AspNetCore.HttpOverrides;
-
+using PayOS;
 var builder = WebApplication.CreateBuilder(args);
 
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
@@ -19,7 +19,12 @@ builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
-builder.Services.AddHttpClient<MomoService>();
+
+// Cấu hình PayOS
+var clientId = builder.Configuration["PayOS:ClientId"] ?? throw new Exception("Không tìm thấy PayOS:ClientId");
+var apiKey = builder.Configuration["PayOS:ApiKey"] ?? throw new Exception("Không tìm thấy PayOS:ApiKey");
+var checksumKey = builder.Configuration["PayOS:ChecksumKey"] ?? throw new Exception("Không tìm thấy PayOS:ChecksumKey");
+builder.Services.AddSingleton(new PayOSClient(clientId, apiKey, checksumKey));
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -133,7 +138,7 @@ using (var scope = app.Services.CreateScope())
         END
         ");
 
-        // Thêm cột ChatbotApiKey nếu chưa có (cho DB cũ)
+        //Thêm cột ChatbotApiKey nếu chưa có (cho DB cũ)
         db.Database.ExecuteSqlRaw(@"
         IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('GeminiConfigs') AND name = 'ChatbotApiKey')
         BEGIN
