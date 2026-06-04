@@ -22,5 +22,11 @@ jobs:
           script: |
             cd DoAnWeb
             git pull
+            
+            cat << 'EOF' > appsettings.Production.json
+            ${{ secrets.APPSETTINGS_PRODUCTION_JSON }}
+            EOF
+            chmod 400 appsettings.Production.json
+            
             sudo docker-compose down
             sudo docker-compose up --build -d

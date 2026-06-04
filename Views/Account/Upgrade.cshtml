@@ -80,15 +80,15 @@
 
                             <hr class="border-light opacity-25 mb-4">
 
-                            <!-- MOMO PAYMENT BUTTON -->
-                            <form asp-action="CreateMomoPayment" asp-controller="Account" method="post" class="text-center mt-4">
+                            <!-- PAYOS PAYMENT BUTTON -->
+                            <form asp-action="CreatePayOSPayment" asp-controller="Account" method="post" class="text-center mt-4">
                                 <input type="hidden" name="packageType" value="RecruiterPro" />
-                                <button type="submit" class="btn w-100 momo-btn">
-                                    <i class="fas fa-wallet me-2"></i> THANH TOÁN QUA MOMO
+                                <button type="submit" class="btn w-100 payos-btn">
+                                    <i class="fas fa-qrcode me-2"></i> THANH TOÁN QUA MÃ VIETQR
                                 </button>
                                 <div class="d-flex justify-content-center align-items-center mt-3 gap-2 text-white-50 small">
                                     <i class="fas fa-shield-alt"></i>
-                                    <span>Thanh toán an toàn, kích hoạt tức thì.</span>
+                                    <span>An toàn, tiện lợi, tự động kích hoạt.</span>
                                 </div>
                             </form>
 
@@ -161,15 +161,15 @@
 
                             <hr class="border-light opacity-25 mb-4">
 
-                            <!-- MOMO PAYMENT BUTTON -->
-                            <form asp-action="CreateMomoPayment" asp-controller="Account" method="post" class="text-center mt-4">
+                            <!-- PAYOS PAYMENT BUTTON -->
+                            <form asp-action="CreatePayOSPayment" asp-controller="Account" method="post" class="text-center mt-4">
                                 <input type="hidden" name="packageType" value="CandidatePro" />
-                                <button type="submit" class="btn w-100 momo-btn">
-                                    <i class="fas fa-wallet me-2"></i> THANH TOÁN QUA MOMO
+                                <button type="submit" class="btn w-100 payos-btn">
+                                    <i class="fas fa-qrcode me-2"></i> THANH TOÁN QUA MÃ VIETQR
                                 </button>
                                 <div class="d-flex justify-content-center align-items-center mt-3 gap-2 text-white-50 small">
                                     <i class="fas fa-shield-alt"></i>
-                                    <span>Thanh toán an toàn, kích hoạt tức thì.</span>
+                                    <span>An toàn, tiện lợi, tự động kích hoạt.</span>
                                 </div>
                             </form>
 
@@ -190,23 +190,96 @@
         .pro-featured { background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%); transform: scale(1.02); z-index: 2; border: 2px solid rgba(255,193,7,0.3) !important; }
         .pro-ribbon { position: absolute; top: 20px; right: -35px; background: #ffc107; color: #000; padding: 5px 40px; transform: rotate(45deg); font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
-        .momo-btn {
-            background-color: #a50064; /* Màu chủ đạo MoMo */
+        .payos-btn {
+            background-color: #1a73e8; /* Màu xanh của PayOS */
             color: white;
             padding: 16px;
             font-weight: 800;
             font-size: 1.1rem;
             border-radius: 12px;
             border: none;
-            box-shadow: 0 8px 20px rgba(165, 0, 100, 0.4);
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.4);
             transition: all 0.3s ease;
         }
         
-        .momo-btn:hover {
-            background-color: #d82d8b; /* Màu sáng hơn khi hover */
+        .payos-btn:hover {
+            background-color: #1557b0; /* Màu đậm hơn khi hover */
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(165, 0, 100, 0.6);
+            box-shadow: 0 10px 25px rgba(26, 115, 232, 0.6);
         }
     </style>
+}
+
+@section Scripts {
+    <!-- PayOS Overlay Fullscreen -->
+    <div id="payos-checkout-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:99999; background:rgba(0,0,0,0.5);">
+        <div id="config_root" style="width: 100%; height: 100%;"></div>
+    </div>
+
+    <script src="https://cdn.payos.vn/payos-checkout/v1/stable/payos-initialize.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const forms = document.querySelectorAll('form[action="/Account/CreatePayOSPayment"]');
+            
+            forms.forEach(form => {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault(); // Ngăn submit form mặc định (chuyển trang)
+                    
+                    const btn = this.querySelector('button[type="submit"]');
+                    const originalBtnText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> ĐANG TẠO MÃ...';
+
+                    try {
+                        const formData = new FormData(this);
+                        const response = await fetch(this.action, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success && data.checkoutUrl) {
+                            const overlay = document.getElementById('payos-checkout-overlay');
+                            
+                            let payOSConfig = {
+                                RETURN_URL: window.location.origin + "/Account/PaymentCallback",
+                                ELEMENT_ID: "config_root", 
+                                CHECKOUT_URL: data.checkoutUrl,
+                                onSuccess: (event) => {
+                                    window.location.href = "/Account/PaymentCallback?code=00&status=PAID&cancel=false";
+                                },
+                                onExit: (event) => {
+                                    overlay.style.display = 'none';
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalBtnText;
+                                    document.getElementById('config_root').innerHTML = '';
+                                },
+                                onCancel: (event) => {
+                                    overlay.style.display = 'none';
+                                    btn.disabled = false;
+                                    btn.innerHTML = originalBtnText;
+                                    document.getElementById('config_root').innerHTML = '';
+                                }
+                            };
+
+                            let { open } = PayOSCheckout.usePayOS(payOSConfig);
+                            overlay.style.display = 'block'; // Hiện overlay
+                            open(); // Mở popup
+                        } else {
+                            alert(data.message || "Lỗi tạo thanh toán. Vui lòng thử lại sau.");
+                            btn.disabled = false;
+                            btn.innerHTML = originalBtnText;
+                        }
+                    } catch (error) {
+                        console.error("Lỗi:", error);
+                        alert("Lỗi kết nối. Vui lòng thử lại.");
+                        btn.disabled = false;
+                        btn.innerHTML = originalBtnText;
+                    }
+                });
+            });
+        });
+    </script>
 }
