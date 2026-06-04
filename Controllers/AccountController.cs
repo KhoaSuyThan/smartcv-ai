@@ -759,8 +759,9 @@ namespace DoAnCS.Controllers
                 int amount = packageType == "RecruiterPro" ? 100000 : 20000;
                 string description = packageType == "RecruiterPro" ? $"Recruiter Pro {userId}" : $"CVBuilder Pro {userId}";
 
-                string returnUrl = _config["PayOS:ReturnUrl"] ?? "http://localhost:5170/Account/PaymentCallback";
-                string cancelUrl = _config["PayOS:CancelUrl"] ?? "http://localhost:5170/Account/PaymentCallback?cancel=true";
+                string baseUrl = $"{Request.Scheme}://{Request.Host}";
+                string returnUrl = $"{baseUrl}/Account/PaymentCallback";
+                string cancelUrl = $"{baseUrl}/Account/PaymentCallback?cancel=true";
 
                 var requestData = new CreatePaymentLinkRequest {
                     OrderCode = orderCode,
