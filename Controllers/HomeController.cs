@@ -12,11 +12,13 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly JobApiService _jobApiService;
+        private readonly IWebHostEnvironment _env;
 
-        public HomeController(AppDbContext context, JobApiService jobApiService)
+        public HomeController(AppDbContext context, JobApiService jobApiService, IWebHostEnvironment env)
         {
             _context = context;
             _jobApiService = jobApiService;
+            _env = env;
         }
 
         public async Task<IActionResult> Index()
@@ -45,10 +47,10 @@ namespace DoAnCS.Controllers
             var viewModel = new HomeViewModel
             {
                 LatestJobs = mappedJobs.ToPagedList(1, 6), // Đổ vào đây nè Khoa!
-                PopularTemplates = await _context.Templates
+                PopularTemplates = _env.IsDevelopment() ? await _context.Templates
                     .Where(t => t.IsActive == true)
                     .Take(4)
-                    .ToListAsync(),
+                    .ToListAsync() : new List<Template>(),
                 VueTemplates = await _context.VueTemplates
                     .Where(t => t.IsActive == true)
                     .ToListAsync(),
