@@ -17,8 +17,11 @@ services:
       - "8080:8080"
     environment:
       - ConnectionStrings__OnlineConnection=Server=db;Database=DoAnWebCS;User Id=sa;Password=Password123!;TrustServerCertificate=True
+      - StorageSettings__UploadsFolder=/app/uploads
     depends_on:
       - db
+    volumes:
+      - /var/www/uploads/DoAnWeb:/app/uploads
 
 volumes:
   mssql_data:
