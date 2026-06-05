@@ -18,12 +18,14 @@ namespace DoAnCS.Controllers
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _webHost;
         private readonly IAIService _aiService;
+        private readonly IConfiguration _config;
 
-        public AdminController(AppDbContext context, IWebHostEnvironment webHost, IAIService aiService)
+        public AdminController(AppDbContext context, IWebHostEnvironment webHost, IAIService aiService, IConfiguration config)
         {
             _context = context;
             _webHost = webHost;
             _aiService = aiService;
+            _config = config;
         }
 
         // 1. Trang Dashboard của Admin
@@ -155,7 +157,8 @@ namespace DoAnCS.Controllers
                 if (uploadImage != null && uploadImage.Length > 0)
                 {
                     // 1. Định nghĩa thư mục lưu trữ
-                    string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
+                    var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                    string folder = Path.Combine(baseUploadsFolder, "images", "templates");
                     if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
                     // 2. Đặt lại tên file: template_ + chuỗi duy nhất + đuôi file
@@ -214,7 +217,8 @@ namespace DoAnCS.Controllers
                     // Xử lý nếu Admin chọn upload file mới
                     if (uploadImage != null && uploadImage.Length > 0)
                     {
-                        string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
+                        var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                        string folder = Path.Combine(baseUploadsFolder, "images", "templates");
                         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
                         // Tạo tên file mới để tránh trùng
@@ -460,7 +464,8 @@ namespace DoAnCS.Controllers
 
                     if (uploadImage != null && uploadImage.Length > 0)
                     {
-                        string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
+                        var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                        string folder = Path.Combine(baseUploadsFolder, "images", "templates");
                         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
                         string fileName = "vue_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(uploadImage.FileName);
@@ -556,7 +561,8 @@ namespace DoAnCS.Controllers
 
                     if (uploadImage != null && uploadImage.Length > 0)
                     {
-                        string folder = Path.Combine(_webHost.WebRootPath, "images", "templates");
+                        var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                        string folder = Path.Combine(baseUploadsFolder, "images", "templates");
                         if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
 
                         string fileName = "vue_" + Guid.NewGuid().ToString().Substring(0, 8) + Path.GetExtension(uploadImage.FileName);

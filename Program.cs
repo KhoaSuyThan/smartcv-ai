@@ -307,6 +307,40 @@ using (var scope = app.Services.CreateScope())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// --- BẮT ĐẦU: CẤU HÌNH THƯ MỤC LƯU TRỮ NGOÀI CHO FILE UPLOAD ---
+var uploadsFolder = builder.Configuration["StorageSettings:UploadsFolder"] 
+                    ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+
+if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+// Map /avt
+var avtFolder = Path.Combine(uploadsFolder, "avt");
+if (!Directory.Exists(avtFolder)) Directory.CreateDirectory(avtFolder);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(avtFolder),
+    RequestPath = "/avt"
+});
+
+// Map /uploads
+var generalUploadsFolder = Path.Combine(uploadsFolder, "uploads");
+if (!Directory.Exists(generalUploadsFolder)) Directory.CreateDirectory(generalUploadsFolder);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(generalUploadsFolder),
+    RequestPath = "/uploads"
+});
+
+// Map /images/templates
+var imagesTemplatesFolder = Path.Combine(uploadsFolder, "images", "templates");
+if (!Directory.Exists(imagesTemplatesFolder)) Directory.CreateDirectory(imagesTemplatesFolder);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(imagesTemplatesFolder),
+    RequestPath = "/images/templates"
+});
+// --- KẾT THÚC: CẤU HÌNH THƯ MỤC LƯU TRỮ NGOÀI ---
+
 app.UseRouting();
 
 app.UseSession(); // Session phải nằm trước Authentication

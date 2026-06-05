@@ -318,7 +318,8 @@ namespace DoAnCS.Controllers
                     if (!string.IsNullOrEmpty(user.AvatarUrl))
                     {
                         // Xóa file vật lý trong wwwroot/avt
-                        string oldFilePath = Path.Combine(_webHostEnvironment.WebRootPath, user.AvatarUrl.TrimStart('/'));
+                        var uploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                        string oldFilePath = Path.Combine(uploadsFolder, user.AvatarUrl.TrimStart('/'));
                         if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
                         
                         user.AvatarUrl = null; // Reset về null
@@ -329,14 +330,16 @@ namespace DoAnCS.Controllers
                 {
                     string folder = "avt/";
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(avatarFile.FileName);
-                    string serverFolder = Path.Combine(_webHostEnvironment.WebRootPath, folder);
+                    var uploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                    string serverFolder = Path.Combine(uploadsFolder, folder);
 
                     if (!Directory.Exists(serverFolder)) Directory.CreateDirectory(serverFolder);
 
                     // Xóa ảnh cũ trước khi thay ảnh mới
                     if (!string.IsNullOrEmpty(user.AvatarUrl))
                     {
-                        string oldPath = Path.Combine(_webHostEnvironment.WebRootPath, user.AvatarUrl.TrimStart('/'));
+                        var uploadsFolder2 = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                        string oldPath = Path.Combine(uploadsFolder2, user.AvatarUrl.TrimStart('/'));
                         if (System.IO.File.Exists(oldPath)) System.IO.File.Delete(oldPath);
                     }
 

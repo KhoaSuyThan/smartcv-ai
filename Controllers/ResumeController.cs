@@ -13,10 +13,12 @@ namespace DoAnCS.Controllers
     public class ResumeController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _config;
 
-        public ResumeController(AppDbContext context)
+        public ResumeController(AppDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         // 1. Hiển thị danh sách mẫu CV
@@ -119,7 +121,8 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Profile", "Account", new { t = "cv" });
             }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "cvs");
+            var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+            var uploadsFolder = Path.Combine(baseUploadsFolder, "uploads", "cvs");
             if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
             var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(pdfFile.FileName);
@@ -175,7 +178,8 @@ namespace DoAnCS.Controllers
             // 1. Xóa file vật lý nếu có
             if (!string.IsNullOrEmpty(resume.FileUploadUrl))
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", resume.FileUploadUrl.TrimStart('/'));
+                var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                var filePath = Path.Combine(baseUploadsFolder, resume.FileUploadUrl.TrimStart('/'));
                 if (System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
@@ -510,7 +514,8 @@ namespace DoAnCS.Controllers
                     {
                         if (!string.IsNullOrEmpty(resume.FileUploadUrl))
                         {
-                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", resume.FileUploadUrl.TrimStart('/'));
+                            var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                            var filePath = Path.Combine(baseUploadsFolder, resume.FileUploadUrl.TrimStart('/'));
                             if (System.IO.File.Exists(filePath))
                             {
                                 System.IO.File.Delete(filePath);
