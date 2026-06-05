@@ -14,16 +14,20 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
+        private readonly IWebHostEnvironment _env;
 
-        public ResumeController(AppDbContext context, IConfiguration config)
+        public ResumeController(AppDbContext context, IConfiguration config, IWebHostEnvironment env)
         {
             _context = context;
             _config = config;
+            _env = env;
         }
 
         // 1. Hiển thị danh sách mẫu CV
         public async Task<IActionResult> Templates()
         {
+            if (!_env.IsDevelopment()) return RedirectToAction("VueTemplates");
+
             var templates = await _context.Templates
                                 .Where(t => t.IsActive == true)
                                 .ToListAsync();
@@ -34,6 +38,8 @@ namespace DoAnCS.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int id) // id là TemplateID (ví dụ: 39)
         {
+            if (!_env.IsDevelopment()) return RedirectToAction("VueTemplates");
+
             // 1. Sử dụng hàm hỗ trợ để lấy ID người dùng
             int userId = GetCurrentUserId();
 

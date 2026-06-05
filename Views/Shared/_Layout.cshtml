@@ -1,3 +1,4 @@
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -193,12 +194,15 @@
                         @* Quyền hạn chung cho khách và Ứng viên *@
                         @if (!User.IsInRole("Recruiter"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "Templates" ? "active" : "")" 
-                                   asp-controller="Resume" asp-action="Templates">
-                                    <i class="fas fa-id-card me-1"></i> Mẫu CV
-                                </a>
-                            </li>
+                            @if (env.IsDevelopment())
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "Templates" ? "active" : "")" 
+                                       asp-controller="Resume" asp-action="Templates">
+                                        <i class="fas fa-id-card me-1"></i> Mẫu CV
+                                    </a>
+                                </li>
+                            }
 
                             <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "VueTemplates" ? "active" : "")" 
@@ -456,7 +460,10 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="fw-bold mb-3">Dịch vụ</h6>
                     <ul class="list-unstyled">
-                        <li><a asp-controller="Resume" asp-action="Templates" class="footer-link">Kho mẫu CV</a></li>
+                        @if (env.IsDevelopment())
+                        {
+                            <li><a asp-controller="Resume" asp-action="Templates" class="footer-link">Kho mẫu CV</a></li>
+                        }
                         <li><a asp-controller="Home" asp-action="Jobs" class="footer-link">Tìm việc làm</a></li>
                         <li><a href="javascript:void(0)" onclick="chatboxOpen('Tôi muốn được tư vấn nghề nghiệp')" class="footer-link">Tư vấn nghề nghiệp</a></li>
                     </ul>
