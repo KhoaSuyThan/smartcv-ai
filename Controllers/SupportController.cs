@@ -32,7 +32,8 @@ public class SupportController : Controller
                 // 1. Xử lý lưu file nếu có đính kèm
                 if (Attachment != null && Attachment.Length > 0)
                 {
-                    string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    var baseUploadsFolder = _config["StorageSettings:UploadsFolder"] ?? Path.Combine(Directory.GetCurrentDirectory(), "..", "DoAnWeb_Uploads");
+                    string uploadsFolder = Path.Combine(baseUploadsFolder, "uploads");
                     if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
 
                     string uniqueFileName = Guid.NewGuid().ToString() + "_" + Attachment.FileName;
