@@ -618,6 +618,8 @@ namespace DoAnCS.Controllers
             // Cập nhật User
             user.Role = "Recruiter";
             user.CompanyID = compId;
+            // Hủy trạng thái Candidate Pro khi nâng cấp lên Recruiter
+            user.IsPro = false;
             
             await _context.SaveChangesAsync();
 

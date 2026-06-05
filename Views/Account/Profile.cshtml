@@ -561,6 +561,17 @@
                             <div class="mt-5 pt-4 border-top">
                                 <h5 class="text-danger fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Khu vực nguy hiểm</h5>
                                 <p class="text-muted small mb-3">Hủy bỏ tư cách Nhà tuyển dụng sẽ đưa bạn về vai trò Ứng viên. Các tin tuyển dụng của công ty vẫn sẽ được giữ lại trên hệ thống.</p>
+                                
+                                @if (Model.IsPro)
+                                {
+                                    <div class="alert alert-info border-0 shadow-sm mb-3 rounded-4 p-3 d-flex align-items-center">
+                                        <i class="bi bi-info-circle-fill text-info fs-4 me-3"></i>
+                                        <div class="small">
+                                            <strong>Thông tin:</strong> Bạn đang sở hữu gói <strong>Pro</strong>. Sau khi hủy tư cách Nhà tuyển dụng, tài khoản của bạn sẽ tự động kế thừa và <strong>giữ nguyên đặc quyền Pro dành cho Người dùng</strong>.
+                                        </div>
+                                    </div>
+                                }
+
                                 <form action="/Account/CancelEmployerRole" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy tư cách Nhà tuyển dụng và quay lại làm Ứng viên không?');">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="btn btn-outline-danger rounded-pill px-4 fw-bold">
@@ -759,6 +770,16 @@
                                 <p class="text-muted small mb-0">Nâng cấp tài khoản để có thể đăng tin tuyển dụng, quản lý ứng viên và phát triển doanh nghiệp của bạn.</p>
                             </div>
                             
+                            @if (Model.IsPro)
+                            {
+                                <div class="alert alert-warning border-0 shadow-sm mb-4 rounded-4 p-3 d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill text-warning fs-3 me-3"></i>
+                                    <div>
+                                        <strong>Cảnh báo quan trọng:</strong> Bạn đang sử dụng gói <strong>Pro dành cho Người dùng</strong>. Việc nâng cấp lên Nhà tuyển dụng sẽ <strong>hủy bỏ</strong> gói Pro hiện tại của bạn. Bạn sẽ phải mua lại gói <strong>Pro dành cho Nhà tuyển dụng</strong> nếu muốn sử dụng các tính năng trả phí doanh nghiệp.
+                                    </div>
+                                </div>
+                            }
+
                             @if (TempData["EmployerErrorMessage"] != null)
                             {
                                 <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4 rounded-4 p-3" role="alert">
@@ -770,7 +791,7 @@
                                 </div>
                             }
 
-                            <form action="/Account/UpgradeToEmployer" method="post">
+                            <form action="/Account/UpgradeToEmployer" method="post" onsubmit="@(Model.IsPro ? "return confirm('CẢNH BÁO: Việc nâng cấp sẽ làm mất gói Pro (dành cho người dùng) hiện tại của bạn. Bạn có chắc chắn muốn tiếp tục không?');" : "")">
                                 @Html.AntiForgeryToken()
                                 <div class="row g-4">
                                     <div class="col-md-12">
