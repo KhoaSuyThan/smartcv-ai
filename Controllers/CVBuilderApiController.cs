@@ -4,6 +4,8 @@ using DoAnCS.Models;
 using System.Threading.Tasks;
 using System.Text.Json;
 using DoAnCS.Data; 
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 namespace DoAnCS.Controllers
 {
     [ApiController]
@@ -30,6 +32,18 @@ namespace DoAnCS.Controllers
                 return NotFound(new { message = "Không tìm thấy CV." });
             }
 
+            // KIỂM TRA BẢO MẬT: BOLA/IDOR
+            if (!resume.IsPublic)
+            {
+                var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                int currentUserId = int.TryParse(userIdClaim, out int uid) ? uid : 0;
+
+                if (resume.UserID != currentUserId && !User.IsInRole("Admin"))
+                {
+                    return Unauthorized(new { message = "Bạn không có quyền truy cập CV này." });
+                }
+            }
+
             // Thử tìm trong VueTemplates trước để lấy ComponentName chính xác
             var vueTemplate = await _context.VueTemplates.FirstOrDefaultAsync(t => t.Id == resume.TemplateID);
             
@@ -52,12 +66,22 @@ namespace DoAnCS.Controllers
 
         // POST: api/cvbuilder/save/5
         [HttpPost("save/{id}")]
+        [Authorize(Roles = "User,Admin")]
         public async Task<IActionResult> SaveCVData(int id, [FromBody] SaveDataRequest request)
         {
             var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == id);
             if (resume == null)
             {
                 return NotFound(new { message = "Không tìm thấy CV." });
+            }
+
+            // KIỂM TRA BẢO MẬT: Phải là chủ sở hữu mới được lưu CV
+            var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int currentUserId = int.TryParse(userIdClaim, out int uid) ? uid : 0;
+
+            if (resume.UserID != currentUserId && !User.IsInRole("Admin"))
+            {
+                return Forbid();
             }
 
             // Lưu toàn bộ cấu trúc Vue vào trường JsonContent
