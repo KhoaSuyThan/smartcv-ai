@@ -56,16 +56,20 @@ namespace DoAnCS.Controllers
                     return View("Login", model);
                 }
 
+                // KIỂM TRA BẢO MẬT: Chống leo thang đặc quyền (Mass Assignment). Chỉ cho phép đăng ký User hoặc Recruiter.
+                string requestedRole = !string.IsNullOrEmpty(model.Register.Role) ? model.Register.Role : "User";
+                if (requestedRole != "Recruiter") 
+                {
+                    requestedRole = "User";
+                }
+
                 // 2. Tạo đối tượng User mới từ dữ liệu người dùng nhập
                 var user = new User
                 {
                     FullName = model.Register.FullName,
                     Email = model.Register.Email,
                     PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Register.Password),
-                    
-                    // 1. LẤY ROLE TỪ GIAO DIỆN (Bạn cần thêm 1 dropdown chọn Role ở View)
-                    // Nếu không chọn, mặc định là 'User' (Candidate)
-                    Role = !string.IsNullOrEmpty(model.Register.Role) ? model.Register.Role : "User",                    
+                    Role = requestedRole,                    
                     CreatedAt = DateTime.Now
                 };
 

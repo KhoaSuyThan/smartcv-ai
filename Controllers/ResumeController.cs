@@ -424,10 +424,11 @@ namespace DoAnCS.Controllers
                 return Json(new { success = false, message = "Tên CV không được để trống." });
             }
 
-            var resume = await _context.Resumes.FindAsync(id);
+            int userId = GetCurrentUserId();
+            var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == id && r.UserID == userId);
             if (resume == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy bản CV." });
+                return Json(new { success = false, message = "Không tìm thấy bản CV hoặc bạn không có quyền thực hiện." });
             }
 
             // Cập nhật thông tin
@@ -451,10 +452,11 @@ namespace DoAnCS.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateJobTitle(int id, string jobTitle)
         {
-            var resume = await _context.Resumes.FindAsync(id);
+            int userId = GetCurrentUserId();
+            var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == id && r.UserID == userId);
             if (resume == null)
             {
-                return Json(new { success = false, message = "Không tìm thấy bản CV." });
+                return Json(new { success = false, message = "Không tìm thấy bản CV hoặc bạn không có quyền thực hiện." });
             }
 
             resume.JobTitle = string.IsNullOrWhiteSpace(jobTitle) ? null : jobTitle.Trim();
@@ -477,10 +479,11 @@ namespace DoAnCS.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var resume = await _context.Resumes.FindAsync(id);
+            int userId = GetCurrentUserId();
+            var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == id && r.UserID == userId);
             if (resume == null)
             {
-                return Json(new { success = false, message = "Bản CV không tồn tại hoặc đã bị xóa." });
+                return Json(new { success = false, message = "Bản CV không tồn tại, đã bị xóa, hoặc bạn không có quyền truy cập." });
             }
 
             try
