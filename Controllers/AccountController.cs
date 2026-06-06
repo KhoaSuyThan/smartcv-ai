@@ -144,6 +144,7 @@ namespace DoAnCS.Controllers
 
                 if (user != null && BCrypt.Net.BCrypt.Verify(model.Login.Password, user.PasswordHash))
                 {
+                    long currentLoginTime = DateTime.UtcNow.Ticks;
                     var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.FullName),
@@ -153,7 +154,7 @@ namespace DoAnCS.Controllers
                 new Claim("IsPro", user.IsPro.ToString()),
                 new Claim("CompanyID", user.CompanyID.ToString()?? ""),
                 new Claim("SessionId", Guid.NewGuid().ToString()),
-                new Claim("LoginTime", DateTime.UtcNow.Ticks.ToString())
+                new Claim("LoginTime", currentLoginTime.ToString())
             };
 
                     var claimsIdentity = new ClaimsIdentity(
@@ -168,6 +169,9 @@ namespace DoAnCS.Controllers
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
+
+                    // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
+                    DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -235,6 +239,7 @@ namespace DoAnCS.Controllers
             }
 
             // THIẾT LẬP COOKIE CHÍNH THỨC CỦA HỆ THỐNG
+            long currentLoginTime = DateTime.UtcNow.Ticks;
             var userClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.FullName),
@@ -244,7 +249,7 @@ namespace DoAnCS.Controllers
                 new Claim("IsPro", user.IsPro.ToString()),
                 new Claim("CompanyID", user.CompanyID?.ToString() ?? ""),
                 new Claim("SessionId", Guid.NewGuid().ToString()),
-                new Claim("LoginTime", DateTime.UtcNow.Ticks.ToString())
+                new Claim("LoginTime", currentLoginTime.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -252,6 +257,9 @@ namespace DoAnCS.Controllers
 
             // Xóa cookie tạm thời sau khi đã đăng nhập thành công
             await HttpContext.SignOutAsync("ExternalCookies");
+
+            // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
+            DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
             return LocalRedirect(returnUrl);
         }

@@ -45,6 +45,25 @@ builder.Services.AddAuthentication(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(24);
     options.Cookie.Name = "CVBuilder_Auth"; // Đặt tên riêng cho Cookie
+    
+    // BẢO MẬT: Bắt buộc xác thực một thiết bị mỗi lần Request (Server-side)
+    options.Events = new CookieAuthenticationEvents
+    {
+        OnValidatePrincipal = async context =>
+        {
+            var userIdClaim = context.Principal.FindFirst("UserID")?.Value;
+            var loginTimeClaim = context.Principal.FindFirst("LoginTime")?.Value;
+            
+            if (int.TryParse(userIdClaim, out int userId) && long.TryParse(loginTimeClaim, out long loginTime))
+            {
+                if (!DoAnCS.Services.SessionTracker.IsValidSession(userId, loginTime))
+                {
+                    context.RejectPrincipal();
+                    await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                }
+            }
+        }
+    };
 })
 
 .AddCookie("ExternalCookies", options => 
