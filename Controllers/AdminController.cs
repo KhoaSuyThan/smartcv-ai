@@ -452,13 +452,20 @@ namespace DoAnCS.Controllers
             {
                 try
                 {
-                    // Kiểm tra xem file .vue có tồn tại trong thư mục templates không (chỉ kiểm tra khi ở Local)
+                    // Kiểm tra xem file .vue có tồn tại trong thư mục templates không (Hỗ trợ Case-Insensitive cho Linux)
                     string componentName = template.ComponentName?.Trim() ?? "";
                     string componentFile = componentName.EndsWith(".vue", StringComparison.OrdinalIgnoreCase) ? componentName : componentName + ".vue";
                     string templateDir = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates");
                     string templatePath = Path.Combine(templateDir, componentFile);
 
-                    if (System.IO.Directory.Exists(templateDir) && !System.IO.File.Exists(templatePath))
+                    bool fileExists = System.IO.File.Exists(templatePath);
+                    if (!fileExists && Directory.Exists(templateDir))
+                    {
+                        var existingFiles = Directory.GetFiles(templateDir);
+                        fileExists = existingFiles.Any(f => Path.GetFileName(f).Equals(componentFile, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if (!fileExists)
                     {
                         TempData["Error"] = $"Cảnh báo: File component '{componentFile}' không tồn tại trong thư mục templates. Vui lòng tạo file trước!";
                         return RedirectToAction(nameof(VueTemplates));
@@ -551,13 +558,20 @@ namespace DoAnCS.Controllers
             {
                 try
                 {
-                    // Kiểm tra file vật lý (chỉ kiểm tra khi ở Local)
+                    // Kiểm tra file vật lý (Hỗ trợ Case-Insensitive cho Linux)
                     string componentName = template.ComponentName?.Trim() ?? "";
                     string componentFile = componentName.EndsWith(".vue", StringComparison.OrdinalIgnoreCase) ? componentName : componentName + ".vue";
                     string templateDir = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates");
                     string templatePath = Path.Combine(templateDir, componentFile);
 
-                    if (System.IO.Directory.Exists(templateDir) && !System.IO.File.Exists(templatePath))
+                    bool fileExists = System.IO.File.Exists(templatePath);
+                    if (!fileExists && Directory.Exists(templateDir))
+                    {
+                        var existingFiles = Directory.GetFiles(templateDir);
+                        fileExists = existingFiles.Any(f => Path.GetFileName(f).Equals(componentFile, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if (!fileExists)
                     {
                         ModelState.AddModelError("ComponentName", $"File '{componentFile}' không tồn tại trong source code.");
                         return View(template);
