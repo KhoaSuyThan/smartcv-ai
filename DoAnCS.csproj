@@ -28,4 +28,11 @@
     <PackageReference Include="X.PagedList.Mvc.Core" Version="10.5.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Đảm bảo copy các file .vue lên server khi Publish để AdminController kiểm tra tồn tại -->
+    <Content Include="CVBuilderApp\src\templates\**\*.vue">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
