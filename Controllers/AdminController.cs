@@ -452,12 +452,13 @@ namespace DoAnCS.Controllers
             {
                 try
                 {
-                    // Kiểm tra xem file .vue có tồn tại trong thư mục templates không
+                    // Kiểm tra xem file .vue có tồn tại trong thư mục templates không (chỉ kiểm tra khi ở Local)
                     string componentName = template.ComponentName?.Trim() ?? "";
                     string componentFile = componentName.EndsWith(".vue", StringComparison.OrdinalIgnoreCase) ? componentName : componentName + ".vue";
-                    string templatePath = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates", componentFile);
+                    string templateDir = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates");
+                    string templatePath = Path.Combine(templateDir, componentFile);
 
-                    if (!System.IO.File.Exists(templatePath))
+                    if (System.IO.Directory.Exists(templateDir) && !System.IO.File.Exists(templatePath))
                     {
                         TempData["Error"] = $"Cảnh báo: File component '{componentFile}' không tồn tại trong thư mục templates. Vui lòng tạo file trước!";
                         return RedirectToAction(nameof(VueTemplates));
@@ -550,12 +551,13 @@ namespace DoAnCS.Controllers
             {
                 try
                 {
-                    // Kiểm tra file vật lý
+                    // Kiểm tra file vật lý (chỉ kiểm tra khi ở Local)
                     string componentName = template.ComponentName?.Trim() ?? "";
                     string componentFile = componentName.EndsWith(".vue", StringComparison.OrdinalIgnoreCase) ? componentName : componentName + ".vue";
-                    string templatePath = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates", componentFile);
+                    string templateDir = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates");
+                    string templatePath = Path.Combine(templateDir, componentFile);
 
-                    if (!System.IO.File.Exists(templatePath))
+                    if (System.IO.Directory.Exists(templateDir) && !System.IO.File.Exists(templatePath))
                     {
                         ModelState.AddModelError("ComponentName", $"File '{componentFile}' không tồn tại trong source code.");
                         return View(template);
