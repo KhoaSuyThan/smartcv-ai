@@ -453,7 +453,8 @@ namespace DoAnCS.Controllers
                 try
                 {
                     // Kiểm tra xem file .vue có tồn tại trong thư mục templates không
-                    string componentFile = template.ComponentName.EndsWith(".vue") ? template.ComponentName : template.ComponentName + ".vue";
+                    string componentName = template.ComponentName?.Trim() ?? "";
+                    string componentFile = componentName.EndsWith(".vue", StringComparison.OrdinalIgnoreCase) ? componentName : componentName + ".vue";
                     string templatePath = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates", componentFile);
 
                     if (!System.IO.File.Exists(templatePath))
@@ -550,7 +551,8 @@ namespace DoAnCS.Controllers
                 try
                 {
                     // Kiểm tra file vật lý
-                    string componentFile = template.ComponentName.EndsWith(".vue") ? template.ComponentName : template.ComponentName + ".vue";
+                    string componentName = template.ComponentName?.Trim() ?? "";
+                    string componentFile = componentName.EndsWith(".vue", StringComparison.OrdinalIgnoreCase) ? componentName : componentName + ".vue";
                     string templatePath = Path.Combine(_webHost.ContentRootPath, "CVBuilderApp", "src", "templates", componentFile);
 
                     if (!System.IO.File.Exists(templatePath))
