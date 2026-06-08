@@ -67,8 +67,9 @@
       <draggable
         v-model="sidebarSectionsWritable"
         item-key="id"
+        group="sections"
         class="w-full pl-[8mm] pr-0 flex-1 pb-8 flex flex-col mt-4 cursor-move"
-        @end="onSidebarDragEnd"
+        @end="onDragEnd"
         animation="200"
         ghost-class="opacity-30"
         :delay="100"
@@ -253,8 +254,9 @@
       <draggable
         v-model="mainSectionsWritable"
         item-key="id"
+        group="sections"
         class="px-[12mm] pt-[8mm] pb-[8mm] flex-1 flex flex-col gap-[3.5mm] cursor-move"
-        @end="onMainDragEnd"
+        @end="onDragEnd"
         animation="200"
         ghost-class="opacity-30"
         :delay="100"
@@ -576,11 +578,11 @@ const templatePrimaryColor = computed(() => {
 const templateSecondaryColor = computed(() => '#e8e4db')
 
 const sidebarSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages', 'education'].includes(s.id))
+  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages'].includes(s.id))
 )
 const mainSections = computed(() => {
   return props.resumeData.sections.filter(s => 
-    (s.column === 'right' || s.id === 'education') && 
+    s.column === 'right' && 
     !['summary', 'it_skills', 'languages'].includes(s.id)
   )
 })
@@ -598,33 +600,38 @@ watch(mainSections, (newVal) => {
   mainSectionsWritable.value = [...newVal]
 }, { immediate: true, deep: true })
 
-const onSidebarDragEnd = () => {
-  const sidebarIdsArray = sidebarSectionsWritable.value.map(s => s.id)
-  const newSidebarItems = sidebarIdsArray.map(id => props.resumeData.sections.find(s => s.id === id))
-  
-  const updatedSections = [...props.resumeData.sections]
-  let sidebarIdx = 0
-  for (let i = 0; i < updatedSections.length; i++) {
-    if (sidebarIdsArray.includes(updatedSections[i].id)) {
-      updatedSections[i] = newSidebarItems[sidebarIdx++]
-    }
-  }
-  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...updatedSections)
-  requestPagination()
-}
+const onDragEnd = () => {
+  // Cập nhật thuộc tính column cho các section
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
 
-const onMainDragEnd = () => {
-  const mainIdsArray = mainSectionsWritable.value.map(s => s.id)
-  const newMainItems = mainIdsArray.map(id => props.resumeData.sections.find(s => s.id === id))
+  // Gộp thứ tự mới
+  const newOrderIds = [
+    ...sidebarSectionsWritable.value.map(s => s.id),
+    ...mainSectionsWritable.value.map(s => s.id)
+  ]
   
-  const updatedSections = [...props.resumeData.sections]
-  let mainIdx = 0
-  for (let i = 0; i < updatedSections.length; i++) {
-    if (mainIdsArray.includes(updatedSections[i].id)) {
-      updatedSections[i] = newMainItems[mainIdx++]
+  const newSections = []
+  // Giữ lại các section bị ẩn hoặc thuộc dạng đặc biệt ở đầu
+  props.resumeData.sections.forEach(s => {
+    if (!newOrderIds.includes(s.id)) {
+      newSections.push(s)
     }
-  }
-  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...updatedSections)
+  })
+  
+  // Thêm các section đã sắp xếp
+  newOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
   requestPagination()
 }
 
