@@ -390,17 +390,20 @@ footer {
 }
 
 /* Dropdown chọn Màu nền / Màu chữ */
-[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown button {
+[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown > button {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
-[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown button:hover {
+[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown > button:hover {
   background-color: #334155 !important;
 }
 [data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown .absolute {
   background-color: #1e293b !important;
   border-color: #334155 !important;
   box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4), 0 8px 10px -6px rgba(0,0,0,0.4) !important;
+}
+[data-bs-theme="dark"] .cv-builder-toolbar .color-picker-dropdown span.text-slate-600 {
+  color: #cbd5e1 !important;
 }
 
 /* FIX: Làm nổi bật nút AI SCAN thành màu vàng hổ phách tối mờ rực rỡ */
