@@ -64,8 +64,19 @@
       </div>
 
       <!-- Sidebar Sections -->
-      <div class="w-full pl-[8mm] pr-0 flex-1 pb-8 flex flex-col mt-4">
-        <template v-for="section in sidebarSections" :key="section.id">
+      <draggable
+        v-model="sidebarSectionsWritable"
+        item-key="id"
+        class="w-full pl-[8mm] pr-0 flex-1 pb-8 flex flex-col mt-4 cursor-move"
+        @end="onSidebarDragEnd"
+        animation="200"
+        ghost-class="opacity-30"
+        :delay="100"
+        :delayOnTouchOnly="true"
+        :fallbackTolerance="5"
+        filter=".nav-btn, .delete-item-btn, .contact-item-btns, .html-content, input"
+      >
+        <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group mb-1 cursor-pointer hover:bg-black/5 transition-colors"
@@ -220,7 +231,7 @@
             </div>
           </div>
         </template>
-      </div>
+      </draggable>
     </aside>
 
     <!-- RIGHT COLUMN -->
@@ -239,8 +250,19 @@
       </header>
 
       <!-- Main Sections -->
-      <div class="px-[12mm] pt-[8mm] pb-[8mm] flex-1 flex flex-col gap-[3.5mm]">
-        <template v-for="section in mainSections" :key="section.id">
+      <draggable
+        v-model="mainSectionsWritable"
+        item-key="id"
+        class="px-[12mm] pt-[8mm] pb-[8mm] flex-1 flex flex-col gap-[3.5mm] cursor-move"
+        @end="onMainDragEnd"
+        animation="200"
+        ghost-class="opacity-30"
+        :delay="100"
+        :delayOnTouchOnly="true"
+        :fallbackTolerance="5"
+        filter=".nav-btn, .delete-item-btn, .contact-item-btns, .html-content, input"
+      >
+        <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group my-0 cursor-pointer hover:bg-black/5 transition-colors"
@@ -362,7 +384,7 @@
             </div>
           </div>
         </template>
-      </div>
+      </draggable>
     </main>
 
     <!-- VIỀN CUỐI TRANG CỐ ĐỊNH -->
@@ -390,6 +412,7 @@
 
 <script setup>
 import { computed, ref, reactive, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -556,23 +579,54 @@ const sidebarSections = computed(() =>
   props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages', 'education'].includes(s.id))
 )
 const mainSections = computed(() => {
-  const sections = props.resumeData.sections.filter(s => 
+  return props.resumeData.sections.filter(s => 
     (s.column === 'right' || s.id === 'education') && 
     !['summary', 'it_skills', 'languages'].includes(s.id)
   )
-  
-  // Sắp xếp: education nằm ngay dưới experience
-  const expIndex = sections.findIndex(s => s.id === 'experience')
-  const eduIndex = sections.findIndex(s => s.id === 'education')
-  if (expIndex !== -1 && eduIndex !== -1) {
-    const [edu] = sections.splice(eduIndex, 1)
-    const newExpIndex = sections.findIndex(s => s.id === 'experience')
-    sections.splice(newExpIndex + 1, 0, edu)
-  }
-  return sections
 })
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onSidebarDragEnd = () => {
+  const sidebarIdsArray = sidebarSectionsWritable.value.map(s => s.id)
+  const newSidebarItems = sidebarIdsArray.map(id => props.resumeData.sections.find(s => s.id === id))
+  
+  const updatedSections = [...props.resumeData.sections]
+  let sidebarIdx = 0
+  for (let i = 0; i < updatedSections.length; i++) {
+    if (sidebarIdsArray.includes(updatedSections[i].id)) {
+      updatedSections[i] = newSidebarItems[sidebarIdx++]
+    }
+  }
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...updatedSections)
+  requestPagination()
+}
+
+const onMainDragEnd = () => {
+  const mainIdsArray = mainSectionsWritable.value.map(s => s.id)
+  const newMainItems = mainIdsArray.map(id => props.resumeData.sections.find(s => s.id === id))
+  
+  const updatedSections = [...props.resumeData.sections]
+  let mainIdx = 0
+  for (let i = 0; i < updatedSections.length; i++) {
+    if (mainIdsArray.includes(updatedSections[i].id)) {
+      updatedSections[i] = newMainItems[mainIdx++]
+    }
+  }
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...updatedSections)
+  requestPagination()
+}
 
 // ─── PAGINATION ENGINE: ĐÃ CĂN CHỈNH KHOẢNG TRẮNG BẰNG ĐƯỜNG KẺ MỜ ───
 const A4_W_MM   = 210
