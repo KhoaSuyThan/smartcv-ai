@@ -115,7 +115,7 @@
               </div>
               <h3 class="font-bold uppercase px-3 py-1.5 inline-block mb-4 shadow-[3px_3px_0px_rgba(0,0,0,0.15)] tracking-wide break-words whitespace-normal"
                 style="background: white; font-size: 13px !important; color: #465568;">
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -140,10 +140,10 @@
                   <div v-if="item.year || item.time"
                     class="inline-block text-[#334155] font-bold tracking-wide shadow-[1px_1px_0px_rgba(0,0,0,0.1)] mb-1"
                     style="font-size: 10px !important; padding: 2px 6px; background-color: #f1f5f9; width: fit-content;">
-                    {{ item.year || item.time }}
+                    <span v-html="item.year || item.time"></span>
                   </div>
                   <h4 v-if="item.major || item.role" class="font-semibold mb-1 opacity-90" style="font-size: 11.5px !important;">
-                    {{ item.major || item.role }}
+                    <span v-html="item.major || item.role"></span>
                   </h4>
                 </div>
                 
@@ -155,7 +155,7 @@
 
                 <div v-if="item.gradType" class="paginated-item font-semibold mt-1"
                   :style="{ fontSize: '11px !important', color: 'rgba(255,255,255,0.8)' }">
-                  Xếp loại: {{ item.gradType }}
+                  Xếp loại: <span v-html="item.gradType"></span>
                 </div>
 
                 <button v-if="selectedSectionId === section.id"
@@ -173,7 +173,7 @@
                 style="font-size: 11px !important; color: white;">
                 <div class="flex items-center gap-2 mb-1">
                   <div class="rounded-full bg-white shrink-0" style="width: 6px; height: 6px;"></div>
-                  <span class="font-bold tracking-wide">{{ item.name }}</span>
+                  <span class="font-bold tracking-wide"><span v-html="item.name"></span></span>
                 </div>
                 <div class="w-full rounded-full overflow-hidden relative" style="height: 5px; background: rgba(255,255,255,0.2);">
                   <div class="absolute left-0 top-0 bottom-0 rounded-full"
@@ -198,10 +198,10 @@
                     <div v-if="item.year || item.time"
                       class="inline-block text-[#334155] font-bold tracking-wide shadow-[1px_1px_0px_rgba(0,0,0,0.1)] mb-1"
                       style="font-size: 10px !important; padding: 2px 6px; background-color: #f1f5f9; width: fit-content;">
-                      {{ item.year || item.time }}
+                      <span v-html="item.year || item.time"></span>
                     </div>
                     <div class="font-bold mb-0.5" v-if="item.name || item.info" style="font-size: 11px !important;">
-                      {{ item.name || item.info }}
+                      <span v-html="item.name || item.info"></span>
                     </div>
                     <div class="html-content opacity-80" v-if="item.desc" v-html="formatDesc(item.desc)"></div>
                   </div>
@@ -256,7 +256,7 @@
               <h3 class="font-bold uppercase text-white tracking-widest shadow-[3px_3px_0px_rgba(0,0,0,0.15)]"
                 style="font-size: 14px !important; padding: 6px 18px;"
                 :style="{ backgroundColor: templateSecondaryColor }">
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -279,13 +279,13 @@
                     class="inline-block text-white font-bold tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.15)]"
                     style="font-size: 10px !important; padding: 2px 8px; margin-top: 3px;"
                     :style="{ backgroundColor: templateSecondaryColor }">
-                    {{ item.year || item.time }}
+                    <span v-html="item.year || item.time"></span>
                   </div>
                 </div>
                 
                 <div class="pb-2 relative" style="width: 64%; border-left: 2px solid #cbd5e1; padding-left: 12px;">
                   <h4 v-if="item.major || item.role" class="font-bold mb-1 paginated-item" style="font-size: 11.5px !important; color: #333;">
-                    {{ item.major || item.role }}
+                    <span v-html="item.major || item.role"></span>
                   </h4>
                   <div v-if="item.desc" class="text-slate-700 html-content leading-relaxed text-justify font-medium"
                     style="font-size: 11px !important;"
@@ -293,7 +293,7 @@
                   </div>
                   <div v-if="item.gradType" class="font-semibold mt-1 paginated-item"
                     :style="{ fontSize: '11px !important', color: templateSecondaryColor }">
-                    Xếp loại: {{ item.gradType }}
+                    Xếp loại: <span v-html="item.gradType"></span>
                   </div>
                 </div>
                 
@@ -311,12 +311,12 @@
                 <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 <div class="paginated-item relative">
                   <div class="absolute -left-6 top-1 text-pink-500"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg></div>
-                  <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
-                  <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
-                  <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+                  <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide"><span v-html="item.year || '2024 - 2028'"></span></div>
+                  <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5"><span v-html="item.major || 'Chuyên ngành'"></span></div>
+                  <div class="text-[12px] font-bold text-slate-500 italic"><span v-html="item.school || 'Tên trường học'"></span></div>
                 </div>
                 <div class="text-[12.5px] leading-[1.6] text-slate-600 html-content" v-html="formatDesc(item.desc)"></div>
-                <div v-if="!item.desc && item.gradType" class="paginated-item text-[12.5px] font-bold mt-1">Trạng thái: <span class="font-normal">{{ item.gradType }}</span></div>
+                <div v-if="!item.desc && item.gradType" class="paginated-item text-[12.5px] font-bold mt-1">Trạng thái: <span class="font-normal"><span v-html="item.gradType"></span></span></div>
               </div>
             </div>
 
@@ -330,11 +330,11 @@
                     class="inline-block text-white font-bold tracking-wide shadow-[2px_2px_0px_rgba(0,0,0,0.15)]"
                     style="font-size: 10px !important; padding: 2px 8px;"
                     :style="{ backgroundColor: templateSecondaryColor }">
-                    {{ item.year }}
+                    <span v-html="item.year"></span>
                   </div>
                 </div>
                 <div class="pb-2 relative" style="width: 64%; border-left: 2px solid #cbd5e1; padding-left: 12px;">
-                  <span class="font-bold" style="font-size: 11.5px !important; color: #333;">{{ item.name || item.info }}</span>
+                  <span class="font-bold" style="font-size: 11.5px !important; color: #333;"><span v-html="item.name || item.info"></span></span>
                 </div>
                 <button v-if="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"

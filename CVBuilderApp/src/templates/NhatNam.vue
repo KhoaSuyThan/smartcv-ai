@@ -88,7 +88,7 @@
 
             <!-- Tiêu đề section -->
             <h3 class="font-bold mb-4 paginated-item" :style="{ fontSize: '16px', color: templatePrimaryColor, fontWeight: '700' }">
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
 
             <!-- Kỹ năng / Ngôn ngữ / IT -->
@@ -96,9 +96,9 @@
               <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                   <div class="font-bold text-[#333] leading-snug paginated-item" style="font-size: 12px;">
-                    {{ item.name }}
-                    <span v-if="item.level" class="font-normal opacity-80 ml-1">({{ item.level }})</span>
-                    <span v-if="item.info" class="font-normal opacity-80 block text-[11px] mt-1">{{ item.info }}</span>
+                    <span v-html="item.name"></span>
+                    <span v-if="item.level" class="font-normal opacity-80 ml-1">(<span v-html="item.level"></span>)</span>
+                    <span v-if="item.info" class="font-normal opacity-80 block text-[11px] mt-1"><span v-html="item.info"></span></span>
                   </div>
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
@@ -119,13 +119,13 @@
             <div v-else-if="section.id === 'education'" class="space-y-4">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative" style="font-size: 11.5px; color: #333;">
-                <div class="font-bold mb-1 paginated-item">{{ item.school }}</div>
+                <div class="font-bold mb-1 paginated-item"><span v-html="item.school"></span></div>
                 <div v-if="item.year || item.gradType" class="opacity-65 text-[10.5px] mb-1 paginated-item">
-                  <span v-if="item.year">{{ item.year }}</span>
+                  <span v-if="item.year"><span v-html="item.year"></span></span>
                   <span v-if="item.year && item.gradType"> · </span>
-                  <span v-if="item.gradType">{{ item.gradType }}</span>
+                  <span v-if="item.gradType"><span v-html="item.gradType"></span></span>
                 </div>
-                <div v-if="item.major" class="opacity-80 text-[11px] paginated-item">Chuyên ngành: {{ item.major }}</div>
+                <div v-if="item.major" class="opacity-80 text-[11px] paginated-item">Chuyên ngành: <span v-html="item.major"></span></div>
                 <div v-if="item.desc" class="html-content leading-relaxed mt-1 flex flex-col" v-html="formatDesc(item.desc)"></div>
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
@@ -138,8 +138,8 @@
             <div v-else-if="section.id === 'awards' || section.id === 'certifications'" class="space-y-3">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative" style="font-size: 11.5px; color: #333;">
-                <div class="font-bold paginated-item">{{ item.name }}</div>
-                <div v-if="item.year" class="opacity-65 text-[10.5px] paginated-item">{{ item.year }}</div>
+                <div class="font-bold paginated-item"><span v-html="item.name"></span></div>
+                <div v-if="item.year" class="opacity-65 text-[10.5px] paginated-item"><span v-html="item.year"></span></div>
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -153,15 +153,15 @@
               class="item-container relative" style="font-size: 11.5px; color: #333;">
               <div v-if="item.name || item.company || item.organization"
                 class="font-bold mb-0.5">
-                {{ item.name || item.company || item.organization }}
+                <span v-html="item.name || item.company || item.organization"></span>
               </div>
               <div v-if="item.role || item.position || item.major"
                 class="opacity-75 italic mb-0.5" style="font-size: 11px;">
-                {{ item.role || item.position || item.major }}
+                <span v-html="item.role || item.position || item.major"></span>
               </div>
               <div v-if="item.year || item.time || item.date"
                 class="opacity-65 mb-1" style="font-size: 10.5px;">
-                {{ item.year || item.time || item.date }}
+                <span v-html="item.year || item.time || item.date"></span>
               </div>
               <div v-if="item.desc" class="html-content" v-html="formatDesc(item.desc)"></div>
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
@@ -209,7 +209,7 @@
             <!-- Tiêu đề section -->
             <div class="mb-2 paginated-item">
               <h3 class="font-bold" :style="{ fontSize: '18px', color: templatePrimaryColor, fontWeight: '700' }">
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -218,9 +218,9 @@
               <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                   <div class="font-bold text-[#333] leading-snug paginated-item" style="font-size: 13.5px;">
-                    {{ item.name }}
-                    <span v-if="item.level" class="font-normal opacity-80 ml-1">({{ item.level }})</span>
-                    <span v-if="item.info" class="font-normal opacity-80 block text-[11.5px] mt-1">{{ item.info }}</span>
+                    <span v-html="item.name"></span>
+                    <span v-if="item.level" class="font-normal opacity-80 ml-1">(<span v-html="item.level"></span>)</span>
+                    <span v-if="item.info" class="font-normal opacity-80 block text-[11.5px] mt-1"><span v-html="item.info"></span></span>
                   </div>
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
@@ -243,13 +243,13 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative">
                   <div class="flex justify-between items-baseline gap-4 mb-1 paginated-item">
-                    <h4 class="font-bold text-[#333]" style="font-size: 13.5px;">{{ item.school }}</h4>
-                    <span class="font-normal text-slate-400 shrink-0 text-[11.5px]">{{ item.year }}</span>
+                    <h4 class="font-bold text-[#333]" style="font-size: 13.5px;"><span v-html="item.school"></span></h4>
+                    <span class="font-normal text-slate-400 shrink-0 text-[11.5px]"><span v-html="item.year"></span></span>
                   </div>
                   <div v-if="item.major" class="text-[#333] font-normal mb-1 paginated-item" style="font-size: 12.5px;">
-                    Chuyên ngành: {{ item.major }}
+                    Chuyên ngành: <span v-html="item.major"></span>
                   </div>
-                  <div v-if="item.gradType" class="text-slate-500 italic paginated-item" style="font-size: 11.5px;">{{ item.gradType }}</div>
+                  <div v-if="item.gradType" class="text-slate-500 italic paginated-item" style="font-size: 11.5px;"><span v-html="item.gradType"></span></div>
                   <div v-if="item.desc" class="html-content leading-relaxed mt-1 text-[#333] flex flex-col" style="font-size: 12px;" v-html="formatDesc(item.desc)"></div>
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">
@@ -266,13 +266,13 @@
                   class="item-container relative">
                   <div class="flex justify-between items-baseline gap-4 mb-1 paginated-item">
                     <h4 class="font-bold text-[#333]" style="font-size: 13.5px;">
-                      {{ section.id === 'experience' ? item.role : item.name }}
+                      <span v-html="section.id === 'experience' ? item.role : item.name"></span>
                     </h4>
-                    <span v-if="item.time" class="font-normal text-slate-400 shrink-0 text-[11.5px]">{{ item.time }}</span>
+                    <span v-if="item.time" class="font-normal text-slate-400 shrink-0 text-[11.5px]"><span v-html="item.time"></span></span>
                   </div>
                   <div v-if="item.company || (section.id !== 'experience' && item.role)"
                     class="font-normal text-slate-500 mb-2 paginated-item" style="font-size: 12.5px;">
-                    {{ section.id === 'experience' ? item.company : item.role }}
+                    <span v-html="section.id === 'experience' ? item.company : item.role"></span>
                   </div>
                   <div class="leading-relaxed text-[#333] html-content flex flex-col" style="font-size: 12px;"
                     v-html="formatDesc(item.desc)">
@@ -290,7 +290,7 @@
               <template v-if="section.items && section.items.length > 0">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                   class="item-container relative flex items-start gap-5">
-                  <div class="font-bold text-[#333] shrink-0 paginated-item" style="font-size: 12.5px;">{{ item.year }}</div>
+                  <div class="font-bold text-[#333] shrink-0 paginated-item" style="font-size: 12.5px;"><span v-html="item.year"></span></div>
                   <div class="font-normal text-[#333] html-content flex flex-col w-full" style="font-size: 12.5px;" v-html="formatDesc(item.name || item.info)"></div>
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                     class="delete-btn no-print" style="top: -4px; right: -4px;">

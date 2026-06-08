@@ -105,7 +105,7 @@
               <div class="relative flex items-center mb-2.5">
                 <div class="absolute left-0 right-0 h-[1px] bg-white/15 z-0"></div>
                 <div class="relative z-10 bg-[#5c4542] text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider">
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </div>
               </div>
             </div>
@@ -124,9 +124,9 @@
                   :key="item._refId"
                   class="paginated-item item-container leading-relaxed text-[11.5px] text-white/95 relative"
                 >
-                  <div class="font-bold text-[12px] text-white leading-tight mb-1">{{ item.major || item.degree }}</div>
-                  <div class="text-[#c5b5b2] font-semibold mb-1">{{ item.year }}</div>
-                  <div class="font-bold text-white mb-1.5">{{ item.school }}</div>
+                  <div class="font-bold text-[12px] text-white leading-tight mb-1"><span v-html="item.major || item.degree"></span></div>
+                  <div class="text-[#c5b5b2] font-semibold mb-1"><span v-html="item.year"></span></div>
+                  <div class="font-bold text-white mb-1.5"><span v-html="item.school"></span></div>
                   <div v-if="item.desc" class="text-[11px] text-[#ebe2e0] leading-relaxed html-content" v-html="formatDesc(item.desc)"></div>
                   
                   <transition name="fade-btns">
@@ -142,14 +142,14 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container text-[11.5px] relative text-white/95">
                   <div class="paginated-item flex justify-between items-start mb-1">
                     <h4 class="font-bold text-[12px] text-white leading-tight flex-1">
-                      {{ item.role || item.position }}
+                      <span v-html="item.role || item.position"></span>
                     </h4>
                     <span class="font-bold text-[11px] text-[#c5b5b2] shrink-0 ml-4">
-                      {{ item.time || item.year }}
+                      <span v-html="item.time || item.year"></span>
                     </span>
                   </div>
                   <div class="paginated-item text-[11.5px] text-[#c5b5b2] mb-1.5 font-medium">
-                    {{ item.company || item.organization }}
+                    <span v-html="item.company || item.organization"></span>
                   </div>
                   <div class="text-[11px] text-[#ebe2e0] leading-relaxed html-content" v-html="formatDesc(item.desc)"></div>
                   
@@ -168,7 +168,7 @@
                   :key="item._refId"
                   class="paginated-item item-container flex items-baseline text-[11.5px] text-white/90 relative"
                 >
-                  <span class="font-bold text-white w-[50px] shrink-0">{{ item.year }}</span>
+                  <span class="font-bold text-white w-[50px] shrink-0"><span v-html="item.year"></span></span>
                   <span class="text-[#ebe2e0] flex-1 font-normal html-content leading-relaxed" v-html="formatDesc(item.name || item.info)"></span>
                   
                   <transition name="fade-btns">
@@ -186,7 +186,7 @@
                   :key="item._refId"
                   class="paginated-item text-[11.5px] text-[#ebe2e0] font-medium leading-relaxed item-container pl-1 relative"
                 >
-                  {{ item.name }}
+                  <span v-html="item.name"></span>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: 2px; right: 0;">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -227,7 +227,7 @@
               <div class="relative flex items-center mb-3">
                 <div class="absolute left-0 right-0 h-[1px] bg-[#e2e8f0] z-0"></div>
                 <div class="relative z-10 bg-[#5c4542] text-white text-[12px] font-bold px-4.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </div>
               </div>
             </div>
@@ -243,14 +243,14 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container text-[12.5px] relative">
                   <div class="paginated-item flex justify-between items-start mb-1">
                     <h4 class="font-bold text-[13.5px] text-[#111111] leading-tight flex-1">
-                      {{ item.major || item.degree }}
+                      <span v-html="item.major || item.degree"></span>
                     </h4>
                     <span class="font-bold text-[12.5px] text-[#111111] shrink-0 ml-4">
-                      {{ item.year }}
+                      <span v-html="item.year"></span>
                     </span>
                   </div>
                   <div class="paginated-item text-[12px] text-[#555555] mb-1.5 font-medium">
-                    {{ item.school }}
+                    <span v-html="item.school"></span>
                   </div>
                   <div v-if="item.desc" class="text-[12px] text-[#333333] leading-[1.7] text-justify font-normal html-content" v-html="formatDesc(item.desc)"></div>
                   
@@ -268,15 +268,15 @@
                   <!-- Dòng 1: Tên vị trí (Trái) và Thời gian (Phải) -->
                   <div class="paginated-item flex justify-between items-start mb-1">
                     <h4 class="font-bold text-[13.5px] text-[#111111] leading-tight flex-1">
-                      {{ item.role || item.position }}
+                      <span v-html="item.role || item.position"></span>
                     </h4>
                     <span class="font-bold text-[12.5px] text-[#111111] shrink-0 ml-4">
-                      {{ item.time || item.year }}
+                      <span v-html="item.time || item.year"></span>
                     </span>
                   </div>
                   <!-- Dòng 2: Tên công ty -->
                   <div class="paginated-item text-[12px] text-[#555555] mb-1.5 font-medium">
-                    {{ item.company || item.organization }}
+                    <span v-html="item.company || item.organization"></span>
                   </div>
                   <!-- Dòng 3: Nội dung công việc (Bullet points) -->
                   <div class="text-[12px] text-[#333333] leading-[1.7] text-justify font-normal html-content" v-html="formatDesc(item.desc)"></div>
@@ -296,7 +296,7 @@
                   :key="item._refId"
                   class="paginated-item item-container flex items-baseline text-[12.5px] relative"
                 >
-                  <span class="font-bold text-[#111111] w-[60px] shrink-0">{{ item.year }}</span>
+                  <span class="font-bold text-[#111111] w-[60px] shrink-0"><span v-html="item.year"></span></span>
                   <span class="text-[#333333] flex-1 font-normal html-content leading-relaxed" v-html="formatDesc(item.name || item.info)"></span>
                   
                   <transition name="fade-btns">
@@ -315,7 +315,7 @@
                   class="paginated-item text-[12.5px] text-[#333333] font-medium leading-relaxed item-container pl-1 relative"
                 >
                   <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5c4542] mr-2 shrink-0"></span>
-                  {{ item.name }}
+                  <span v-html="item.name"></span>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
                       <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>

@@ -286,7 +286,7 @@
           </transition>
 
           <div class="section-heading paginated-item">
-            <h3 class="section-title">{{ section.name || section.title || section.id.toUpperCase() }}</h3>
+            <h3 class="section-title"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></h3>
             <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
           </div>
           
@@ -299,9 +299,9 @@
               <template v-if="typeof item === 'object'">
                 <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
                 <div v-else-if="item.name || item.title || item.level || item.year || item.time" class="paginated-item" style="margin-bottom: 4px;">
-                  <strong v-if="item.name || item.title">{{ item.name || item.title }}</strong>
-                  <span v-if="item.level"> — {{ item.level }}</span>
-                  <span v-if="item.year || item.time"> ({{ item.year || item.time }})</span>
+                  <strong v-if="item.name || item.title"><span v-html="item.name || item.title"></span></strong>
+                  <span v-if="item.level"> — <span v-html="item.level"></span></span>
+                  <span v-if="item.year || item.time"> (<span v-html="item.year || item.time"></span>)</span>
                 </div>
                 <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                 <div v-if="item.desc || item.description" class="html-content" v-html="formatDesc(item.desc || item.description)"></div>

@@ -60,7 +60,7 @@
                 </div>
               </transition>
               
-              <div class="pill-header paginated-item">{{ section.name || section.title || 'Mục tiêu nghề nghiệp' }}</div>
+              <div class="pill-header paginated-item"><span v-html="section.name || section.title || 'Mục tiêu nghề nghiệp'"></span></div>
               
               <div class="content-area">
                 <div v-if="!isEmpty(resumeData.general.summary)" class="html-content" v-html="formatDesc(resumeData.general.summary)"></div>
@@ -82,13 +82,13 @@
                 </div>
               </transition>
 
-              <div class="pill-header paginated-item">{{ section.name || section.title || 'Kỹ năng chuyên môn' }}</div>
+              <div class="pill-header paginated-item"><span v-html="section.name || section.title || 'Kỹ năng chuyên môn'"></span></div>
               
               <div class="content-area">
                 <ul class="left-list">
                   <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
                     <template v-if="typeof item === 'object'">
-                      {{ item.name || '' }} {{ item.level ? ' - ' + item.level : '' }}
+                      <span v-html="item.name || ''"></span> <span v-html="item.level ? ' - ' + item.level : ''"></span>
                     </template>
                     <template v-else>{{ item }}</template>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
@@ -109,12 +109,12 @@
                 </div>
               </transition>
 
-              <div class="pill-header paginated-item">{{ section.name || section.title || 'Sở thích' }}</div>
+              <div class="pill-header paginated-item"><span v-html="section.name || section.title || 'Sở thích'"></span></div>
               
               <div class="content-area">
                 <ul class="left-list">
                   <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
-                    {{ typeof item === 'object' ? (item.name || item.title || '') : item }}
+                    <span v-html="typeof item === 'object' ? (item.name || item.title || '') : item"></span>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                   </li>
                 </ul>
@@ -133,7 +133,7 @@
                 </div>
               </transition>
 
-              <div class="pill-header paginated-item">{{ section.name || section.title || section.id.toUpperCase() }}</div>
+              <div class="pill-header paginated-item"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></div>
               
               <div class="content-area">
                 <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-2 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
@@ -141,10 +141,10 @@
                 <ul class="left-list">
                   <li v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container paginated-item">
                     <template v-if="typeof item === 'object'">
-                      <div v-if="item.year || item.time || item.date" class="text-time font-bold">{{ item.year || item.time || item.date }}</div>
-                      <div v-if="item.company || item.school || item.organization || item.name || item.title" class="font-bold">{{ item.company || item.school || item.organization || item.name || item.title }}</div>
-                      <div v-if="item.role || item.position || item.degree || item.major || item.level" class="text-role">{{ item.role || item.position || item.degree || item.major || item.level }}</div>
-                      <div v-if="item.gradType" class="text-role"><strong>Xếp loại:</strong> {{ item.gradType }}</div>
+                      <div v-if="item.year || item.time || item.date" class="text-time font-bold"><span v-html="item.year || item.time || item.date"></span></div>
+                      <div v-if="item.company || item.school || item.organization || item.name || item.title" class="font-bold"><span v-html="item.company || item.school || item.organization || item.name || item.title"></span></div>
+                      <div v-if="item.role || item.position || item.degree || item.major || item.level" class="text-role"><span v-html="item.role || item.position || item.degree || item.major || item.level"></span></div>
+                      <div v-if="item.gradType" class="text-role"><strong>Xếp loại:</strong> <span v-html="item.gradType"></span></div>
                       <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                       <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     </template>
@@ -179,14 +179,14 @@
               </transition>
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
-                <h3 class="right-title paginated-item">{{ section.name || section.title || 'Quá trình Học vấn' }}</h3>
+                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || 'Quá trình Học vấn'"></span></h3>
                 <div class="green-card">
                   <div v-for="(item, i) in (section.items?.length ? section.items : [{school: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
-                    <div v-if="item.year || item.time" class="text-time">{{ item.year || item.time }}</div>
-                    <div v-if="item.school || item.name" class="text-entity font-bold">{{ item.school || item.name }}</div>
-                    <div v-if="item.major || item.degree" class="text-role">{{ item.major || item.degree }}</div>
+                    <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
+                    <div v-if="item.school || item.name" class="text-entity font-bold"><span v-html="item.school || item.name"></span></div>
+                    <div v-if="item.major || item.degree" class="text-role"><span v-html="item.major || item.degree"></span></div>
                     <div v-if="item.gradType || item.info" class="text-role" style="margin-top: 2px;">
-                      <strong>Xếp loại:</strong> {{ item.gradType || item.info }}
+                      <strong>Xếp loại:</strong> <span v-html="item.gradType || item.info"></span>
                     </div>
                     <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
@@ -209,12 +209,12 @@
               </transition>
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
-                <h3 class="right-title paginated-item">{{ section.name || section.title || 'Kinh nghiệm làm việc' }}</h3>
+                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || 'Kinh nghiệm làm việc'"></span></h3>
                 <div class="green-card">
                   <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
-                    <div v-if="item.year || item.time" class="text-time">{{ item.year || item.time }}</div>
-                    <div v-if="item.company || item.name" class="text-entity font-normal">{{ item.company || item.name }}</div>
-                    <div v-if="item.role || item.position" class="text-role font-bold">{{ item.role || item.position }}</div>
+                    <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
+                    <div v-if="item.company || item.name" class="text-entity font-normal"><span v-html="item.company || item.name"></span></div>
+                    <div v-if="item.role || item.position" class="text-role font-bold"><span v-html="item.role || item.position"></span></div>
                     <div v-if="item.role || item.position || item.desc || item.description" class="divider-line"></div>
                     <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
@@ -237,12 +237,12 @@
               </transition>
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
-                <h3 class="right-title paginated-item">{{ section.name || section.title || 'Hoạt động' }}</h3>
+                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || 'Hoạt động'"></span></h3>
                 <div class="green-card">
                   <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-5 last:mb-0 paginated-item">
-                    <div v-if="item.year || item.time || item.date" class="text-time">{{ item.year || item.time || item.date }}</div>
-                    <div v-if="item.company || item.organization || item.name" class="text-entity">{{ item.company || item.organization || item.name }}</div>
-                    <div v-if="item.role" class="text-role font-normal mt-1">{{ item.role }}</div>
+                    <div v-if="item.year || item.time || item.date" class="text-time"><span v-html="item.year || item.time || item.date"></span></div>
+                    <div v-if="item.company || item.organization || item.name" class="text-entity"><span v-html="item.company || item.organization || item.name"></span></div>
+                    <div v-if="item.role" class="text-role font-normal mt-1"><span v-html="item.role"></span></div>
                     <div v-if="item.role || item.desc || item.description" class="divider-line"></div>
                     <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
@@ -265,15 +265,15 @@
               </transition>
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
-                <h3 class="right-title paginated-item">{{ section.name || section.title || section.id.toUpperCase() }}</h3>
+                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></h3>
                 <div class="green-card">
                   <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
                   <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
                     <div v-if="typeof item === 'object'">
-                      <div v-if="item.year || item.time" class="text-time">{{ item.year || item.time }}</div>
+                      <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
                       <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                      <div v-else-if="item.name || item.title" class="text-entity">{{ item.name || item.title }}</div>
-                      <div v-if="item.role || item.position || item.level" class="text-role font-normal mt-1">{{ item.role || item.position || item.level }}</div>
+                      <div v-else-if="item.name || item.title" class="text-entity"><span v-html="item.name || item.title"></span></div>
+                      <div v-if="item.role || item.position || item.level" class="text-role font-normal mt-1"><span v-html="item.role || item.position || item.level"></span></div>
                       <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                       <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                     </div>

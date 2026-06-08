@@ -103,7 +103,7 @@
 
             <!-- Section Title -->
             <div class="paginated-item">
-              <h3 class="section-title">{{ section.title }}</h3>
+              <h3 class="section-title"><span v-html="section.title"></span></h3>
             </div>
 
             <!-- Summary -->
@@ -123,10 +123,10 @@
                 </button>
                 <div class="paginated-item pr-2">
                   <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold text-[#1a73e8]" style="font-size: 13.5px !important;">{{ item.school || 'Tên trường' }}</span>
-                    <span class="font-bold px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1a73e8] text-[10px] shrink-0 ml-4 border border-[#e2e8f0]">{{ item.year || '2017-2021' }}</span>
+                    <span class="font-bold text-[#1a73e8]" style="font-size: 13.5px !important;"><span v-html="item.school || 'Tên trường'"></span></span>
+                    <span class="font-bold px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1a73e8] text-[10px] shrink-0 ml-4 border border-[#e2e8f0]"><span v-html="item.year || '2017-2021'"></span></span>
                   </div>
-                  <div class="font-bold text-slate-700" style="font-size: 12px !important;">{{ item.major || 'Chuyên ngành' }}</div>
+                  <div class="font-bold text-slate-700" style="font-size: 12px !important;"><span v-html="item.major || 'Chuyên ngành'"></span></div>
                   <div v-if="item.desc" class="html-content mt-1.5 text-slate-600 leading-relaxed" style="font-size: 11px !important;" v-html="formatDesc(item.desc)"></div>
                 </div>
               </div>
@@ -142,10 +142,10 @@
                 </button>
                 <div class="paginated-item pr-2">
                   <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold text-[#1a73e8] uppercase" style="font-size: 13.5px !important;">{{ item.company || 'Tên công ty' }}</span>
-                    <span class="font-bold px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1a73e8] text-[10px] shrink-0 ml-4 border border-[#e2e8f0]">{{ item.time || '2024-Nay' }}</span>
+                    <span class="font-bold text-[#1a73e8] uppercase" style="font-size: 13.5px !important;"><span v-html="item.company || 'Tên công ty'"></span></span>
+                    <span class="font-bold px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1a73e8] text-[10px] shrink-0 ml-4 border border-[#e2e8f0]"><span v-html="item.time || '2024-Nay'"></span></span>
                   </div>
-                  <div class="font-bold text-slate-700 mb-2" style="font-size: 12px !important;">{{ item.role || 'Vị trí' }}</div>
+                  <div class="font-bold text-slate-700 mb-2" style="font-size: 12px !important;"><span v-html="item.role || 'Vị trí'"></span></div>
                   <div class="html-content leading-relaxed text-slate-600" style="font-size: 11.5px !important;" v-html="formatDesc(item.desc || '')"></div>
                 </div>
               </div>
@@ -193,7 +193,7 @@
 
             <!-- Section Title -->
             <div class="paginated-item">
-              <h3 class="section-title">{{ section.title }}</h3>
+              <h3 class="section-title"><span v-html="section.title"></span></h3>
             </div>
 
             <!-- Awards / Certifications -->
@@ -204,10 +204,10 @@
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div v-if="item.year" class="font-bold mb-0.5" style="font-size: 11.5px !important; color: #333;">{{ item.year }}:</div>
+                <div v-if="item.year" class="font-bold mb-0.5" style="font-size: 11.5px !important; color: #333;"><span v-html="item.year"></span>:</div>
                 <div class="font-medium text-slate-700 leading-relaxed" style="font-size: 11px !important;">
-                  {{ item.name || item.info }}
-                  <span v-if="item.organization" class="text-slate-500 italic"> - {{ item.organization }}</span>
+                  <span v-html="item.name || item.info"></span>
+                  <span v-if="item.organization" class="text-slate-500 italic"> - <span v-html="item.organization"></span></span>
                 </div>
               </div>
             </div>

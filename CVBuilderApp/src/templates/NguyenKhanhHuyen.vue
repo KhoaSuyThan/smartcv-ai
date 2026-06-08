@@ -96,7 +96,7 @@
                   class="section-title text-white py-[5px] pl-[16px] pr-4 rounded-r-full font-bold uppercase tracking-wide mb-3 shrink-0 shadow-sm -ml-[6mm] w-[110%]"
                   :style="{ backgroundColor: templatePrimaryColor, fontSize: '15px' }"
                 >
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </h3>
               </div>
 
@@ -105,7 +105,7 @@
                 <!-- Awards (Danh hiệu và giải thưởng) -->
                 <div v-if="section.id.toLowerCase().includes('award') || section.id.toLowerCase().includes('cert')" class="space-y-4">
                   <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed relative text-slate-700 text-[12.5px]">
-                    <p v-if="item.year" class="font-bold text-slate-900 mb-0.5">{{ item.year }}:</p>
+                    <p v-if="item.year" class="font-bold text-slate-900 mb-0.5"><span v-html="item.year"></span>:</p>
                     <div class="font-normal html-content" v-html="formatDesc(item.name || item.info || item.desc)"></div>
                     <transition name="fade-btns">
                       <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
@@ -130,7 +130,7 @@
                 <!-- Fallback rendering for any other sidebar section -->
                 <div v-else class="space-y-3">
                   <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative text-slate-700 text-[12.5px] leading-relaxed">
-                    <div class="font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school">{{ item.name || item.title || item.company || item.school }}</div>
+                    <div class="font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
                     <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
                     <transition name="fade-btns">
                       <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
@@ -182,7 +182,7 @@
                 class="section-title text-white py-[5px] px-[16px] rounded-[10px] font-bold uppercase tracking-wide mb-3 shadow-sm w-fit"
                 :style="{ backgroundColor: templatePrimaryColor, fontSize: '15px' }"
               >
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -199,11 +199,11 @@
                   <div class="paginated-item">
                     <div class="flex flex-col mb-1.5">
                       <h4 class="text-slate-800 font-bold text-[13.5px] leading-snug">
-                        {{ item.school }}<span v-if="item.major">, {{ item.major }}</span>
+                        <span v-html="item.school"></span><span v-if="item.major">, <span v-html="item.major"></span></span>
                       </h4>
-                      <span v-if="item.year" class="font-bold text-slate-400 text-[11.5px] uppercase tracking-wider mt-0.5">{{ item.year }}</span>
+                      <span v-if="item.year" class="font-bold text-slate-400 text-[11.5px] uppercase tracking-wider mt-0.5"><span v-html="item.year"></span></span>
                     </div>
-                    <div v-if="item.gradType" class="text-slate-600 font-semibold text-[12px] mb-1">Tốt nghiệp loại: {{ item.gradType }}</div>
+                    <div v-if="item.gradType" class="text-slate-600 font-semibold text-[12px] mb-1">Tốt nghiệp loại: <span v-html="item.gradType"></span></div>
                   </div>
                   
                   <div class="leading-relaxed text-slate-600 text-justify html-content text-[12.5px]" v-html="formatDesc(item.desc)"></div>
@@ -222,9 +222,9 @@
                   <div class="paginated-item">
                     <div class="flex flex-col mb-1.5">
                       <h4 class="text-slate-800 font-bold text-[13.5px] leading-snug">
-                        {{ section.id.toLowerCase().includes('experience') ? item.company : (item.name || '') }}<span v-if="item.role">, {{ item.role }}</span>
+                        <span v-html="section.id.toLowerCase().includes('experience') ? item.company : (item.name || '')"></span><span v-if="item.role">, <span v-html="item.role"></span></span>
                       </h4>
-                      <span v-if="item.time" class="font-bold text-slate-400 text-[11.5px] uppercase tracking-wider mt-0.5">{{ item.time }}</span>
+                      <span v-if="item.time" class="font-bold text-slate-400 text-[11.5px] uppercase tracking-wider mt-0.5"><span v-html="item.time"></span></span>
                     </div>
                   </div>
                   
@@ -241,8 +241,8 @@
               <!-- Fallback rendering for any other right column section -->
               <div v-else class="space-y-4">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative leading-relaxed text-slate-700 text-[12.5px]">
-                  <div class="paginated-item font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school">{{ item.name || item.title || item.company || item.school }}</div>
-                  <div class="paginated-item font-semibold text-slate-400 text-[11px] mb-1" v-if="item.time || item.year">{{ item.time || item.year }}</div>
+                  <div class="paginated-item font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
+                  <div class="paginated-item font-semibold text-slate-400 text-[11px] mb-1" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
                   <div class="html-content text-justify" v-html="formatDesc(item.desc || item.info || item.role)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">

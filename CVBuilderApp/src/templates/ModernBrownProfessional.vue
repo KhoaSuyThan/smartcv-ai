@@ -67,7 +67,7 @@
             </div>
 
             <h3 class="w-full block paginated-item" :style="{ fontSize: '16px !important', color: '#333', borderBottom: '1px solid #c9beae', paddingBottom: '5px !important', margin: '0 0 10px 0 !important', fontWeight: 'bold !important' }">
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
 
             <div class="w-full flex flex-col gap-[10px]">
@@ -80,30 +80,30 @@
                 <div v-if="section.id === 'skills'" class="flex items-start gap-[8px] paginated-item w-full">
                   <svg class="mt-[4px] shrink-0 text-[#634c46] opacity-70" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
                   <div class="w-full flex justify-between items-start gap-2">
-                  <span class="font-medium text-[#333] break-words">{{ item.name }}</span>
-                  <span v-if="item.level || item.info" class="font-bold shrink-0 whitespace-nowrap text-right opacity-90 text-[11px]">{{ item.level || item.info }}</span>
+                  <span class="font-medium text-[#333] break-words"><span v-html="item.name"></span></span>
+                  <span v-if="item.level || item.info" class="font-bold shrink-0 whitespace-nowrap text-right opacity-90 text-[11px]"><span v-html="item.level || item.info"></span></span>
                 </div>
               </div>
                 
                 <div v-else-if="section.id === 'education' || section.id === 'experience'" class="w-full">
                   <div class="w-full flex justify-between items-start mb-[2px] paginated-item">
                     <span class="font-bold text-[#333] leading-tight flex-1" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
-                    <span v-if="item.year || item.time" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold">{{ item.year || item.time }}</span>
+                    <span v-if="item.year || item.time" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold"><span v-html="item.year || item.time"></span></span>
                   </div>
-                  <div v-if="item.major || item.role" class="font-bold text-[#444] mb-[2px] paginated-item">{{ item.major || item.role }}</div>
+                  <div v-if="item.major || item.role" class="font-bold text-[#444] mb-[2px] paginated-item"><span v-html="item.major || item.role"></span></div>
                   <div v-if="item.desc" class="html-content text-justify whitespace-pre-line text-[#555] text-[11px] flex flex-col" v-html="formatDesc(item.desc)"></div>
                 </div>
                 
                 <div v-else-if="section.id === 'languages' || section.id === 'it_skills'" class="flex flex-col paginated-item">
-                  <div class="font-bold text-[#333] w-full break-words" :style="{ margin: '0 !important' }">{{ item.name }}</div>
-                  <div v-if="item.info || item.level" class="w-full break-words mt-[2px]" :style="{ margin: '0 !important' }">{{ item.info || item.level }}</div>
+                  <div class="font-bold text-[#333] w-full break-words" :style="{ margin: '0 !important' }"><span v-html="item.name"></span></div>
+                  <div v-if="item.info || item.level" class="w-full break-words mt-[2px]" :style="{ margin: '0 !important' }"><span v-html="item.info || item.level"></span></div>
                 </div>
                 
                 <div v-else class="w-full flex flex-col">
   <div class="paginated-item w-full flex justify-between items-start gap-2 relative">
     <span class="font-bold flex-1 break-words leading-tight text-[#333] flex flex-col" v-html="formatDesc(item.name || item.title || item.company || item.organization)"></span>
     <!-- Hiển thị Năm với thiết kế bo tròn đồng bộ -->
-    <span v-if="item.year || item.time || item.date" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold">{{ item.year || item.time || item.date }}</span>
+    <span v-if="item.year || item.time || item.date" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold"><span v-html="item.year || item.time || item.date"></span></span>
   </div>
   <div v-if="item.major || item.role || item.info" class="italic opacity-90 mt-[2px] text-[12px] paginated-item flex flex-col text-[#444]" v-html="formatDesc(item.major || item.role || item.info)"></div>
   <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full mt-[2px] flex flex-col text-[#555]" :style="{ lineHeight: '1.5' }" v-html="formatDesc(item.desc || item.details)"></div>
@@ -170,7 +170,7 @@
             </div>
 
             <h3 class="uppercase w-full block paginated-item" :style="{ fontSize: '18px !important', color: '#333', borderBottom: `2px solid ${templatePrimaryColor}`, paddingBottom: '5px !important', margin: '0 0 15px 0 !important', fontWeight: 'bold !important' }">
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
 
             <div class="w-full flex flex-col gap-[15px]">
@@ -184,19 +184,19 @@
                   <div class="w-full flex justify-between items-start mb-[5px] paginated-item">
                     <div class="flex-1 pr-3">
                       <span class="font-bold text-[#333] leading-tight block" :style="{ fontSize: '14px', margin: '0 !important' }" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
-                      <span class="italic text-[#555] block mt-[2px] leading-tight" :style="{ fontSize: '13px', margin: '0 !important' }" v-if="item.major || item.role">{{ item.major || item.role }}</span>
+                      <span class="italic text-[#555] block mt-[2px] leading-tight" :style="{ fontSize: '13px', margin: '0 !important' }" v-if="item.major || item.role"><span v-html="item.major || item.role"></span></span>
                     </div>
-                    <span v-if="item.year || item.time" class="shrink-0 text-center whitespace-nowrap" :style="{ backgroundColor: '#9b8a7e', color: 'white', padding: '3px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }">{{ item.year || item.time }}</span>
+                    <span v-if="item.year || item.time" class="shrink-0 text-center whitespace-nowrap" :style="{ backgroundColor: '#9b8a7e', color: 'white', padding: '3px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }"><span v-html="item.year || item.time"></span></span>
                   </div>
                   <div v-if="item.desc" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '5px 0 0 0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc)"></div>
-                  <div v-else-if="item.gradType" class="font-medium mt-[5px] text-[#444] paginated-item" :style="{ fontSize: '12.5px !important', margin: '0 !important' }">Trạng thái: {{ item.gradType }}</div>
+                  <div v-else-if="item.gradType" class="font-medium mt-[5px] text-[#444] paginated-item" :style="{ fontSize: '12.5px !important', margin: '0 !important' }">Trạng thái: <span v-html="item.gradType"></span></div>
                 </div>
                 
                 <div v-else class="w-full" :style="{ padding: '0 !important' }">
               <div class="paginated-item w-full flex justify-between items-start gap-2">
                 <span class="font-bold text-[#333] leading-tight flex-1" v-html="formatDesc(item.name || item.title || item.company || item.organization)"></span>
                 <!-- ĐÃ BỔ SUNG item.level VÀO ĐÂY ĐỂ HIỂN THỊ MỨC ĐỘ GÓC PHẢI -->
-                <span v-if="item.year || item.time || item.date || item.level" class="font-bold shrink-0 text-[12px]" :style="{ color: templatePrimaryColor }">{{ item.year || item.time || item.date || item.level }}</span>
+                <span v-if="item.year || item.time || item.date || item.level" class="font-bold shrink-0 text-[12px]" :style="{ color: templatePrimaryColor }"><span v-html="item.year || item.time || item.date || item.level"></span></span>
               </div>
                <div v-if="item.info || item.role || item.major" class="paginated-item text-[14px] font-medium text-[#555] mt-[2px] flex flex-col" v-html="formatDesc(item.info || item.role || item.major)"></div>
                <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col mt-[2px]" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc || item.details)"></div>

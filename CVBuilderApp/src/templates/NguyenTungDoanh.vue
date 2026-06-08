@@ -73,18 +73,18 @@
                   </div>
                 </transition>
 
-                <div class="card-badge paginated-item">{{ section.name || section.title || section.id }}</div>
+                <div class="card-badge paginated-item"><span v-html="section.name || section.title || section.id"></span></div>
                 
                 <div class="card-body">
                   <ul class="bullet-list" v-if="section.items?.length">
                     <li v-for="(item, i) in section.items" :key="i" class="item-container paginated-item">
                       <div class="flex flex-col">
-                        <span class="font-bold text-[#FF9500]" v-if="item.time || item.year">{{ item.time || item.year }}</span>
-                        <span class="font-semibold text-[#2B4C7E]" v-else-if="item.name && item.level">{{ item.name }}</span>
-                        <span class="text-[#4A5568]" v-else>{{ item.name || item.title || item }}</span>
+                        <span class="font-bold text-[#FF9500]" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></span>
+                        <span class="font-semibold text-[#2B4C7E]" v-else-if="item.name && item.level"><span v-html="item.name"></span></span>
+                        <span class="text-[#4A5568]" v-else><span v-html="item.name || item.title || item"></span></span>
                         
-                        <span class="text-[#4A5568] text-xs mt-0.5" v-if="item.name && item.level">• {{ item.level }}</span>
-                        <span class="text-[#4A5568] text-xs mt-0.5" v-if="(item.time || item.year) && item.name">{{ item.name }}</span>
+                        <span class="text-[#4A5568] text-xs mt-0.5" v-if="item.name && item.level">• <span v-html="item.level"></span></span>
+                        <span class="text-[#4A5568] text-xs mt-0.5" v-if="(item.time || item.year) && item.name"><span v-html="item.name"></span></span>
                       </div>
                       <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                     </li>
@@ -113,7 +113,7 @@
                   </div>
                 </transition>
 
-                <div class="card-badge paginated-item">{{ section.name || section.title || 'Giới thiệu' }}</div>
+                <div class="card-badge paginated-item"><span v-html="section.name || section.title || 'Giới thiệu'"></span></div>
                 
                 <div class="card-body">
                   <div v-if="section.desc || section.description || section.content || section.value || !isEmpty(resumeData.general.summary)" 
@@ -137,7 +137,7 @@
                   </div>
                 </transition>
 
-                <div class="card-badge paginated-item">{{ section.name || section.title || section.id.toUpperCase() }}</div>
+                <div class="card-badge paginated-item"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></div>
                 
                 <div class="card-body">
                   <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
@@ -152,17 +152,17 @@
                       </div>
 
                       <div class="paginated-item entry-header">
-                        <span class="entry-entity">{{ item.company || item.school || item.organization || item.name }}</span>
+                        <span class="entry-entity"><span v-html="item.company || item.school || item.organization || item.name"></span></span>
                         <span class="entry-divider" v-if="(item.company || item.school || item.organization || item.name) && (item.time || item.year || item.date)">|</span>
-                        <span class="entry-time">{{ item.time || item.year || item.date }}</span>
+                        <span class="entry-time"><span v-html="item.time || item.year || item.date"></span></span>
                       </div>
                       
                       <div class="paginated-item entry-role" v-if="item.role || item.position || item.major">
-                        {{ item.role || item.position || item.major }}
+                        <span v-html="item.role || item.position || item.major"></span>
                       </div>
 
                       <div class="paginated-item entry-role text-[13px]" v-if="item.gradType || item.info">
-                        <strong class="text-[#2B4C7E]">Xếp loại:</strong> {{ item.gradType || item.info }}
+                        <strong class="text-[#2B4C7E]">Xếp loại:</strong> <span v-html="item.gradType || item.info"></span>
                       </div>
 
                       <div class="html-content mt-2" v-if="item.desc || item.description" v-html="formatDesc(item.desc || item.description)"></div>
@@ -189,7 +189,7 @@
                   </div>
                 </transition>
 
-                <div class="card-badge paginated-item">{{ section.name || section.title || section.id.toUpperCase() }}</div>
+                <div class="card-badge paginated-item"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></div>
                 
                 <div class="card-body">
                   <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
@@ -197,12 +197,12 @@
                   <div v-if="section.items?.length">
                     <div v-for="(item, i) in section.items" :key="i" class="item-container relative mb-4 last:mb-0">
                       <template v-if="typeof item === 'object'">
-                        <div v-if="item.year || item.time" class="paginated-item entry-time mb-1 inline-block">{{ item.year || item.time }}</div>
+                        <div v-if="item.year || item.time" class="paginated-item entry-time mb-1 inline-block"><span v-html="item.year || item.time"></span></div>
                         
                         <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                        <div v-else-if="item.name || item.title" class="paginated-item entry-entity">{{ item.name || item.title }}</div>
+                        <div v-else-if="item.name || item.title" class="paginated-item entry-entity"><span v-html="item.name || item.title"></span></div>
                         
-                        <div v-if="item.role || item.position || item.level" class="paginated-item entry-role mt-1">{{ item.role || item.position || item.level }}</div>
+                        <div v-if="item.role || item.position || item.level" class="paginated-item entry-role mt-1"><span v-html="item.role || item.position || item.level"></span></div>
                         <div v-if="item.info || item.contact" class="html-content mt-1" v-html="formatDesc(item.info || item.contact)"></div>
                         <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
                       </template>

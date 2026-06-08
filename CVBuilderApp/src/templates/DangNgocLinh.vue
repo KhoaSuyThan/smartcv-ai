@@ -79,7 +79,7 @@
                   class="font-extrabold uppercase tracking-[0.08em] text-black" 
                   style="font-size: 15px !important;"
                 >
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </h3>
                 <div class="h-[1.5px] bg-black w-full mt-1"></div>
               </div>
@@ -96,17 +96,17 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[12px] relative">
                   <div class="flex justify-between items-baseline mb-0.5">
                     <h4 class="font-bold text-[13.5px] text-[#111111] leading-tight flex-1">
-                      {{ item.school }}
+                      <span v-html="item.school"></span>
                     </h4>
                     <span class="font-bold text-[12px] text-[#111111] shrink-0 ml-4">
-                      {{ item.year }}
+                      <span v-html="item.year"></span>
                     </span>
                   </div>
                   <div class="text-[12.5px] text-[#333333] font-bold">
-                    {{ item.major }}
+                    <span v-html="item.major"></span>
                   </div>
                   <div v-if="item.gradType" class="text-[11.5px] text-[#555555] mt-0.5">
-                    {{ item.gradType }}
+                    <span v-html="item.gradType"></span>
                   </div>
                   <div v-if="item.desc" class="text-[11.5px] text-[#555555] leading-[1.6] mt-1 html-content" v-html="formatDesc(item.desc)"></div>
                   
@@ -123,14 +123,14 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[12px] relative mb-2.5 last:mb-0">
                   <div class="flex justify-between items-baseline mb-0.5">
                     <h4 class="font-bold text-[13.5px] text-[#111111] leading-tight flex-1">
-                      {{ item.company }}
+                      <span v-html="item.company"></span>
                     </h4>
                     <span class="font-bold text-[12px] text-[#111111] shrink-0 ml-4">
-                      {{ item.time || item.year }}
+                      <span v-html="item.time || item.year"></span>
                     </span>
                   </div>
                   <div class="text-[12px] text-gray-700 font-bold mb-1 uppercase tracking-wide">
-                    {{ item.role || item.position }}
+                    <span v-html="item.role || item.position"></span>
                   </div>
                   <div class="text-[11.5px] text-[#333333] leading-[1.65] text-justify font-normal html-content" v-html="formatDesc(item.desc)"></div>
                   
@@ -146,7 +146,7 @@
               <div v-else-if="section.id === 'skills'" class="flex flex-col border-t border-gray-300">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item flex border-b border-gray-300 py-2.5 items-start relative group/skill">
                   <div class="w-[30%] shrink-0 font-bold text-[13px] text-black pr-4">
-                    {{ item.name }}
+                    <span v-html="item.name"></span>
                   </div>
                   <div class="w-[70%] text-[12px] text-[#333333] leading-relaxed pr-8 html-content" v-html="formatDesc(item.level || item.info)"></div>
                   
@@ -163,14 +163,14 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[12px] relative mb-2.5 last:mb-0">
                   <div class="flex justify-between items-baseline mb-0.5">
                     <h4 class="font-bold text-[13.5px] text-[#111111] leading-tight flex-1">
-                      {{ item.name }}
+                      <span v-html="item.name"></span>
                     </h4>
                     <span class="font-bold text-[12px] text-[#111111] shrink-0 ml-4">
-                      {{ item.time || item.year }}
+                      <span v-html="item.time || item.year"></span>
                     </span>
                   </div>
                   <div v-if="item.role" class="text-[12px] text-[#555555] font-semibold mb-1 italic text-gray-600">
-                    {{ item.role }}
+                    <span v-html="item.role"></span>
                   </div>
                   <div v-if="item.desc" class="text-[11.5px] text-[#333333] leading-[1.65] text-justify font-normal html-content" v-html="formatDesc(item.desc)"></div>
                   
@@ -186,8 +186,8 @@
               <div v-else class="space-y-2.5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item text-[12px] text-[#333333] leading-relaxed item-container relative">
                   <div class="flex justify-between items-baseline mb-0.5">
-                    <div class="font-bold text-[12.5px] text-black" v-if="item.name || item.title">{{ item.name || item.title }}</div>
-                    <span v-if="item.year || item.time" class="text-[12px] text-gray-500 font-bold ml-2 shrink-0">{{ item.year || item.time }}</span>
+                    <div class="font-bold text-[12.5px] text-black" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
+                    <span v-if="item.year || item.time" class="text-[12px] text-gray-500 font-bold ml-2 shrink-0"><span v-html="item.year || item.time"></span></span>
                   </div>
                   <div v-if="item.desc" class="text-[11.5px] text-slate-700 html-content leading-relaxed" v-html="formatDesc(item.desc)"></div>
                   <div v-else-if="item.info" class="text-[11.5px] text-slate-700 html-content leading-relaxed" v-html="formatDesc(item.info)"></div>

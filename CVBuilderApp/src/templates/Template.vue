@@ -88,7 +88,7 @@
                     </div>
 
                     <h3 class="font-black uppercase mb-4 tracking-tight paginated-item" :style="{ fontSize: '20px !important', fontWeight: 'bold !important', color: resumeData.theme.primaryColor || '#2d7fb2' }">
-                        {{ section.title }}
+                        <span v-html="section.title"></span>
                     </h3>
                     
                     <div class="space-y-3">
@@ -96,8 +96,8 @@
                         <div v-if="['skill', 'lang', 'it_skill'].some(k => section.id.toLowerCase().includes(k))" class="space-y-2">
                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium item-container pr-5 min-h-[22px] flex flex-col justify-center">
                                <div class="paginated-item w-full leading-snug">
-                                   <span class="text-[#333] font-bold">- {{ item.name }}</span> 
-                                   <span v-if="item.level || item.info" class="text-slate-500 font-normal ml-1">({{ item.level || item.info }})</span>
+                                   <span class="text-[#333] font-bold">- <span v-html="item.name"></span></span> 
+                                   <span v-if="item.level || item.info" class="text-slate-500 font-normal ml-1">(<span v-html="item.level || item.info"></span>)</span>
                                </div>
                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -108,8 +108,8 @@
                         <!-- Giải thưởng / Chứng chỉ -->
                         <div v-else-if="['award', 'cert'].some(k => section.id.toLowerCase().includes(k))" class="space-y-3">
                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] item-container">
-                               <div class="paginated-item font-bold text-slate-800">- {{ item.name || item.info }}</div>
-                               <div class="paginated-item" v-if="item.year"><p class="text-[12px] text-slate-500 italic ml-3">{{ item.year }}</p></div>
+                               <div class="paginated-item font-bold text-slate-800">- <span v-html="item.name || item.info"></span></div>
+                               <div class="paginated-item" v-if="item.year"><p class="text-[12px] text-slate-500 italic ml-3"><span v-html="item.year"></span></p></div>
                                <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
                                    <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                </button>
@@ -120,10 +120,10 @@
                         <div v-else-if="section.id.toLowerCase().includes('education')" class="space-y-4">
                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container">
                                 <div class="paginated-item">
-                                    <p class="font-bold text-slate-800">{{ item.school }}</p>
-                                    <p class="text-[12px] text-slate-500 font-bold uppercase">{{ item.year }}</p>
-                                    <p class="text-[13px] text-slate-700 italic">{{ item.major }}</p>
-                                    <p v-if="item.gradType" class="text-[12px] text-slate-600 mt-0.5">Xếp loại: <span class="font-bold">{{ item.gradType }}</span></p>
+                                    <p class="font-bold text-slate-800"><span v-html="item.school"></span></p>
+                                    <p class="text-[12px] text-slate-500 font-bold uppercase"><span v-html="item.year"></span></p>
+                                    <p class="text-[13px] text-slate-700 italic"><span v-html="item.major"></span></p>
+                                    <p v-if="item.gradType" class="text-[12px] text-slate-600 mt-0.5">Xếp loại: <span class="font-bold"><span v-html="item.gradType"></span></span></p>
                                 </div>
                                 <div v-if="item.desc" class="text-[12.5px] leading-relaxed html-content mt-1 text-slate-700" v-html="formatDesc(item.desc)"></div>
                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
@@ -136,9 +136,9 @@
                         <div v-else-if="section.id.toLowerCase().includes('experience') || section.id.toLowerCase().includes('project') || section.id.toLowerCase().includes('activit')" class="space-y-4">
                             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container">
                                 <div class="paginated-item">
-                                    <p class="font-bold text-slate-800">{{ section.id.toLowerCase().includes('experience') ? (item.role || item.position) : (item.name || item.title) }}</p>
-                                    <p class="text-[12px] text-slate-500 font-bold italic">{{ section.id.toLowerCase().includes('experience') ? (item.company || item.organization) : (item.role || item.company) }}</p>
-                                    <p class="text-[11px] text-slate-400 font-extrabold uppercase">{{ item.time }}</p>
+                                    <p class="font-bold text-slate-800"><span v-html="section.id.toLowerCase().includes('experience') ? (item.role || item.position) : (item.name || item.title)"></span></p>
+                                    <p class="text-[12px] text-slate-500 font-bold italic"><span v-html="section.id.toLowerCase().includes('experience') ? (item.company || item.organization) : (item.role || item.company)"></span></p>
+                                    <p class="text-[11px] text-slate-400 font-extrabold uppercase"><span v-html="item.time"></span></p>
                                 </div>
                                 <div v-if="item.desc" class="text-[12.5px] leading-relaxed html-content mt-1 text-slate-700" v-html="formatDesc(item.desc)"></div>
                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
@@ -150,7 +150,7 @@
                         <!-- Các mục mặc định còn lại -->
                         <div v-else class="space-y-3">
                            <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[13.5px] text-slate-800 font-medium leading-relaxed item-container">
-                                <div class="paginated-item font-bold" v-if="item.name || item.title">- {{ item.name || item.title }}</div>
+                                <div class="paginated-item font-bold" v-if="item.name || item.title">- <span v-html="item.name || item.title"></span></div>
                                 <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
                                 <button @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30">
                                     <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -195,7 +195,7 @@
                     </div>
 
                     <h3 class="font-black uppercase mb-4 tracking-tight paginated-item" :style="{ fontSize: '20px !important', fontWeight: 'bold !important', color: resumeData.theme.primaryColor || '#2d7fb2' }">
-                        {{ section.title }}
+                        <span v-html="section.title"></span>
                     </h3>
 
                     <div class="space-y-8">
@@ -210,10 +210,10 @@
                                     <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                                 <div class="paginated-item">
-                                    <h4 class="font-bold text-[15.5px] text-slate-900 leading-tight mb-0.5">{{ section.id.toLowerCase().includes('experience') ? (item.role || item.position) : (item.name || item.title) }}</h4>
+                                    <h4 class="font-bold text-[15.5px] text-slate-900 leading-tight mb-0.5"><span v-html="section.id.toLowerCase().includes('experience') ? (item.role || item.position) : (item.name || item.title)"></span></h4>
                                     <div class="flex justify-between items-baseline mb-1.5">
-                                        <span class="text-[13.5px] font-bold text-slate-600 italic">{{ section.id.toLowerCase().includes('experience') ? (item.company || item.organization) : (item.role || item.company) }}</span>
-                                        <span class="text-[12.5px] font-extrabold text-slate-500 uppercase">{{ item.time }}</span>
+                                        <span class="text-[13.5px] font-bold text-slate-600 italic"><span v-html="section.id.toLowerCase().includes('experience') ? (item.company || item.organization) : (item.role || item.company)"></span></span>
+                                        <span class="text-[12.5px] font-extrabold text-slate-500 uppercase"><span v-html="item.time"></span></span>
                                     </div>
                                 </div>
                                 <div class="text-[13.5px] leading-[1.75] text-slate-700 text-justify font-medium html-content" v-html="formatDesc(item.desc)"></div>
@@ -227,12 +227,12 @@
                                     <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </button>
                                 <div class="paginated-item">
-                                    <div class="font-bold text-[15.5px] text-slate-900 mb-0.5">{{ item.school }}</div>
+                                    <div class="font-bold text-[15.5px] text-slate-900 mb-0.5"><span v-html="item.school"></span></div>
                                     <div class="flex justify-between items-baseline mb-1">
-                                        <span class="text-[13px] font-extrabold text-slate-500 uppercase italic">Thời gian: {{ item.year }}</span>
+                                        <span class="text-[13px] font-extrabold text-slate-500 uppercase italic">Thời gian: <span v-html="item.year"></span></span>
                                     </div>
-                                    <div class="text-[13.5px] font-bold text-slate-700">Chuyên ngành: {{ item.major }}</div>
-                                    <div v-if="item.gradType" class="text-[13px] text-slate-600 mt-0.5">Xếp loại tốt nghiệp: <span class="font-bold underline">{{ item.gradType }}</span></div>
+                                    <div class="text-[13.5px] font-bold text-slate-700">Chuyên ngành: <span v-html="item.major"></span></div>
+                                    <div v-if="item.gradType" class="text-[13px] text-slate-600 mt-0.5">Xếp loại tốt nghiệp: <span class="font-bold underline"><span v-html="item.gradType"></span></span></div>
                                 </div>
                                 <div v-if="item.desc" class="text-[13.5px] leading-[1.75] text-slate-700 text-justify font-medium html-content mt-2" v-html="formatDesc(item.desc)"></div>
                             </div>
@@ -247,10 +247,10 @@
                                 <div class="paginated-item flex justify-between items-baseline mb-1">
                                     <div class="font-bold text-[15px] text-slate-800 flex-1 html-content" v-if="item.name || item.title" v-html="formatDesc(item.name || item.title)"></div>
                                     <p v-if="['skills', 'languages', 'it_skills'].includes(section.id.toLowerCase()) && (item.level || item.info)" class="text-[13px] text-slate-500 italic ml-2 whitespace-nowrap">
-                                        {{ item.level || item.info }}
+                                        <span v-html="item.level || item.info"></span>
                                     </p>
                                     <p v-else-if="item.year" class="text-[13px] text-slate-500 italic ml-2 whitespace-nowrap">
-                                        {{ item.year }}
+                                        <span v-html="item.year"></span>
                                     </p>
                                 </div>
                                 <div v-if="item.desc" class="text-[13.5px] text-slate-700 mt-1 html-content" v-html="formatDesc(item.desc)"></div>

@@ -139,7 +139,7 @@
                   <i v-else-if="section.id === 'certifications' || section.id === 'certificates'" class="fas fa-certificate card-icon"></i>
                   <i v-else-if="section.id === 'references'" class="fas fa-user-check card-icon"></i>
                   <i v-else class="fas fa-layer-group card-icon"></i>
-                  <h3 class="card-title">{{ section.name || section.title || (section.id === 'education' ? 'Học vấn' : section.id === 'experience' ? 'Kinh nghiệm làm việc' : section.id) }}</h3>
+                  <h3 class="card-title"><span v-html="section.name || section.title || (section.id === 'education' ? 'Học vấn' : section.id === 'experience' ? 'Kinh nghiệm làm việc' : section.id)"></span></h3>
                 </div>
                 <i class="fas fa-ellipsis-v text-blue-500 text-lg"></i>
               </div>
@@ -152,8 +152,8 @@
                     <template v-if="typeof item === 'object'">
                       <div class="flex flex-col paginated-item">
                         <span v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" v-html="item.name"></span>
-                        <span class="text-gray-600" v-else>{{ item.name || item.title || item.info }}</span>
-                        <span class="text-gray-500 text-xs mt-0.5" v-if="item.level">{{ item.level }}</span>
+                        <span class="text-gray-600" v-else><span v-html="item.name || item.title || item.info"></span></span>
+                        <span class="text-gray-500 text-xs mt-0.5" v-if="item.level"><span v-html="item.level"></span></span>
                       </div>
                     </template>
                     <template v-else>
@@ -170,17 +170,17 @@
                         <div class="flex justify-between items-start mb-1" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
                           <span class="entry-entity">
                             <template v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)"><span v-html="item.name"></span></template>
-                            <template v-else>{{ item.company || item.school || item.organization || item.name || item.title }}</template>
+                            <template v-else><span v-html="item.company || item.school || item.organization || item.name || item.title"></span></template>
                           </span>
-                          <span class="entry-time badge-time" v-if="item.time || item.year || item.date">{{ item.time || item.year || item.date }}</span>
+                          <span class="entry-time badge-time" v-if="item.time || item.year || item.date"><span v-html="item.time || item.year || item.date"></span></span>
                         </div>
                         <div class="entry-role" v-if="item.role || item.position || item.major">
-                          {{ item.role || item.position || item.major }}
+                          <span v-html="item.role || item.position || item.major"></span>
                         </div>
                       </div>
 
                       <div class="text-[13px] text-gray-500 mt-1 paginated-item" v-if="item.gradType || item.info || item.contact">
-                        <div v-if="item.gradType" class="text-gray-400">{{ item.gradType }}</div>
+                        <div v-if="item.gradType" class="text-gray-400"><span v-html="item.gradType"></span></div>
                         <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                       </div>
 
@@ -225,7 +225,7 @@
                   <i v-else-if="section.id === 'certifications' || section.id === 'certificates'" class="fas fa-certificate card-icon"></i>
                   <i v-else-if="section.id === 'references'" class="fas fa-user-check card-icon"></i>
                   <i v-else class="fas fa-layer-group card-icon"></i>
-                  <h3 class="card-title">{{ section.name || section.title || (section.id === 'skills' ? 'Các kỹ năng' : section.id.toUpperCase()) }}</h3>
+                  <h3 class="card-title"><span v-html="section.name || section.title || (section.id === 'skills' ? 'Các kỹ năng' : section.id.toUpperCase())"></span></h3>
                 </div>
                 <i class="fas fa-ellipsis-v text-blue-500 text-lg"></i>
               </div>
@@ -238,8 +238,8 @@
                     <template v-if="typeof item === 'object'">
                       <div class="flex flex-col paginated-item">
                         <span v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" v-html="item.name"></span>
-                        <span class="text-gray-600" v-else>{{ item.name || item.title || item.info }}</span>
-                        <span class="text-gray-500 text-xs mt-0.5" v-if="item.level">{{ item.level }}</span>
+                        <span class="text-gray-600" v-else><span v-html="item.name || item.title || item.info"></span></span>
+                        <span class="text-gray-500 text-xs mt-0.5" v-if="item.level"><span v-html="item.level"></span></span>
                       </div>
                     </template>
                     <template v-else>
@@ -256,17 +256,17 @@
                         <div class="flex justify-between items-start mb-1" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
                           <span class="entry-entity">
                             <template v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)"><span v-html="item.name"></span></template>
-                            <template v-else>{{ item.company || item.school || item.organization || item.name || item.title }}</template>
+                            <template v-else><span v-html="item.company || item.school || item.organization || item.name || item.title"></span></template>
                           </span>
-                          <span class="entry-time badge-time" v-if="item.time || item.year || item.date">{{ item.time || item.year || item.date }}</span>
+                          <span class="entry-time badge-time" v-if="item.time || item.year || item.date"><span v-html="item.time || item.year || item.date"></span></span>
                         </div>
                         <div class="entry-role" v-if="item.role || item.position || item.major">
-                          {{ item.role || item.position || item.major }}
+                          <span v-html="item.role || item.position || item.major"></span>
                         </div>
                       </div>
 
                       <div class="text-[13px] text-gray-500 mt-1 paginated-item" v-if="item.gradType || item.info || item.contact">
-                        <div v-if="item.gradType" class="text-gray-400">{{ item.gradType }}</div>
+                        <div v-if="item.gradType" class="text-gray-400"><span v-html="item.gradType"></span></div>
                         <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                       </div>
 

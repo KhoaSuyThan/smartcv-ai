@@ -107,7 +107,7 @@
             <div class="paginated-item">
               <div class="flex flex-col mb-3">
                 <div class="section-title">
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </div>
                 <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
               </div>
@@ -121,20 +121,20 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="flex justify-between items-baseline mb-1">
                     <div class="font-bold text-[13px] text-[#4A352F] leading-tight flex-1">
-                      {{ item.school }}
+                      <span v-html="item.school"></span>
                     </div>
                     <span class="font-extrabold text-[12px] text-[#4A352F]/70 shrink-0 ml-4">
-                      {{ item.year }}
+                      <span v-html="item.year"></span>
                     </span>
                   </div>
                   <div class="text-[12px] text-[#4A352F] font-bold italic mb-1.5">
-                    {{ item.major }}
+                    <span v-html="item.major"></span>
                   </div>
                   <!-- Web application, GPA và các thông tin mô tả khác -->
                   <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.6] text-justify html-content" v-html="formatDesc(item.desc)"></div>
                   
                   <div v-if="item.gradType" class="text-[11.5px] text-[#4A352F]/95 mt-1">
-                    GPA/Xếp loại: <span class="font-bold">{{ item.gradType }}</span>
+                    GPA/Xếp loại: <span class="font-bold"><span v-html="item.gradType"></span></span>
                   </div>
 
                   <transition name="fade-btns">
@@ -150,10 +150,10 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="flex justify-between items-baseline mb-0.5">
                     <div class="font-bold text-[12.5px] text-[#4A352F] leading-tight flex-1">
-                      {{ item.name }}
+                      <span v-html="item.name"></span>
                     </div>
                     <span class="font-extrabold text-[11.5px] text-[#4A352F]/70 shrink-0 ml-4">
-                      {{ item.year }}
+                      <span v-html="item.year"></span>
                     </span>
                   </div>
                   <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.6] html-content" v-html="formatDesc(item.info || item.desc)"></div>
@@ -179,16 +179,16 @@
                     <!-- Hàng đầu tiên: Thời gian (trái) và Vị trí (phải) -->
                     <div class="flex justify-between items-start mb-1 gap-4">
                       <div class="font-extrabold text-[11.5px] text-[#4A352F]/75 w-[110px] shrink-0">
-                        {{ item.time || item.year }}
+                        <span v-html="item.time || item.year"></span>
                       </div>
                       <div class="font-bold text-[13px] text-[#4A352F] text-right flex-1 leading-tight">
-                        {{ item.role || 'Full-stack Web Developer' }}
+                        <span v-html="item.role || 'Full-stack Web Developer'"></span>
                       </div>
                     </div>
 
                     <!-- Tên Dự án -->
                     <div class="font-extrabold text-[12px] text-[#4A352F] uppercase mb-1.5">
-                      {{ item.name || item.title }}
+                      <span v-html="item.name || item.title"></span>
                     </div>
 
                     <!-- Mô tả và Trách nhiệm -->
@@ -216,16 +216,16 @@
                     <!-- Hàng đầu tiên: Thời gian (trái) và Chức danh (phải) -->
                     <div class="flex justify-between items-start mb-1 gap-4">
                       <div class="font-extrabold text-[11.5px] text-[#4A352F]/75 w-[110px] shrink-0">
-                        {{ item.time || item.year }}
+                        <span v-html="item.time || item.year"></span>
                       </div>
                       <div class="font-bold text-[13px] text-[#4A352F] text-right flex-1 leading-tight">
-                        {{ item.role || 'Deputy Secretary' }}
+                        <span v-html="item.role || 'Deputy Secretary'"></span>
                       </div>
                     </div>
 
                     <!-- Tên Đơn vị/Tổ chức -->
                     <div class="font-bold text-[12px] text-[#4A352F] mb-1.5">
-                      {{ item.name || item.company }}
+                      <span v-html="item.name || item.company"></span>
                     </div>
 
                     <!-- Mô tả hoạt động -->
@@ -244,7 +244,7 @@
               <div v-else-if="section.id === 'skills'" class="space-y-3.5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="font-bold text-[12.5px] text-[#4A352F] mb-1">
-                    {{ item.name }}
+                    <span v-html="item.name"></span>
                   </div>
                   <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.6] html-content" v-html="formatDesc(item.level || item.info)"></div>
 
@@ -260,8 +260,8 @@
               <div v-else class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="flex justify-between items-baseline mb-0.5">
-                    <div class="font-bold text-[12.5px] text-[#4A352F]" v-if="item.name || item.title">{{ item.name || item.title }}</div>
-                    <span v-if="item.year || item.time" class="text-[11px] text-gray-500 font-bold ml-2 shrink-0">{{ item.year || item.time }}</span>
+                    <div class="font-bold text-[12.5px] text-[#4A352F]" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
+                    <span v-if="item.year || item.time" class="text-[11px] text-gray-500 font-bold ml-2 shrink-0"><span v-html="item.year || item.time"></span></span>
                   </div>
                   <div v-if="item.desc" class="text-[11.5px] text-[#4A352F]/90 html-content leading-relaxed" v-html="formatDesc(item.desc)"></div>
                   <div v-else-if="item.info" class="text-[11.5px] text-[#4A352F]/90 html-content leading-relaxed" v-html="formatDesc(item.info)"></div>
@@ -315,7 +315,7 @@
 
           <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.6] text-justify font-medium">
             <div v-for="(item, itemIndex) in hobbiesSection.items" :key="item._refId" class="inline item-container relative">
-              <span>{{ item.name }}</span><span v-if="itemIndex < hobbiesSection.items.length - 1">, </span>
+              <span><span v-html="item.name"></span></span><span v-if="itemIndex < hobbiesSection.items.length - 1">, </span>
               <transition name="fade-btns">
                 <button v-if="selectedSectionId === hobbiesSection.id" @click.stop.prevent="$emit('removeItem', hobbiesSection.id, itemIndex)" class="delete-item-btn no-print" style="top: -6px; right: -6px; transform: scale(0.8)">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -362,7 +362,7 @@
               <div class="flex items-start gap-1">
                 <span class="text-[#D03B29] shrink-0 mt-[1.5px] font-bold">•</span>
                 <div class="flex-1">
-                  <span v-if="item.name">{{ item.name }}</span>
+                  <span v-if="item.name"><span v-html="item.name"></span></span>
                   <span v-else class="html-content" v-html="formatDesc(item.info || item.desc)"></span>
                 </div>
               </div>

@@ -90,7 +90,7 @@
             </div>
 
             <h3 class="section-title paginated-item" :style="{ color: templatePrimaryColor, borderBottomColor: templatePrimaryColor }">
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
 
             <div class="space-y-4 px-1">
@@ -119,7 +119,7 @@
     <template v-else>
       <div class="flex justify-between items-start gap-2 paginated-item">
         <div class="html-content font-bold text-[14px] leading-snug flex-1 flex flex-col" v-html="formatDesc(item.name || item.title)" />
-        <span v-if="item.level || item.info" class="font-bold text-[12px] text-slate-500 shrink-0">{{ item.level || item.info }}</span>
+        <span v-if="item.level || item.info" class="font-bold text-[12px] text-slate-500 shrink-0"><span v-html="item.level || item.info"></span></span>
       </div>
       <div v-if="item.year || item.time" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col paginated-item" v-html="formatDesc(item.year || item.time)" />
       <div v-if="item.desc" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col paginated-item text-justify" v-html="formatDesc(item.desc)" />
@@ -193,7 +193,7 @@
                 width: 'calc(100% - 30px) !important'
               }"
             >
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
 
             <!-- Summary -->
@@ -215,17 +215,17 @@
                 <template v-if="['education','experience','project','activities'].includes(section.id)">
                   <div class="flex justify-between items-start gap-4 mb-1 paginated-item">
                     <div class="font-bold text-[16px] text-slate-900 leading-tight">
-                      {{ section.id === 'education' ? item.school : (item.company || item.name) }}
+                      <span v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
                     </div>
                     <div v-if="item.year || item.time" class="shrink-0 font-bold text-[13px] text-slate-400 uppercase tracking-wider">
-                      {{ item.year || item.time }}
+                      <span v-html="item.year || item.time"></span>
                     </div>
                   </div>
                   <div v-if="item.major || item.role" class="font-semibold text-slate-500 italic text-[14px] mb-2 paginated-item">
-                    {{ item.major || item.role }}
+                    <span v-html="item.major || item.role"></span>
                   </div>
                   <div v-if="item.desc" class="html-content text-justify text-[14px] leading-relaxed flex flex-col" v-html="formatDesc(item.desc)" />
-                  <div v-else-if="item.gradType" class="text-blue-500 font-semibold text-[13px] paginated-item">{{ item.gradType }}</div>
+                  <div v-else-if="item.gradType" class="text-blue-500 font-semibold text-[13px] paginated-item"><span v-html="item.gradType"></span></div>
                 </template>
 
                 <!-- Generic -->
@@ -235,7 +235,7 @@
                     <div v-if="!isEmpty(item.name || item.title)" 
                         class="html-content font-bold text-[15px] mb-1 paginated-item flex-1"
                         v-html="formatDesc(item.name || item.title)" />
-                    <span v-if="item.level || item.info" class="font-bold text-[13px] text-slate-500 shrink-0">{{ item.level || item.info }}</span>
+                    <span v-if="item.level || item.info" class="font-bold text-[13px] text-slate-500 shrink-0"><span v-html="item.level || item.info"></span></span>
                   </div>
                   <div v-if="!isEmpty(item.role || item.info || item.position)"
                       class="html-content text-[13px] text-slate-500 italic mb-1 paginated-item"

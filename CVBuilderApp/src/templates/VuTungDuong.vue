@@ -110,7 +110,7 @@
 
           <div class="sidebar-section-header paginated-item" style="margin-bottom: 10px;">
             <h3 class="sidebar-section-title" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
             <div class="sidebar-divider" :style="{ backgroundColor: resumeData.theme.primaryColor || '#dfa234' }"></div>
           </div>
@@ -122,7 +122,7 @@
                 class="item-container paginated-item"
                 style="position: relative; color: #ffffff; font-size: 12.5px; font-weight: 700; line-height: 1.45; padding-right: 20px;">
                 <span style="font-weight: 800;" v-html="item.name"></span>
-                <span v-if="item.level" style="color: #cbd5e1; font-weight: 400; margin-left: 4px;">- {{ item.level }}</span>
+                <span v-if="item.level" style="color: #cbd5e1; font-weight: 400; margin-left: 4px;">- <span v-html="item.level"></span></span>
                 <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -134,9 +134,9 @@
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container paginated-item"
                 style="position: relative; font-size: 12.5px; line-height: 1.45; padding-right: 20px;">
-                <span style="font-weight: 700;" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">{{ item.year }}</span>
+                <span style="font-weight: 700;" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }"><span v-html="item.year"></span></span>
                 <span v-if="item.year" style="color: #ffffff; font-weight: 400;"> - </span>
-                <span style="color: #ffffff; font-weight: 700;">{{ item.name }}</span>
+                <span style="color: #ffffff; font-weight: 700;"><span v-html="item.name"></span></span>
                 <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
@@ -150,32 +150,32 @@
                 
                 <!-- Thời gian in màu nhấn -->
                 <div v-if="item.time || item.year" class="paginated-item" :style="{ color: resumeData.theme.primaryColor || '#dfa234', fontWeight: '800', fontSize: '12px', marginBottom: '2px' }">
-                  {{ item.time || item.year }}
+                  <span v-html="item.time || item.year"></span>
                 </div>
                 
                 <!-- Tiêu đề chính (Vai trò / Tên dự án / Tên hoạt động / Ngành học) -->
                 <div v-if="item.name || item.title || item.major || item.role" 
                   class="paginated-item" 
                   style="font-weight: 800; font-size: 13px; margin-bottom: 2px;">
-                  {{ item.name || item.title || item.major || item.role }}
+                  <span v-html="item.name || item.title || item.major || item.role"></span>
                 </div>
 
                 <div v-if="(item.name || item.title || item.major) && item.role" 
                   class="paginated-item" 
                   style="font-weight: 600; font-size: 12.5px; opacity: 0.85; margin-bottom: 2px;">
-                  {{ item.role }}
+                  <span v-html="item.role"></span>
                 </div>
                 
                 <!-- Tiêu đề phụ (Công ty / Tổ chức / Trường học) in mờ hơn một chút -->
                 <div v-if="item.company || item.school || item.organization" class="paginated-item" style="font-weight: 600; font-size: 12.5px; opacity: 0.85; margin-bottom: 3px;">
-                  {{ item.company || item.school || item.organization }}
+                  <span v-html="item.company || item.school || item.organization"></span>
                 </div>
                 
                 <!-- ĐÃ BỔ SUNG: Xếp loại & GPA (Dành riêng cho Học vấn) -->
                 <div v-if="item.gradType || item.gpa" class="paginated-item" style="font-weight: 600; font-size: 12px; color: #cbd5e1; margin-bottom: 4px;">
-                  <span v-if="item.gradType">Loại: {{ item.gradType }}</span>
+                  <span v-if="item.gradType">Loại: <span v-html="item.gradType"></span></span>
                   <span v-if="item.gradType && item.gpa"> | </span>
-                  <span v-if="item.gpa">GPA: {{ item.gpa }}</span>
+                  <span v-if="item.gpa">GPA: <span v-html="item.gpa"></span></span>
                 </div>
                 
                 <!-- Mô tả chi tiết (Được băm nhỏ bởi thuật toán) -->
@@ -216,7 +216,7 @@
 
           <div class="main-section-header paginated-item" style="margin-bottom: 10px;">
             <h3 class="main-section-title" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">
-              {{ section.title }}
+              <span v-html="section.title"></span>
             </h3>
             <div class="main-divider" :style="{ backgroundColor: resumeData.theme.primaryColor || '#dfa234' }"></div>
           </div>
@@ -242,7 +242,7 @@
                     : (item.name || item.title) }}
               </span>
               <span style="font-size: 12.5px; font-weight: 700; color: #555; white-space: nowrap; flex-shrink: 0;">
-                {{ item.time }}
+                <span v-html="item.time"></span>
               </span>
             </div>
 
@@ -267,14 +267,14 @@
               <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
               
               <div class="paginated-item" style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
-                <span style="font-weight: 800; font-size: 14px; color: #111;">{{ item.major || item.school }}</span>
-                <span style="font-size: 12.5px; font-weight: 700; color: #555; white-space: nowrap; padding-left: 6px;">{{ item.year }}</span>
+                <span style="font-weight: 800; font-size: 14px; color: #111;"><span v-html="item.major || item.school"></span></span>
+                <span style="font-size: 12.5px; font-weight: 700; color: #555; white-space: nowrap; padding-left: 6px;"><span v-html="item.year"></span></span>
               </div>
-              <div class="paginated-item" style="font-size: 13px; font-weight: 700; color: #444; margin-bottom: 3px;">{{ item.school }}</div>
+              <div class="paginated-item" style="font-size: 13px; font-weight: 700; color: #444; margin-bottom: 3px;"><span v-html="item.school"></span></div>
               <div class="paginated-item" style="font-size: 13px; color: #555;" v-if="item.gradType || item.gpa">
-                <span v-if="item.gradType">Tốt nghiệp loại: <strong>{{ item.gradType }}</strong></span>
+                <span v-if="item.gradType">Tốt nghiệp loại: <strong><span v-html="item.gradType"></span></strong></span>
                 <span v-if="item.gradType && item.gpa"> | </span>
-                <span v-if="item.gpa">GPA: <strong>{{ item.gpa }}</strong></span>
+                <span v-if="item.gpa">GPA: <strong><span v-html="item.gpa"></span></strong></span>
               </div>
               <div v-if="item.desc" class="html-content" style="font-size: 13px; line-height: 1.6; color: #222; margin-top: 4px;" v-html="formatDesc(item.desc)"></div>
             </div>
@@ -290,11 +290,11 @@
                 <div style="font-weight: 800; font-size: 14px; color: #111;" class="html-content flex-1" v-html="formatDesc(item.name || item.title || '')"></div>
                 
                 <span v-if="['skills', 'languages', 'it_skills'].includes(section.id.toLowerCase()) && (item.level || item.info)" style="font-size: 13px; font-weight: 700; color: #555; margin-left: 12px; white-space: nowrap;">
-                  {{ item.level || item.info }}
+                  <span v-html="item.level || item.info"></span>
                 </span>
                 
                 <span v-else-if="item.year" style="font-size: 13px; font-weight: 700; color: #555; margin-left: 12px; white-space: nowrap;">
-                  {{ item.year }}
+                  <span v-html="item.year"></span>
                 </span>
               </div>
               

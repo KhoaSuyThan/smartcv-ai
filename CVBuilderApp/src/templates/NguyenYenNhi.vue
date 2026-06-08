@@ -64,7 +64,7 @@
 
             <!-- Tiêu đề có phân trang riêng -->
             <div class="paginated-item">
-              <h3 class="font-black uppercase mb-1.5 tracking-wider text-slate-900" style="font-size: 18px !important; font-weight: bold !important;">{{ section.title }}</h3>
+              <h3 class="font-black uppercase mb-1.5 tracking-wider text-slate-900" style="font-size: 18px !important; font-weight: bold !important;"><span v-html="section.title"></span></h3>
             </div>
 
             <div class="space-y-3">
@@ -84,13 +84,13 @@
                       <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
                     </div>
                     <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide flex flex-col">
-                      <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
+                      <span><span v-html="item.time || item.year || '2024 - Hiện tại'"></span></span>
                       <span class="text-slate-500 ...">
-                        {{ section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.role || '') }}
+                        <span v-html="section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.role || '')"></span>
                       </span>
                     </div>
                     <h4 class="text-[13px] font-black text-slate-900 leading-tight mb-1.5">
-                      {{ section.id === 'experience' ? item.role : (item.role || item.name || 'Vị trí') }}
+                      <span v-html="section.id === 'experience' ? item.role : (item.role || item.name || 'Vị trí')"></span>
                     </h4>
                   </div>
                   <div class="text-[12.5px] leading-[1.6] text-slate-600 text-justify font-medium html-content" v-html="formatDesc(item.desc || '')"></div>
@@ -105,13 +105,13 @@
                     <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
                       <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
                     </div>
-                    <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
-                    <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
-                    <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+                    <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide"><span v-html="item.year || '2024 - 2028'"></span></div>
+                    <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5"><span v-html="item.major || 'Chuyên ngành'"></span></div>
+                    <div class="text-[12px] font-bold text-slate-500 italic"><span v-html="item.school || 'Tên trường học'"></span></div>
                     <div v-if="item.gradType || item.gpa" class="paginated-item text-[12px] font-bold text-slate-600 mt-0.5">
-                      <span v-if="item.gradType">Tốt nghiệp loại: <span class="font-normal">{{ item.gradType }}</span></span>
+                      <span v-if="item.gradType">Tốt nghiệp loại: <span class="font-normal"><span v-html="item.gradType"></span></span></span>
                       <span v-if="item.gradType && item.gpa"> | </span>
-                      <span v-if="item.gpa">GPA: <span class="font-normal">{{ item.gpa }}</span></span>
+                      <span v-if="item.gpa">GPA: <span class="font-normal"><span v-html="item.gpa"></span></span></span>
                     </div>
                   </div>
                 </div>
@@ -122,8 +122,8 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative">
                   <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -5px; right: -5px;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
                   <div class="flex justify-between items-end mb-0.5">
-                    <span class="text-[12px] font-bold text-slate-800 leading-tight">{{ item.name }}</span>
-                    <span class="text-[10px] font-bold text-pink-500 whitespace-nowrap ml-2">{{ getLevelInfo(item.level).text }}</span>
+                    <span class="text-[12px] font-bold text-slate-800 leading-tight"><span v-html="item.name"></span></span>
+                    <span class="text-[10px] font-bold text-pink-500 whitespace-nowrap ml-2"><span v-html="getLevelInfo(item.level).text"></span></span>
                   </div>
                   <div class="w-full h-[5px] bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
                     <div class="absolute h-full left-0 top-0 rounded-full bg-gradient-to-r from-red-500 via-pink-400 to-red-400 shadow-sm" :style="{ width: getLevelInfo(item.level).percent }"></div>
@@ -138,9 +138,9 @@
                   <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
                   </div>
-                  <div v-if="item.year" class="text-[11px] font-black text-pink-500 mb-0.5">{{ item.year }}</div>
-                  <div class="text-[12.5px] font-bold text-slate-800">{{ item.name }}</div>
-                  <div v-if="item.organization" class="text-[11px] font-normal text-slate-500 italic">{{ item.organization }}</div>
+                  <div v-if="item.year" class="text-[11px] font-black text-pink-500 mb-0.5"><span v-html="item.year"></span></div>
+                  <div class="text-[12.5px] font-bold text-slate-800"><span v-html="item.name"></span></div>
+                  <div v-if="item.organization" class="text-[11px] font-normal text-slate-500 italic"><span v-html="item.organization"></span></div>
                 </div>
               </div>
 
@@ -211,7 +211,7 @@
 
             <!-- Tiêu đề -->
             <div class="paginated-item">
-              <h3 class="font-black uppercase mb-2 tracking-wider text-slate-900 border-b border-pink-50 pb-1" style="font-size: 18px !important; font-weight: bold !important;">{{ section.title }}</h3>
+              <h3 class="font-black uppercase mb-2 tracking-wider text-slate-900 border-b border-pink-50 pb-1" style="font-size: 18px !important; font-weight: bold !important;"><span v-html="section.title"></span></h3>
             </div>
 
             <div v-if="section.id === 'summary'"
@@ -228,14 +228,14 @@
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
                   </div>
                   <div class="text-[12.5px] font-black text-pink-500 mb-1 tracking-wide flex justify-between">
-                    <span>{{ item.time || item.year || '2024 - Hiện tại' }}</span>
+                    <span><span v-html="item.time || item.year || '2024 - Hiện tại'"></span></span>
                     <span class="text-slate-500 ...">
-                      {{ section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.role || '') }}
+                      <span v-html="section.id === 'experience' ? (item.company || 'CÔNG TY') : (item.role || '')"></span>
                     </span>
                   </div>
                   <h4 class="text-[14.5px] font-black text-slate-900 leading-tight mb-1.5">
-                    {{ section.id === 'experience' ? item.role : (item.name || item.role || 'Vị trí') }}
-                    <span v-if="section.id === 'experience' && item.company" class="text-slate-400 font-bold text-[13px] ml-1 opacity-80">| {{ item.company }}</span>
+                    <span v-html="section.id === 'experience' ? item.role : (item.name || item.role || 'Vị trí')"></span>
+                    <span v-if="section.id === 'experience' && item.company" class="text-slate-400 font-bold text-[13px] ml-1 opacity-80">| <span v-html="item.company"></span></span>
                   </h4>
                 </div>
                 <div class="text-[12.5px] leading-[1.6] text-slate-600 text-justify font-medium html-content" v-html="formatDesc(item.desc || '')"></div>
@@ -249,12 +249,12 @@
                   <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
                     <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
                   </div>
-                  <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide">{{ item.year || '2024 - 2028' }}</div>
-                  <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5">{{ item.major || 'Chuyên ngành' }}</div>
-                  <div class="text-[12px] font-bold text-slate-500 italic">{{ item.school || 'Tên trường học' }}</div>
+                  <div class="text-[12px] font-black text-pink-500 mb-0.5 tracking-wide"><span v-html="item.year || '2024 - 2028'"></span></div>
+                  <div class="text-[14px] font-black text-slate-900 leading-tight mb-0.5"><span v-html="item.major || 'Chuyên ngành'"></span></div>
+                  <div class="text-[12px] font-bold text-slate-500 italic"><span v-html="item.school || 'Tên trường học'"></span></div>
                 </div>
                 <div class="text-[12.5px] leading-[1.6] text-slate-600 html-content" v-html="formatDesc(item.desc)"></div>
-                <div v-if="!item.desc && item.gradType" class="paginated-item text-[12.5px] font-bold mt-1">Tốt nghiệp loại: <span class="font-normal">{{ item.gradType }}</span></div>
+                <div v-if="!item.desc && item.gradType" class="paginated-item text-[12.5px] font-bold mt-1">Tốt nghiệp loại: <span class="font-normal"><span v-html="item.gradType"></span></span></div>
               </div>
             </div>
 
@@ -265,9 +265,9 @@
                 <div class="absolute -left-[22px] top-[4px] w-5 h-5 rounded-full bg-white border border-pink-200 flex items-center justify-center text-pink-500 z-10 shadow-[0_1px_3px_rgba(244,114,182,0.1)]">
                   <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12,2L14.5,9H21L15.5,13.5L18,20.5L12,16L6,20.5L8.5,13.5L3,9H9.5L12,2Z" /></svg>
                 </div>
-                <div v-if="item.year" class="text-[11px] font-black text-pink-500 mb-0.5">{{ item.year }}</div>
-                <div class="text-[12.5px] font-bold text-slate-800">{{ item.name }}</div>
-                <div v-if="item.organization" class="text-[11px] font-normal text-slate-500 italic">{{ item.organization }}</div>
+                <div v-if="item.year" class="text-[11px] font-black text-pink-500 mb-0.5"><span v-html="item.year"></span></div>
+                <div class="text-[12.5px] font-bold text-slate-800"><span v-html="item.name"></span></div>
+                <div v-if="item.organization" class="text-[11px] font-normal text-slate-500 italic"><span v-html="item.organization"></span></div>
               </div>
             </div>
 

@@ -83,7 +83,7 @@
 
             <div class="paginated-item">
               <div class="bg-[#3b715a] text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide">
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </div>
             </div>
 
@@ -95,7 +95,7 @@
                   :key="item._refId"
                   class="paginated-item item-container"
                 >
-                  <div class="text-[10px] uppercase font-semibold text-gray-700 mb-1.5">{{ item.name }}</div>
+                  <div class="text-[10px] uppercase font-semibold text-gray-700 mb-1.5"><span v-html="item.name"></span></div>
                   <div class="w-full h-[5px] bg-gray-200 shadow-inner">
                     <div class="h-full" :style="{ width: getLevelInfo(item.level).percent, backgroundColor: templatePrimaryColor }"></div>
                   </div>
@@ -115,8 +115,8 @@
                   class="paginated-item item-container leading-relaxed"
                 >
                   <div class="flex items-baseline gap-2 mb-1">
-                    <span class="font-bold text-[10.5px] uppercase text-gray-800" style="letter-spacing: 0.02em;">{{ item.name }}</span>
-                    <span v-if="item.year" class="text-[10.5px] italic" :style="{ color: '#568e77' }">{{ item.year }}</span>
+                    <span class="font-bold text-[10.5px] uppercase text-gray-800" style="letter-spacing: 0.02em;"><span v-html="item.name"></span></span>
+                    <span v-if="item.year" class="text-[10.5px] italic" :style="{ color: '#568e77' }"><span v-html="item.year"></span></span>
                   </div>
                   <div class="text-[10.5px] text-gray-700 font-medium leading-[1.6] html-content" v-html="formatDesc(item.info || item.desc)"></div>
                   <transition name="fade-btns">
@@ -134,8 +134,8 @@
                   :key="item._refId"
                   class="item-container relative"
                 >
-                  <div class="paginated-item font-bold text-[10.5px] uppercase text-gray-800 mb-1" v-if="item.name || item.title || item.company || item.school">{{ item.name || item.title || item.company || item.school }}</div>
-                  <div class="paginated-item font-medium text-[10px] text-gray-500 italic mb-1" v-if="item.time || item.year">{{ item.time || item.year }}</div>
+                  <div class="paginated-item font-bold text-[10.5px] uppercase text-gray-800 mb-1" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
+                  <div class="paginated-item font-medium text-[10px] text-gray-500 italic mb-1" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
                   <div class="text-[10.5px] text-gray-700 font-medium leading-[1.6] html-content" v-html="formatDesc(item.desc || item.info || item.role)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -5px; right: -5px;">
@@ -187,7 +187,7 @@
             <div class="paginated-item">
               <h3 class="section-title font-bold mb-2.5 tracking-wide flex items-center gap-3 text-[18px]" :style="{ color: templatePrimaryColor }">
                 <div class="w-[6px] h-[22px]" :style="{ backgroundColor: templatePrimaryColor }"></div>
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -202,8 +202,8 @@
               <div v-else-if="section.id === 'skills'" class="space-y-5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative pb-1">
                   <div class="flex justify-between items-baseline mb-2">
-                    <span class="font-bold text-[13px] uppercase text-gray-800 tracking-wide">{{ item.name }}</span>
-                    <span class="text-[11px] font-semibold text-gray-500">{{ getLevelInfo(item.level).text }}</span>
+                    <span class="font-bold text-[13px] uppercase text-gray-800 tracking-wide"><span v-html="item.name"></span></span>
+                    <span class="text-[11px] font-semibold text-gray-500"><span v-html="getLevelInfo(item.level).text"></span></span>
                   </div>
                   <div class="w-full h-[6px] bg-gray-100 rounded-full overflow-hidden shadow-inner">
                     <div class="h-full rounded-full" :style="{ width: getLevelInfo(item.level).percent, backgroundColor: templatePrimaryColor }"></div>
@@ -225,10 +225,10 @@
                         <span class="text-[9px] mb-0.5">◆</span>
                         <span v-html="section.id === 'experience' ? item.company : (item.school || item.name || '')"></span>
                       </h4>
-                      <span v-if="item.time || item.year" class="font-medium text-[11.5px] italic tracking-wide" :style="{ color: '#6c9b83' }">{{ item.time || item.year }}</span>
+                      <span v-if="item.time || item.year" class="font-medium text-[11.5px] italic tracking-wide" :style="{ color: '#6c9b83' }"><span v-html="item.time || item.year"></span></span>
                     </div>
-                    <div v-if="item.role || item.major" class="font-bold text-gray-900 mb-2 text-[12.5px]">{{ item.role || item.major }}</div>
-                    <div v-if="item.gradType" class="text-[11.5px] text-gray-600 mb-1.5 font-medium">Tốt nghiệp loại: <span class="font-bold">{{ item.gradType }}</span><span v-if="item.gpa"> | GPA: {{ item.gpa }}</span></div>
+                    <div v-if="item.role || item.major" class="font-bold text-gray-900 mb-2 text-[12.5px]"><span v-html="item.role || item.major"></span></div>
+                    <div v-if="item.gradType" class="text-[11.5px] text-gray-600 mb-1.5 font-medium">Tốt nghiệp loại: <span class="font-bold"><span v-html="item.gradType"></span></span><span v-if="item.gpa"> | GPA: <span v-html="item.gpa"></span></span></div>
                   </div>
                   
                   <div class="text-[11.5px] text-gray-700 leading-[1.65] text-justify font-medium html-content" v-html="formatDesc(item.desc || item.info)"></div>

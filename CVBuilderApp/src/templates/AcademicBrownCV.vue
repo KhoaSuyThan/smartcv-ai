@@ -92,7 +92,7 @@
                 fontWeight: '800 !important',
                 letterSpacing: '1px'
               }"
-            >{{ section.title || (section.id === 'summary' ? 'MỤC TIÊU NGHỀ NGHIỆP' : section.id === 'contact' ? 'THÔNG TIN LIÊN HỆ' : '') }}</h1>
+            ><span v-html="section.title || (section.id === 'summary' ? 'MỤC TIÊU NGHỀ NGHIỆP' : section.id === 'contact' ? 'THÔNG TIN LIÊN HỆ' : '')"></span></h1>
 
             <div
               class="w-full flex flex-col"
@@ -145,10 +145,10 @@
                   <div v-if="['education','experience','project','activities'].includes(section.id)" class="w-full flex flex-col">
                     <div class="w-full flex justify-between items-baseline gap-2 relative" :style="{ margin: '0 !important' }">
                       <span class="font-bold break-words flex-1 leading-tight text-[#4a3728] flex flex-col" :style="{ margin: '0 !important', fontSize: '15px' }" v-html="formatDesc(section.id === 'education' ? item.school : (item.company || item.name))"></span>
-                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }">{{ item.year || item.time }}</span>
+                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }"><span v-html="item.year || item.time"></span></span>
                     </div>
                     <div v-if="item.major || item.role" class="italic text-[#5d4e46] mt-[2px] mb-[5px] w-full flex flex-col" :style="{ fontSize: '14px !important' }" v-html="formatDesc(item.major || item.role)"></div>
-                    <div v-if="item.gradType" class="paginated-item font-medium mt-[2px]" :style="{ color: '#8b7355', fontSize: '13px !important', margin: '0 !important' }">Trạng thái: {{ item.gradType }}</div>
+                    <div v-if="item.gradType" class="paginated-item font-medium mt-[2px]" :style="{ color: '#8b7355', fontSize: '13px !important', margin: '0 !important' }">Trạng thái: <span v-html="item.gradType"></span></div>
                     <div v-if="item.desc" class="html-content text-justify whitespace-pre-line break-words w-full flex flex-col" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '14px', lineHeight: '1.7' }" v-html="formatDesc(item.desc)"></div>
                   </div>
                   <!-- KỸ NĂNG / TIN HỌC / NGOẠI NGỮ -->
@@ -157,7 +157,7 @@
     <div class="absolute -left-[20px] top-[6px] w-[6px] h-[6px] rounded-full bg-[#4a3728]"></div>
     <span class="font-bold break-words flex-1 leading-tight text-[#4a3728] flex flex-col" :style="{ fontSize: '15px' }" v-html="formatDesc(item.name)"></span>
     <!-- ĐÂY LÀ CHỖ HIỂN THỊ MỨC ĐỘ -->
-    <span v-if="item.level" class="font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }">{{ item.level }}</span>
+    <span v-if="item.level" class="font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }"><span v-html="item.level"></span></span>
   </div>
   <div v-if="item.info" class="italic text-[#5d4e46] mt-[2px] mb-[5px] w-full flex flex-col" :style="{ fontSize: '14px !important' }" v-html="formatDesc(item.info)"></div>
 </div>
@@ -166,7 +166,7 @@
                   <div v-else class="w-full flex flex-col">
                     <div class="w-full flex justify-between items-baseline gap-2 relative" :style="{ margin: '0 !important' }">
                       <span class="font-bold break-words flex-1 leading-tight text-[#4a3728] flex flex-col" :style="{ fontSize: '15px' }" v-html="formatDesc(item.name || item.title)"></span>
-                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }">{{ item.year || item.time }}</span>
+                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }"><span v-html="item.year || item.time"></span></span>
                     </div>
                     <div v-if="item.info" class="italic text-[#5d4e46] mt-[2px] mb-[5px] w-full flex flex-col" :style="{ fontSize: '14px !important' }" v-html="formatDesc(item.info)"></div>
                     <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full flex flex-col" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '14px', lineHeight: '1.7' }" v-html="formatDesc(item.desc || item.details)"></div>
@@ -219,7 +219,7 @@
             </div>
 
             <h1 class="paginated-item uppercase w-full block" :style="{ fontSize: '16px !important', fontWeight: '700 !important', paddingBottom: '5px !important', margin: '0 0 15px 0 !important', color: '#fdf5e6' }">
-              {{ section.title || (section.id === 'summary' ? 'MỤC TIÊU NGHỀ NGHIỆP' : section.id === 'contact' ? 'THÔNG TIN LIÊN HỆ' : '') }}
+              <span v-html="section.title || (section.id === 'summary' ? 'MỤC TIÊU NGHỀ NGHIỆP' : section.id === 'contact' ? 'THÔNG TIN LIÊN HỆ' : '')"></span>
             </h1>
 
             <div class="w-full flex flex-col gap-[15px]">
@@ -260,8 +260,8 @@
                   
                   <div v-if="['skills','languages','it_skills'].includes(section.id)" class="paginated-item w-full flex flex-col skill-group-extra relative">
                     <div class="absolute -left-[15px] top-[6px] w-[4px] h-[4px] rounded-full bg-white"></div>
-                    <div class="extra-label w-full uppercase" :style="{ fontSize: '12px !important', fontWeight: 'bold !important', color: '#fdf5e6', marginBottom: '5px' }">{{ item.name }}</div>
-                    <div v-if="item.info || item.level" class="w-full break-words whitespace-pre-line" :style="{ fontSize: '12px !important', color: '#ddd', lineHeight: '1.4', paddingLeft: '5px' }">{{ item.info || item.level }}</div>
+                    <div class="extra-label w-full uppercase" :style="{ fontSize: '12px !important', fontWeight: 'bold !important', color: '#fdf5e6', marginBottom: '5px' }"><span v-html="item.name"></span></div>
+                    <div v-if="item.info || item.level" class="w-full break-words whitespace-pre-line" :style="{ fontSize: '12px !important', color: '#ddd', lineHeight: '1.4', paddingLeft: '5px' }"><span v-html="item.info || item.level"></span></div>
                   </div>
                   
                   <div v-else class="w-full flex flex-col">
@@ -269,10 +269,10 @@
 
                     <div class="w-full flex justify-between items-baseline gap-2 relative" :style="{ margin: '0 !important' }">
                       <span class="font-bold w-full break-words leading-tight text-[#fdf5e6] flex flex-col" v-html="formatDesc(section.id === 'education' ? item.school : (item.company || item.name))"></span>
-                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right opacity-90 text-[11px]">{{ item.year || item.time }}</span>
+                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right opacity-90 text-[11px]"><span v-html="item.year || item.time"></span></span>
                     </div>
                     <div v-if="item.major || item.role" class="italic opacity-90 mt-[2px] text-[12px] flex flex-col" v-html="formatDesc(item.major || item.role)"></div>
-                    <div v-if="item.gradType" class="paginated-item font-medium mt-[2px] opacity-90" :style="{ fontSize: '12px !important' }">Xếp loại: {{ item.gradType }}</div>
+                    <div v-if="item.gradType" class="paginated-item font-medium mt-[2px] opacity-90" :style="{ fontSize: '12px !important' }">Xếp loại: <span v-html="item.gradType"></span></div>
                     <div v-if="item.desc || item.info" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[5px] flex flex-col" :style="{ lineHeight: '1.6' }" v-html="formatDesc(item.desc || item.info)"></div>
                   </div>
                   

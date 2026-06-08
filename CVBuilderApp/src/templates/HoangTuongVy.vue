@@ -88,7 +88,7 @@
 
             <div class="paginated-item">
               <h3 class="section-title text-white font-bold uppercase tracking-wider text-center py-2 mb-4" style="background-color: #2b2b2b; font-size: 14px !important;">
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -108,11 +108,11 @@
                       <h4 class="text-[#333] font-bold" style="font-size: 12px !important">
                         <span v-html="item.school"></span>
                       </h4>
-                      <span v-if="item.year" class="font-normal text-[#555] shrink-0" style="font-size: 10.5px !important">{{ item.year }}</span>
+                      <span v-if="item.year" class="font-normal text-[#555] shrink-0" style="font-size: 10.5px !important"><span v-html="item.year"></span></span>
                     </div>
-                    <div v-if="item.major" class="text-[#444] font-normal mb-1" style="font-size: 11.5px !important">{{ item.major }}</div>
+                    <div v-if="item.major" class="text-[#444] font-normal mb-1" style="font-size: 11.5px !important"><span v-html="item.major"></span></div>
                     <div v-if="item.gradType" class="text-[#555] font-normal" style="font-size: 11px !important">
-                      Xếp loại: <span class="font-bold">{{ item.gradType }}</span>
+                      Xếp loại: <span class="font-bold"><span v-html="item.gradType"></span></span>
                     </div>
                   </div>
                   <div class="text-[#444] leading-relaxed html-content mt-1" style="font-size: 11px !important" v-html="formatDesc(item.desc)"></div>
@@ -136,8 +136,8 @@
                       </h4>
                     </div>
                     <div class="flex justify-between items-start gap-2 mb-1">
-                      <span class="font-normal text-[#555] uppercase tracking-wide" style="font-size: 10.5px !important">{{ section.id === 'experience' ? item.role : (item.role || item.position || '') }}</span>
-                      <span v-if="item.time" class="font-normal text-[#555] shrink-0" style="font-size: 10px !important">{{ item.time }}</span>
+                      <span class="font-normal text-[#555] uppercase tracking-wide" style="font-size: 10.5px !important"><span v-html="section.id === 'experience' ? item.role : (item.role || item.position || '')"></span></span>
+                      <span v-if="item.time" class="font-normal text-[#555] shrink-0" style="font-size: 10px !important"><span v-html="item.time"></span></span>
                     </div>
                   </div>
                   <div class="leading-relaxed text-[#444] text-justify html-content mt-1" style="font-size: 11px !important" v-html="formatDesc(item.desc)"></div>
@@ -155,8 +155,8 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-[14px]">
                   <div class="paginated-item relative z-10">
                     <div class="absolute -left-[14px] top-1.5 w-2 h-2 rounded-full bg-[#444]"></div>
-                    <div v-if="item.year" class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important">{{ item.year }}</div>
-                    <div class="font-normal text-[#444] html-content" style="font-size: 11px !important">{{ item.name || item.info }}</div>
+                    <div v-if="item.year" class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important"><span v-html="item.year"></span></div>
+                    <div class="font-normal text-[#444] html-content" style="font-size: 11px !important"><span v-html="item.name || item.info"></span></div>
                   </div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
@@ -175,8 +175,8 @@
                   style="font-size: 11px !important"
                 >
                   <div class="flex justify-between items-center w-full">
-                    <span class="font-bold text-[#333]">{{ item.name }}</span>
-                    <span v-if="item.level || item.info" class="font-normal text-[#666] normal-case italic" style="font-size: 10px !important">{{ item.level || item.info }}</span>
+                    <span class="font-bold text-[#333]"><span v-html="item.name"></span></span>
+                    <span v-if="item.level || item.info" class="font-normal text-[#666] normal-case italic" style="font-size: 10px !important"><span v-html="item.level || item.info"></span></span>
                   </div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
@@ -189,7 +189,7 @@
               <!-- References -->
               <div v-else-if="section.id.toLowerCase().includes('reference')" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed">
-                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important">{{ item.name }} <span v-if="item.role || item.title" class="font-normal text-[#555]">- {{ item.role || item.title }}</span></div>
+                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 11.5px !important"><span v-html="item.name"></span> <span v-if="item.role || item.title" class="font-normal text-[#555]">- <span v-html="item.role || item.title"></span></span></div>
                   <div class="text-[#555] font-normal html-content" style="font-size: 11px !important" v-html="formatDesc(item.contact || item.info || item.desc)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -2px; right: -2px">
@@ -203,7 +203,7 @@
               <div v-else-if="section.id === 'hobbies'" class="space-y-1">
                 <div class="text-[#333] font-normal leading-relaxed text-justify" style="font-size: 11.5px !important">
                   <span v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container inline-block mr-1 relative">
-                    {{ item.name }}<span v-if="itemIndex < section.items.length - 1"> - </span>
+                    <span v-html="item.name"></span><span v-if="itemIndex < section.items.length - 1"> - </span>
                     <transition name="fade-btns">
                       <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -5px; right: -8px; transform: scale(0.8)">
                         <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -217,7 +217,7 @@
               <div v-else class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-[#333] font-normal leading-relaxed item-container relative" style="font-size: 11px !important">
                   <div v-if="item.name || item.title" class="paginated-item font-bold mb-0.5" style="font-size: 11.5px !important; color: #333;">
-                    {{ item.name || item.title }}
+                    <span v-html="item.name || item.title"></span>
                   </div>
                   <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
                   <transition name="fade-btns">
@@ -264,7 +264,7 @@
 
             <div class="paginated-item">
               <h3 class="section-title text-white font-bold uppercase tracking-wider pl-4 py-1.5 mb-4" style="background-color: #2b2b2b; font-size: 15px !important;">
-                {{ section.title }}
+                <span v-html="section.title"></span>
               </h3>
             </div>
 
@@ -284,11 +284,11 @@
                       <h4 class="text-[#222] font-bold" style="font-size: 13px !important">
                         <span v-html="item.school"></span>
                       </h4>
-                      <span v-if="item.year" class="font-bold text-[#333] shrink-0" style="font-size: 12px !important">{{ item.year }}</span>
+                      <span v-if="item.year" class="font-bold text-[#333] shrink-0" style="font-size: 12px !important"><span v-html="item.year"></span></span>
                     </div>
-                    <div v-if="item.major" class="font-normal text-[#555] mb-1" style="font-size: 12px !important">{{ item.major }}</div>
+                    <div v-if="item.major" class="font-normal text-[#555] mb-1" style="font-size: 12px !important"><span v-html="item.major"></span></div>
                     <div v-if="item.gradType" class="text-[#555] font-normal" style="font-size: 11.5px !important">
-                      Xếp loại: <span class="font-bold">{{ item.gradType }}</span>
+                      Xếp loại: <span class="font-bold"><span v-html="item.gradType"></span></span>
                     </div>
                   </div>
                   <div class="leading-[1.6] text-[#444] html-content mt-1" style="font-size: 12px !important" v-html="formatDesc(item.desc)"></div>
@@ -310,9 +310,9 @@
                       <h4 class="text-[#222] font-bold" style="font-size: 13px !important">
                         <span v-html="section.id === 'experience' ? item.company : (item.name || item.organization)"></span>
                       </h4>
-                      <span v-if="item.time" class="font-bold text-[#333] shrink-0" style="font-size: 12px !important">{{ item.time }}</span>
+                      <span v-if="item.time" class="font-bold text-[#333] shrink-0" style="font-size: 12px !important"><span v-html="item.time"></span></span>
                     </div>
-                    <div class="font-normal text-[#555] uppercase tracking-wide mb-1.5" style="font-size: 11px !important">{{ section.id === 'experience' ? item.role : (item.role || item.position || '') }}</div>
+                    <div class="font-normal text-[#555] uppercase tracking-wide mb-1.5" style="font-size: 11px !important"><span v-html="section.id === 'experience' ? item.role : (item.role || item.position || '')"></span></div>
                   </div>
                   <div class="leading-[1.6] text-[#444] text-justify html-content" style="font-size: 12px !important" v-html="formatDesc(item.desc)"></div>
                   <transition name="fade-btns">
@@ -329,8 +329,8 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative pl-5">
                   <div class="paginated-item relative z-10">
                     <div class="absolute -left-5 top-1.5 w-2 h-2 rounded-full bg-[#444]"></div>
-                    <div v-if="item.year" class="font-bold text-[#333] mb-0.5" style="font-size: 12px !important">{{ item.year }}</div>
-                    <div class="font-normal text-[#444] html-content" style="font-size: 12.5px !important">{{ item.name || item.info }}</div>
+                    <div v-if="item.year" class="font-bold text-[#333] mb-0.5" style="font-size: 12px !important"><span v-html="item.year"></span></div>
+                    <div class="font-normal text-[#444] html-content" style="font-size: 12.5px !important"><span v-html="item.name || item.info"></span></div>
                   </div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
@@ -349,8 +349,8 @@
                   style="font-size: 12px !important"
                 >
                   <div class="flex justify-between items-center w-full">
-                    <span class="font-bold text-[#333]">{{ item.name }}</span>
-                    <span v-if="item.level || item.info" class="font-normal text-[#666] normal-case italic" style="font-size: 11px !important">{{ item.level || item.info }}</span>
+                    <span class="font-bold text-[#333]"><span v-html="item.name"></span></span>
+                    <span v-if="item.level || item.info" class="font-normal text-[#666] normal-case italic" style="font-size: 11px !important"><span v-html="item.level || item.info"></span></span>
                   </div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
@@ -363,7 +363,7 @@
               <!-- References -->
               <div v-else-if="section.id.toLowerCase().includes('reference')" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed">
-                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 13px !important">{{ item.name }} <span v-if="item.role || item.title" class="font-normal text-[#555]">- {{ item.role || item.title }}</span></div>
+                  <div class="font-bold text-[#333] mb-0.5" style="font-size: 13px !important"><span v-html="item.name"></span> <span v-if="item.role || item.title" class="font-normal text-[#555]">- <span v-html="item.role || item.title"></span></span></div>
                   <div class="text-[#555] font-normal html-content" style="font-size: 12px !important" v-html="formatDesc(item.contact || item.info || item.desc)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
@@ -377,7 +377,7 @@
               <div v-else-if="section.id === 'hobbies'" class="space-y-1">
                 <div class="text-[#333] font-normal leading-relaxed text-justify" style="font-size: 12px !important">
                   <span v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container inline-block mr-1 relative">
-                    {{ item.name }}<span v-if="itemIndex < section.items.length - 1"> - </span>
+                    <span v-html="item.name"></span><span v-if="itemIndex < section.items.length - 1"> - </span>
                     <transition name="fade-btns">
                       <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
                         <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>

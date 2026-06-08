@@ -149,7 +149,7 @@
             <h3
               class="paginated-item uppercase w-full block break-words"
               :style="{ fontSize: '28px', color: '#222', marginBottom: '15px', fontWeight: 'bold', letterSpacing: '1px' }"
-            >{{ section.title }}</h3>
+            ><span v-html="section.title"></span></h3>
 
             <!-- SUMMARY -->
             <div v-if="section.id === 'summary'">
@@ -177,11 +177,11 @@
                 <div class="w-full flex justify-between items-start mb-[3px] paginated-item relative">
                   <div class="absolute -left-[20px] top-[8px] w-[6px] h-[6px] rounded-full bg-black"></div>
                   <div class="text-[16px] leading-tight font-bold flex-1 pr-3 flex flex-col" v-html="formatDesc(item.company || item.school || item.name || item.organization)"></div>
-                  <div v-if="item.time || item.year" class="italic text-[16px] text-[#4a5568] shrink-0">{{ item.time || item.year }}</div>
+                  <div v-if="item.time || item.year" class="italic text-[16px] text-[#4a5568] shrink-0"><span v-html="item.time || item.year"></span></div>
                 </div>
                 
                 <div v-if="item.role || item.major" class="paginated-item text-[16px] italic mb-[3px] w-full flex flex-col" v-html="formatDesc(item.role || item.major)"></div>
-                <div v-if="item.gradType" class="paginated-item text-[14.5px] font-medium w-full mb-[3px] text-blue-600">Xếp loại: {{ item.gradType }}</div>
+                <div v-if="item.gradType" class="paginated-item text-[14.5px] font-medium w-full mb-[3px] text-blue-600">Xếp loại: <span v-html="item.gradType"></span></div>
                 
                 <!-- BĂM MÔ TẢ THÀNH NHIỀU DÒNG -->
                 <div v-if="item.desc" class="html-content text-justify w-full text-[#333] flex flex-col mt-1"
@@ -218,7 +218,7 @@
                   <div class="absolute -left-[20px] top-[10px] w-[6px] h-[6px] rounded-full bg-black"></div>
                   <div class="flex justify-between items-end mb-[10px]">
                     <span class="italic text-[#333] block leading-tight flex flex-col" :style="{ fontSize: '18px' }" v-html="formatDesc(item.name)"></span>
-                    <span class="text-[14px] font-bold text-[#8da9c4] whitespace-nowrap ml-2">{{ getLevelInfo(item.level).text }}</span>
+                    <span class="text-[14px] font-bold text-[#8da9c4] whitespace-nowrap ml-2"><span v-html="getLevelInfo(item.level).text"></span></span>
                   </div>
                   <div class="w-full bg-[#cbd5e0] rounded-full overflow-hidden" :style="{ height: '10px' }">
                     <div class="h-full rounded-full transition-all duration-500"
@@ -254,7 +254,7 @@
                   <div class="font-bold text-[16px] flex-1 flex flex-col" v-html="formatDesc(item.name || item.title)">
                   </div>
                   <div v-if="item.year || item.time" class="italic text-[14px] ml-4 shrink-0 text-[#666]">
-                    {{ item.year || item.time }}
+                    <span v-html="item.year || item.time"></span>
                   </div>
                 </div>
 

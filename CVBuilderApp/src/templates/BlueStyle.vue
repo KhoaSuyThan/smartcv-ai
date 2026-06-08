@@ -112,7 +112,7 @@
             <div class="paginated-item">
               <div class="flex flex-col mb-2">
                 <h3 class="font-extrabold uppercase tracking-[0.08em] text-black" style="font-size: 15px !important;">
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </h3>
                 <div class="h-[1.5px] bg-black w-full mt-1"></div>
               </div>
@@ -131,11 +131,11 @@
                     <h4 class="text-[10px] font-bold text-slate-800 flex items-center gap-2">
                       <span class="text-[10px]">▶</span> <span v-html="item.school"></span>
                     </h4>
-                    <span class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.year }}</span>
+                    <span class="text-[14px] font-bold text-slate-800 shrink-0"><span v-html="item.year"></span></span>
                   </div>
                   <div class="pl-5">
                     <div class="text-[14.5px] font-bold italic text-slate-600" v-html="item.major"></div>
-                    <div v-if="item.gradType" class="text-[14px] text-slate-500 font-medium">Học lực: {{ item.gradType }}</div>
+                    <div v-if="item.gradType" class="text-[14px] text-slate-500 font-medium">Học lực: <span v-html="item.gradType"></span></div>
                   </div>
                 </div>
                 
@@ -156,8 +156,8 @@
                     <h4 class="text-[10px] font-bold text-slate-800 flex items-center gap-2 uppercase">
                       <span class="text-[10px]">▶</span> <span v-html="section.id === 'experience' ? item.company : (item.name || item.title)"></span>
                     </h4>
-                    <span v-if="item.time || item.year" class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.time || item.year }}</span>
-                    <span v-else-if="item.level || item.info" class="text-[14px] font-bold italic text-slate-500 shrink-0">{{ item.level || item.info }}</span>
+                    <span v-if="item.time || item.year" class="text-[14px] font-bold text-slate-800 shrink-0"><span v-html="item.time || item.year"></span></span>
+                    <span v-else-if="item.level || item.info" class="text-[14px] font-bold italic text-slate-500 shrink-0"><span v-html="item.level || item.info"></span></span>
                   </div>
                   <div v-if="section.id === 'experience' || item.role || item.company" class="pl-5 text-[14.5px] font-bold italic text-slate-600 mb-2" v-html="section.id === 'experience' ? item.role : (item.role || item.company)"></div>
                 </div>
@@ -181,8 +181,8 @@
                       <div style="font-size: 15px !important;" class="font-bold text-slate-800 break-words flex-1">
                         <span v-html="item.name || item.title || (!item.desc ? item.info : '') || (!item.name && !item.title && !item.info ? item.desc : '') || 'Chưa có nội dung'"></span>
                       </div>
-                      <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0">{{ item.level || item.info }}</span>
-                      <span v-else-if="item.year || item.time" class="text-[14px] font-bold text-slate-800 shrink-0">{{ item.year || item.time }}</span>
+                      <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0"><span v-html="item.level || item.info"></span></span>
+                      <span v-else-if="item.year || item.time" class="text-[14px] font-bold text-slate-800 shrink-0"><span v-html="item.year || item.time"></span></span>
                     </div>
                   </div>
                 </div>
@@ -227,7 +227,7 @@
                   class="font-extrabold uppercase tracking-[0.08em] text-black" 
                   style="font-size: 15px !important;"
                 >
-                  {{ section.title }}
+                  <span v-html="section.title"></span>
                 </h3>
                 <div class="h-[1.5px] bg-black w-full mt-1"></div>
               </div>
@@ -242,7 +242,7 @@
                 </transition>
 
                 <template v-if="['awards','certifications'].includes(section.id)">
-                  <div v-if="item.year" class="paginated-item font-bold text-[#333] mb-0.5">{{ item.year }}</div>
+                  <div v-if="item.year" class="paginated-item font-bold text-[#333] mb-0.5"><span v-html="item.year"></span></div>
                   <div class="font-normal html-content" v-html="formatDesc(item.name || item.info)"></div>
                 </template>
 
@@ -250,9 +250,9 @@
                   <div class="paginated-item flex items-start gap-2">
                     <span class="mt-[0.5px] text-slate-500 shrink-0"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg></span>
                     <span class="flex-1">
-                      <span class="font-bold">{{ item.name }}:</span>
-                      <span v-if="item.info" class="font-normal"> {{ item.info }}</span>
-                      <span v-else-if="item.level" class="font-normal"> ({{ item.level }})</span>
+                      <span class="font-bold"><span v-html="item.name"></span>:</span>
+                      <span v-if="item.info" class="font-normal"> <span v-html="item.info"></span></span>
+                      <span v-else-if="item.level" class="font-normal"> (<span v-html="item.level"></span>)</span>
                     </span>
                   </div>
                 </template>
@@ -263,23 +263,23 @@
                     <div class="flex-1 min-w-0">
                       
                       <div v-if="item.time || item.year" class="paginated-item font-bold text-[#333] mb-0.5" style="font-size: 14px !important;">
-                        {{ item.time || item.year }}
+                        <span v-html="item.time || item.year"></span>
                       </div>
                       
                       <div class="flex justify-between items-start gap-2 mb-0.5 paginated-item" v-if="item.company || item.school || item.title || (item.name && !isRichText(item.name))">
                         <div style="font-size: 15px !important;" class="font-bold text-slate-800 break-words flex-1">
                           <span v-html="item.company || item.school || item.title || item.name || 'Chưa có nội dung'"></span>
                         </div>
-                        <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0">{{ item.level || item.info }}</span>
+                        <span v-if="item.level || (item.info && (item.name || item.title))" class="text-[14px] font-bold italic text-slate-500 shrink-0"><span v-html="item.level || item.info"></span></span>
                       </div>
 
-                      <div v-if="item.major" class="paginated-item font-normal mb-0.5" style="font-size: 14.5px !important; color: #555;">{{ item.major }}</div>
-                      <div v-if="(item.company || item.school || item.title || item.name) && item.role" class="paginated-item font-normal italic mb-1" style="font-size: 14.5px !important; color: #555;">{{ item.role }}</div>
+                      <div v-if="item.major" class="paginated-item font-normal mb-0.5" style="font-size: 14.5px !important; color: #555;"><span v-html="item.major"></span></div>
+                      <div v-if="(item.company || item.school || item.title || item.name) && item.role" class="paginated-item font-normal italic mb-1" style="font-size: 14.5px !important; color: #555;"><span v-html="item.role"></span></div>
                       
                       <div v-if="item.gradType || item.gpa" class="paginated-item font-normal mb-1" style="font-size: 14px !important; color: #555;">
-                        <span v-if="item.gradType">Tốt nghiệp loại: <strong>{{ item.gradType }}</strong></span>
+                        <span v-if="item.gradType">Tốt nghiệp loại: <strong><span v-html="item.gradType"></span></strong></span>
                         <span v-if="item.gradType && item.gpa"> | </span>
-                        <span v-if="item.gpa">GPA: <strong>{{ item.gpa }}</strong></span>
+                        <span v-if="item.gpa">GPA: <strong><span v-html="item.gpa"></span></strong></span>
                       </div>
 
                       <div style="font-size: 15px !important;" class="leading-relaxed text-slate-600 text-justify html-content mt-1" 

@@ -239,7 +239,7 @@
                         <span class="drag-handle cursor-grab text-blue-600 hover:text-blue-700 active:cursor-grabbing p-1.5 bg-white rounded-lg shadow-sm border border-slate-200 transition-colors group-hover:border-blue-200 group-hover:bg-blue-50">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="getSectionIcon(section.id)"></svg>
                         </span>
-                        <input v-model="section.title" class="font-bold text-blue-700 bg-transparent py-1 px-2 rounded-md outline-none focus:ring-2 ring-blue-100 hover:bg-white w-full transition-all uppercase tracking-wide text-sm" />
+                        <RichTextEditor v-model="section.title" class="font-bold text-blue-700 bg-transparent py-1 px-2 rounded-md outline-none focus:ring-2 ring-blue-100 hover:bg-white w-full transition-all uppercase tracking-wide text-sm" />
                     </div>
                     <div class="flex items-center gap-2 ml-2 pl-3 border-l border-slate-200">
                         <!-- Toggle -->
@@ -285,10 +285,10 @@
                                 <div class="pl-4 space-y-2">
                                     <!-- form kinh nghiệm -->
                                     <template v-if="section.id === 'experience'">
-                                        <input v-model="item.company" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên Công ty" />
+                                        <RichTextEditor v-model="item.company" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên Công ty" />
                                         <div class="grid grid-cols-2 gap-2">
-                                            <input v-model="item.role" :class="inputBaseClass" placeholder="Vị trí làm việc" />
-                                            <input v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian (VD: 2020 - 2023)" />
+                                            <RichTextEditor v-model="item.role" :class="inputBaseClass" placeholder="Vị trí làm việc" />
+                                            <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian (VD: 2020 - 2023)" />
                                         </div>
                                         <div class="flex items-start gap-2">
                                             <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả công việc (Dùng dấu • để liệt kê)" />
@@ -303,20 +303,20 @@
 
                                     <!-- form học vấn -->
                                     <template v-else-if="section.id === 'education'">
-                                        <input v-model="item.school" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Trường học" />
-                                        <input v-model="item.major" :class="inputBaseClass" placeholder="Ngành/Chuyên khoa" />
+                                        <RichTextEditor v-model="item.school" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Trường học" />
+                                        <RichTextEditor v-model="item.major" :class="inputBaseClass" placeholder="Ngành/Chuyên khoa" />
                                         <div class="grid grid-cols-2 gap-2">
-                                            <input v-model="item.year" :class="inputBaseClass" class="text-xs" placeholder="Năm học" />
-                                            <input v-model="item.gradType" :class="inputBaseClass" class="text-xs" placeholder="Xếp loại (Giỏi/Khá)" />
+                                            <RichTextEditor v-model="item.year" :class="inputBaseClass" class="text-xs" placeholder="Năm học" />
+                                            <RichTextEditor v-model="item.gradType" :class="inputBaseClass" class="text-xs" placeholder="Xếp loại (Giỏi/Khá)" />
                                         </div>
                                     </template>
                                     
                                     <!-- form dự án -->
                                     <template v-else-if="section.id === 'project'">
-                                        <input v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên dự án" />
+                                        <RichTextEditor v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên dự án" />
                                         <div class="grid grid-cols-2 gap-2">
-                                            <input v-model="item.role" :class="inputBaseClass" placeholder="Vai trò" />
-                                            <input v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
+                                            <RichTextEditor v-model="item.role" :class="inputBaseClass" placeholder="Vai trò" />
+                                            <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
                                         </div>
                                         <div class="flex items-start gap-2">
                                             <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Công nghệ sử dụng, Kết quả đạt được..." />
@@ -332,15 +332,15 @@
                                     <!-- form kỹ năng chung (name, level) -->
                                     <template v-if="section.id === 'skills' || section.id === 'languages' || section.id === 'it_skills'">
                                         <div class="grid grid-cols-3 gap-2">
-                                            <input v-model="item.name" :class="inputBaseClass" class="col-span-2 font-semibold" placeholder="Tên (VD: Lập trình C#) hoặc Ngôn ngữ" />
-                                            <input v-model="item.level" :class="inputBaseClass" class="text-xs" placeholder="Mức độ" />
+                                            <RichTextEditor v-model="item.name" :class="inputBaseClass" class="col-span-2 font-semibold" placeholder="Tên (VD: Lập trình C#) hoặc Ngôn ngữ" />
+                                            <RichTextEditor v-model="item.level" :class="inputBaseClass" class="text-xs" placeholder="Mức độ" />
                                         </div>
                                     </template>
 
                                     <!-- form hoạt động -->
                                     <template v-else-if="section.id === 'activities'">
-                                        <input v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên Hoạt động/Tổ chức" />
-                                        <input v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
+                                        <RichTextEditor v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên Hoạt động/Tổ chức" />
+                                        <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
                                         <div class="flex items-start gap-2">
                                             <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả chi tiết hoạt động..." />
                                             <button @click="improveAIDesc(item, 'activities')" :disabled="isAIProcessing[item._refId]" class="cv-ai-btn shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
@@ -354,13 +354,13 @@
 
                                     <!-- form chứng chỉ/giải thưởng -->
                                     <template v-else-if="section.id === 'certifications' || section.id === 'awards'">
-                                        <input v-model="item.name" :class="inputBaseClass" class="font-semibold text-slate-800" placeholder="Tên giải thưởng / Chứng chỉ" />
-                                        <input v-model="item.year" :class="inputBaseClass" class="text-xs" placeholder="Năm / Tổ chức cấp" />
+                                        <RichTextEditor v-model="item.name" :class="inputBaseClass" class="font-semibold text-slate-800" placeholder="Tên giải thưởng / Chứng chỉ" />
+                                        <RichTextEditor v-model="item.year" :class="inputBaseClass" class="text-xs" placeholder="Năm / Tổ chức cấp" />
                                     </template>
 
                                     <!-- form sở thích & thông tin thêm -->
                                     <template v-else-if="section.id === 'hobbies' || section.id === 'additional'">
-                                        <input v-model="item.name" :class="inputBaseClass" class="font-semibold text-slate-800" :placeholder="section.id === 'additional' ? 'Thông tin thêm (VD: Có xe máy riêng)' : 'Sở thích (VD: Đọc sách)'" />
+                                        <RichTextEditor v-model="item.name" :class="inputBaseClass" class="font-semibold text-slate-800" :placeholder="section.id === 'additional' ? 'Thông tin thêm (VD: Có xe máy riêng)' : 'Sở thích (VD: Đọc sách)'" />
                                     </template>
 
                                     <!-- form tham chiếu -->
