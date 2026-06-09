@@ -273,7 +273,6 @@ namespace DoAnCS.Controllers
             // 2. Nếu không tìm thấy trong DB thì báo lỗi
             if (jobDb == null) return NotFound();
 
-            // 3. Mapping dữ liệu từ Job (DB) sang JobDto (View)
             var jobDto = new JobDto
             {
                 job_id = jobDb.JobID.ToString(), // Chắc chắn map JobID để gửi đơn ứng tuyển
@@ -282,6 +281,10 @@ namespace DoAnCS.Controllers
                 employer_logo = jobDb.Company?.LogoUrl,
                 job_city = jobDb.Company?.Address,
                 job_description = jobDb.Description,
+                job_requirements = jobDb.Requirements,
+                job_salary = jobDb.Salary,
+                job_deadline = jobDb.Deadline,
+                job_created_at = jobDb.CreatedAt,
                 job_apply_link = jobDb.Company?.Website ?? "#"
             };
 

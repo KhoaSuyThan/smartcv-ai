@@ -560,6 +560,10 @@ namespace DoAnCS.Controllers
         // 8. Hiển thị danh sách mẫu CV Vue (Dùng cho Testing)
         public async Task<IActionResult> VueTemplates()
         {
+            int userId = GetCurrentUserId();
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            ViewBag.IsPro = user?.IsPro ?? false;
+
             var vueTemplates = await _context.VueTemplates
                                 .Where(t => t.IsActive == true)
                                 .ToListAsync();
@@ -575,6 +579,16 @@ namespace DoAnCS.Controllers
 
             var vueTemplate = await _context.VueTemplates.FindAsync(id);
             if (vueTemplate == null) return RedirectToAction("VueTemplates");
+
+            // Kiểm tra quyền Pro
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+            bool isPro = user?.IsPro ?? false;
+
+            if (vueTemplate.IsPremium && !isPro)
+            {
+                TempData["ErrorMessage"] = "Mẫu CV này chỉ dành cho thành viên Pro. Hãy nâng cấp tài khoản để sử dụng!";
+                return RedirectToAction("VueTemplates");
+            }
 
             // --- CẢI TIẾN: Tránh lưu trùng lặp bằng cách tìm theo UserID và TemplateID thực tế ---
             // Chỉ tìm các bản ghi có Title bắt đầu bằng "CV Vue: " để tránh bốc nhầm dữ liệu của bảng cũ

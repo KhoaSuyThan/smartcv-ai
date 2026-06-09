@@ -215,6 +215,64 @@
         display: inline-block;
         margin-top: 0.5rem;
     }
+
+    /* Premium Modal Styles */
+    .modal-pro-content {
+        border-radius: 1.5rem !important;
+        border: none;
+        background: #ffffff;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: visible; /* To allow the floating icon to show */
+    }
+    
+    .modal-pro-header {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        padding: 3rem 1rem 1.5rem;
+        border-radius: 1.5rem 1.5rem 0 0;
+        position: relative;
+        border-bottom: 1px solid #fde68a;
+    }
+    
+    .modal-pro-icon {
+        width: 90px;
+        height: 90px;
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px -5px rgba(217, 119, 6, 0.5);
+        position: absolute;
+        top: -45px;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 5px solid white;
+    }
+    
+    .modal-pro-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+    
+    .btn-pro-upgrade {
+        background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+        color: white !important;
+        border: none;
+        font-weight: 700;
+        box-shadow: 0 10px 15px -3px rgba(217, 119, 6, 0.3);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-pro-upgrade:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 20px -5px rgba(217, 119, 6, 0.4);
+        color: white !important;
+    }
+    
+    .btn-pro-upgrade i {
+        color: #fef3c7 !important;
+    }
 </style>
 
 <div class="container py-5">
@@ -243,15 +301,40 @@
         <button class="filter-btn" data-filter="Khác"><i class="fas fa-ellipsis-h"></i> Khác</button>
     </div>
 
+    <!-- Pro Upgrade Modal (Luôn tồn tại trong DOM) -->
+    <div class="modal fade" id="proUpgradeModal" tabindex="-1" aria-labelledby="proUpgradeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-pro-content mt-4">
+                <div class="modal-header border-0 pb-0 position-absolute end-0 top-0 z-3 p-3">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-pro-header text-center">
+                    <div class="modal-pro-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1 mt-2" style="color: #92400e; letter-spacing: -0.5px;">Tính Năng Cao Cấp</h3>
+                </div>
+                <div class="modal-body text-center px-4 py-4">
+                    <p class="text-secondary mb-4 fs-6 lh-lg" id="proModalMessage">@(TempData["ErrorMessage"] ?? "Mẫu CV này được thiết kế độc quyền cho thành viên Pro. Hãy nâng cấp tài khoản để trải nghiệm mẫu CV xịn xò này!")</p>
+                    <div class="d-grid gap-3">
+                        <a href="/Account/Upgrade" class="btn btn-pro-upgrade rounded-pill py-3 fs-5">
+                            <i class="fas fa-bolt me-2"></i> Nâng cấp Pro ngay
+                        </a>
+                        <button type="button" class="btn btn-light rounded-pill py-2 fw-bold text-muted border" data-bs-dismiss="modal">Để sau</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-warning alert-dismissible fade show shadow-sm border-0 mb-5 rounded-4 d-flex align-items-center justify-content-between" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fs-4 text-warning me-3"></i>
-                <span class="fw-bold text-dark">@TempData["ErrorMessage"]</span>
-            </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var proModal = new bootstrap.Modal(document.getElementById('proUpgradeModal'));
+                proModal.show();
+            });
+        </script>
     }
 
     <!-- Cards Section -->
@@ -286,9 +369,8 @@
                                  onerror="this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
                             
                             <div class="hover-overlay">
-                                <a asp-controller="Resume" 
-                                   asp-action="CreateVue" 
-                                   asp-route-id="@item.Id" 
+                                <a href="@Url.Action("CreateVue", "Resume", new { id = item.Id })" 
+                                   onclick="return checkProAccess(event, @item.IsPremium.ToString().ToLower(), @ViewBag.IsPro.ToString().ToLower());"
                                    class="btn btn-use-template">
                                     <i class="fas fa-pen-nib me-2"></i>Sử dụng mẫu này
                                 </a>
@@ -379,4 +461,14 @@
             });
         }
     });
+
+    window.checkProAccess = function(e, isPremium, isPro) {
+        if (isPremium && !isPro) {
+            e.preventDefault();
+            var proModal = new bootstrap.Modal(document.getElementById('proUpgradeModal'));
+            proModal.show();
+            return false;
+        }
+        return true;
+    };
 </script>

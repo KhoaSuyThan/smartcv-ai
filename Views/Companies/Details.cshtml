@@ -103,10 +103,13 @@
                                                     <h5 class="fw-bold mb-2">
                                                         <a href="/Home/Details/@job.JobID" class="text-dark text-decoration-none hover-text-success transition-all">@job.Title</a>
                                                     </h5>
+                                                    <p class="text-muted small mb-2 text-break" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; text-align: justify;">
+                                                        @Html.Raw(System.Text.RegularExpressions.Regex.Replace(job.Description ?? "Chưa có mô tả", "<.*?>", String.Empty))
+                                                    </p>
                                                     <div class="d-flex flex-wrap gap-3 mb-0">
-                                                        <span class="text-success fw-bold"><i class="fas fa-money-bill-wave me-2"></i>@job.Salary</span>
-                                                        <span class="text-muted small"><i class="far fa-calendar-alt me-2"></i>Hạn: @(job.Deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")</span>
-                                                        <span class="text-muted small"><i class="far fa-clock me-2"></i>@job.CreatedAt.ToString("dd/MM/yyyy")</span>
+                                                        <span class="text-success fw-bold bg-success bg-opacity-10 px-2 py-1 rounded small"><i class="fas fa-money-bill-wave me-1"></i>@job.Salary</span>
+                                                        <span class="text-muted small mt-1"><i class="far fa-calendar-alt me-1"></i>Hạn: @(job.Deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")</span>
+                                                        <span class="text-muted small mt-1"><i class="far fa-clock me-1"></i>Đăng: @job.CreatedAt.ToString("dd/MM/yyyy")</span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-auto mt-3 mt-md-0">

@@ -11,5 +11,8 @@ public class JobDto
     public string job_employment_type { get; set; }
     public string job_apply_link { get; set; }
     public string job_salary { get; set; }
+    public string job_requirements { get; set; }
+    public DateTime? job_deadline { get; set; }
+    public DateTime job_created_at { get; set; }
     public List<string> job_highlights { get; set; }
 }

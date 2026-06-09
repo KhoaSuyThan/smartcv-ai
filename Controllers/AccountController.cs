@@ -790,7 +790,7 @@ namespace DoAnCS.Controllers
 
                 CreatePaymentLinkResponse createPayment = await _payOS.PaymentRequests.CreateAsync(requestData);
                 
-                return Json(new { success = true, checkoutUrl = createPayment.CheckoutUrl });
+                return Json(new { success = true, checkoutUrl = createPayment.CheckoutUrl, orderCode = orderCode });
             }
             catch (Exception ex)
             {
@@ -801,11 +801,48 @@ namespace DoAnCS.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult PaymentCallback(string code, string status, bool cancel)
+        public async Task<IActionResult> PaymentCallback(string code, string status, bool cancel, long orderCode)
         {
             if (code == "00" && status == "PAID" && !cancel)
             {
-                ViewBag.SuccessMessage = "Thanh toán thành công! Gói Pro của bạn sẽ được kích hoạt ngay lập tức.";
+                // CƠ CHẾ DỰ PHÒNG: Tự động cập nhật trạng thái Pro ngay tại Callback
+                // Rất cần thiết cho môi trường Localhost vì Webhook của PayOS không thể gọi về localhost.
+                var upgradeRequest = await _context.UpgradeRequests
+                    .FirstOrDefaultAsync(u => u.Notes.Contains($"OrderCode: {orderCode}") && u.Status == 0);
+
+                if (upgradeRequest != null)
+                {
+                    upgradeRequest.Status = 1; // Đã thanh toán
+                    upgradeRequest.DecisionDate = DateTime.Now;
+
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == upgradeRequest.UserID);
+                    if (user != null)
+                    {
+                        user.IsPro = true;
+
+                        // Cập nhật lại Cookie ngay lập tức để Navbar ẩn nút Nâng cấp
+                        if (User.Identity != null && User.Identity.IsAuthenticated && User.FindFirst("UserID")?.Value == user.UserID.ToString())
+                        {
+                            var identity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+                            var oldClaim = identity.FindFirst("IsPro");
+                            if (oldClaim != null)
+                            {
+                                identity.RemoveClaim(oldClaim);
+                            }
+                            identity.AddClaim(new System.Security.Claims.Claim("IsPro", "True"));
+
+                            await HttpContext.SignInAsync(
+                                Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme,
+                                new System.Security.Claims.ClaimsPrincipal(identity),
+                                new Microsoft.AspNetCore.Authentication.AuthenticationProperties { IsPersistent = true }
+                            );
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                ViewBag.SuccessMessage = "Thanh toán thành công! Gói Pro của bạn đã được kích hoạt ngay lập tức.";
             }
             else
             {

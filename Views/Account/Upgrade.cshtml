@@ -248,7 +248,7 @@
                                 ELEMENT_ID: "config_root", 
                                 CHECKOUT_URL: data.checkoutUrl,
                                 onSuccess: (event) => {
-                                    window.location.href = "/Account/PaymentCallback?code=00&status=PAID&cancel=false";
+                                    window.location.href = `/Account/PaymentCallback?code=00&status=PAID&cancel=false&orderCode=${data.orderCode}`;
                                 },
                                 onExit: (event) => {
                                     overlay.style.display = 'none';
