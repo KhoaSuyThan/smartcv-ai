@@ -355,6 +355,65 @@ const props = defineProps({
 
 const emit = defineEmits(['moveUp', 'moveDown', 'removeItem'])
 
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  const num = parseInt(clean, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
+  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#0056b3'
+  return c
+})
+
+const isCustomColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  return c && c.toLowerCase() !== '#2b5c8f'
+})
+
+const templateAccentColor = computed(() => {
+  if (isCustomColor.value) return templatePrimaryColor.value
+  return '#D6624B'
+})
+
+const templateBlockBgColor = computed(() => {
+  if (!isCustomColor.value) return '#EFECE9'
+  return adjustColorBrightness(templatePrimaryColor.value, 0.92)
+})
+
+const templateNameColor = computed(() => {
+  if (isCustomColor.value) return templatePrimaryColor.value
+  return '#4A2B28'
+})
+
 const isEmpty = (v) => !v || v.toString().trim() === ''
 
 const getSection = (id) => props.resumeData?.sections?.find(s => s.id === id) ?? null
@@ -619,27 +678,27 @@ onUnmounted(() => {
   box-sizing: border-box; position: relative; color: #333; overflow: hidden;
 }
 
-.pastel-block { background: #EFECE9; padding: 20px 25px; border-radius: 4px; margin-bottom: 18px; position: relative; }
+.pastel-block { background: v-bind(templateBlockBgColor); padding: 20px 25px; border-radius: 4px; margin-bottom: 18px; position: relative; }
 
-.section-title { font-size: 15px; font-weight: 700; color: #0056b3; margin: 0 !important; letter-spacing: 0.5px; text-transform: uppercase; }
+.section-title { font-size: 15px; font-weight: 700; color: v-bind(templatePrimaryColor); margin: 0 !important; letter-spacing: 0.5px; text-transform: uppercase; }
 .double-line { height: 4px; margin: 6px 0 15px 0; display: flex; flex-direction: column; gap: 1px; }
-.line-blue { height: 1.5px; background: #0056b3; width: 100%; }
-.line-red  { height: 1.5px; background: #D6624B; width: 100%; }
+.line-blue { height: 1.5px; background: v-bind(templatePrimaryColor); width: 100%; }
+.line-red  { height: 1.5px; background: v-bind(templateAccentColor); width: 100%; }
 
 .contact-block { display: flex; justify-content: space-around; padding: 12px; }
 .contact-item { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; position: relative; padding-right: 15px; }
-.contact-item i { color: #D6624B; font-size: 13px; }
+.contact-item i { color: v-bind(templateAccentColor); font-size: 13px; }
 
 .profile-block { display: flex; gap: 30px; align-items: flex-start; }
 .profile-left { flex: 1; }
-.fullname { font-size: 28px; font-weight: 700; color: #4A2B28; margin: 0 0 8px 0; text-transform: uppercase; }
+.fullname { font-size: 28px; font-weight: 700; color: v-bind(templateNameColor); margin: 0 0 8px 0; text-transform: uppercase; }
 .job-title-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
 .job-title { font-size: 15px; font-weight: 700; color: #111; text-transform: uppercase; }
-.title-line-accent { height: 2px; background: #D6624B; width: 80px; }
+.title-line-accent { height: 2px; background: v-bind(templateAccentColor); width: 80px; }
 .summary-text { font-size: 12.5px; line-height: 1.5; color: #444; }
 
 .profile-right { position: relative; width: 130px; height: 150px; flex-shrink: 0; padding: 8px 0 0 8px; }
-.avatar-accent { position: absolute; top: 0; left: 0; width: 60px; height: 60px; background: #D6624B; z-index: 1; border-radius: 2px; }
+.avatar-accent { position: absolute; top: 0; left: 0; width: 60px; height: 60px; background: v-bind(templateAccentColor); z-index: 1; border-radius: 2px; }
 .avatar-img, .avatar-placeholder { position: relative; z-index: 2; width: 100%; height: 100%; object-fit: cover; border-radius: 2px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); background: #fff; }
 .avatar-placeholder { display: flex; align-items: center; justify-content: center; }
 
@@ -657,7 +716,7 @@ onUnmounted(() => {
 .timeline-item { border-left: 1.5px solid #ccc; margin-left: 5px; position: relative; margin-bottom: 20px; padding-bottom: 5px; }
 .timeline-item:last-child { margin-bottom: 0; }
 .exp-header-wrap { display: flex; gap: 15px; padding-left: 15px; position: relative; }
-.exp-header-wrap::after { content: ''; position: absolute; left: -5.5px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: #D6624B; }
+.exp-header-wrap::after { content: ''; position: absolute; left: -5.5px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: v-bind(templateAccentColor); }
 .date-badge { width: 85px; flex-shrink: 0; font-weight: 700; font-size: 12.5px; color: #444; margin-top: 2px; text-align: left; }
 .exp-content-wrap { flex: 1; display: flex; flex-direction: column; gap: 4px; padding-right: 15px; }
 
@@ -669,17 +728,17 @@ onUnmounted(() => {
 
 .skill-ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
 .skill-ul li { font-size: 13px; line-height: 1.6; margin-bottom: 8px; color: #111; padding-left: 10px; position: relative; }
-.skill-ul li::before { content: '•'; position: absolute; left: 0; color: #0056b3; }
+.skill-ul li::before { content: '•'; position: absolute; left: 0; color: v-bind(templatePrimaryColor); }
 
 .bottom-split { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 .hobbies-ul, .awards-ul { list-style: none !important; padding: 0 !important; margin: 0 !important; }
 .hobbies-ul li, .awards-ul li { font-size: 12.5px; color: #222; margin-bottom: 6px; position: relative; display: inline-block; margin-right: 15px; }
 
 .section-block { border: 2px solid transparent; cursor: pointer; transition: 0.2s; }
-.section-active { border-color: #0056b3 !important; box-shadow: 0 0 10px rgba(0,86,179,0.1); z-index: 10; }
+.section-active { border-color: v-bind(templatePrimaryColor) !important; box-shadow: 0 0 10px rgba(0,86,179,0.1); z-index: 10; }
 .nav-btns { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 100; }
-.nav-btn { background: #0056b3; color: #fff; border: none; width: 24px; height: 24px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
-.nav-btn:hover { background: #003d82; }
+.nav-btn { background: v-bind(templatePrimaryColor); color: #fff; border: none; width: 24px; height: 24px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; transition: background 0.15s, filter 0.15s; }
+.nav-btn:hover { filter: brightness(0.85); }
 
 .nav-btn-danger {
   background: #ff4d4f !important;
