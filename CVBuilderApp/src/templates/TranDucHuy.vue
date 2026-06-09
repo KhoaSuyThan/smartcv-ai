@@ -7,11 +7,11 @@
     @click.self="selectedSectionId = null"
   >
     <!-- LEFT COLUMN -->
-    <aside class="w-[70mm] z-10 flex flex-col pt-0 shrink-0 relative bg-[#676f7a] text-white">
+    <aside class="w-[70mm] z-10 flex flex-col pt-0 shrink-0 relative text-white" :style="{ backgroundColor: templatePrimaryColor }">
       <!-- Avatar Section -->
-      <div class="relative w-[70mm] h-[85mm] bg-[#5e6671] shrink-0 border-b-[4px] border-[#b1b8c6]">
+      <div class="relative w-[70mm] h-[85mm] shrink-0 border-b-[4px]" :style="{ backgroundColor: templateAvatarBgColor, borderBottomColor: templateAccentColor }">
         <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
-        <div v-else class="w-full h-full flex items-center justify-center text-white/50 bg-[#676f7a]">
+        <div v-else class="w-full h-full flex items-center justify-center text-white/50" :style="{ backgroundColor: templatePrimaryColor }">
           <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
@@ -24,7 +24,7 @@
         <div 
           class="section-block relative group w-full mb-6 ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
           :class="{ 'section-selected': selectedSectionId === 'contact' }"
-          :style="selectedSectionId === 'contact' ? { '--sel-color': '#b1b8c6', color: 'white' } : { color: 'white' }"
+          :style="selectedSectionId === 'contact' ? { '--sel-color': templateAccentColor, color: 'white' } : { color: 'white' }"
           @click.stop="toggleSection('contact')"
         >
           <div class="space-y-3 text-[12.5px] font-medium tracking-wide">
@@ -69,7 +69,7 @@
                 v-show="section.isVisible"
                 :data-section-id="section.id" class="section-block ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
                 :class="{ 'section-selected': selectedSectionId === section.id }"
-                :style="selectedSectionId === section.id ? { '--sel-color': '#b1b8c6' } : {}"
+                :style="selectedSectionId === section.id ? { '--sel-color': templateAccentColor } : {}"
                 @mouseenter="showNav(section.id)"
                 @mouseleave="hideNav()"
                 @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
@@ -159,7 +159,7 @@
     <!-- RIGHT COLUMN -->
     <main class="flex-1 bg-white flex flex-col relative z-10 w-[140mm]">
         <!-- HEADER -->
-        <header class="bg-[#b1b8c6] h-[85mm] pt-[15mm] px-[12mm] flex flex-col justify-center shrink-0 paginated-item relative z-20 items-start box-border">
+        <header class="h-[85mm] pt-[15mm] px-[12mm] flex flex-col justify-center shrink-0 paginated-item relative z-20 items-start box-border" :style="{ backgroundColor: templateAccentColor }">
             <h1 class="text-[26px] font-black uppercase text-[#1e232b] tracking-tight mb-2 leading-[1.1]" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></h1>
             <h2 class="text-[13.5px] font-medium text-[#2f3540]" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Vị trí ứng tuyển'"></h2>
         </header>
@@ -184,7 +184,7 @@
                     v-show="section.isVisible"
                     :data-section-id="section.id" class="section-block cursor-pointer hover:bg-black/5 transition-colors"
                     :class="{ 'section-selected': selectedSectionId === section.id }"
-                    :style="selectedSectionId === section.id ? { '--sel-color': '#b1b8c6' } : {}"
+                    :style="selectedSectionId === section.id ? { '--sel-color': templateAccentColor } : {}"
                     @mouseenter="showNav(section.id)"
                     @mouseleave="hideNav()"
                     @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
@@ -197,10 +197,10 @@
                     </div>
 
                     <div class="flex items-stretch mb-2 paginated-item w-[110mm]">
-                        <div class="font-bold text-white bg-[#676f7a] px-4 tracking-wider whitespace-nowrap flex items-center justify-center py-1.5" style="font-size: 15px;">
+                        <div class="font-bold text-white px-4 tracking-wider whitespace-nowrap flex items-center justify-center py-1.5" style="font-size: 15px;" :style="{ backgroundColor: templatePrimaryColor }">
                             <span v-html="section.title.charAt(0).toUpperCase() + section.title.slice(1).toLowerCase()"></span>
                         </div>
-                        <div class="flex-1 bg-[#b1b8c6]"></div>
+                        <div class="flex-1" :style="{ backgroundColor: templateAccentColor }"></div>
                     </div>
 
                     <div class="space-y-6">
@@ -308,6 +308,53 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  const num = parseInt(clean, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
+  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#676f7a'
+  return c
+})
+
+const templateAvatarBgColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, -0.10)
+})
+
+const templateAccentColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, 0.50)
+})
 
 const formatDesc = (text) => {
     if (!text) return '';
@@ -746,13 +793,13 @@ aside .section-block:hover {
 }
 
 .section-selected {
-    border-color: var(--sel-color, #2563eb);
+    border-color: var(--sel-color, v-bind(templateAccentColor)) !important;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-    background: color-mix(in srgb, var(--sel-color, #2563eb) 8%, white) !important;
+    background: color-mix(in srgb, var(--sel-color, v-bind(templateAccentColor)) 8%, white) !important;
 }
 
 aside .section-selected {
-    border-color: #b1b8c6;
+    border-color: v-bind(templateAccentColor) !important;
     background: rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -798,7 +845,7 @@ aside .section-selected {
   display: flex;
   gap: 3px;
   z-index: 50;
-  background: #676f7a;
+  background: v-bind(templatePrimaryColor) !important;
   padding-left: 5px;
 }
 
