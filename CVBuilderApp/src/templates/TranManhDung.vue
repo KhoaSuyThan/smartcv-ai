@@ -82,7 +82,20 @@
         </div>
 
         <!-- DYNAMIC SIDEBAR SECTIONS (Học vấn, Kỹ năng, Sở thích) -->
-        <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1 cursor-pointer hover:bg-black/5 transition-colors"
@@ -197,6 +210,7 @@
             </div>
           </div>
         </template>
+        </draggable>
       </div>
     </aside>
 
@@ -204,7 +218,20 @@
     <main class="flex-1 flex flex-col relative z-20 min-h-max" @click.self="selectedSectionId = null">
       <!-- Toàn bộ nội dung bên phải cách lề chuẩn -->
       <div class="px-[10mm] pt-[15mm] pb-[15mm] flex-1 flex flex-col gap-[4mm]">
-        <template v-for="section in mainSections" :key="section.id">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group -mx-[8mm] -my-[1.5mm] px-[8mm] py-[1.5mm] cursor-pointer hover:bg-black/5 transition-colors"
@@ -326,6 +353,7 @@
             </div>
           </div>
         </template>
+        </draggable>
       </div>
 
       <!-- Watermark footer -->
@@ -359,6 +387,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -508,6 +537,48 @@ const sidebarSections = computed(() =>
 const mainSections = computed(() =>
   props.resumeData.sections.filter(s => s.column === 'right')
 )
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
+
+  const newOrderIds = [
+    ...sidebarSectionsWritable.value.map(s => s.id),
+    ...mainSectionsWritable.value.map(s => s.id)
+  ]
+  
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!newOrderIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  newOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
