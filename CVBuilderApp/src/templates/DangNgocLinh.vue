@@ -15,8 +15,9 @@
       <!-- HEADER BLOCK (Căn giữa hoàn toàn - Khoảng cách tinh tế) -->
       <header class="text-center pt-[14mm] px-[18mm] pb-[4mm] flex flex-col paginated-item relative z-10">
         <h1 
-          class="font-black text-[#111111] tracking-wide uppercase leading-tight mb-1.5" 
+          class="font-black tracking-wide uppercase leading-tight mb-1.5" 
           style="font-size: 25px !important;" 
+          :style="{ color: templatePrimaryColor }"
           v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"
         ></h1>
         <h2 
@@ -30,8 +31,8 @@
              @click.stop="toggleSection('contact')">
           <div class="flex flex-wrap justify-center items-center gap-x-9 gap-y-1.5 text-[11.5px] text-gray-600 font-medium">
             <div v-for="(ci, ciIdx) in contactItems" :key="ci.key" class="flex items-center gap-1.5 relative contact-item-container group/ci">
-              <svg v-if="ci.key !== 'website'" class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="currentColor" viewBox="0 0 24 24" v-html="ci.icon"></svg>
-              <svg v-else class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" v-html="ci.icon"></svg>
+              <svg v-if="ci.key !== 'website'" class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24" v-html="ci.icon" :style="{ color: templatePrimaryColor }"></svg>
+              <svg v-else class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" v-html="ci.icon" :style="{ color: templatePrimaryColor }"></svg>
               <span v-html="ci.value"></span>
 
               <!-- Move Left / Move Right / Delete buttons -->
@@ -73,7 +74,7 @@
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group -mx-[4mm] px-[4mm] py-[1mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': '#333333' } : {}"
+            :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection(section.id)"
           >
             <!-- Nav Control Buttons -->
@@ -89,12 +90,13 @@
             <div class="paginated-item">
               <div class="flex flex-col mb-2">
                 <h3 
-                  class="font-extrabold uppercase tracking-[0.08em] text-black" 
+                  class="font-extrabold uppercase tracking-[0.08em]" 
                   style="font-size: 15px !important;"
+                  :style="{ color: templatePrimaryColor }"
                 >
                   <span v-html="section.title"></span>
                 </h3>
-                <div class="h-[1.5px] bg-black w-full mt-1"></div>
+                <div class="h-[1.5px] w-full mt-1" :style="{ backgroundColor: templatePrimaryColor }"></div>
               </div>
             </div>
 
@@ -250,6 +252,12 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#111111'
+  return c
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
@@ -524,7 +532,7 @@ onUnmounted(() => {
 
 .section-block.section-active {
   border-radius: 6px !important;
-  border: 2px solid var(--active-bg, #333333) !important;
+  border: 2px solid var(--active-bg, v-bind(templatePrimaryColor)) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.08);
   z-index: 30;
 }
