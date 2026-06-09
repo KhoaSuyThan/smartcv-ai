@@ -36,7 +36,7 @@
           <!-- Nav Buttons for Contact Block - Removed eye button as requested -->
 
           <div class="paginated-item">
-            <div class="bg-[#3b715a] text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide">
+            <div class="text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide" :style="{ backgroundColor: templatePrimaryColor }">
               LIÊN HỆ
             </div>
             <div class="space-y-3 px-2 text-[11px] font-medium text-gray-700">
@@ -95,7 +95,7 @@
             </transition>
 
             <div class="paginated-item">
-              <div class="bg-[#3b715a] text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide">
+              <div class="text-white py-[6px] pl-[23px] pr-4 rounded-r-full font-bold text-[14px] w-[80%] mb-4 -ml-[4mm] uppercase shadow-sm flex items-center tracking-wide" :style="{ backgroundColor: templatePrimaryColor }">
                 <span v-html="section.title"></span>
               </div>
             </div>
@@ -169,7 +169,8 @@
 
       <!-- HEADER NAME TITLE (Right side) -->
       <header
-        class="paginated-item pt-[16mm] px-[10mm] pb-[10mm] flex flex-col relative bg-[#3b715a]"
+        class="paginated-item pt-[16mm] px-[10mm] pb-[10mm] flex flex-col relative"
+        :style="{ backgroundColor: templatePrimaryColor }"
       >
         <!-- Decor on background -->
         <div class="absolute bottom-0 right-0 w-48 h-full pointer-events-none opacity-[0.03]" style="background-image: repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 20px);"></div>
