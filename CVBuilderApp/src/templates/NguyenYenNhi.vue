@@ -46,8 +46,20 @@
     <div class="flex px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-2" @click.self="selectedSectionId = null">
 
       <!-- CỘT TRÁI (SIDEBAR) -->
-      <aside class="flex-[1.1] min-w-[75mm] flex flex-col gap-2" @click.self="selectedSectionId = null">
-        <template v-for="section in sidebarSections" :key="section.id">
+      <draggable
+        v-model="sidebarSectionsWritable"
+        item-key="id"
+        group="sections"
+        class="flex-[1.1] min-w-[75mm] flex flex-col gap-2 cursor-move"
+        @click.self="selectedSectionId = null"
+        @end="onDragEnd"
+        animation="200"
+        ghost-class="opacity-30"
+        :delay="100"
+        :delayOnTouchOnly="true"
+        tag="aside"
+      >
+        <template #item="{ element: section }">
           <!-- GỠ paginated-item Ở THẺ BỌC CHÍNH ĐỂ TRÁNH KÉO CẢ CỤC -->
           <div
             v-show="section.isVisible"
@@ -158,7 +170,7 @@
             </div>
           </div>
         </template>
-      </aside>
+      </draggable>
 
       <!-- CỘT PHẢI (MAIN) -->
       <main class="flex-1 min-w-[100mm] flex flex-col gap-2" @click.self="selectedSectionId = null">
@@ -191,7 +203,18 @@
         </div>
 
         <!-- CÁC SECTION MAIN -->
-        <template v-for="section in mainSections" :key="section.id">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-2 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+        >
+          <template #item="{ element: section }">
           <!-- GỠ paginated-item -->
           <div
             v-show="section.isVisible"
@@ -282,7 +305,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </main>
     </div>
 
@@ -316,6 +340,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const props = defineProps({
   resumeData: { type: Object, required: true }
@@ -341,6 +366,48 @@ const sidebarSections = computed(() => props.resumeData.sections.filter(s => s.c
 const mainSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right'))
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
+
+  const newOrderIds = [
+    ...sidebarSectionsWritable.value.map(s => s.id),
+    ...mainSectionsWritable.value.map(s => s.id)
+  ]
+  
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!newOrderIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  newOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 
 // ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
 const contactIcons = {
