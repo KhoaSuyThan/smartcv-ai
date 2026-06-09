@@ -10,21 +10,21 @@
     <div class="absolute inset-0 bg-white z-0 pointer-events-none"></div>
 
     <!-- LEFT COLUMN (SIDEBAR NỀN NÂU SẪM) -->
-    <aside class="w-[78mm] z-10 flex flex-col pt-0 shrink-0 relative bg-[#3d2e2c] text-white overflow-hidden">
+    <aside class="w-[78mm] z-10 flex flex-col pt-0 shrink-0 relative text-white overflow-hidden" :style="{ backgroundColor: templatePrimaryColor }">
       <!-- Khối cong trang trí màu nâu nhạt hơn phía sau Avatar -->
       <div class="absolute top-0 left-0 right-0 h-[80mm] overflow-hidden pointer-events-none z-0">
-        <div class="absolute top-[-105mm] left-[-30mm] w-[138mm] h-[170mm] rounded-full bg-[#4a3532]"></div>
+        <div class="absolute top-[-105mm] left-[-30mm] w-[138mm] h-[170mm] rounded-full" :style="{ backgroundColor: templateCircleColor }"></div>
       </div>
 
       <!-- Avatar Section -->
       <div class="pt-[15mm] px-[8mm] pb-[4mm] flex flex-col paginated-item relative z-10 items-center">
         <div class="relative w-[50mm] h-[50mm] rounded-full mx-auto flex items-center justify-center bg-transparent z-10">
           <!-- Vòng viền kép ngoài cùng -->
-          <div class="absolute inset-[-6px] rounded-full border border-[#6d5552] opacity-80"></div>
+          <div class="absolute inset-[-6px] rounded-full border opacity-80" :style="{ borderColor: templateBorderColor }"></div>
           <!-- Vòng viền kép trong cùng bao quanh ảnh -->
-          <div class="w-full h-full rounded-full overflow-hidden border-[3px] border-[#6d5552] bg-gray-200">
+          <div class="w-full h-full rounded-full overflow-hidden border-[3px] bg-gray-200" :style="{ borderColor: templateBorderColor }">
             <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex items-center justify-center bg-[#4a3532] text-white/40">
+            <div v-else class="w-full h-full flex items-center justify-center text-white/40" :style="{ backgroundColor: templateCircleColor }">
               <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
@@ -36,7 +36,7 @@
       <!-- Name & Job Title Section -->
       <div class="text-center mt-6 px-[8mm] pb-4 z-10 relative paginated-item">
         <h1 class="font-bold text-white tracking-wide uppercase leading-tight mb-1" style="font-size: 18px !important;" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'TRẦN MẠNH DŨNG'"></h1>
-        <h2 class="font-medium text-[#c5b5b2] tracking-widest uppercase mt-2" style="font-size: 15px !important;" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'CONTENT LEADER'"></h2>
+        <h2 class="font-medium tracking-widest uppercase mt-2" style="font-size: 15px !important;" :style="{ color: templateSecondaryColor }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'CONTENT LEADER'"></h2>
       </div>
 
       <!-- Sidebar Dynamic Content & Contact -->
@@ -44,18 +44,19 @@
         <!-- CONTACT INFORMATION SECTION -->
         <div v-if="contactItems.length > 0" class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1 cursor-pointer hover:bg-black/5 transition-colors" 
              :class="{ 'section-active': selectedSectionId === 'contact' }"
+             :style="selectedSectionId === 'contact' ? { '--active-bg': templatePillColor } : {}"
              @click.stop="toggleSection('contact')">
           <div class="paginated-item">
             <!-- Pill tiêu đề Liên hệ -->
             <div class="relative flex items-center mb-2.5">
               <div class="absolute left-0 right-0 h-[1px] bg-white/15 z-0"></div>
-              <div class="relative z-10 bg-[#5c4542] text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider">
+              <div class="relative z-10 text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider" :style="{ backgroundColor: templatePillColor }">
                 Liên hệ
               </div>
             </div>
 
             <!-- Các dòng thông tin liên hệ -->
-            <div class="space-y-2.5 px-1 text-[11.5px] font-normal text-[#ebe2e0]">
+            <div class="space-y-2.5 px-1 text-[11.5px] font-normal" :style="{ color: templateLightTextColor }">
               <div v-for="(ci, ciIdx) in contactItems" :key="ci.key" class="flex items-center gap-3.5 relative contact-item-container group/ci">
                 <div class="w-4 h-4 flex items-center justify-center shrink-0 text-white/80">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" v-html="ci.icon"></svg>
@@ -100,7 +101,7 @@
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group mb-1 -mx-[4mm] px-[4mm] py-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': '#5c4542' } : {}"
+            :style="selectedSectionId === section.id ? { '--active-bg': templatePillColor } : {}"
             @click.stop="toggleSection(section.id)"
           >
             <!-- Nav Control Buttons -->
@@ -117,7 +118,7 @@
               <!-- Pill tiêu đề -->
               <div class="relative flex items-center mb-2.5">
                 <div class="absolute left-0 right-0 h-[1px] bg-white/15 z-0"></div>
-                <div class="relative z-10 bg-[#5c4542] text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider">
+                <div class="relative z-10 text-white text-[11px] font-bold px-4 py-1 rounded-full uppercase tracking-wider" :style="{ backgroundColor: templatePillColor }">
                   <span v-html="section.title"></span>
                 </div>
               </div>
@@ -127,7 +128,7 @@
             <div class="space-y-2.5 px-1" v-if="sectionHasContent(section)">
               <!-- 1. MỤC TIÊU NGHỀ NGHIỆP (Nếu chuyển sang trái) -->
               <div v-if="section.id.toLowerCase().includes('summary')" class="item-container relative">
-                <div class="text-[12px] text-[#ebe2e0] leading-[1.7] text-justify font-normal html-content" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Chưa có thông tin mục tiêu nghề nghiệp.')"></div>
+                <div class="text-[12px] leading-[1.7] text-justify font-normal html-content" :style="{ color: templateLightTextColor }" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Chưa có thông tin mục tiêu nghề nghiệp.')"></div>
               </div>
 
               <!-- 2. HỌC VẤN (EDUCATION) -->
@@ -138,9 +139,9 @@
                   class="paginated-item item-container leading-relaxed text-[11.5px] text-white/95 relative"
                 >
                   <div class="font-bold text-[12px] text-white leading-tight mb-1"><span v-html="item.major || item.degree"></span></div>
-                  <div class="text-[#c5b5b2] font-semibold mb-1"><span v-html="item.year"></span></div>
+                  <div class="font-semibold mb-1" :style="{ color: templateSecondaryColor }"><span v-html="item.year"></span></div>
                   <div class="font-bold text-white mb-1.5"><span v-html="item.school"></span></div>
-                  <div v-if="item.desc" class="text-[11px] text-[#ebe2e0] leading-relaxed html-content" v-html="formatDesc(item.desc)"></div>
+                  <div v-if="item.desc" class="text-[11px] leading-relaxed html-content" :style="{ color: templateLightTextColor }" v-html="formatDesc(item.desc)"></div>
                   
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -5px; right: -5px;">
@@ -157,14 +158,14 @@
                     <h4 class="font-bold text-[12px] text-white leading-tight flex-1">
                       <span v-html="item.role || item.position"></span>
                     </h4>
-                    <span class="font-bold text-[11px] text-[#c5b5b2] shrink-0 ml-4">
+                    <span class="font-bold text-[11px] shrink-0 ml-4" :style="{ color: templateSecondaryColor }">
                       <span v-html="item.time || item.year"></span>
                     </span>
                   </div>
-                  <div class="paginated-item text-[11.5px] text-[#c5b5b2] mb-1.5 font-medium">
+                  <div class="paginated-item text-[11.5px] mb-1.5 font-medium" :style="{ color: templateSecondaryColor }">
                     <span v-html="item.company || item.organization"></span>
                   </div>
-                  <div class="text-[11px] text-[#ebe2e0] leading-relaxed html-content" v-html="formatDesc(item.desc)"></div>
+                  <div class="text-[11px] leading-relaxed html-content" :style="{ color: templateLightTextColor }" v-html="formatDesc(item.desc)"></div>
                   
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -5px; right: -5px;">
@@ -182,7 +183,7 @@
                   class="paginated-item item-container flex items-baseline text-[11.5px] text-white/90 relative"
                 >
                   <span class="font-bold text-white w-[50px] shrink-0"><span v-html="item.year"></span></span>
-                  <span class="text-[#ebe2e0] flex-1 font-normal html-content leading-relaxed" v-html="formatDesc(item.name || item.info)"></span>
+                  <span class="flex-1 font-normal html-content leading-relaxed" :style="{ color: templateLightTextColor }" v-html="formatDesc(item.name || item.info)"></span>
                   
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: 2px; right: 0;">
@@ -197,7 +198,8 @@
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
-                  class="paginated-item text-[11.5px] text-[#ebe2e0] font-medium leading-relaxed item-container pl-1 relative"
+                  class="paginated-item text-[11.5px] font-medium leading-relaxed item-container pl-1 relative"
+                  :style="{ color: templateLightTextColor }"
                 >
                   <span v-html="item.name"></span>
                   <transition name="fade-btns">
@@ -236,7 +238,7 @@
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group -mx-[8mm] -my-[1.5mm] px-[8mm] py-[1.5mm] cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': '#5c4542' } : {}"
+            :style="selectedSectionId === section.id ? { '--active-bg': templatePillColor } : {}"
             @click.stop="toggleSection(section.id)"
           >
             <!-- Nav Control Buttons -->
@@ -253,7 +255,7 @@
               <!-- Pill tiêu đề ở cột phải có đường kẻ ngang mỏng phía sau -->
               <div class="relative flex items-center mb-3">
                 <div class="absolute left-0 right-0 h-[1px] bg-[#e2e8f0] z-0"></div>
-                <div class="relative z-10 bg-[#5c4542] text-white text-[12px] font-bold px-4.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                <div class="relative z-10 text-white text-[12px] font-bold px-4.5 py-1 rounded-full uppercase tracking-wider shadow-sm" :style="{ backgroundColor: templatePillColor }">
                   <span v-html="section.title"></span>
                 </div>
               </div>
@@ -341,7 +343,7 @@
                   :key="item._refId"
                   class="paginated-item text-[12.5px] text-[#333333] font-medium leading-relaxed item-container pl-1 relative"
                 >
-                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-[#5c4542] mr-2 shrink-0"></span>
+                  <span class="inline-block w-1.5 h-1.5 rounded-full mr-2 shrink-0" :style="{ backgroundColor: templatePillColor }"></span>
                   <span v-html="item.name"></span>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
@@ -397,6 +399,73 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// ─── COLOR PALETTE THEME SYSTEM ───
+const hexToRgb = (hex) => {
+  const c = hex.replace('#', '')
+  if (c.length === 3) {
+    return {
+      r: parseInt(c[0] + c[0], 16),
+      g: parseInt(c[1] + c[1], 16),
+      b: parseInt(c[2] + c[2], 16)
+    }
+  }
+  return {
+    r: parseInt(c.substring(0, 2), 16),
+    g: parseInt(c.substring(2, 4), 16),
+    b: parseInt(c.substring(4, 6), 16)
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const toHex = (n) => {
+    const h = Math.max(0, Math.min(255, Math.round(n))).toString(16)
+    return h.length === 1 ? '0' + h : h
+  }
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) {
+      return hex || ''
+    }
+    const { r, g, b } = hexToRgb(hex)
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return hex
+    const newR = percent > 0 ? r + (255 - r) * percent : r * (1 + percent)
+    const newG = percent > 0 ? g + (255 - g) * percent : g * (1 + percent)
+    const newB = percent > 0 ? b + (255 - b) * percent : b * (1 + percent)
+    return rgbToHex(newR, newG, newB)
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#3d2e2c'
+  return c
+})
+
+const templateCircleColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, 0.10)
+})
+
+const templatePillColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, 0.20)
+})
+
+const templateBorderColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, 0.30)
+})
+
+const templateSecondaryColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, 0.70)
+})
+
+const templateLightTextColor = computed(() => {
+  return adjustColorBrightness(templatePrimaryColor.value, 0.90)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
@@ -692,7 +761,7 @@ onUnmounted(() => {
 
 .section-block.section-active {
   border-radius: 6px !important;
-  border: 2px solid var(--active-bg, #5c4542) !important;
+  border: 2px solid var(--active-bg, v-bind(templatePillColor)) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.12);
   z-index: 30;
 }
