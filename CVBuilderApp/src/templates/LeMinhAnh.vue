@@ -109,7 +109,20 @@
         </div>
 
         <!-- DYNAMIC SIDEBAR SECTIONS -->
-        <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-8 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group px-1 py-1 rounded-md transition-all cursor-pointer hover:bg-black/5 transition-colors"
@@ -123,7 +136,7 @@
                 <button @click.stop.prevent="$emit('moveUp', section.id, sidebarIds)" class="nav-btn" title="Di chuyển lên"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
                 <button @click.stop.prevent="$emit('moveDown', section.id, sidebarIds)" class="nav-btn" title="Di chuyển xuống"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg></button>
-                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn nav-btn-danger" title="Ẩn mục này"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này"><svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
               </div>
             </transition>
 
@@ -184,7 +197,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </aside>
 
       <!-- RIGHT COLUMN (Main Content - rộng còn lại) -->
@@ -193,7 +207,20 @@
         <div class="absolute left-0 top-0 bottom-0 w-px bg-slate-200 pointer-events-none"></div>
 
         <!-- DYNAMIC MAIN SECTIONS -->
-        <template v-for="section in mainSections" :key="section.id">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-8 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group px-1 py-1 rounded-md transition-all cursor-pointer hover:bg-black/5 transition-colors"
@@ -207,7 +234,7 @@
                 <button @click.stop.prevent="$emit('moveUp', section.id, mainIds)" class="nav-btn" title="Di chuyển lên"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"/></svg></button>
                 <button @click.stop.prevent="$emit('moveDown', section.id, mainIds)" class="nav-btn" title="Di chuyển xuống"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg></button>
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg></button>
-                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn nav-btn-danger" title="Ẩn mục này"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này"><svg class="pointer-events-none" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg></button>
               </div>
             </transition>
 
@@ -252,7 +279,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </main>
     </div>
 
@@ -286,6 +314,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -380,6 +409,46 @@ const mainSections = computed(() =>
 )
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  const newOrder = []
+  
+  sidebarSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      orig.column = 'left'
+      newOrder.push(orig)
+    }
+  })
+  
+  mainSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      orig.column = 'right'
+      newOrder.push(orig)
+    }
+  })
+  
+  props.resumeData.sections.forEach(s => {
+    if (!newOrder.find(x => x.id === s.id)) {
+      newOrder.push(s)
+    }
+  })
+  
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newOrder)
+  requestPagination()
+}
 
 // ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
 const contactIcons = {

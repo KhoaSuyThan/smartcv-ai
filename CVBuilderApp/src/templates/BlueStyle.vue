@@ -87,7 +87,20 @@
     <div class="flex px-[12mm] py-[8mm] gap-[10mm] relative z-10" @click.self="selectedSectionId = null">
       
       <div class="flex-[1.5] flex flex-col gap-8">
-        <template v-for="section in leftSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-8 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div v-show="section.isVisible" :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id">
@@ -103,7 +116,7 @@
                 <button @click.stop.prevent="moveSectionHorizontal(section.id, 'right')" class="nav-btn" title="Chuyển cột">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"/></svg>
                 </button>
-                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -195,11 +208,25 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </div>
 
       <div class="flex-1 flex flex-col gap-8">
-        <template v-for="section in rightSections" :key="section.id">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-8 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div v-show="section.isVisible" :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id">
@@ -215,7 +242,7 @@
                 <button @click.stop.prevent="moveSectionHorizontal(section.id, 'left')" class="nav-btn">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -291,7 +318,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </div>
     </div>
 
@@ -309,6 +337,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const props = defineProps({
   resumeData: { type: Object, required: true }
@@ -488,6 +517,50 @@ const formatDesc = (rawText) => {
 
 const leftSections = computed(() => props.resumeData.sections.filter(s => s.column === 'left' && s.id !== 'summary'))
 const rightSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right' && s.id !== 'summary'))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(leftSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(rightSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  const newOrder = []
+  
+  // keep summary first
+  const summary = props.resumeData.sections.find(x => x.id === 'summary')
+  if (summary) newOrder.push(summary)
+
+  sidebarSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      orig.column = 'left'
+      newOrder.push(orig)
+    }
+  })
+  
+  mainSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      orig.column = 'right'
+      newOrder.push(orig)
+    }
+  })
+  
+  props.resumeData.sections.forEach(s => {
+    if (!newOrder.find(x => x.id === s.id)) {
+      newOrder.push(s)
+    }
+  })
+  
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newOrder)
+  requestPagination()
+}
 
 // --- SECTION MOVEMENT FUNCTIONS ---
 const moveSectionUp = (id, currentColumn) => {

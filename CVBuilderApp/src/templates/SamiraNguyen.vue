@@ -57,7 +57,20 @@
         </div>
 
         <!-- DYNAMIC SIDEBAR SECTIONS (KỸ NĂNG, REFERENCE...) -->
-        <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-item-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group cursor-pointer hover:bg-black/5 transition-colors"
@@ -77,7 +90,7 @@
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'right')" class="nav-btn" title="Sang Phải">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </button>
-                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
                   <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -147,7 +160,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </div>
     </aside>
 
@@ -172,7 +186,20 @@
         </div>
 
         <!-- DYNAMIC MAIN SECTIONS -->
-        <template v-for="section in mainSections" :key="section.id">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-[3mm] cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-item-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group py-1 cursor-pointer hover:bg-black/5 transition-colors"
@@ -192,7 +219,7 @@
                 <button @click.stop.prevent="$emit('moveHorizontal', section.id, 'left')" class="nav-btn" title="Sang Trái">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null" class="nav-btn nav-btn-danger" title="Ẩn mục này">
+                <button @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
               </div>
@@ -271,7 +298,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </div>
     </main>
 
@@ -300,6 +328,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -478,6 +507,50 @@ const mainSections = computed(() =>
 
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  const newOrder = []
+  
+  // keep summary first
+  const summary = props.resumeData.sections.find(x => x.id === 'summary')
+  if (summary) newOrder.push(summary)
+
+  sidebarSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      orig.column = 'left'
+      newOrder.push(orig)
+    }
+  })
+  
+  mainSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      orig.column = 'right'
+      newOrder.push(orig)
+    }
+  })
+  
+  props.resumeData.sections.forEach(s => {
+    if (!newOrder.find(x => x.id === s.id)) {
+      newOrder.push(s)
+    }
+  })
+  
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newOrder)
+  requestPagination()
+}
 
 // ─── PAGINATION ENGINE (BỘ PHÂN TRANG TỰ ĐỘNG) ───
 const A4_W_MM   = 210

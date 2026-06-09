@@ -113,9 +113,21 @@
       <div class="main-layout">
         
         <aside class="left-column">
-          <template v-for="section in sidebarSections" :key="section.id">
+          <draggable
+            v-model="sidebarSectionsWritable"
+            item-key="id"
+            group="sections"
+            class="flex flex-col gap-[25px] w-full cursor-move"
+            @end="onDragEnd"
+            animation="200"
+            ghost-class="opacity-30"
+            :delay="100"
+            :delayOnTouchOnly="true"
+            :fallbackTolerance="5"
+            filter=".nav-btn, .delete-item-btn, .contact-item-btns, .html-content, input"
+          >
+            <template #item="{ element: section }">
             <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
-                 :style="{ order: getOrder(section.id, leftIds) }"
                  :class="{ 'section-active': selectedSectionId === section.id }"
                  @click.stop="toggleSection(section.id)" :data-section-id="section.id">
               
@@ -124,7 +136,7 @@
                   <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, leftIds)"><i class="fas fa-chevron-up"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, leftIds)"><i class="fas fa-chevron-down"></i></button>
                   <button class="nav-btn" @click.stop.prevent="moveHorizontal(section.id)"><i class="fas fa-exchange-alt"></i></button>
-                  <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
+                  <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" title="Ẩn mục này"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -195,13 +207,26 @@
                 </div>
               </div>
             </div>
-          </template>
+            </template>
+          </draggable>
         </aside>
 
         <main class="right-column">
-          <template v-for="section in mainSections" :key="section.id">
+          <draggable
+            v-model="mainSectionsWritable"
+            item-key="id"
+            group="sections"
+            class="flex flex-col gap-[25px] w-full cursor-move"
+            @end="onDragEnd"
+            animation="200"
+            ghost-class="opacity-30"
+            :delay="100"
+            :delayOnTouchOnly="true"
+            :fallbackTolerance="5"
+            filter=".nav-btn, .delete-item-btn, .contact-item-btns, .html-content, input"
+          >
+            <template #item="{ element: section }">
             <div v-show="section.isVisible" class="custom-card section-block cursor-pointer hover:bg-black/5 transition-colors"
-                 :style="{ order: getOrder(section.id, rightIds) }"
                  :class="{ 'section-active': selectedSectionId === section.id }"
                  @click.stop="toggleSection(section.id)" :data-section-id="section.id">
               
@@ -210,7 +235,7 @@
                   <button class="nav-btn" @click.stop.prevent="moveHorizontal(section.id)"><i class="fas fa-exchange-alt"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveUp', section.id, rightIds)"><i class="fas fa-chevron-up"></i></button>
                   <button class="nav-btn" @click.stop.prevent="$emit('moveDown', section.id, rightIds)"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null" title="Ẩn mục này"><i class="fas fa-times"></i></button>
+                  <button class="nav-btn nav-btn-danger close-active-btn" @click.stop.prevent="section.isVisible = false; selectedSectionId = null; requestPagination()" title="Ẩn mục này"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
 
@@ -281,7 +306,8 @@
                 </div>
               </div>
             </div>
-          </template>
+            </template>
+          </draggable>
         </main>
       </div>
 
@@ -298,6 +324,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted, toRaw } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -450,6 +477,52 @@ const mainSections = computed(() => {
 const getActiveIds = (sourceArray) => sourceArray.filter(s => s.isVisible).map(s => s.id)
 const leftIds = computed(() => getActiveIds(sidebarSections.value))
 const rightIds = computed(() => getActiveIds(mainSections.value))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  const newOrder = []
+  const newLeftKeys = []
+  
+  const summary = props.resumeData.sections.find(x => x.id === 'summary')
+  if (summary) newOrder.push(summary)
+
+  sidebarSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      newLeftKeys.push(s.id)
+      newOrder.push(orig)
+    }
+  })
+  
+  mainSectionsWritable.value.forEach(s => {
+    const orig = props.resumeData.sections.find(x => x.id === s.id)
+    if (orig) {
+      newOrder.push(orig)
+    }
+  })
+  
+  props.resumeData.sections.forEach(s => {
+    if (!newOrder.find(x => x.id === s.id)) {
+      newOrder.push(s)
+    }
+  })
+  
+  localLeftKeys.value = newLeftKeys
+  emit('moveHorizontal', null, toRaw(localLeftKeys.value))
+  
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newOrder)
+  requestPagination()
+}
 
 const getOrder = (id, activeArray) => activeArray.indexOf(id) + 1
 

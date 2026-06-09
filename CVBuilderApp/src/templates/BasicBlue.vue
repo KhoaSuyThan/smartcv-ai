@@ -78,7 +78,20 @@
 
       <!-- LEFT COLUMN (MAIN) -->
       <main class="flex-[1.4] flex flex-col gap-4" @click.self="selectedSectionId = null">
-        <template v-for="section in mainSections" :key="section.id">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-4 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-show="section.isVisible"
             :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
@@ -163,12 +176,26 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </main>
 
       <!-- RIGHT COLUMN (SIDEBAR) -->
       <aside class="flex-[1] flex flex-col gap-4" @click.self="selectedSectionId = null">
-        <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col gap-4 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <div
             v-show="section.isVisible"
             :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
@@ -224,7 +251,8 @@
               </div>
             </div>
           </div>
-        </template>
+          </template>
+        </draggable>
       </aside>
     </div>
 
@@ -241,6 +269,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const props = defineProps({
   resumeData: { type: Object, required: true }
@@ -336,6 +365,52 @@ const isEmpty = (val) => {
 
 const sidebarSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right'))
 const mainSections = computed(() => props.resumeData.sections.filter(s => s.column === 'left'))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
+
+  const leftIds = mainSectionsWritable.value.map(s => s.id)
+  const rightIds = sidebarSectionsWritable.value.map(s => s.id)
+  
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!leftIds.includes(s.id) && !rightIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  leftIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+  
+  rightIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
+
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
 
