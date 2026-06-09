@@ -229,23 +229,45 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card job-detail-card p-4 p-md-5">
-                <div class="d-flex align-items-center mb-4 flex-wrap">
+                <div class="d-flex align-items-center mb-3 flex-wrap">
                     <img src="@Model.employer_logo" class="company-logo-img me-4 mb-3 mb-md-0" onerror="this.src='https://ui-avatars.com/api/?name=@(Model.employer_name)&background=e0e7ff&color=4338ca&size=80'">
                     <div>
                         <h2 class="fw-bold mb-2 text-dark">@Model.job_title</h2>
-                        <p class="mb-0 text-secondary fs-5">
+                        <p class="mb-2 text-secondary fs-5">
                             <i class='bx bx-building-house text-primary me-1'></i><span class="text-dark fw-bold me-3">@Model.employer_name</span>
                             <i class='bx bx-map text-primary me-1'></i>@Model.job_city
                         </p>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            @if (!string.IsNullOrEmpty(Model.job_salary))
+                            {
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
+                                    <i class="fas fa-money-bill-wave me-1"></i> @Model.job_salary
+                                </span>
+                            }
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
+                                <i class="far fa-clock me-1"></i> Ngày đăng: @Model.job_created_at.ToString("dd/MM/yyyy")
+                            </span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
+                                <i class="far fa-calendar-times me-1"></i> Hạn nộp: @(Model.job_deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 <hr class="text-muted opacity-25 my-4">
 
                 <h5 class="fw-bold mb-3 text-dark"><i class='bx bx-detail text-primary me-2'></i>Mô tả công việc</h5>
-                <div class="job-description">
-                    @Model.job_description
+                <div class="job-description mb-4 text-break" style="text-align: justify;">
+                    @Html.Raw(Model.job_description?.Replace("\n", "<br/>") ?? "Đang cập nhật")
                 </div>
+
+                @if (!string.IsNullOrEmpty(Model.job_requirements))
+                {
+                    <h5 class="fw-bold mb-3 text-dark mt-4"><i class='bx bx-check-shield text-success me-2'></i>Yêu cầu ứng viên</h5>
+                    <div class="job-description text-break" style="text-align: justify;">
+                        @Html.Raw(Model.job_requirements.Replace("\n", "<br/>"))
+                    </div>
+                }
 
                 <div class="mt-5 d-flex gap-3 flex-wrap">
                     @if (!string.IsNullOrEmpty(Model.job_apply_link) && Model.job_apply_link != "#")
