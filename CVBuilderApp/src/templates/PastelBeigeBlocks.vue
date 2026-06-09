@@ -56,270 +56,281 @@
       </div>
     </div>
 
-    <div class="sections-container" style="display: flex; flex-direction: column;">
-      
-      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
-           v-if="educationSection?.isVisible || certSection?.isVisible"
-           :style="{ order: getOrder(getRepId('edu_cert'), blockRepIds) }"
-           :class="{ 'section-active': selectedSectionId === 'edu_cert' }"
-           @click.stop="toggleSection('edu_cert')" data-section-id="edu_cert">
-        
-        <transition name="fade-btns">
-          <div v-if="selectedSectionId === 'edu_cert'" class="nav-btns no-print">
-            <button class="nav-btn" @click.stop="moveUp(getRepId('edu_cert'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
-            <button class="nav-btn" @click.stop="moveDown(getRepId('edu_cert'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
-            <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('edu_cert')"><i class="fas fa-times"></i></button>
-          </div>
-        </transition>
-
-        <div class="section-group" v-if="educationSection?.isVisible">
-          <div class="section-heading paginated-item">
-            <h3 class="section-title">{{ educationSection.name || educationSection.title || 'EDUCATION' }}</h3>
-            <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-          </div>
-          <div class="content-area">
-            <div v-for="(edu, i) in (educationSection?.items || [])" :key="i" class="edu-item item-container">
-              <div class="edu-header paginated-item">
-                <div class="exp-content">
-                  <strong>{{ edu.school }}</strong>
-                  <div>{{ edu.major || edu.degree }}</div>
-                  <div v-if="edu.gradType || edu.info" style="font-size: 12px; color: #444; margin-top: 2px;"><strong>Tốt nghiệp loại:</strong> {{ edu.gradType || edu.info }}</div>
-                </div>
-                <div class="exp-year">{{ edu.year || edu.time }}</div>
+    <draggable
+      v-model="blockRepIdsWritable"
+      item-key="id"
+      group="sections"
+      class="sections-container"
+      style="display: flex; flex-direction: column;"
+      @end="onDragEnd"
+      animation="200"
+      ghost-class="opacity-30"
+      :delay="100"
+      :delayOnTouchOnly="true"
+      :fallbackTolerance="5"
+      filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+    >
+      <template #item="{ element: block }">
+        <template v-if="block.id === getRepId('edu_cert') && (educationSection?.isVisible || certSection?.isVisible)">
+          <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
+               :class="{ 'section-active': selectedSectionId === 'edu_cert' }"
+               @click.stop="toggleSection('edu_cert')" data-section-id="edu_cert">
+            
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'edu_cert'" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="$emit('moveUp', getRepId('edu_cert'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
+                <button class="nav-btn" @click.stop="$emit('moveDown', getRepId('edu_cert'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('edu_cert')"><i class="fas fa-times"></i></button>
               </div>
-              <div v-if="edu.desc" class="html-content" v-html="formatDesc(edu.desc)"></div>
-              <button v-if="selectedSectionId === 'edu_cert' && educationSection?.items?.length" @click.stop="$emit('removeItem','education',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-group" v-if="certSection?.isVisible" :style="{ marginTop: educationSection?.isVisible ? '25px' : '0' }">
-          <div class="section-heading paginated-item">
-            <h3 class="section-title">{{ certSection.name || certSection.title || 'CERTIFICATIONS' }}</h3>
-            <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-          </div>
-          <div class="content-area">
-            <div v-for="(cert, i) in (certSection?.items || [])" :key="i" class="cert-entry item-container paginated-item">
-              <div class="cert-year-div">{{ cert.year || cert.time }}</div>
-              <div class="cert-name-div">{{ cert.name || cert.title || cert.info }}</div>
-              <div v-if="cert.desc" class="html-content" v-html="formatDesc(cert.desc)"></div>
-              <button v-if="selectedSectionId === 'edu_cert' && certSection?.items?.length" @click.stop="$emit('removeItem','certifications',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
-           v-if="projectSection?.isVisible || experienceSection?.isVisible"
-           :style="{ order: getOrder(getRepId('work'), blockRepIds) }"
-           :class="{ 'section-active': selectedSectionId === 'work' }"
-           @click.stop="toggleSection('work')" data-section-id="work">
-        
-        <transition name="fade-btns">
-          <div v-if="selectedSectionId === 'work'" class="nav-btns no-print">
-            <button class="nav-btn" @click.stop="moveUp(getRepId('work'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
-            <button class="nav-btn" @click.stop="moveDown(getRepId('work'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
-            <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('work')"><i class="fas fa-times"></i></button>
-          </div>
-        </transition>
-
-        <div v-if="projectSection?.isVisible">
-          <div class="section-heading paginated-item">
-            <h3 class="section-title">{{ projectSection.name || projectSection.title || 'PROJECTS' }}</h3>
-            <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-          </div>
-          <div class="timeline-area">
-            <div v-for="(proj, i) in (projectSection?.items || [])" :key="i" class="timeline-item item-container">
-              <div class="exp-header-wrap paginated-item">
-                <div class="exp-year">{{ proj.year || proj.time }}</div>
-                <div class="exp-content-wrap">
-                  <div class="info-name">{{ proj.name || proj.title || proj.company }}</div>
-                  <div class="info-role">{{ proj.role || proj.info }}</div>
+            </transition>
+    
+            <div class="section-group" v-if="educationSection?.isVisible">
+              <div class="section-heading paginated-item">
+                <h3 class="section-title">{{ educationSection.name || educationSection.title || 'EDUCATION' }}</h3>
+                <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+              </div>
+              <div class="content-area">
+                <div v-for="(edu, i) in (educationSection?.items || [])" :key="i" class="edu-item item-container">
+                  <div class="edu-header paginated-item">
+                    <div class="exp-content">
+                      <strong>{{ edu.school }}</strong>
+                      <div>{{ edu.major || edu.degree }}</div>
+                      <div v-if="edu.gradType || edu.info" style="font-size: 12px; color: #444; margin-top: 2px;"><strong>Tốt nghiệp loại:</strong> {{ edu.gradType || edu.info }}</div>
+                    </div>
+                    <div class="exp-year">{{ edu.year || edu.time }}</div>
+                  </div>
+                  <div v-if="edu.desc" class="html-content" v-html="formatDesc(edu.desc)"></div>
+                  <button v-if="selectedSectionId === 'edu_cert' && educationSection?.items?.length" @click.stop="$emit('removeItem','education',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                 </div>
               </div>
-              <div v-if="proj.desc || proj.description" class="desc-text html-content" v-html="formatDesc(proj.desc || proj.description)"></div>
-              <button v-if="selectedSectionId === 'work' && projectSection?.items?.length" @click.stop="$emit('removeItem','projects',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
             </div>
-          </div>
-        </div>
-
-        <div v-if="experienceSection?.isVisible" :style="{ marginTop: projectSection?.isVisible ? '25px' : '0' }">
-          <div class="section-heading paginated-item">
-            <h3 class="section-title">{{ experienceSection.name || experienceSection.title || 'EXPERIENCE' }}</h3>
-            <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-          </div>
-          <div class="timeline-area">
-            <div v-for="(exp, i) in (experienceSection?.items || [])" :key="i" class="timeline-item item-container">
-              <div class="exp-header-wrap paginated-item">
-                <div class="exp-year">{{ exp.year || exp.time }}</div>
-                <div class="exp-content-wrap">
-                  <div class="info-name">{{ exp.company || exp.name }}</div>
-                  <div class="info-role">{{ exp.role || exp.position || exp.title }}</div>
+    
+            <div class="section-group" v-if="certSection?.isVisible" :style="{ marginTop: educationSection?.isVisible ? '25px' : '0' }">
+              <div class="section-heading paginated-item">
+                <h3 class="section-title">{{ certSection.name || certSection.title || 'CERTIFICATIONS' }}</h3>
+                <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+              </div>
+              <div class="content-area">
+                <div v-for="(cert, i) in (certSection?.items || [])" :key="i" class="cert-entry item-container paginated-item">
+                  <div class="cert-year-div">{{ cert.year || cert.time }}</div>
+                  <div class="cert-name-div">{{ cert.name || cert.title || cert.info }}</div>
+                  <div v-if="cert.desc" class="html-content" v-html="formatDesc(cert.desc)"></div>
+                  <button v-if="selectedSectionId === 'edu_cert' && certSection?.items?.length" @click.stop="$emit('removeItem','certifications',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                 </div>
               </div>
-              <div v-if="exp.desc || exp.description" class="desc-text html-content" v-html="formatDesc(exp.desc || exp.description)"></div>
-              <button v-if="selectedSectionId === 'work' && experienceSection?.items?.length" @click.stop="$emit('removeItem','experience',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
-           v-if="activitiesSection?.isVisible"
-           :style="{ order: getOrder(getRepId('activities'), blockRepIds) }"
-           :class="{ 'section-active': selectedSectionId === 'activities' }"
-           @click.stop="toggleSection('activities')" data-section-id="activities">
-        <transition name="fade-btns">
-          <div v-if="selectedSectionId === 'activities'" class="nav-btns no-print">
-            <button class="nav-btn" @click.stop="moveUp(getRepId('activities'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
-            <button class="nav-btn" @click.stop="moveDown(getRepId('activities'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
-            <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('activities')"><i class="fas fa-times"></i></button>
-          </div>
-        </transition>
-        <div class="section-heading paginated-item">
-          <h3 class="section-title">{{ activitiesSection.name || activitiesSection.title || 'ACTIVITIES' }}</h3>
-          <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-        </div>
-        <div class="act-area">
-          <div v-for="(act, i) in (activitiesSection?.items || [])" :key="i" class="timeline-item item-container">
-            <div class="exp-header-wrap paginated-item">
-              <div class="date-badge">{{ act.date || act.time || act.year }}</div>
-              <div class="exp-content-wrap">
-                <div class="company-name">{{ act.organization || act.name || act.company }}</div>
+        </template>
+  
+        <template v-else-if="block.id === getRepId('work') && (projectSection?.isVisible || experienceSection?.isVisible)">
+          <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
+               :class="{ 'section-active': selectedSectionId === 'work' }"
+               @click.stop="toggleSection('work')" data-section-id="work">
+            
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'work'" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="$emit('moveUp', getRepId('work'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
+                <button class="nav-btn" @click.stop="$emit('moveDown', getRepId('work'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('work')"><i class="fas fa-times"></i></button>
+              </div>
+            </transition>
+    
+            <div v-if="projectSection?.isVisible">
+              <div class="section-heading paginated-item">
+                <h3 class="section-title">{{ projectSection.name || projectSection.title || 'PROJECTS' }}</h3>
+                <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+              </div>
+              <div class="timeline-area">
+                <div v-for="(proj, i) in (projectSection?.items || [])" :key="i" class="timeline-item item-container">
+                  <div class="exp-header-wrap paginated-item">
+                    <div class="exp-year">{{ proj.year || proj.time }}</div>
+                    <div class="exp-content-wrap">
+                      <div class="info-name">{{ proj.name || proj.title || proj.company }}</div>
+                      <div class="info-role">{{ proj.role || proj.info }}</div>
+                    </div>
+                  </div>
+                  <div v-if="proj.desc || proj.description" class="desc-text html-content" v-html="formatDesc(proj.desc || proj.description)"></div>
+                  <button v-if="selectedSectionId === 'work' && projectSection?.items?.length" @click.stop="$emit('removeItem','projects',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                </div>
               </div>
             </div>
-            <div class="exp-desc html-content" v-html="formatDesc(act.desc || act.description)"></div>
-            <button v-if="selectedSectionId === 'activities' && activitiesSection?.items?.length" @click.stop="$emit('removeItem','activities',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+    
+            <div v-if="experienceSection?.isVisible" :style="{ marginTop: projectSection?.isVisible ? '25px' : '0' }">
+              <div class="section-heading paginated-item">
+                <h3 class="section-title">{{ experienceSection.name || experienceSection.title || 'EXPERIENCE' }}</h3>
+                <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+              </div>
+              <div class="timeline-area">
+                <div v-for="(exp, i) in (experienceSection?.items || [])" :key="i" class="timeline-item item-container">
+                  <div class="exp-header-wrap paginated-item">
+                    <div class="exp-year">{{ exp.year || exp.time }}</div>
+                    <div class="exp-content-wrap">
+                      <div class="info-name">{{ exp.company || exp.name }}</div>
+                      <div class="info-role">{{ exp.role || exp.position || exp.title }}</div>
+                    </div>
+                  </div>
+                  <div v-if="exp.desc || exp.description" class="desc-text html-content" v-html="formatDesc(exp.desc || exp.description)"></div>
+                  <button v-if="selectedSectionId === 'work' && experienceSection?.items?.length" @click.stop="$emit('removeItem','experience',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
-           v-if="skillsSection?.isVisible"
-           :style="{ order: getOrder(getRepId('skills'), blockRepIds) }"
-           :class="{ 'section-active': selectedSectionId === 'skills' }"
-           @click.stop="toggleSection('skills')" data-section-id="skills">
-           
-        <transition name="fade-btns">
-          <div v-if="selectedSectionId === 'skills'" class="nav-btns no-print">
-            <button class="nav-btn" @click.stop="moveUp(getRepId('skills'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
-            <button class="nav-btn" @click.stop="moveDown(getRepId('skills'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
-            <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('skills')"><i class="fas fa-times"></i></button>
-          </div>
-        </transition>
-        <div class="section-heading paginated-item">
-          <h3 class="section-title">{{ skillsSection.name || skillsSection.title || 'SKILLS' }}</h3>
-          <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-        </div>
-        <div class="content-area">
-          <ul class="skill-ul">
-            <li v-for="(skill, i) in (skillsSection?.items || [])" :key="i" class="item-container paginated-item">
-              <template v-if="skill.name"><strong>{{ skill.name }}</strong>{{ skill.level ? ': ' + skill.level : '' }}{{ skill.info ? ': ' + skill.info : '' }}</template>
-              <template v-else>{{ skill }}</template>
-              <button v-if="selectedSectionId === 'skills' && skillsSection?.items?.length" @click.stop="$emit('removeItem','skills',i)" class="delete-item-btn no-print" style="right: 0; top: 2px;"><i class="fas fa-times"></i></button>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="pastel-block bottom-split section-block cursor-pointer hover:bg-black/5 transition-colors"
-           v-if="hobbiesSection?.isVisible || awardsSection?.isVisible"
-           :style="{ order: getOrder(getRepId('footer'), blockRepIds) }"
-           :class="{ 'section-active': selectedSectionId === 'footer' }"
-           @click.stop="toggleSection('footer')" data-section-id="footer">
-        
-        <transition name="fade-btns">
-          <div v-if="selectedSectionId === 'footer'" class="nav-btns no-print">
-            <button class="nav-btn" @click.stop="moveUp(getRepId('footer'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
-            <button class="nav-btn" @click.stop="moveDown(getRepId('footer'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
-            <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('footer')"><i class="fas fa-times"></i></button>
-          </div>
-        </transition>
-        
-        <div class="bottom-left" v-if="hobbiesSection?.isVisible">
-          <div class="section-heading paginated-item">
-            <h3 class="section-title">{{ hobbiesSection.name || hobbiesSection.title || 'INTERESTS' }}</h3>
-            <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-          </div>
-          <div class="content-area">
-            <ul class="hobbies-ul">
-              <li v-for="(hobby, i) in (hobbiesSection?.items || [])" :key="i" class="item-container paginated-item">
-                {{ hobby.name || hobby.title || hobby }}
-                <button v-if="selectedSectionId === 'footer' && hobbiesSection?.items?.length" @click.stop="$emit('removeItem','hobbies',i)" class="delete-item-btn no-print" style="right: -10px; top: -5px;"><i class="fas fa-times"></i></button>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="bottom-right" v-if="awardsSection?.isVisible">
-          <div class="awards-group">
+        </template>
+  
+        <template v-else-if="block.id === getRepId('activities') && activitiesSection?.isVisible">
+          <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
+               :class="{ 'section-active': selectedSectionId === 'activities' }"
+               @click.stop="toggleSection('activities')" data-section-id="activities">
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'activities'" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="$emit('moveUp', getRepId('activities'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
+                <button class="nav-btn" @click.stop="$emit('moveDown', getRepId('activities'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('activities')"><i class="fas fa-times"></i></button>
+              </div>
+            </transition>
             <div class="section-heading paginated-item">
-              <h3 class="section-title">{{ awardsSection.name || awardsSection.title || 'ADDITIONAL INFO' }}</h3>
+              <h3 class="section-title">{{ activitiesSection.name || activitiesSection.title || 'ACTIVITIES' }}</h3>
+              <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+            </div>
+            <div class="act-area">
+              <div v-for="(act, i) in (activitiesSection?.items || [])" :key="i" class="timeline-item item-container">
+                <div class="exp-header-wrap paginated-item">
+                  <div class="date-badge">{{ act.date || act.time || act.year }}</div>
+                  <div class="exp-content-wrap">
+                    <div class="company-name">{{ act.organization || act.name || act.company }}</div>
+                  </div>
+                </div>
+                <div class="exp-desc html-content" v-html="formatDesc(act.desc || act.description)"></div>
+                <button v-if="selectedSectionId === 'activities' && activitiesSection?.items?.length" @click.stop="$emit('removeItem','activities',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+          </div>
+        </template>
+  
+        <template v-else-if="block.id === getRepId('skills') && skillsSection?.isVisible">
+          <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors" 
+               :class="{ 'section-active': selectedSectionId === 'skills' }"
+               @click.stop="toggleSection('skills')" data-section-id="skills">
+               
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'skills'" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="$emit('moveUp', getRepId('skills'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
+                <button class="nav-btn" @click.stop="$emit('moveDown', getRepId('skills'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('skills')"><i class="fas fa-times"></i></button>
+              </div>
+            </transition>
+            <div class="section-heading paginated-item">
+              <h3 class="section-title">{{ skillsSection.name || skillsSection.title || 'SKILLS' }}</h3>
               <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
             </div>
             <div class="content-area">
-              <ul class="awards-ul">
-                <li v-for="(award, i) in (awardsSection?.items || [])" :key="i" class="item-container paginated-item">
-                  <span v-if="award.year || award.time"><strong>{{ award.year || award.time }}</strong> — </span>
-                  {{ award.name || award.title || award }}
-                  <button v-if="selectedSectionId === 'footer' && awardsSection?.items?.length" @click.stop="$emit('removeItem','awards',i)" class="delete-item-btn no-print" style="right: 0; top: 0;"><i class="fas fa-times"></i></button>
+              <ul class="skill-ul">
+                <li v-for="(skill, i) in (skillsSection?.items || [])" :key="i" class="item-container paginated-item">
+                  <template v-if="skill.name"><strong>{{ skill.name }}</strong>{{ skill.level ? ': ' + skill.level : '' }}{{ skill.info ? ': ' + skill.info : '' }}</template>
+                  <template v-else>{{ skill }}</template>
+                  <button v-if="selectedSectionId === 'skills' && skillsSection?.items?.length" @click.stop="$emit('removeItem','skills',i)" class="delete-item-btn no-print" style="right: 0; top: 2px;"><i class="fas fa-times"></i></button>
                 </li>
               </ul>
             </div>
           </div>
-        </div>
-      </div>
-
-      <template v-for="section in unmappedSections" :key="section.id">
-        <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors"
-             v-if="section.isVisible"
-             :style="{ order: getOrder(section.id, blockRepIds) }"
-             :class="{ 'section-active': selectedSectionId === section.id }"
-             @click.stop="toggleSection(section.id)" :data-section-id="section.id">
-
-          <transition name="fade-btns">
-            <div v-if="selectedSectionId === section.id" class="nav-btns no-print">
-              <button class="nav-btn" @click.stop="moveUp(section.id, blockRepIds)"><i class="fas fa-chevron-up"></i></button>
-              <button class="nav-btn" @click.stop="moveDown(section.id, blockRepIds)"><i class="fas fa-chevron-down"></i></button>
-              <button class="nav-btn nav-btn-danger" @click.stop="hideGroup(section.id)"><i class="fas fa-times"></i></button>
-            </div>
-          </transition>
-
-          <div class="section-heading paginated-item">
-            <h3 class="section-title"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></h3>
-            <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
-          </div>
-          
-          <div class="content-area">
-            <div v-if="section.desc || section.description" class="html-content paginated-item" v-html="formatDesc(section.desc || section.description)" style="margin-bottom: 12px;"></div>
+        </template>
+  
+        <template v-else-if="block.id === getRepId('footer') && (hobbiesSection?.isVisible || awardsSection?.isVisible)">
+          <div class="pastel-block bottom-split section-block cursor-pointer hover:bg-black/5 transition-colors"
+               :class="{ 'section-active': selectedSectionId === 'footer' }"
+               @click.stop="toggleSection('footer')" data-section-id="footer">
             
-            <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description) ? [] : [{ name: 'Chưa có dữ liệu' }]))" 
-                :key="i" class="item-container" style="margin-bottom: 12px; position: relative;">
-              
-              <template v-if="typeof item === 'object'">
-                <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                <div v-else-if="item.name || item.title || item.level || item.year || item.time" class="paginated-item" style="margin-bottom: 4px;">
-                  <strong v-if="item.name || item.title"><span v-html="item.name || item.title"></span></strong>
-                  <span v-if="item.level"> — <span v-html="item.level"></span></span>
-                  <span v-if="item.year || item.time"> (<span v-html="item.year || item.time"></span>)</span>
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === 'footer'" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="$emit('moveUp', getRepId('footer'), blockRepIds)"><i class="fas fa-chevron-up"></i></button>
+                <button class="nav-btn" @click.stop="$emit('moveDown', getRepId('footer'), blockRepIds)"><i class="fas fa-chevron-down"></i></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideGroup('footer')"><i class="fas fa-times"></i></button>
+              </div>
+            </transition>
+            
+            <div class="bottom-left" v-if="hobbiesSection?.isVisible">
+              <div class="section-heading paginated-item">
+                <h3 class="section-title">{{ hobbiesSection.name || hobbiesSection.title || 'INTERESTS' }}</h3>
+                <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+              </div>
+              <div class="content-area">
+                <ul class="hobbies-ul">
+                  <li v-for="(hobby, i) in (hobbiesSection?.items || [])" :key="i" class="item-container paginated-item">
+                    {{ hobby.name || hobby.title || hobby }}
+                    <button v-if="selectedSectionId === 'footer' && hobbiesSection?.items?.length" @click.stop="$emit('removeItem','hobbies',i)" class="delete-item-btn no-print" style="right: -10px; top: -5px;"><i class="fas fa-times"></i></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+    
+            <div class="bottom-right" v-if="awardsSection?.isVisible">
+              <div class="awards-group">
+                <div class="section-heading paginated-item">
+                  <h3 class="section-title">{{ awardsSection.name || awardsSection.title || 'ADDITIONAL INFO' }}</h3>
+                  <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
                 </div>
-                <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
-                <div v-if="item.desc || item.description" class="html-content" v-html="formatDesc(item.desc || item.description)"></div>
-              </template>
-              <template v-else>
-                <div class="html-content" v-html="formatDesc(item)"></div>
-              </template>
-              <button v-if="selectedSectionId === section.id && section.items?.length"
-                      @click.stop="$emit('removeItem', section.id, i)"
-                      class="delete-item-btn no-print" style="top: -5px; right: -5px;">
-                <i class="fas fa-times"></i>
-              </button>
+                <div class="content-area">
+                  <ul class="awards-ul">
+                    <li v-for="(award, i) in (awardsSection?.items || [])" :key="i" class="item-container paginated-item">
+                      <span v-if="award.year || award.time"><strong>{{ award.year || award.time }}</strong> — </span>
+                      {{ award.name || award.title || award }}
+                      <button v-if="selectedSectionId === 'footer' && awardsSection?.items?.length" @click.stop="$emit('removeItem','awards',i)" class="delete-item-btn no-print" style="right: 0; top: 0;"><i class="fas fa-times"></i></button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
+  
+        <template v-else-if="unmappedSections.find(s => s.id === block.id && s.isVisible)">
+          <div class="pastel-block section-block cursor-pointer hover:bg-black/5 transition-colors"
+               :class="{ 'section-active': selectedSectionId === block.id }"
+               @click.stop="toggleSection(block.id)" :data-section-id="block.id">
+    
+            <transition name="fade-btns">
+              <div v-if="selectedSectionId === block.id" class="nav-btns no-print">
+                <button class="nav-btn" @click.stop="$emit('moveUp', block.id, blockRepIds)"><i class="fas fa-chevron-up"></i></button>
+                <button class="nav-btn" @click.stop="$emit('moveDown', block.id, blockRepIds)"><i class="fas fa-chevron-down"></i></button>
+                <button class="nav-btn nav-btn-danger" @click.stop="hideGroup(block.id)"><i class="fas fa-times"></i></button>
+              </div>
+            </transition>
+    
+            <div class="section-heading paginated-item">
+              <h3 class="section-title"><span v-html="unmappedSections.find(s => s.id === block.id).name || unmappedSections.find(s => s.id === block.id).title || block.id.toUpperCase()"></span></h3>
+              <div class="double-line"><div class="line-blue"></div><div class="line-red"></div></div>
+            </div>
+            
+            <div class="content-area">
+              <div v-if="unmappedSections.find(s => s.id === block.id).desc || unmappedSections.find(s => s.id === block.id).description" class="html-content paginated-item" v-html="formatDesc(unmappedSections.find(s => s.id === block.id).desc || unmappedSections.find(s => s.id === block.id).description)" style="margin-bottom: 12px;"></div>
+              
+              <div v-for="(item, i) in (unmappedSections.find(s => s.id === block.id).items?.length ? unmappedSections.find(s => s.id === block.id).items : ((unmappedSections.find(s => s.id === block.id).desc || unmappedSections.find(s => s.id === block.id).description) ? [] : [{ name: 'Chưa có dữ liệu' }]))" 
+                  :key="i" class="item-container" style="margin-bottom: 12px; position: relative;">
+                
+                <template v-if="typeof item === 'object'">
+                  <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
+                  <div v-else-if="item.name || item.title || item.level || item.year || item.time" class="paginated-item" style="margin-bottom: 4px;">
+                    <strong v-if="item.name || item.title"><span v-html="item.name || item.title"></span></strong>
+                    <span v-if="item.level"> — <span v-html="item.level"></span></span>
+                    <span v-if="item.year || item.time"> (<span v-html="item.year || item.time"></span>)</span>
+                  </div>
+                  <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
+                  <div v-if="item.desc || item.description" class="html-content" v-html="formatDesc(item.desc || item.description)"></div>
+                </template>
+                <template v-else>
+                  <div class="html-content" v-html="formatDesc(item)"></div>
+                </template>
+                <button v-if="selectedSectionId === block.id && unmappedSections.find(s => s.id === block.id).items?.length"
+                        @click.stop="$emit('removeItem', block.id, i)"
+                        class="delete-item-btn no-print" style="top: -5px; right: -5px;">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </template>
       </template>
-
-    </div>
+    </draggable>
 
     <template v-for="p in (pageCount - 1)" :key="'div-' + p">
       <div class="page-break-indicator no-print" :style="{ top: `calc(${p * 297}mm - 8px)` }">
@@ -332,6 +343,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted, toRaw } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -396,14 +408,52 @@ const blockRepIds = computed(() => {
   return reps.sort((a, b) => sourceOrder.indexOf(a) - sourceOrder.indexOf(b))
 })
 
-const getOrder = (id, arr) => arr.indexOf(id) + 1
+const blockRepIdsWritable = ref([])
+
+watch(blockRepIds, (newVal) => {
+  blockRepIdsWritable.value = newVal.map(id => ({ id }))
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  const newOrderIds = blockRepIdsWritable.value.map(b => b.id)
+  
+  // Create a mapping from mapped block IDs back to the original section IDs
+  const expandMap = {
+    [getRepId('edu_cert')]: [educationSection.value?.id, certSection.value?.id].filter(Boolean),
+    [getRepId('work')]: [projectSection.value?.id, experienceSection.value?.id].filter(Boolean),
+    [getRepId('activities')]: [activitiesSection.value?.id].filter(Boolean),
+    [getRepId('skills')]: [skillsSection.value?.id].filter(Boolean),
+    [getRepId('footer')]: [hobbiesSection.value?.id, awardsSection.value?.id].filter(Boolean),
+  }
+  
+  const expandedOrderIds = []
+  newOrderIds.forEach(id => {
+    if (expandMap[id]) {
+      expandedOrderIds.push(...expandMap[id])
+    } else {
+      expandedOrderIds.push(id)
+    }
+  })
+
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!expandedOrderIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  expandedOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
 }
-
-const moveUp = (id, arr) => emit('moveUp', id, toRaw(arr))
-const moveDown = (id, arr) => emit('moveDown', id, toRaw(arr))
 
 // ─── CONTACT ITEMS ───
 const contactIcons = {
