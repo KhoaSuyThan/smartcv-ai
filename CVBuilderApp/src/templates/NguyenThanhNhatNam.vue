@@ -8,7 +8,7 @@
     @click.self="selectedSectionId = null"
   >
     <!-- BACKGROUND CHUNG -->
-    <div class="absolute inset-0 bg-[#FCF8F6] z-0 pointer-events-none"></div>
+    <div class="absolute inset-0 z-0 pointer-events-none" :style="{ backgroundColor: templatePageBgColor }"></div>
 
     <!-- MAIN FLOW -->
     <main class="flex-1 flex flex-col relative z-20 min-h-max" @click.self="selectedSectionId = null">
@@ -16,7 +16,7 @@
       <!-- 1. HEADER THÔNG TIN LIÊN HỆ NẰM NGANG (Dynamic) -->
       <header 
         class="section-block paginated-item !mt-[20px] !mx-[20px] px-[10mm] py-[3.5mm] flex justify-between items-center text-[11px] font-medium text-[#4A352F]/90 shrink-0 border rounded-[4px] relative cursor-pointer hover:bg-black/5 transition-colors"
-        style="background-color: #e9dcd6 !important; border-color: #dcd0c9 !important;"
+        :style="{ backgroundColor: templateHeaderBgColor, borderColor: templateBorderColor }"
         :class="{ 'section-active': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
       >
@@ -26,7 +26,7 @@
             :key="ci.key" 
             class="flex items-center gap-2 relative group/item"
           >
-            <div class="w-[18px] h-[18px] flex items-center justify-center text-[#D03B29]" v-html="ci.icon"></div>
+            <div class="w-[18px] h-[18px] flex items-center justify-center" :style="{ color: templateAccentColor }" v-html="ci.icon"></div>
             <span class="break-all" v-html="ci.value"></span>
 
             <!-- Individual contact item buttons -->
@@ -44,13 +44,13 @@
       <!-- 2. KHỐI TÊN, SUMMARY VÀ AVATAR -->
       <div class="paginated-item px-[10mm] pt-[6mm] pb-[4mm] flex gap-[6mm] items-stretch shrink-0">
         <!-- Khung Tên & Summary (Trái) -->
-        <div class="flex-1 p-[6mm] rounded-[4px] border flex flex-col justify-center" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;">
+        <div class="flex-1 p-[6mm] rounded-[4px] border flex flex-col justify-center" :style="{ backgroundColor: templateSectionBgColor, borderColor: templateBorderColor }">
           <div class="!text-[20px] font-extrabold uppercase tracking-tight text-[#4A352F] leading-none mb-2" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN'"></div>
           
           <!-- Vị trí ứng tuyển kèm đường kẻ ngang -->
           <div class="flex items-center gap-4 mb-4">
-            <div class="!text-[11px] font-extrabold text-[#4A352F] uppercase tracking-wider shrink-0" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'IT INTERNSHIP'"></div>
-            <div class="h-[2px] bg-[#D03B29] flex-1 max-w-[120px]"></div>
+            <div class="!text-[11px] font-extrabold text-[#4A352F] uppercase tracking-wider shrink-0" v-html="resumeData.general.jobTitle ? resumeData.general.jobTitle : 'IT INTERNSHIP'"></div>
+            <div class="h-[2px] flex-1 max-w-[120px]" :style="{ backgroundColor: templateAccentColor }"></div>
           </div>
 
           <!-- Đoạn Summary (Mục tiêu nghề nghiệp) -->
@@ -58,16 +58,15 @@
             class="section-block border rounded cursor-pointer relative group !p-1.5"
             style="border-color: transparent !important;"
             :class="{ 'section-active': selectedSectionId === 'summary' }"
-            :style="selectedSectionId === 'summary' ? { '--active-bg': '#4A352F' } : {}"
+            :style="selectedSectionId === 'summary' ? { '--active-bg': templatePrimaryColor } : {}"
             @click.stop="toggleSection('summary')"
           >
             <div class="text-[11.5px] leading-[1.65] text-[#4A352F]/90 text-justify font-medium" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mục tiêu nghề nghiệp của bạn...'"></div>
           </div>
         </div>
 
-        <!-- Khung Avatar (Phải) -->
         <div class="w-[44mm] flex-shrink-0 flex items-center justify-center">
-          <div class="w-[44mm] h-[44mm] overflow-hidden relative shadow-sm border avatar-clip" style="background-color: #f3f4f6 !important; border-color: #e9ddd7 !important;">
+          <div class="w-[44mm] h-[44mm] overflow-hidden relative shadow-sm border avatar-clip" style="background-color: #f3f4f6 !important;" :style="{ borderColor: templateBorderColor }">
             <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-[#4A352F]/40">
               <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -96,9 +95,9 @@
           <template #item="{ element: section }">
           <div
             v-if="section.isVisible"
-            :data-section-id="section.id" class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
+            :data-section-id="section.id" class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
-            :style="selectedSectionId === section.id ? { '--active-bg': '#4A352F' } : {}"
+            :style="selectedSectionId === section.id ? { backgroundColor: templateSectionBgColor, borderColor: templateBorderColor, '--active-bg': templatePrimaryColor } : { backgroundColor: templateSectionBgColor, borderColor: templateBorderColor }"
             @click.stop="toggleSection(section.id)"
           >
             <!-- Nút điều khiển Nav -->
@@ -122,7 +121,7 @@
                 <div class="section-title">
                   <span v-html="section.title"></span>
                 </div>
-                <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
+                <div class="h-[1.2px] w-full mt-1" :style="{ backgroundColor: templateAccentColor }"></div>
               </div>
             </div>
 
@@ -182,12 +181,12 @@
               <!-- C. PROJECTS -->
               <div v-else-if="section.id === 'project' || section.id === 'projects'" class="relative pl-[20px]">
                 <!-- Đường kẻ trục đứng của timeline -->
-                <div class="absolute left-[3px] top-[4px] bottom-[4px] w-[1px] bg-[#DCD0C9]"></div>
+                <div class="absolute left-[3px] top-[4px] bottom-[4px] w-[1px]" :style="{ backgroundColor: templateBorderColor }"></div>
 
                 <div class="space-y-4">
                   <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                     <!-- Chấm tròn mốc đỏ cam -->
-                    <div class="absolute left-[-21px] top-[4px] w-[7px] h-[7px] rounded-full bg-[#D03B29] z-10 border border-[#FCF8F6]"></div>
+                    <div class="absolute left-[-21px] top-[4px] w-[7px] h-[7px] rounded-full z-10 border" :style="{ backgroundColor: templateAccentColor, borderColor: templatePageBgColor }"></div>
 
                     <!-- Hàng đầu tiên: Thời gian (trái) và Vị trí (phải) -->
                     <div class="flex justify-between items-start mb-1 gap-4">
@@ -219,12 +218,12 @@
               <!-- D. ACTIVITIES -->
               <div v-else-if="section.id === 'activities'" class="relative pl-[20px]">
                 <!-- Đường kẻ trục đứng của timeline -->
-                <div class="absolute left-[3px] top-[4px] bottom-[4px] w-[1px] bg-[#DCD0C9]"></div>
+                <div class="absolute left-[3px] top-[4px] bottom-[4px] w-[1px]" :style="{ backgroundColor: templateBorderColor }"></div>
 
                 <div class="space-y-4">
                   <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                     <!-- Chấm tròn mốc đỏ cam -->
-                    <div class="absolute left-[-21px] top-[4px] w-[7px] h-[7px] rounded-full bg-[#D03B29] z-10 border border-[#FCF8F6]"></div>
+                    <div class="absolute left-[-21px] top-[4px] w-[7px] h-[7px] rounded-full z-10 border" :style="{ backgroundColor: templateAccentColor, borderColor: templatePageBgColor }"></div>
 
                     <!-- Hàng đầu tiên: Thời gian (trái) và Chức danh (phải) -->
                     <div class="flex justify-between items-start mb-1 gap-4">
@@ -311,9 +310,9 @@
           <!-- Cột: Interests (Hobbies) -->
           <div
             v-if="sectionObj.id === 'hobbies' && hobbiesSection && hobbiesSection.isVisible"
-            class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
+            class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === hobbiesSection.id }"
-            :style="selectedSectionId === hobbiesSection.id ? { '--active-bg': '#4A352F' } : {}"
+            :style="selectedSectionId === hobbiesSection.id ? { backgroundColor: templateSectionBgColor, borderColor: templateBorderColor, '--active-bg': templatePrimaryColor } : { backgroundColor: templateSectionBgColor, borderColor: templateBorderColor }"
             @click.stop="toggleSection(hobbiesSection.id)"
           >
             <!-- Nav Control -->
@@ -336,7 +335,7 @@
                 <div class="section-title">
                   Sở thích
                 </div>
-                <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
+                <div class="h-[1.2px] w-full mt-1" :style="{ backgroundColor: templateAccentColor }"></div>
               </div>
             </div>
   
@@ -356,9 +355,9 @@
           <!-- Cột: Additional Information (Languages / Awards) -->
           <div
             v-else-if="sectionObj.id === 'additional' && additionalSection && additionalSection.isVisible"
-            class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
+            class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === additionalSection.id }"
-            :style="selectedSectionId === additionalSection.id ? { '--active-bg': '#4A352F' } : {}"
+            :style="selectedSectionId === additionalSection.id ? { backgroundColor: templateSectionBgColor, borderColor: templateBorderColor, '--active-bg': templatePrimaryColor } : { backgroundColor: templateSectionBgColor, borderColor: templateBorderColor }"
             @click.stop="toggleSection(additionalSection.id)"
           >
             <!-- Nav Control -->
@@ -380,14 +379,14 @@
                 <div class="section-title">
                   Thông tin thêm
                 </div>
-                <div class="h-[1.2px] bg-[#D03B29] w-full mt-1"></div>
+                <div class="h-[1.2px] w-full mt-1" :style="{ backgroundColor: templateAccentColor }"></div>
               </div>
             </div>
   
             <div class="text-[11.5px] text-[#4A352F]/90 leading-[1.65] text-justify font-medium space-y-2">
               <div v-for="(item, itemIndex) in additionalSection.items" :key="item._refId" class="item-container relative">
                 <div class="flex items-start gap-1">
-                  <span class="text-[#D03B29] shrink-0 mt-[1.5px] font-bold">•</span>
+                  <span class="shrink-0 mt-[1.5px] font-bold" :style="{ color: templateAccentColor }">•</span>
                   <div class="flex-1">
                     <span v-if="item.name"><span v-html="item.name"></span></span>
                     <span v-else class="html-content" v-html="formatDesc(item.info || item.desc)"></span>
@@ -436,6 +435,75 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  const num = parseInt(clean, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
+  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#4A352F'
+  return c
+})
+
+const isCustomColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  return c && c.toLowerCase() !== '#2b5c8f'
+})
+
+const templateAccentColor = computed(() => {
+  if (isCustomColor.value) return templatePrimaryColor.value
+  return '#D03B29'
+})
+
+const templateSectionBgColor = computed(() => {
+  if (!isCustomColor.value) return '#f5ece8'
+  return adjustColorBrightness(templatePrimaryColor.value, 0.88)
+})
+
+const templateHeaderBgColor = computed(() => {
+  if (!isCustomColor.value) return '#e9dcd6'
+  return adjustColorBrightness(templatePrimaryColor.value, 0.80)
+})
+
+const templateBorderColor = computed(() => {
+  if (!isCustomColor.value) return '#e9ddd7'
+  return adjustColorBrightness(templatePrimaryColor.value, 0.78)
+})
+
+const templatePageBgColor = computed(() => {
+  if (!isCustomColor.value) return '#FCF8F6'
+  return adjustColorBrightness(templatePrimaryColor.value, 0.96)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
@@ -819,7 +887,7 @@ onUnmounted(() => {
 
 .section-block.section-active {
   border-radius: 4px !important;
-  border: 1.5px solid var(--active-bg, #4A352F) !important;
+  border: 1.5px solid var(--active-bg, v-bind(templatePrimaryColor)) !important;
   box-shadow: 0 4px 18px rgba(74, 53, 47, 0.08);
   z-index: 30;
 }
@@ -838,15 +906,15 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 4px;
-  background: #4A352F;
+  background: v-bind(templatePrimaryColor);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  transition: background 0.15s, transform 0.15s;
+  transition: background 0.15s, transform 0.15s, filter 0.15s;
 }
-.nav-btn:hover { background: #32231F; transform: scale(1.1); }
+.nav-btn:hover { filter: brightness(0.85); transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
 .nav-btn-danger { background: #ef4444 !important; }
 .nav-btn-danger:hover { background: #dc2626 !important; }
@@ -864,7 +932,7 @@ onUnmounted(() => {
   display: flex;
   gap: 3px;
   z-index: 50;
-  background: #E9DCD6;
+  background: v-bind(templateHeaderBgColor);
   padding-left: 5px;
 }
 
