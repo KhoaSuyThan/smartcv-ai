@@ -7,12 +7,12 @@
       width: '210mm',
       height: `${Math.max(1, pageCount) * 297}mm`,
       fontFamily: '\'Segoe UI\', Roboto, Helvetica, Arial, sans-serif',
-      backgroundColor: '#f3ebdd !important'
+      backgroundColor: `${templatePageBgColor} !important`
     }"
   >
     <main
       class="flex-[6] flex flex-col relative z-20 overflow-hidden box-border pt-[40px] pb-[50px]"
-      :style="{ backgroundColor: '#f3ebdd !important' }"
+      :style="{ backgroundColor: `${templatePageBgColor} !important` }"
       @click.self="selectedSectionId = null"
     >
       <header
@@ -31,7 +31,7 @@
           :style="{
             fontSize: '56px !important',
             fontWeight: '800 !important',
-            color: '#5d4e46',
+            color: templatePrimaryColor,
             lineHeight: '1.1',
             marginTop: '0 !important',
             paddingLeft: '20px !important'
@@ -43,7 +43,7 @@
           :style="{
             fontSize: '22px !important',
             letterSpacing: '2px',
-            color: '#8b7355',
+            color: templateAccentColor,
             marginTop: '10px !important',
             fontWeight: '600 !important',
             paddingLeft: '20px !important'
@@ -54,7 +54,7 @@
 
       <div
         class="paginated-item w-full"
-        :style="{ height: '10px', backgroundColor: '#5d4e46', marginBottom: '40px', width: '100%' }"
+        :style="{ height: '10px', backgroundColor: templatePrimaryColor, marginBottom: '40px', width: '100%' }"
       ></div>
 
       <div class="w-full flex flex-col flex-1 m-0 p-0">
@@ -98,7 +98,7 @@
               class="paginated-item uppercase w-full block"
               :style="{
                 fontSize: '17px !important',
-                color: '#8b7355',
+                color: templateAccentColor,
                 paddingBottom: '8px !important',
                 margin: '20px 0 15px 0 !important',
                 paddingLeft: '20px !important',
@@ -111,7 +111,7 @@
               class="w-full flex flex-col"
               :style="{
                 gap: '20px',
-                borderLeft: ['summary', 'contact'].includes(section.id) ? 'none' : '1px solid #d4c5b4',
+                borderLeft: ['summary', 'contact'].includes(section.id) ? 'none' : '1px solid ' + templateAccentColor,
                 paddingLeft: ['summary', 'contact'].includes(section.id) ? '0' : '0 !important',
                 marginLeft: ['summary', 'contact'].includes(section.id) ? '20px !important' : '20px !important',
                 width: ['summary', 'contact'].includes(section.id) ? 'calc(100% - 20px)' : 'calc(100% - 20px)'
@@ -134,7 +134,7 @@
                     :key="ci.key"
                     class="paginated-item flex items-start break-words w-full relative contact-item-container"
                   >
-                    <strong class="font-bold mr-1 shrink-0 text-[#8b7355]">{{ ci.label }}:</strong>
+                    <strong class="font-bold mr-1 shrink-0" :style="{ color: templateAccentColor }">{{ ci.label }}:</strong>
                     <span v-html="ci.value"></span>
 
                     <!-- Move Up / Move Down / Delete buttons -->
@@ -152,25 +152,25 @@
               <template v-else>
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative w-full text-[#4a3728]" style="margin: 0 !important; padding: 0 0 0 20px !important;">
                   
-                  <div class="absolute left-[0px] top-[6px] w-[6px] h-[6px] rounded-full bg-[#4a3728]"></div>
+                  <div class="absolute left-[0px] top-[6px] w-[6px] h-[6px] rounded-full" :style="{ backgroundColor: templatePrimaryColor }"></div>
 
                   <!-- KINH NGHIỆM / HỌC VẤN -->
                   <div v-if="['education','experience','project','activities'].includes(section.id)" class="w-full flex flex-col">
                     <div class="w-full flex justify-between items-baseline gap-2 relative" :style="{ margin: '0 !important' }">
                       <span class="font-bold break-words flex-1 leading-tight text-[#4a3728] flex flex-col" :style="{ margin: '0 !important', fontSize: '15px' }" v-html="formatDesc(section.id === 'education' ? item.school : (item.company || item.name))"></span>
-                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }"><span v-html="item.year || item.time"></span></span>
+                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right" :style="{ color: templateAccentColor, fontSize: '13px', margin: '0 !important' }"><span v-html="item.year || item.time"></span></span>
                     </div>
                     <div v-if="item.major || item.role" class="italic text-[#5d4e46] mt-[2px] mb-[5px] w-full flex flex-col" :style="{ fontSize: '14px !important' }" v-html="formatDesc(item.major || item.role)"></div>
-                    <div v-if="item.gradType" class="paginated-item font-medium mt-[2px]" :style="{ color: '#8b7355', fontSize: '13px !important', margin: '0 !important' }">Trạng thái: <span v-html="item.gradType"></span></div>
+                    <div v-if="item.gradType" class="paginated-item font-medium mt-[2px]" :style="{ color: templateAccentColor, fontSize: '13px !important', margin: '0 !important' }">Trạng thái: <span v-html="item.gradType"></span></div>
                     <div v-if="item.desc" class="html-content text-justify whitespace-pre-line break-words w-full flex flex-col" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '14px', lineHeight: '1.7' }" v-html="formatDesc(item.desc)"></div>
                   </div>
                   <!-- KỸ NĂNG / TIN HỌC / NGOẠI NGỮ -->
 <div v-else-if="['skills','languages','it_skills'].includes(section.id)" class="w-full flex flex-col">
   <div class="paginated-item w-full flex justify-between items-baseline gap-2 relative" :style="{ margin: '0 !important' }">
-    <div class="absolute -left-[20px] top-[6px] w-[6px] h-[6px] rounded-full bg-[#4a3728]"></div>
+    <div class="absolute -left-[20px] top-[6px] w-[6px] h-[6px] rounded-full" :style="{ backgroundColor: templatePrimaryColor }"></div>
     <span class="font-bold break-words flex-1 leading-tight text-[#4a3728] flex flex-col" :style="{ fontSize: '15px' }" v-html="formatDesc(item.name)"></span>
     <!-- ĐÂY LÀ CHỖ HIỂN THỊ MỨC ĐỘ -->
-    <span v-if="item.level" class="font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }"><span v-html="item.level"></span></span>
+    <span v-if="item.level" class="font-bold shrink-0 whitespace-nowrap text-right" :style="{ color: templateAccentColor, fontSize: '13px', margin: '0 !important' }"><span v-html="item.level"></span></span>
   </div>
   <div v-if="item.info" class="italic text-[#5d4e46] mt-[2px] mb-[5px] w-full flex flex-col" :style="{ fontSize: '14px !important' }" v-html="formatDesc(item.info)"></div>
 </div>
@@ -179,7 +179,7 @@
                   <div v-else class="w-full flex flex-col">
                     <div class="w-full flex justify-between items-baseline gap-2 relative" :style="{ margin: '0 !important' }">
                       <span class="font-bold break-words flex-1 leading-tight text-[#4a3728] flex flex-col" :style="{ fontSize: '15px' }" v-html="formatDesc(item.name || item.title)"></span>
-                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right text-[#8b7355]" :style="{ fontSize: '13px', margin: '0 !important' }"><span v-html="item.year || item.time"></span></span>
+                      <span v-if="item.year || item.time" class="paginated-item font-bold shrink-0 whitespace-nowrap text-right" :style="{ color: templateAccentColor, fontSize: '13px', margin: '0 !important' }"><span v-html="item.year || item.time"></span></span>
                     </div>
                     <div v-if="item.info" class="italic text-[#5d4e46] mt-[2px] mb-[5px] w-full flex flex-col" :style="{ fontSize: '14px !important' }" v-html="formatDesc(item.info)"></div>
                     <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full flex flex-col" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '14px', lineHeight: '1.7' }" v-html="formatDesc(item.desc || item.details)"></div>
@@ -199,7 +199,7 @@
       class="z-10 flex flex-col shrink-0 relative box-border text-white"
       :style="{
         width: '38%',
-        backgroundColor: '#5d4e46',
+        backgroundColor: templateSidebarBgColor,
         padding: '40px 30px',
         margin: '20px 0 !important',
         height: 'calc(100% - 40px) !important',
@@ -625,7 +625,64 @@ onUnmounted(() => {
 
 watch(() => props.resumeData, requestPagination, { deep: true })
 
-const templatePrimaryColor = computed(() => props.resumeData.theme?.primaryColor || '#004C82')
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  const num = parseInt(clean, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
+  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#5d4e46'
+  return c
+})
+
+const isCustomColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  return c && c.toLowerCase() !== '#2b5c8f'
+})
+
+const templateAccentColor = computed(() => {
+  if (isCustomColor.value) return templatePrimaryColor.value
+  return '#8b7355'
+})
+
+const templateSidebarBgColor = computed(() => {
+  if (isCustomColor.value) return templatePrimaryColor.value
+  return '#5d4e46'
+})
+
+const templatePageBgColor = computed(() => {
+  if (isCustomColor.value) return adjustColorBrightness(templatePrimaryColor.value, 0.94)
+  return '#f3ebdd'
+})
 
 const mainSections = computed(() => (props.resumeData?.sections || []).filter(s => s.column === 'left'))
 const sidebarSections = computed(() => (props.resumeData?.sections || []).filter(s => s.column === 'right'))
@@ -756,7 +813,7 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 }
 
 .section-active--main {
-  border: 2px solid #f3ebdd !important;
+  border: 2px solid v-bind(templatePageBgColor) !important;
   border-style: solid !important;
   border-radius: 6px !important;
   /* removed scale */
@@ -766,7 +823,7 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 }
 
 .section-active--sidebar {
-  border: 2px solid #5d4e46 !important;
+  border: 2px solid v-bind(templatePrimaryColor) !important;
   border-style: solid !important;
   border-radius: 6px !important;
   /* removed scale */
@@ -790,15 +847,15 @@ const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
   align-items: center;
   justify-content: center;
   padding: 4px;
-  background: #2563eb;
+  background: v-bind(templatePrimaryColor);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(37,99,235,0.4);
-  transition: background 0.12s, transform 0.1s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: background 0.12s, transform 0.1s, filter 0.12s;
 }
-.nav-btn:hover { background: #1d4ed8 !important; }
+.nav-btn:hover { filter: brightness(0.85); }
 .nav-btn:active { transform: scale(0.92) !important; }
 
 .nav-btn-danger {
