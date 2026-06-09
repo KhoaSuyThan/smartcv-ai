@@ -3,16 +3,16 @@
     
     <!-- CỘT TRÁI (SIDEBAR) -->
     <aside class="w-[72mm] flex-shrink-0 flex flex-col relative z-20 bg-white" @click.self="selectedSectionId = null">
-       <div class="m-[3mm] flex-1 flex flex-col shadow-sm" style="background-color: #f8e8e8;">
+       <div class="m-[3mm] flex-1 flex flex-col shadow-sm" :style="{ backgroundColor: templateSidebarBgColor }">
             <!-- HỌ TÊN - BOX MÀU -->
-            <div class="mx-[3mm] mt-[8mm] mb-6 px-[4mm] py-[6mm] paginated-item text-center rounded-sm shadow-sm" style="background-color: #c48c8c;">
-                <h1 class="font-extrabold leading-tight mb-2 tracking-tight" :style="{ color: '#6a2a31', fontSize: '30px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Nguyễn Huyền Trang'"></h1>
+            <div class="mx-[3mm] mt-[8mm] mb-6 px-[4mm] py-[6mm] paginated-item text-center rounded-sm shadow-sm" :style="{ backgroundColor: templateAccentColor }">
+                <h1 class="font-extrabold leading-tight mb-2 tracking-tight" :style="{ color: templatePrimaryColor, fontSize: '30px !important' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Nguyễn Huyền Trang'"></h1>
                 <h2 class="font-bold uppercase tracking-wider text-white" :style="{ fontSize: '22px !important' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'CHUYÊN VIÊN SALES ADMIN'"></h2>
             </div>
 
             <!-- AVATAR - HÌNH TRÒN CÓ VIỀN -->
             <div class="px-[8mm] pb-[10mm] paginated-item flex justify-center mt-2">
-                <div class="w-[46mm] h-[46mm] rounded-full overflow-hidden bg-white relative z-10 box-border flex-shrink-0" :style="{ border: `4px solid #6a2a31` }">
+                <div class="w-[46mm] h-[46mm] rounded-full overflow-hidden bg-white relative z-10 box-border flex-shrink-0" :style="{ border: '4px solid ' + templatePrimaryColor }">
                     <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
                         <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -32,8 +32,8 @@
                 >
                     <!-- Nav Buttons for Contact Block - Removed eye button -->
                     <div class="sidebar-section-header mb-3 paginated-item">
-                        <h3 class="font-bold uppercase tracking-wide" :style="{ color: '#6a2a31', fontSize: '15px !important' }">Thông tin cá nhân</h3>
-                        <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31;"></div>
+                        <h3 class="font-bold uppercase tracking-wide" :style="{ color: templatePrimaryColor, fontSize: '15px !important' }">Thông tin cá nhân</h3>
+                        <div class="w-full h-[1.2px] mt-1" :style="{ backgroundColor: templatePrimaryColor }"></div>
                     </div>
                     <div class="space-y-3 font-medium">
                         <div 
@@ -41,10 +41,10 @@
                             :key="ci.key" 
                             class="flex items-start gap-3 paginated-item relative group/item"
                         >
-                           <div class="w-[14px] h-[14px] flex-shrink-0 mt-0.5" style="color: #6a2a31;">
+                           <div class="w-[14px] h-[14px] flex-shrink-0 mt-0.5" :style="{ color: templatePrimaryColor }">
                                <svg viewBox="0 0 24 24" fill="ci.fill || 'none'" :stroke="ci.stroke || 'currentColor'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" v-html="ci.icon"></svg>
                            </div>
-                           <span style="font-size: 12px !important; color: #6a2a31;" class="break-all leading-snug flex-1" v-html="ci.value"></span>
+                           <span :style="{ fontSize: '12px !important', color: templatePrimaryColor }" class="break-all leading-snug flex-1" v-html="ci.value"></span>
 
                            <!-- Individual contact item buttons -->
                            <transition name="fade-btns">
@@ -95,21 +95,21 @@
                     </div>
 
                     <div class="sidebar-section-header mb-3 paginated-item">
-                        <h3 class="font-bold uppercase tracking-wide" style="color: #6a2a31; font-size: 15px !important;">
+                        <h3 class="font-bold uppercase tracking-wide" :style="{ color: templatePrimaryColor, fontSize: '15px !important' }">
                             <span v-html="section.title"></span>
                         </h3>
-                        <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31;"></div>
+                        <div class="w-full h-[1.2px] mt-1" :style="{ backgroundColor: templatePrimaryColor }"></div>
                     </div>
                     
                     <div class="space-y-4">
                          <div v-if="section.id.toLowerCase().includes('education')" class="space-y-3">
                              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container flex flex-col gap-0.5 pr-2">
                                  <div class="flex justify-between items-start gap-1 paginated-item">
-                                     <span class="font-bold leading-snug" style="font-size: 13px !important; color: #6a2a31;" v-html="item.school"></span>
-                                     <span class="font-bold flex-shrink-0 mt-0.5" style="font-size: 11.5px !important; color: #6a2a31;"><span v-html="item.year"></span></span>
+                                     <span class="font-bold leading-snug" :style="{ fontSize: '13px !important', color: templatePrimaryColor }" v-html="item.school"></span>
+                                     <span class="font-bold flex-shrink-0 mt-0.5" :style="{ fontSize: '11.5px !important', color: templatePrimaryColor }"><span v-html="item.year"></span></span>
                                  </div>
-                                 <div class="font-bold leading-snug paginated-item" v-if="item.major" style="font-size: 12px !important; color: #6a2a31;" v-html="item.major"></div>
-                                 <div class="font-bold leading-snug paginated-item" v-if="item.gradType" style="font-size: 12px !important; color: #6a2a31;" v-html="item.gradType"></div>
+                                 <div class="font-bold leading-snug paginated-item" v-if="item.major" :style="{ fontSize: '12px !important', color: templatePrimaryColor }" v-html="item.major"></div>
+                                 <div class="font-bold leading-snug paginated-item" v-if="item.gradType" :style="{ fontSize: '12px !important', color: templatePrimaryColor }" v-html="item.gradType"></div>
                                  <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn bg-red-500 text-white rounded-full no-print shadow-sm z-30 scale-90">
                                      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                  </button>
@@ -128,7 +128,7 @@
                          </div>
                          
                         <div v-else class="space-y-3">
-                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug item-container pr-3" style="font-size: 12px !important; color: #6a2a31;">
+                        <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="text-gray-800 font-medium leading-snug item-container pr-3" :style="{ fontSize: '12px !important', color: templatePrimaryColor }">
                             
                             <!-- Áp dụng formatDesc để băm nhỏ từng dòng, giúp thuật toán nhận diện và ngắt trang -->
                             <div v-if="item.year || item.time" class="font-bold opacity-70 mb-0.5 flex flex-col" style="font-size: 11px !important;" v-html="formatDesc(item.year || item.time)"></div>
@@ -194,10 +194,10 @@
                 </div>
 
                 <div class="main-section-header mb-4 paginated-item">
-                    <h3 class="font-bold uppercase tracking-wide" style="color: #6a2a31; font-size: 16px !important;">
+                    <h3 class="font-bold uppercase tracking-wide" :style="{ color: templatePrimaryColor, fontSize: '16px !important' }">
                         <span v-html="section.title"></span>
                     </h3>
-                    <div class="w-full h-[1.2px] mt-1" style="background-color: #6a2a31; opacity: 0.5;"></div>
+                    <div class="w-full h-[1.2px] mt-1" :style="{ backgroundColor: templatePrimaryColor, opacity: 0.5 }"></div>
                 </div>
 
                 <div class="space-y-5">
@@ -287,6 +287,65 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  const num = parseInt(clean, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
+  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#6a2a31'
+  return c
+})
+
+const isCustomColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  return c && c.toLowerCase() !== '#2b5c8f'
+})
+
+const templateAccentColor = computed(() => {
+  if (isCustomColor.value) return adjustColorBrightness(templatePrimaryColor.value, 0.40)
+  return '#c48c8c'
+})
+
+const templateSidebarBgColor = computed(() => {
+  if (isCustomColor.value) return adjustColorBrightness(templatePrimaryColor.value, 0.88)
+  return '#f8e8e8'
+})
+
+const templateNavBgColor = computed(() => {
+  if (isCustomColor.value) return templatePrimaryColor.value
+  return '#8A3841'
+})
 
 // ─── CONTACT ITEMS LOGIC ───
 const contactIcons = {
@@ -655,7 +714,7 @@ const mainIds = computed(() => mainSections.value.map(s => s.id));
     font-size: 12.5px !important;
     line-height: 1.6 !important;
     font-weight: 800 !important;
-    color: #6a2a31 !important;
+    color: v-bind(templatePrimaryColor) !important;
 }
 :deep(.html-content ul) {
     list-style-type: disc !important;
@@ -674,7 +733,7 @@ const mainIds = computed(() => mainSections.value.map(s => s.id));
     font-size: 12px !important;
     line-height: 1.5 !important;
     font-weight: 800 !important;
-    color: #6a2a31 !important;
+    color: v-bind(templatePrimaryColor) !important;
 }
 :deep(.sidebar-html-content b), :deep(.sidebar-html-content strong) {
     color: #4a1a1f !important;
@@ -686,11 +745,11 @@ const mainIds = computed(() => mainSections.value.map(s => s.id));
 }
 
 .text-gray-800, .text-gray-700, .text-gray-600, .text-gray-900 {
-    color: #6a2a31 !important;
+    color: v-bind(templatePrimaryColor) !important;
 }
 
 h3 {
-    color: #6a2a31 !important;
+    color: v-bind(templatePrimaryColor) !important;
     font-weight: 800 !important;
 }
 
@@ -757,7 +816,7 @@ h3 {
 }
 
 .section-active--sidebar {
-    border: 2px solid #f8e8e8 !important;
+    border: 2px solid v-bind(templateSidebarBgColor) !important;
     border-radius: 6px !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.1) !important;
     background: rgba(255, 255, 255, 0.06) !important;
@@ -780,17 +839,17 @@ h3 {
     align-items: center;
     justify-content: center;
     padding: 4px;
-    background: #8A3841 !important;
+    background: v-bind(templateNavBgColor) !important;
     color: white !important;
     border: none;
     border-radius: 4px !important;
     cursor: pointer;
-    box-shadow: 0 2px 6px rgba(138,56,65, 0.4);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     transition: background 0.15s ease, transform 0.1s ease;
 }
 
 .nav-btn:hover {
-    background: #6a2a31 !important;
+    filter: brightness(0.85) !important;
 }
 
 .nav-btn:active {
@@ -818,7 +877,7 @@ h3 {
   display: flex;
   gap: 3px;
   z-index: 50;
-  background: #f8e8e8;
+  background: v-bind(templateSidebarBgColor);
   padding-left: 5px;
 }
 
