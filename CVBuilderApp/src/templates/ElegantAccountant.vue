@@ -103,7 +103,20 @@
 
       <!-- BODY SECTIONS -->
       <div class="w-full flex flex-col m-0 p-0">
-        <template v-for="section in allVisibleSections" :key="section.id">
+        <draggable
+          v-model="allVisibleSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <!-- Đã xóa nhãn paginated-item ở lớp bọc ngoài cùng -->
           <div
             class="section-block relative w-full mb-[30px] cursor-pointer hover:bg-black/5 transition-colors"
@@ -278,6 +291,7 @@
 
           </div>
         </template>
+        </draggable>
       </div>
     </div>
 
@@ -303,6 +317,7 @@ const props = defineProps({
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 import { computed, ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot            = ref(null)
 const pageCount         = ref(1)
@@ -469,6 +484,30 @@ const allVisibleSections = computed(() =>
     (s.isVisible && s.items?.length > 0) || DEFAULT_SECTION_IDS.includes(s.id) || (s.id === 'summary' && !isEmpty(props.resumeData.general.summary))
   )
 )
+
+const allVisibleSectionsWritable = ref([])
+
+watch(allVisibleSections, (newVal) => {
+  allVisibleSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  const newOrderIds = allVisibleSectionsWritable.value.map(s => s.id)
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!newOrderIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  newOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 
 const sidebarIds = computed(() => allVisibleSections.value.filter(s => s.column === 'left').map(s => s.id))
 const mainIds = computed(() => allVisibleSections.value.filter(s => s.column === 'right').map(s => s.id))

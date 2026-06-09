@@ -85,7 +85,20 @@
         </div>
 
         <!-- Sidebar sections -->
-        <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex flex-col cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
           <!-- ĐÃ GỠ BỎ paginated-item Ở ĐÂY ĐỂ TRÁNH KÉO CẢ CỤC -->
           <div
             v-show="section.isVisible"
@@ -215,6 +228,7 @@
             </div>
           </div>
         </template>
+        </draggable>
       </div>
     </aside>
 
@@ -222,9 +236,22 @@
     <main class="flex-1 flex flex-col relative bg-white z-20" @click.self="selectedSectionId = null">
       <div style="height: 78mm; flex-shrink: 0; border-left: 1.5px solid #e2e8f0; margin-left: 12mm;"></div>
 
-      <div class="flex-1 flex flex-col pb-[12mm] relative gap-2" style="padding-left: 10mm; padding-right: 12mm;"
-        @click.self="selectedSectionId = null">
-        <template v-for="section in mainSections" :key="section.id">
+      <draggable
+        v-model="mainSectionsWritable"
+        item-key="id"
+        group="sections"
+        class="flex-1 flex flex-col pb-[12mm] relative gap-2 cursor-move"
+        style="padding-left: 10mm; padding-right: 12mm;"
+        @click.self="selectedSectionId = null"
+        @end="onDragEnd"
+        animation="200"
+        ghost-class="opacity-30"
+        :delay="100"
+        :delayOnTouchOnly="true"
+        :fallbackTolerance="5"
+        filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+      >
+        <template #item="{ element: section }">
           <!-- ĐÃ GỠ BỎ paginated-item Ở ĐÂY -->
           <div
             v-show="section.isVisible"
@@ -360,7 +387,7 @@
             </div>
           </div>
         </template>
-      </div>
+      </draggable>
     </main>
 
     <!-- Page break markers -->
@@ -378,6 +405,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot            = ref(null)
 const pageCount         = ref(1)
@@ -653,6 +681,48 @@ watch(() => props.resumeData, requestPagination, { deep: true })
 
 const sidebarSections = computed(() => props.resumeData.sections.filter(s => s.column === 'left' && s.id !== 'contact'))
 const mainSections = computed(() => props.resumeData.sections.filter(s => s.column === 'right'))
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
+
+  const newOrderIds = [
+    ...sidebarSectionsWritable.value.map(s => s.id),
+    ...mainSectionsWritable.value.map(s => s.id)
+  ]
+  
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!newOrderIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  newOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
 
