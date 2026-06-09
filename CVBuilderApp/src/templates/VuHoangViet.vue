@@ -47,245 +47,149 @@
           </div>
         </div>
 
-        <div class="left-sortable-area" style="display: flex; flex-direction: column;">
-          
-          <template v-for="section in sidebarSections.filter(s => s.id === 'summary')" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="left-sortable-area"
+          style="display: flex; flex-direction: column;"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
+            <div
+              v-if="section.isVisible"
+              :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors"
+              :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)"
+            >
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'right')" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
+                  <button class="nav-btn" @click.stop="$emit('moveUp', section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="$emit('moveDown', section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="$emit('moveHorizontal', section.id, 'right')" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="section.isVisible = false; selectedSectionId = null; requestPagination()" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
               
-              <div class="pill-header paginated-item"><span v-html="section.name || section.title || 'Mục tiêu nghề nghiệp'"></span></div>
+              <div class="pill-header paginated-item"><span v-html="section.name || section.title || (section.id === 'summary' ? 'Mục tiêu nghề nghiệp' : (['skills', 'it_skills', 'languages'].includes(section.id) ? 'Kỹ năng chuyên môn' : (section.id === 'hobbies' ? 'Sở thích' : section.id.toUpperCase())))"></span></div>
               
               <div class="content-area">
-                <div v-if="!isEmpty(resumeData.general.summary)" class="html-content" v-html="formatDesc(resumeData.general.summary)"></div>
-                <div v-else class="html-content text-placeholder">
-                  <div class="paginated-item">Chưa có dữ liệu</div>
+                <div v-if="section.id === 'summary'">
+                  <div v-if="!isEmpty(resumeData.general.summary)" class="html-content" v-html="formatDesc(resumeData.general.summary)"></div>
+                  <div v-else class="html-content text-placeholder">
+                    <div class="paginated-item">Chưa có dữ liệu</div>
+                  </div>
+                </div>
+
+                <div v-else-if="['skills', 'it_skills', 'languages', 'hobbies'].includes(section.id)">
+                  <ul class="left-list">
+                    <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
+                      <template v-if="typeof item === 'object'">
+                        <span v-html="item.name || item.title || ''"></span> <span v-if="item.level" v-html="' - ' + item.level"></span>
+                      </template>
+                      <template v-else>{{ item }}</template>
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                    </li>
+                  </ul>
+                </div>
+
+                <div v-else>
+                  <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-2 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
+                  
+                  <ul class="left-list">
+                    <li v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container paginated-item">
+                      <template v-if="typeof item === 'object'">
+                        <div v-if="item.year || item.time || item.date" class="text-time font-bold"><span v-html="item.year || item.time || item.date"></span></div>
+                        <div v-if="item.company || item.school || item.organization || item.name || item.title" class="font-bold"><span v-html="item.company || item.school || item.organization || item.name || item.title"></span></div>
+                        <div v-if="item.role || item.position || item.degree || item.major || item.level" class="text-role"><span v-html="item.role || item.position || item.degree || item.major || item.level"></span></div>
+                        <div v-if="item.gradType" class="text-role"><strong>Xếp loại:</strong> <span v-html="item.gradType"></span></div>
+                        <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
+                        <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
+                      </template>
+                      <template v-else>
+                        <div class="html-content" v-html="formatDesc(item)"></div>
+                      </template>
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
           </template>
-
-          <template v-for="section in sidebarSections.filter(s => ['skills', 'it_skills', 'languages'].includes(s.id))" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
-              <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'right')" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
-                </div>
-              </transition>
-
-              <div class="pill-header paginated-item"><span v-html="section.name || section.title || 'Kỹ năng chuyên môn'"></span></div>
-              
-              <div class="content-area">
-                <ul class="left-list">
-                  <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
-                    <template v-if="typeof item === 'object'">
-                      <span v-html="item.name || ''"></span> <span v-html="item.level ? ' - ' + item.level : ''"></span>
-                    </template>
-                    <template v-else>{{ item }}</template>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </template>
-
-          <template v-for="section in sidebarSections.filter(s => s.id === 'hobbies')" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
-              <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'right')" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
-                </div>
-              </transition>
-
-              <div class="pill-header paginated-item"><span v-html="section.name || section.title || 'Sở thích'"></span></div>
-              
-              <div class="content-area">
-                <ul class="left-list">
-                  <li v-for="(item, i) in (section.items?.length ? section.items : [{name: 'Chưa có dữ liệu'}])" :key="i" class="item-container paginated-item">
-                    <span v-html="typeof item === 'object' ? (item.name || item.title || '') : item"></span>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </template>
-
-          <template v-for="section in sidebarSections.filter(s => !['summary', 'skills', 'it_skills', 'languages', 'hobbies'].includes(s.id))" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block left-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, leftIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
-              <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, leftIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, leftIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'right')" title="Chuyển sang phải"><i class="fas fa-arrow-right"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
-                </div>
-              </transition>
-
-              <div class="pill-header paginated-item"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></div>
-              
-              <div class="content-area">
-                <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-2 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
-                
-                <ul class="left-list">
-                  <li v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container paginated-item">
-                    <template v-if="typeof item === 'object'">
-                      <div v-if="item.year || item.time || item.date" class="text-time font-bold"><span v-html="item.year || item.time || item.date"></span></div>
-                      <div v-if="item.company || item.school || item.organization || item.name || item.title" class="font-bold"><span v-html="item.company || item.school || item.organization || item.name || item.title"></span></div>
-                      <div v-if="item.role || item.position || item.degree || item.major || item.level" class="text-role"><span v-html="item.role || item.position || item.degree || item.major || item.level"></span></div>
-                      <div v-if="item.gradType" class="text-role"><strong>Xếp loại:</strong> <span v-html="item.gradType"></span></div>
-                      <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
-                      <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
-                    </template>
-                    <template v-else>
-                      <div class="html-content" v-html="formatDesc(item)"></div>
-                    </template>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </template>
-
-        </div>
+        </draggable>
       </aside>
 
       <main class="right-column relative">
-        <div class="right-sortable-area timeline-container" style="display: flex; flex-direction: column;">
-          
-          <div v-show="rightIds.length > 0" class="timeline-line no-print-line"></div>
-
-          <!-- Education -->
-          <template v-for="section in mainSections.filter(s => s.id === 'education')" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="right-sortable-area timeline-container"
+          style="display: flex; flex-direction: column;"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
+            <div
+              v-if="section.isVisible"
+              :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors"
+              :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)"
+            >
               <transition name="fade-btns">
                 <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'left')" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
+                  <button class="nav-btn" @click.stop="$emit('moveUp', section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
+                  <button class="nav-btn" @click.stop="$emit('moveDown', section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
+                  <button class="nav-btn" @click.stop="$emit('moveHorizontal', section.id, 'left')" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
+                  <button class="nav-btn btn-danger" @click.stop="section.isVisible = false; selectedSectionId = null; requestPagination()" title="Ẩn mục"><i class="fas fa-times"></i></button>
                 </div>
               </transition>
               <div class="timeline-dot"></div>
               <div class="right-block-inner">
-                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || 'Quá trình Học vấn'"></span></h3>
+                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || (section.id === 'education' ? 'Quá trình Học vấn' : (section.id === 'experience' ? 'Kinh nghiệm làm việc' : (section.id === 'activities' ? 'Hoạt động' : section.id.toUpperCase())))"></span></h3>
                 <div class="green-card">
-                  <div v-for="(item, i) in (section.items?.length ? section.items : [{school: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
-                    <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
-                    <div v-if="item.school || item.name" class="text-entity font-bold"><span v-html="item.school || item.name"></span></div>
-                    <div v-if="item.major || item.degree" class="text-role"><span v-html="item.major || item.degree"></span></div>
-                    <div v-if="item.gradType || item.info" class="text-role" style="margin-top: 2px;">
-                      <strong>Xếp loại:</strong> <span v-html="item.gradType || item.info"></span>
-                    </div>
-                    <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- Experience -->
-          <template v-for="section in mainSections.filter(s => s.id === 'experience')" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
-              <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'left')" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
-                </div>
-              </transition>
-              <div class="timeline-dot"></div>
-              <div class="right-block-inner">
-                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || 'Kinh nghiệm làm việc'"></span></h3>
-                <div class="green-card">
-                  <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
-                    <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
-                    <div v-if="item.company || item.name" class="text-entity font-normal"><span v-html="item.company || item.name"></span></div>
-                    <div v-if="item.role || item.position" class="text-role font-bold"><span v-html="item.role || item.position"></span></div>
-                    <div v-if="item.role || item.position || item.desc || item.description" class="divider-line"></div>
-                    <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- Activities -->
-          <template v-for="section in mainSections.filter(s => s.id === 'activities')" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
-              <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'left')" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
-                </div>
-              </transition>
-              <div class="timeline-dot"></div>
-              <div class="right-block-inner">
-                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || 'Hoạt động'"></span></h3>
-                <div class="green-card">
-                  <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-5 last:mb-0 paginated-item">
-                    <div v-if="item.year || item.time || item.date" class="text-time"><span v-html="item.year || item.time || item.date"></span></div>
-                    <div v-if="item.company || item.organization || item.name" class="text-entity"><span v-html="item.company || item.organization || item.name"></span></div>
-                    <div v-if="item.role" class="text-role font-normal mt-1"><span v-html="item.role"></span></div>
-                    <div v-if="item.role || item.desc || item.description" class="divider-line"></div>
-                    <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- Catch-all for other right column sections -->
-          <template v-for="section in mainSections.filter(s => !['education', 'experience', 'activities'].includes(s.id))" :key="section.id">
-            <div v-show="section.isVisible" :data-section-id="section.id" class="section-block right-block cursor-pointer hover:bg-black/5 transition-colors" :style="{ order: getOrder(section.id, rightIds) }" :class="{ 'section-active': selectedSectionId === section.id }" @click.stop="toggleSection(section.id)">
-              <transition name="fade-btns">
-                <div v-if="selectedSectionId === section.id" class="nav-btns no-print" data-html2canvas-ignore="true">
-                  <button class="nav-btn" @click.stop="moveUp(section.id, rightIds)" title="Lên"><i class="fas fa-chevron-up"></i></button>
-                  <button class="nav-btn" @click.stop="moveDown(section.id, rightIds)" title="Xuống"><i class="fas fa-chevron-down"></i></button>
-                  <button class="nav-btn" @click.stop="moveHorizontal(section.id, 'left')" title="Chuyển sang trái"><i class="fas fa-arrow-left"></i></button>
-                  <button class="nav-btn btn-danger" @click.stop="hideSection(section.id)" title="Ẩn mục"><i class="fas fa-times"></i></button>
-                </div>
-              </transition>
-              <div class="timeline-dot"></div>
-              <div class="right-block-inner">
-                <h3 class="right-title paginated-item"><span v-html="section.name || section.title || section.id.toUpperCase()"></span></h3>
-                <div class="green-card">
-                  <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
-                  <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
-                    <div v-if="typeof item === 'object'">
-                      <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
-                      <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                      <div v-else-if="item.name || item.title" class="text-entity"><span v-html="item.name || item.title"></span></div>
-                      <div v-if="item.role || item.position || item.level" class="text-role font-normal mt-1"><span v-html="item.role || item.position || item.level"></span></div>
-                      <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
+                  <div v-if="['education', 'experience', 'activities'].includes(section.id)">
+                    <div v-for="(item, i) in (section.items?.length ? section.items : [{company: 'Chưa có dữ liệu'}])" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
+                      <div v-if="item.year || item.time || item.date" class="text-time"><span v-html="item.year || item.time || item.date"></span></div>
+                      <div v-if="item.school || item.company || item.organization || item.name" class="text-entity font-bold"><span v-html="item.school || item.company || item.organization || item.name"></span></div>
+                      <div v-if="item.major || item.degree || item.role || item.position" class="text-role"><span v-html="item.major || item.degree || item.role || item.position"></span></div>
+                      <div v-if="item.gradType || item.info" class="text-role" style="margin-top: 2px;">
+                        <strong>Xếp loại:</strong> <span v-html="item.gradType || item.info"></span>
+                      </div>
+                      <div v-if="section.id !== 'education' && (item.role || item.position || item.desc || item.description)" class="divider-line"></div>
                       <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
                     </div>
-                    <div v-else class="html-content" v-html="formatDesc(item)"></div>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" data-html2canvas-ignore="true"><i class="fas fa-times"></i></button>
+                  </div>
+                  <div v-else>
+                    <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3 paginated-item" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
+                    <div v-for="(item, i) in (section.items?.length ? section.items : ((section.desc || section.description || section.content || section.value) ? [] : [{ name: 'Chưa có dữ liệu' }]))" :key="i" class="item-container relative mb-4 last:mb-0 paginated-item">
+                      <div v-if="typeof item === 'object'">
+                        <div v-if="item.year || item.time" class="text-time"><span v-html="item.year || item.time"></span></div>
+                        <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
+                        <div v-else-if="item.name || item.title" class="text-entity"><span v-html="item.name || item.title"></span></div>
+                        <div v-if="item.role || item.position || item.level" class="text-role font-normal mt-1"><span v-html="item.role || item.position || item.level"></span></div>
+                        <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
+                        <div v-if="item.desc || item.description" class="html-content mt-1" v-html="formatDesc(item.desc || item.description)"></div>
+                      </div>
+                      <div v-else class="html-content" v-html="formatDesc(item)"></div>
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" data-html2canvas-ignore="true"><i class="fas fa-times"></i></button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </template>
-
-        </div>
+        </draggable>
       </main>
 
     </div>
@@ -306,6 +210,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted, toRaw } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -415,15 +320,54 @@ const getActiveIds = (sourceArray) => {
 const leftIds = computed(() => getActiveIds(sidebarSections.value))
 const rightIds = computed(() => getActiveIds(mainSections.value))
 
-const getOrder = (id, activeArray) => activeArray.indexOf(id) + 1
-
 const toggleSection = (id) => { selectedSectionId.value = selectedSectionId.value === id ? null : id }
-const moveUp = (id, arr) => emit('moveUp', id, toRaw(arr))
-const moveDown = (id, arr) => emit('moveDown', id, toRaw(arr))
-const moveHorizontal = (id, direction) => {
-  if (direction === 'right') moveToRight(id)
-  else moveToLeft(id)
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item && leftColKeys.value.includes(s.id) === false) leftColKeys.value.push(s.id)
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item && leftColKeys.value.includes(s.id)) leftColKeys.value = leftColKeys.value.filter(k => k !== s.id)
+  })
+
+  const leftIdsOrder = sidebarSectionsWritable.value.map(s => s.id)
+  const rightIdsOrder = mainSectionsWritable.value.map(s => s.id)
+  
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!leftIdsOrder.includes(s.id) && !rightIdsOrder.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  leftIdsOrder.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+  
+  rightIdsOrder.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
 }
+
+// ── QUẢN LÝ ẨN/HIỆN & CHIA CỘT ──────────────────────────────────────
 
 // Kích hoạt mặc định 5 mục giống ảnh
 onMounted(() => {

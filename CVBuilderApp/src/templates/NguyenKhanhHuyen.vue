@@ -64,7 +64,20 @@
 
         <!-- Sidebar Dynamic Sections (Awards & References) -->
         <div class="w-full flex flex-col gap-6">
-          <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+          v-model="sidebarSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="w-full flex flex-col gap-6 cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
             <div
               v-if="section.isVisible"
               :data-section-id="section.id" class="section-block relative w-full -mx-[6mm] px-[6mm] py-[3mm] cursor-pointer hover:bg-black/5 transition-colors"
@@ -142,6 +155,7 @@
               </div>
             </div>
           </template>
+        </draggable>
         </div>
       </aside>
 
@@ -150,9 +164,22 @@
 
       <!-- Main Column Dynamic Sections (Summary, Education, Experience) -->
       <div class="px-[12mm] pt-[10mm] pb-[10mm] flex-1 flex flex-col gap-[8mm]">
-        <template v-for="section in mainSections" :key="section.id">
-          <div
-            v-if="section.isVisible"
+        <draggable
+          v-model="mainSectionsWritable"
+          item-key="id"
+          group="sections"
+          class="flex-1 flex flex-col gap-[8mm] cursor-move"
+          @end="onDragEnd"
+          animation="200"
+          ghost-class="opacity-30"
+          :delay="100"
+          :delayOnTouchOnly="true"
+          :fallbackTolerance="5"
+          filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
+        >
+          <template #item="{ element: section }">
+            <div
+              v-if="section.isVisible"
             :data-section-id="section.id" class="section-block relative group my-0 py-1 cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             :style="selectedSectionId === section.id ? { '--active-bg': templatePrimaryColor } : {}"
@@ -252,8 +279,9 @@
                 </div>
               </div>
             </div>
-          </div>
-        </template>
+            </div>
+          </template>
+        </draggable>
       </div>
     </main>
   </div>
@@ -282,7 +310,8 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import { computed, ref, onMounted, nextTick, watch, onUnmounted, toRaw } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null)
 const pageCount = ref(1)
@@ -443,6 +472,53 @@ const sidebarSections = computed(() =>
 const mainSections = computed(() =>
   props.resumeData.sections.filter(s => s.column === 'right' && s.isVisible)
 )
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  // Update columns based on which list they are in
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
+
+  // Reorder sections array
+  const leftIds = sidebarSectionsWritable.value.map(s => s.id)
+  const rightIds = mainSectionsWritable.value.map(s => s.id)
+  
+  const newSections = []
+  props.resumeData.sections.forEach(s => {
+    if (!leftIds.includes(s.id) && !rightIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  leftIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+  
+  rightIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))

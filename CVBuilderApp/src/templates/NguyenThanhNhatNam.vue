@@ -307,10 +307,10 @@
         :fallbackTolerance="5"
         filter=".nav-btn, .delete-btn, .contact-item-btns, .html-content, input"
       >
-        <template #item="{ element: id }">
+        <template #item="{ element: sectionObj }">
           <!-- Cột: Interests (Hobbies) -->
           <div
-            v-if="id === 'hobbies' && hobbiesSection && hobbiesSection.isVisible"
+            v-if="sectionObj.id === 'hobbies' && hobbiesSection && hobbiesSection.isVisible"
             class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
             :class="{ 'section-active': selectedSectionId === hobbiesSection.id }"
             :style="selectedSectionId === hobbiesSection.id ? { '--active-bg': '#4A352F' } : {}"
@@ -319,10 +319,10 @@
             <!-- Nav Control -->
             <transition name="fade-btns">
               <div v-if="selectedSectionId === hobbiesSection.id" class="nav-btns no-print" style="right: 12px; top: 12px;" @click.stop>
-                <button @click.stop.prevent="moveFooterLeft(id)" class="nav-btn" title="Sang Trái">
+                <button @click.stop.prevent="moveFooterLeft(sectionObj.id)" class="nav-btn" title="Sang Trái">
                   <svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button @click.stop.prevent="moveFooterRight(id)" class="nav-btn" title="Sang Phải">
+                <button @click.stop.prevent="moveFooterRight(sectionObj.id)" class="nav-btn" title="Sang Phải">
                   <svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </button>
                 <button @click.stop.prevent="hobbiesSection.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
@@ -355,7 +355,7 @@
   
           <!-- Cột: Additional Information (Languages / Awards) -->
           <div
-            v-else-if="id === 'additional' && additionalSection && additionalSection.isVisible"
+            v-else-if="sectionObj.id === 'additional' && additionalSection && additionalSection.isVisible"
             class="section-block p-[5mm] rounded-[4px] border relative group cursor-pointer hover:bg-black/5 transition-colors" style="background-color: #f5ece8 !important; border-color: #e9ddd7 !important;"
             :class="{ 'section-active': selectedSectionId === additionalSection.id }"
             :style="selectedSectionId === additionalSection.id ? { '--active-bg': '#4A352F' } : {}"
@@ -364,10 +364,10 @@
             <!-- Nav Control -->
             <transition name="fade-btns">
               <div v-if="selectedSectionId === additionalSection.id" class="nav-btns no-print" style="right: 12px; top: 12px;" @click.stop>
-                <button @click.stop.prevent="moveFooterLeft(id)" class="nav-btn" title="Sang Trái">
+                <button @click.stop.prevent="moveFooterLeft(sectionObj.id)" class="nav-btn" title="Sang Trái">
                   <svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button @click.stop.prevent="moveFooterRight(id)" class="nav-btn" title="Sang Phải">
+                <button @click.stop.prevent="moveFooterRight(sectionObj.id)" class="nav-btn" title="Sang Phải">
                   <svg class="pointer-events-none" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
                 </button>
                 <button @click.stop.prevent="additionalSection.isVisible = false; selectedSectionId = null; requestPagination()" class="nav-btn nav-btn-danger" title="Ẩn mục này">
@@ -630,7 +630,7 @@ const additionalSection = computed(() =>
 const footerIds = computed(() => {
   return props.resumeData.sections
     .filter(s => ['hobbies', 'additional'].includes(s.id))
-    .map(s => s.id)
+    .map(s => ({ id: s.id }))
 })
 
 const footerIdsWritable = ref([])
@@ -642,7 +642,7 @@ watch(footerIds, (newVal) => {
 }, { immediate: true })
 
 const onDragFooterEnd = () => {
-  const newOrderIds = footerIdsWritable.value
+  const newOrderIds = footerIdsWritable.value.map(x => x.id)
   
   const newSections = []
   props.resumeData.sections.forEach(s => {
@@ -661,7 +661,7 @@ const onDragFooterEnd = () => {
 }
 
 const moveFooterLeft = (id) => {
-  const idx = footerIdsWritable.value.indexOf(id)
+  const idx = footerIdsWritable.value.findIndex(x => x.id === id)
   if(idx > 0) {
     const arr = [...footerIdsWritable.value]
     ;[arr[idx-1], arr[idx]] = [arr[idx], arr[idx-1]]
@@ -671,7 +671,7 @@ const moveFooterLeft = (id) => {
 }
 
 const moveFooterRight = (id) => {
-  const idx = footerIdsWritable.value.indexOf(id)
+  const idx = footerIdsWritable.value.findIndex(x => x.id === id)
   if(idx !== -1 && idx < footerIdsWritable.value.length - 1) {
     const arr = [...footerIdsWritable.value]
     ;[arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]]
