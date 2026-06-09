@@ -7,7 +7,7 @@
     @click.self="selectedSectionId = null"
   >
     <!-- LEFT COLUMN -->
-    <aside class="w-[75mm] z-10 flex flex-col shrink-0 relative bg-[#e5e7eb]">
+    <aside class="w-[75mm] z-10 flex flex-col shrink-0 relative" :style="{ backgroundColor: templateSidebarBgColor }">
       
       <!-- HEADER LEFT -->
       <div data-section-id="personal" class="pt-[20mm] px-[8mm] flex flex-col items-center paginated-item relative z-20 cursor-pointer hover:bg-black/5 transition-colors">
@@ -32,7 +32,7 @@
              :class="{ 'contact-active': selectedSectionId === 'contact' }"
              @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'">
           <div class="paginated-item">
-            <h3 class="section-title text-white font-bold uppercase tracking-wider text-center py-2 mb-4" style="background-color: #2b2b2b; font-size: 14px !important;">
+            <h3 class="section-title text-white font-bold uppercase tracking-wider text-center py-2 mb-4" :style="{ backgroundColor: templatePrimaryColor }" style="font-size: 14px !important;">
               THÔNG TIN CÁ NHÂN
             </h3>
           </div>
@@ -100,7 +100,7 @@
             </transition>
 
             <div class="paginated-item">
-              <h3 class="section-title text-white font-bold uppercase tracking-wider text-center py-2 mb-4" style="background-color: #2b2b2b; font-size: 14px !important;">
+              <h3 class="section-title text-white font-bold uppercase tracking-wider text-center py-2 mb-4" :style="{ backgroundColor: templatePrimaryColor }" style="font-size: 14px !important;">
                 <span v-html="section.title"></span>
               </h3>
             </div>
@@ -290,7 +290,7 @@
             </transition>
 
             <div class="paginated-item">
-              <h3 class="section-title text-white font-bold uppercase tracking-wider pl-4 py-1.5 mb-4" style="background-color: #2b2b2b; font-size: 15px !important;">
+              <h3 class="section-title text-white font-bold uppercase tracking-wider pl-4 py-1.5 mb-4" :style="{ backgroundColor: templatePrimaryColor }" style="font-size: 15px !important;">
                 <span v-html="section.title"></span>
               </h3>
             </div>
@@ -462,6 +462,55 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  const num = parseInt(clean, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
+  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
+}
+
+const adjustColorBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#2b2b2b'
+  return c
+})
+
+const isCustomColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  return c && c.toLowerCase() !== '#2b5c8f'
+})
+
+const templateSidebarBgColor = computed(() => {
+  if (!isCustomColor.value) return '#e5e7eb'
+  return adjustColorBrightness(templatePrimaryColor.value, 0.93)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
@@ -777,7 +826,7 @@ onUnmounted(() => {
 }
 
 .section-block.section-active {
-  border: 2px solid #2b2b2b !important;
+  border: 2px solid v-bind(templatePrimaryColor) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.10);
   z-index: 10;
 }
@@ -797,15 +846,15 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 4px;
-  background: #2563eb;
+  background: v-bind(templatePrimaryColor);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
-  transition: background 0.15s, transform 0.15s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: background 0.15s, transform 0.15s, filter 0.15s;
 }
-.nav-btn:hover { background: #1d4ed8; transform: scale(1.1); }
+.nav-btn:hover { filter: brightness(0.85); transform: scale(1.1); }
 .nav-btn:active { transform: scale(0.95); }
 
 .nav-btn-danger {
@@ -874,7 +923,7 @@ main {
 }
 
 .contact-block.contact-active {
-  border: 2px solid #2563eb !important;
+  border: 2px solid v-bind(templatePrimaryColor) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.10);
   z-index: 10;
 }
@@ -943,5 +992,13 @@ main {
   background: transparent !important;
   border-color: transparent !important;
   transform: none !important;
+}
+
+.space-y-4.relative > .absolute.left-\[3px\] {
+  background-color: v-bind(templatePrimaryColor) !important;
+}
+
+.item-container > .paginated-item > .absolute {
+  background-color: v-bind(templatePrimaryColor) !important;
 }
 </style>
