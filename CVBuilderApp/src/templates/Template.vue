@@ -56,8 +56,19 @@
     <div class="flex px-[15mm] py-[2mm] gap-[7mm] relative z-10 mb-8" @click.self="selectedSectionId = null">
         
         <!-- CỘT TRÁI (SIDEBAR) -->
-        <aside class="w-[88mm] flex flex-col gap-2 pr-1 pl-1">
-            <template v-for="section in sidebarSections" :key="section.id">
+        <draggable
+            v-model="sidebarSectionsWritable"
+            item-key="id"
+            group="sections"
+            class="w-[88mm] flex flex-col gap-2 pr-1 pl-1 cursor-move"
+            @end="onDragEnd"
+            animation="200"
+            ghost-class="opacity-30"
+            :delay="100"
+            :delayOnTouchOnly="true"
+            tag="aside"
+        >
+            <template #item="{ element: section }">
                 <div
                     v-show="section.isVisible"
                     :data-section-id="section.id" class="section-block cursor-pointer hover:bg-black/5 transition-colors"
@@ -160,11 +171,22 @@
                     </div>
                 </div>
             </template>
-        </aside>
+        </draggable>
 
         <!-- CỘT PHẢI (MAIN CONTENT) -->
-        <main class="flex-1 flex flex-col gap-3">
-            <template v-for="section in mainSections" :key="section.id">
+        <draggable
+            v-model="mainSectionsWritable"
+            item-key="id"
+            group="sections"
+            class="flex-1 flex flex-col gap-3 cursor-move"
+            @end="onDragEnd"
+            animation="200"
+            ghost-class="opacity-30"
+            :delay="100"
+            :delayOnTouchOnly="true"
+            tag="main"
+        >
+            <template #item="{ element: section }">
                 <div
                     v-show="section.isVisible"
                     :data-section-id="section.id" class="section-block cursor-pointer hover:bg-black/5 transition-colors"
@@ -260,7 +282,7 @@
                     </div>
                 </div>
             </template>
-        </main>
+        </draggable>
     </div>
 
     <!-- ĐƯỜNG PHÂN TRANG -->
@@ -277,6 +299,7 @@
 
 <script setup>
 import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import draggable from 'vuedraggable'
 
 const cvRoot = ref(null);
 const pageCount = ref(1);
@@ -569,6 +592,52 @@ const sidebarSections = computed(() => {
 const mainSections = computed(() => {
     return props.resumeData.sections.filter(s => s.column === 'right');
 });
+
+const sidebarSectionsWritable = ref([])
+const mainSectionsWritable = ref([])
+
+watch(sidebarSections, (newVal) => {
+  sidebarSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+watch(mainSections, (newVal) => {
+  mainSectionsWritable.value = [...newVal]
+}, { immediate: true, deep: true })
+
+const onDragEnd = () => {
+  // Cập nhật thuộc tính column cho các section
+  sidebarSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'left'
+  })
+  mainSectionsWritable.value.forEach(s => {
+    const item = props.resumeData.sections.find(x => x.id === s.id)
+    if (item) item.column = 'right'
+  })
+
+  // Gộp thứ tự mới
+  const newOrderIds = [
+    ...sidebarSectionsWritable.value.map(s => s.id),
+    ...mainSectionsWritable.value.map(s => s.id)
+  ]
+  
+  const newSections = []
+  // Giữ lại các section bị ẩn hoặc thuộc dạng đặc biệt ở đầu
+  props.resumeData.sections.forEach(s => {
+    if (!newOrderIds.includes(s.id)) {
+      newSections.push(s)
+    }
+  })
+  
+  // Thêm các section đã sắp xếp
+  newOrderIds.forEach(id => {
+    const item = props.resumeData.sections.find(s => s.id === id)
+    if (item) newSections.push(item)
+  })
+
+  props.resumeData.sections.splice(0, props.resumeData.sections.length, ...newSections)
+  requestPagination()
+}
 </script>
 
 <style scoped>
