@@ -5,7 +5,7 @@
       
       <!-- ĐÃ SỬA: Đổi mb-[-5px] thành mb-[10px] để nhích avatar lên, không bị đè vạch -->
       <div class="paginated-item relative z-20 w-full flex flex-col items-center mb-[10px]">
-        <div class="relative rounded-full overflow-hidden mx-auto bg-white" :style="{ width: '150px', height: '150px', border: '5px solid #d6cdc4', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }">
+        <div class="relative rounded-full overflow-hidden mx-auto bg-white" :style="{ width: '150px', height: '150px', border: '5px solid ' + avatarBorderColor, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }">
           <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
             <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -17,7 +17,7 @@
         class="section-block mb-[20px] ml-[4mm] cursor-pointer hover:bg-black/5 transition-colors"
         :class="{ 'section-active--sidebar': selectedSectionId === 'contact' }"
         @click.stop="toggleSection('contact')"
-        :style="{ borderTop: '1px solid #c9beae', borderBottom: '1px solid #c9beae', padding: '12px 0' }"
+        :style="{ borderTop: '1px solid ' + activeBorderColorSidebar, borderBottom: '1px solid ' + activeBorderColorSidebar, padding: '12px 0' }"
       >
         <!-- Nav Buttons for Contact Block - Removed eye button -->
         <ul class="w-full list-none p-0 m-0 text-[#333] flex flex-col gap-[10px]" :style="{ fontSize: '12px !important' }">
@@ -79,7 +79,7 @@
               </button>
             </div>
 
-            <h3 class="w-full block paginated-item" :style="{ fontSize: '16px !important', color: '#333', borderBottom: '1px solid #c9beae', paddingBottom: '5px !important', margin: '0 0 10px 0 !important', fontWeight: 'bold !important' }">
+            <h3 class="w-full block paginated-item" :style="{ fontSize: '16px !important', color: '#333', borderBottom: '1px solid ' + activeBorderColorSidebar, paddingBottom: '5px !important', margin: '0 0 10px 0 !important', fontWeight: 'bold !important' }">
               <span v-html="section.title"></span>
             </h3>
 
@@ -91,7 +91,7 @@
                 :style="{ fontSize: '12px !important', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }"
               > 
                 <div v-if="section.id === 'skills'" class="flex items-start gap-[8px] paginated-item w-full">
-                  <svg class="mt-[4px] shrink-0 text-[#634c46] opacity-70" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
+                  <svg class="mt-[4px] shrink-0 opacity-70" :style="{ color: templatePrimaryColor }" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"/></svg>
                   <div class="w-full flex justify-between items-start gap-2">
                   <span class="font-medium text-[#333] break-words"><span v-html="item.name"></span></span>
                   <span v-if="item.level || item.info" class="font-bold shrink-0 whitespace-nowrap text-right opacity-90 text-[11px]"><span v-html="item.level || item.info"></span></span>
@@ -101,7 +101,7 @@
                 <div v-else-if="section.id === 'education' || section.id === 'experience'" class="w-full">
                   <div class="w-full flex justify-between items-start mb-[2px] paginated-item">
                     <span class="font-bold text-[#333] leading-tight flex-1" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
-                    <span v-if="item.year || item.time" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold"><span v-html="item.year || item.time"></span></span>
+                    <span v-if="item.year || item.time" class="shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ml-2 font-bold" :style="{ backgroundColor: badgeBgColor }"><span v-html="item.year || item.time"></span></span>
                   </div>
                   <div v-if="item.major || item.role" class="font-bold text-[#444] mb-[2px] paginated-item"><span v-html="item.major || item.role"></span></div>
                   <div v-if="item.desc" class="html-content text-justify whitespace-pre-line text-[#555] text-[11px] flex flex-col" v-html="formatDesc(item.desc)"></div>
@@ -116,7 +116,7 @@
   <div class="paginated-item w-full flex justify-between items-start gap-2 relative">
     <span class="font-bold flex-1 break-words leading-tight text-[#333] flex flex-col" v-html="formatDesc(item.name || item.title || item.company || item.organization)"></span>
     <!-- Hiển thị Năm với thiết kế bo tròn đồng bộ -->
-    <span v-if="item.year || item.time || item.date" class="shrink-0 text-[10px] bg-[#9b8a7e] text-white px-2 py-0.5 rounded-full ml-2 font-bold"><span v-html="item.year || item.time || item.date"></span></span>
+    <span v-if="item.year || item.time || item.date" class="shrink-0 text-[10px] text-white px-2 py-0.5 rounded-full ml-2 font-bold" :style="{ backgroundColor: badgeBgColor }"><span v-html="item.year || item.time || item.date"></span></span>
   </div>
   <div v-if="item.major || item.role || item.info" class="italic opacity-90 mt-[2px] text-[12px] paginated-item flex flex-col text-[#444]" v-html="formatDesc(item.major || item.role || item.info)"></div>
   <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full mt-[2px] flex flex-col text-[#555]" :style="{ lineHeight: '1.5' }" v-html="formatDesc(item.desc || item.details)"></div>
@@ -140,7 +140,7 @@
 
     <main class="flex-1 flex flex-col relative bg-white z-20 overflow-hidden box-border" @click.self="selectedSectionId = null">
 
-      <header class="paginated-item w-full flex flex-col relative" :style="{ backgroundColor: '#634c46', color: 'white', padding: '40px 35px' }">
+      <header class="paginated-item w-full flex flex-col relative" :style="{ backgroundColor: templatePrimaryColor, color: 'white', padding: '40px 35px' }">
         <h1 class="text-white break-words w-full" :style="{ margin: '0 !important', padding: '0 !important', fontSize: '36px !important', textTransform: 'capitalize', fontWeight: '800 !important', letterSpacing: '1px', lineHeight: '1.1' }" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Họ Và Tên'"></h1>
         <h2 class="text-white break-words w-full uppercase" :style="{ margin: '15px 0 15px 0 !important', padding: '0 0 10px 0 !important', fontSize: '20px !important', fontWeight: 'bold !important', borderBottom: '1px solid rgba(255,255,255,0.3)' }" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></h2>
         <div
@@ -213,7 +213,7 @@
                       <span class="font-bold text-[#333] leading-tight block" :style="{ fontSize: '14px', margin: '0 !important' }" v-html="section.id === 'education' ? item.school : (item.company || item.name)"></span>
                       <span class="italic text-[#555] block mt-[2px] leading-tight" :style="{ fontSize: '13px', margin: '0 !important' }" v-if="item.major || item.role"><span v-html="item.major || item.role"></span></span>
                     </div>
-                    <span v-if="item.year || item.time" class="shrink-0 text-center whitespace-nowrap" :style="{ backgroundColor: '#9b8a7e', color: 'white', padding: '3px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }"><span v-html="item.year || item.time"></span></span>
+                    <span v-if="item.year || item.time" class="shrink-0 text-center whitespace-nowrap" :style="{ backgroundColor: badgeBgColor, color: 'white', padding: '3px 12px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }"><span v-html="item.year || item.time"></span></span>
                   </div>
                   <div v-if="item.desc" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col" :style="{ fontSize: '12.5px', lineHeight: '1.5', margin: '5px 0 0 0 !important', padding: '0 !important' }" v-html="formatDesc(item.desc)"></div>
                   <div v-else-if="item.gradType" class="font-medium mt-[5px] text-[#444] paginated-item" :style="{ fontSize: '12.5px !important', margin: '0 !important' }">Trạng thái: <span v-html="item.gradType"></span></div>
@@ -249,7 +249,7 @@
     <template v-for="p in pageCount" :key="'footer-border-'+p">
       <div class="absolute left-0 w-full flex items-center z-40 pointer-events-none"
            :style="{ top: `calc(${p * 297}mm - 12mm)`, height: '1.5px', paddingLeft: '20px', paddingRight: '20px' }">
-        <div class="w-full h-full opacity-20" :style="{ backgroundImage: `linear-gradient(to right, transparent, ${templatePrimaryColor}, transparent)` }"></div>
+        <div class="w-full h-full opacity-20" :style="{ backgroundImage: 'linear-gradient(to right, transparent, ' + templatePrimaryColor + ', transparent)' }"></div>
       </div>
     </template>
 
@@ -422,12 +422,83 @@ const formatDesc = (text) => {
 }
 
 // ─── Theme colors ──────────────────────────────────────────────────────────
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
 const templatePrimaryColor = computed(() => {
-  const c = props.resumeData.theme?.primaryColor
+  const c = props.resumeData?.theme?.primaryColor
   if (!c || c.toLowerCase() === '#0d6efd') return '#634c46'
   return c
 })
-const templateSecondaryColor = computed(() => '#e5ddd5')
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#0d6efd') return '#e5ddd5'
+  return adjustBrightness(c, 0.88)
+})
+
+const badgeBgColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#0d6efd') return '#9b8a7e'
+  return adjustBrightness(c, 0.35)
+})
+
+const avatarBorderColor = computed(() => adjustBrightness(templateSecondaryColor.value, -0.07))
+const activeBorderColorSidebar = computed(() => adjustBrightness(templateSecondaryColor.value, -0.12))
+const activeBorderColorMain = computed(() => adjustBrightness(templateSecondaryColor.value, 0.05))
+
+const primaryRgb = computed(() => {
+  try {
+    const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+    return `${r},${g},${b}`
+  } catch (e) {
+    return '99,76,70'
+  }
+})
+
+const secondaryRgb = computed(() => {
+  try {
+    const { r, g, b } = hexToRgb(templateSecondaryColor.value)
+    return `${r},${g},${b}`
+  } catch (e) {
+    return '229,221,213'
+  }
+})
 
 // ─── Section move helpers (splice = reactive-safe) ─────────────────────────
 const swapSections = (sections, idxA, idxB) => {
@@ -704,7 +775,7 @@ const mainIds         = computed(() => mainSections.value.map(s => s.id))
 }
 
 .section-active--sidebar {
-  border: 2px solid #c9beae !important;
+  border: 2px solid v-bind(activeBorderColorSidebar) !important;
   border-style: solid !important;
   border-radius: 6px !important;
   /* removed scale */
@@ -714,12 +785,12 @@ const mainIds         = computed(() => mainSections.value.map(s => s.id))
 }
 
 .section-active--main {
-  border: 2px solid #e8e0d8 !important;
+  border: 2px solid v-bind(activeBorderColorMain) !important;
   border-style: solid !important;
   border-radius: 6px !important;
   /* removed scale */
-  box-shadow: 0 4px 18px rgba(99,76,70,0.10), 0 1px 4px rgba(99,76,70,0.06) !important;
-  background: rgba(229,221,213,0.10) !important;
+  box-shadow: 0 4px 18px rgba(v-bind(primaryRgb),0.10), 0 1px 4px rgba(v-bind(primaryRgb),0.06) !important;
+  background: rgba(v-bind(secondaryRgb),0.10) !important;
   z-index: 10 !important;
 }
 
@@ -750,7 +821,7 @@ const mainIds         = computed(() => mainSections.value.map(s => s.id))
   align-items: center !important;
   justify-content: center !important;
   padding: 4px !important;
-  background: #634c46 !important;
+  background: v-bind(templatePrimaryColor) !important;
   color: white !important;
   border: none !important;
   border-radius: 4px !important;

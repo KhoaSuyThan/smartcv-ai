@@ -397,8 +397,55 @@ const cvRoot = ref(null)
 const pageCount = ref(1)
 const selectedSectionId = ref(null)
 
-const templatePrimaryColor = computed(() => props.resumeData?.theme?.primaryColor || '#2d7fb2')
-const sidebarBgColor = '#e0f2f7'
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#2d7fb2'
+  return c
+})
+
+const sidebarBgColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#e0f2f7'
+  return adjustBrightness(c, 0.9)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
@@ -408,7 +455,7 @@ const toggleSection = (id) => {
 // Bỏ Scale để không làm sai lệch vị trí
 const getSectionStyle = (sectionId, column) => {
   const isActive = selectedSectionId.value === sectionId
-  const bgColor = column === 'left' ? sidebarBgColor : '#ffffff'
+  const bgColor = column === 'left' ? sidebarBgColor.value : '#ffffff'
 
   if (isActive) {
     return {

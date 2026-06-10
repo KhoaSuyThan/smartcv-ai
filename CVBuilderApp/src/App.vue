@@ -469,7 +469,9 @@
                     <div v-if="showFontMenu" class="absolute top-full left-0 mt-2 p-3 bg-white border border-slate-200 shadow-xl rounded-xl z-50 w-48 animate-in fade-in slide-in-from-top-2 duration-200">
                         <div class="text-[10px] font-bold text-slate-400 uppercase mb-2">Màu văn bản</div>
                         <div class="grid grid-cols-5 gap-2 mb-3">
-                            <button v-for="color in presetColors" :key="'font-'+color" @mousedown.prevent="execCmd('foreColor', color); showFontMenu = false" class="w-6 h-6 rounded-md border border-slate-100 shadow-sm hover:scale-110 transition-transform" :style="{ backgroundColor: color }" :title="color"></button>
+                            <button v-for="color in fontColors" :key="'font-'+color" @mousedown.prevent="execCmd('foreColor', color); showFontMenu = false" class="relative overflow-hidden w-6 h-6 rounded-md border border-slate-100 shadow-sm hover:scale-110 transition-transform" :class="color === 'inherit' ? 'bg-white' : ''" :style="color === 'inherit' ? {} : { backgroundColor: color }" :title="color === 'inherit' ? 'Mặc định' : color">
+                                <svg v-if="color === 'inherit'" class="absolute inset-0 w-full h-full text-red-500 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="2" y2="22" stroke-width="2"></line></svg>
+                            </button>
                         </div>
                         <div class="pt-2 border-t border-slate-100">
                              <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1 rounded transition-colors">
@@ -1249,6 +1251,7 @@ const progressColorClass = computed(() => {
 const showThemeMenu = ref(false)
 const showFontMenu = ref(false)
 const presetColors = ['#2b5c8f', '#000000', '#ffffff', '#dc2626', '#eab308', '#16a34a', '#2563eb', '#6b7280', '#4b5563', '#ef4444']
+const fontColors = ['inherit', '#000000', '#ffffff', '#2b5c8f', '#dc2626', '#eab308', '#16a34a', '#2563eb', '#6b7280', '#4b5563']
 
 const toggleThemeMenu = () => {
     showThemeMenu.value = !showThemeMenu.value
@@ -1268,7 +1271,13 @@ const handleOutsideClick = (e) => {
 }
 
 const execCmd = (command, value = null) => {
-    document.execCommand(command, false, value);
+    if (command === 'foreColor' && value === 'inherit') {
+        document.execCommand('styleWithCSS', false, true);
+        document.execCommand('foreColor', false, 'inherit');
+        document.execCommand('styleWithCSS', false, false);
+    } else {
+        document.execCommand(command, false, value);
+    }
     if (typeof updateFormatState === 'function') setTimeout(updateFormatState, 10);
 };
 

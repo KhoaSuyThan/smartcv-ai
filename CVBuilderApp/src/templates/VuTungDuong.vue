@@ -15,7 +15,8 @@
     <!-- ===================== CỘT TRÁI (SIDEBAR) ===================== -->
     <aside
       class="flex-shrink-0 flex flex-col relative z-20"
-      style="width: 78mm; background-color: #3a3e43; color: #ffffff;"
+      style="width: 78mm; color: #ffffff;"
+      :style="{ backgroundColor: templatePrimaryColor }"
       @click.self="selectedSectionId = null"
     >
       <!-- AVATAR -->
@@ -36,12 +37,12 @@
       <div class="paginated-item" style="padding: 0 8mm 6mm 8mm;">
         <h1
           style="font-size: 26px; font-weight: 900; text-transform: uppercase; line-height: 1.15; margin-bottom: 4px; word-break: break-word;"
-          :style="{ color: resumeData.theme.primaryColor || '#dfa234' }"
+          :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }"
           v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : ''"
         ></h1>
         <h2
           style="font-size: 13.5px; font-weight: 700; line-height: 1.3;"
-          :style="{ color: resumeData.theme.primaryColor || '#dfa234' }"
+          :style="{ color: isCustomTheme ? 'rgba(255, 255, 255, 0.9)' : templateAccentColor }"
           v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : ''"
         ></h2>
       </div>
@@ -54,8 +55,8 @@
         @click.stop="toggleSection('contact')"
       >
         <div class="sidebar-section-header paginated-item" style="margin-bottom: 10px;">
-          <h3 class="sidebar-section-title" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">Thông tin cá nhân</h3>
-          <div class="sidebar-divider" :style="{ backgroundColor: resumeData.theme.primaryColor || '#dfa234' }"></div>
+          <h3 class="sidebar-section-title" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }">Thông tin cá nhân</h3>
+          <div class="sidebar-divider" :style="{ backgroundColor: isCustomTheme ? 'rgba(255, 255, 255, 0.4)' : templateAccentColor }"></div>
         </div>
         <div style="display: flex; flex-direction: column; gap: 9px; margin-top: 10px;">
           <div
@@ -63,7 +64,7 @@
             :key="ci.key"
             class="contact-row paginated-item relative pr-12 min-h-[20px]"
           >
-            <span class="contact-icon" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">
+            <span class="contact-icon" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }">
               <svg viewBox="0 0 20 20" fill="currentColor" style="width:13px;height:13px;" v-html="ci.icon"></svg>
             </span>
             <span class="contact-text" v-html="ci.value"></span>
@@ -122,10 +123,10 @@
           </div>
 
           <div class="sidebar-section-header paginated-item" style="margin-bottom: 10px;">
-            <h3 class="sidebar-section-title" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">
+            <h3 class="sidebar-section-title" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }">
               <span v-html="section.title"></span>
             </h3>
-            <div class="sidebar-divider" :style="{ backgroundColor: resumeData.theme.primaryColor || '#dfa234' }"></div>
+            <div class="sidebar-divider" :style="{ backgroundColor: isCustomTheme ? 'rgba(255, 255, 255, 0.4)' : templateAccentColor }"></div>
           </div>
 
           <div>
@@ -147,7 +148,7 @@
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container paginated-item"
                 style="position: relative; font-size: 12.5px; line-height: 1.45; padding-right: 20px;">
-                <span style="font-weight: 700;" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }"><span v-html="item.year"></span></span>
+                <span style="font-weight: 700;" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }"><span v-html="item.year"></span></span>
                 <span v-if="item.year" style="color: #ffffff; font-weight: 400;"> - </span>
                 <span style="color: #ffffff; font-weight: 700;"><span v-html="item.name"></span></span>
                 <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
@@ -162,7 +163,7 @@
                 style="position: relative; color: #fff; line-height: 1.5; padding-right: 20px;">
                 
                 <!-- Thời gian in màu nhấn -->
-                <div v-if="item.time || item.year" class="paginated-item" :style="{ color: resumeData.theme.primaryColor || '#dfa234', fontWeight: '800', fontSize: '12px', marginBottom: '2px' }">
+                <div v-if="item.time || item.year" class="paginated-item" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor, fontWeight: '800', fontSize: '12px', marginBottom: '2px' }">
                   <span v-html="item.time || item.year"></span>
                 </div>
                 
@@ -242,10 +243,10 @@
           </div>
 
           <div class="main-section-header paginated-item" style="margin-bottom: 10px;">
-            <h3 class="main-section-title" :style="{ color: resumeData.theme.primaryColor || '#dfa234' }">
+            <h3 class="main-section-title" :style="{ color: templateAccentColor }">
               <span v-html="section.title"></span>
             </h3>
-            <div class="main-divider" :style="{ backgroundColor: resumeData.theme.primaryColor || '#dfa234' }"></div>
+            <div class="main-divider" :style="{ backgroundColor: templateAccentColor }"></div>
           </div>
 
           <!-- SUMMARY -->
@@ -696,7 +697,49 @@ const onDragEnd = () => {
 }
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))
 const mainIds = computed(() => mainSections.value.map(s => s.id))
-const templatePrimaryColor = computed(() => props.resumeData.theme.primaryColor || '#dfa234')
+
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const isCustomTheme = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  return c && c.toLowerCase() !== '#2b5c8f'
+})
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#3a3e43'
+  return c
+})
+
+const templateAccentColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#dfa234'
+  return c
+})
+
+const activeBorderColorMain = computed(() => {
+  const { r, g, b } = hexToRgb(templateAccentColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.35)`
+})
+const activeBgColorMain = computed(() => {
+  const { r, g, b } = hexToRgb(templateAccentColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.04)`
+})
+const activeShadowColorMain = computed(() => {
+  const { r, g, b } = hexToRgb(templateAccentColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.12)`
+})
 </script>
 
 <style scoped>
@@ -766,10 +809,10 @@ aside .delete-btn { border-color: #3a3e43 !important; }
 }
 
 .section-active--main {
-  border: 2px solid rgba(223,162,52,0.35) !important;
+  border: 2px solid v-bind(activeBorderColorMain) !important;
   border-radius: 6px !important;
-  box-shadow: 0 4px 18px rgba(223,162,52,0.12), 0 1px 4px rgba(223,162,52,0.06) !important;
-  background: rgba(223,162,52,0.04) !important;
+  box-shadow: 0 4px 18px v-bind(activeShadowColorMain), 0 1px 4px rgba(0,0,0,0.06) !important;
+  background: v-bind(activeBgColorMain) !important;
   z-index: 10 !important;
 }
 
