@@ -14,17 +14,17 @@
     <div class="absolute top-0 right-0 w-[200px] h-[200px] pointer-events-none opacity-80 z-0">
       <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M180 20C160 50 140 30 120 60C100 90 130 110 110 140C90 170 60 150 40 180"
-              :stroke="templatePrimaryColor" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 4"/>
+              stroke="#333" stroke-width="1" stroke-linecap="round" stroke-dasharray="2 4"/>
         <path d="M190 30C175 55 160 45 145 70C130 95 150 110 135 135"
-              :stroke="templatePrimaryColor" stroke-width="0.5" opacity="0.4"/>
-        <circle cx="180" cy="20" r="2" :fill="templatePrimaryColor"/>
+              stroke="#333" stroke-width="0.5" opacity="0.4"/>
+        <circle cx="180" cy="20" r="2" fill="#333"/>
       </svg>
     </div>
     <div class="absolute bottom-[50px] right-[50px] w-[150px] h-[100px] pointer-events-none opacity-20 z-0">
       <svg width="150" height="100" viewBox="0 0 150 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="40"  cy="50" rx="35" ry="45" :stroke="templatePrimaryColor" stroke-width="0.5" stroke-dasharray="4 2"/>
-        <ellipse cx="75"  cy="50" rx="35" ry="45" :stroke="templatePrimaryColor" stroke-width="0.5" stroke-dasharray="4 2"/>
-        <ellipse cx="110" cy="50" rx="35" ry="45" :stroke="templatePrimaryColor" stroke-width="0.5" stroke-dasharray="4 2"/>
+        <ellipse cx="40"  cy="50" rx="35" ry="45" stroke="#333" stroke-width="0.5" stroke-dasharray="4 2"/>
+        <ellipse cx="75"  cy="50" rx="35" ry="45" stroke="#333" stroke-width="0.5" stroke-dasharray="4 2"/>
+        <ellipse cx="110" cy="50" rx="35" ry="45" stroke="#333" stroke-width="0.5" stroke-dasharray="4 2"/>
       </svg>
     </div>
 
@@ -39,9 +39,9 @@
           <div class="w-fit mb-[25px]">
             <h1
               class="m-0 leading-tight break-words"
-              :style="{ fontSize: '64px', color: templatePrimaryColor, fontFamily: 'Georgia, serif', fontWeight: '400' }"
+              :style="{ fontSize: '64px', color: '#4a5568', fontFamily: 'Georgia, serif', fontWeight: '400' }"
             >{{ isEmpty(resumeData.general.fullName) ? 'Họ Và Tên Ứng Viên' : resumeData.general.fullName }}</h1>
-            <div class="h-[1px] w-full mt-[5px]" :style="{ backgroundColor: templateAccentColor }"></div>
+            <div class="h-[1px] w-full bg-[#cbd5e0] mt-[5px]"></div>
           </div>
 
           <div 
@@ -94,9 +94,9 @@
           <div class="w-fit">
             <h2
               class="m-0 break-words leading-tight"
-              :style="{ fontSize: '32px', color: templatePrimaryColor, fontWeight: '400' }"
+              :style="{ fontSize: '32px', color: '#333', fontWeight: '400' }"
             >{{ isEmpty(resumeData.general.jobTitle) ? 'Vị Trí Ứng Tuyển' : resumeData.general.jobTitle }}</h2>
-            <div class="h-[1px] w-full mt-[10px]" :style="{ backgroundColor: templatePrimaryColor }"></div>
+            <div class="h-[1px] w-full bg-[#333] mt-[10px]"></div>
           </div>
         </div>
       </header>
@@ -161,7 +161,7 @@
             <!-- TIÊU ĐỀ LÀ 1 DÒNG TỰ ĐỘNG PHÂN TRANG -->
             <h3
               class="paginated-item uppercase w-full block break-words"
-              :style="{ fontSize: '28px', color: templatePrimaryColor, marginBottom: '15px', fontWeight: 'bold', letterSpacing: '1px' }"
+              :style="{ fontSize: '28px', color: '#222', marginBottom: '15px', fontWeight: 'bold', letterSpacing: '1px' }"
             ><span v-html="section.title"></span></h3>
 
             <!-- SUMMARY -->
@@ -188,13 +188,13 @@
               >
                 <!-- DÒNG 1: Tiêu đề + Chấm tròn dính chặt nhau -->
                 <div class="w-full flex justify-between items-start mb-[3px] paginated-item relative">
-                  <div class="absolute -left-[20px] top-[8px] w-[6px] h-[6px] rounded-full" :style="{ backgroundColor: templatePrimaryColor }"></div>
+                  <div class="absolute -left-[20px] top-[8px] w-[6px] h-[6px] rounded-full bg-black"></div>
                   <div class="text-[16px] leading-tight font-bold flex-1 pr-3 flex flex-col" v-html="formatDesc(item.company || item.school || item.name || item.organization)"></div>
-                  <div v-if="item.time || item.year" class="italic text-[16px] shrink-0" :style="{ color: templatePrimaryColor }"><span v-html="item.time || item.year"></span></div>
+                  <div v-if="item.time || item.year" class="italic text-[16px] text-[#4a5568] shrink-0"><span v-html="item.time || item.year"></span></div>
                 </div>
                 
                 <div v-if="item.role || item.major" class="paginated-item text-[16px] italic mb-[3px] w-full flex flex-col" v-html="formatDesc(item.role || item.major)"></div>
-                <div v-if="item.gradType" class="paginated-item text-[14.5px] font-medium w-full mb-[3px]" :style="{ color: templatePrimaryColor }">Xếp loại: <span v-html="item.gradType"></span></div>
+                <div v-if="item.gradType" class="paginated-item text-[14.5px] font-medium w-full mb-[3px] text-blue-600">Xếp loại: <span v-html="item.gradType"></span></div>
                 
                 <!-- BĂM MÔ TẢ THÀNH NHIỀU DÒNG -->
                 <div v-if="item.desc" class="html-content text-justify w-full text-[#333] flex flex-col mt-1"
@@ -228,14 +228,14 @@
               >
                 <!-- DÒNG DUY NHẤT: Tiêu đề + Chấm tròn + Thanh ngang -->
                 <div class="paginated-item w-full relative">
-                  <div class="absolute -left-[20px] top-[10px] w-[6px] h-[6px] rounded-full" :style="{ backgroundColor: templatePrimaryColor }"></div>
+                  <div class="absolute -left-[20px] top-[10px] w-[6px] h-[6px] rounded-full bg-black"></div>
                   <div class="flex justify-between items-end mb-[10px]">
                     <span class="italic text-[#333] block leading-tight flex flex-col" :style="{ fontSize: '18px' }" v-html="formatDesc(item.name)"></span>
-                    <span class="text-[14px] font-bold whitespace-nowrap ml-2" :style="{ color: templateAccentColor }"><span v-html="getLevelInfo(item.level).text"></span></span>
+                    <span class="text-[14px] font-bold text-[#8da9c4] whitespace-nowrap ml-2"><span v-html="getLevelInfo(item.level).text"></span></span>
                   </div>
                   <div class="w-full bg-[#cbd5e0] rounded-full overflow-hidden" :style="{ height: '10px' }">
                     <div class="h-full rounded-full transition-all duration-500"
-                         :style="{ width: getLevelInfo(item.level).percent, backgroundColor: templateAccentColor }"></div>
+                         :style="{ width: getLevelInfo(item.level).percent, backgroundColor: '#8da9c4' }"></div>
                   </div>
                 </div>
                 
@@ -263,7 +263,7 @@
               >
                 <!-- DÒNG 1: Tiêu đề + Chấm tròn -->
                 <div class="w-full flex justify-between items-start paginated-item mb-[2px] relative">
-                  <div class="absolute -left-[20px] top-[8px] w-[6px] h-[6px] rounded-full" :style="{ backgroundColor: templatePrimaryColor }"></div>
+                  <div class="absolute -left-[20px] top-[8px] w-[6px] h-[6px] rounded-full bg-black"></div>
                   <div class="font-bold text-[16px] flex-1 flex flex-col" v-html="formatDesc(item.name || item.title)">
                   </div>
                   <div v-if="item.year || item.time" class="italic text-[14px] ml-4 shrink-0 text-[#666]">
@@ -475,54 +475,7 @@ const getLevelInfo = (level) => {
   return { text: '', percent: '75%' }
 }
 
-const hexToRgb = (hex) => {
-  const clean = hex.replace('#', '')
-  const num = parseInt(clean, 16)
-  return {
-    r: (num >> 16) & 255,
-    g: (num >> 8) & 255,
-    b: num & 255
-  }
-}
-
-const rgbToHex = (r, g, b) => {
-  const clamp = (val) => Math.max(0, Math.min(255, Math.round(val)))
-  return '#' + ((1 << 24) + (clamp(r) << 16) + (clamp(g) << 8) + clamp(b)).toString(16).slice(1)
-}
-
-const adjustColorBrightness = (hex, percent) => {
-  try {
-    const { r, g, b } = hexToRgb(hex)
-    if (percent < 0) {
-      const factor = 1 + percent
-      return rgbToHex(r * factor, g * factor, b * factor)
-    } else {
-      return rgbToHex(
-        r + (255 - r) * percent,
-        g + (255 - g) * percent,
-        b + (255 - b) * percent
-      )
-    }
-  } catch (e) {
-    return hex
-  }
-}
-
-const templatePrimaryColor = computed(() => {
-  const c = props.resumeData?.theme?.primaryColor
-  if (!c || c.toLowerCase() === '#2b5c8f') return '#4a5568'
-  return c
-})
-
-const isCustomColor = computed(() => {
-  const c = props.resumeData?.theme?.primaryColor
-  return c && c.toLowerCase() !== '#2b5c8f'
-})
-
-const templateAccentColor = computed(() => {
-  if (isCustomColor.value) return adjustColorBrightness(templatePrimaryColor.value, 0.40)
-  return '#8da9c4'
-})
+const templatePrimaryColor = computed(() => props.resumeData?.theme?.primaryColor || '#4a5568')
 
 const DEFAULT_SECTION_IDS = ['summary', 'experience', 'education', 'skills']
 
@@ -769,7 +722,7 @@ onUnmounted(() => {
 }
 .nav-btn {
   display: flex; align-items: center; justify-content: center; padding: 5px;
-  background: var(--sel-color, v-bind(templatePrimaryColor)); color: white; border: none; border-radius: 4px;
+  background: var(--sel-color, #2563eb); color: white; border: none; border-radius: 4px;
   cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22); transition: filter 0.12s, transform 0.1s;
 }
 .nav-btn:hover  { filter: brightness(0.88); }
