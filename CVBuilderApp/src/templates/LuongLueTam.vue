@@ -6,7 +6,7 @@
     <!-- ===== HEADER OVERLAY ===== -->
     <div class="absolute top-0 left-0 w-full z-30 pointer-events-none flex" style="height: 75mm;">
       <div class="flex flex-col justify-end pb-[6mm] pl-[10mm] pr-[6mm] pointer-events-auto shrink-0"
-        style="width: 125mm; background-color: #9db078;">
+        style="width: 125mm;" :style="{ backgroundColor: templateSecondaryColor }">
         <h1 class="uppercase font-bold text-white/80 leading-none tracking-[0.15em]" style="font-size: 38px !important;">
           {{ splitName.last }}
         </h1>
@@ -277,7 +277,7 @@
             <!-- Tiêu đề section (Paginated) -->
             <div class="flex items-center gap-3 mb-3 paginated-item" style="margin-left: -22px;">
               <div class="rounded-full flex items-center justify-center shrink-0"
-                :style="{ width: '34px', height: '34px', border: `4px solid ${templateSecondaryColor}`, backgroundColor: '#dce4cd' }">
+                :style="{ width: '34px', height: '34px', border: `4px solid ${templateSecondaryColor}`, backgroundColor: lightSecondaryColor }">
                 <div class="rounded-full" :style="{ width: '10px', height: '10px', backgroundColor: templatePrimaryColor }"></div>
               </div>
               <h3 class="font-bold uppercase text-white tracking-widest shadow-[3px_3px_0px_rgba(0,0,0,0.15)]"
@@ -470,11 +470,70 @@ const formatDesc = (text) => {
   return container.innerHTML
 }
 
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
 const templatePrimaryColor = computed(() => {
   const c = props.resumeData?.theme?.primaryColor
   return (!c || c.toLowerCase() === '#2b5c8f') ? '#465568' : c
 })
-const templateSecondaryColor = '#9db078'
+
+const templateSecondaryColor = computed(() => {
+  const sec = props.resumeData?.theme?.secondaryColor
+  if (sec && sec.toLowerCase() !== '#2b5c8f') return sec
+
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#9db078'
+  return adjustBrightness(c, 0.4)
+})
+
+const activeBorderColor = computed(() => {
+  return adjustBrightness(templateSecondaryColor.value, 0.45)
+})
+
+const activeBgColor = computed(() => {
+  const { r, g, b } = hexToRgb(adjustBrightness(templateSecondaryColor.value, 0.65))
+  return `rgba(${r}, ${g}, ${b}, 0.1)`
+})
+
+const lightSecondaryColor = computed(() => {
+  return adjustBrightness(templateSecondaryColor.value, 0.65)
+})
 
 const splitName = computed(() => {
   const raw   = props.resumeData.general.fullName || ''
@@ -799,11 +858,11 @@ const getLevelPercent = (level) => {
 }
 
 .section-active--main {
-  border: 2px solid #c8d4b8 !important;
+  border: 2px solid v-bind(activeBorderColor) !important;
   border-radius: 6px !important;
   /* removed scale */
   box-shadow: 0 4px 18px rgba(70,85,104,0.10), 0 1px 4px rgba(70,85,104,0.06) !important;
-  background: rgba(220,228,205,0.10) !important;
+  background: v-bind(activeBgColor) !important;
   z-index: 10 !important;
 }
 
