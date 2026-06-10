@@ -199,7 +199,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "Templates" ? "active" : "")" 
                                        asp-controller="Resume" asp-action="Templates">
-                                        <i class="fas fa-id-card me-1"></i> Mẫu CV
+                                        <i class="fas fa-flask me-1"></i> Mẫu CV Beta
                                     </a>
                                 </li>
                             }
@@ -207,7 +207,7 @@
                             <li class="nav-item">
                                 <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Resume" && ViewContext.RouteData.Values["action"]?.ToString() == "VueTemplates" ? "active" : "")" 
                                    asp-controller="Resume" asp-action="VueTemplates">
-                                    <i class="fas fa-flask me-1"></i> Vue CV
+                                    <i class="fas fa-id-card me-1"></i> Mẫu CV
                                 </a>
                             </li>
                         }
@@ -379,8 +379,8 @@
                             <!-- Nhóm Dữ liệu -->
                             <div class="sidebar-group border rounded-3 p-2 mb-3">
                                 <div class="menu-label mb-2 mt-1">QUẢN LÝ DỮ LIỆU</div>
-                                <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
-                                <a href="/Admin/VueTemplates" class="menu-item @(currentAction == "VueTemplates" ? "active" : "")"><i class='bx bxs-flask'></i> Test VueCV</a>
+                                <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-flask'></i> Mẫu thiết kế CV Beta</a>
+                                <a href="/Admin/VueTemplates" class="menu-item @(currentAction == "VueTemplates" ? "active" : "")"><i class='bx bxs-id-card'></i> Mẫu thiết kế CV</a>
                                 <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
                                 <a href="/Admin/Companies" class="menu-item @(currentAction == "Companies" ? "active" : "")"><i class='bx bxs-business'></i> Công ty</a>
                                 <a href="/Admin/UpgradeRequests" class="menu-item @(currentAction == "UpgradeRequests" ? "active" : "")"><i class='bx bxs-crown text-warning'></i> Yêu cầu nâng cấp</a>
@@ -428,8 +428,8 @@
                 <!-- Nhóm Dữ liệu -->
                 <div class="sidebar-group border rounded-3 p-2 mb-3">
                     <div class="menu-label mb-2 mt-1">QUẢN LÝ DỮ LIỆU</div>
-                    <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-layout'></i> Mẫu thiết kế CV</a>
-                    <a href="/Admin/VueTemplates" class="menu-item @(currentAction == "VueTemplates" ? "active" : "")"><i class='bx bxs-flask'></i> VueCV</a>
+                    <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-flask'></i> Mẫu thiết kế CV Beta</a>
+                    <a href="/Admin/VueTemplates" class="menu-item @(currentAction == "VueTemplates" ? "active" : "")"><i class='bx bxs-id-card'></i> Mẫu thiết kế CV</a>
                     <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
                     <a href="/Admin/Companies" class="menu-item @(currentAction == "Companies" ? "active" : "")"><i class='bx bxs-business'></i> Công ty</a>
                     <a href="/Admin/UpgradeRequests" class="menu-item @(currentAction == "UpgradeRequests" ? "active" : "")"><i class='bx bxs-crown text-warning'></i> Yêu cầu nâng cấp</a>
@@ -462,7 +462,7 @@
                     <ul class="list-unstyled">
                         @if (env.IsDevelopment())
                         {
-                            <li><a asp-controller="Resume" asp-action="Templates" class="footer-link">Kho mẫu CV</a></li>
+                            <li><a asp-controller="Resume" asp-action="VueTemplates" class="footer-link">Kho mẫu CV</a></li>
                         }
                         <li><a asp-controller="Home" asp-action="Jobs" class="footer-link">Tìm việc làm</a></li>
                         <li><a href="javascript:void(0)" onclick="chatboxOpen('Tôi muốn được tư vấn nghề nghiệp')" class="footer-link">Tư vấn nghề nghiệp</a></li>
