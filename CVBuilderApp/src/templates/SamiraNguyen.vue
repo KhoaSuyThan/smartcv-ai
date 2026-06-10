@@ -337,6 +337,70 @@ const selectedSectionId = ref(null)
 const props = defineProps({
   resumeData: { type: Object, required: true }
 })
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#2F2926'
+  return c
+})
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#EDE4DC'
+  return adjustBrightness(c, 0.9)
+})
+
+const textLighterColor = computed(() => {
+  return adjustBrightness(templatePrimaryColor.value, 0.2)
+})
+
+const textMediumColor = computed(() => {
+  return adjustBrightness(templatePrimaryColor.value, 0.15)
+})
+
+const activeBg95Color = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.95)`
+})
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 // ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
@@ -660,7 +724,7 @@ onUnmounted(() => {
 
 .section-block.section-active {
   border-radius: 4px !important;
-  border: 1.5px solid var(--active-bg, #2F2926) !important;
+  border: 1.5px solid var(--active-bg, v-bind(templatePrimaryColor)) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   z-index: 10;
 }
@@ -706,7 +770,7 @@ onUnmounted(() => {
     transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 .contact-block.contact-active {
-    border: 1.5px solid var(--active-bg, #2F2926) !important;
+    border: 1.5px solid var(--active-bg, v-bind(templatePrimaryColor)) !important;
     box-shadow: 0 4px 18px rgba(0,0,0,0.10);
     z-index: 10;
 }
@@ -814,9 +878,35 @@ main {
   position: absolute;
   left: 0.2rem;
   top: 0;
-  color: #2F2926;
+  color: v-bind(templatePrimaryColor);
   font-size: 1.15rem;
   line-height: 1;
+}
+
+/* Dynamic theme overrides for Tailwind static color utility classes */
+.text-\[\#2F2926\] {
+  color: v-bind(templatePrimaryColor) !important;
+}
+.bg-\[\#EDE4DC\] {
+  background-color: v-bind(templateSecondaryColor) !important;
+}
+.border-\[\#2F2926\] {
+  border-color: v-bind(templatePrimaryColor) !important;
+}
+.bg-\[\#EAE5DF\] {
+  background-color: v-bind(templateSecondaryColor) !important;
+}
+.text-\[\#5C524A\] {
+  color: v-bind(textLighterColor) !important;
+}
+.text-\[\#4A433F\] {
+  color: v-bind(textMediumColor) !important;
+}
+.bg-\[\#2F2926\] {
+  background-color: v-bind(templatePrimaryColor) !important;
+}
+.bg-\[\#2F2926\]\/95 {
+  background-color: v-bind(activeBg95Color) !important;
 }
 
 @media print {

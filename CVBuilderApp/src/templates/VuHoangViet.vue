@@ -220,6 +220,62 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#43936C'
+  return c
+})
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#E2EFE6'
+  return adjustBrightness(c, 0.9)
+})
+
+const activeBorderShadow = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `0 0 10px rgba(${r}, ${g}, ${b}, 0.2)`
+})
+
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 const isEmpty = (v) => !v || v.toString().trim() === ''
@@ -532,7 +588,7 @@ onUnmounted(() => {
 
 /* ================== LEFT COLUMN ================== */
 .left-column { width: 40%; padding: 40px 30px; background: #fff; }
-.fullname { font-size: 32px; font-weight: 700; color: #43936C; line-height: 1.2; margin-bottom: 5px; }
+.fullname { font-size: 32px; font-weight: 700; color: v-bind(templatePrimaryColor); line-height: 1.2; margin-bottom: 5px; }
 .job-title { font-size: 16px; font-weight: 600; color: #4A5568; margin-bottom: 30px; }
 
 .avatar-container { width: 170px; height: 170px; margin: 0 auto 30px auto; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
@@ -545,7 +601,7 @@ onUnmounted(() => {
 .contact-item i { width: 16px; text-align: center; font-size: 14px; }
 
 .left-block { margin-bottom: 25px; position: relative; }
-.pill-header { background: #43936C; color: #fff; font-size: 15px; font-weight: 700; text-align: center; padding: 8px 0; border-radius: 20px; margin-bottom: 15px; text-transform: uppercase; }
+.pill-header { background: v-bind(templatePrimaryColor); color: #fff; font-size: 15px; font-weight: 700; text-align: center; padding: 8px 0; border-radius: 20px; margin-bottom: 15px; text-transform: uppercase; }
 .text-placeholder { font-size: 12.5px; color: #4A5568; text-align: justify; line-height: 1.6; }
 
 .left-list { list-style: none; padding: 0; margin: 0; padding-left: 10px; }
@@ -584,7 +640,7 @@ onUnmounted(() => {
 
 .right-title { font-size: 18px; font-weight: 700; color: #2D3748; margin: 0 0 15px 0; }
 
-.green-card { background: #E2EFE6; border-radius: 12px; padding: 16px 20px; position: relative; z-index: 10; }
+.green-card { background: v-bind(templateSecondaryColor); border-radius: 12px; padding: 16px 20px; position: relative; z-index: 10; }
 
 .text-time { font-size: 13px; font-weight: 600; color: #4A5568; margin-bottom: 4px; }
 .text-entity { font-size: 14.5px; font-weight: 700; color: #1A202C; margin-bottom: 4px; }
@@ -600,7 +656,7 @@ onUnmounted(() => {
 
 /* INTERACTION & BUTTONS */
 .section-block { border: 2px solid transparent; transition: 0.2s; border-radius: 8px; }
-.section-active { border-color: #43936C !important; box-shadow: 0 0 10px rgba(67, 147, 108, 0.2); z-index: 20; }
+.section-active { border-color: v-bind(templatePrimaryColor) !important; box-shadow: v-bind(activeBorderShadow); z-index: 20; }
 .nav-btns { 
   position: absolute; right: 6px; top: 6px; display: flex; gap: 4px; z-index: 100; 
   background: #fff; padding: 4px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #E2E8F0;
@@ -623,7 +679,7 @@ onUnmounted(() => {
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 .contact-block.contact-active {
-  border: 2px solid #43936C !important;
+  border: 2px solid v-bind(templatePrimaryColor) !important;
   box-shadow: 0 4px 18px rgba(0,0,0,0.10);
   z-index: 10;
 }
