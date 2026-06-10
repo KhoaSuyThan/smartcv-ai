@@ -231,6 +231,48 @@ const props = defineProps({
 
 const emit = defineEmits(['moveUp', 'moveDown', 'removeItem', 'moveHorizontal'])
 
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  const clean = hex.replace('#', '')
+  if (clean.length === 3) {
+    return {
+      r: parseInt(clean[0] + clean[0], 16),
+      g: parseInt(clean[1] + clean[1], 16),
+      b: parseInt(clean[2] + clean[2], 16)
+    }
+  }
+  return {
+    r: parseInt(clean.substring(0, 2), 16),
+    g: parseInt(clean.substring(2, 4), 16),
+    b: parseInt(clean.substring(4, 6), 16)
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    const newR = r + (255 - r) * percent
+    const newG = g + (255 - g) * percent
+    const newB = b + (255 - b) * percent
+    return rgbToHex(newR, newG, newB)
+  } catch (e) {
+    return hex
+  }
+}
+
+const templateCardBgColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#EAF2FF'
+  return adjustBrightness(c, 0.88)
+})
+
 const isEmpty = (v) => !v || v.toString().trim() === ''
 
 // ── DATA MẪU RÚT GỌN ──────────────────────────────────────
@@ -474,7 +516,7 @@ onUnmounted(() => {
 
 /* ================== HEADER ================== */
 .header-card { 
-  background: #EAF2FF; border-radius: 20px; padding: 25px 30px; 
+  background: v-bind(templateCardBgColor); border-radius: 20px; padding: 25px 30px; 
   display: flex; align-items: center; gap: 30px; margin-bottom: 30px; 
 }
 .avatar-container { width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.08); flex-shrink: 0; }
@@ -493,7 +535,7 @@ onUnmounted(() => {
 
 /* ================== CARDS (KHỐI BO TRÒN) ================== */
 .custom-card { 
-  background: #EAF2FF; border-radius: 16px; padding: 0 20px 20px 20px; 
+  background: v-bind(templateCardBgColor); border-radius: 16px; padding: 0 20px 20px 20px; 
   position: relative; margin-top: 15px; 
 }
 .card-badge { 
