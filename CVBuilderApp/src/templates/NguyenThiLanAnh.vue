@@ -12,7 +12,7 @@
     <!-- HEADER BLOCK -->
     <header class="paginated-item w-full h-[70mm] flex relative overflow-hidden shrink-0 z-10 bg-white">
       <!-- Cột trái của Header: Màu vàng mù tạt bao quanh Avatar tròn -->
-      <div class="w-[75mm] h-full bg-[#D49A17] relative flex items-center justify-center rounded-br-[40px] z-20 shrink-0">
+      <div class="w-[75mm] h-full relative flex items-center justify-center rounded-br-[40px] z-20 shrink-0" :style="{ backgroundColor: templateSecondaryColor }">
         <!-- 3 chấm nhỏ trang trí dốc đứng ở góc trái trên -->
         <div class="absolute top-5 left-5 flex flex-col gap-1.5 opacity-45 z-30">
           <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
@@ -32,7 +32,7 @@
       </div>
 
       <!-- Cột phải của Header: Màu đỏ sẫm chứa Họ tên & Vị trí ứng tuyển -->
-      <div class="flex-1 h-full bg-[#901A1E] text-white flex flex-col justify-center pl-[12mm] pr-[15mm] relative z-10">
+      <div class="flex-1 h-full text-white flex flex-col justify-center pl-[12mm] pr-[15mm] relative z-10" :style="{ backgroundColor: templatePrimaryColor }">
         <!-- Họa tiết vòng tròn đồng tâm mờ mỏng ở góc trên bên phải -->
         <div class="absolute -top-12 -right-12 w-[65mm] h-[65mm] text-white/10 pointer-events-none z-0">
           <svg class="w-full h-full" viewBox="0 0 100 100">
@@ -466,6 +466,57 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#901A1E'
+  return c
+})
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#D49A17'
+  return adjustBrightness(c, 0.4)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id

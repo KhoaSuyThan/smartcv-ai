@@ -5,8 +5,8 @@
     @click.self="selectedSectionId = null">
 
     <!-- NỀN TRANG TRÍ -->
-    <div class="absolute top-[-50mm] right-[-50mm] w-[150mm] h-[150mm] rounded-full bg-pink-100/50 blur-[80px] z-0 no-print"></div>
-    <div class="absolute top-[100mm] left-[-30mm] w-[100mm] h-[100mm] rounded-full bg-red-50/40 blur-[60px] z-0 no-print"></div>
+    <div class="absolute top-[-50mm] right-[-50mm] w-[150mm] h-[150mm] rounded-full blur-[80px] z-0 no-print" :style="{ backgroundColor: templatePrimaryColor, opacity: 0.15 }"></div>
+    <div class="absolute top-[100mm] left-[-30mm] w-[100mm] h-[100mm] rounded-full blur-[60px] z-0 no-print" :style="{ backgroundColor: templateSecondaryColor, opacity: 0.12 }"></div>
 
     <!-- HEADER -->
     <header class="relative z-10 pt-[12mm] px-[15mm] pb-[4mm] flex items-start paginated-item">
@@ -22,8 +22,8 @@
         </h2>
       </div>
       <div class="relative flex-shrink-0 mt-[-5mm] mr-4">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[64mm] h-[64mm] rounded-full bg-gradient-to-br from-pink-400/30 to-red-300/20 blur-xl z-0"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[54mm] h-[54mm] rounded-full bg-gradient-to-br from-pink-500 to-red-400 opacity-90 z-0"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[64mm] h-[64mm] rounded-full blur-xl z-0" :style="{ backgroundImage: 'linear-gradient(to bottom right, ' + templatePrimaryColor + '4D, ' + templateSecondaryColor + '33)' }"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[54mm] h-[54mm] rounded-full opacity-90 z-0" :style="{ backgroundImage: 'linear-gradient(to bottom right, ' + templatePrimaryColor + ', ' + templateSecondaryColor + ')' }"></div>
         <div class="w-[50mm] h-[50mm] rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-slate-100 relative z-10">
           <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
@@ -40,7 +40,7 @@
       </div>
     </header>
 
-    <div class="absolute top-0 right-0 w-[4mm] h-[100%] bg-gradient-to-b from-pink-500 to-red-400 z-0 opacity-10 no-print"></div>
+    <div class="absolute top-0 right-0 w-[4mm] h-[100%] z-0 opacity-10 no-print" :style="{ backgroundImage: 'linear-gradient(to bottom, ' + templatePrimaryColor + ', ' + templateSecondaryColor + ')' }"></div>
 
     <!-- CONTENT BODY -->
     <div class="flex px-[15mm] py-[2mm] gap-[10mm] relative z-10 mb-2" @click.self="selectedSectionId = null">
@@ -346,6 +346,57 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#ec4899'
+  return c
+})
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#f87171'
+  return adjustBrightness(c, 0.2)
+})
 
 const cvRoot = ref(null)
 const pageCount = ref(1)

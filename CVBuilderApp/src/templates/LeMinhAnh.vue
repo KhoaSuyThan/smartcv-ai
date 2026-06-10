@@ -16,11 +16,11 @@
         <defs>
           <!-- Định nghĩa Pattern Chấm bi SVG Vector sắc nét -->
           <pattern id="dotPattern" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.2" fill="#56708b" opacity="0.45" />
+            <circle cx="2" cy="2" r="1.2" :fill="templateDotColor" opacity="0.45" />
           </pattern>
         </defs>
         <!-- Lớp nền màu xám xanh lượn sóng ôm gọn avatar -->
-        <path d="M 0 0 L 0 165 C 120 185, 250 200, 350 130 C 410 80, 430 0, 450 0 Z" fill="#b2c2d2" />
+        <path d="M 0 0 L 0 165 C 120 185, 250 200, 350 130 C 410 80, 430 0, 450 0 Z" :fill="templatePrimaryColor" />
         <!-- Lớp chấm bi lượn sóng khớp 100% bên trong mảng -->
         <path d="M 0 0 L 0 165 C 120 185, 250 200, 350 130 C 410 80, 430 0, 450 0 Z" fill="url(#dotPattern)" />
       </svg>
@@ -324,6 +324,57 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#b2c2d2'
+  return c
+})
+
+const templateDotColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#56708b'
+  return adjustBrightness(c, -0.3)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id

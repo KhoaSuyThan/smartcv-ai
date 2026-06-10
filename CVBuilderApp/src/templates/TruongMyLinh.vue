@@ -7,7 +7,7 @@
     @click.self="selectedSectionId = null"
   >
     <!-- Absolute Full-Width Green Ribbon -->
-    <div class="absolute top-[4mm] left-0 w-full bg-[#8c9a85] h-[36mm] z-20 flex items-center px-[8mm] overflow-hidden">
+    <div class="absolute top-[4mm] left-0 w-full h-[36mm] z-20 flex items-center px-[8mm] overflow-hidden" :style="{ backgroundColor: templatePrimaryColor }">
       <div class="w-[72mm] flex flex-col">
         <h1 class="font-bold text-white leading-tight mb-0.5" style="font-size: 24px !important;" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Trương Mỹ Linh'"></h1>
         <h2 class="font-normal text-white tracking-wider" style="font-size: 18px !important;" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Giám đốc Nhân sự (CHRO)'"></h2>
@@ -28,7 +28,7 @@
     <!-- MAIN BODY -->
     <div class="flex-1 flex w-full relative z-0 bg-white">
       <!-- LEFT COLUMN -->
-      <aside class="w-[72mm] shrink-0 bg-[#2d3e47] flex flex-col relative z-10 min-h-full">
+      <aside class="w-[72mm] shrink-0 flex flex-col relative z-10 min-h-full" :style="{ backgroundColor: templateSidebarColor }">
         <!-- Spacer for top area + ribbon -->
         <div class="w-full h-[45mm] shrink-0"></div>
         
@@ -221,7 +221,7 @@
                   <h3 class="section-title text-[#222] font-bold uppercase tracking-wide whitespace-nowrap pr-3" style="font-size: 15px !important;">
                     <span v-html="section.title"></span>
                   </h3>
-                  <div class="flex-1 border-b border-[#8c9a85]"></div>
+                  <div class="flex-1 border-b" :style="{ borderColor: templatePrimaryColor }"></div>
                 </div>
               </div>
 
@@ -366,6 +366,57 @@ const props = defineProps({
   resumeData: { type: Object, required: true }
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#8c9a85'
+  return c
+})
+
+const templateSidebarColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#2d3e47'
+  return adjustBrightness(c, -0.4)
+})
 
 const toggleSection = (id) => {
   selectedSectionId.value = selectedSectionId.value === id ? null : id
@@ -714,7 +765,7 @@ onUnmounted(() => {
 }
 
 .section-active {
-  border-color: #2b2b2b;
+  border-color: v-bind(templatePrimaryColor) !important;
   background-color: rgba(0,0,0,0.02);
 }
 

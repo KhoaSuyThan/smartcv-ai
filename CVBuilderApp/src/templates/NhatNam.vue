@@ -359,9 +359,68 @@ import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import draggable from 'vuedraggable'
 
 const props = defineProps({
-    resumeData: { type: Object, required: true },
-    templatePrimaryColor: { type: String, default: '#2cbcd1' },
-    templateSecondaryColor: { type: String, default: '#e1f5f8' }
+    resumeData: { type: Object, required: true }
+})
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#2cbcd1'
+  return c
+})
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#e1f5f8'
+  return adjustBrightness(c, 0.9)
+})
+
+const activeBorderColor = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.2)`
+})
+
+const activeContactBorderColor = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.3)`
 })
 
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
@@ -810,7 +869,7 @@ const onDragEnd = () => {
     padding: 4px 2px;
 }
 .contact-block.contact-active {
-    border: 2px solid rgba(44, 188, 209, 0.3) !important;
+    border: 2px solid v-bind(activeContactBorderColor) !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.06) !important;
     background: rgba(255,255,255,0.4) !important;
     border-radius: 6px !important;
@@ -838,12 +897,12 @@ const onDragEnd = () => {
 }
 
 .section-block-sidebar.section-active {
-    --border-color: rgba(44, 188, 209, 0.2);
+    --border-color: v-bind(activeBorderColor);
     background: rgba(255,255,255,0.4) !important;
 }
 
 .section-block-main.section-active {
-    --border-color: rgba(44, 188, 209, 0.2);
+    --border-color: v-bind(activeBorderColor);
 }
 
 /* ==================== NAV BUTTONS ==================== */
