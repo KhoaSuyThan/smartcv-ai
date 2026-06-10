@@ -7,18 +7,18 @@
     @click.self="selectedSectionId = null"
   >
     <!-- TOP BORDER BAR -->
-    <div class="w-full" style="height: 5px; background-color: #1a73e8; flex-shrink: 0;"></div>
+    <div class="w-full" :style="{ height: '5px', backgroundColor: templatePrimaryColor, flexShrink: 0 }"></div>
 
     <!-- HEADER -->
     <header class="relative pt-[12mm] px-[12mm] pb-[6mm] flex items-start justify-between paginated-item">
       <!-- Left: Name + Job Title -->
       <div class="flex-1 pr-4">
         <h1 class="font-black uppercase tracking-tight leading-tight mb-2"
-          style="font-size: 32px !important; color: #1a73e8;"
+          :style="{ fontSize: '32px !important', color: templatePrimaryColor }"
           v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'NGUYỄN TÙNG DƯƠNG'">
         </h1>
         <h2 class="font-bold uppercase tracking-wider mb-6"
-          style="font-size: 16px !important; color: #1a73e8;"
+          :style="{ fontSize: '16px !important', color: templatePrimaryColor }"
           v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'NHÂN VIÊN KINH DOANH'">
         </h2>
 
@@ -29,8 +29,9 @@
              @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
              style="font-size: 11px !important;">
           <div v-for="(ci, ciIdx) in contactItems" :key="ci.key"
-               class="flex flex-col pl-3 border-l-[3px] border-[#1a73e8] relative contact-item-container py-1">
-            <span class="font-bold text-[#1a73e8] mb-0.5" style="font-size: 10px !important;">{{ ci.label }}</span>
+               class="flex flex-col pl-3 border-l-[3px] relative contact-item-container py-1"
+               :style="{ borderLeftColor: templatePrimaryColor }">
+            <span class="font-bold mb-0.5" :style="{ color: templatePrimaryColor, fontSize: '10px !important' }">{{ ci.label }}</span>
             <span class="font-medium text-slate-700 break-words" v-html="ci.value"></span>
             
             <!-- Controls -->
@@ -136,8 +137,8 @@
                 </button>
                 <div class="paginated-item pr-2">
                   <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold text-[#1a73e8]" style="font-size: 13.5px !important;"><span v-html="item.school || 'Tên trường'"></span></span>
-                    <span class="font-bold px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1a73e8] text-[10px] shrink-0 ml-4 border border-[#e2e8f0]"><span v-html="item.year || '2017-2021'"></span></span>
+                    <span class="font-bold" :style="{ color: templatePrimaryColor, fontSize: '13.5px !important' }"><span v-html="item.school || 'Tên trường'"></span></span>
+                    <span class="font-bold px-3 py-1 rounded-full text-[10px] shrink-0 ml-4 border border-[#e2e8f0]" :style="{ backgroundColor: templateSecondaryColor, color: templatePrimaryColor }"><span v-html="item.year || '2017-2021'"></span></span>
                   </div>
                   <div class="font-bold text-slate-700" style="font-size: 12px !important;"><span v-html="item.major || 'Chuyên ngành'"></span></div>
                   <div v-if="item.desc" class="html-content mt-1.5 text-slate-600 leading-relaxed" style="font-size: 11px !important;" v-html="formatDesc(item.desc)"></div>
@@ -155,8 +156,8 @@
                 </button>
                 <div class="paginated-item pr-2">
                   <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold text-[#1a73e8] uppercase" style="font-size: 13.5px !important;"><span v-html="item.company || 'Tên công ty'"></span></span>
-                    <span class="font-bold px-3 py-1 rounded-full bg-[#f1f5f9] text-[#1a73e8] text-[10px] shrink-0 ml-4 border border-[#e2e8f0]"><span v-html="item.time || '2024-Nay'"></span></span>
+                    <span class="font-bold uppercase" :style="{ color: templatePrimaryColor, fontSize: '13.5px !important' }"><span v-html="item.company || 'Tên công ty'"></span></span>
+                    <span class="font-bold px-3 py-1 rounded-full text-[10px] shrink-0 ml-4 border border-[#e2e8f0]" :style="{ backgroundColor: templateSecondaryColor, color: templatePrimaryColor }"><span v-html="item.time || '2024-Nay'"></span></span>
                   </div>
                   <div class="font-bold text-slate-700 mb-2" style="font-size: 12px !important;"><span v-html="item.role || 'Vị trí'"></span></div>
                   <div class="html-content leading-relaxed text-slate-600" style="font-size: 11.5px !important;" v-html="formatDesc(item.desc || '')"></div>
@@ -273,6 +274,71 @@ import draggable from 'vuedraggable'
 
 const props = defineProps({
   resumeData: { type: Object, required: true }
+})
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#1a73e8'
+  return c
+})
+
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#f1f5f9'
+  return adjustBrightness(c, 0.95)
+})
+
+const hoverPrimaryColor = computed(() => {
+  return adjustBrightness(templatePrimaryColor.value, -0.2)
+})
+
+const activeBorderColor = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.4)`
+})
+
+const activeBgColor = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.05)`
 })
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
@@ -532,8 +598,8 @@ onUnmounted(() => {
   font-weight: 800 !important;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #1a73e8 !important;
-  border-bottom: 2px solid #1a73e8;
+  color: v-bind(templatePrimaryColor) !important;
+  border-bottom: 2px solid v-bind(templatePrimaryColor);
   padding-bottom: 6px;
   margin-bottom: 10px;
 }
@@ -548,8 +614,8 @@ onUnmounted(() => {
 }
 
 .section-active {
-  border-color: #93c5fd !important;
-  background: rgba(239, 246, 255, 0.5) !important;
+  border-color: v-bind(activeBorderColor) !important;
+  background: v-bind(activeBgColor) !important;
 }
 
 .contact-block {
@@ -560,8 +626,8 @@ onUnmounted(() => {
 }
 
 .contact-block.contact-active {
-  border: 1px solid #93c5fd !important;
-  background: rgba(239, 246, 255, 0.5) !important;
+  border: 1px solid v-bind(activeBorderColor) !important;
+  background: v-bind(activeBgColor) !important;
 }
 
 .contact-item-btns {
@@ -582,7 +648,7 @@ onUnmounted(() => {
 .nav-btn {
   width: 22px;
   height: 22px;
-  background: #1a73e8;
+  background: v-bind(templatePrimaryColor);
   color: white;
   border: none;
   border-radius: 4px;
@@ -591,7 +657,7 @@ onUnmounted(() => {
   justify-content: center;
   cursor: pointer;
 }
-.nav-btn:hover { background: #1557b0; }
+.nav-btn:hover { background: v-bind(hoverPrimaryColor); }
 .nav-btn-danger { background: #ef4444 !important; }
 
 .delete-btn {

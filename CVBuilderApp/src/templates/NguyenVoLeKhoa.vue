@@ -570,12 +570,55 @@ const formatDesc = (text) => {
   return container.innerHTML
 }
 
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const rgbToHex = (r, g, b) => {
+  return '#' + [r, g, b].map(x => {
+    const hex = Math.max(0, Math.min(255, Math.round(x))).toString(16)
+    return hex.length === 1 ? '0' + hex : hex
+  }).join('')
+}
+
+const adjustBrightness = (hex, percent) => {
+  try {
+    const { r, g, b } = hexToRgb(hex)
+    if (percent < 0) {
+      const factor = 1 + percent
+      return rgbToHex(r * factor, g * factor, b * factor)
+    } else {
+      return rgbToHex(
+        r + (255 - r) * percent,
+        g + (255 - g) * percent,
+        b + (255 - b) * percent
+      )
+    }
+  } catch (e) {
+    return hex
+  }
+}
+
 const templatePrimaryColor = computed(() => {
   const c = props.resumeData?.theme?.primaryColor
   if (!c || c.toLowerCase() === '#2b5c8f') return '#556050'
   return c
 })
-const templateSecondaryColor = computed(() => '#e8e4db')
+const templateSecondaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#e8e4db'
+  return adjustBrightness(c, 0.88)
+})
+
 
 const sidebarSections = computed(() =>
   props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages'].includes(s.id))

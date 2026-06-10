@@ -342,6 +342,31 @@ import draggable from 'vuedraggable'
 const props = defineProps({
   resumeData: { type: Object, required: true }
 })
+
+// --- COLOR CUSTOMIZATION ---
+const hexToRgb = (hex) => {
+  hex = hex.replace(/^#/, '')
+  if (hex.length === 3) {
+    hex = hex.split('').map(c => c + c).join('')
+  }
+  const num = parseInt(hex, 16)
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255
+  }
+}
+
+const templatePrimaryColor = computed(() => {
+  const c = props.resumeData?.theme?.primaryColor
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#5ba4b5'
+  return c
+})
+
+const bgOpacity05Color = computed(() => {
+  const { r, g, b } = hexToRgb(templatePrimaryColor.value)
+  return `rgba(${r}, ${g}, ${b}, 0.05)`
+})
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
 const cvRoot = ref(null)
@@ -737,8 +762,8 @@ onUnmounted(() => {
 }
 
 .section-active {
-  border-color: #5ba4b5 !important;
-  background: rgba(91, 164, 181, 0.05) !important;
+  border-color: v-bind(templatePrimaryColor) !important;
+  background: v-bind(bgOpacity05Color) !important;
   z-index: 100 !important;
 }
 
@@ -749,6 +774,17 @@ onUnmounted(() => {
   display: flex;
   gap: 4px;
   z-index: 9999;
+}
+
+/* Dynamic theme overrides for Tailwind static color utility classes */
+.text-\[\#5ba4b5\] {
+  color: v-bind(templatePrimaryColor) !important;
+}
+.bg-\[\#5ba4b5\] {
+  background-color: v-bind(templatePrimaryColor) !important;
+}
+.bg-gradient-to-r.from-transparent.via-\[\#5ba4b5\].to-transparent {
+  background-image: linear-gradient(to right, transparent, v-bind(templatePrimaryColor), transparent) !important;
 }
 
 .nav-btn {
