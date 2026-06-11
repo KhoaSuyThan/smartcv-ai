@@ -245,6 +245,7 @@ namespace DoAnCS.Controllers
                     _context.Add(job);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Đăng tin tuyển dụng thành công!";
+                    if (User.IsInRole("Admin")) return RedirectToAction("Jobs", "Admin");
                     return RedirectToAction(nameof(Manage));
                 }
             }
@@ -331,6 +332,7 @@ namespace DoAnCS.Controllers
                     {
                         return RedirectToAction("Jobs", "Admin");
                     }
+                    if (User.IsInRole("Admin")) return RedirectToAction("Jobs", "Admin");
                     return RedirectToAction(nameof(Manage));
                 }
                 catch (DbUpdateConcurrencyException)
@@ -370,6 +372,7 @@ namespace DoAnCS.Controllers
 
             _context.Jobs.Remove(job);
             await _context.SaveChangesAsync();
+            if (User.IsInRole("Admin")) return RedirectToAction("Jobs", "Admin");
             return RedirectToAction(nameof(Manage));
         }
 
@@ -391,6 +394,7 @@ namespace DoAnCS.Controllers
 
             // Nếu có địa chỉ quay lại (từ Admin Dashboard) thì về đó, không thì về Manage
             if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);
+            if (User.IsInRole("Admin")) return RedirectToAction("Jobs", "Admin");
             return RedirectToAction(nameof(Manage));
         }
 
@@ -406,6 +410,7 @@ namespace DoAnCS.Controllers
             }
 
             if (!string.IsNullOrEmpty(returnUrl)) return LocalRedirect(returnUrl);
+            if (User.IsInRole("Admin")) return RedirectToAction("Jobs", "Admin");
             return RedirectToAction(nameof(Manage));
         }
 

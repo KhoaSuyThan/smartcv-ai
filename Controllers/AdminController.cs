@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.IO;
 using System.Text.RegularExpressions;
 using DoAnCS.Services;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace DoAnCS.Controllers
 {
@@ -19,13 +20,15 @@ namespace DoAnCS.Controllers
         private readonly IWebHostEnvironment _webHost;
         private readonly IAIService _aiService;
         private readonly IConfiguration _config;
+        private readonly IMemoryCache _cache;
 
-        public AdminController(AppDbContext context, IWebHostEnvironment webHost, IAIService aiService, IConfiguration config)
+        public AdminController(AppDbContext context, IWebHostEnvironment webHost, IAIService aiService, IConfiguration config, IMemoryCache cache)
         {
             _context = context;
             _webHost = webHost;
             _aiService = aiService;
             _config = config;
+            _cache = cache;
         }
 
         // 1. Trang Dashboard của Admin
@@ -119,15 +122,68 @@ namespace DoAnCS.Controllers
             if (yearlyLabels.Count == 0) yearlyLabels.Add(currentYear);
             var yearlyRevenue = yearlyLabels.Select(k => yearlyRevenueDict.ContainsKey(k) ? yearlyRevenueDict[k] : 0).ToList();
 
-            // Lấy 5 giao dịch gần nhất
+            // Lấy 4 giao dịch gần nhất
             var recentUpgrades = await _context.UpgradeRequests
                 .Include(u => u.User)
                 .Where(u => u.Status == 1)
                 .OrderByDescending(u => u.DecisionDate ?? u.RequestDate)
-                .Take(5)
+                .Take(4)
                 .ToListAsync();
 
-            // --- 5. ĐỔ DỮ LIỆU VÀO VIEWMODEL ---
+            // --- 5. TÍNH TOÁN THỐNG KÊ TIN TUYỂN DỤNG VÀ ỨNG TUYỂN ---
+            var allApplications = await _context.Applications.ToListAsync();
+            int totalApps = allApplications.Count;
+            int pendingApps = allApplications.Count(a => a.Status == "Pending");
+            int reviewingApps = allApplications.Count(a => a.Status == "Reviewing");
+            int acceptedApps = allApplications.Count(a => a.Status == "Accepted");
+            int rejectedApps = allApplications.Count(a => a.Status == "Rejected");
+
+            var timelineLabels = new List<string>();
+            var timelineValues = new List<int>();
+            var timelineMonthLabels = new List<string>();
+            var timelineMonthValues = new List<int>();
+
+            if (totalApps > 0)
+            {
+                // Timeline: last 7 days
+                var last7Days = Enumerable.Range(0, 7)
+                    .Select(i => DateTime.Today.AddDays(-i))
+                    .OrderBy(d => d)
+                    .ToList();
+
+                var timelineCounts = allApplications
+                    .Where(a => a.AppliedAt >= last7Days.First())
+                    .GroupBy(a => a.AppliedAt.Date)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                timelineLabels = last7Days.Select(d => d.ToString("dd/MM")).ToList();
+                timelineValues = last7Days.Select(d => timelineCounts.ContainsKey(d) ? timelineCounts[d] : 0).ToList();
+
+                // Timeline: last 4 weeks (Month)
+                var last4Weeks = new List<(DateTime Start, DateTime End, string Label)>();
+                for (int i = 3; i >= 0; i--)
+                {
+                    DateTime start = DateTime.Today.AddDays(-((i + 1) * 7 - 1));
+                    DateTime end = DateTime.Today.AddDays(-(i * 7));
+                    if (i == 3) start = DateTime.Today.AddDays(-29);
+                    last4Weeks.Add((start, end, $"Tuần {(4 - i)} ({start:dd/MM}-{end:dd/MM})"));
+                }
+
+                var allMonthApps = allApplications
+                    .Where(a => a.AppliedAt >= DateTime.Today.AddDays(-29))
+                    .Select(a => a.AppliedAt.Date)
+                    .ToList();
+
+                foreach (var week in last4Weeks)
+                {
+                    timelineMonthLabels.Add(week.Label);
+                    timelineMonthValues.Add(allMonthApps.Count(a => a >= week.Start && a <= week.End));
+                }
+            }
+
+            // Top Skills feature has been removed as per user request
+
+            // --- 6. ĐỔ DỮ LIỆU VÀO VIEWMODEL ---
             var stats = new AdminDashboardVM 
             {
                 TotalUsers = totalUsers,
@@ -142,9 +198,21 @@ namespace DoAnCS.Controllers
                 YearlyLabels = yearlyLabels,
                 RecentUpgrades = recentUpgrades,
                 Templates = templates,
-                Jobs = recentJobs, // Danh sách 10 tin mới nhất
+                VueTemplates = await _context.VueTemplates.ToListAsync(),
+                Jobs = recentJobs,
                 CurrentPage = page,
-                TotalPages = (int)Math.Ceiling((double)totalTemplatesCount / pageSize)
+                TotalPages = (int)Math.Ceiling((double)totalTemplatesCount / pageSize),
+
+                // Thống kê Tuyển dụng
+                TotalApplications = totalApps,
+                PendingApps = pendingApps,
+                ReviewingApps = reviewingApps,
+                AcceptedApps = acceptedApps,
+                RejectedApps = rejectedApps,
+                TimelineLabels = timelineLabels,
+                TimelineValues = timelineValues,
+                TimelineMonthLabels = timelineMonthLabels,
+                TimelineMonthValues = timelineMonthValues
             };
 
             return View(stats);

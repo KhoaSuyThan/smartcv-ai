@@ -59,17 +59,29 @@
             </div>
         </div>
         
-        @* --- 3. BIỂU ĐỒ DOANH THU --- *@
-        <div class="row g-4 mb-5">
-            @* Cột bên trái: Biểu đồ *@
-            <div class="col-lg-9">
-                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+        @* --- 3. BIỂU ĐỒ THỐNG KÊ (TABS) --- *@
+
+        <div class="tab-content" id="statsTabContent">
+            <!-- TAB DOANH THU -->
+            <div class="tab-pane fade show active" id="revenue" role="tabpanel" aria-labelledby="revenue-tab">
+                <div class="row g-4 mb-5" style="min-height: 460px;">
+                    @* Cột bên trái: Biểu đồ *@
+                    <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h5 class="fw-bold m-0 text-dark">
-                                <i class='bx bx-line-chart me-2 text-success'></i>Thống kê Doanh thu
-                            </h5>
-                            <p class="text-xs text-muted mb-0">Tăng trưởng doanh thu gói Pro</p>
+                            <ul class="nav nav-pills gap-2 border-0 bg-light p-1 rounded-pill" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active rounded-pill fw-bold text-dark custom-tab px-3 py-1.5" data-bs-toggle="pill" data-bs-target="#revenue" type="button" role="tab" aria-selected="true" style="font-size: 0.9rem; transition: all 0.3s ease;">
+                                        <i class='bx bx-wallet me-2 text-success'></i>Thống kê Doanh thu
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link rounded-pill fw-bold text-dark custom-tab px-3 py-1.5" data-bs-toggle="pill" data-bs-target="#job" type="button" role="tab" aria-selected="false" style="font-size: 0.9rem; transition: all 0.3s ease;">
+                                        <i class='bx bx-briefcase-alt-2 me-2 text-primary'></i>Thống kê Tuyển dụng
+                                    </button>
+                                </li>
+                            </ul>
                         </div>
                         <select id="revenueFilter" class="form-select form-select-sm border-0 bg-light fw-bold text-primary shadow-sm" style="width: auto; cursor: pointer;">
                             <option value="year" selected>Trong năm nay</option>
@@ -77,7 +89,7 @@
                             <option value="week">Trong tuần này</option>
                         </select>
                     </div>
-                    <div style="height: 350px;">
+                    <div class="flex-grow-1 w-100" style="position: relative; min-height: 0;">
                         <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
@@ -89,13 +101,13 @@
                     @* Tổng doanh thu *@
                     <div class="card-body p-4 text-center border-bottom bg-success-subtle">
                         <p class="text-success mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.85rem;"><i class='bx bx-wallet me-1'></i>Tổng Doanh Thu</p>
-                        <h2 class="fw-bold text-success m-0" id="totalRevenueDisplay">@Model.TotalRevenue.ToString("N0") <small class="fs-6 text-success opacity-75">VNĐ</small></h2>
+                        <h2 class="fw-bold text-success m-0" id="totalRevenueDisplay">@Model.TotalRevenue.ToString("N0").Replace(",", ".") <small class="fs-6 text-success opacity-75">VNĐ</small></h2>
                     </div>
                     
                     @* Khách hàng gần nhất *@
                     <div class="card-body p-0">
                         <div class="p-3 border-bottom bg-light">
-                            <h6 class="fw-bold m-0 text-dark"><i class='bx bx-time-five me-2 text-primary'></i>5 Giao dịch gần nhất</h6>
+                            <h6 class="fw-bold m-0 text-dark"><i class='bx bx-time-five me-2 text-primary'></i>4 Giao dịch gần nhất</h6>
                         </div>
                         <div class="list-group list-group-flush">
                             @foreach(var item in Model.RecentUpgrades)
@@ -112,7 +124,7 @@
                                             <p class="m-0 text-muted" style="font-size: 0.75rem;">@package • @(item.DecisionDate?.ToString("dd/MM"))</p>
                                         </div>
                                     </div>
-                                    <span class="fw-bold text-success">+@amount.ToString("N0") đ</span>
+                                    <span class="fw-bold text-success">+@amount.ToString("N0").Replace(",", ".") đ</span>
                                 </div>
                             }
                             @if(Model.RecentUpgrades.Count == 0)
@@ -121,6 +133,87 @@
                                     Chưa có giao dịch nào
                                 </div>
                             }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- TAB TUYỂN DỤNG -->
+    <div class="tab-pane fade" id="job" role="tabpanel" aria-labelledby="job-tab">
+        <!-- Dashboard Analytics Charts (Copied from Jobs/Manage and adapted) -->
+                <div class="row g-4 mb-5" style="min-height: 460px;">
+                    <!-- Left: Applications Trend Chart -->
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column">
+                            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-2">
+                                <div>
+                                    <ul class="nav nav-pills gap-2 border-0 bg-light p-1 rounded-pill" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link rounded-pill fw-bold text-dark custom-tab px-3 py-1.5" data-bs-toggle="pill" data-bs-target="#revenue" type="button" role="tab" aria-selected="false" style="font-size: 0.9rem; transition: all 0.3s ease;">
+                                                <i class='bx bx-wallet me-2 text-success'></i>Thống kê Doanh thu
+                                            </button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active rounded-pill fw-bold text-dark custom-tab px-3 py-1.5" data-bs-toggle="pill" data-bs-target="#job" type="button" role="tab" aria-selected="true" style="font-size: 0.9rem; transition: all 0.3s ease;">
+                                                <i class='bx bx-briefcase-alt-2 me-2 text-primary'></i>Thống kê Tuyển dụng
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="btn-group btn-group-sm rounded-pill overflow-hidden border" role="group">
+                                        <button type="button" class="btn btn-light btn-sm px-3 py-1 fw-bold active" id="btn-range-7d" onclick="switchTimeRange('7d')" style="font-size: 0.7rem;">7 ngày qua</button>
+                                        <button type="button" class="btn btn-light btn-sm px-3 py-1 fw-bold" id="btn-range-30d" onclick="switchTimeRange('30d')" style="font-size: 0.7rem;">Tháng qua</button>
+                                    </div>
+                                    <span class="badge bg-light text-secondary rounded-pill px-3 py-1.5 fw-semibold border d-none d-md-inline-block" id="trend-badge" style="font-size: 0.65rem;">Lượt ứng tuyển/Ngày</span>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 w-100" style="position: relative; min-height: 0;">
+                                <canvas id="timelineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Status Distribution & Skill Cloud -->
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h5 class="fw-bold m-0 text-dark" style="font-size: 1.05rem;"><i class="bx bx-pie-chart text-primary me-2"></i>Trạng thái đơn ứng tuyển</h5>
+                            </div>
+                            <div class="flex-grow-1 d-flex flex-column justify-content-center">
+                                @if (Model.TotalApplications > 0)
+                                {
+                                    <div class="flex-grow-1 w-100 mb-4" style="position: relative; min-height: 0;">
+                                        <canvas id="statusChart"></canvas>
+                                    </div>
+                                    <div class="d-flex justify-content-around text-center pt-3 border-top mt-auto" style="font-size: 0.75rem;">
+                                        <div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Chờ xử lý</div>
+                                            <div class="fw-bold text-warning fs-5">@Model.PendingApps</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Đang xem</div>
+                                            <div class="fw-bold text-info fs-5">@Model.ReviewingApps</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Chấp nhận</div>
+                                            <div class="fw-bold text-success fs-5">@Model.AcceptedApps</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted" style="font-size: 0.7rem;">Từ chối</div>
+                                            <div class="fw-bold text-danger fs-5">@Model.RejectedApps</div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-5 h-100 d-flex flex-column justify-content-center">
+                                        <i class="bx bxs-user-detail text-muted mb-2 fs-1 opacity-50"></i>
+                                        <p class="text-muted small mb-0">Chưa có ứng viên nộp hồ sơ trên hệ thống</p>
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -434,6 +527,11 @@
     .extra-small { font-size: 0.65rem; font-weight: bold; }
     .btn-white { background: white; }
 
+    /* Custom tabs for Dashboard */
+    .custom-tab.active { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important; color: white !important; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+    .custom-tab:hover:not(.active) { background-color: #f8fafc !important; color: #4f46e5 !important; }
+    .custom-stat-tab.active { background-color: white !important; color: #4f46e5 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
     /* New styles for Recruitment Trends */
     .trend-card-small {
         border: 1px solid #eef2f6;
@@ -720,7 +818,129 @@
             revenueChart.update();
 
             // Cập nhật tổng doanh thu hiển thị
-            document.getElementById('totalRevenueDisplay').innerHTML = total.toLocaleString('vi-VN') + ' <small class="fs-6 text-success opacity-75">VNĐ</small>';
+            document.getElementById('totalRevenueDisplay').innerHTML = total.toLocaleString('vi-VN').replace(/,/g, '.') + ' <small class="fs-6 text-success opacity-75">VNĐ</small>';
+        });
+
+        // ================= BIỂU ĐỒ TUYỂN DỤNG =================
+        let timelineChartInstance = null;
+        let statusChartInstance = null;
+
+        const timelineLabels7d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineLabels));
+        const timelineValues7d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineValues));
+        const timelineLabels30d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineMonthLabels));
+        const timelineValues30d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineMonthValues));
+
+        window.switchTimeRange = function(range) {
+            const btn7d = document.getElementById('btn-range-7d');
+            const btn30d = document.getElementById('btn-range-30d');
+            const trendBadge = document.getElementById('trend-badge');
+            
+            if (!timelineChartInstance) return;
+
+            if (range === '7d') {
+                btn7d.classList.add('active');
+                btn30d.classList.remove('active');
+                if (trendBadge) trendBadge.textContent = 'Lượt ứng tuyển/Ngày';
+                timelineChartInstance.data.labels = timelineLabels7d;
+                timelineChartInstance.data.datasets[0].data = timelineValues7d;
+                timelineChartInstance.update();
+            } else if (range === '30d') {
+                btn30d.classList.add('active');
+                btn7d.classList.remove('active');
+                if (trendBadge) trendBadge.textContent = 'Lượt ứng tuyển/Tuần';
+                timelineChartInstance.data.labels = timelineLabels30d;
+                timelineChartInstance.data.datasets[0].data = timelineValues30d;
+                timelineChartInstance.update();
+            }
+        };
+
+        // Hàm khởi tạo biểu đồ Tuyển dụng
+        function initJobCharts() {
+            if (timelineChartInstance) return; // Chỉ khởi tạo 1 lần
+
+            const canvasTimeline = document.getElementById('timelineChart');
+            if (canvasTimeline) {
+                const ctxTimeline = canvasTimeline.getContext('2d');
+                const gradientBg = ctxTimeline.createLinearGradient(0, 0, 0, 300);
+                gradientBg.addColorStop(0, 'rgba(79, 70, 229, 0.25)');
+                gradientBg.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+                timelineChartInstance = new Chart(ctxTimeline, {
+                    type: 'line',
+                    data: {
+                        labels: timelineLabels7d,
+                        datasets: [{
+                            label: 'Số hồ sơ',
+                            data: timelineValues7d,
+                            borderColor: '#4f46e5',
+                            borderWidth: 2.5,
+                            backgroundColor: gradientBg,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#4f46e5',
+                            pointHoverRadius: 6,
+                            pointHoverBackgroundColor: '#ffffff',
+                            pointHoverBorderColor: '#4f46e5',
+                            pointHoverBorderWidth: 2.5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: { grid: { borderDash: [5, 5] }, ticks: { stepSize: 1, beginAtZero: true } }
+                        }
+                    }
+                });
+            }
+
+            const statusCanvas = document.getElementById('statusChart');
+            if (statusCanvas) {
+                const ctxStatus = statusCanvas.getContext('2d');
+                statusChartInstance = new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Chờ xử lý', 'Đang xem xét', 'Chấp nhận', 'Từ chối'],
+                        datasets: [{
+                            data: [@Model.PendingApps, @Model.ReviewingApps, @Model.AcceptedApps, @Model.RejectedApps],
+                            backgroundColor: ['#eab308', '#06b6d4', '#10b981', '#ef4444'],
+                            borderWidth: 1.5,
+                            borderColor: '#ffffff',
+                            hoverOffset: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 9.5 } } } },
+                        cutout: '60%'
+                    }
+                });
+            }
+        }
+
+        // Khởi tạo biểu đồ và đồng bộ trạng thái nút khi chuyển tab
+        document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(el => {
+            el.addEventListener('shown.bs.tab', function (e) {
+                const targetSelector = e.target.getAttribute('data-bs-target');
+                
+                // Cập nhật lại class active cho tất cả các nút
+                document.querySelectorAll('button[data-bs-toggle="pill"]').forEach(btn => {
+                    if (btn.getAttribute('data-bs-target') === targetSelector) {
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-selected', 'true');
+                    } else {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    }
+                });
+
+                if (targetSelector === '#job') {
+                    initJobCharts();
+                }
+            });
         });
     });
 </script>

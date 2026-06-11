@@ -40,20 +40,20 @@
                         <div class="card-body p-4">
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <label class="form-label fw-semibold text-secondary small">Gemini API Key</label>
+                                    <label class="form-label fw-bold text-dark mb-2">Gemini API Key</label>
                                     <div class="input-group">
-                                        <input type="password" id="ApiKey" name="ApiKey" class="form-control rounded-start bg-light border-light" value="@Model.ApiKey" placeholder="Nhập API Key cung cấp bởi Google AI Studio">
-                                        <button class="btn btn-light border-light border-start-0" type="button" onclick="togglePassword()">
+                                        <input type="password" id="ApiKey" name="ApiKey" class="form-control rounded-start bg-white border shadow-sm text-dark" value="@Model.ApiKey" placeholder="Nhập API Key cung cấp bởi Google AI Studio">
+                                        <button class="btn bg-white border shadow-sm border-start-0" type="button" onclick="togglePassword()">
                                             <i class='bx bx-show text-muted' id="toggleIcon"></i>
                                         </button>
                                     </div>
                                     <small class="text-danger d-block mt-1">Lưu ý: Dùng chung API Key cho cả Free và Pro.</small>
                                 </div>
                                 <div class="col-md-12 mt-2">
-                                    <label class="form-label fw-semibold text-secondary small">Groq API Key <span class="badge bg-success bg-opacity-10 text-success ms-1">Mới</span></label>
+                                    <label class="form-label fw-bold text-dark mb-2">Groq API Key <span class="badge bg-success bg-opacity-10 text-success ms-1">Mới</span></label>
                                     <div class="input-group">
-                                        <input type="password" id="GroqApiKey" name="GroqApiKey" class="form-control rounded-start bg-light border-light" value="@Model.GroqApiKey" placeholder="Nhập API Key cung cấp bởi Groq (Bắt đầu bằng gsk_...)">
-                                        <button class="btn btn-light border-light border-start-0" type="button" onclick="toggleGroqPassword()">
+                                        <input type="password" id="GroqApiKey" name="GroqApiKey" class="form-control rounded-start bg-white border shadow-sm text-dark" value="@Model.GroqApiKey" placeholder="Nhập API Key cung cấp bởi Groq (Bắt đầu bằng gsk_...)">
+                                        <button class="btn bg-white border shadow-sm border-start-0" type="button" onclick="toggleGroqPassword()">
                                             <i class='bx bx-show text-muted' id="groqToggleIcon"></i>
                                         </button>
                                     </div>
@@ -61,8 +61,8 @@
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small">Model AI</label>
-                                    <select name="ModelName" class="form-select bg-light border-light">
+                                    <label class="form-label fw-bold text-dark mb-2">Model AI</label>
+                                    <select name="ModelName" class="form-select bg-white border shadow-sm text-dark">
                                         <!option value="gemini-2.5-flash" @(Model.ModelName == "gemini-2.5-flash" ? "selected" : "")>Gemini 2.5 Flash (Nhanh & Rẻ)</!option>
                                         <!option value="gemini-2.5-pro" @(Model.ModelName == "gemini-2.5-pro" ? "selected" : "")>Gemini 2.5 Pro (Thông minh nhất)</!option>
                                         <!option value="gemini-2.0-flash" @(Model.ModelName == "gemini-2.0-flash" ? "selected" : "")>Gemini 2.0 Flash (Siêu nhanh)</!option>
@@ -74,15 +74,15 @@
                                 </div>
 
                                 <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-secondary small">Giới hạn User (Rate Limit)</label>
+                                    <label class="form-label fw-bold text-dark mb-2">Giới hạn User (Rate Limit)</label>
                                     <div class="input-group">
-                                        <input type="number" name="UserRateLimit" class="form-control bg-light border-light" value="@Model.UserRateLimit" min="1">
-                                        <span class="input-group-text bg-light border-light text-muted">Lần / Ngày</span>
+                                        <input type="number" name="UserRateLimit" class="form-control bg-white border shadow-sm text-dark" value="@Model.UserRateLimit" min="1">
+                                        <span class="input-group-text bg-white border shadow-sm text-dark text-muted">Lần / Ngày</span>
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 mt-4">
-                                    <label class="form-label fw-semibold text-secondary small d-flex justify-content-between">
+                                    <label class="form-label fw-bold text-dark mb-2 d-flex justify-content-between">
                                         <span>Độ sáng tạo (Temperature)</span>
                                         <span id="tempValue" class="badge bg-primary rounded-pill">@Model.Temperature</span>
                                     </label>
@@ -94,8 +94,8 @@
                                 </div>
 
                                 <div class="col-md-6 mt-4">
-                                    <label class="form-label fw-semibold text-secondary small">Giới hạn Output Tokens</label>
-                                    <input type="number" name="MaxOutputTokens" class="form-control bg-light border-light" value="@Model.MaxOutputTokens" min="100" max="8192">
+                                    <label class="form-label fw-bold text-dark mb-2">Giới hạn Output Tokens</label>
+                                    <input type="number" name="MaxOutputTokens" class="form-control bg-white border shadow-sm text-dark" value="@Model.MaxOutputTokens" min="100" max="8192">
                                 </div>
                             </div>
                         </div>
@@ -109,15 +109,15 @@
                         <div class="card-body p-4">
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <label class="form-label fw-semibold text-secondary small">
+                                    <label class="form-label fw-bold text-dark mb-2">
                                         Chatbox Groq API Key <span class="badge bg-primary bg-opacity-10 text-primary ms-1">Riêng biệt</span>
                                     </label>
                                     <div class="input-group">
                                         <input type="password" id="ChatbotApiKey" name="ChatbotApiKey"
-                                               class="form-control rounded-start bg-light border-light"
+                                               class="form-control rounded-start bg-white border shadow-sm text-dark"
                                                value="@Model.ChatbotApiKey"
                                                placeholder="Nhập API Key cung cấp bởi Groq (Bắt đầu bằng gsk_...)">
-                                        <button class="btn btn-light border-light border-start-0" type="button" onclick="toggleChatbotKey()">
+                                        <button class="btn bg-white border shadow-sm border-start-0" type="button" onclick="toggleChatbotKey()">
                                             <i class='bx bx-show text-muted' id="chatbotToggleIcon"></i>
                                         </button>
                                     </div>
@@ -128,8 +128,8 @@
                                     </small>
                                 </div>
                                 <div class="col-md-12 mt-3">
-                                    <label class="form-label fw-semibold text-secondary small">Văn phong Chatbot (System Instruction)</label>
-                                    <textarea name="ChatbotSystemInstruction" class="form-control bg-light border-light" rows="3" placeholder="Ví dụ: Bạn là trợ lý ảo thân thiện của website CVBuilder Pro...">@Model.ChatbotSystemInstruction</textarea>
+                                    <label class="form-label fw-bold text-dark mb-2">Văn phong Chatbot (System Instruction)</label>
+                                    <textarea name="ChatbotSystemInstruction" class="form-control bg-white border shadow-sm p-3 rounded-3 text-dark" rows="3" placeholder="Ví dụ: Bạn là trợ lý ảo thân thiện của website CVBuilder Pro...">@Model.ChatbotSystemInstruction</textarea>
                                 </div>
                             </div>
                         </div>
@@ -143,8 +143,8 @@
                         <div class="card-body p-4">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary small">Model AI (Pro)</label>
-                                    <select name="ProModelName" class="form-select bg-light border-light">
+                                    <label class="form-label fw-bold text-dark mb-2">Model AI (Pro)</label>
+                                    <select name="ProModelName" class="form-select bg-white border shadow-sm text-dark">
                                         <!option value="gemini-2.5-pro" @(Model.ProModelName == "gemini-2.5-pro" ? "selected" : "")>Gemini 2.5 Pro</!option>
                                         <!option value="gemini-2.5-flash" @(Model.ProModelName == "gemini-2.5-flash" ? "selected" : "")>Gemini 2.5 Flash</!option>
                                         <!option value="llama-3.1-8b-instant" @(Model.ProModelName == "llama-3.1-8b-instant" ? "selected" : "")>Llama 3.1 8B (Groq)</!option>
@@ -152,15 +152,15 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary small">Giới hạn Pro (L/N)</label>
-                                    <input type="number" name="ProUserRateLimit" class="form-control bg-light border-light" value="@Model.ProUserRateLimit" min="1">
+                                    <label class="form-label fw-bold text-dark mb-2">Giới hạn Pro (L/N)</label>
+                                    <input type="number" name="ProUserRateLimit" class="form-control bg-white border shadow-sm text-dark" value="@Model.ProUserRateLimit" min="1">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold text-secondary small">Tokens (Pro)</label>
-                                    <input type="number" name="ProMaxOutputTokens" class="form-control bg-light border-light" value="@Model.ProMaxOutputTokens" min="100">
+                                    <label class="form-label fw-bold text-dark mb-2">Tokens (Pro)</label>
+                                    <input type="number" name="ProMaxOutputTokens" class="form-control bg-white border shadow-sm text-dark" value="@Model.ProMaxOutputTokens" min="100">
                                 </div>
                                 <div class="col-md-12">
-                                    <label class="form-label fw-semibold text-secondary small d-flex justify-content-between">
+                                    <label class="form-label fw-bold text-dark mb-2 d-flex justify-content-between">
                                         <span>Độ sáng tạo (Pro - Temp)</span>
                                         <span id="proTempValue" class="badge bg-warning text-dark rounded-pill">@Model.ProTemperature</span>
                                     </label>
@@ -177,25 +177,25 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="mb-4">
-                                <label class="form-label fw-semibold text-secondary small">Thiết lập Tính cách mặc định (System Instruction)</label>
-                                <textarea name="SystemInstruction" class="form-control bg-light border-light" rows="3" placeholder="Ví dụ: Bạn là một chuyên gia Tuyển dụng có trên 10 năm kinh nghiệm...">@Model.SystemInstruction</textarea>
+                                <label class="form-label fw-bold text-dark mb-2">Thiết lập Tính cách mặc định (System Instruction)</label>
+                                <textarea name="SystemInstruction" class="form-control bg-white border shadow-sm p-3 rounded-3 text-dark" rows="3" placeholder="Ví dụ: Bạn là một chuyên gia Tuyển dụng có trên 10 năm kinh nghiệm...">@Model.SystemInstruction</textarea>
                             </div>
                             
                             <hr class="text-muted opacity-25" />
 
                             <div class="mb-3 mt-4">
-                                <label class="form-label fw-semibold text-secondary small text-primary"><i class='bx bx-list-check me-1'></i> Prompt: Gợi ý kỹ năng</label>
-                                <textarea name="SkillTemplate" class="form-control bg-light border-light text-sm text-monospace" rows="2" placeholder="Dùng {{content}} làm tham số đầu vào của user.">@Model.SkillTemplate</textarea>
+                                <label class="form-label fw-bold text-primary mb-2"><i class='bx bx-list-check me-1'></i> Prompt: Gợi ý kỹ năng</label>
+                                <textarea name="SkillTemplate" class="form-control bg-white border shadow-sm p-3 rounded-3 text-dark text-sm text-monospace" rows="2" placeholder="Dùng {{content}} làm tham số đầu vào của user.">@Model.SkillTemplate</textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-secondary small text-success"><i class='bx bx-align-left me-1'></i> Prompt: Viết mục tiêu nghề nghiệp</label>
-                                <textarea name="SummaryTemplate" class="form-control bg-light border-light text-sm text-monospace" rows="2" placeholder="Dùng {{context}} cho vai trò, {{content}} cho kỹ năng.">@Model.SummaryTemplate</textarea>
+                                <label class="form-label fw-bold text-success mb-2"><i class='bx bx-align-left me-1'></i> Prompt: Viết mục tiêu nghề nghiệp</label>
+                                <textarea name="SummaryTemplate" class="form-control bg-white border shadow-sm p-3 rounded-3 text-dark text-sm text-monospace" rows="2" placeholder="Dùng {{context}} cho vai trò, {{content}} cho kỹ năng.">@Model.SummaryTemplate</textarea>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label fw-semibold text-secondary small text-warning"><i class='bx bx-slider-alt me-1'></i> Prompt: Tối ưu kinh nghiệm chuẩn STAR</label>
-                                <textarea name="GrammarTemplate" class="form-control bg-light border-light text-sm text-monospace" rows="2">@Model.GrammarTemplate</textarea>
+                                <label class="form-label fw-bold text-warning text-darken mb-2"><i class='bx bx-slider-alt me-1'></i> Prompt: Tối ưu kinh nghiệm chuẩn STAR</label>
+                                <textarea name="GrammarTemplate" class="form-control bg-white border shadow-sm p-3 rounded-3 text-dark text-sm text-monospace" rows="2">@Model.GrammarTemplate</textarea>
                             </div>
 
                             <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold w-100 shadow-sm custom-gradient-btn">
@@ -367,18 +367,25 @@
         }
     }
 
-    // Auto resize textarea
-    const tx = document.getElementById('playgroundInput');
-    tx.setAttribute('style', 'height:' + (tx.scrollHeight) + 'px;overflow-y:hidden; box-shadow: none;');
-    tx.addEventListener("input", OnInput, false);
-    function OnInput() {
-        this.style.height = 'auto';
-        this.style.height = (this.scrollHeight) + 'px';
-        if (this.scrollHeight > 100) { this.style.overflowY = 'auto'; }
-    }
+    // Auto resize textareas
+    document.querySelectorAll('textarea').forEach(tx => {
+        // Đặt timeout nhỏ để đảm bảo render xong mới tính scrollHeight chuẩn
+        setTimeout(() => {
+            tx.style.overflowY = 'hidden';
+            tx.style.height = 'auto';
+            tx.style.height = (tx.scrollHeight) + 'px';
+        }, 10);
+
+        tx.addEventListener("input", function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+            if (this.scrollHeight > 400) { this.style.overflowY = 'auto'; }
+        }, false);
+    });
 
     // Enter to send
-    tx.addEventListener("keypress", function(event) {
+    const playgroundTx = document.getElementById('playgroundInput');
+    playgroundTx.addEventListener("keypress", function(event) {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
             testAI();
