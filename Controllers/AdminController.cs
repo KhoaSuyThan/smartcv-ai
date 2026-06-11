@@ -59,6 +59,74 @@ namespace DoAnCS.Controllers
                 .Take(10) 
                 .ToListAsync();
 
+            // --- 4.5. LẤY DOANH THU ---
+            var currentYear = DateTime.Now.Year;
+            var today = DateTime.Today;
+            // Tính ngày đầu tuần (Thứ 2)
+            int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
+            var startOfWeek = today.AddDays(-1 * diff).Date;
+            var endOfWeek = startOfWeek.AddDays(7);
+
+            // Tính số ngày trong tháng hiện tại
+            int daysInCurrentMonth = DateTime.DaysInMonth(currentYear, today.Month);
+
+            var successfulUpgrades = await _context.UpgradeRequests
+                .Where(r => r.Status == 1 && r.DecisionDate.HasValue)
+                .ToListAsync();
+
+            decimal totalRevenue = 0;
+            var monthlyRevenue = new List<decimal>(new decimal[12]);
+            var currentMonthRevenue = new List<decimal>(new decimal[daysInCurrentMonth]);
+            var weeklyRevenue = new List<decimal>(new decimal[7]);
+            var yearlyRevenueDict = new Dictionary<int, decimal>();
+
+            foreach (var req in successfulUpgrades)
+            {
+                decimal amount = (req.Notes != null && req.Notes.Contains("RecruiterPro")) ? 100000 : 20000;
+                totalRevenue += amount;
+                
+                var date = req.DecisionDate.Value;
+                
+                // Doanh thu theo năm hiện tại (Từng tháng)
+                if (date.Year == currentYear)
+                {
+                    int monthIndex = date.Month - 1;
+                    monthlyRevenue[monthIndex] += amount;
+
+                    // Doanh thu theo tháng hiện tại (Từng ngày)
+                    if (date.Month == today.Month)
+                    {
+                        int dayIndex = date.Day - 1;
+                        currentMonthRevenue[dayIndex] += amount;
+                    }
+                }
+                
+                // Doanh thu theo tuần hiện tại (Thứ 2 - CN)
+                if (date >= startOfWeek && date < endOfWeek)
+                {
+                    int dayIndex = (int)date.DayOfWeek - 1;
+                    if (dayIndex == -1) dayIndex = 6; // Chủ nhật
+                    weeklyRevenue[dayIndex] += amount;
+                }
+                
+                // Doanh thu theo các năm
+                if (!yearlyRevenueDict.ContainsKey(date.Year))
+                    yearlyRevenueDict[date.Year] = 0;
+                yearlyRevenueDict[date.Year] += amount;
+            }
+
+            var yearlyLabels = yearlyRevenueDict.Keys.OrderBy(k => k).ToList();
+            if (yearlyLabels.Count == 0) yearlyLabels.Add(currentYear);
+            var yearlyRevenue = yearlyLabels.Select(k => yearlyRevenueDict.ContainsKey(k) ? yearlyRevenueDict[k] : 0).ToList();
+
+            // Lấy 5 giao dịch gần nhất
+            var recentUpgrades = await _context.UpgradeRequests
+                .Include(u => u.User)
+                .Where(u => u.Status == 1)
+                .OrderByDescending(u => u.DecisionDate ?? u.RequestDate)
+                .Take(5)
+                .ToListAsync();
+
             // --- 5. ĐỔ DỮ LIỆU VÀO VIEWMODEL ---
             var stats = new AdminDashboardVM 
             {
@@ -66,6 +134,13 @@ namespace DoAnCS.Controllers
                 TotalResumes = totalResumes,
                 TotalJobs = totalJobs,
                 TotalCompanies = totalCompanies,
+                TotalRevenue = totalRevenue,
+                MonthlyRevenue = monthlyRevenue,
+                CurrentMonthRevenue = currentMonthRevenue,
+                WeeklyRevenue = weeklyRevenue,
+                YearlyRevenue = yearlyRevenue,
+                YearlyLabels = yearlyLabels,
+                RecentUpgrades = recentUpgrades,
                 Templates = templates,
                 Jobs = recentJobs, // Danh sách 10 tin mới nhất
                 CurrentPage = page,

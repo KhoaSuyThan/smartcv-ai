@@ -58,8 +58,76 @@
                 </div>
             </div>
         </div>
+        
+        @* --- 3. BIỂU ĐỒ DOANH THU --- *@
+        <div class="row g-4 mb-5">
+            @* Cột bên trái: Biểu đồ *@
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h5 class="fw-bold m-0 text-dark">
+                                <i class='bx bx-line-chart me-2 text-success'></i>Thống kê Doanh thu
+                            </h5>
+                            <p class="text-xs text-muted mb-0">Tăng trưởng doanh thu gói Pro</p>
+                        </div>
+                        <select id="revenueFilter" class="form-select form-select-sm border-0 bg-light fw-bold text-primary shadow-sm" style="width: auto; cursor: pointer;">
+                            <option value="year" selected>Trong năm nay</option>
+                            <option value="month">Trong tháng này</option>
+                            <option value="week">Trong tuần này</option>
+                        </select>
+                    </div>
+                    <div style="height: 350px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
-        @* --- 3. KHU VỰC NỘI DUNG CHÍNH --- *@
+            @* Cột bên phải: Tổng doanh thu và 5 khách hàng gần nhất *@
+            <div class="col-lg-3">
+                <div class="card border-0 shadow-sm rounded-4 h-100 bg-white overflow-hidden">
+                    @* Tổng doanh thu *@
+                    <div class="card-body p-4 text-center border-bottom bg-success-subtle">
+                        <p class="text-success mb-1 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.85rem;"><i class='bx bx-wallet me-1'></i>Tổng Doanh Thu</p>
+                        <h2 class="fw-bold text-success m-0" id="totalRevenueDisplay">@Model.TotalRevenue.ToString("N0") <small class="fs-6 text-success opacity-75">VNĐ</small></h2>
+                    </div>
+                    
+                    @* Khách hàng gần nhất *@
+                    <div class="card-body p-0">
+                        <div class="p-3 border-bottom bg-light">
+                            <h6 class="fw-bold m-0 text-dark"><i class='bx bx-time-five me-2 text-primary'></i>5 Giao dịch gần nhất</h6>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            @foreach(var item in Model.RecentUpgrades)
+                            {
+                                string package = item.Notes != null && item.Notes.Contains("RecruiterPro") ? "RecruiterPro" : "CandidatePro";
+                                decimal amount = package == "RecruiterPro" ? 100000 : 20000;
+                                <div class="list-group-item p-3 d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                            <i class='bx bx-user fs-4'></i>
+                                        </div>
+                                        <div>
+                                            <p class="m-0 fw-bold text-dark text-truncate" style="font-size: 0.9rem; max-width: 200px;" title="@item.User?.FullName">@(item.User?.FullName ?? "Unknown")</p>
+                                            <p class="m-0 text-muted" style="font-size: 0.75rem;">@package • @(item.DecisionDate?.ToString("dd/MM"))</p>
+                                        </div>
+                                    </div>
+                                    <span class="fw-bold text-success">+@amount.ToString("N0") đ</span>
+                                </div>
+                            }
+                            @if(Model.RecentUpgrades.Count == 0)
+                            {
+                                <div class="p-4 text-center text-muted">
+                                    Chưa có giao dịch nào
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* --- 4. KHU VỰC NỘI DUNG CHÍNH --- *@
         <div class="row g-4">
             @* Bên trái: Biểu đồ xu hướng đa ngành *@
             <div class="col-lg-8">
@@ -269,6 +337,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -555,6 +624,103 @@
                     placeholder.classList.add('d-none');
                 }
             });
+        });
+
+        // Biểu đồ Doanh thu (Line Chart)
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        const monthlyRevenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.MonthlyRevenue));
+        const weeklyRevenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.WeeklyRevenue));
+        const currentMonthRevenueData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.CurrentMonthRevenue));
+        const currentMonthDays = @DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
+        
+        let gradient = revenueCtx.createLinearGradient(0, 0, 0, 350);
+        gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); // Xanh lá
+        gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+        const revenueChart = new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: monthlyRevenueData,
+                    borderColor: '#10b981', // emerald-500
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#10b981',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4 // Làm cong đường cho mượt
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        padding: 12,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return ` Doanh thu: ${context.parsed.y.toLocaleString('vi-VN')} đ`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 12 } }
+                    },
+                    y: {
+                        grid: { color: '#f1f5f9' },
+                        beginAtZero: true,
+                        ticks: {
+                            font: { size: 12, weight: 'bold' },
+                            color: '#475569',
+                            callback: function(value) {
+                                if (value >= 1000000) return (value / 1000000) + 'Tr';
+                                if (value >= 1000) return (value / 1000) + 'K';
+                                return value;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+
+        // Xử lý sự kiện thay đổi bộ lọc Doanh thu
+        document.getElementById('revenueFilter').addEventListener('change', function() {
+            const val = this.value;
+            let total = 0;
+            if (val === 'year') {
+                revenueChart.data.labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                revenueChart.data.datasets[0].data = monthlyRevenueData;
+                total = monthlyRevenueData.reduce((a, b) => a + b, 0);
+            } else if (val === 'month') {
+                revenueChart.data.labels = Array.from({length: currentMonthDays}, (_, i) => 'Ngày ' + (i + 1));
+                revenueChart.data.datasets[0].data = currentMonthRevenueData;
+                total = currentMonthRevenueData.reduce((a, b) => a + b, 0);
+            } else if (val === 'week') {
+                revenueChart.data.labels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
+                revenueChart.data.datasets[0].data = weeklyRevenueData;
+                total = weeklyRevenueData.reduce((a, b) => a + b, 0);
+            }
+            
+            // Cập nhật biểu đồ
+            revenueChart.update();
+
+            // Cập nhật tổng doanh thu hiển thị
+            document.getElementById('totalRevenueDisplay').innerHTML = total.toLocaleString('vi-VN') + ' <small class="fs-6 text-success opacity-75">VNĐ</small>';
         });
     });
 </script>
