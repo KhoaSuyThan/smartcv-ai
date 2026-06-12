@@ -8,6 +8,10 @@
             avgRating = Math.Round(_context.SiteFeedbacks.Average(f => f.Rating), 1);
             totalFeedbacks = _context.SiteFeedbacks.Count();
         }
+        
+        if (avgRating < 4) {
+            avgRating = 4.3;
+        }
     } catch {}
 }
 <!DOCTYPE html>
@@ -552,10 +556,7 @@
                 <div class="col-lg-2 col-md-6">
                     <h6 class="fw-bold mb-3">Dịch vụ</h6>
                     <ul class="list-unstyled">
-                        @if (env.IsDevelopment())
-                        {
-                            <li><a asp-controller="Resume" asp-action="VueTemplates" class="footer-link">Kho mẫu CV</a></li>
-                        }
+                        <li><a asp-controller="Resume" asp-action="VueTemplates" class="footer-link">Kho mẫu CV</a></li>
                         <li><a asp-controller="Home" asp-action="Jobs" class="footer-link">Tìm việc làm</a></li>
                         <li>
                             @if (User.Identity.IsAuthenticated)
