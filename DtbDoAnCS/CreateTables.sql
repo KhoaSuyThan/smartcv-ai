@@ -93,6 +93,7 @@ CREATE TABLE Users (
     Role NVARCHAR(20) CHECK (Role IN ('Admin', 'User', 'Recruiter')) DEFAULT 'User',
     CreatedAt DATETIME DEFAULT GETDATE(),
 	IsPro BIT NOT NULL DEFAULT 0,
+	ProExpirationDate DATETIME NULL,
 	PasswordChangeToken NVARCHAR(MAX) NULL,
 	PasswordChangeTokenExpires DATETIME2 NULL,
 	PendingPasswordHash NVARCHAR(MAX) NULL,

@@ -20,6 +20,7 @@ builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
+builder.Services.AddHostedService<ProExpirationService>();
 
 // Cấu hình PayOS
 var clientId = builder.Configuration["PayOS:ClientId"] ?? throw new Exception("Không tìm thấy PayOS:ClientId");
@@ -61,6 +62,28 @@ builder.Services.AddAuthentication(options =>
                 {
                     context.RejectPrincipal();
                     await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return;
+                }
+
+                // Tự động làm mới quyền Pro ngầm mà không bắt đăng nhập lại
+                var isProClaim = context.Principal.HasClaim("IsPro", "True");
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var userInDb = await dbContext.Users.FindAsync(userId);
+                
+                if (userInDb != null && userInDb.IsPro != isProClaim)
+                {
+                    var identity = context.Principal.Identity as System.Security.Claims.ClaimsIdentity;
+                    if (identity != null)
+                    {
+                        var oldClaim = identity.FindFirst("IsPro");
+                        if (oldClaim != null) identity.RemoveClaim(oldClaim);
+                        
+                        if (userInDb.IsPro == true) 
+                            identity.AddClaim(new System.Security.Claims.Claim("IsPro", "True"));
+
+                        context.ReplacePrincipal(context.Principal);
+                        context.ShouldRenew = true;
+                    }
                 }
             }
         }
@@ -116,6 +139,21 @@ builder.Services.AddSession(options =>
 });
 
 var app = builder.Build();
+
+// --- TỰ ĐỘNG CHẠY MIGRATION KHI STARTUP ---
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        context.Database.ExecuteSqlRaw("IF COL_LENGTH('Users', 'ProExpirationDate') IS NULL ALTER TABLE Users ADD ProExpirationDate DATETIME NULL;");
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Lỗi khi chạy Migration tự động: " + ex.Message);
+    }
+}
 
 var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
