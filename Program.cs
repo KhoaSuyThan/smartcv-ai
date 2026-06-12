@@ -147,6 +147,20 @@ using (var scope = app.Services.CreateScope())
     try
     {
         context.Database.ExecuteSqlRaw("IF COL_LENGTH('Users', 'ProExpirationDate') IS NULL ALTER TABLE Users ADD ProExpirationDate DATETIME NULL;");
+        context.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'SiteFeedbacks')
+            BEGIN
+                CREATE TABLE SiteFeedbacks (
+                    Id INT PRIMARY KEY IDENTITY(1,1),
+                    UserID INT NOT NULL,
+                    Rating FLOAT NOT NULL,
+                    Comment NVARCHAR(MAX) NULL,
+                    CreatedAt DATETIME DEFAULT GETDATE(),
+                    UpdatedAt DATETIME DEFAULT GETDATE(),
+                    CONSTRAINT FK_SiteFeedbacks_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+                );
+            END
+        ");
         context.Database.Migrate();
     }
     catch (Exception ex)

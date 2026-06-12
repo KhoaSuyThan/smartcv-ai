@@ -1,5 +1,15 @@
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
 @inject DoAnCS.Data.AppDbContext _context
+@{
+    double avgRating = 0;
+    int totalFeedbacks = 0;
+    try {
+        if (_context.SiteFeedbacks.Any()) {
+            avgRating = Math.Round(_context.SiteFeedbacks.Average(f => f.Rating), 1);
+            totalFeedbacks = _context.SiteFeedbacks.Count();
+        }
+    } catch {}
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -340,7 +350,11 @@
                                 @{
                                     bool showProWarning = false;
                                     int daysRemaining = 0;
-                                    if (User.HasClaim("IsPro", "True"))
+                                    
+                                    // Chỉ hiển thị thông báo ở Trang chủ (Path == "/" hoặc "/Home/Index")
+                                    bool isHomePage = Context.Request.Path == "/" || Context.Request.Path.Value.Equals("/Home/Index", StringComparison.OrdinalIgnoreCase);
+                                    
+                                    if (User.HasClaim("IsPro", "True") && isHomePage)
                                     {
                                         var userIdClaim = User.FindFirst("UserID")?.Value;
                                         if (int.TryParse(userIdClaim, out int uid))
@@ -467,6 +481,7 @@
                                 <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
                                 <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
                                 <a href="/Admin/GeminiConfig" class="menu-item @(currentAction == "GeminiConfig" ? "active" : "")"><i class='bx bxs-bot'></i> Cấu hình AI</a>
+                                <a href="/Admin/Feedbacks" class="menu-item @(currentAction == "Feedbacks" ? "active" : "")"><i class='bx bxs-star text-warning'></i> Đánh giá trang web</a>
                             </div>
                         </div>
                     </div>
@@ -516,6 +531,7 @@
                     <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
                     <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
                     <a href="/Admin/GeminiConfig" class="menu-item @(currentAction == "GeminiConfig" ? "active" : "")"><i class='bx bxs-bot'></i> Cấu hình AI</a>
+                    <a href="/Admin/Feedbacks" class="menu-item @(currentAction == "Feedbacks" ? "active" : "")"><i class='bx bxs-star text-warning'></i> Đánh giá trang web</a>
                 </div>
             </div>
         </div>
@@ -541,7 +557,40 @@
                             <li><a asp-controller="Resume" asp-action="VueTemplates" class="footer-link">Kho mẫu CV</a></li>
                         }
                         <li><a asp-controller="Home" asp-action="Jobs" class="footer-link">Tìm việc làm</a></li>
-                        <li><a href="javascript:void(0)" onclick="chatboxOpen('Tôi muốn được tư vấn nghề nghiệp')" class="footer-link">Tư vấn nghề nghiệp</a></li>
+                        <li>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#feedbackModal" onclick="loadFeedbackData()" class="footer-link d-inline-flex align-items-center text-nowrap">
+                                    Đánh giá trang web 
+                                    @if (avgRating > 0)
+                                    {
+                                        <span class="ms-2 badge bg-warning text-dark" style="font-size: 0.75rem;">
+                                            <i class="fas fa-star text-dark"></i> @avgRating/5 (@totalFeedbacks)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ms-2 badge bg-secondary text-white" style="font-size: 0.7rem;">Chưa có</span>
+                                    }
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="javascript:void(0)" onclick="requireLoginFeedback()" class="footer-link d-inline-flex align-items-center text-nowrap">
+                                    Đánh giá trang web 
+                                    @if (avgRating > 0)
+                                    {
+                                        <span class="ms-2 badge bg-warning text-dark" style="font-size: 0.75rem;">
+                                            <i class="fas fa-star text-dark"></i> @avgRating/5 (@totalFeedbacks)
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ms-2 badge bg-secondary text-white" style="font-size: 0.7rem;">Chưa có</span>
+                                    }
+                                </a>
+                            }
+                        </li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-md-6">
@@ -1223,6 +1272,157 @@
             mirror: false,
             offset: 0
         });
+    </script>
+    <!-- FEEDBACK MODAL -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header bg-light border-0" style="border-radius: 16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-star text-warning me-2"></i>Đánh giá trải nghiệm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="text-muted mb-4">Xin vui lòng để lại đánh giá của bạn để giúp chúng tôi cải thiện hệ thống tốt hơn nhé!</p>
+                    
+                    <!-- Star Rating UI -->
+                    <div class="star-rating mb-4" id="starRatingContainer">
+                        <div class="d-inline-flex position-relative rating-stars-wrapper" style="font-size: 2.5rem; color: #e4e5e9; cursor: pointer; letter-spacing: 2px;">
+                            <!-- Xóa khoảng trắng giữa các thẻ i để tránh bị lệch (shadow effect) -->
+                            <div class="rating-stars-bg">
+                                <i class="fas fa-star rating-star" data-value="1"></i><i class="fas fa-star rating-star" data-value="2"></i><i class="fas fa-star rating-star" data-value="3"></i><i class="fas fa-star rating-star" data-value="4"></i><i class="fas fa-star rating-star" data-value="5"></i>
+                            </div>
+                            <div class="rating-stars-overlay position-absolute top-0 start-0 overflow-hidden" style="width: 0%; color: #ffc107; white-space: nowrap; pointer-events: none;">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="mt-2 fw-bold text-primary" id="ratingText">0 sao</div>
+                    </div>
+
+                    <div class="form-group text-start">
+                        <label class="form-label fw-semibold">Góp ý của bạn (Tùy chọn)</label>
+                        <textarea class="form-control" id="feedbackComment" rows="3" placeholder="Điều gì làm bạn hài lòng hoặc chưa hài lòng?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pb-4 px-4">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm" id="btnSubmitFeedback" onclick="submitFeedback()">Gửi đánh giá</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KHỐI TỰ ĐỘNG CHUYỂN TRANG -->
+    <script>
+        // Xử lý Feedback Rating
+        let currentRating = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.querySelector('.rating-stars-wrapper');
+            const overlay = document.querySelector('.rating-stars-overlay');
+            const text = document.getElementById('ratingText');
+
+            if (wrapper) {
+                wrapper.addEventListener('mousemove', function(e) {
+                    const rect = wrapper.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const width = rect.width;
+                    let percent = x / width;
+                    
+                    let rating = Math.ceil(percent * 10) / 2;
+                    if (rating > 5) rating = 5;
+                    if (rating < 0.5) rating = 0.5;
+
+                    overlay.style.width = (rating / 5 * 100) + '%';
+                    text.innerText = rating + ' sao';
+                });
+
+                wrapper.addEventListener('mouseleave', function() {
+                    overlay.style.width = (currentRating / 5 * 100) + '%';
+                    text.innerText = currentRating > 0 ? currentRating + ' sao' : '0 sao';
+                });
+
+                wrapper.addEventListener('click', function(e) {
+                    const rect = wrapper.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const width = rect.width;
+                    let percent = x / width;
+                    currentRating = Math.ceil(percent * 10) / 2;
+                    if (currentRating > 5) currentRating = 5;
+                    if (currentRating < 0.5) currentRating = 0.5;
+                    
+                    overlay.style.width = (currentRating / 5 * 100) + '%';
+                    text.innerText = currentRating + ' sao';
+                });
+            }
+        });
+
+        function requireLoginFeedback() {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire('Yêu cầu đăng nhập', 'Bạn cần đăng nhập để đánh giá trang web!', 'warning');
+            } else {
+                alert('Bạn cần đăng nhập để đánh giá trang web!');
+            }
+        }
+
+        function loadFeedbackData() {
+            fetch('/Home/GetMyFeedback')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        currentRating = data.rating;
+                        document.querySelector('.rating-stars-overlay').style.width = (currentRating / 5 * 100) + '%';
+                        document.getElementById('ratingText').innerText = currentRating + ' sao';
+                        document.getElementById('feedbackComment').value = data.comment || '';
+                    } else {
+                        currentRating = 0;
+                        document.querySelector('.rating-stars-overlay').style.width = '0%';
+                        document.getElementById('ratingText').innerText = '0 sao';
+                        document.getElementById('feedbackComment').value = '';
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi khi tải dữ liệu đánh giá:", err);
+                });
+        }
+
+        function submitFeedback() {
+            if (currentRating === 0) {
+                Swal.fire('Thiếu thông tin', 'Vui lòng chọn số sao để đánh giá!', 'warning');
+                return;
+            }
+
+            const comment = document.getElementById('feedbackComment').value;
+            const btn = document.getElementById('btnSubmitFeedback');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang gửi...';
+
+            const formData = new FormData();
+            formData.append('rating', currentRating);
+            formData.append('comment', comment);
+
+            fetch('/Home/SubmitFeedback', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+                    Swal.fire('Thành công', data.message, 'success').then(() => {
+                        window.location.reload(); // Tải lại trang để cập nhật sao ở Footer
+                    });
+                } else {
+                    Swal.fire('Lỗi', data.message, 'error');
+                }
+            })
+            .catch(err => {
+                Swal.fire('Lỗi', 'Không thể kết nối đến máy chủ.', 'error');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = 'Gửi đánh giá';
+            });
+        }
     </script>
 </body>
 </html>
