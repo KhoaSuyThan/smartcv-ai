@@ -1,4 +1,5 @@
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
+@inject DoAnCS.Data.AppDbContext _context
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -169,6 +170,46 @@
         [data-bs-theme="dark"] .bg-light {
             background-color: #121212 !important;
         }
+        .pro-warning-bubble {
+            position: absolute;
+            top: 50%;
+            left: calc(100% + 15px);
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 8px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(220, 38, 38, 0.35);
+            z-index: 1050;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            width: max-content;
+            line-height: 1.4;
+            animation: bubbleFadeInLeft 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            transform-origin: left center;
+        }
+        .pro-warning-bubble::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent #ef4444 transparent transparent;
+        }
+        .pro-warning-bubble .btn-close {
+            font-size: 0.6rem;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+        .pro-warning-bubble .btn-close:hover { opacity: 1; transform: scale(1.1); }
+        @@keyframes bubbleFadeInLeft {
+            from { opacity: 0; transform: translateY(-50%) translateX(-15px) scale(0.95); }
+            to { opacity: 1; transform: translateY(-50%) translateX(0) scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -295,7 +336,28 @@
                                     <i class="fas fa-crown me-1"></i> Nâng cấp Pro
                                 </a>
                             }
-                            <div class="dropdown">
+                            <div class="dropdown position-relative">
+                                @{
+                                    bool showProWarning = false;
+                                    int daysRemaining = 0;
+                                    if (User.HasClaim("IsPro", "True"))
+                                    {
+                                        var userIdClaim = User.FindFirst("UserID")?.Value;
+                                        if (int.TryParse(userIdClaim, out int uid))
+                                        {
+                                            var currentUser = _context.Users.FirstOrDefault(u => u.UserID == uid);
+                                            if (currentUser != null && currentUser.ProExpirationDate.HasValue)
+                                            {
+                                                var timeDiff = currentUser.ProExpirationDate.Value - DateTime.Now;
+                                                if (timeDiff.TotalDays > 0 && timeDiff.TotalDays <= 3)
+                                                {
+                                                    daysRemaining = (int)Math.Ceiling(timeDiff.TotalDays);
+                                                    showProWarning = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                 <button class="btn user-dropdown-btn dropdown-toggle rounded-pill px-4 shadow-sm" 
                                         type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user-circle me-2"></i> 
@@ -343,6 +405,20 @@
                                         </a>
                                     </li>
                                 </ul>
+                                
+                                @if (showProWarning)
+                                {
+                                    <div id="pro-warning-bubble" class="pro-warning-bubble d-none" data-days="@daysRemaining">
+                                        <i class="fas fa-exclamation-triangle mt-1"></i>
+                                        <div style="flex: 1; display: flex; flex-direction: column;">
+                                            <span style="white-space: nowrap;">Gói Pro hết hạn sau @daysRemaining ngày!</span>
+                                            <div>
+                                                <a asp-controller="Account" asp-action="Upgrade" class="text-white text-decoration-underline fw-bold mt-1 d-inline-block" style="font-size: 0.9rem; white-space: nowrap;">Gia hạn ngay</a>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn-close btn-close-white ms-2 mt-1 flex-shrink-0" aria-label="Close" onclick="closeProWarning()"></button>
+                                    </div>
+                                }
                             </div>
                         }
                         else
@@ -556,7 +632,20 @@
                     updateThemeIcon(newTheme);
                 });
             }
+
+            // 3. Hiển thị cảnh báo Gói Pro sắp hết hạn
+            const warningBubble = document.getElementById('pro-warning-bubble');
+            if (warningBubble) {
+                warningBubble.classList.remove('d-none');
+            }
         });
+
+        function closeProWarning() {
+            const warningBubble = document.getElementById('pro-warning-bubble');
+            if (warningBubble) {
+                warningBubble.style.display = 'none';
+            }
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 
