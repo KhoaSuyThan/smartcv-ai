@@ -90,5 +90,13 @@ namespace DoAnCS.Hubs
                 }
             }
         }
+        public static System.Collections.Generic.IEnumerable<string> GetConnectionIds(int userId)
+        {
+            if (UserConnections.TryGetValue(userId, out var connections))
+            {
+                return connections.Keys;
+            }
+            return Enumerable.Empty<string>();
+        }
     }
 }

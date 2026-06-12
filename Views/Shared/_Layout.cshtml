@@ -1087,6 +1087,38 @@
                     }
                 });
 
+                connection.on("ProExpiredNotification", function () {
+                    // Thêm script SweetAlert động nếu chưa có
+                    if (typeof Swal === 'undefined') {
+                        var script = document.createElement('script');
+                        script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@11";
+                        script.onload = function () { showExpiredAlert(); };
+                        document.head.appendChild(script);
+                    } else {
+                        showExpiredAlert();
+                    }
+
+                    function showExpiredAlert() {
+                        Swal.fire({
+                            title: '<h3 style="font-weight: 800; color: #1e293b; margin-top: 15px; letter-spacing: -0.5px;">Gói Pro Đã Hết Hạn</h3>',
+                            html: '<p style="color: #64748b; font-size: 1.05rem; line-height: 1.6; margin-bottom: 10px;">Cảm ơn bạn đã trải nghiệm các tính năng cao cấp của CVBuilder.<br><br><span style="display: inline-block; padding: 6px 12px; background: #f1f5f9; border-radius: 20px; font-size: 0.85rem; color: #475569; font-weight: 600;"><i class="fas fa-spinner fa-spin me-2 text-primary"></i>Đang tự động làm mới giao diện...</span></p>',
+                            iconHtml: '<div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #f59e0b; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin: 20px auto 0; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.2);"><i class="fas fa-crown" style="font-size: 2.8rem;"></i></div>',
+                            customClass: {
+                                popup: 'rounded-4 shadow-lg border-0 py-4 px-3',
+                                icon: 'border-0 m-0 p-0',
+                                timerProgressBar: 'bg-warning'
+                            },
+                            timer: 4000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            allowOutsideClick: false,
+                            backdrop: `rgba(15, 23, 42, 0.85)`
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                });
+
                 connection.start().catch(function (err) {
                     console.error("SignalR connection error: ", err.toString());
                 });
