@@ -306,6 +306,81 @@ namespace DoAnCS.Controllers
         }
 
         // ==========================================
+        // FEEDBACK / RATING
+        // ==========================================
+        [HttpPost]
+        public async Task<IActionResult> SubmitFeedback(double rating, string comment)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để đánh giá." });
+            }
+
+            var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId))
+            {
+                return Json(new { success = false, message = "Lỗi xác thực người dùng." });
+            }
+
+            if (rating < 0.5f || rating > 5f)
+            {
+                return Json(new { success = false, message = "Điểm đánh giá không hợp lệ." });
+            }
+
+            try
+            {
+                var existingFeedback = await _context.SiteFeedbacks.FirstOrDefaultAsync(f => f.UserID == userId);
+
+                if (existingFeedback != null)
+                {
+                    existingFeedback.Rating = rating;
+                    existingFeedback.Comment = comment;
+                    existingFeedback.UpdatedAt = DateTime.Now;
+                    _context.SiteFeedbacks.Update(existingFeedback);
+                }
+                else
+                {
+                    var feedback = new SiteFeedback
+                    {
+                        UserID = userId,
+                        Rating = rating,
+                        Comment = comment,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now
+                    };
+                    await _context.SiteFeedbacks.AddAsync(feedback);
+                }
+
+                await _context.SaveChangesAsync();
+                
+                // Tính điểm trung bình mới
+                var newAverage = await _context.SiteFeedbacks.AverageAsync(f => f.Rating);
+
+                return Json(new { success = true, message = "Cảm ơn bạn đã gửi đánh giá!", newAverage = Math.Round(newAverage, 1) });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Đã xảy ra lỗi: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMyFeedback()
+        {
+            if (!User.Identity.IsAuthenticated) return Json(new { success = false });
+
+            var userIdClaim = User.FindFirst("UserID")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(userIdClaim, out int userId)) return Json(new { success = false });
+
+            var feedback = await _context.SiteFeedbacks.FirstOrDefaultAsync(f => f.UserID == userId);
+            if (feedback != null)
+            {
+                return Json(new { success = true, rating = feedback.Rating, comment = feedback.Comment });
+            }
+            return Json(new { success = false });
+        }
+
+        // ==========================================
         // PRIVATE: Logic so khớp kỹ năng CV & Job
         // ==========================================
 

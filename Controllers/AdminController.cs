@@ -9,6 +9,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using DoAnCS.Services;
 using Microsoft.Extensions.Caching.Memory;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace DoAnCS.Controllers
 {
@@ -264,6 +266,26 @@ namespace DoAnCS.Controllers
                 ViewBag.Companies = await _context.Companies.ToListAsync();
                 return View(userInDb);
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Feedbacks(int? page)
+        {
+            int pageSize = 10;
+            int pageNumber = page ?? 1;
+
+            var feedbacksQuery = await _context.SiteFeedbacks
+                .Include(f => f.User)
+                .OrderByDescending(f => f.UpdatedAt)
+                .ToListAsync();
+
+            var avgRating = feedbacksQuery.Any() ? feedbacksQuery.Average(f => f.Rating) : 0;
+            var totalFeedbacks = feedbacksQuery.Count;
+
+            ViewBag.AvgRating = Math.Round(avgRating, 1);
+            ViewBag.TotalFeedbacks = totalFeedbacks;
+
+            return View(feedbacksQuery.ToPagedList(pageNumber, pageSize));
         }
 
         public class JobJsonModel

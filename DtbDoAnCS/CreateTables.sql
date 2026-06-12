@@ -287,3 +287,14 @@ CREATE TABLE CVEmbeddings (
     UpdatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_CVEmbeddings_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID) ON DELETE CASCADE
 );
+
+-- 20. Đánh giá trang web (1-5 Sao)
+CREATE TABLE SiteFeedbacks (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    Rating FLOAT NOT NULL,
+    Comment NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME DEFAULT GETDATE(),
+    CONSTRAINT FK_SiteFeedbacks_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
