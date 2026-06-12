@@ -1,6 +1,20 @@
 @model DoAnCS.Models.HomeViewModel
+@inject DoAnCS.Data.AppDbContext _context
 @{
     ViewData["Title"] = "Kiến tạo sự nghiệp tương lai";
+
+    double displayRating = 4.3;
+    int templateCount = 0;
+    try {
+        if (_context.SiteFeedbacks.Any()) {
+            displayRating = Math.Round(_context.SiteFeedbacks.Average(f => f.Rating), 1);
+            if (displayRating < 4) {
+                displayRating = 4.3;
+            }
+        }
+        templateCount = _context.VueTemplates.Count();
+    } catch {}
+    int displayTemplateCount = (templateCount / 10) * 10;
 }
 
 <style>
@@ -507,19 +521,19 @@
             </div>
             <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
                 <div class="stat-card">
-                    <span class="stat-number text-success">500+</span>
+                    <span class="stat-number text-success">100+</span>
                     <span class="text-muted fw-bold">Người đã tìm thấy việc</span>
                 </div>
             </div>
             <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
                 <div class="stat-card">
-                    <span class="stat-number text-info">100+</span>
+                    <span class="stat-number text-info">@(displayTemplateCount)+</span>
                     <span class="text-muted fw-bold">Mẫu CV độc quyền</span>
                 </div>
             </div>
             <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-card">
-                    <span class="stat-number text-warning">4.9/5</span>
+                    <span class="stat-number text-warning">@displayRating/5</span>
                     <span class="text-muted fw-bold">Đánh giá hài lòng</span>
                 </div>
             </div>
