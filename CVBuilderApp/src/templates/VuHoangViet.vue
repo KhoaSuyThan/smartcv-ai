@@ -278,7 +278,11 @@ const activeBorderShadow = computed(() => {
 
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  return val.replace(/<[^>]*>/g, '').trim() === '';
+}
 
 // ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
 const contactIcons = {
