@@ -11,8 +11,8 @@
       <aside class="left-column">
         
         <div class="profile-section relative">
-          <h1 class="fullname paginated-item">{{ !isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Vũ Hoàng Việt' }}</h1>
-          <div class="job-title paginated-item">{{ !isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Thực tập sinh Kiểm toán' }}</div>
+          <h1 class="fullname paginated-item" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Vũ Hoàng Việt'"></h1>
+          <div class="job-title paginated-item" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Thực tập sinh Kiểm toán'"></div>
           
           <div class="avatar-container paginated-item">
             <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="avatar-img" alt="Avatar"/>

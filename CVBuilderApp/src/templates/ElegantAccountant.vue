@@ -40,7 +40,7 @@
             <h1
               class="m-0 leading-tight break-words"
               :style="{ fontSize: '64px', color: '#4a5568', fontFamily: 'Georgia, serif', fontWeight: '400' }"
-            >{{ isEmpty(resumeData.general.fullName) ? 'Họ Và Tên Ứng Viên' : resumeData.general.fullName }}</h1>
+            v-html="isEmpty(resumeData.general.fullName) ? 'Họ Và Tên Ứng Viên' : resumeData.general.fullName"></h1>
             <div class="h-[1px] w-full bg-[#cbd5e0] mt-[5px]"></div>
           </div>
 
@@ -95,7 +95,7 @@
             <h2
               class="m-0 break-words leading-tight"
               :style="{ fontSize: '32px', color: '#333', fontWeight: '400' }"
-            >{{ isEmpty(resumeData.general.jobTitle) ? 'Vị Trí Ứng Tuyển' : resumeData.general.jobTitle }}</h2>
+            v-html="isEmpty(resumeData.general.jobTitle) ? 'Vị Trí Ứng Tuyển' : resumeData.general.jobTitle"></h2>
             <div class="h-[1px] w-full bg-[#333] mt-[10px]"></div>
           </div>
         </div>
