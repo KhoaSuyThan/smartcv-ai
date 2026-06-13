@@ -23,8 +23,19 @@ public class SupportController : Controller
 
     // Trang Liên hệ (Xử lý gửi form)
     [HttpPost]
+    [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("ContactLimiter")]
     public async Task<IActionResult> Contact(ContactMessage model, IFormFile? Attachment)
     {
+        // Kiểm tra Honeypot (Chống Spam Bot)
+        string? honeypot = Request.Form["WebsiteUrl"];
+        if (!string.IsNullOrEmpty(honeypot))
+        {
+            // Nếu có dữ liệu trong trường ẩn này -> Là Bot
+            // Giả vờ thành công để đánh lừa bot không thử cách khác
+            TempData["Success"] = "Tin nhắn đã được gửi thành công!";
+            return RedirectToAction("Contact");
+        }
+
         if (ModelState.IsValid)
         {
             try
