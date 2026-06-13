@@ -69,6 +69,11 @@
                     <form asp-controller="Support" asp-action="Contact" method="post" enctype="multipart/form-data" class="row g-3">
                         <div asp-validation-summary="All" class="text-danger"></div>
 
+                        <!-- HONEPOT FIELD - CHỐNG SPAM BOT -->
+                        <div style="display:none; visibility:hidden; position:absolute; left:-9999px;">
+                            <input type="text" name="WebsiteUrl" id="websiteUrl" tabindex="-1" autocomplete="off" placeholder="Website" />
+                        </div>
+
                         @if (TempData["Success"] != null)
                         {
                             <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-4 py-3" role="alert">

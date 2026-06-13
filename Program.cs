@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using DoAnCS.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using PayOS;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
@@ -138,6 +140,36 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Cấu hình Rate Limiting (Chống Spam API/Form)
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("ContactLimiter", opt =>
+    {
+        opt.Window = TimeSpan.FromHours(1);
+        opt.PermitLimit = 3; // Tối đa 3 tin nhắn
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    
+    // Tùy chỉnh thông báo lỗi khi vượt giới hạn (429 Too Many Requests)
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
+        await context.HttpContext.Response.WriteAsync(@"
+            <html>
+            <head><title>Quá nhiều yêu cầu</title></head>
+            <body style='text-align:center; padding: 50px; font-family: sans-serif;'>
+                <h2 style='color:#dc3545;'>Bạn đã gửi quá nhiều yêu cầu!</h2>
+                <p>Vui lòng đợi một khoảng thời gian trước khi gửi thêm tin nhắn mới.</p>
+                <button onclick='window.history.back()' style='padding:10px 20px; border:none; background:#0d6efd; color:white; border-radius:5px; cursor:pointer;'>Quay lại</button>
+            </body>
+            </html>
+        ", cancellationToken: token);
+    };
+});
+
 var app = builder.Build();
 
 // --- TỰ ĐỘNG CHẠY MIGRATION KHI STARTUP ---
@@ -220,6 +252,8 @@ app.UseStaticFiles(new StaticFileOptions
 // --- KẾT THÚC: CẤU HÌNH THƯ MỤC LƯU TRỮ NGOÀI ---
 
 app.UseRouting();
+
+app.UseRateLimiter(); // Phải nằm giữa UseRouting và UseAuthentication
 
 app.UseSession(); // Session phải nằm trước Authentication
 
