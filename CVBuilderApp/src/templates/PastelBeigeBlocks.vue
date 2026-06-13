@@ -414,7 +414,11 @@ const templateNameColor = computed(() => {
   return '#4A2B28'
 })
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  return val.replace(/<[^>]*>/g, '').trim() === '';
+}
 
 const getSection = (id) => props.resumeData?.sections?.find(s => s.id === id) ?? null
 

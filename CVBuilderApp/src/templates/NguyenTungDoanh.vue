@@ -273,7 +273,11 @@ const templateCardBgColor = computed(() => {
   return adjustBrightness(c, 0.88)
 })
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  return val.replace(/<[^>]*>/g, '').trim() === '';
+}
 
 // ── DATA MẪU RÚT GỌN ──────────────────────────────────────
 const getMockData = (sectionId) => {
