@@ -17,8 +17,8 @@
           </div>
         </div>
         <div class="header-content">
-          <h1 class="fullname">{{ isEmpty(resumeData.general.fullName) ? 'HỌ VÀ TÊN ỨNG VIÊN' : resumeData.general.fullName }}</h1>
-          <p class="job-title">{{ isEmpty(resumeData.general.jobTitle) ? 'VỊ TRÍ ỨNG TUYỂN' : resumeData.general.jobTitle }}</p>
+          <h1 class="fullname" v-html="isEmpty(resumeData.general.fullName) ? 'HỌ VÀ TÊN ỨNG VIÊN' : resumeData.general.fullName"></h1>
+          <p class="job-title" v-html="isEmpty(resumeData.general.jobTitle) ? 'VỊ TRÍ ỨNG TUYỂN' : resumeData.general.jobTitle"></p>
           <div class="summary-box">{{ isEmpty(resumeData.general.summary) ? 'Mục tiêu nghề nghiệp...' : resumeData.general.summary }}</div>
         </div>
       </div>

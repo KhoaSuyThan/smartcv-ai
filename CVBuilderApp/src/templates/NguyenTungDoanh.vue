@@ -18,8 +18,8 @@
           </div>
         </div>
         <div class="header-info">
-          <h1 class="fullname">{{ !isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'NGUYỄN TÙNG DOANH' }}</h1>
-          <p class="job-title">{{ !isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Designer' }}</p>
+          <h1 class="fullname" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'NGUYỄN TÙNG DOANH'"></h1>
+          <p class="job-title" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Designer'"></p>
         </div>
       </header>
 
