@@ -85,112 +85,45 @@ namespace DoAnCS.Controllers
             if (!publicResumes.Any())
                 return Json(new { success = false, message = "Chưa có ứng viên nào công khai CV." });
 
-            // Lấy toàn bộ embeddings hiện có của các CV này
-            var resumeIds = publicResumes.Select(r => r.ResumeID).ToList();
-            var existingEmbeddings = await _context.CVEmbeddings
-                .Where(e => resumeIds.Contains(e.ResumeID))
-                .ToListAsync();
+            Console.WriteLine("[SmartMatch RAG] Gửi dữ liệu sang Python AI Service để so khớp...");
 
-            var embeddingsDict = existingEmbeddings.ToDictionary(e => e.ResumeID, e => e);
-
-            // BƯỚC 1: ĐỒNG BỘ VECTOR EMBEDDINGS (BATCH SYNC)
-            var resumesToEmbed = new List<Resume>();
-            foreach (var resume in publicResumes)
-            {
-                embeddingsDict.TryGetValue(resume.ResumeID, out var existing);
-                // Nếu chưa có vector hoặc CV đã cập nhật mới hơn vector
-                if (existing == null || existing.UpdatedAt < resume.UpdatedAt)
-                {
-                    resumesToEmbed.Add(resume);
-                }
-            }
-
-            if (resumesToEmbed.Any())
-            {
-                Console.WriteLine($"[SmartMatch RAG] Đang đồng bộ Vector cho {resumesToEmbed.Count} CV mới/cập nhật...");
-                // Chia batch 100 (giới hạn của Google Gemini Batch Embedding)
-                for (int i = 0; i < resumesToEmbed.Count; i += 100)
-                {
-                    var batch = resumesToEmbed.Skip(i).Take(100).ToList();
-                    var texts = batch.Select(r => ExtractCVText(r)).ToList();
-                    
-                    var vectors = await _aiService.GenerateEmbeddingsAsync(texts);
-
-                    if (vectors != null && vectors.Count == batch.Count)
-                    {
-                        for (int j = 0; j < batch.Count; j++)
-                        {
-                            var resume = batch[j];
-                            var vector = vectors[j];
-                            string vectorJson = JsonConvert.SerializeObject(vector);
-
-                            if (embeddingsDict.TryGetValue(resume.ResumeID, out var existing))
-                            {
-                                existing.VectorJson = vectorJson;
-                                existing.UpdatedAt = DateTime.Now;
-                            }
-                            else
-                            {
-                                var newEmb = new CVEmbedding
-                                {
-                                    ResumeID = resume.ResumeID,
-                                    VectorJson = vectorJson,
-                                    UpdatedAt = DateTime.Now
-                                };
-                                _context.CVEmbeddings.Add(newEmb);
-                                embeddingsDict[resume.ResumeID] = newEmb;
-                            }
-                        }
-                        await _context.SaveChangesAsync(); // Lưu theo batch 100 để đảm bảo an toàn dữ liệu
-                    }
-                }
-            }
-
-            // BƯỚC 2: NHÚNG JOB DESCRIPTION
-            // [TỐI ƯU 2]: Xóa thẻ HTML khỏi Job Description trước khi nhúng và gửi cho AI để giảm cực mạnh số lượng Token.
+            // Chuẩn bị JD
             string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {StripHTML(job.Description)}\nYêu cầu: {StripHTML(job.Requirements)}\nMức lương: {job.Salary}";
-            var jdVector = await _aiService.GenerateEmbeddingAsync(jdText);
 
-            if (jdVector == null || jdVector.Length == 0)
-                return Json(new { success = false, message = "Lỗi tạo vector cho Job Description." });
+            // Chuẩn bị danh sách CV
+            var cvList = publicResumes.Select(r => new {
+                id = r.ResumeID,
+                text = ExtractCVText(r)
+            }).ToList();
 
-            // BƯỚC 3: TÌM KIẾM TƯƠNG ĐỒNG COSINE (RAG FILTERING)
-            Console.WriteLine("[SmartMatch RAG] Đang so khớp toán học Cosine Similarity...");
-            var candidateScores = new List<(Resume Resume, double Similarity)>();
+            var requestPayload = new {
+                jd_text = jdText,
+                cv_list = cvList
+            };
 
-            foreach (var resume in publicResumes)
+            // Gọi sang Python (Cổng 8000)
+            var topCandidates = new List<Resume>();
+            using (var client = new HttpClient())
             {
-                if (embeddingsDict.TryGetValue(resume.ResumeID, out var embeddingRecord) && !string.IsNullOrEmpty(embeddingRecord.VectorJson))
+                var response = await client.PostAsJsonAsync("http://localhost:8000/api/filter-top-cvs", requestPayload);
+                if (!response.IsSuccessStatusCode)
                 {
-                    try
-                    {
-                        var cvVector = JsonConvert.DeserializeObject<float[]>(embeddingRecord.VectorJson);
-                        if (cvVector != null)
-                        {
-                            double similarity = CalculateCosineSimilarity(jdVector, cvVector);
-                            
-                            // [TỐI ƯU 1]: Lọc Vector RAG ngay từ đầu.
-                            // Những CV hoàn toàn trái ngành (VD: Dược sĩ, Marketing) sẽ có độ tương đồng Vector rất thấp (< 0.5)
-                            // Ta loại bỏ chúng ngay lập tức để tiết kiệm 100% token AI.
-                            if (similarity >= 0.50)
-                            {
-                                candidateScores.Add((resume, similarity));
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[SmartMatch RAG] Lỗi parse vector CV #{resume.ResumeID}: {ex.Message}");
-                    }
+                    return Json(new { success = false, message = "Lỗi kết nối đến Python AI Service. Vui lòng kiểm tra server Python." });
+                }
+
+                var pythonResult = await response.Content.ReadFromJsonAsync<PythonFilterResponse>();
+                if (pythonResult != null && pythonResult.top_cvs != null)
+                {
+                    // Lấy Top 6 ứng viên xuất sắc nhất theo yêu cầu
+                    var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(6).ToList();
+                    
+                    // Lấy đúng các CV đã lọt Top
+                    topCandidates = publicResumes.Where(r => topResumeIds.Contains(r.ResumeID)).ToList();
+                    
+                    // Sắp xếp lại đúng thứ tự Python trả về (cao xuống thấp)
+                    topCandidates = topCandidates.OrderBy(r => topResumeIds.IndexOf(r.ResumeID)).ToList();
                 }
             }
-
-            // Chọn Top 10 CV xuất sắc nhất
-            var topCandidates = candidateScores
-                .OrderByDescending(c => c.Similarity)
-                .Take(10)
-                .Select(c => c.Resume)
-                .ToList();
 
             Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm song song...");
 
@@ -209,10 +142,11 @@ namespace DoAnCS.Controllers
                 await semaphore.WaitAsync();
                 try
                 {
-                    // Delay để tránh gọi API liên tục (Free tier 15 RPM = 4s/req)
+                    // Đặt Delay thông minh theo nhà cung cấp API
                     if (index > 0)
                     {
-                        await Task.Delay(isPro ? 1000 : 4000);
+                        int delayMs = isPro ? 500 : (apiProvider == "Groq" ? 1000 : 4000);
+                        await Task.Delay(delayMs);
                     }
 
                     Console.WriteLine($"[SmartMatch RAG] AI đang đánh giá: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
@@ -381,8 +315,8 @@ namespace DoAnCS.Controllers
         {
             var sb = new StringBuilder();
 
-            // Thông tin cơ bản (Đã loại bỏ Email và Summary để tiết kiệm Token)
-            sb.AppendLine($"[Profile] {resume.FullName ?? resume.User?.FullName ?? "N/A"} | Vị trí: {resume.JobTitle ?? "N/A"}");
+            // Ứng dụng Blind Hiring (Tuyển dụng mù): Loại bỏ Tên, Thông tin liên hệ, chỉ giữ lại ID và Vị trí
+            sb.AppendLine($"[Ứng viên ID: {resume.ResumeID}] | Vị trí: {resume.JobTitle ?? "N/A"}");
 
             // Parse JsonContent nếu có
             if (!string.IsNullOrEmpty(resume.JsonContent))
@@ -397,7 +331,16 @@ namespace DoAnCS.Controllers
                         {
                             foreach (var section in json.sections)
                             {
-                                string sectionType = section.type?.ToString() ?? "";
+                                string sectionType = section.type?.ToString().ToLower() ?? "";
+                                
+                                // Loại bỏ rác: Sở thích, Tham chiếu, Hoạt động phụ, Thông tin liên hệ
+                                if (sectionType == "hobbies" || sectionType == "references" || 
+                                    sectionType == "activities" || sectionType == "additional" || 
+                                    sectionType == "contact")
+                                {
+                                    continue;
+                                }
+
                                 string sectionTitle = section.title?.ToString() ?? sectionType;
 
                                 sb.AppendLine($"\n[{sectionTitle}]");
@@ -597,6 +540,17 @@ Output JSON thuần (KHÔNG markdown, KHÔNG text phụ):
             public string Strengths { get; set; }
             public string Summary { get; set; }
             public string Recommendation { get; set; }
+        }
+
+        public class PythonFilterResponse
+        {
+            public List<PythonTopCV> top_cvs { get; set; }
+        }
+
+        public class PythonTopCV
+        {
+            public int resume_id { get; set; }
+            public double similarity { get; set; }
         }
     }
 }

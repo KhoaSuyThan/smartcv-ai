@@ -16,3 +16,13 @@ obj/
 
 # Thư mục chứa assets đã build (Vite/Vue)
 wwwroot/cvbuilder/assets/
+
+# Node.js
+node_modules/
+CVBuilderApp/node_modules/
+
+# Python / AI Environment
+AiMatchService/venv/
+venv/
+__pycache__/
+*.pyc
