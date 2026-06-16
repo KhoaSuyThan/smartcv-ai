@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const ModernBlueSidebar = ({ resumeData }) => {
     return (
@@ -34,6 +34,28 @@ const ModernBlueSidebar = ({ resumeData }) => {
 <li style={{display:'flex', justifyContent:'space-between'}}><span>• {item.name}</span><span style={{fontStyle:'italic', opacity:0.8}}>{item.level}</span></li>
 ))}</ul></div></div>
 
+        <div className="sidebar-section">
+            <h3>Chứng chỉ</h3>
+            <div className="side-content">
+                {resumeData?.certifications?.map((item, idx) => (
+                    <div key={idx} style={{ marginBottom: '6px', fontSize: '12.5px' }}>
+                        <strong>• {item.name}</strong> {item.year ? `(${item.year})` : ''}
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <div className="sidebar-section">
+            <h3>Sở thích</h3>
+            <div className="side-content">
+                <ul style={{ paddingLeft: '15px', margin: 0, listStyleType: 'none' }}>
+                    {resumeData?.hobbies?.map((item, idx) => (
+                        <li key={idx} style={{ fontSize: '12.5px' }}>• {item.name}</li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+
 	<div className="sidebar-section"><h3>Người tham chiếu</h3><div className="ref-content">{resumeData?.references?.map((item, idx) => (
 <p style={{marginBottom:'5px', fontSize:'12px'}}>• {item.info}</p>
 ))}</div></div>
@@ -60,6 +82,37 @@ const ModernBlueSidebar = ({ resumeData }) => {
             </div>
         </div>
 ))}</div></div>
+
+        <div className="main-section">
+            <h3>Dự án nổi bật</h3>
+            <div className="exp-container">
+                {resumeData?.projects?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.time}</span>
+                        <div className="exp-content">
+                            <div className="info-line"><strong>Dự án:</strong> {item.name}</div>
+                            <div className="info-line"><strong>Vai trò:</strong> {item.role}</div>
+                            <div className="desc-text" dangerouslySetInnerHTML={{__html: item.desc}}></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <div className="main-section">
+            <h3>Hoạt động</h3>
+            <div className="exp-container">
+                {resumeData?.activities?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.time}</span>
+                        <div className="exp-content">
+                            <div className="info-line"><strong>Tổ chức/Sự kiện:</strong> {item.name}</div>
+                            <div className="desc-text" dangerouslySetInnerHTML={{__html: item.desc}}></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
 
 	<div className="main-section"><h3>Giải thưởng</h3><div className="award-container"><ul style={{paddingLeft:'15px', margin:0}}>{resumeData?.awards?.map((item, idx) => (
 <li>{item.name}</li>

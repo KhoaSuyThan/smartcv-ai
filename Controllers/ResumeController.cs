@@ -238,6 +238,7 @@ namespace DoAnCS.Controllers
                     BirthDate = DateTime.TryParse(model.BirthDate, out var dt) ? dt : (DateTime?)null,
                     Summary = model.Summary,
                     AvatarUrl = model.AvatarUrl,
+                    ThemeColor = model.ThemeColor,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
@@ -246,6 +247,10 @@ namespace DoAnCS.Controllers
                 await _context.SaveChangesAsync(); // Lưu để lấy ResumeID
 
                 // B. Lưu các Section chi tiết vào ResumeSections (Dạng JSON)
+                await SaveSectionJson(resume.ResumeID, "FontFamily", model.FontFamily ?? "");
+                await SaveSectionJson(resume.ResumeID, "BgColor", model.BgColor ?? "");
+                await SaveSectionJson(resume.ResumeID, "TextAlign", model.TextAlign ?? "");
+                await SaveSectionJson(resume.ResumeID, "VisibleSections", model.VisibleSections ?? new Dictionary<string, bool>());
                 await SaveSectionJson(resume.ResumeID, "Experience", model.Experiences ?? new List<ExperienceItem>());
                 await SaveSectionJson(resume.ResumeID, "Education", model.Educations ?? new List<EducationItem>());
                 await SaveSectionJson(resume.ResumeID, "Skills", model.Skills ?? new List<SkillItem>());
@@ -301,11 +306,16 @@ namespace DoAnCS.Controllers
                 resume.BirthDate = DateTime.TryParse(model.BirthDate, out var dt) ? dt : (DateTime?)null;
                 resume.Summary = model.Summary;
                 resume.AvatarUrl = model.AvatarUrl; // Lưu Base64 ảnh đại diện
+                resume.ThemeColor = model.ThemeColor;
                 resume.UpdatedAt = DateTime.Now;
                 resume.IsDraft = true; 
 
                 // 5. Lưu các phần nội dung động (JSON) qua hàm bổ trợ
                 // Lưu ý: Đảm bảo model.Experiences, model.Educations... không bị null để tránh lỗi Serialize
+                await SaveSectionJson(resume.ResumeID, "FontFamily", model.FontFamily ?? "");
+                await SaveSectionJson(resume.ResumeID, "BgColor", model.BgColor ?? "");
+                await SaveSectionJson(resume.ResumeID, "TextAlign", model.TextAlign ?? "");
+                await SaveSectionJson(resume.ResumeID, "VisibleSections", model.VisibleSections ?? new Dictionary<string, bool>());
                 await SaveSectionJson(resume.ResumeID, "Experience", model.Experiences ?? new List<ExperienceItem>());
                 await SaveSectionJson(resume.ResumeID, "Education", model.Educations ?? new List<EducationItem>());
                 await SaveSectionJson(resume.ResumeID, "Skills", model.Skills ?? new List<SkillItem>());

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const ElegantAccountant = ({ resumeData }) => {
     return (
@@ -31,44 +31,150 @@ const ElegantAccountant = ({ resumeData }) => {
 	</div>
 
 	<div className="body-section">
+        <div className="cv-block">
+            <h3 className="block-title">MỤC TIÊU NGHỀ NGHỆP</h3>
+            <div className="desc-text" style={{ fontSize: '15px', lineHeight: '1.6', textAlign: 'justify' }}>{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+        </div>
 
-	<div className="cv-block">
-	<h3 className="block-title">KINH NGHIỆM LÀM VIỆC</h3>
-	<div className="experience-grid">{resumeData?.experiences?.map((item, idx) => (
-
-        <div className="exp-item" key={idx}>
-            <span className="exp-year">• {item.time}</span>
-            <div className="exp-content">
-                <div className="info-line"><strong>Công ty:</strong> {item.company}</div>
-                <div className="info-line"><strong>Vị trí:</strong> {item.role}</div>
-                <div className="desc-text" dangerouslySetInnerHTML={{__html: item.desc}}></div>
+        <div className="cv-block">
+            <h3 className="block-title">KINH NGHIỆM LÀM VIỆC</h3>
+            <div className="experience-grid">
+                {resumeData?.experiences?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.time}</span>
+                        <div className="exp-content">
+                            <div className="info-line"><strong>Công ty:</strong> {item.company}</div>
+                            <div className="info-line"><strong>Vị trí:</strong> {item.role}</div>
+                            <div className="desc-text" dangerouslySetInnerHTML={{__html: item.desc}}></div>
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
-))}</div>
-	</div>
 
-	<div className="cv-block">
-	<h3 className="block-title">TRÌNH ĐỘ HỌC VẤN</h3>
-	<div className="education-list">{resumeData?.educations?.map((item, idx) => (
-
-        <div className="exp-item" key={idx}>
-            <span className="exp-year">• {item.year}</span>
-            <div className="exp-content">
-                <strong>{item.school}</strong><br/>
-                {item.major}<br/>
-                {item.gradType ? `Xếp loại: ${item.gradType}` : ''}
+        <div className="cv-block">
+            <h3 className="block-title">TRÌNH ĐỘ HỌC VẤN</h3>
+            <div className="education-list">
+                {resumeData?.educations?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.year}</span>
+                        <div className="exp-content">
+                            <strong>{item.school}</strong><br/>
+                            {item.major}<br/>
+                            {item.gradType ? `Xếp loại: ${item.gradType}` : ''}
+                        </div>
+                    </div>
+                ))}
             </div>
         </div>
-))}</div>
-	</div>
 
-	<div className="cv-block">
-	<h3 className="block-title">KỸ NĂNG</h3>
-	<div className="skills-flex"><ul className="skill-list-items">{resumeData?.skills?.map((item, idx) => (
-<li>• {item.name}: {item.level}</li>
-))}</ul></div>
-	</div>
+        <div className="cv-block">
+            <h3 className="block-title">DỰ ÁN NỔI BẬT</h3>
+            <div className="experience-grid">
+                {resumeData?.projects?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.time}</span>
+                        <div className="exp-content">
+                            <div className="info-line"><strong>Dự án:</strong> {item.name}</div>
+                            <div className="info-line"><strong>Vai trò:</strong> {item.role}</div>
+                            <div className="desc-text" dangerouslySetInnerHTML={{__html: item.desc}}></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
 
+        <div className="cv-block">
+            <h3 className="block-title">KỸ NĂNG</h3>
+            <div className="skills-flex">
+                <ul className="skill-list-items">
+                    {resumeData?.skills?.map((item, idx) => (
+                        <li key={idx}>• {item.name}: {item.level}</li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">KỸ NĂNG KHÁC</h3>
+            <div className="skills-flex">
+                <ul className="skill-list-items">
+                    {resumeData?.otherSkills?.map((item, idx) => (
+                        <li key={idx}>• {item.name} {item.level ? `(${item.level})` : ''}</li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">NGOẠI NGỮ</h3>
+            <div className="skills-flex">
+                <ul className="skill-list-items">
+                    {resumeData?.languages?.map((item, idx) => (
+                        <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                            <span>• {item.name}</span>
+                            <span style={{ fontStyle: 'italic', opacity: 0.8 }}>{item.level}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">HOẠT ĐỘNG</h3>
+            <div className="experience-grid">
+                {resumeData?.activities?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.time}</span>
+                        <div className="exp-content">
+                            <div className="info-line"><strong>Tổ chức/Sự kiện:</strong> {item.name}</div>
+                            <div className="desc-text" dangerouslySetInnerHTML={{__html: item.desc}}></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">CHỨNG CHỈ</h3>
+            <div className="experience-grid">
+                {resumeData?.certifications?.map((item, idx) => (
+                    <div className="exp-item" key={idx}>
+                        <span className="exp-year">• {item.year}</span>
+                        <div className="exp-content">
+                            <div className="info-line"><strong>{item.name}</strong></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">DANH HIỆU & GIẢI THƯỞNG</h3>
+            <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                {resumeData?.awards?.map((item, idx) => (
+                    <li key={idx} style={{ fontSize: '15px', marginBottom: '8px' }}>• {item.name}</li>
+                ))}
+            </ul>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">NGƯỜI THAM CHIẾU</h3>
+            <div className="ref-content">
+                {resumeData?.references?.map((item, idx) => (
+                    <p key={idx} style={{ marginBottom: '8px', fontSize: '15px' }}>• {item.info}</p>
+                ))}
+            </div>
+        </div>
+
+        <div className="cv-block">
+            <h3 className="block-title">SỞ THÍCH</h3>
+            <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
+                {resumeData?.hobbies?.map((item, idx) => (
+                    <li key={idx} style={{ fontSize: '15px' }}>• {item.name}</li>
+                ))}
+            </ul>
+        </div>
 	</div>
 
 	<div className="decor-bottom-right"></div>

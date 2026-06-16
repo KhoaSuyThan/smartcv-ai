@@ -6,6 +6,103 @@ const LeftForm = ({ resumeData, setResumeData }) => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const imgRef = useRef(null);
   const cropperRef = useRef(null);
+  const [isAIProcessing, setIsAIProcessing] = useState({});
+
+  const callAIService = async (type, content, context = '') => {
+    try {
+      const response = await fetch('/AI/ProcessText', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ type, content, context })
+      });
+      const result = await response.json();
+      if (result.success) return result.data;
+      else {
+        alert(result.data || 'Lỗi xử lý AI');
+        return null;
+      }
+    } catch (e) {
+      console.error('AI Error:', e);
+      alert('Không thể kết nối với máy chủ AI.');
+      return null;
+    }
+  };
+
+  const generateAISummary = async () => {
+    const jobTitle = resumeData.jobTitle || '';
+    let currentSummary = (resumeData.summary || '').replace(/<[^>]*>/g, '').trim();
+    
+    if (!currentSummary && !jobTitle) {
+      alert("Vui lòng nhập Vị trí ứng tuyển hoặc một vài ý chính để AI có thể hỗ trợ!");
+      return;
+    }
+
+    if (!currentSummary) {
+      currentSummary = `Tôi đang ứng tuyển vị trí ${jobTitle}`;
+    }
+
+    setIsAIProcessing(prev => ({ ...prev, summary: true }));
+    const result = await callAIService('summary', currentSummary, jobTitle || 'Nhân viên');
+    if (result) {
+      setResumeData(prev => ({ ...prev, summary: result }));
+    }
+    setIsAIProcessing(prev => ({ ...prev, summary: false }));
+  };
+
+  const generateAISkills = async () => {
+    const jobTitle = (resumeData.jobTitle || '').trim();
+    if (!jobTitle) {
+      alert("Vui lòng nhập Vị trí ứng tuyển để AI gợi ý kỹ năng phù hợp!");
+      return;
+    }
+
+    setIsAIProcessing(prev => ({ ...prev, skills: true }));
+    const result = await callAIService('suggest_skills', jobTitle, jobTitle);
+    if (result) {
+      const skillNames = result.split(',').map(s => s.trim()).filter(s => s);
+      const currentSkills = [...(resumeData.skills || [])];
+      skillNames.forEach(name => {
+        if (!currentSkills.some(s => s.name?.toLowerCase() === name.toLowerCase())) {
+          currentSkills.push({ name: name, level: 'Thành thạo' });
+        }
+      });
+      setResumeData(prev => ({ ...prev, skills: currentSkills }));
+    }
+    setIsAIProcessing(prev => ({ ...prev, skills: false }));
+  };
+
+  const improveAIDesc = async (category, idx) => {
+    const item = resumeData[category]?.[idx];
+    if (!item) return;
+    const jobTitle = resumeData.jobTitle || 'Nhân viên';
+    let content = (item.desc || '').replace(/<[^>]*>/g, '').trim();
+
+    if (!content) {
+      if (category === 'experiences') {
+        content = item.company ? `Làm việc tại ${item.company}` : '';
+      } else if (category === 'projects') {
+        content = item.name ? `Dự án ${item.name}` : '';
+      } else if (category === 'activities') {
+        content = item.name ? `Hoạt động tại ${item.name}` : '';
+      }
+    }
+
+    if (!content) {
+      alert("Vui lòng nhập một vài ý chính mô tả để AI có thể hỗ trợ!");
+      return;
+    }
+
+    const context = category === 'experiences' ? (item.role || jobTitle) : (category === 'projects' ? (item.role || jobTitle) : jobTitle);
+    const aiType = category === 'experiences' ? 'optimize' : (category === 'projects' ? 'project' : 'activity');
+
+    const key = `${category}_${idx}`;
+    setIsAIProcessing(prev => ({ ...prev, [key]: true }));
+    const result = await callAIService(aiType, content, context);
+    if (result) {
+      handleArrayChange(category, idx, 'desc', result);
+    }
+    setIsAIProcessing(prev => ({ ...prev, [key]: false }));
+  };
 
   // Initialize cropper after modal opens and layout stabilizes
   useEffect(() => {
@@ -78,6 +175,64 @@ const LeftForm = ({ resumeData, setResumeData }) => {
 
   const removeAvatar = () => {
     setResumeData({ ...resumeData, avatarUrl: '' });
+  };
+
+  const renderSectionHeader = (title, key, hasAi = false, aiAction = null, aiProcessingKey = '') => {
+    const isVisible = resumeData.visibleSections?.[key] !== false;
+    
+    return (
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h4 style={{ ...styles.sectionTitle, marginBottom: 0 }}>{title}</h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {hasAi && (
+            <button
+              onClick={aiAction}
+              disabled={isAIProcessing[aiProcessingKey]}
+              style={styles.aiButton}
+            >
+              {isAIProcessing[aiProcessingKey] ? '🤖 Đang xử lý...' : '🤖 Gợi ý AI'}
+            </button>
+          )}
+          
+          <div 
+            onClick={() => {
+              setResumeData(prev => ({
+                ...prev,
+                visibleSections: {
+                  ...(prev.visibleSections || {}),
+                  [key]: !isVisible
+                }
+              }));
+            }}
+            style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', gap: '6px', userSelect: 'none' }} 
+            title="Bật/Tắt mục này trên CV"
+          >
+            <span style={{ fontSize: '10px', fontWeight: 'bold', color: isVisible ? '#3b82f6' : '#64748b' }}>
+              {isVisible ? 'HIỆN' : 'ẨN'}
+            </span>
+            <div style={{
+              width: '32px',
+              height: '18px',
+              backgroundColor: isVisible ? '#3b82f6' : '#cbd5e1',
+              borderRadius: '9px',
+              position: 'relative',
+              transition: 'background-color 0.2s'
+            }}>
+              <div style={{
+                width: '12px',
+                height: '12px',
+                backgroundColor: '#fff',
+                borderRadius: '50%',
+                position: 'absolute',
+                top: '3px',
+                left: isVisible ? '17px' : '3px',
+                transition: 'left 0.2s'
+              }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // ----- STYLES -----
@@ -217,6 +372,21 @@ const LeftForm = ({ resumeData, setResumeData }) => {
       letterSpacing: '0.5px',
       marginTop: '8px',
       transition: 'all 0.2s'
+    },
+    aiButton: {
+      padding: '4px 10px',
+      backgroundColor: '#eff6ff',
+      color: '#2563eb',
+      border: '1px solid #bfdbfe',
+      borderRadius: '6px',
+      fontSize: '11px',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '4px',
+      transition: 'all 0.2s',
+      outline: 'none'
     }
   };
 
@@ -306,8 +476,10 @@ const LeftForm = ({ resumeData, setResumeData }) => {
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Mục tiêu nghề nghiệp</h4>
-              <textarea name="summary" value={resumeData.summary || ''} onChange={handleChange} style={{...styles.input, ...styles.textarea}} placeholder="Tôi là một người đam mê..." />
+              {renderSectionHeader('Mục tiêu nghề nghiệp', 'summary', true, generateAISummary, 'summary')}
+              <div style={{ opacity: resumeData.visibleSections?.summary !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                <textarea name="summary" value={resumeData.summary || ''} onChange={handleChange} style={{...styles.input, ...styles.textarea}} placeholder="Tôi là một người đam mê..." />
+              </div>
             </div>
           </div>
         )}
@@ -316,64 +488,102 @@ const LeftForm = ({ resumeData, setResumeData }) => {
         {activeTab === 'main' && (
           <div style={{ animation: 'fadeIn 0.3s' }}>
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Kinh nghiệm làm việc</h4>
-              {resumeData.experiences?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('experiences', idx)}>✕</button>
-                  <input type="text" value={item.company || ''} onChange={(e) => handleArrayChange('experiences', idx, 'company', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Công ty (Larana Studios)" />
-                  <div style={styles.row}>
-                    <input type="text" value={item.role || ''} onChange={(e) => handleArrayChange('experiences', idx, 'role', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Chức vụ (Marketing Manager)" />
-                    <input type="text" value={item.time || ''} onChange={(e) => handleArrayChange('experiences', idx, 'time', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Thời gian (Jun 2019 - Jan 2020)" />
+              {renderSectionHeader('Kinh nghiệm làm việc', 'experiences')}
+              <div style={{ opacity: resumeData.visibleSections?.experiences !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.experiences?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('experiences', idx)}>✕</button>
+                    <input type="text" value={item.company || ''} onChange={(e) => handleArrayChange('experiences', idx, 'company', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Công ty (Larana Studios)" />
+                    <div style={styles.row}>
+                      <input type="text" value={item.role || ''} onChange={(e) => handleArrayChange('experiences', idx, 'role', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Chức vụ (Marketing Manager)" />
+                      <input type="text" value={item.time || ''} onChange={(e) => handleArrayChange('experiences', idx, 'time', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Thời gian (Jun 2019 - Jan 2020)" />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', marginTop: '8px' }}>
+                      <label style={{ ...styles.label, marginBottom: 0 }}>Mô tả công việc</label>
+                      <button
+                        onClick={() => improveAIDesc('experiences', idx)}
+                        disabled={isAIProcessing[`experiences_${idx}`]}
+                        style={styles.aiButton}
+                      >
+                        {isAIProcessing[`experiences_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
+                      </button>
+                    </div>
+                    <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('experiences', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả công việc (Dùng dấu • để liệt kê)..." />
                   </div>
-                  <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('experiences', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả công việc (Dùng dấu • để liệt kê)..." />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('experiences', { company: '', role: '', time: '', desc: '' })}>+ Thêm kinh nghiệm</button>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('experiences', { company: '', role: '', time: '', desc: '' })}>+ Thêm kinh nghiệm</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Học vấn</h4>
-              {resumeData.educations?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('educations', idx)}>✕</button>
-                  <input type="text" value={item.school || ''} onChange={(e) => handleArrayChange('educations', idx, 'school', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Tên trường" />
-                  <input type="text" value={item.major || ''} onChange={(e) => handleArrayChange('educations', idx, 'major', e.target.value)} style={{...styles.input, marginBottom: '8px'}} placeholder="Ngành học" />
-                  <div style={styles.row}>
-                    <input type="text" value={item.year || ''} onChange={(e) => handleArrayChange('educations', idx, 'year', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Thời gian" />
-                    <input type="text" value={item.gradType || ''} onChange={(e) => handleArrayChange('educations', idx, 'gradType', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Xếp loại" />
+              {renderSectionHeader('Học vấn', 'educations')}
+              <div style={{ opacity: resumeData.visibleSections?.educations !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.educations?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('educations', idx)}>✕</button>
+                    <input type="text" value={item.school || ''} onChange={(e) => handleArrayChange('educations', idx, 'school', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Tên trường" />
+                    <input type="text" value={item.major || ''} onChange={(e) => handleArrayChange('educations', idx, 'major', e.target.value)} style={{...styles.input, marginBottom: '8px'}} placeholder="Ngành học" />
+                    <div style={styles.row}>
+                      <input type="text" value={item.year || ''} onChange={(e) => handleArrayChange('educations', idx, 'year', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Thời gian" />
+                      <input type="text" value={item.gradType || ''} onChange={(e) => handleArrayChange('educations', idx, 'gradType', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Xếp loại" />
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('educations', { school: '', major: '', year: '', gradType: '' })}>+ Thêm học vấn</button>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('educations', { school: '', major: '', year: '', gradType: '' })}>+ Thêm học vấn</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Dự án</h4>
-              {resumeData.projects?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('projects', idx)}>✕</button>
-                  <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('projects', idx, 'name', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Tên dự án" />
-                  <div style={styles.row}>
-                    <input type="text" value={item.role || ''} onChange={(e) => handleArrayChange('projects', idx, 'role', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Vai trò" />
-                    <input type="text" value={item.time || ''} onChange={(e) => handleArrayChange('projects', idx, 'time', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Thời gian" />
+              {renderSectionHeader('Dự án', 'projects')}
+              <div style={{ opacity: resumeData.visibleSections?.projects !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.projects?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('projects', idx)}>✕</button>
+                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('projects', idx, 'name', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Tên dự án" />
+                    <div style={styles.row}>
+                      <input type="text" value={item.role || ''} onChange={(e) => handleArrayChange('projects', idx, 'role', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Vai trò" />
+                      <input type="text" value={item.time || ''} onChange={(e) => handleArrayChange('projects', idx, 'time', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Thời gian" />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', marginTop: '8px' }}>
+                      <label style={{ ...styles.label, marginBottom: 0 }}>Mô tả dự án</label>
+                      <button
+                        onClick={() => improveAIDesc('projects', idx)}
+                        disabled={isAIProcessing[`projects_${idx}`]}
+                        style={styles.aiButton}
+                      >
+                        {isAIProcessing[`projects_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
+                      </button>
+                    </div>
+                    <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('projects', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả và công nghệ..." />
                   </div>
-                  <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('projects', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả và công nghệ..." />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('projects', { name: '', role: '', time: '', desc: '' })}>+ Thêm dự án</button>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('projects', { name: '', role: '', time: '', desc: '' })}>+ Thêm dự án</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Hoạt động</h4>
-              {resumeData.activities?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('activities', idx)}>✕</button>
-                  <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('activities', idx, 'name', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Tên tổ chức/CLB" />
-                  <input type="text" value={item.time || ''} onChange={(e) => handleArrayChange('activities', idx, 'time', e.target.value)} style={{...styles.input, marginBottom: '8px'}} placeholder="Thời gian" />
-                  <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('activities', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả hoạt động..." />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('activities', { name: '', time: '', desc: '' })}>+ Thêm hoạt động</button>
+              {renderSectionHeader('Hoạt động', 'activities')}
+              <div style={{ opacity: resumeData.visibleSections?.activities !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.activities?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('activities', idx)}>✕</button>
+                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('activities', idx, 'name', e.target.value)} style={{...styles.input, marginBottom: '8px', fontWeight: 'bold'}} placeholder="Tên tổ chức/CLB" />
+                    <input type="text" value={item.time || ''} onChange={(e) => handleArrayChange('activities', idx, 'time', e.target.value)} style={{...styles.input, marginBottom: '8px'}} placeholder="Thời gian" />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px', marginTop: '8px' }}>
+                      <label style={{ ...styles.label, marginBottom: 0 }}>Mô tả hoạt động</label>
+                      <button
+                        onClick={() => improveAIDesc('activities', idx)}
+                        disabled={isAIProcessing[`activities_${idx}`]}
+                        style={styles.aiButton}
+                      >
+                        {isAIProcessing[`activities_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
+                      </button>
+                    </div>
+                    <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('activities', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả hoạt động..." />
+                  </div>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('activities', { name: '', time: '', desc: '' })}>+ Thêm hoạt động</button>
+              </div>
             </div>
           </div>
         )}
@@ -383,90 +593,104 @@ const LeftForm = ({ resumeData, setResumeData }) => {
           <div style={{ animation: 'fadeIn 0.3s' }}>
             
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Tin học / Kỹ năng cứng</h4>
-              {resumeData.skills?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('skills', idx)}>✕</button>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('skills', idx, 'name', e.target.value)} style={{...styles.input, flex: 2}} placeholder="Tin học (Excel, Word...)" />
-                    <input type="text" value={item.level || ''} onChange={(e) => handleArrayChange('skills', idx, 'level', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Mức độ" />
+              {renderSectionHeader('Tin học / Kỹ năng cứng', 'skills', true, generateAISkills, 'skills')}
+              <div style={{ opacity: resumeData.visibleSections?.skills !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.skills?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('skills', idx)}>✕</button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('skills', idx, 'name', e.target.value)} style={{...styles.input, flex: 2}} placeholder="Tin học (Excel, Word...)" />
+                      <input type="text" value={item.level || ''} onChange={(e) => handleArrayChange('skills', idx, 'level', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Mức độ" />
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('skills', { name: '', level: '' })}>+ Thêm kỹ năng</button>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('skills', { name: '', level: '' })}>+ Thêm kỹ năng</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Kỹ năng mềm / Khác</h4>
-              {resumeData.otherSkills?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('otherSkills', idx)}>✕</button>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('otherSkills', idx, 'name', e.target.value)} style={{...styles.input, flex: 2}} placeholder="Kỹ năng (Giao tiếp...)" />
-                    <input type="text" value={item.level || ''} onChange={(e) => handleArrayChange('otherSkills', idx, 'level', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Mức độ" />
+              {renderSectionHeader('Kỹ năng mềm / Khác', 'otherSkills')}
+              <div style={{ opacity: resumeData.visibleSections?.otherSkills !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.otherSkills?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('otherSkills', idx)}>✕</button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('otherSkills', idx, 'name', e.target.value)} style={{...styles.input, flex: 2}} placeholder="Kỹ năng (Giao tiếp...)" />
+                      <input type="text" value={item.level || ''} onChange={(e) => handleArrayChange('otherSkills', idx, 'level', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Mức độ" />
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('otherSkills', { name: '', level: '' })}>+ Thêm kỹ năng khác</button>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('otherSkills', { name: '', level: '' })}>+ Thêm kỹ năng khác</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Ngoại ngữ</h4>
-              {resumeData.languages?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('languages', idx)}>✕</button>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('languages', idx, 'name', e.target.value)} style={{...styles.input, flex: 2}} placeholder="Ngoại ngữ (Tiếng Anh...)" />
-                    <input type="text" value={item.level || ''} onChange={(e) => handleArrayChange('languages', idx, 'level', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Mức độ" />
+              {renderSectionHeader('Ngoại ngữ', 'languages')}
+              <div style={{ opacity: resumeData.visibleSections?.languages !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.languages?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('languages', idx)}>✕</button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('languages', idx, 'name', e.target.value)} style={{...styles.input, flex: 2}} placeholder="Ngoại ngữ (Tiếng Anh...)" />
+                      <input type="text" value={item.level || ''} onChange={(e) => handleArrayChange('languages', idx, 'level', e.target.value)} style={{...styles.input, flex: 1}} placeholder="Mức độ" />
+                    </div>
                   </div>
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('languages', { name: '', level: '' })}>+ Thêm ngoại ngữ</button>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('languages', { name: '', level: '' })}>+ Thêm ngoại ngữ</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Chứng chỉ</h4>
-              {resumeData.certifications?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('certifications', idx)}>✕</button>
-                  <input type="text" value={item.year || ''} onChange={(e) => handleArrayChange('certifications', idx, 'year', e.target.value)} style={{...styles.input, marginBottom: '8px'}} placeholder="Năm (2019)" />
-                  <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('certifications', idx, 'name', e.target.value)} style={styles.input} placeholder="Tên chứng chỉ (IELTS 7.0)" />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('certifications', { year: '', name: '' })}>+ Thêm chứng chỉ</button>
+              {renderSectionHeader('Chứng chỉ', 'certifications')}
+              <div style={{ opacity: resumeData.visibleSections?.certifications !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.certifications?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('certifications', idx)}>✕</button>
+                    <input type="text" value={item.year || ''} onChange={(e) => handleArrayChange('certifications', idx, 'year', e.target.value)} style={{...styles.input, marginBottom: '8px'}} placeholder="Năm (2019)" />
+                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('certifications', idx, 'name', e.target.value)} style={styles.input} placeholder="Tên chứng chỉ (IELTS 7.0)" />
+                  </div>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('certifications', { year: '', name: '' })}>+ Thêm chứng chỉ</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Giải thưởng</h4>
-              {resumeData.awards?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('awards', idx)}>✕</button>
-                  <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('awards', idx, 'name', e.target.value)} style={styles.input} placeholder="Tên giải thưởng (Sinh viên 5 tốt...)" />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('awards', { name: '' })}>+ Thêm giải thưởng</button>
+              {renderSectionHeader('Giải thưởng', 'awards')}
+              <div style={{ opacity: resumeData.visibleSections?.awards !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.awards?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('awards', idx)}>✕</button>
+                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('awards', idx, 'name', e.target.value)} style={styles.input} placeholder="Tên giải thưởng (Sinh viên 5 tốt...)" />
+                  </div>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('awards', { name: '' })}>+ Thêm giải thưởng</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Sở thích</h4>
-              {resumeData.hobbies?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('hobbies', idx)}>✕</button>
-                  <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('hobbies', idx, 'name', e.target.value)} style={styles.input} placeholder="Sở thích (Đọc sách, Nghe nhạc...)" />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('hobbies', { name: '' })}>+ Thêm sở thích</button>
+              {renderSectionHeader('Sở thích', 'hobbies')}
+              <div style={{ opacity: resumeData.visibleSections?.hobbies !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.hobbies?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('hobbies', idx)}>✕</button>
+                    <input type="text" value={item.name || ''} onChange={(e) => handleArrayChange('hobbies', idx, 'name', e.target.value)} style={styles.input} placeholder="Sở thích (Đọc sách, Nghe nhạc...)" />
+                  </div>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('hobbies', { name: '' })}>+ Thêm sở thích</button>
+              </div>
             </div>
 
             <div style={styles.section}>
-              <h4 style={styles.sectionTitle}>Người tham chiếu</h4>
-              {resumeData.references?.map((item, idx) => (
-                <div key={idx} style={styles.itemBox}>
-                  <button style={styles.removeBtn} onClick={() => removeItem('references', idx)}>✕</button>
-                  <input type="text" value={item.info || ''} onChange={(e) => handleArrayChange('references', idx, 'info', e.target.value)} style={styles.input} placeholder="Họ tên, chức vụ, SĐT người tham chiếu" />
-                </div>
-              ))}
-              <button style={styles.addBtn} onClick={() => addItem('references', { info: '' })}>+ Thêm người tham chiếu</button>
+              {renderSectionHeader('Người tham chiếu', 'references')}
+              <div style={{ opacity: resumeData.visibleSections?.references !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
+                {resumeData.references?.map((item, idx) => (
+                  <div key={idx} style={styles.itemBox}>
+                    <button style={styles.removeBtn} onClick={() => removeItem('references', idx)}>✕</button>
+                    <input type="text" value={item.info || ''} onChange={(e) => handleArrayChange('references', idx, 'info', e.target.value)} style={styles.input} placeholder="Họ tên, chức vụ, SĐT người tham chiếu" />
+                  </div>
+                ))}
+                <button style={styles.addBtn} onClick={() => addItem('references', { info: '' })}>+ Thêm người tham chiếu</button>
+              </div>
             </div>
 
           </div>

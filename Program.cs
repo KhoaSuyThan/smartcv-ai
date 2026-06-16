@@ -32,7 +32,8 @@ builder.Services.AddSingleton(new PayOSClient(clientId, apiKey, checksumKey));
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(activeConnectionString) 
+    options.UseSqlServer(activeConnectionString)
+           .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning))
 );
 
 // --- 2. CẤU HÌNH AUTHENTICATION (CHỈ GỘP VÀO 1 CHỖ NÀY) ---
