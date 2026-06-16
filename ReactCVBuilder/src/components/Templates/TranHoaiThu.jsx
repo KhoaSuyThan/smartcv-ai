@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const TranHoaiThu = ({ resumeData }) => {
     return (
@@ -242,5 +242,10 @@ const TranHoaiThu = ({ resumeData }) => {
 
         </div>
     );
+};
+export const defaultVisibility = {
+  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
+  projects: true, activities: true, certifications: true, awards: true,
+  references: true, hobbies: true, languages: false
 };
 export default TranHoaiThu;

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const DangNgocLinh = ({ resumeData }) => {
     return (
@@ -203,5 +203,10 @@ const DangNgocLinh = ({ resumeData }) => {
 
         </div>
     );
+};
+export const defaultVisibility = {
+  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
+  projects: true, activities: true, certifications: true, awards: true,
+  references: true, hobbies: true, languages: true
 };
 export default DangNgocLinh;

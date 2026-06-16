@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const DinhXuanThao = ({ resumeData }) => {
     return (
@@ -172,5 +172,10 @@ p, div, h1, h2, h3, li { word-break: break-word; overflow-wrap: break-word; }
 
         </div>
     );
+};
+export const defaultVisibility = {
+  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
+  projects: true, activities: true, certifications: true, awards: true,
+  references: true, hobbies: true, languages: true
 };
 export default DinhXuanThao;

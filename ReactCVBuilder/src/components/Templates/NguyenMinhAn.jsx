@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const NguyenMinhAn = ({ resumeData }) => {
     return (
@@ -254,5 +254,10 @@ h1.side-title {
 
         </div>
     );
+};
+export const defaultVisibility = {
+  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
+  projects: true, activities: true, certifications: true, awards: true,
+  references: true, hobbies: true, languages: true
 };
 export default NguyenMinhAn;
