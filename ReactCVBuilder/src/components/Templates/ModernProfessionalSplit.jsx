@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 const ModernProfessionalSplit = ({ resumeData }) => {
     return (
@@ -238,5 +238,10 @@ const ModernProfessionalSplit = ({ resumeData }) => {
 
         </div>
     );
+};
+export const defaultVisibility = {
+  summary: true, experiences: false, educations: true, skills: true, otherSkills: true,
+  projects: true, activities: true, certifications: true, awards: false,
+  references: false, hobbies: true, languages: false
 };
 export default ModernProfessionalSplit;

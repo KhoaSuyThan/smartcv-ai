@@ -55,6 +55,23 @@ function App() {
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const [zoom, setZoom] = useState(0.8);
   const isInitialMount = useRef(true);
+  const hasAppliedDefaults = useRef(false);
+
+  // Áp dụng visibleSections mặc định theo template khi CV mới (visibleSections rỗng)
+  useEffect(() => {
+    if (hasAppliedDefaults.current) return;
+    const currentVisible = resumeData.visibleSections || {};
+    // Chỉ áp dụng khi visibleSections hoàn toàn rỗng (CV mới tạo)
+    if (Object.keys(currentVisible).length === 0) {
+      const entry = TemplateRegistry[templateName];
+      const defaults = entry?.defaultVisibility || {};
+      setResumeData(prev => ({
+        ...prev,
+        visibleSections: { ...defaults }
+      }));
+      hasAppliedDefaults.current = true;
+    }
+  }, [templateName]);
 
   // Helper functions for color brightness adjustment (primary theme color to light accent theme color)
   const hexToRgb = (hex) => {
@@ -344,7 +361,7 @@ function App() {
     }
   };
 
-  const SelectedTemplate = TemplateRegistry[templateName];
+  const SelectedTemplate = TemplateRegistry[templateName]?.component;
 
   return (
     <div style={{ display: 'flex', width: '100%', height: '100%', fontFamily: 'Arial, sans-serif', overflow: 'hidden' }}>
