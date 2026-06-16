@@ -205,8 +205,8 @@ const DangNgocLinh = ({ resumeData }) => {
     );
 };
 export const defaultVisibility = {
-  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
-  projects: true, activities: true, certifications: true, awards: true,
-  references: true, hobbies: true, languages: true
+  summary: true, experiences: true, educations: true, skills: true, otherSkills: false,
+  projects: false, activities: true, certifications: false, awards: false,
+  references: false, hobbies: false, languages: false
 };
 export default DangNgocLinh;

@@ -256,8 +256,8 @@ h1.side-title {
     );
 };
 export const defaultVisibility = {
-  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
-  projects: true, activities: true, certifications: true, awards: true,
-  references: true, hobbies: true, languages: true
+  summary: true, experiences: true, educations: true, skills: false, otherSkills: true,
+  projects: false, activities: false, certifications: false, awards: true,
+  references: false, hobbies: false, languages: false
 };
 export default NguyenMinhAn;

@@ -180,8 +180,8 @@ const NguyenVoLeKhoa = ({ resumeData }) => {
     );
 };
 export const defaultVisibility = {
-  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
+  summary: true, experiences: false, educations: true, skills: false, otherSkills: true,
   projects: true, activities: true, certifications: true, awards: true,
-  references: true, hobbies: true, languages: true
+  references: false, hobbies: true, languages: false
 };
 export default NguyenVoLeKhoa;
