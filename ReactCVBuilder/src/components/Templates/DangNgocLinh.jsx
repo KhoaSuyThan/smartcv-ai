@@ -65,12 +65,26 @@ const DangNgocLinh = ({ resumeData }) => {
         <div className="section skills-section">
             <h3 className="section-title">KỸ NĂNG</h3>
             {/* Render cả kỹ năng đặc thù (IT) và kỹ năng khác */}
-            <div className="content-area"><ul className="skill-list-items">{resumeData?.skills?.map((item, idx) => (
-<li>• {item.name}: {item.level}</li>
-))}</ul></div>
-            <div className="content-area"><ul className="other-skill-list-items">{resumeData?.otherSkills?.map((item, idx) => (
-<li>• {item.name} {item.level ? `(${item.level})` : ''}</li>
-))}</ul></div>
+            <div className="content-area">
+                <ul className="skill-list-items">
+                    {resumeData?.skills?.map((item, idx) => (
+                        <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px', padding: '8px 0', borderBottom: '1px dashed #ccc' }}>
+                            <span style={{ width: '30%', fontWeight: '700', color: '#000' }}>{item.name}</span>
+                            <span style={{ width: '70%', color: '#333', textAlign: 'justify' }}>{item.level}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+            <div className="content-area">
+                <ul className="other-skill-list-items">
+                    {resumeData?.otherSkills?.map((item, idx) => (
+                        <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px', padding: '8px 0', borderBottom: '1px dashed #ccc' }}>
+                            <span style={{ width: '30%', fontWeight: '700', color: '#000' }}>{item.name}</span>
+                            <span style={{ width: '70%', color: '#333', textAlign: 'justify' }}>{item.level}</span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
         <div className="section act-section">
             <h3 className="section-title">HOẠT ĐỘNG</h3>
