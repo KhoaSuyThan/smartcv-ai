@@ -52,10 +52,20 @@
         }
 
         /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
+        @@page { size: A4; margin: 0 !important; }
+
         @@media print {
-            @@page { size: A4; margin: 0 !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            header:not(#cv-printable-area header), footer, nav, aside, .no-print, .cv-builder-editor-panel, button, .fixed, .sticky { display: none !important; }
+
+            header:not(#cv-printable-area *), 
+            footer:not(#cv-printable-area *), 
+            nav:not(#cv-printable-area *), 
+            aside:not(#cv-printable-area *), 
+            .no-print, 
+            .cv-builder-editor-panel, 
+            button, 
+            .fixed, 
+            .sticky { display: none !important; }
             
             /* Xóa bỏ hoàn toàn màu nền và pattern của UI khi in */
             html, body, #app, .content-wrapper, main, .cv-builder-container, .flex-1 { 
@@ -74,24 +84,49 @@
             /* Reset lỗi Zoom cho Preview Card */
             .cv-preview-card {
                 transform: none !important;
-                margin: 0 auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
                 box-shadow: none !important;
                 width: 210mm !important;
-                min-height: 297mm !important;
-                position: relative !important;
-                top: 0 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                position: static !important;
                 display: block !important;
                 background: white !important;
             }
 
+            .cv-preview-wrapper {
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
             #cv-printable-area { 
                 width: 210mm !important; 
+                min-height: 0 !important;
+                overflow: visible !important; 
                 margin: 0 !important; 
                 box-shadow: none !important; 
                 transform: none !important; 
                 position: static !important; 
                 background: white !important; 
                 border: none !important;
+            }
+
+            /* CRITICAL: Children của template (main, sidebar columns, flex columns) */
+            #cv-printable-area > *,
+            #cv-printable-area main,
+            #cv-printable-area .left-sidebar,
+            #cv-printable-area .right-main,
+            #cv-printable-area .cv-sidebar,
+            #cv-printable-area .cv-main-content {
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
             }
         }
     </style>

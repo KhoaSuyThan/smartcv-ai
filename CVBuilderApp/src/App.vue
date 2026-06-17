@@ -583,7 +583,7 @@
         </div>
 
         <!-- Vùng chứa CV: Dùng flex-col items-center và margin động để thanh cuộn khớp với tỉ lệ scale -->
-        <div class="flex flex-col items-center pt-8 pb-32 min-w-max">
+        <div class="cv-preview-wrapper flex flex-col items-center pt-8 pb-32 min-w-max">
             <div class="cv-preview-card transition-transform duration-300 origin-top shadow-2xl bg-white flex-shrink-0" 
                  @click.capture="handlePreviewClick"
                  :style="{ 
@@ -1402,32 +1402,68 @@ const exportToPDF = async () => {
 }
 
 const confirmDownloadPDF = async () => {
-  if (!exportPreviewUrl.value) return;
-  
   isExporting.value = true;
-  try {
-      const cvEl = document.getElementById('cv-printable-area') || document.querySelector('.cv-preview-card');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = 210; 
-      const pageHeight = 297; 
-      
-      const totalPdfHeight = (cvEl.offsetHeight * pdfWidth) / cvEl.offsetWidth; 
-      const pages = Math.max(1, Math.ceil((totalPdfHeight - 2) / pageHeight));
 
-      for (let i = 0; i < pages; i++) {
-          if (i > 0) pdf.addPage();
-          pdf.addImage(exportPreviewUrl.value, 'JPEG', 0, -(i * pageHeight), pdfWidth, totalPdfHeight);
-      }
-      
-      pdf.save(`CV_${resumeData.value.general.fullName || 'Export'}.pdf`);
-      showExportModal.value = false;
+  try {
+    const cvEl = document.getElementById('cv-printable-area');
+    if (!cvEl) { window.print(); return; }
+
+    // Đóng modal trước
+    showExportModal.value = false;
+    await new Promise(r => setTimeout(r, 200));
+
+    // Override trực tiếp trên element gốc đang live (có đủ CSS đang apply)
+    // Dùng setProperty với 'important' để chắc chắn thắng mọi CSS kể cả Tailwind !important
+    cvEl.style.setProperty('overflow', 'visible', 'important');
+    cvEl.style.setProperty('min-height', '0', 'important');
+
+    // Override main, aside và các cột con bên trong template
+    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
+      el.style.setProperty('overflow', 'visible', 'important');
+      el.style.setProperty('height', 'auto', 'important');
+      el.style.setProperty('max-height', 'none', 'important');
+    });
+
+    // Watermark cho Free user
+    let wm = null;
+    if (!isProUser.value) {
+      wm = document.createElement('div');
+      wm.textContent = '@cvbuilder';
+      wm.style.cssText = 'position:absolute;bottom:10px;left:14px;font-size:9px;color:rgba(100,116,139,0.55);font-family:Inter,sans-serif;font-weight:500;z-index:10;pointer-events:none;';
+      cvEl.appendChild(wm);
+    }
+
+    const origTitle = document.title;
+    document.title = 'CV_' + (resumeData.value.general.fullName || 'Export');
+
+    // window.print() — Builder.cshtml đã có @media print ẩn UI, hiện CV
+    window.print();
+
+    // Restore
+    document.title = origTitle;
+    cvEl.style.removeProperty('overflow');
+    cvEl.style.removeProperty('min-height');
+    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
+      el.style.removeProperty('overflow');
+      el.style.removeProperty('height');
+      el.style.removeProperty('max-height');
+    });
+    if (wm) wm.remove();
+
+    try {
+      const id = window.CURRENT_RESUME_ID || 0;
+      if (id) await fetch('/Resume/LogExport?resumeId=' + id, { method: 'POST' });
+    } catch (e) { /* ignore */ }
+
   } catch (error) {
-      console.error('Lỗi khi xuất PDF: ', error);
-      alert('Có lỗi xảy ra khi tải xuống PDF!');
+    console.error('Loi xuat PDF:', error);
+    alert('Co loi xay ra. Vui long thu lai!');
   } finally {
-      isExporting.value = false;
+    isExporting.value = false;
   }
 }
+
+
 
 let cropperInstance = null;
 const onAvatarChange = (event) => {
