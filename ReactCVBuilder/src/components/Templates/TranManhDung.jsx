@@ -6,7 +6,7 @@ const TranManhDung = ({ resumeData }) => {
             <div className="cv-template-6">
     <div className="cv-left">
         <div className="avatar-box">
-            {resumeData?.avatarUrl && <img src={resumeData.avatarUrl} alt="Avatar" />}
+            <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} alt="Avatar" />
         </div>
         <div className="profile-header">
             <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>

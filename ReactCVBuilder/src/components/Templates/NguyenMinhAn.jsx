@@ -47,7 +47,7 @@ const NguyenMinhAn = ({ resumeData }) => {
 
         <div className="cv-side-col">
             <div className="avatar-box">
-                {resumeData?.avatarUrl && <img src={resumeData.avatarUrl} className="avatar-img" />}
+                <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
             </div>
 
             <div className="side-section">

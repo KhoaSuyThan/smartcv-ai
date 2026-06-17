@@ -6,7 +6,7 @@ const NguyenVoLeKhoa = ({ resumeData }) => {
             {<div className="cv-modern-wrapper">
         <div className="cv-sidebar">
             <div className="avatar-area">
-                {resumeData?.avatarUrl && <img src={resumeData.avatarUrl} className="avatar-img" />}
+                <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
             </div>
             
             <div className="sidebar-info">

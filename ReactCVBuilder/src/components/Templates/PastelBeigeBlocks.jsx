@@ -23,12 +23,12 @@ const PastelBeigeBlocks = ({ resumeData }) => {
                 <div className="summary-text">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
             </div>
             <div className="profile-right">
-                {resumeData?.avatarUrl && <img src={resumeData.avatarUrl} className="avatar-img" />}
+                <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
             </div>
         </div>
 
         {/* Block 3: Education & Certs */}
-        <div className="pastel-block">
+        <div className="pastel-block education-section">
             <div className="section-group education-group">
                 <h3 className="section-title">Education</h3>
                 <div className="title-line-full"></div>
@@ -45,6 +45,8 @@ const PastelBeigeBlocks = ({ resumeData }) => {
 ))}</div>
             </div>
 
+        </div>
+        <div className="pastel-block cert-section section">
             <div className="section-group cert-group">
                 <h3 className="section-title">Certifications</h3>
                 <div className="title-line-full"></div>
@@ -59,7 +61,7 @@ const PastelBeigeBlocks = ({ resumeData }) => {
         </div>
 
         {/* Block 4: Projects & Experience */}
-        <div className="pastel-block project-group">
+        <div className="pastel-block project-section project-group">
             <h3 className="section-title">Projects</h3>
             <div className="title-line-full"></div>
             <div className="timeline-area">{resumeData?.projects?.map((item, idx) => (
@@ -75,7 +77,8 @@ const PastelBeigeBlocks = ({ resumeData }) => {
 ))}</div>
             
             {/* Tận dụng không gian cho Kinh nghiệm làm việc dùng chung form timeline */}
-            <div style={{marginTop: '15px'}}></div>
+        </div>
+        <div className="pastel-block exp-section">
             <h3 className="section-title">Experience</h3>
             <div className="title-line-full"></div>
             <div className="timeline-area">{resumeData?.experiences?.map((item, idx) => (
@@ -92,7 +95,7 @@ const PastelBeigeBlocks = ({ resumeData }) => {
         </div>
 
         {/* Block 5: Activities */}
-        <div className="pastel-block act-group">
+        <div className="pastel-block act-section act-group">
             <h3 className="section-title">Activities</h3>
             <div className="title-line-full"></div>
             {/* Class riêng act-area do HTML sinh ra từ C# cho phần này khác với Projects */}
@@ -109,14 +112,24 @@ const PastelBeigeBlocks = ({ resumeData }) => {
         </div>
 
         {/* Block 6: Skills */}
-        <div className="pastel-block skill-group">
+        <div className="pastel-block skills-section section skill-group">
             <h3 className="section-title">Skills</h3>
             <div className="title-line-full"></div>
-            <div className="content-area"><ul className="skill-list-items">{resumeData?.skills?.map((item, idx) => (
-<li>• {item.name}: {item.level}</li>
+            <div className="content-area">
+                <ul className="skill-list-items">
+                    {resumeData?.skills?.map((item, idx) => (
+                        <li key={idx} style={{ listStyle: 'none', marginBottom: '15px' }}>
+                            <strong style={{ display: 'block', fontSize: '13.5px', color: '#111', marginBottom: '4px' }}>{item.name}</strong>
+                            <span style={{ display: 'block', fontSize: '12.5px', color: '#333', lineHeight: '1.5' }}>{item.level}</span>
+                        </li>
 ))}</ul></div>
-            <div className="content-area"><ul className="other-skill-list-items">{resumeData?.otherSkills?.map((item, idx) => (
-<li>• {item.name} {item.level ? `(${item.level})` : ''}</li>
+            <div className="content-area">
+                <ul className="other-skill-list-items">
+                    {resumeData?.otherSkills?.map((item, idx) => (
+                        <li key={idx} style={{ listStyle: 'none', marginBottom: '15px' }}>
+                            <strong style={{ display: 'block', fontSize: '13.5px', color: '#111', marginBottom: '4px' }}>{item.name}</strong>
+                            <span style={{ display: 'block', fontSize: '12.5px', color: '#333', lineHeight: '1.5' }}>{item.level}</span>
+                        </li>
 ))}</ul></div>
         </div>
 
@@ -129,16 +142,23 @@ const PastelBeigeBlocks = ({ resumeData }) => {
 <li>• {item.name}</li>
 ))}</ul></div>
             </div>
-            <div className="bottom-right">
+            <div className="bottom-right languages-section section">
                 <div className="awards-group">
                     <h3 className="section-title">Additional Info</h3>
+                    <h3 style={{ display: 'none' }}>languages</h3>
                     <div className="title-line-full"></div>
-                    <div className="content-area"><ul style={{paddingLeft:'15px', margin:0}}>{resumeData?.awards?.map((item, idx) => (
-<li>{item.name}</li>
-))}</ul></div>
-                    <div className="ref-group">{resumeData?.references?.map((item, idx) => (
-<p style={{marginBottom:'5px', fontSize:'12px'}}>• {item.info}</p>
-))}</div>
+                    <div className="content-area">
+                        <ul style={{ paddingLeft: '15px', margin: 0, listStyle: 'none' }}>
+                            {resumeData?.languages?.map((item, idx) => (
+                                <li key={idx} style={{ fontSize: '12.5px', color: '#222', padding: '4px 0' }}>
+                                    • {item.name} {item.level ? `- ${item.level}` : ''}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+
+
                 </div>
             </div>
         </div>
@@ -257,8 +277,8 @@ const PastelBeigeBlocks = ({ resumeData }) => {
     );
 };
 export const defaultVisibility = {
-  summary: true, experiences: true, educations: true, skills: true, otherSkills: true,
-  projects: true, activities: true, certifications: true, awards: true,
-  references: true, hobbies: true, languages: false
+  summary: true, experiences: false, educations: true, skills: true, otherSkills: false,
+  projects: true, activities: true, certifications: true, awards: false,
+  references: false, hobbies: true, languages: true
 };
 export default PastelBeigeBlocks;

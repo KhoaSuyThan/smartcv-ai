@@ -6,7 +6,7 @@ const ModernProfessionalSplit = ({ resumeData }) => {
             <div className="cv-dual-wrapper">
         <div className="left-sidebar">
             <div className="avatar-container">
-                {resumeData?.avatarUrl && <img className="avatar-img" src={resumeData.avatarUrl} />}
+                <img className="avatar-img" src={resumeData?.avatarUrl || "/images/default-avatar.png"} />
             </div>
             
             <div className="sidebar-padding">
@@ -21,9 +21,12 @@ const ModernProfessionalSplit = ({ resumeData }) => {
                 
                 <div className="side-divider"></div>
                 
-                <div className="side-summary">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                <div className="section" style={{ display: resumeData.visibleSections?.summary !== false ? 'block' : 'none' }}>
+                    <h3 style={{ display: 'none' }}>Về tôi</h3>
+                    <div className="side-summary">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
                 
-                <div className="side-divider"></div>
+                    <div className="side-divider"></div>
+                </div>
 
                 <div className="side-section">
                     <h3 className="side-title">Kỹ năng</h3>

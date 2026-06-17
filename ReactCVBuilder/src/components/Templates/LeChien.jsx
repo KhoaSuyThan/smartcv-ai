@@ -6,7 +6,7 @@ const LeChien = ({ resumeData }) => {
             <div className="cv-elegant-wrapper">
         <div className="header-area">
             <div className="avatar-box">
-                {resumeData?.avatarUrl && <img src={resumeData.avatarUrl} className="avatar-img" />}
+                <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
             </div>
             <div className="header-content">
                 <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>

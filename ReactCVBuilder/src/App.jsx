@@ -139,7 +139,7 @@ function App() {
       if (!preview) return;
       
       const mappings = {
-        summary: ['mục tiêu', 'giới thiệu', 'summary'],
+        summary: ['mục tiêu', 'giới thiệu', 'summary', 'về tôi'],
         experiences: ['kinh nghiệm', 'work experience', 'experience'],
         educations: ['học vấn', 'education'],
         skills: ['kỹ năng', 'skills', 'tin học'],

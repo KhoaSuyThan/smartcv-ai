@@ -13,7 +13,7 @@ const TranHoaiThu = ({ resumeData }) => {
         <div className="layout-grid">
             <div className="left-col">
                 <div className="avatar-box">
-                    {resumeData?.avatarUrl && <img src={resumeData.avatarUrl} className="avatar-img"  />}
+                    <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
                 </div>
                 
                 <div className="side-content">
@@ -65,9 +65,11 @@ const TranHoaiThu = ({ resumeData }) => {
                     <h2 className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
                     
                     <div className="contact-info">
+                        <div className="contact-item"><i className="fas fa-venus-mars"></i> <span>{resumeData?.gender || 'Nữ'}</span></div>
+                        <div className="contact-item"><i className="fas fa-calendar-alt"></i> <span>{resumeData?.birthDate || 'Ngày sinh'}</span></div>
                         <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData?.phone || 'SĐT'}</span></div>
                         <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData?.email || 'Email'}</span></div>
-                        <div className="contact-item"><i className="fas fa-globe"></i> <span>{resumeData?.website || 'Website'}</span></div>
+
                         <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData?.address || 'Địa chỉ'}</span></div>
                     </div>
                 </div>
