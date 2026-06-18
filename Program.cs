@@ -179,6 +179,36 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
+        // Kiểm tra nếu cột ProExpirationDate đã tồn tại trong DB thực tế (do tạo thủ công hoặc chạy script SQL)
+        // nhưng lại chưa được ghi nhận trong bảng lịch sử Migrations của EF Core, ta sẽ thêm thủ công vào lịch sử để tránh lỗi.
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                BEGIN
+                    CREATE TABLE [__EFMigrationsHistory] (
+                        [MigrationId] nvarchar(150) NOT NULL,
+                        [ProductVersion] nvarchar(32) NOT NULL,
+                        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+                    );
+                END
+            ");
+
+            context.Database.ExecuteSqlRaw(@"
+                IF COL_LENGTH('Users', 'ProExpirationDate') IS NOT NULL
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260612072825_AddProExpirationDate')
+                    BEGIN
+                        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+                        VALUES ('20260612072825_AddProExpirationDate', '8.0.8');
+                    END
+                END
+            ");
+        }
+        catch (Exception dbEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể kiểm tra cột ProExpirationDate bằng raw SQL, tiến hành chạy migration mặc định. Chi tiết: " + dbEx.Message);
+        }
 
         context.Database.Migrate();
     }

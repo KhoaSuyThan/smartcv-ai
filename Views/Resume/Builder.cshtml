@@ -52,7 +52,7 @@
         }
 
         /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
-        @@page { size: A4; margin: 0 !important; }
+        @@page { size: A4; margin: 0; }
 
         @@media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -68,7 +68,7 @@
             .sticky { display: none !important; }
             
             /* Xóa bỏ hoàn toàn màu nền và pattern của UI khi in */
-            html, body, #app, .content-wrapper, main, .cv-builder-container, .flex-1 { 
+            html, body, body.cv-builder-page, #app, .content-wrapper, main, .cv-builder-container, .flex-1 { 
                 background: white !important; 
                 background-image: none !important;
                 display: block !important; 
