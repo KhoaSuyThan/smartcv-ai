@@ -5,7 +5,7 @@
 
 @section Styles {
     <!-- Load CSS của Vue -->
-    <link rel="stylesheet" href="~/cvbuilder/assets/index_v12.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/cvbuilder/assets/index_v13.css" asp-append-version="true" />
     <!-- Cropper CSS cho ảnh đại diện -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     
@@ -68,7 +68,11 @@
             .sticky { display: none !important; }
             
             /* Xóa bỏ hoàn toàn màu nền và pattern của UI khi in */
-            html, body, body.cv-builder-page, #app, .content-wrapper, main, .cv-builder-container, .flex-1 { 
+            html, body, body.cv-builder-page, #app, 
+            .content-wrapper:not(#cv-printable-area *), 
+            main:not(#cv-printable-area *), 
+            .cv-builder-container:not(#cv-printable-area *), 
+            .flex-1:not(#cv-printable-area *) { 
                 background: white !important; 
                 background-image: none !important;
                 display: block !important; 
@@ -107,18 +111,19 @@
 
             #cv-printable-area { 
                 width: 210mm !important; 
+                height: auto !important;
                 min-height: 0 !important;
                 overflow: visible !important; 
                 margin: 0 !important; 
                 box-shadow: none !important; 
                 transform: none !important; 
-                position: static !important; 
+                position: relative !important; 
                 background: white !important; 
                 border: none !important;
             }
 
             /* CRITICAL: Children của template (main, sidebar columns, flex columns) */
-            #cv-printable-area > *,
+            #cv-printable-area > *:not(.deco-element):not(.no-print),
             #cv-printable-area main,
             #cv-printable-area .left-sidebar,
             #cv-printable-area .right-main,
@@ -176,5 +181,5 @@
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script type="module" src="~/cvbuilder/assets/index_v12.js" asp-append-version="true"></script>
+    <script type="module" src="~/cvbuilder/assets/index_v13.js" asp-append-version="true"></script>
 }
