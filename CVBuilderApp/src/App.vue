@@ -1348,70 +1348,8 @@ const exportToPDF = async () => {
   if (!cvEl) { window.print(); return; }
 
   isExporting.value = true;
-  
-  // Lưu lại viewport state và scale cũ
-  const originalScale = previewScale.value;
-  // Đưa scale về đúng 100% để canvas chụp chính xác tỷ lệ và độ phân giải
-  previewScale.value = 1.0;
-  
-  // Xóa bỏ trạng thái active/hover box tạm thời bằng cách thêm class is-exporting-pdf
-  cvEl.classList.add('is-exporting-pdf');
-  
-  // Đợi Vue render DOM xong (do thay đổi scale và xóa trạng thái)
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // --- WATERMARK CHO USER FREE ---
-  let watermarkEl = null;
-  if (!isProUser.value) {
-      watermarkEl = document.createElement('div');
-      watermarkEl.className = 'cv-watermark-free';
-      watermarkEl.textContent = '@cvbuilder';
-      cvEl.style.position = 'relative';
-      cvEl.appendChild(watermarkEl);
-      await new Promise(r => setTimeout(r, 100)); // Đợi DOM render watermark
-  }
 
   try {
-      // Sử dụng html-to-image giúp xử lý các CSS hiện đại (như oklch của Tailwind v4) mà không bị lỗi
-      const dataUrl = await toJpeg(cvEl, {
-          quality: 1.0,
-          pixelRatio: 2.5, // Giảm nhẹ xuống 2.5 để tăng tốc độ preview (vẫn rất sắc nét)
-          backgroundColor: '#ffffff'
-      });
-
-      exportPreviewUrl.value = dataUrl;
-      
-      // Tính số trang để hiển thị preview tách trang
-      const pdfWidth = 210; 
-      const pageHeight = 297; 
-      const totalPdfHeight = (cvEl.offsetHeight * pdfWidth) / cvEl.offsetWidth; 
-      exportPagesCount.value = Math.max(1, Math.ceil((totalPdfHeight - 2) / pageHeight));
-      
-      showExportModal.value = true;
-  } catch (error) {
-      console.error('Lỗi khi chuẩn bị bản xem trước: ', error);
-      alert('Có lỗi xảy ra khi chuẩn bị bản xem trước. Vui lòng thử lại!');
-  } finally {
-      // Cleanup watermark sau khi chụp xong
-      if (watermarkEl) watermarkEl.remove();
-      // Trả lại scale cũ và loại bỏ class ẩn viền
-      cvEl.classList.remove('is-exporting-pdf');
-      previewScale.value = originalScale;
-      isExporting.value = false;
-  }
-}
-
-const confirmDownloadPDF = async () => {
-  isExporting.value = true;
-
-  try {
-    const cvEl = document.getElementById('cv-printable-area');
-    if (!cvEl) { window.print(); return; }
-
-    // Đóng modal trước
-    showExportModal.value = false;
-    await new Promise(r => setTimeout(r, 200));
-
     // Override trực tiếp trên element gốc đang live (có đủ CSS đang apply)
     // Dùng setProperty với 'important' để chắc chắn thắng mọi CSS kể cả Tailwind !important
     cvEl.style.setProperty('overflow', 'visible', 'important');
