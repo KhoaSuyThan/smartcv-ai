@@ -1,10 +1,10 @@
 <template>
   <div id="cv-printable-area" ref="cvRoot"
-    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    class="keep-print-height bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
     :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }">
 
     <!-- ==================== CỘT TRÁI (SIDEBAR) ==================== -->
-    <aside class="w-[72mm] shrink-0 flex flex-col relative z-10" :style="{ backgroundColor: templateSecondaryColor }">
+    <aside class="keep-print-height w-[72mm] shrink-0 flex flex-col relative z-10" :style="{ backgroundColor: templateSecondaryColor, minHeight: `${Math.max(1, pageCount) * 297}mm` }">
 
       <!-- HEADER: Tên + Chức danh + Ảnh -->
       <div class="pt-[16mm] px-[8mm] pb-[6mm] flex flex-col items-center text-center paginated-item">
@@ -16,11 +16,10 @@
           v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : ''">
         </h2>
 
-        <!-- Ảnh đại diện tròn -->
         <div class="relative w-[50mm] h-[50mm] rounded-full overflow-hidden border-[3px] bg-white"
           :style="{ borderColor: templatePrimaryColor }">
           <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl"
-            class="w-full h-full object-cover" />
+            class="w-full h-full object-cover rounded-full" />
           <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
             <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
@@ -189,7 +188,7 @@
     </aside>
 
     <!-- ==================== CỘT PHẢI (MAIN) ==================== -->
-    <main class="flex-1 flex flex-col bg-white z-20 relative" @click.self="selectedSectionId = null">
+    <main class="keep-print-height flex-1 flex flex-col bg-white z-20 relative" @click.self="selectedSectionId = null">
       <div class="px-[10mm] pt-[15mm] pb-[10mm] flex-1 flex flex-col gap-[4mm]">
 
         <!-- CÁC SECTIONS CHÍNH -->
@@ -952,8 +951,6 @@ const onDragEnd = () => {
         border-color: transparent !important;
         transform: none !important;
         border-radius: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
         outline: none !important;
     }
 }
@@ -968,8 +965,6 @@ const onDragEnd = () => {
     border-color: transparent !important;
     transform: none !important;
     border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
     outline: none !important;
 }
 </style>

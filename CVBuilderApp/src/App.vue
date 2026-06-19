@@ -1350,6 +1350,7 @@ const exportToPDF = async () => {
   isExporting.value = true;
 
   try {
+    document.body.classList.add('is-exporting-pdf');
     // Override trực tiếp trên element gốc đang live (có đủ CSS đang apply)
     // Dùng setProperty với 'important' để chắc chắn thắng mọi CSS kể cả Tailwind !important
     cvEl.style.setProperty('overflow', 'visible', 'important');
@@ -1358,7 +1359,7 @@ const exportToPDF = async () => {
     // Override main, aside và các cột con bên trong template
     cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
       el.style.setProperty('overflow', 'visible', 'important');
-      el.style.setProperty('height', 'auto', 'important');
+      el.style.setProperty('height', '100%', 'important');
       el.style.setProperty('max-height', 'none', 'important');
     });
 
@@ -1378,6 +1379,7 @@ const exportToPDF = async () => {
     window.print();
 
     // Restore
+    document.body.classList.remove('is-exporting-pdf');
     document.title = origTitle;
     cvEl.style.removeProperty('overflow');
     cvEl.style.removeProperty('min-height');

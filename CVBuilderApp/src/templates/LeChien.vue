@@ -9,7 +9,7 @@
 
       <div class="header-area">
         <div class="avatar-box">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="avatar-img" alt="avatar"/>
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full avatar-img" alt="avatar"/>
           <div v-else class="avatar-placeholder">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>

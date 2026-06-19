@@ -13,7 +13,7 @@
             <!-- AVATAR - HÌNH TRÒN CÓ VIỀN -->
             <div class="px-[8mm] pb-[10mm] paginated-item flex justify-center mt-2">
                 <div class="w-[46mm] h-[46mm] rounded-full overflow-hidden bg-white relative z-10 box-border flex-shrink-0" :style="{ border: '4px solid ' + templatePrimaryColor }">
-                    <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+                    <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
                     <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
                         <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     </div>

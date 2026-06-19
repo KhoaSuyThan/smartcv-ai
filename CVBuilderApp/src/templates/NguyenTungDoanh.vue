@@ -10,7 +10,7 @@
       
       <header class="header-card paginated-item">
         <div class="avatar-container">
-          <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="avatar-img" alt="Avatar"/>
+          <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="rounded-full avatar-img" alt="Avatar"/>
           <div v-else class="avatar-placeholder">
             <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" stroke-width="1.5">
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>

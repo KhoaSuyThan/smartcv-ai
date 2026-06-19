@@ -6,7 +6,7 @@
       <!-- ĐÃ SỬA: Đổi mb-[-5px] thành mb-[10px] để nhích avatar lên, không bị đè vạch -->
       <div class="paginated-item relative z-20 w-full flex flex-col items-center mb-[10px]">
         <div class="relative rounded-full overflow-hidden mx-auto bg-white" :style="{ width: '150px', height: '150px', border: '5px solid ' + avatarBorderColor, boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
             <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
           </div>

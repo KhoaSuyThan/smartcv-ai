@@ -15,7 +15,7 @@
       <div class="relative flex-shrink-0 mr-4 z-30">
         <div class="absolute -top-10 right-0 w-[25mm] h-[25mm] bg-[#5ba4b5] opacity-80 z-0"></div>
         <div class="w-[48mm] h-[58mm] rounded-lg border-[6px] border-white shadow-lg overflow-hidden bg-slate-100 relative z-10">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
             <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>

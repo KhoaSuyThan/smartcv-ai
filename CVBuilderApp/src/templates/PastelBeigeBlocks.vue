@@ -45,7 +45,7 @@
         <img
           v-if="resumeData.general.avatarUrl || resumeData.general.avatar"
           :src="resumeData.general.avatarUrl || resumeData.general.avatar"
-          class="avatar-img"
+          class="rounded-full avatar-img"
           alt="Avatar"
         />
         <div v-else class="avatar-placeholder">

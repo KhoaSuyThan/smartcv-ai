@@ -31,7 +31,7 @@
       <!-- Avatar Section (Left Side) -->
       <div class="w-[75mm] flex justify-center shrink-0">
         <div class="relative w-[50mm] h-[50mm] rounded-full border-[6px] border-white shadow-md overflow-hidden bg-slate-100 flex-shrink-0 z-10">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center bg-[#dee5ed] text-gray-400">
             <!-- Icon default avatar -->
             <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
