@@ -39,7 +39,7 @@
       
       <header class="custom-card profile-card paginated-item">
         <div class="avatar-container">
-          <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="avatar-img" alt="Avatar"/>
+          <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="rounded-full avatar-img" alt="Avatar"/>
           <div v-else class="avatar-placeholder">
             <i class="fas fa-user text-4xl text-[#CBD5E1]"></i>
           </div>

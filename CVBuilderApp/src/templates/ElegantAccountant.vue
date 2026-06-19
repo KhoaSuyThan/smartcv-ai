@@ -78,7 +78,7 @@
             <img
               v-if="resumeData.general.avatarUrl"
               :src="resumeData.general.avatarUrl"
-              class="w-full h-full object-cover"
+              class="rounded-full w-full h-full object-cover"
               alt="Avatar"
             />
             <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">

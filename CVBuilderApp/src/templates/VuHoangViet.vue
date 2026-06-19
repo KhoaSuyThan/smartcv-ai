@@ -15,7 +15,7 @@
           <div class="job-title paginated-item" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Thực tập sinh Kiểm toán'"></div>
           
           <div class="avatar-container paginated-item">
-            <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="avatar-img" alt="Avatar"/>
+            <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="rounded-full avatar-img" alt="Avatar"/>
             <div v-else class="avatar-placeholder">
               <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
                 <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>

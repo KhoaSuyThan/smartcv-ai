@@ -111,8 +111,6 @@
 
             #cv-printable-area { 
                 width: 210mm !important; 
-                height: auto !important;
-                min-height: 0 !important;
                 overflow: visible !important; 
                 margin: 0 !important; 
                 box-shadow: none !important; 
@@ -125,12 +123,13 @@
             /* CRITICAL: Children của template (main, sidebar columns, flex columns) */
             #cv-printable-area > *:not(.deco-element):not(.no-print),
             #cv-printable-area main,
+            #cv-printable-area aside,
             #cv-printable-area .left-sidebar,
             #cv-printable-area .right-main,
             #cv-printable-area .cv-sidebar,
             #cv-printable-area .cv-main-content {
                 overflow: visible !important;
-                height: auto !important;
+                height: 100% !important;
                 max-height: none !important;
             }
         }

@@ -1,0 +1,276 @@
+File: AcademicBrownCV.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="flex flex-row relative box-border overflow-hidden"
+    :style="{
+      width: '210mm',
+      height: `${Math.max(1, pageCount) * 297}mm`,
+      fontFamily: '\'Segoe UI\', Roboto, Helvetica, Arial, sans-serif',
+      backgroundColor: `${templatePageBgColor} !important`
+    }"
+  
+  Main 1: class="flex-[6] flex flex-col relative z-20 overflow-hidden box-border pt-[40px] pb-[50px]"
+      :style="{ backgroundColor: `${templatePageBgColor} !important` }"
+      @click.self="selectedSectionId = null"
+    
+--------------------------------------------------
+File: BasicBlue.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif', color: '#333' }"
+    @click.self="selectedSectionId = null"
+  
+  Main 1: class="flex-[1.4] flex flex-col gap-4" @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: BlueStyle.vue
+  Root: id="cv-printable-area" ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: DangNgocLinh.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Main 1: class="flex-1 flex flex-col relative z-20 min-h-max" @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: DaoPhuQuyCV.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="relative box-border bg-white overflow-hidden text-[#333] flex flex-row"
+    :style="{
+      width: '210mm',
+      height: `${Math.max(1, pageCount) * 297}mm`,
+      fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif'
+    }"
+    @click="selectedSectionId = null"
+  
+  Aside 1: class="z-10 flex flex-col shrink-0 relative box-border text-white"
+      :style="{ width: '35%', backgroundColor: templatePrimaryColor, padding: '40px 25px' }"
+      @click.self="selectedSectionId = null"
+    
+--------------------------------------------------
+File: DinhXuanThao.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[75mm] z-10 flex flex-col pt-0 shrink-0 relative bg-[#f9f9f9]"
+--------------------------------------------------
+File: ElegantAccountant.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="relative box-border bg-white overflow-hidden text-[#333]"
+    :style="{
+      width: '210mm',
+      height: `${Math.max(1, pageCount) * 297}mm`,
+      fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif'
+    }"
+    @click="selectedSectionId = null"
+  
+--------------------------------------------------
+File: HoangTuongVy.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[75mm] z-10 flex flex-col shrink-0 relative" :style="{ backgroundColor: templateSidebarBgColor }"
+--------------------------------------------------
+File: LeChien.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, width: '210mm' }"
+    @click.self="selectedSectionId = null"
+  
+--------------------------------------------------
+File: LeMinhAnh.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[75mm] shrink-0 flex flex-col gap-8 pr-[6mm] relative" @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: LuongLueTam.vue
+  Root: id="cv-printable-area" ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: `'Inter', sans-serif` }"
+  Aside 1: class="shrink-0 z-10 flex flex-col relative" style="width: 85mm;" :style="{ backgroundColor: templatePrimaryColor }"
+--------------------------------------------------
+File: ModernBlueSidebar.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="flex flex-row relative box-border bg-white overflow-hidden text-[#333]"
+    :style="{
+      width: '210mm',
+      height: `${Math.max(1, pageCount) * 297}mm`,
+      fontFamily: '\'Inter\', sans-serif',
+      lineHeight: '1.5'
+    }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="z-10 flex flex-col shrink-0 relative box-border"
+      :style="{ width: '32%', backgroundColor: sidebarBgColor, padding: '30px 20px' }"
+    
+--------------------------------------------------
+File: ModernBrownProfessional.vue
+  Root: id="cv-printable-area" ref="cvRoot" class="flex flex-row relative box-border bg-white overflow-hidden text-[#333]" :style="{ width: '210mm', height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif', lineHeight: '1.3' }"
+  Aside 1: class="z-10 flex flex-col shrink-0 relative box-border" :style="{ width: '35%', backgroundColor: templateSecondaryColor, padding: '30px 20px', gap: '20px' }"
+--------------------------------------------------
+File: NguyenHuyenTrang.vue
+  Root: id="cv-printable-area" ref="cvRoot" class="bg-white flex w-[210mm] relative box-border text-[13px] leading-relaxed overflow-hidden" :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+  Aside 1: class="w-[72mm] flex-shrink-0 flex flex-col relative z-20 bg-white" @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: NguyenKhanhHuyen.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[72mm] shrink-0 bg-[#fafafa] flex flex-col pt-0 pb-[10mm] px-[6mm] items-center gap-[2mm] z-30 relative"
+--------------------------------------------------
+File: NguyenMaiAnh.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="cv-browser-wrapper"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm` }"
+    @click.self="closeAllSections"
+  
+--------------------------------------------------
+File: NguyenThanhNhatNam.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="shadow-2xl w-[210mm] flex flex-col relative box-border text-[#4A352F] leading-relaxed overflow-hidden"
+    style="background-color: #ffffff !important;"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Main 1: class="flex-1 flex flex-col relative z-20 min-h-max" @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: NguyenThiLanAnh.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[75mm] shrink-0 bg-white flex flex-col pt-6 px-[8mm] pb-8 gap-6 relative" @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: NguyenTungDoanh.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="cv-blue-orange-wrapper"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm` }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="left-column"
+--------------------------------------------------
+File: NguyenVoLeKhoa.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="keep-print-height bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="keep-print-height w-[68mm] z-10 flex flex-col pt-0 shrink-0 relative bg-white" :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm` }"
+--------------------------------------------------
+File: NguyenYenNhi.vue
+  Root: id="cv-printable-area" ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+--------------------------------------------------
+File: NhatNam.vue
+  Root: id="cv-printable-area" ref="cvRoot"
+    class="keep-print-height bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }"
+  Aside 1: class="keep-print-height w-[72mm] shrink-0 flex flex-col relative z-10" :style="{ backgroundColor: templateSecondaryColor, minHeight: `${Math.max(1, pageCount) * 297}mm` }"
+--------------------------------------------------
+File: PastelBeigeBlocks.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="cv-pastel-wrapper"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm` }"
+    @click.self="selectedSectionId = null"
+  
+--------------------------------------------------
+File: ProfessionalBlueCV.vue
+  Root: id="cv-printable-area" ref="cvRoot" class="flex flex-row relative box-border bg-white overflow-hidden" :style="{ width: '210mm', height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Segoe UI\', Arial, sans-serif' }"
+  Aside 1: class="z-10 flex flex-col shrink-0 relative box-border text-white" :style="{ width: '35%', backgroundColor: templatePrimaryColor, padding: '40px 25px', minHeight: `${Math.max(1, pageCount) * 297}mm` }"
+--------------------------------------------------
+File: SamiraNguyen.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#2F2926] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Montserrat\', \'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[72mm] z-10 flex flex-col pt-[8mm] pb-[8mm] shrink-0 relative bg-transparent"
+--------------------------------------------------
+File: Template.vue
+  Root: id="cv-printable-area" ref="cvRoot" class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed" :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }"
+--------------------------------------------------
+File: TranDucHuy.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[70mm] z-10 flex flex-col pt-0 shrink-0 relative text-white" :style="{ backgroundColor: templatePrimaryColor }"
+--------------------------------------------------
+File: TranManhDung.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[78mm] z-10 flex flex-col pt-0 shrink-0 relative text-white overflow-hidden" :style="{ backgroundColor: templatePrimaryColor }"
+--------------------------------------------------
+File: TruongMyLinh.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed overflow-hidden"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="w-[72mm] shrink-0 flex flex-col relative z-10 min-h-full" :style="{ backgroundColor: templateSidebarColor }"
+--------------------------------------------------
+File: VuHoangViet.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="cv-green-wrapper"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm` }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="left-column"
+--------------------------------------------------
+File: VuTungDuong.vue
+  Root: id="cv-printable-area"
+    ref="cvRoot"
+    class="bg-white flex w-[210mm] relative box-border overflow-hidden"
+    :style="{
+      height: `${Math.max(1, pageCount) * 297}mm`,
+      fontFamily: '\'Inter\', sans-serif',
+      fontSize: '13px',
+      lineHeight: '1.55'
+    }"
+    @click.self="selectedSectionId = null"
+  
+  Aside 1: class="flex-shrink-0 flex flex-col relative z-20"
+      style="width: 78mm; color: #ffffff;"
+      :style="{ backgroundColor: templatePrimaryColor }"
+      @click.self="selectedSectionId = null"
+    
+--------------------------------------------------
