@@ -10,9 +10,9 @@
     <div class="absolute inset-0 bg-white z-0 pointer-events-none"></div>
 
     <!-- HEADER BLOCK -->
-    <header class="paginated-item w-full h-[70mm] flex relative overflow-hidden shrink-0 z-10 bg-white">
+    <header class="paginated-item w-full h-[70mm] flex relative overflow-hidden shrink-0 z-10" :style="{ backgroundColor: templatePrimaryColor }">
       <!-- Cột trái của Header: Màu vàng mù tạt bao quanh Avatar tròn -->
-      <div class="w-[75mm] h-full relative flex items-center justify-center rounded-br-[40px] z-20 shrink-0" :style="{ backgroundColor: templateSecondaryColor }">
+      <div class="w-[75mm] relative flex items-center justify-center rounded-br-[40px] z-20 shrink-0" :style="{ backgroundColor: templateSecondaryColor, height: '70.5mm' }">
         <!-- 3 chấm nhỏ trang trí dốc đứng ở góc trái trên -->
         <div class="absolute top-5 left-5 flex flex-col gap-1.5 opacity-45 z-30">
           <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
@@ -58,7 +58,7 @@
         ></h2>
 
         <!-- Dải cong lượn lượn sóng màu trắng dưới đáy cột phải -->
-        <div class="absolute bottom-0 left-0 right-0 h-[25mm] pointer-events-none overflow-hidden z-20">
+        <div class="absolute left-0 right-0 h-[25mm] pointer-events-none overflow-hidden z-20" :style="{ bottom: '-1px' }">
           <svg class="w-full h-full text-white fill-current" viewBox="0 0 1000 100" preserveAspectRatio="none">
             <path d="M0,40 Q150,110 500,60 T1000,20 L1000,100 L0,100 Z" />
           </svg>
@@ -193,17 +193,19 @@
               <!-- HỌC VẤN -->
               <div v-else-if="section.id.toLowerCase() === 'education'" class="space-y-4">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-gray-700 leading-relaxed">
-                  <div class="font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.school">
-                    <strong class="font-black text-gray-900">Trường học:</strong> <span v-html="item.school"></span>
-                  </div>
-                  <div v-if="item.major">
-                    <strong class="font-black text-gray-900">Chuyên ngành:</strong> <span v-html="item.major"></span>
-                  </div>
-                  <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.year">
-                    <strong class="font-black text-gray-900">Năm học:</strong> <span v-html="item.year"></span>
-                  </div>
-                  <div v-if="item.gradType">
-                    <strong class="font-black text-gray-900">Xếp loại:</strong> <span v-html="item.gradType"></span>
+                  <div class="paginated-item">
+                    <div class="font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.school">
+                      <strong class="font-black text-gray-900">Trường học:</strong> <span v-html="item.school"></span>
+                    </div>
+                    <div v-if="item.major">
+                      <strong class="font-black text-gray-900">Chuyên ngành:</strong> <span v-html="item.major"></span>
+                    </div>
+                    <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.year">
+                      <strong class="font-black text-gray-900">Năm học:</strong> <span v-html="item.year"></span>
+                    </div>
+                    <div v-if="item.gradType">
+                      <strong class="font-black text-gray-900">Xếp loại:</strong> <span v-html="item.gradType"></span>
+                    </div>
                   </div>
                   <div v-if="item.desc" class="html-content text-[16px] leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc)"></div>
 
@@ -218,17 +220,19 @@
               <!-- KINH NGHIỆM LÀM VIỆC -->
               <div v-else-if="section.id.toLowerCase() === 'experience'" class="space-y-4">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-gray-700 leading-relaxed">
-                  <div v-if="item.role">
-                    <strong class="font-black text-gray-900">Vị trí:</strong> <span v-html="item.role"></span>
-                  </div>
-                  <div class="font-bold text-[#901A1E] italic" style="font-size: 16px !important;" v-if="item.company">
-                    <strong class="font-black text-gray-900">Công ty:</strong> <span v-html="item.company"></span>
-                  </div>
-                  <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.time">
-                    <strong class="font-black text-gray-900">Thời gian:</strong> <span v-html="item.time"></span>
-                  </div>
-                  <div class="font-bold mt-1 text-gray-900" style="font-size: 16px !important;" v-if="item.desc">
-                    <strong class="font-black text-gray-900">Mô tả:</strong>
+                  <div class="paginated-item">
+                    <div v-if="item.role">
+                      <strong class="font-black text-gray-900">Vị trí:</strong> <span v-html="item.role"></span>
+                    </div>
+                    <div class="font-bold text-[#901A1E] italic" style="font-size: 16px !important;" v-if="item.company">
+                      <strong class="font-black text-gray-900">Công ty:</strong> <span v-html="item.company"></span>
+                    </div>
+                    <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.time">
+                      <strong class="font-black text-gray-900">Thời gian:</strong> <span v-html="item.time"></span>
+                    </div>
+                    <div class="font-bold mt-1 text-gray-900" style="font-size: 16px !important;" v-if="item.desc">
+                      <strong class="font-black text-gray-900">Mô tả:</strong>
+                    </div>
                   </div>
                   <div class="html-content text-[16px] leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc)"></div>
 
@@ -247,8 +251,10 @@
                   :key="item._refId"
                   class="item-container relative text-gray-700"
                 >
-                  <div class="paginated-item font-bold text-gray-900 mb-1" style="font-size: 16px !important;" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
-                  <div class="paginated-item font-medium text-gray-400 italic mb-1" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  <div class="paginated-item">
+                    <div class="font-bold text-gray-900 mb-1" style="font-size: 16px !important;" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
+                    <div class="font-medium text-gray-400 italic mb-1" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  </div>
                   <div class="text-[16px] leading-[1.65] html-content" style="font-size: 16px !important;" v-html="formatDesc(item.desc || item.info)"></div>
                   
                   <transition name="fade-btns">
@@ -358,17 +364,19 @@
               <!-- HỌC VẤN -->
               <div v-else-if="section.id.toLowerCase() === 'education'" class="space-y-5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-gray-700 leading-relaxed">
-                  <div class="font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.school">
-                    <strong class="font-black text-gray-900">Trường học:</strong> <span v-html="item.school"></span>
-                  </div>
-                  <div v-if="item.major">
-                    <strong class="font-black text-gray-900">Chuyên ngành:</strong> <span v-html="item.major"></span>
-                  </div>
-                  <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.year">
-                    <strong class="font-black text-gray-900">Năm học:</strong> <span v-html="item.year"></span>
-                  </div>
-                  <div v-if="item.gradType">
-                    <strong class="font-black text-gray-900">Xếp loại:</strong> <span v-html="item.gradType"></span>
+                  <div class="paginated-item">
+                    <div class="font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.school">
+                      <strong class="font-black text-gray-900">Trường học:</strong> <span v-html="item.school"></span>
+                    </div>
+                    <div v-if="item.major">
+                      <strong class="font-black text-gray-900">Chuyên ngành:</strong> <span v-html="item.major"></span>
+                    </div>
+                    <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.year">
+                      <strong class="font-black text-gray-900">Năm học:</strong> <span v-html="item.year"></span>
+                    </div>
+                    <div v-if="item.gradType">
+                      <strong class="font-black text-gray-900">Xếp loại:</strong> <span v-html="item.gradType"></span>
+                    </div>
                   </div>
                   <div v-if="item.desc" class="html-content text-[16px] leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc)"></div>
 
@@ -383,17 +391,19 @@
               <!-- KINH NGHIỆM LÀM VIỆC -->
               <div v-else-if="section.id.toLowerCase() === 'experience'" class="space-y-6">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-gray-700 leading-relaxed">
-                  <div v-if="item.role">
-                    <strong class="font-black text-gray-900">Vị trí:</strong> <span v-html="item.role"></span>
-                  </div>
-                  <div class="font-bold text-[#901A1E] italic" style="font-size: 16px !important;" v-if="item.company">
-                    <strong class="font-black text-gray-900">Công ty:</strong> <span v-html="item.company"></span>
-                  </div>
-                  <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.time">
-                    <strong class="font-black text-gray-900">Thời gian:</strong> <span v-html="item.time"></span>
-                  </div>
-                  <div class="font-bold mt-1 text-gray-900" style="font-size: 16px !important;" v-if="item.desc">
-                    <strong class="font-black text-gray-900">Mô tả:</strong>
+                  <div class="paginated-item">
+                    <div v-if="item.role">
+                      <strong class="font-black text-gray-900">Vị trí:</strong> <span v-html="item.role"></span>
+                    </div>
+                    <div class="font-bold text-[#901A1E] italic" style="font-size: 16px !important;" v-if="item.company">
+                      <strong class="font-black text-gray-900">Công ty:</strong> <span v-html="item.company"></span>
+                    </div>
+                    <div class="text-gray-500 font-medium" style="font-size: 16px !important;" v-if="item.time">
+                      <strong class="font-black text-gray-900">Thời gian:</strong> <span v-html="item.time"></span>
+                    </div>
+                    <div class="font-bold mt-1 text-gray-900" style="font-size: 16px !important;" v-if="item.desc">
+                      <strong class="font-black text-gray-900">Mô tả:</strong>
+                    </div>
                   </div>
                   <div class="html-content text-[16px] leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc)"></div>
 
@@ -408,8 +418,10 @@
               <!-- OTHER MAIN ABSTRACTIONS -->
               <div v-else class="space-y-5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-gray-700 leading-relaxed">
-                  <div class="paginated-item font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
-                  <div class="paginated-item font-medium text-gray-500 italic" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  <div class="paginated-item">
+                    <div class="font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
+                    <div class="font-medium text-gray-500 italic" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  </div>
                   <div class="html-content text-[16px] leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc || item.info)"></div>
 
                   <transition name="fade-btns">
@@ -725,42 +737,69 @@ const requestPagination = () => {
 const doPagination = async () => {
   if (!cvRoot.value) return
 
-  const allElements = cvRoot.value.querySelectorAll('.paginated-item')
-  allElements.forEach(el => { el.style.marginTop = '0px' })
+  // Filter out nested .paginated-item to only get the top-level outer elements
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
+    if (el.offsetHeight === 0) return false;
+    let parent = el.parentElement;
+    while (parent && parent !== cvRoot.value) {
+      if (parent.classList.contains('paginated-item')) return false;
+      parent = parent.parentElement;
+    }
+    return true;
+  });
+
+  allElements.forEach(el => { el.style.setProperty('margin-top', '0px', 'important') })
   await nextTick()
 
-  const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM
+  const cvRect = cvRoot.value.getBoundingClientRect()
+  const pxPerMm = cvRect.width / A4_W_MM
   const pageH = A4_H_MM * pxPerMm
   
   const bottomSafeZone = 14 * pxPerMm 
   const topMargin = 8 * pxPerMm 
 
-  const getOffsetTop = (el) => {
-    let offset = 0
-    let curr = el
-    while (curr && curr !== cvRoot.value) {
-      offset += curr.offsetTop
-      curr = curr.offsetParent
+  let stable = false
+  let passes = 0
+
+  while (!stable && passes < 35) {
+    stable = true
+    passes++
+    
+    const currentCvRect = cvRoot.value.getBoundingClientRect()
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      if (el.offsetHeight === 0) continue
+
+      const elRect = el.getBoundingClientRect()
+      const top = elRect.top - currentCvRect.top
+      const height = elRect.height
+
+      const pageIndex = Math.floor(top / pageH)
+      const topInPage = top - (pageIndex * pageH)
+      const bottomInPage = topInPage + height
+
+      if (height > (pageH - bottomSafeZone - topMargin)) continue
+
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const distToNextPage = pageH - topInPage + topMargin
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         stable = false
+         break
+      }
     }
-    return offset
+    if (!stable) {
+      await nextTick()
+    }
   }
 
-  allElements.forEach((el) => {
-    if(el.offsetHeight === 0) return
-    const top = getOffsetTop(el)
-    const topInPage = top % pageH
-    const bottomInPage = topInPage + el.offsetHeight
-    
-    if (bottomInPage > (pageH - bottomSafeZone)) {
-       const distToNextPage = pageH - topInPage + topMargin
-       el.style.marginTop = `${distToNextPage}px`
-    }
-  })
-
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
   let maxBottom = 0
   allElements.forEach(el => {
-    const b = getOffsetTop(el) + el.offsetHeight
-    if (b > maxBottom) maxBottom = b
+    const rect = el.getBoundingClientRect()
+    const bottom = rect.bottom - finalCvRect.top
+    if (bottom > maxBottom) maxBottom = bottom
   })
   pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
 }
@@ -799,12 +838,16 @@ onMounted(() => {
   window.addEventListener('resize', requestPagination)
   document.addEventListener('keyup', requestPagination)
   document.addEventListener('click', handleOutsideClick)
+  window.addEventListener('before-pdf-print', requestPagination)
+  window.addEventListener('after-pdf-print', requestPagination)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', requestPagination)
   document.removeEventListener('keyup', requestPagination)
   document.removeEventListener('click', handleOutsideClick)
+  window.removeEventListener('before-pdf-print', requestPagination)
+  window.removeEventListener('after-pdf-print', requestPagination)
   if (paginateTimer) clearTimeout(paginateTimer)
 })
 </script>
@@ -957,27 +1000,48 @@ main {
 :deep(.html-content ol li) { margin-bottom: 0.25rem; }
 
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 0 !important;
+  }
+  #cv-printable-area {
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+  }
+  #cv-printable-area header {
+    height: 70mm !important;
+  }
   .no-print { display: none !important; }
   .section-block,
   .section-block.section-active {
     cursor: default !important;
     box-shadow: none !important;
     background: transparent !important;
-    border-color: transparent !important;
+    border: 2px solid transparent !important;
     transform: none !important;
     border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 }
 
+:global(.is-exporting-pdf #cv-printable-area) {
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 210mm !important;
+}
+:global(.is-exporting-pdf #cv-printable-area header) {
+  height: 70mm !important;
+}
 :global(.is-exporting-pdf .no-print) { display: none !important; }
 :global(.is-exporting-pdf .section-block),
 :global(.is-exporting-pdf .section-block.section-active) {
   cursor: default !important;
   box-shadow: none !important;
   background: transparent !important;
-  border-color: transparent !important;
+  border: 2px solid transparent !important;
   transform: none !important;
+  border-radius: 0 !important;
 }
 </style>
