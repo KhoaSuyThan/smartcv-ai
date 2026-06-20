@@ -57,10 +57,10 @@
         @@media print {
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-            header:not(#cv-printable-area *), 
-            footer:not(#cv-printable-area *), 
-            nav:not(#cv-printable-area *), 
-            aside:not(#cv-printable-area *), 
+            body > header, 
+            body > footer, 
+            body > nav, 
+            body > aside, 
             .no-print, 
             .cv-builder-editor-panel, 
             button, 
@@ -121,9 +121,12 @@
             }
 
             /* CRITICAL: Children của template (main, sidebar columns, flex columns) */
-            #cv-printable-area > *:not(.deco-element):not(.no-print),
+            
+            /* Make columns stretch to fill the height of their parent wrapper */
             #cv-printable-area main,
             #cv-printable-area aside,
+            #cv-printable-area .left-column,
+            #cv-printable-area .right-column,
             #cv-printable-area .left-sidebar,
             #cv-printable-area .right-main,
             #cv-printable-area .cv-sidebar,
@@ -131,6 +134,41 @@
                 overflow: visible !important;
                 height: 100% !important;
                 max-height: none !important;
+            }
+
+            /* Direct children headers or browser bars should NEVER be forced to 100% height, they must be natural height */
+            #cv-printable-area header,
+            #cv-printable-area footer,
+            #cv-printable-area .browser-header,
+            #cv-printable-area .header-card,
+            #cv-printable-area .header-area,
+            #cv-printable-area .header-container,
+            #cv-printable-area .profile-card,
+            #cv-printable-area .profile-section {
+                height: auto !important;
+                flex-grow: 0 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* For templates with a wrapper div (like .cv-container, .main-layout, etc.) directly under root */
+            #cv-printable-area > div:not(.deco-element):not(.no-print):not(.absolute):not(.browser-header):not(.header-card):not(.header-area):not(.header-container):not(.profile-card):not(.profile-section) {
+                height: 100% !important;
+                overflow: visible !important;
+            }
+
+            /* But if a wrapper div is preceded by a header/browser bar, it should grow instead of forcing 100% height */
+            #cv-printable-area > header + div:not(.absolute),
+            #cv-printable-area > .browser-header + div:not(.absolute),
+            #cv-printable-area > .header-card + div:not(.absolute),
+            #cv-printable-area > .header-area + div:not(.absolute),
+            #cv-printable-area > .profile-card + div:not(.absolute),
+            #cv-printable-area > .profile-section + div:not(.absolute),
+            .cv-elegant-wrapper > div:not(.header-area):not(.absolute),
+            .cv-browser-wrapper > div:not(.browser-header):not(.absolute) {
+                height: auto !important;
+                flex-grow: 1 !important;
+                flex-shrink: 1 !important;
+                overflow: visible !important;
             }
         }
     </style>
