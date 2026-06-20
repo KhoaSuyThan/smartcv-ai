@@ -2176,7 +2176,7 @@ onUnmounted(() => {
   }
   .cv-builder-editor-panel, .sticky, .no-print, .nav-btns, button { display: none !important; }
   .pattern-dots, .bg-slate-800, .bg-slate-50 { background: none !important; background-image: none !important; }
-  .cv-builder-container, #app, .flex-1 { 
+  .cv-builder-container, #app { 
     display: block !important; 
     height: auto !important; 
     overflow: visible !important; 
