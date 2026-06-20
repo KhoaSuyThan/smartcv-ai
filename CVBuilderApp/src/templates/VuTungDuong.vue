@@ -212,7 +212,7 @@
       style="padding: 14mm 8mm 8mm 8mm; overflow: hidden;"
       @click.self="selectedSectionId = null"
     >
-      <div style="height: 5mm;" class="no-print"></div>
+      <div style="height: 5mm;"></div>
 
       <draggable
         v-model="mainSectionsWritable"
