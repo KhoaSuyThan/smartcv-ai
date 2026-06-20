@@ -1357,7 +1357,7 @@ const exportToPDF = async () => {
     cvEl.style.setProperty('min-height', '0', 'important');
 
     // Override main, aside và các cột con bên trong template
-    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
+    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content, .left-column, .right-column').forEach(el => {
       el.style.setProperty('overflow', 'visible', 'important');
       el.style.setProperty('height', '100%', 'important');
       el.style.setProperty('max-height', 'none', 'important');
@@ -1383,7 +1383,7 @@ const exportToPDF = async () => {
     document.title = origTitle;
     cvEl.style.removeProperty('overflow');
     cvEl.style.removeProperty('min-height');
-    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
+    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content, .left-column, .right-column').forEach(el => {
       el.style.removeProperty('overflow');
       el.style.removeProperty('height');
       el.style.removeProperty('max-height');
