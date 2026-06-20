@@ -33,9 +33,9 @@
 
     <div class="pastel-block profile-block paginated-item">
       <div class="profile-left">
-        <h1 class="fullname">{{ !isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN ỨNG VIÊN' }}</h1>
+        <h1 class="fullname" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN ỨNG VIÊN'"></h1>
         <div class="job-title-wrapper">
-          <span class="job-title">{{ !isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN' }}</span>
+          <span class="job-title" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'"></span>
           <span class="title-line-accent"></span>
         </div>
         <div class="summary-text" v-html="!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Mục tiêu nghề nghiệp...'"></div>
@@ -45,7 +45,7 @@
         <img
           v-if="resumeData.general.avatarUrl || resumeData.general.avatar"
           :src="resumeData.general.avatarUrl || resumeData.general.avatar"
-          class="avatar-img"
+          class="rounded-full avatar-img"
           alt="Avatar"
         />
         <div v-else class="avatar-placeholder">
@@ -414,7 +414,11 @@ const templateNameColor = computed(() => {
   return '#4A2B28'
 })
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  return val.replace(/<[^>]*>/g, '').trim() === '';
+}
 
 const getSection = (id) => props.resumeData?.sections?.find(s => s.id === id) ?? null
 

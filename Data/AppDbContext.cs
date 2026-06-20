@@ -25,6 +25,7 @@ namespace DoAnCS.Data
         public DbSet<SavedCandidate> SavedCandidates { get; set; }
         public DbSet<CVMatchResult> CVMatchResults { get; set; }
         public DbSet<CVEmbedding> CVEmbeddings { get; set; }
+        public DbSet<SiteFeedback> SiteFeedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

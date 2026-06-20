@@ -10,7 +10,7 @@
       
       <header class="header-card paginated-item">
         <div class="avatar-container">
-          <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="avatar-img" alt="Avatar"/>
+          <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="rounded-full avatar-img" alt="Avatar"/>
           <div v-else class="avatar-placeholder">
             <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#a0aec0" stroke-width="1.5">
               <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
@@ -18,8 +18,8 @@
           </div>
         </div>
         <div class="header-info">
-          <h1 class="fullname">{{ !isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'NGUYỄN TÙNG DOANH' }}</h1>
-          <p class="job-title">{{ !isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Designer' }}</p>
+          <h1 class="fullname" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'NGUYỄN TÙNG DOANH'"></h1>
+          <p class="job-title" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Designer'"></p>
         </div>
       </header>
 
@@ -273,7 +273,11 @@ const templateCardBgColor = computed(() => {
   return adjustBrightness(c, 0.88)
 })
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  return val.replace(/<[^>]*>/g, '').trim() === '';
+}
 
 // ── DATA MẪU RÚT GỌN ──────────────────────────────────────
 const getMockData = (sectionId) => {

@@ -22,7 +22,7 @@
           class="relative rounded-full overflow-hidden mx-auto bg-white"
           :style="{ width: '150px', height: '150px', border: '5px solid white', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }"
         >
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

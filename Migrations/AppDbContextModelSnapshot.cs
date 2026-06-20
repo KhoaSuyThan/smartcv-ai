@@ -30,6 +30,9 @@ namespace DoAnCS.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LogID"));
 
+                    b.Property<string>("ApiProvider")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -177,6 +180,9 @@ namespace DoAnCS.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Industry")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("LogoUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -243,7 +249,13 @@ namespace DoAnCS.Migrations
                     b.Property<string>("ChatbotApiKey")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ChatbotSystemInstruction")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("GrammarTemplate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GroqApiKey")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MaxOutputTokens")
@@ -685,6 +697,9 @@ namespace DoAnCS.Migrations
 
                     b.Property<string>("PortfolioLinks")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ProExpirationDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ProfessionalTitle")
                         .HasColumnType("nvarchar(max)");

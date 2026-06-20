@@ -635,6 +635,7 @@ namespace DoAnCS.Controllers
             user.CompanyID = compId;
             // Hủy trạng thái Candidate Pro khi nâng cấp lên Recruiter
             user.IsPro = false;
+            user.ProExpirationDate = null;
             
             await _context.SaveChangesAsync();
 
@@ -819,6 +820,7 @@ namespace DoAnCS.Controllers
                     if (user != null)
                     {
                         user.IsPro = true;
+                        user.ProExpirationDate = DateTime.Now.AddMonths(1);
 
                         // Cập nhật lại Cookie ngay lập tức để Navbar ẩn nút Nâng cấp
                         if (User.Identity != null && User.Identity.IsAuthenticated && User.FindFirst("UserID")?.Value == user.UserID.ToString())
@@ -878,6 +880,7 @@ namespace DoAnCS.Controllers
                         if (user != null)
                         {
                             user.IsPro = true;
+                            user.ProExpirationDate = DateTime.Now.AddMonths(1);
                         }
 
                         await _context.SaveChangesAsync();

@@ -5,7 +5,7 @@
 
 @section Styles {
     <!-- Load CSS của Vue -->
-    <link rel="stylesheet" href="~/cvbuilder/assets/index_v12.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/cvbuilder/assets/index_v13.css" asp-append-version="true" />
     <!-- Cropper CSS cho ảnh đại diện -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     
@@ -52,13 +52,27 @@
         }
 
         /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
+        @@page { size: A4; margin: 0; }
+
         @@media print {
-            @@page { size: A4; margin: 0 !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            header:not(#cv-printable-area header), footer, nav, aside, .no-print, .cv-builder-editor-panel, button, .fixed, .sticky { display: none !important; }
+
+            header:not(#cv-printable-area *), 
+            footer:not(#cv-printable-area *), 
+            nav:not(#cv-printable-area *), 
+            aside:not(#cv-printable-area *), 
+            .no-print, 
+            .cv-builder-editor-panel, 
+            button, 
+            .fixed, 
+            .sticky { display: none !important; }
             
             /* Xóa bỏ hoàn toàn màu nền và pattern của UI khi in */
-            html, body, #app, .content-wrapper, main, .cv-builder-container, .flex-1 { 
+            html, body, body.cv-builder-page, #app, 
+            .content-wrapper:not(#cv-printable-area *), 
+            main:not(#cv-printable-area *), 
+            .cv-builder-container:not(#cv-printable-area *), 
+            .flex-1:not(#cv-printable-area *) { 
                 background: white !important; 
                 background-image: none !important;
                 display: block !important; 
@@ -74,24 +88,49 @@
             /* Reset lỗi Zoom cho Preview Card */
             .cv-preview-card {
                 transform: none !important;
-                margin: 0 auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
                 box-shadow: none !important;
                 width: 210mm !important;
-                min-height: 297mm !important;
-                position: relative !important;
-                top: 0 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                position: static !important;
                 display: block !important;
                 background: white !important;
             }
 
+            .cv-preview-wrapper {
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                min-width: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+
             #cv-printable-area { 
                 width: 210mm !important; 
+                overflow: visible !important; 
                 margin: 0 !important; 
                 box-shadow: none !important; 
                 transform: none !important; 
-                position: static !important; 
+                position: relative !important; 
                 background: white !important; 
                 border: none !important;
+            }
+
+            /* CRITICAL: Children của template (main, sidebar columns, flex columns) */
+            #cv-printable-area > *:not(.deco-element):not(.no-print),
+            #cv-printable-area main,
+            #cv-printable-area aside,
+            #cv-printable-area .left-sidebar,
+            #cv-printable-area .right-main,
+            #cv-printable-area .cv-sidebar,
+            #cv-printable-area .cv-main-content {
+                overflow: visible !important;
+                height: 100% !important;
+                max-height: none !important;
             }
         }
     </style>
@@ -141,5 +180,5 @@
 
 @section Scripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
-    <script type="module" src="~/cvbuilder/assets/index_v12.js" asp-append-version="true"></script>
+    <script type="module" src="~/cvbuilder/assets/index_v13.js" asp-append-version="true"></script>
 }

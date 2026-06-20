@@ -2,12 +2,12 @@
   <div
     id="cv-printable-area"
     ref="cvRoot"
-    class="bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
+    class="keep-print-height bg-white shadow-2xl w-[210mm] flex flex-row relative box-border text-[#333] leading-relaxed overflow-hidden"
     :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif' }"
     @click.self="selectedSectionId = null"
   >
     <!-- LEFT COLUMN -->
-    <aside class="w-[68mm] z-10 flex flex-col pt-0 shrink-0 relative bg-white">
+    <aside class="keep-print-height w-[68mm] z-10 flex flex-col pt-0 shrink-0 relative bg-white" :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm` }">
 
       <!-- Header Trái: Avatar + Liên hệ -->
       <div
@@ -16,7 +16,7 @@
       >
         <!-- Avatar -->
         <div class="relative w-[45mm] h-[45mm] rounded-full overflow-hidden mb-6 mx-auto bg-transparent border-[1.5px] border-slate-300">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover rounded-full" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -236,7 +236,7 @@
     </aside>
 
     <!-- RIGHT COLUMN -->
-    <main class="flex-1 flex flex-col relative bg-white z-20 min-h-max" @click.self="selectedSectionId = null">
+    <main class="keep-print-height flex-1 flex flex-col relative bg-white z-20 min-h-max" @click.self="selectedSectionId = null">
 
       <!-- Header: Tên + Nghề nghiệp + Summary -->
       <header
@@ -936,8 +936,6 @@ main {
     border-color: transparent !important;
     transform: none !important;
     border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 }
 
@@ -951,7 +949,5 @@ main {
   background: transparent !important;
   border-color: transparent !important;
   transform: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
 }
 </style>

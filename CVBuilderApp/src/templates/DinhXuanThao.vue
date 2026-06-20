@@ -15,7 +15,7 @@
       <!-- Avatar Section -->
       <div class="pt-[14mm] px-[8mm] pb-[4mm] flex flex-col paginated-item relative z-20 items-center bg-[#f9f9f9]">
         <div class="relative w-[50mm] h-[50mm] rounded-full overflow-hidden mx-auto bg-gray-200 shadow-sm border-[2px] border-white z-10">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
             <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

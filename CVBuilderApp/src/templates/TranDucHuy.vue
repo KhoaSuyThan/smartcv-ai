@@ -10,7 +10,7 @@
     <aside class="w-[70mm] z-10 flex flex-col pt-0 shrink-0 relative text-white" :style="{ backgroundColor: templatePrimaryColor }">
       <!-- Avatar Section -->
       <div class="relative w-[70mm] h-[85mm] shrink-0 border-b-[4px]" :style="{ backgroundColor: templateAvatarBgColor, borderBottomColor: templateAccentColor }">
-        <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+        <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
         <div v-else class="w-full h-full flex items-center justify-center text-white/50" :style="{ backgroundColor: templatePrimaryColor }">
           <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

@@ -2,19 +2,19 @@
   <div id="cv-printable-area" ref="cvRoot" class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border text-[#333] leading-relaxed" :style="{ minHeight: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', \'Segoe UI\', sans-serif' }">
     
     <!-- TRANG TRÍ GÓC TRÁI TRÊN -->
-    <div class="absolute top-0 left-0 w-[60mm] h-[60mm] z-0" :style="{ backgroundColor: (resumeData.theme.primaryColor || '#2d7fb2') + '15' }"></div>
-    <div class="absolute top-0 left-0 w-[12mm] h-[80mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
-    <div class="absolute top-0 left-0 w-[60mm] h-[4mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
+    <div class="deco-element" :style="{ position: 'absolute', top: 0, left: 0, width: '60mm', height: '60mm', zIndex: 1, backgroundColor: (resumeData.theme?.primaryColor || '#2d7fb2') + '15' }"></div>
+    <div class="deco-element" :style="{ position: 'absolute', top: 0, left: 0, width: '12mm', height: '80mm', zIndex: 1, backgroundColor: resumeData.theme?.primaryColor || '#2d7fb2' }"></div>
+    <div class="deco-element" :style="{ position: 'absolute', top: 0, left: 0, width: '60mm', height: '4mm', zIndex: 1, backgroundColor: resumeData.theme?.primaryColor || '#2d7fb2' }"></div>
 
     <!-- THANH TRANG TRÍ DỌC BÊN PHẢI -->
-    <div class="absolute bottom-0 right-0 w-[7mm] h-[150mm] z-0" :style="{ backgroundColor: resumeData.theme.primaryColor || '#2d7fb2' }"></div>
+    <div class="deco-element" :style="{ position: 'absolute', bottom: 0, right: 0, width: '7mm', height: '150mm', zIndex: 1, backgroundColor: resumeData.theme?.primaryColor || '#2d7fb2' }"></div>
 
     <!-- HEADER BLOCK -->
     <header class="relative z-10 pt-[15mm] px-[15mm] pb-[8mm] flex gap-12 items-center paginated-item">
         <!-- Avatar Section -->
         <div class="relative ml-4">
             <div class="w-[52mm] h-[52mm] rounded-full border-[8px] border-white shadow-2xl overflow-hidden bg-slate-100 flex-shrink-0 relative z-10 ring-1 ring-slate-100">
-                <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+                <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
                 <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
                     <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                 </div>
@@ -809,5 +809,38 @@ const onDragEnd = () => {
     box-shadow: none !important;
     background: transparent !important;
     border-color: transparent !important;
+}
+
+.deco-box-1 {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 60mm !important;
+    height: 60mm !important;
+    z-index: 1 !important;
+}
+.deco-bar-left-1 {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 12mm !important;
+    height: 80mm !important;
+    z-index: 1 !important;
+}
+.deco-bar-left-2 {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 60mm !important;
+    height: 4mm !important;
+    z-index: 1 !important;
+}
+.deco-bar-right {
+    position: absolute !important;
+    bottom: 0 !important;
+    right: 0 !important;
+    width: 7mm !important;
+    height: 150mm !important;
+    z-index: 1 !important;
 }
 </style>

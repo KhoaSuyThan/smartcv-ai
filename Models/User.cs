@@ -12,6 +12,7 @@ namespace DoAnCS.Models {
         public virtual Company? Company { get; set; }
         public string? Role { get; set; } = "User"; // Mặc định là User
         public bool IsPro { get; set; } = false; // Tài khoản Pro
+        public DateTime? ProExpirationDate { get; set; } // Ngày hết hạn của gói Pro
         public string? AvatarUrl { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         

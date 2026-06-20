@@ -1,0 +1,162 @@
+@model X.PagedList.IPagedList<DoAnCS.Models.SiteFeedback>
+@using X.PagedList.Mvc.Core;
+
+@{
+    ViewData["Title"] = "Quản lý Đánh giá Trang Web";
+    double avgRating = ViewBag.AvgRating ?? 0;
+    int totalFeedbacks = ViewBag.TotalFeedbacks ?? 0;
+}
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<div class="container-fluid px-5 py-4" style="background-color: #f8fbff; min-height: 100vh;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold m-0">
+                <i class='bx bxs-star text-warning me-2'></i>Đánh giá trang web
+            </h2>
+            <p class="text-muted small mb-0">Hệ thống đang có <span class="badge bg-warning text-dark rounded-pill">@totalFeedbacks phản hồi</span></p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
+                <i class='bx bx-left-arrow-alt'></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Tổng quan Cards -->
+    <div class="row mb-4 g-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+                <div class="card-body p-4 position-relative">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs fw-bold text-warning text-uppercase mb-1" style="letter-spacing: 1px;">Điểm Trung Bình</div>
+                            <div class="h3 mb-0 fw-bold text-dark">
+                                @avgRating <span class="fs-5 text-muted fw-normal">/ 5</span>
+                            </div>
+                        </div>
+                        <div class="text-warning opacity-75">
+                            <i class='bx bxs-star bx-md'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="text-xs fw-bold text-primary text-uppercase mb-1" style="letter-spacing: 1px;">Tổng Lượt Đánh Giá</div>
+                            <div class="h3 mb-0 fw-bold text-dark">@totalFeedbacks</div>
+                        </div>
+                        <div class="text-primary opacity-50">
+                            <i class='bx bx-message-rounded-dots bx-md'></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Danh sách -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4 py-3">Người dùng</th>
+                            <th class="text-center">Đánh giá</th>
+                            <th>Nội dung góp ý</th>
+                            <th>Cập nhật lần cuối</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var f in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(f.User?.AvatarUrl))
+                                            {
+                                                <img src="@f.User.AvatarUrl" class="rounded-circle me-3 border shadow-sm" style="width:42px;height:42px;object-fit:cover;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="avatar-sm me-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 42px; height: 42px;">
+                                                    @(f.User?.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                                                </div>
+                                            }
+                                            <div>
+                                                <strong class="text-dark d-block">@f.User?.FullName</strong>
+                                                <span class="small text-muted">@f.User?.Email</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 py-2 fs-6 fw-bold">
+                                            @f.Rating <i class='bx bxs-star ms-1'></i>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(f.Comment))
+                                        {
+                                            <div class="text-dark" style="max-width: 450px; white-space: normal; line-height: 1.5;">@f.Comment</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fst-italic small">Không có nội dung</span>
+                                        }
+                                    </td>
+                                    <td class="text-muted small">
+                                        <i class='bx bx-time-five me-1'></i>@f.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class='bx bx-ghost fs-1 mb-3 text-secondary opacity-50'></i>
+                                    <p class="mb-0">Chưa có đánh giá nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Phân trang -->
+            @if (Model != null && Model.PageCount > 1)
+            {
+                <div class="d-flex justify-content-center p-4 bg-white border-top">
+                    @Html.PagedListPager(Model, page => Url.Action("Feedbacks", new { page }), new PagedListRenderOptions
+                    {
+                        LiElementClasses = new[] { "page-item" },
+                        PageClasses = new[] { "page-link" },
+                        UlElementClasses = new[] { "pagination", "mb-0", "shadow-sm" }
+                    })
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-light { background-color: #f8f9fa !important; }
+    .btn-white { background: white; transition: all 0.2s; }
+    .btn-white:hover { background: #f1f5f9; transform: translateY(-2px); }
+    
+    .bg-warning-subtle { background-color: #fef3c7 !important; }
+    .text-warning { color: #f59e0b !important; }
+    .border-warning-subtle { border-color: #fde68a !important; }
+    
+    .bg-primary-subtle { background-color: #e0f2fe !important; }
+</style>

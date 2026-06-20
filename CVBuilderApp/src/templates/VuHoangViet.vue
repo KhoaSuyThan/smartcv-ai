@@ -11,11 +11,11 @@
       <aside class="left-column">
         
         <div class="profile-section relative">
-          <h1 class="fullname paginated-item">{{ !isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Vũ Hoàng Việt' }}</h1>
-          <div class="job-title paginated-item">{{ !isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Thực tập sinh Kiểm toán' }}</div>
+          <h1 class="fullname paginated-item" v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'Vũ Hoàng Việt'"></h1>
+          <div class="job-title paginated-item" v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Thực tập sinh Kiểm toán'"></div>
           
           <div class="avatar-container paginated-item">
-            <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="avatar-img" alt="Avatar"/>
+            <img v-if="resumeData.general.avatarUrl || resumeData.general.avatar" :src="resumeData.general.avatarUrl || resumeData.general.avatar" class="rounded-full avatar-img" alt="Avatar"/>
             <div v-else class="avatar-placeholder">
               <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
                 <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
@@ -278,7 +278,11 @@ const activeBorderShadow = computed(() => {
 
 const emit = defineEmits(['moveUp', 'moveDown', 'moveHorizontal', 'removeItem'])
 
-const isEmpty = (v) => !v || v.toString().trim() === ''
+const isEmpty = (val) => {
+  if (!val) return true;
+  if (typeof val !== 'string') return false;
+  return val.replace(/<[^>]*>/g, '').trim() === '';
+}
 
 // ─── CONTACT ITEMS: Danh sách động có thể sắp xếp / ẩn ───
 const contactIcons = {

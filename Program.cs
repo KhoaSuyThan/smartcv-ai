@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using DoAnCS.Services;
 using Microsoft.AspNetCore.HttpOverrides;
 using PayOS;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
@@ -20,6 +22,7 @@ builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
+builder.Services.AddHostedService<ProExpirationService>();
 
 // Cấu hình PayOS
 var clientId = builder.Configuration["PayOS:ClientId"] ?? throw new Exception("Không tìm thấy PayOS:ClientId");
@@ -29,7 +32,8 @@ builder.Services.AddSingleton(new PayOSClient(clientId, apiKey, checksumKey));
 
 // Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(activeConnectionString) 
+    options.UseSqlServer(activeConnectionString)
+           .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning))
 );
 
 // --- 2. CẤU HÌNH AUTHENTICATION (CHỈ GỘP VÀO 1 CHỖ NÀY) ---
@@ -61,6 +65,28 @@ builder.Services.AddAuthentication(options =>
                 {
                     context.RejectPrincipal();
                     await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return;
+                }
+
+                // Tự động làm mới quyền Pro ngầm mà không bắt đăng nhập lại
+                var isProClaim = context.Principal.HasClaim("IsPro", "True");
+                var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var userInDb = await dbContext.Users.FindAsync(userId);
+                
+                if (userInDb != null && userInDb.IsPro != isProClaim)
+                {
+                    var identity = context.Principal.Identity as System.Security.Claims.ClaimsIdentity;
+                    if (identity != null)
+                    {
+                        var oldClaim = identity.FindFirst("IsPro");
+                        if (oldClaim != null) identity.RemoveClaim(oldClaim);
+                        
+                        if (userInDb.IsPro == true) 
+                            identity.AddClaim(new System.Security.Claims.Claim("IsPro", "True"));
+
+                        context.ReplacePrincipal(context.Principal);
+                        context.ShouldRenew = true;
+                    }
                 }
             }
         }
@@ -115,7 +141,82 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Cấu hình Rate Limiting (Chống Spam API/Form)
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("ContactLimiter", opt =>
+    {
+        opt.Window = TimeSpan.FromHours(1);
+        opt.PermitLimit = 3; // Tối đa 3 tin nhắn
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    
+    // Tùy chỉnh thông báo lỗi khi vượt giới hạn (429 Too Many Requests)
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
+        await context.HttpContext.Response.WriteAsync(@"
+            <html>
+            <head><title>Quá nhiều yêu cầu</title></head>
+            <body style='text-align:center; padding: 50px; font-family: sans-serif;'>
+                <h2 style='color:#dc3545;'>Bạn đã gửi quá nhiều yêu cầu!</h2>
+                <p>Vui lòng đợi một khoảng thời gian trước khi gửi thêm tin nhắn mới.</p>
+                <button onclick='window.history.back()' style='padding:10px 20px; border:none; background:#0d6efd; color:white; border-radius:5px; cursor:pointer;'>Quay lại</button>
+            </body>
+            </html>
+        ", cancellationToken: token);
+    };
+});
+
 var app = builder.Build();
+
+// --- TỰ ĐỘNG CHẠY MIGRATION KHI STARTUP ---
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        // Kiểm tra nếu cột ProExpirationDate đã tồn tại trong DB thực tế (do tạo thủ công hoặc chạy script SQL)
+        // nhưng lại chưa được ghi nhận trong bảng lịch sử Migrations của EF Core, ta sẽ thêm thủ công vào lịch sử để tránh lỗi.
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+                BEGIN
+                    CREATE TABLE [__EFMigrationsHistory] (
+                        [MigrationId] nvarchar(150) NOT NULL,
+                        [ProductVersion] nvarchar(32) NOT NULL,
+                        CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+                    );
+                END
+            ");
+
+            context.Database.ExecuteSqlRaw(@"
+                IF COL_LENGTH('Users', 'ProExpirationDate') IS NOT NULL
+                BEGIN
+                    IF NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory] WHERE [MigrationId] = '20260612072825_AddProExpirationDate')
+                    BEGIN
+                        INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+                        VALUES ('20260612072825_AddProExpirationDate', '8.0.8');
+                    END
+                END
+            ");
+        }
+        catch (Exception dbEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể kiểm tra cột ProExpirationDate bằng raw SQL, tiến hành chạy migration mặc định. Chi tiết: " + dbEx.Message);
+        }
+
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Lỗi khi chạy Migration tự động: " + ex.Message);
+    }
+}
 
 var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
@@ -168,6 +269,8 @@ app.UseStaticFiles(new StaticFileOptions
 // --- KẾT THÚC: CẤU HÌNH THƯ MỤC LƯU TRỮ NGOÀI ---
 
 app.UseRouting();
+
+app.UseRateLimiter(); // Phải nằm giữa UseRouting và UseAuthentication
 
 app.UseSession(); // Session phải nằm trước Authentication
 

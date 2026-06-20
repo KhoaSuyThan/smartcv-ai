@@ -25,7 +25,7 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[64mm] h-[64mm] rounded-full blur-xl z-0" :style="{ backgroundImage: 'linear-gradient(to bottom right, ' + templatePrimaryColor + '4D, ' + templateSecondaryColor + '33)' }"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[54mm] h-[54mm] rounded-full opacity-90 z-0" :style="{ backgroundImage: 'linear-gradient(to bottom right, ' + templatePrimaryColor + ', ' + templateSecondaryColor + ')' }"></div>
         <div class="w-[50mm] h-[50mm] rounded-full border-[6px] border-white shadow-2xl overflow-hidden bg-slate-100 relative z-10">
-          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="w-full h-full object-cover" />
+          <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
           <div v-else class="w-full h-full flex items-center justify-center text-slate-300">
             <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>

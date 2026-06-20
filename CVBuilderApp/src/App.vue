@@ -583,7 +583,7 @@
         </div>
 
         <!-- Vùng chứa CV: Dùng flex-col items-center và margin động để thanh cuộn khớp với tỉ lệ scale -->
-        <div class="flex flex-col items-center pt-8 pb-32 min-w-max">
+        <div class="cv-preview-wrapper flex flex-col items-center pt-8 pb-32 min-w-max">
             <div class="cv-preview-card transition-transform duration-300 origin-top shadow-2xl bg-white flex-shrink-0" 
                  @click.capture="handlePreviewClick"
                  :style="{ 
@@ -1348,86 +1348,62 @@ const exportToPDF = async () => {
   if (!cvEl) { window.print(); return; }
 
   isExporting.value = true;
-  
-  // Lưu lại viewport state và scale cũ
-  const originalScale = previewScale.value;
-  // Đưa scale về đúng 100% để canvas chụp chính xác tỷ lệ và độ phân giải
-  previewScale.value = 1.0;
-  
-  // Xóa bỏ trạng thái active/hover box tạm thời bằng cách thêm class is-exporting-pdf
-  cvEl.classList.add('is-exporting-pdf');
-  
-  // Đợi Vue render DOM xong (do thay đổi scale và xóa trạng thái)
-  await new Promise(resolve => setTimeout(resolve, 500));
-
-  // --- WATERMARK CHO USER FREE ---
-  let watermarkEl = null;
-  if (!isProUser.value) {
-      watermarkEl = document.createElement('div');
-      watermarkEl.className = 'cv-watermark-free';
-      watermarkEl.textContent = '@cvbuilder';
-      cvEl.style.position = 'relative';
-      cvEl.appendChild(watermarkEl);
-      await new Promise(r => setTimeout(r, 100)); // Đợi DOM render watermark
-  }
 
   try {
-      // Sử dụng html-to-image giúp xử lý các CSS hiện đại (như oklch của Tailwind v4) mà không bị lỗi
-      const dataUrl = await toJpeg(cvEl, {
-          quality: 1.0,
-          pixelRatio: 2.5, // Giảm nhẹ xuống 2.5 để tăng tốc độ preview (vẫn rất sắc nét)
-          backgroundColor: '#ffffff'
-      });
+    document.body.classList.add('is-exporting-pdf');
+    // Override trực tiếp trên element gốc đang live (có đủ CSS đang apply)
+    // Dùng setProperty với 'important' để chắc chắn thắng mọi CSS kể cả Tailwind !important
+    cvEl.style.setProperty('overflow', 'visible', 'important');
+    cvEl.style.setProperty('min-height', '0', 'important');
 
-      exportPreviewUrl.value = dataUrl;
-      
-      // Tính số trang để hiển thị preview tách trang
-      const pdfWidth = 210; 
-      const pageHeight = 297; 
-      const totalPdfHeight = (cvEl.offsetHeight * pdfWidth) / cvEl.offsetWidth; 
-      exportPagesCount.value = Math.max(1, Math.ceil((totalPdfHeight - 2) / pageHeight));
-      
-      showExportModal.value = true;
+    // Override main, aside và các cột con bên trong template
+    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
+      el.style.setProperty('overflow', 'visible', 'important');
+      el.style.setProperty('height', '100%', 'important');
+      el.style.setProperty('max-height', 'none', 'important');
+    });
+
+    // Watermark cho Free user
+    let wm = null;
+    if (!isProUser.value) {
+      wm = document.createElement('div');
+      wm.textContent = '@cvbuilder';
+      wm.style.cssText = 'position:absolute;bottom:10px;left:14px;font-size:9px;color:rgba(100,116,139,0.55);font-family:Inter,sans-serif;font-weight:500;z-index:10;pointer-events:none;';
+      cvEl.appendChild(wm);
+    }
+
+    const origTitle = document.title;
+    document.title = 'CV_' + (resumeData.value.general.fullName || 'Export');
+
+    // window.print() — Builder.cshtml đã có @media print ẩn UI, hiện CV
+    window.print();
+
+    // Restore
+    document.body.classList.remove('is-exporting-pdf');
+    document.title = origTitle;
+    cvEl.style.removeProperty('overflow');
+    cvEl.style.removeProperty('min-height');
+    cvEl.querySelectorAll('main, aside, .left-sidebar, .right-main, .cv-sidebar, .cv-main-content').forEach(el => {
+      el.style.removeProperty('overflow');
+      el.style.removeProperty('height');
+      el.style.removeProperty('max-height');
+    });
+    if (wm) wm.remove();
+
+    try {
+      const id = window.CURRENT_RESUME_ID || 0;
+      if (id) await fetch('/Resume/LogExport?resumeId=' + id, { method: 'POST' });
+    } catch (e) { /* ignore */ }
+
   } catch (error) {
-      console.error('Lỗi khi chuẩn bị bản xem trước: ', error);
-      alert('Có lỗi xảy ra khi chuẩn bị bản xem trước. Vui lòng thử lại!');
+    console.error('Loi xuat PDF:', error);
+    alert('Co loi xay ra. Vui long thu lai!');
   } finally {
-      // Cleanup watermark sau khi chụp xong
-      if (watermarkEl) watermarkEl.remove();
-      // Trả lại scale cũ và loại bỏ class ẩn viền
-      cvEl.classList.remove('is-exporting-pdf');
-      previewScale.value = originalScale;
-      isExporting.value = false;
+    isExporting.value = false;
   }
 }
 
-const confirmDownloadPDF = async () => {
-  if (!exportPreviewUrl.value) return;
-  
-  isExporting.value = true;
-  try {
-      const cvEl = document.getElementById('cv-printable-area') || document.querySelector('.cv-preview-card');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = 210; 
-      const pageHeight = 297; 
-      
-      const totalPdfHeight = (cvEl.offsetHeight * pdfWidth) / cvEl.offsetWidth; 
-      const pages = Math.max(1, Math.ceil((totalPdfHeight - 2) / pageHeight));
 
-      for (let i = 0; i < pages; i++) {
-          if (i > 0) pdf.addPage();
-          pdf.addImage(exportPreviewUrl.value, 'JPEG', 0, -(i * pageHeight), pdfWidth, totalPdfHeight);
-      }
-      
-      pdf.save(`CV_${resumeData.value.general.fullName || 'Export'}.pdf`);
-      showExportModal.value = false;
-  } catch (error) {
-      console.error('Lỗi khi xuất PDF: ', error);
-      alert('Có lỗi xảy ra khi tải xuống PDF!');
-  } finally {
-      isExporting.value = false;
-  }
-}
 
 let cropperInstance = null;
 const onAvatarChange = (event) => {

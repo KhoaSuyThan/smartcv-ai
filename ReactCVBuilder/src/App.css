@@ -1,0 +1,6 @@
+
+body { margin: 0; padding: 0; background: #f0f2f5; font-family: "Segoe UI", sans-serif; }
+.builder-layout { display: flex; height: 100vh; overflow: hidden; }
+.builder-left-col { width: 500px; background: #fff; overflow-y: auto; border-right: 1px solid #ddd; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; display: flex; flex-direction: column; }
+.builder-right-col { flex: 1; overflow-y: auto; display: flex; justify-content: center; padding: 40px; background: #525659; }
+.preview-container { box-shadow: 0 4px 15px rgba(0,0,0,0.2); background: white; margin: 0 auto; }

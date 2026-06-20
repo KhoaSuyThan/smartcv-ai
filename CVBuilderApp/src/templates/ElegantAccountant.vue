@@ -40,7 +40,7 @@
             <h1
               class="m-0 leading-tight break-words"
               :style="{ fontSize: '64px', color: '#4a5568', fontFamily: 'Georgia, serif', fontWeight: '400' }"
-            >{{ isEmpty(resumeData.general.fullName) ? 'Họ Và Tên Ứng Viên' : resumeData.general.fullName }}</h1>
+            v-html="isEmpty(resumeData.general.fullName) ? 'Họ Và Tên Ứng Viên' : resumeData.general.fullName"></h1>
             <div class="h-[1px] w-full bg-[#cbd5e0] mt-[5px]"></div>
           </div>
 
@@ -78,7 +78,7 @@
             <img
               v-if="resumeData.general.avatarUrl"
               :src="resumeData.general.avatarUrl"
-              class="w-full h-full object-cover"
+              class="rounded-full w-full h-full object-cover"
               alt="Avatar"
             />
             <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
@@ -95,7 +95,7 @@
             <h2
               class="m-0 break-words leading-tight"
               :style="{ fontSize: '32px', color: '#333', fontWeight: '400' }"
-            >{{ isEmpty(resumeData.general.jobTitle) ? 'Vị Trí Ứng Tuyển' : resumeData.general.jobTitle }}</h2>
+            v-html="isEmpty(resumeData.general.jobTitle) ? 'Vị Trí Ứng Tuyển' : resumeData.general.jobTitle"></h2>
             <div class="h-[1px] w-full bg-[#333] mt-[10px]"></div>
           </div>
         </div>
