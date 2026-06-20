@@ -69,10 +69,10 @@
             
             /* Xóa bỏ hoàn toàn màu nền và pattern của UI khi in */
             html, body, body.cv-builder-page, #app, 
-            .content-wrapper:not(#cv-printable-area *), 
-            main:not(#cv-printable-area *), 
-            .cv-builder-container:not(#cv-printable-area *), 
-            .flex-1:not(#cv-printable-area *) { 
+            .content-wrapper, 
+            .content-wrapper > main, 
+            .cv-builder-container, 
+            .cv-builder-container > .flex-1 { 
                 background: white !important; 
                 background-image: none !important;
                 display: block !important; 
