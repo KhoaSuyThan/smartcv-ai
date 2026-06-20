@@ -8,8 +8,9 @@
   >
     <!-- FULL WIDTH HEADER (Orange Banner) -->
     <header
-      class="paginated-item relative w-full h-[45mm] flex items-center shrink-0 z-10"
+      class="paginated-item relative w-full flex items-center shrink-0 z-10"
       :style="{ backgroundColor: templatePrimaryColor, color: 'white' }"
+      style="height: 45mm !important;"
     >
       <!-- Name & Job Title Container starting at 72mm -->
       <div class="flex-1 pl-[72mm] pr-[12mm] flex flex-col justify-center">
@@ -25,12 +26,23 @@
         
         <!-- Capsule Container (Avatar + Personal Info in a capsule/ellipse shape) -->
         <div 
-          class="contact-capsule relative mt-[-22.5mm] mb-[6mm] w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center pt-[6mm] pb-[10mm] px-[4mm] gap-[3mm] z-30 section-block"
+          class="contact-capsule relative w-[60mm] bg-white rounded-[30mm] shadow-xl border border-slate-100 flex flex-col items-center gap-[3mm] z-30 section-block"
           :class="{ 'section-active': selectedSectionId === 'contact' }"
           @click.stop="toggleSection('contact')"
+          :style="{
+            marginTop: '-22.5mm',
+            marginBottom: '6mm',
+            paddingTop: '6mm',
+            paddingBottom: '10mm',
+            paddingLeft: '4mm',
+            paddingRight: '4mm'
+          }"
         >
           <!-- Avatar Circular -->
-          <div class="relative w-[45mm] h-[45mm] rounded-full overflow-hidden border-[4px] border-[#fafafa] shadow-inner bg-slate-100 shrink-0">
+          <div 
+            class="relative rounded-full overflow-hidden border-[4px] border-[#fafafa] shadow-inner bg-slate-100 shrink-0"
+            style="width: 45mm; height: 45mm;"
+          >
             <img v-if="resumeData.general.avatarUrl" :src="resumeData.general.avatarUrl" class="rounded-full w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400">
               <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,8 +155,11 @@
                 <!-- Fallback rendering for any other sidebar section -->
                 <div v-else class="space-y-3">
                   <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative text-slate-700 text-[12.5px] leading-relaxed">
-                    <div class="font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
-                    <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
+                    <div class="font-bold text-slate-900 mb-0.5" v-if="item.name || item.title || item.company || item.school">
+                      <span v-html="item.name || item.title || item.company || item.school"></span>
+                      <span v-if="['skills', 'languages', 'it_skills'].includes(section.id.toLowerCase()) && (item.level || item.info)" class="font-normal text-slate-500 ml-1">- <span v-html="item.level || item.info"></span></span>
+                    </div>
+                    <div class="html-content" v-if="item.desc || (item.info && !['skills', 'languages', 'it_skills'].includes(section.id.toLowerCase()))" v-html="formatDesc(item.desc || item.info)"></div>
                     <transition name="fade-btns">
                       <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
                         <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -228,9 +243,13 @@
                       <h4 class="text-slate-800 font-bold text-[13.5px] leading-snug">
                         <span v-html="item.school"></span><span v-if="item.major">, <span v-html="item.major"></span></span>
                       </h4>
-                      <span v-if="item.year" class="font-bold text-slate-400 text-[11.5px] uppercase tracking-wider mt-0.5"><span v-html="item.year"></span></span>
+                      <span v-if="item.year || item.time" class="font-bold text-slate-400 text-[11.5px] uppercase tracking-wider mt-0.5"><span v-html="item.year || item.time"></span></span>
                     </div>
-                    <div v-if="item.gradType" class="text-slate-600 font-semibold text-[12px] mb-1">Tốt nghiệp loại: <span v-html="item.gradType"></span></div>
+                    <div v-if="item.gradType || item.gpa" class="text-slate-600 font-semibold text-[12px] mb-1">
+                      <span v-if="item.gradType">Tốt nghiệp loại: <span v-html="item.gradType"></span></span>
+                      <span v-if="item.gradType && item.gpa"> | </span>
+                      <span v-if="item.gpa">GPA: <span v-html="item.gpa"></span></span>
+                    </div>
                   </div>
                   
                   <div class="leading-relaxed text-slate-600 text-justify html-content text-[12.5px]" v-html="formatDesc(item.desc)"></div>
@@ -783,26 +802,89 @@ main {
 
 @media print {
   .no-print { display: none !important; }
-  .section-block,
-  .section-block.section-active {
+  .section-block.section-active:not(.contact-capsule) {
     cursor: default !important;
     box-shadow: none !important;
     background: transparent !important;
     border-color: transparent !important;
     transform: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  }
+  .contact-capsule {
+    background: white !important;
+    border: 1px solid #f1f5f9 !important;
+    box-shadow: none !important;
   }
 }
 
 :global(.is-exporting-pdf .no-print) { display: none !important; }
-:global(.is-exporting-pdf .section-block),
-:global(.is-exporting-pdf .section-block.section-active) {
+:global(.is-exporting-pdf .section-block.section-active:not(.contact-capsule)) {
   cursor: default !important;
   box-shadow: none !important;
   background: transparent !important;
   border-color: transparent !important;
   transform: none !important;
+}
+:global(.is-exporting-pdf .contact-capsule) {
+  background: white !important;
+  border: 1px solid #f1f5f9 !important;
+  box-shadow: none !important;
+}
+</style>
+
+<!-- GLOBAL CSS FOR GENERAL PRINT OVERRIDES (AVOID SCOPED STRIPPING) -->
+<style>
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .cv-preview-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+  .cv-preview-card {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+  }
+  #cv-printable-area {
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+  }
+}
+
+.is-exporting-pdf .cv-preview-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+}
+.is-exporting-pdf .cv-preview-card {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 210mm !important;
+  min-height: 297mm !important;
+}
+.is-exporting-pdf #cv-printable-area {
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 210mm !important;
 }
 </style>
