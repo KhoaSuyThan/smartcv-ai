@@ -627,48 +627,137 @@ const formatDesc = (text) => {
 }
 
 // ── Pagination Logic ──────────────────────────────────────────────
+const A4_W_MM = 210
 const A4_H_MM = 297
 let paginateTimer = null
 
 const requestPagination = () => {
   if (paginateTimer) clearTimeout(paginateTimer)
-  paginateTimer = setTimeout(doPagination, 80)
+  paginateTimer = setTimeout(doPagination, 60)
 }
 
-const doPagination = async () => {
+const doPagination = () => {
   if (!cvRoot.value) return
-  const allEls = cvRoot.value.querySelectorAll('.paginated-item')
-  allEls.forEach(el => { el.style.marginTop = '' })
-  await nextTick()
 
-  const pxPerMm = cvRoot.value.offsetWidth / 210
+  // Filter out nested .paginated-item to only get the top-level outer elements
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
+    if (el.offsetHeight === 0) return false;
+    let parent = el.parentElement;
+    while (parent && parent !== cvRoot.value) {
+      if (parent.classList.contains('paginated-item')) return false;
+      parent = parent.parentElement;
+    }
+    return true;
+  });
+
+  // Reset margins on ALL paginated items and section-block wrappers
+  cvRoot.value.querySelectorAll('.paginated-item, .section-block').forEach(el => {
+    el.style.setProperty('margin-top', '0px', 'important')
+  })
+  
+  // Force synchronous layout reflow
+  cvRoot.value.offsetHeight;
+
+  const cvRect = cvRoot.value.getBoundingClientRect()
+  const pxPerMm = cvRect.width / A4_W_MM
   const pageH = A4_H_MM * pxPerMm
-  const safeBottom = 15 * pxPerMm
+  
+  const bottomSafeZone = 15 * pxPerMm 
+  const topMargin = 10 * pxPerMm 
 
-  const getTop = (el) => {
-    let offset = 0, curr = el
-    while (curr && curr !== cvRoot.value) { offset += curr.offsetTop; curr = curr.offsetParent }
-    return offset
+  console.log('[Paginate Debug] Starting doPagination', JSON.stringify({
+    cvWidth: cvRect.width,
+    pxPerMm,
+    pageH,
+    elementsCount: allElements.length
+  }))
+
+  let stable = false
+  let passes = 0
+
+  while (!stable && passes < 35) {
+    stable = true
+    passes++
+    
+    cvRoot.value.offsetHeight;
+    const currentCvRect = cvRoot.value.getBoundingClientRect()
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      if (el.offsetHeight === 0) continue
+
+      const elRect = el.getBoundingClientRect()
+      const top = elRect.top - currentCvRect.top
+      const height = elRect.height
+
+      const pageIndex = Math.floor(top / pageH)
+      const topInPage = top - (pageIndex * pageH)
+      const bottomInPage = topInPage + height
+
+      // Log info for elements
+      if (passes === 1) {
+        console.log(`[Paginate Debug] Pass 1, El ${i}:`, JSON.stringify({
+          class: el.className,
+          text: el.textContent.substring(0, 30).trim(),
+          top,
+          height,
+          pageIndex,
+          bottomInPage,
+          limit: pageH - bottomSafeZone,
+          isPushed: bottomInPage > (pageH - bottomSafeZone)
+        }))
+      }
+
+      if (height > (pageH - bottomSafeZone - topMargin)) continue
+
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const distToNextPage = pageH - topInPage + topMargin
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         
+         const sectionBlock = el.closest('.section-block')
+         if (sectionBlock && (el.classList.contains('section-heading') || sectionBlock.querySelector('.paginated-item') === el)) {
+           // Push the sectionBlock instead of the element
+           const blockCurrentMt = parseFloat(sectionBlock.style.marginTop || '0')
+           console.log(`[Paginate Debug] Pushing Section Block to next page!`, JSON.stringify({
+             distToNextPage,
+             newMt: blockCurrentMt + distToNextPage
+           }))
+           sectionBlock.style.setProperty('margin-top', `${blockCurrentMt + distToNextPage}px`, 'important')
+         } else {
+           console.log(`[Paginate Debug] Pushing El ${i} to next page!`, JSON.stringify({
+             text: el.textContent.substring(0, 30).trim(),
+             distToNextPage,
+             newMt: currentMt + distToNextPage
+           }))
+           el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         }
+         stable = false
+         break
+      }
+    }
   }
 
-  allEls.forEach(el => {
-    if (!el.offsetHeight) return
-    const top = getTop(el)
-    const bottomInPage = (top % pageH) + el.offsetHeight
-    if (bottomInPage > pageH - safeBottom) {
-      el.style.marginTop = `${pageH - (top % pageH) + 10}px`
-    }
+  cvRoot.value.offsetHeight;
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
+  let maxBottom = 0
+  allElements.forEach(el => {
+    const rect = el.getBoundingClientRect()
+    const bottom = rect.bottom - finalCvRect.top
+    if (bottom > maxBottom) maxBottom = bottom
   })
-
-  let maxB = 0
-  allEls.forEach(el => { maxB = Math.max(maxB, getTop(el) + el.offsetHeight) })
-  pageCount.value = Math.max(1, Math.ceil(maxB / pageH))
+  pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
+  console.log('[Paginate Debug] Finished doPagination', JSON.stringify({ pageCount: pageCount.value }))
 }
 
 watch(() => props.resumeData, requestPagination, { deep: true })
-onMounted(() => { requestPagination(); window.addEventListener('resize', requestPagination) })
+onMounted(() => { 
+  requestPagination()
+  window.addEventListener('resize', requestPagination) 
+  window.addEventListener('beforeprint', doPagination)
+})
 onUnmounted(() => {
   window.removeEventListener('resize', requestPagination)
+  window.removeEventListener('beforeprint', doPagination)
   if (paginateTimer) clearTimeout(paginateTimer)
 })
 </script>
@@ -782,5 +871,51 @@ onUnmounted(() => {
 .page-break-bar { width: 105%; height: 2px; background: rgba(0,0,0,0.1); border-top: 1px dashed rgba(0,0,0,0.2); }
 .page-break-label { font-size: 9px; text-transform: uppercase; font-weight: 700; color: #999; background: #fff; padding: 2px 10px; margin-top: -8px; }
 
-@media print { .no-print { display: none !important; } }
+/* Cố định phần Animation để không bị lỗi đo kích thước */
+.paginated-item, .section-block {
+  transition: none !important;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  
+  @page {
+    size: A4 portrait;
+    margin: 0 !important;
+  }
+  
+  #cv-printable-area {
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .section-block,
+  .section-active {
+    cursor: default !important;
+    box-shadow: none !important;
+    transform: none !important;
+    outline: none !important;
+  }
+}
+
+:global(.is-exporting-pdf .no-print) { display: none !important; }
+:global(.is-exporting-pdf .section-block),
+:global(.is-exporting-pdf .section-active) {
+  cursor: default !important;
+  box-shadow: none !important;
+  transform: none !important;
+  outline: none !important;
+}
+:global(.is-exporting-pdf #cv-printable-area) {
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 210mm !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
 </style>
