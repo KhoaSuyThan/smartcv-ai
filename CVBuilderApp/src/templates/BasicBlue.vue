@@ -7,7 +7,7 @@
     @click.self="selectedSectionId = null"
   >
     <!-- TOP BORDER BAR -->
-    <div class="w-full" :style="{ height: '5px', backgroundColor: templatePrimaryColor, flexShrink: 0 }"></div>
+    <div class="w-full deco-element" :style="{ height: '5px', backgroundColor: templatePrimaryColor, flexShrink: 0 }"></div>
 
     <!-- HEADER -->
     <header class="relative pt-[12mm] px-[12mm] pb-[6mm] flex items-start justify-between paginated-item">
@@ -141,13 +141,18 @@
                     <span class="font-bold px-3 py-1 rounded-full text-[10px] shrink-0 ml-4 border border-[#e2e8f0]" :style="{ backgroundColor: templateSecondaryColor, color: templatePrimaryColor }"><span v-html="item.year || '2017-2021'"></span></span>
                   </div>
                   <div class="font-bold text-slate-700" style="font-size: 12px !important;"><span v-html="item.major || 'Chuyên ngành'"></span></div>
+                  <div class="flex gap-2 text-slate-500 mt-1" style="font-size: 11px !important;" v-if="item.gradType || item.gpa">
+                    <span v-if="item.gradType">Xếp loại: <strong><span v-html="item.gradType"></span></strong></span>
+                    <span v-if="item.gradType && item.gpa"> | </span>
+                    <span v-if="item.gpa">GPA: <strong><span v-html="item.gpa"></span></strong></span>
+                  </div>
                   <div v-if="item.desc" class="html-content mt-1.5 text-slate-600 leading-relaxed" style="font-size: 11px !important;" v-html="formatDesc(item.desc)"></div>
                 </div>
               </div>
             </div>
 
-            <!-- Experience -->
-            <div v-else-if="section.id === 'experience'" class="space-y-5">
+            <!-- Experience, Projects, Activities -->
+            <div v-else-if="['experience', 'projects', 'project', 'activities', 'activity'].some(x => section.id.toLowerCase().includes(x))" class="space-y-5">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                 <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
@@ -156,11 +161,40 @@
                 </button>
                 <div class="paginated-item pr-2">
                   <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold uppercase" :style="{ color: templatePrimaryColor, fontSize: '13.5px !important' }"><span v-html="item.company || 'Tên công ty'"></span></span>
-                    <span class="font-bold px-3 py-1 rounded-full text-[10px] shrink-0 ml-4 border border-[#e2e8f0]" :style="{ backgroundColor: templateSecondaryColor, color: templatePrimaryColor }"><span v-html="item.time || '2024-Nay'"></span></span>
+                    <span class="font-bold uppercase" :style="{ color: templatePrimaryColor, fontSize: '13.5px !important' }">
+                      <span v-html="item.company || item.organization || item.name || item.title || 'Tên đơn vị'"></span>
+                    </span>
+                    <span class="font-bold px-3 py-1 rounded-full text-[10px] shrink-0 ml-4 border border-[#e2e8f0]" :style="{ backgroundColor: templateSecondaryColor, color: templatePrimaryColor }">
+                      <span v-html="item.time || item.year || 'Thời gian'"></span>
+                    </span>
                   </div>
-                  <div class="font-bold text-slate-700 mb-2" style="font-size: 12px !important;"><span v-html="item.role || 'Vị trí'"></span></div>
-                  <div class="html-content leading-relaxed text-slate-600" style="font-size: 11.5px !important;" v-html="formatDesc(item.desc || '')"></div>
+                  <div class="font-bold text-slate-700 mb-2" style="font-size: 12px !important;">
+                    <span v-html="item.role || item.position || ''"></span>
+                    <span v-if="(item.company || item.organization) && (item.name || item.title) && (item.name !== item.company) && (item.title !== item.organization)" class="text-slate-500 italic font-normal ml-2" style="font-size: 11px !important;">
+                      - Dự án: <span v-html="item.name || item.title"></span>
+                    </span>
+                  </div>
+                  <div class="html-content leading-relaxed text-slate-600" style="font-size: 11.5px !important;" v-html="formatDesc(item.desc || item.info || '')"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skills, IT Skills, Languages -->
+            <div v-else-if="['skills', 'it_skills', 'languages'].some(x => section.id.toLowerCase().includes(x))" class="space-y-3">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
+                <button v-show="selectedSectionId === section.id"
+                  @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  class="delete-btn no-print">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div class="paginated-item pr-2">
+                  <div class="font-bold text-slate-700 flex justify-between items-baseline" style="font-size: 12.5px !important;">
+                    <span v-html="item.name || 'Tên kỹ năng'"></span>
+                    <span v-if="item.level || item.info" class="font-semibold text-slate-500" style="font-size: 11.5px !important;">
+                      <span v-html="item.level || item.info"></span>
+                    </span>
+                  </div>
+                  <div v-if="item.desc" class="html-content mt-1 text-slate-600 leading-relaxed" style="font-size: 11px !important;" v-html="formatDesc(item.desc)"></div>
                 </div>
               </div>
             </div>
@@ -236,6 +270,59 @@
                 <div class="font-medium text-slate-700 leading-relaxed" style="font-size: 11px !important;">
                   <span v-html="item.name || item.info"></span>
                   <span v-if="item.organization" class="text-slate-500 italic"> - <span v-html="item.organization"></span></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skills, IT Skills, Languages -->
+            <div v-else-if="['skills', 'it_skills', 'languages'].some(x => section.id.toLowerCase().includes(x))" class="space-y-3">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
+                <button v-show="selectedSectionId === section.id"
+                  @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  class="delete-btn no-print">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div class="paginated-item pr-2">
+                  <div class="font-bold text-slate-700 flex justify-between items-baseline" style="font-size: 11.5px !important;">
+                    <span v-html="item.name || 'Tên kỹ năng'"></span>
+                    <span v-if="item.level || item.info" class="font-semibold text-slate-500" style="font-size: 10.5px !important;">
+                      <span v-html="item.level || item.info"></span>
+                    </span>
+                  </div>
+                  <div v-if="item.desc" class="html-content mt-1 text-slate-600 leading-relaxed" style="font-size: 10.5px !important;" v-html="formatDesc(item.desc)"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Education, Experience, Projects, Activities (if dragged to sidebar) -->
+            <div v-else-if="['education', 'experience', 'projects', 'project', 'activities', 'activity'].some(x => section.id.toLowerCase().includes(x))" class="space-y-4">
+              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
+                <button v-show="selectedSectionId === section.id"
+                  @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  class="delete-btn no-print">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <div class="paginated-item pr-2">
+                  <!-- Time/Year -->
+                  <div v-if="item.time || item.year" class="font-bold mb-0.5" :style="{ color: templatePrimaryColor, fontSize: '11px !important' }">
+                    <span v-html="item.time || item.year"></span>
+                  </div>
+                  <!-- Title / Major / Project / Activity Name -->
+                  <div class="font-bold text-slate-800" style="font-size: 11.5px !important;">
+                    <span v-html="item.major || item.role || item.position || item.name || item.title || ''"></span>
+                  </div>
+                  <!-- School / Company / Organization -->
+                  <div v-if="item.school || item.company || item.organization" class="font-medium text-slate-600" style="font-size: 11px !important;">
+                    <span v-html="item.school || item.company || item.organization"></span>
+                  </div>
+                  <!-- Education GradType / GPA -->
+                  <div class="flex gap-2 text-slate-500 mt-0.5" style="font-size: 10.5px !important;" v-if="item.gradType || item.gpa">
+                    <span v-if="item.gradType">Loại: <span v-html="item.gradType"></span></span>
+                    <span v-if="item.gradType && item.gpa"> | </span>
+                    <span v-if="item.gpa">GPA: <span v-html="item.gpa"></span></span>
+                  </div>
+                  <!-- Description -->
+                  <div v-if="item.desc || item.info" class="html-content mt-1 text-slate-500 leading-relaxed" style="font-size: 10.5px !important;" v-html="formatDesc(item.desc || item.info)"></div>
                 </div>
               </div>
             </div>
@@ -482,36 +569,51 @@ const mainIds = computed(() => mainSections.value.map(s => s.id))
 
 const formatDesc = (text) => {
   if (!text) return ''
-  if (!/(<[a-z][\s\S]*>)/i.test(text)) {
-    return text.split('\n').map(l => l.trim()).filter(Boolean)
-      .map(l => `<div class="paginated-item">${l}</div>`).join('')
+  
+  if (!/<[a-z][\s\S]*>/i.test(text)) {
+    return text.split('\n')
+               .map(l => l.trim())
+               .filter(Boolean)
+               .map(l => `<div class="paginated-item w-full block">${l}</div>`)
+               .join('')
   }
+
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = text
-  const container = document.createElement('div')
-  Array.from(tempDiv.childNodes).forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      if (node.textContent.trim()) {
-        const div = document.createElement('div')
-        div.className = 'paginated-item'
-        div.appendChild(node.cloneNode(true))
-        container.appendChild(div)
-      }
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      if (node.tagName === 'BR') {
-        const div = document.createElement('div')
-        div.className = 'paginated-item h-[12px]'
-        container.appendChild(div)
-      } else if (['UL', 'OL'].includes(node.tagName)) {
-        Array.from(node.children).forEach(li => li.classList.add('paginated-item'))
-        container.appendChild(node.cloneNode(true))
-      } else {
-        node.classList.add('paginated-item')
-        container.appendChild(node.cloneNode(true))
+
+  // Cứu mã màu của người dùng set trong Editor
+  tempDiv.querySelectorAll('li').forEach(li => {
+    const child = li.firstElementChild
+    if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
+      if (child.color) li.style.color = child.color
+      if (child.style?.color) li.style.color = child.style.color
+    }
+  })
+
+  // Định nghĩa các thẻ bao khối (Block)
+  const blockTags = ['P', 'DIV', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
+  
+  // Quét toàn bộ HTML, CHỈ gắn class 'paginated-item' cho các Block KHÔNG chứa Block con (Leaf-Blocks)
+  tempDiv.querySelectorAll('*').forEach(el => {
+    if (blockTags.includes(el.tagName.toUpperCase())) {
+      const hasBlockChild = Array.from(el.children).some(child => blockTags.includes(child.tagName.toUpperCase()))
+      if (!hasBlockChild) {
+        el.classList.add('paginated-item')
       }
     }
   })
-  return container.innerHTML
+
+  // Tự động bọc các dòng Text đứng bơ vơ bên ngoài
+  Array.from(tempDiv.childNodes).forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+       const wrapper = document.createElement('div')
+       wrapper.className = 'paginated-item w-full block'
+       node.replaceWith(wrapper)
+       wrapper.appendChild(node)
+    }
+  })
+
+  return tempDiv.innerHTML
 }
 
 let paginateTimer = null
@@ -520,40 +622,82 @@ const requestPagination = () => {
   paginateTimer = setTimeout(doPagination, 60)
 }
 
+const A4_W_MM = 210
+const A4_H_MM = 297
+
 const doPagination = async () => {
   if (!cvRoot.value) return
-  const allElements = cvRoot.value.querySelectorAll('.paginated-item')
-  allElements.forEach(el => { el.style.marginTop = '0px' })
+
+  // BỘ LỌC THÔNG MINH: Ngăn chặn lỗi lồng margin, chỉ tính các lớp con ngoài cùng
+  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
+    if (el.offsetHeight === 0) return false;
+    let parent = el.parentElement;
+    while (parent && parent !== cvRoot.value) {
+      if (parent.classList.contains('paginated-item')) return false;
+      parent = parent.parentElement;
+    }
+    return true;
+  });
+
+  allElements.forEach(el => {
+    el.style.setProperty('margin-top', '0px', 'important')
+  })
   await nextTick()
 
-  const A4_W_MM = 210
-  const A4_H_MM = 297
-  const pxPerMm = cvRoot.value.offsetWidth / A4_W_MM
+  const cvRect = cvRoot.value.getBoundingClientRect()
+  const pxPerMm = cvRect.width / A4_W_MM
   const pageH = A4_H_MM * pxPerMm
+  
+  // Thiết lập vùng an toàn 14mm cách đáy
   const bottomSafeZone = 14 * pxPerMm
   const topMargin = 15 * pxPerMm
 
-  const getOffsetTop = (el) => {
-    let offset = 0, curr = el
-    while (curr && curr !== cvRoot.value) { offset += curr.offsetTop; curr = curr.offsetParent }
-    return offset
+  let stable = false
+  let passes = 0
+
+  while (!stable && passes < 30) {
+    stable = true
+    passes++
+    
+    // Tự động tính toán lại chiều cao mỗi khi có dòng nhảy trang
+    const currentCvRect = cvRoot.value.getBoundingClientRect()
+
+    for (let i = 0; i < allElements.length; i++) {
+      const el = allElements[i]
+      if (el.offsetHeight === 0) continue
+
+      const elRect = el.getBoundingClientRect()
+      const top = elRect.top - currentCvRect.top
+      const height = elRect.height
+      const bottom = top + height
+
+      const pageIndex = Math.floor(top / pageH)
+      const topInPage = top - (pageIndex * pageH)
+      const bottomInPage = topInPage + height
+
+      // Bảo vệ vòng lặp nếu có khối bất thường
+      if (height > (pageH - bottomSafeZone - topMargin)) continue
+
+      // Nếu dòng chữ đụng vào vạch đen -> Đẩy xuống!
+      if (bottomInPage > (pageH - bottomSafeZone)) {
+         const distToNextPage = pageH - topInPage + topMargin
+         const currentMt = parseFloat(el.style.marginTop || '0')
+         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
+         stable = false
+         break
+      }
+    }
   }
 
-  allElements.forEach((el) => {
-    if (el.offsetHeight === 0) return
-    const top = getOffsetTop(el)
-    const topInPage = top % pageH
-    const bottomInPage = topInPage + el.offsetHeight
-    if (bottomInPage > (pageH - bottomSafeZone)) {
-      el.style.marginTop = `${pageH - topInPage + topMargin}px`
-    }
-  })
-
+  // Chốt độ dài thực tế của CV
+  const finalCvRect = cvRoot.value.getBoundingClientRect()
   let maxBottom = 0
   allElements.forEach(el => {
-    const b = getOffsetTop(el) + el.offsetHeight
-    if (b > maxBottom) maxBottom = b
+    const rect = el.getBoundingClientRect()
+    const bottom = rect.bottom - finalCvRect.top
+    if (bottom > maxBottom) maxBottom = bottom
   })
+
   pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
 }
 
@@ -576,10 +720,12 @@ onMounted(() => {
   }
   requestPagination()
   window.addEventListener('resize', requestPagination)
+  document.addEventListener('keyup', requestPagination)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', requestPagination)
+  document.removeEventListener('keyup', requestPagination)
   if (paginateTimer) clearTimeout(paginateTimer)
 })
 </script>
@@ -677,14 +823,49 @@ onUnmounted(() => {
   z-index: 30;
 }
 
-:deep(.html-content ul) { list-style-type: disc !important; padding-left: 1.2rem !important; }
-:deep(.html-content ol) { list-style-type: decimal !important; padding-left: 1.2rem !important; }
-:deep(.html-content li) { margin-bottom: 0.4rem; }
-:deep(.html-content b), :deep(.html-content strong) { font-weight: 700 !important; }
+.paginated-item {
+  transition: none !important; 
+}
+
+/* NGĂN CHẶN SỤP LỀ CSS - GIỮ PHÉP ĐO JAVASCRIPT CHUẨN XÁC */
+:deep(.html-content)                                   { margin: 0 !important; padding: 0 !important; }
+:deep(.html-content p)                                 { margin-bottom: 4px !important; padding: 0 !important; }
+:deep(.html-content ul)                                { list-style-type: disc !important; padding-left: 1.2rem !important; margin: 0.1rem 0 !important; }
+:deep(.html-content ol)                                { list-style-type: decimal !important; padding-left: 1.2rem !important; margin: 0.1rem 0 !important; }
+:deep(.html-content li)                                { margin-bottom: 0.15rem !important; }
+:deep(.html-content b), :deep(.html-content strong)    { font-weight: 700 !important; }
+:deep(.html-content i), :deep(.html-content em)        { font-style: italic !important; }
+:deep(.html-content u)                                 { text-decoration: underline !important; }
+
+:deep(.html-content li:has(> font[size="1"])) { font-size: 10px !important; }
+:deep(.html-content li:has(> font[size="2"])) { font-size: 13px !important; }
+:deep(.html-content li:has(> font[size="3"])) { font-size: 16px !important; }
 
 @media print {
   .no-print { display: none !important; }
-  .section-block, .contact-block { border: none !important; background: transparent !important; padding: 0 !important; }
+  .section-block, .contact-block {
+    cursor: default !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    padding: 6px !important;
+  }
   .nav-btns, .delete-btn { display: none !important; }
+}
+
+:global(.is-exporting-pdf .no-print) { display: none !important; }
+:global(.is-exporting-pdf .section-block),
+:global(.is-exporting-pdf .contact-block),
+:global(.is-exporting-pdf .section-active),
+:global(.is-exporting-pdf .contact-active) {
+  cursor: default !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 0 !important;
+  padding: 6px !important;
 }
 </style>
