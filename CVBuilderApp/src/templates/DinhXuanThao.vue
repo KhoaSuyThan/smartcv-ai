@@ -101,8 +101,8 @@
             </div>
 
             <div class="space-y-4 px-2" v-if="sectionHasContent(section)">
-              <!-- KỸ NĂNG -->
-              <div v-if="['skills'].includes(section.id)" class="space-y-4">
+              <!-- KỸ NĂNG, TIN HỌC, NGOẠI NGỮ -->
+              <div v-if="['skills', 'it_skills', 'languages'].includes(section.id)" class="space-y-4">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
@@ -226,8 +226,8 @@
                 <div class="text-[12px] text-gray-700 leading-[1.7] text-justify font-medium html-content" v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Với hơn hai năm kinh nghiệm ở các vị trí Product Manager, Business Analyst... tôi mong muốn tận dụng kỹ năng và kiến thức của mình để đóng góp cho công ty.')"></div>
               </div>
 
-              <!-- SKILLS -->
-              <div v-else-if="section.id === 'skills'" class="space-y-5">
+              <!-- SKILLS, IT SKILLS, LANGUAGES -->
+              <div v-else-if="['skills', 'it_skills', 'languages'].includes(section.id)" class="space-y-5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative pb-1">
                   <div class="flex justify-between items-baseline mb-2">
                     <span class="font-bold text-[13px] uppercase text-gray-800 tracking-wide"><span v-html="item.name"></span></span>
@@ -493,14 +493,14 @@ const templatePrimaryColor = computed(() => {
 })
 
 const sidebarSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages'].includes(s.id))
+  [...props.resumeData.sections]
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .filter(s => s.column === 'left' && !['summary'].includes(s.id))
 )
 const mainSections = computed(() => {
-  const sections = props.resumeData.sections.filter(s => 
-    s.column === 'right' && 
-    !['it_skills', 'languages'].includes(s.id)
-  )
-  return sections
+  return [...props.resumeData.sections]
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .filter(s => s.column === 'right')
 })
 
 const sidebarSectionsWritable = ref([])
@@ -781,6 +781,19 @@ main {
 
 @media print {
   .no-print { display: none !important; }
+  
+  @page {
+    size: A4 portrait;
+    margin: 0 !important;
+  }
+  
+  #cv-printable-area {
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 210mm !important;
+  }
+
   .section-block,
   .section-block.section-active {
     cursor: default !important;
@@ -788,9 +801,6 @@ main {
     background: transparent !important;
     border-color: transparent !important;
     transform: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 }
 
@@ -802,6 +812,12 @@ main {
   background: transparent !important;
   border-color: transparent !important;
   transform: none !important;
+}
+:global(.is-exporting-pdf #cv-printable-area) {
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 210mm !important;
 }
 </style>
 

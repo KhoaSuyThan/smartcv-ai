@@ -390,7 +390,7 @@ const adjustColorBrightness = (hex, percent) => {
 
 const templatePrimaryColor = computed(() => {
   const c = props.resumeData?.theme?.primaryColor
-  if (!c || c.toLowerCase() === '#2b5c8f') return '#0056b3'
+  if (!c || c.toLowerCase() === '#2b5c8f') return '#4A2B28'
   return c
 })
 
