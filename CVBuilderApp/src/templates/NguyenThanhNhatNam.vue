@@ -857,9 +857,16 @@ onUnmounted(() => {
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 #cv-printable-area {
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
   overflow-wrap: anywhere;
+}
+
+#cv-printable-area * {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
 }
 
 .section-title {
@@ -1012,12 +1019,7 @@ main {
   .section-block.section-active {
     cursor: default !important;
     box-shadow: none !important;
-    background: transparent !important;
-    border-color: transparent !important;
     transform: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
   }
 }
 
@@ -1026,8 +1028,6 @@ main {
 :global(.is-exporting-pdf .section-block.section-active) {
   cursor: default !important;
   box-shadow: none !important;
-  background: transparent !important;
-  border-color: transparent !important;
   transform: none !important;
 }
 </style>
