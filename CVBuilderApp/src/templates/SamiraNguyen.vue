@@ -149,8 +149,11 @@
                   :key="item._refId"
                   class="paginated-item item-container leading-relaxed text-[11px] font-medium text-[#2F2926] relative group/item"
                 >
-                  <div class="font-bold text-[11.5px] mb-0.5" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
-                  <div class="html-content" v-html="formatDesc(item.desc || item.info)"></div>
+                  <div class="flex justify-between items-baseline mb-0.5">
+                    <div class="font-bold text-[11.5px]" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
+                    <span v-if="item.year || item.time" class="text-[10px] text-gray-500 font-bold ml-2 shrink-0"><span v-html="item.year || item.time"></span></span>
+                  </div>
+                  <div class="html-content text-justify" v-html="formatDesc(item.desc || item.info || item.level)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -234,16 +237,19 @@
 
             <!-- Content -->
             <div class="space-y-3" v-if="sectionHasContent(section)">
-              <!-- KINH NGHIỆM (experience) -->
-              <div v-if="section.id.toLowerCase().includes('experience')" class="space-y-3">
+              <!-- KINH NGHIỆM & DỰ ÁN (experience, project, activities) -->
+              <div v-if="['experience', 'project', 'activities'].some(k => section.id.toLowerCase().includes(k))" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative group/item">
                   <div class="paginated-item">
-                    <div class="flex justify-between items-baseline mb-2">
+                    <div class="flex justify-between items-baseline mb-1">
                       <h4 class="text-[#2F2926] font-bold text-[12px] uppercase">
                         <span class="font-normal normal-case" v-if="item.role && item.role.toLowerCase().startsWith('thực tập')">Thực tập </span>
-                        <span class="font-bold" v-html="formatCleanRole(item.role)"></span>
+                        <span class="font-bold" v-html="formatCleanRole(section.id.toLowerCase().includes('experience') ? (item.role || item.position) : (item.role || 'Tham gia dự án'))"></span>
                       </h4>
-                      <span v-if="item.time" class="font-medium text-[#4A433F] text-[11.5px] italic shrink-0 ml-4"><span v-html="item.time"></span></span>
+                      <span v-if="item.time || item.year" class="font-medium text-[#4A433F] text-[11.5px] italic shrink-0 ml-4"><span v-html="item.time || item.year"></span></span>
+                    </div>
+                    <div class="text-[#4A433F] font-semibold text-[11.5px] mb-1.5" v-if="item.company || item.name || item.organization || item.title">
+                      <span v-html="section.id.toLowerCase().includes('experience') ? (item.company || item.organization) : (item.name || item.title || item.company)"></span>
                     </div>
                   </div>
                   
@@ -681,11 +687,13 @@ onMounted(() => {
         sec.isVisible = allowedIds.includes(sec.id.toLowerCase())
       }
       
-      // Gán cột chuẩn theo thiết kế
-      if (['skills', 'references'].includes(sec.id.toLowerCase())) {
-        sec.column = 'left'
-      } else if (['experience', 'education'].includes(sec.id.toLowerCase())) {
-        sec.column = 'right'
+      // Gán cột chuẩn theo thiết kế nếu chưa có
+      if (!sec.column) {
+        if (['skills', 'it_skills', 'languages', 'hobbies', 'references', 'certifications', 'awards'].some(k => sec.id.toLowerCase().includes(k))) {
+          sec.column = 'left'
+        } else {
+          sec.column = 'right'
+        }
       }
     })
   }

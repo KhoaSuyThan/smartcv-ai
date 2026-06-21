@@ -172,7 +172,8 @@
                 class="opacity-65 mb-1" style="font-size: 10.5px;">
                 <span v-html="item.year || item.time || item.date"></span>
               </div>
-              <div v-if="item.desc" class="html-content" v-html="formatDesc(item.desc)"></div>
+              <div v-if="!isEmpty(item.desc)" class="html-content" v-html="formatDesc(item.desc)"></div>
+              <div v-if="!isEmpty(item.info) && isEmpty(item.desc)" class="html-content" v-html="formatDesc(item.info)"></div>
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -324,7 +325,11 @@
             <div v-else class="space-y-4">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container relative text-[#333] leading-relaxed" style="font-size: 12px;">
-                <div class="html-content flex flex-col" v-html="formatDesc(item.desc || item.info || item.name)"></div>
+                <div v-if="!isEmpty(item.name || item.company || item.school)" class="font-bold mb-1"><span v-html="item.name || item.company || item.school"></span></div>
+                <div v-if="!isEmpty(item.role || item.major)" class="italic mb-1 opacity-80" style="font-size: 11.5px;"><span v-html="item.role || item.major"></span></div>
+                <div v-if="!isEmpty(item.year || item.time)" class="opacity-65 mb-1" style="font-size: 11px;"><span v-html="item.year || item.time"></span></div>
+                <div v-if="!isEmpty(item.desc)" class="html-content flex flex-col" v-html="formatDesc(item.desc)"></div>
+                <div v-if="!isEmpty(item.info) && isEmpty(item.desc)" class="html-content flex flex-col" v-html="formatDesc(item.info)"></div>
                 <button v-show="selectedSectionId === section.id" @click.stop.prevent="handleRemoveItem(section.id, itemIndex)"
                   class="delete-btn no-print" style="top: -4px; right: -4px;">
                   <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>

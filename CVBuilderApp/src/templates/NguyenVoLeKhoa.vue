@@ -112,7 +112,7 @@
 
             <div class="space-y-4" v-if="sectionHasContent(section)">
               <!-- Skills / Languages / IT Skills -->
-              <div v-if="['skills'].includes(section.id)" class="space-y-2">
+              <div v-if="['skills', 'it_skills', 'languages'].includes(section.id)" class="space-y-2">
                 <div
                   v-for="(item, itemIndex) in section.items"
                   :key="item._refId"
@@ -621,12 +621,12 @@ const templateSecondaryColor = computed(() => {
 
 
 const sidebarSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'left' && !['summary', 'it_skills', 'languages'].includes(s.id))
+  props.resumeData.sections.filter(s => s.column === 'left' && !['summary'].includes(s.id))
 )
 const mainSections = computed(() => {
   return props.resumeData.sections.filter(s => 
     s.column === 'right' && 
-    !['summary', 'it_skills', 'languages'].includes(s.id)
+    !['summary'].includes(s.id)
   )
 })
 const sidebarIds = computed(() => sidebarSections.value.map(s => s.id))

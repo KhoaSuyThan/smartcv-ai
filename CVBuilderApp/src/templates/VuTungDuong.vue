@@ -2,21 +2,30 @@
   <div
     id="cv-printable-area"
     ref="cvRoot"
-    class="bg-white flex w-[210mm] relative box-border overflow-hidden"
+    class="keep-print-height shadow-2xl w-[210mm] flex flex-row relative box-border overflow-hidden"
     :style="{
       height: `${Math.max(1, pageCount) * 297}mm`,
       fontFamily: '\'Inter\', sans-serif',
       fontSize: '13px',
-      lineHeight: '1.55'
+      lineHeight: '1.55',
+      WebkitPrintColorAdjust: 'exact',
+      printColorAdjust: 'exact'
     }"
     @click.self="selectedSectionId = null"
   >
+  
+    <!-- Nền cột trái độc lập để ép Chrome in màu ngay cả khi tắt Background Graphics -->
+    <div
+      class="absolute top-0 left-0 bottom-0 pointer-events-none"
+      style="width: 78mm; z-index: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact;"
+      :style="{ backgroundColor: templatePrimaryColor }"
+    ></div>
 
     <!-- ===================== CỘT TRÁI (SIDEBAR) ===================== -->
     <aside
-      class="flex-shrink-0 flex flex-col relative z-20"
+      class="keep-print-height flex-shrink-0 flex flex-col relative z-20"
       style="width: 78mm; color: #ffffff;"
-      :style="{ backgroundColor: templatePrimaryColor }"
+      :style="{ backgroundColor: 'transparent', minHeight: `${Math.max(1, pageCount) * 297}mm` }"
       @click.self="selectedSectionId = null"
     >
       <!-- AVATAR -->
@@ -208,7 +217,7 @@
 
     <!-- ===================== CỘT PHẢI (MAIN) ===================== -->
     <main
-      class="flex-1 flex flex-col relative z-10"
+      class="keep-print-height flex-1 flex flex-col relative bg-white z-10"
       style="padding: 14mm 8mm 8mm 8mm; overflow: hidden;"
       @click.self="selectedSectionId = null"
     >
@@ -885,7 +894,7 @@ aside .delete-btn { border-color: #3a3e43 !important; }
 :deep(.sidebar-html-content li)   { color: white !important; margin-bottom: 0.1rem !important; }
 
 @media print {
-  .no-print { display: none !important; }
+  .no-print, .delete-btn, .nav-btns, .contact-item-btns { display: none !important; }
   .section-block,
   .section-active--main,
   .section-active--sidebar {
@@ -902,7 +911,10 @@ aside .delete-btn { border-color: #3a3e43 !important; }
   main  .section-block  { padding-left: 4mm !important; padding-right: 4mm !important; }
 }
 
-:global(.is-exporting-pdf .no-print) { display: none !important; }
+:global(.is-exporting-pdf .no-print),
+:global(.is-exporting-pdf .delete-btn),
+:global(.is-exporting-pdf .nav-btns),
+:global(.is-exporting-pdf .contact-item-btns) { display: none !important; }
 :global(.is-exporting-pdf .section-block),
 :global(.is-exporting-pdf .section-active--main),
 :global(.is-exporting-pdf .section-active--sidebar) {

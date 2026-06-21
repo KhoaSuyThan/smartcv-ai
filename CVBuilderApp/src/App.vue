@@ -1608,9 +1608,9 @@ const loadData = async () => {
                     }
                   });
 
-                  // Force màu vàng cam mặc định cho VuTungDuong
+                  // Force màu mặc định (slot đầu tiên) cho VuTungDuong
                   if (!resumeData.value.theme) resumeData.value.theme = {};
-                  resumeData.value.theme.primaryColor = '#dfa234';
+                  resumeData.value.theme.primaryColor = '#2b5c8f';
                 }
 
                 // --- MIGRATION FOR NGUYENTHANHNHATNAM TEMPLATE ---

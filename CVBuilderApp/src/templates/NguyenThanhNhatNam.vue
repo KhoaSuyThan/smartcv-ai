@@ -178,8 +178,8 @@
                 </div>
               </div>
 
-              <!-- C. PROJECTS -->
-              <div v-else-if="section.id === 'project' || section.id === 'projects'" class="relative pl-[20px]">
+              <!-- C. KINH NGHIỆM LÀM VIỆC & PROJECTS -->
+              <div v-else-if="section.id.toLowerCase().includes('experience') || section.id === 'project' || section.id === 'projects'" class="relative pl-[20px]">
                 <!-- Đường kẻ trục đứng của timeline -->
                 <div class="absolute left-[3px] top-[4px] bottom-[4px] w-[1px]" :style="{ backgroundColor: templateBorderColor }"></div>
 
@@ -194,13 +194,13 @@
                         <span v-html="item.time || item.year"></span>
                       </div>
                       <div class="font-bold text-[13px] text-[#4A352F] text-right flex-1 leading-tight">
-                        <span v-html="item.role || 'Full-stack Web Developer'"></span>
+                        <span v-html="section.id.toLowerCase().includes('experience') ? (item.role || item.position) : (item.role || 'Tham gia dự án')"></span>
                       </div>
                     </div>
 
-                    <!-- Tên Dự án -->
+                    <!-- Tên Công ty / Dự án -->
                     <div class="font-extrabold text-[12px] text-[#4A352F] uppercase mb-1.5">
-                      <span v-html="item.name || item.title"></span>
+                      <span v-html="section.id.toLowerCase().includes('experience') ? (item.company || item.organization) : (item.name || item.title)"></span>
                     </div>
 
                     <!-- Mô tả và Trách nhiệm -->
@@ -252,8 +252,8 @@
                 </div>
               </div>
 
-              <!-- E. SKILLS -->
-              <div v-else-if="section.id === 'skills'" class="space-y-3.5">
+              <!-- E. SKILLS / IT SKILLS / LANGUAGES -->
+              <div v-else-if="['skills', 'it_skills', 'languages', 'skill', 'lang'].some(k => section.id.toLowerCase().includes(k))" class="space-y-3.5">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container text-[11.5px] relative">
                   <div class="font-bold text-[12.5px] text-[#4A352F] mb-1">
                     <span v-html="item.name"></span>
@@ -652,7 +652,7 @@ const formatDesc = (text) => {
 
 // Lọc các section hiển thị ở thân chính
 const mainSections = computed(() =>
-  props.resumeData.sections.filter(s => s.column === 'right' && !['hobbies', 'languages', 'awards', 'additional', 'summary'].includes(s.id))
+  props.resumeData.sections.filter(s => !['hobbies', 'additional', 'summary'].includes(s.id))
 )
 
 const mainSectionsWritable = ref([])
