@@ -173,6 +173,7 @@
               <div v-else-if="section.id.toLowerCase() === 'skills'" class="space-y-3">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container leading-relaxed">
                   <span class="text-[#334155] leading-snug" style="font-size: 16px !important;"><span v-html="item.name"></span></span>
+                  <span v-if="item.level || item.info" class="text-gray-500 font-normal ml-2" style="font-size: 14px !important;">(<span v-html="item.level || item.info"></span>)</span>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -185,7 +186,7 @@
               <div v-else class="space-y-4">
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative leading-relaxed">
                   <div class="paginated-item font-bold text-gray-900 mb-0.5" style="font-size: 16px !important;" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
-                  <div class="paginated-item font-medium text-gray-500 italic mb-1" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  <div class="paginated-item font-medium text-gray-500 italic mb-1" style="font-size: 14px !important;" v-if="item.time || item.year || item.level"><span v-html="item.time || item.year || item.level"></span></div>
                   <div class="html-content leading-relaxed" style="font-size: 16px !important;" v-html="formatDesc(item.desc || item.info)"></div>
                   
                   <transition name="fade-btns">
@@ -268,6 +269,7 @@
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative leading-relaxed">
                   <div class="paginated-item font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
                   <div class="paginated-item font-medium text-gray-500 italic" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  <div class="font-bold text-gray-800 mb-2" style="font-size: 16px !important;" v-if="item.role"><span v-html="item.role"></span></div>
                   <div class="html-content leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc || item.info)"></div>
 
                   <transition name="fade-btns">

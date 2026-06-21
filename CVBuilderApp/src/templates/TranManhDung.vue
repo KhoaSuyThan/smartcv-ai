@@ -202,6 +202,10 @@
                   :style="{ color: templateLightTextColor }"
                 >
                   <span v-html="item.name"></span>
+                  <span v-if="item.level || item.info" class="font-normal opacity-80 ml-1">(<span v-html="item.level || item.info"></span>)</span>
+                  <div v-if="item.role" class="font-bold opacity-90 mt-1"><span v-html="item.role"></span></div>
+                  <div v-if="item.time || item.year" class="italic opacity-80 mt-0.5"><span v-html="item.time || item.year"></span></div>
+                  <div v-if="item.desc" class="html-content mt-1 leading-relaxed" v-html="formatDesc(item.desc)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: 2px; right: 0;">
                       <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -343,8 +347,14 @@
                   :key="item._refId"
                   class="paginated-item text-[12.5px] text-[#333333] font-medium leading-relaxed item-container pl-1 relative"
                 >
-                  <span class="inline-block w-1.5 h-1.5 rounded-full mr-2 shrink-0" :style="{ backgroundColor: templatePillColor }"></span>
-                  <span v-html="item.name"></span>
+                  <span class="inline-block w-1.5 h-1.5 rounded-full mr-2 shrink-0" :style="{ backgroundColor: templatePillColor }" v-if="!item.desc && !item.role"></span>
+                  <span v-html="item.name" :class="{'font-bold': item.desc || item.role}"></span>
+                  <span v-if="item.level || item.info" class="font-normal text-[#555] ml-1">(<span v-html="item.level || item.info"></span>)</span>
+                  <div class="flex justify-between items-start mt-1" v-if="item.role || item.time || item.year">
+                    <div class="font-bold text-[#333]" v-if="item.role"><span v-html="item.role"></span></div>
+                    <div class="font-medium text-[#555] italic text-[12px] ml-auto" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                  </div>
+                  <div v-if="item.desc" class="html-content text-[12px] leading-[1.7] mt-1.5 text-justify" v-html="formatDesc(item.desc)"></div>
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
                       <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>

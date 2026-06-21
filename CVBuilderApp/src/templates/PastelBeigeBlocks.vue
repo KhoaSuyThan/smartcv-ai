@@ -309,10 +309,11 @@
                 
                 <template v-if="typeof item === 'object'">
                   <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
-                  <div v-else-if="item.name || item.title || item.level || item.year || item.time" class="paginated-item" style="margin-bottom: 4px;">
+                  <div v-else-if="item.name || item.title || item.level || item.year || item.time || item.role" class="paginated-item" style="margin-bottom: 4px;">
                     <strong v-if="item.name || item.title"><span v-html="item.name || item.title"></span></strong>
                     <span v-if="item.level"> — <span v-html="item.level"></span></span>
                     <span v-if="item.year || item.time"> (<span v-html="item.year || item.time"></span>)</span>
+                    <div v-if="item.role" style="font-weight: 500; margin-top: 2px; color: #555;"><span v-html="item.role"></span></div>
                   </div>
                   <div v-if="item.info || item.contact" class="html-content" v-html="formatDesc(item.info || item.contact)"></div>
                   <div v-if="item.desc || item.description" class="html-content" v-html="formatDesc(item.desc || item.description)"></div>

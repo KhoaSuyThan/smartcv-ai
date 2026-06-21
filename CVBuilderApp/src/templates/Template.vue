@@ -384,10 +384,6 @@ const doPagination = async () => {
     allElements.forEach(el => {
         el.style.setProperty('margin-top', '0px', 'important');
     });
-    
-    // Xóa margin trên các container để tránh xung đột
-    const allContainers = Array.from(cvRoot.value.querySelectorAll('.item-container'));
-    allContainers.forEach(el => el.style.setProperty('margin-top', '0px', 'important'));
 
     await nextTick();
 
@@ -401,9 +397,9 @@ const doPagination = async () => {
     const pxPerMm = offsetW / A4_W_MM; // Dùng chiều rộng gốc chưa bị scale
     const pageH = A4_H_MM * pxPerMm;
     
-    // Căn lề chuẩn cho mẫu CV này: Đáy 15mm, Đỉnh trang mới 15mm
-    const bottomSafeZone = 15 * pxPerMm;
-    const topMargin = 15 * pxPerMm;
+    // Căn lề chuẩn cho mẫu CV này: Đáy 14mm, Đỉnh trang mới 14mm
+    const bottomSafeZone = 14 * pxPerMm;
+    const topMargin = 14 * pxPerMm;
 
     let stable = false;
     let passes = 0;
@@ -443,6 +439,10 @@ const doPagination = async () => {
                 break;
             }
         }
+        
+        if (!stable) {
+            await nextTick();
+        }
     }
 
     // 5. Trả lại hiệu ứng hover cho giao diện
@@ -452,7 +452,8 @@ const doPagination = async () => {
     const finalCvRect = cvRoot.value.getBoundingClientRect();
     let maxBottom = 0;
     allElements.forEach(el => {
-        const bottom = (el.getBoundingClientRect().bottom - finalCvRect.top) / scale;
+        const rect = el.getBoundingClientRect();
+        const bottom = (rect.bottom - finalCvRect.top) / scale;
         if (bottom > maxBottom) maxBottom = bottom;
     });
 
@@ -485,11 +486,15 @@ onMounted(() => {
     requestPagination();
     window.addEventListener('resize', requestPagination);
     document.addEventListener('keyup', requestPagination);
+    window.addEventListener('before-pdf-print', requestPagination);
+    window.addEventListener('after-pdf-print', requestPagination);
 });
 
 onUnmounted(() => {
     window.removeEventListener('resize', requestPagination);
     document.removeEventListener('keyup', requestPagination);
+    window.removeEventListener('before-pdf-print', requestPagination);
+    window.removeEventListener('after-pdf-print', requestPagination);
     if (paginateTimer) clearTimeout(paginateTimer);
 });
 
@@ -794,9 +799,6 @@ const onDragEnd = () => {
         box-shadow: none !important;
         background: transparent !important;
         border-color: transparent !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border-radius: 0 !important;
     }
 }
 

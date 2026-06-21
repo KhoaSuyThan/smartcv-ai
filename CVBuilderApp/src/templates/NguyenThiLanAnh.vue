@@ -163,6 +163,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <span class="leading-tight" style="font-size: 16px !important;"><span v-html="item.name"></span></span>
+                  <span v-if="item.level || item.info" class="text-gray-500 font-normal ml-2" style="font-size: 14px !important;">(<span v-html="item.level || item.info"></span>)</span>
 
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn no-print" style="top: -5px; right: -5px;">
@@ -253,7 +254,7 @@
                 >
                   <div class="paginated-item">
                     <div class="font-bold text-gray-900 mb-1" style="font-size: 16px !important;" v-if="item.name || item.title"><span v-html="item.name || item.title"></span></div>
-                    <div class="font-medium text-gray-400 italic mb-1" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                    <div class="font-medium text-gray-400 italic mb-1" style="font-size: 14px !important;" v-if="item.time || item.year || item.level"><span v-html="item.time || item.year || item.level"></span></div>
                   </div>
                   <div class="text-[16px] leading-[1.65] html-content" style="font-size: 16px !important;" v-html="formatDesc(item.desc || item.info)"></div>
                   
@@ -334,6 +335,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                   <span class="leading-tight" style="font-size: 16px !important;"><span v-html="item.name"></span></span>
+                  <span v-if="item.level || item.info" class="text-gray-500 font-normal ml-2" style="font-size: 14px !important;">(<span v-html="item.level || item.info"></span>)</span>
 
                   <transition name="fade-btns">
                     <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-item-btn delete-item-btn--lg no-print">
@@ -421,6 +423,9 @@
                   <div class="paginated-item">
                     <div class="font-bold text-gray-900" style="font-size: 16px !important;" v-if="item.name || item.title || item.company || item.school"><span v-html="item.name || item.title || item.company || item.school"></span></div>
                     <div class="font-medium text-gray-500 italic" style="font-size: 14px !important;" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></div>
+                    <div class="font-bold text-gray-800 mt-1" style="font-size: 16px !important;" v-if="item.role">
+                      <strong class="font-black text-gray-900">Vai trò:</strong> <span v-html="item.role"></span>
+                    </div>
                   </div>
                   <div class="html-content text-[16px] leading-relaxed mt-1" style="font-size: 16px !important;" v-html="formatDesc(item.desc || item.info)"></div>
 
