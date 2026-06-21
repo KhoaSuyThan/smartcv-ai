@@ -20,6 +20,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CVBuilder Pro</title>
+    
+    <!-- Open Graph / Meta Tags for Social Media Sharing -->
+    @{
+        var pageTitle = ViewData["Title"] != null ? $"{ViewData["Title"]} - CVBuilder Pro" : "Kiến tạo sự nghiệp tương lai - CVBuilder Pro";
+        var pageDescription = ViewData["Description"] ?? "Nền tảng tiên phong tích hợp trí tuệ nhân tạo (AI) giúp tối ưu hóa CV và kết nối nhân tài với các doanh nghiệp hàng đầu.";
+        var request = Context.Request;
+        var absoluteFaviconUrl = $"{request.Scheme}://{request.Host}{Url.Content("~/favicon.png")}";
+    }
+    <meta name="description" content="@pageDescription" />
+    <meta property="og:title" content="@pageTitle" />
+    <meta property="og:description" content="@pageDescription" />
+    <meta property="og:image" content="@absoluteFaviconUrl" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="@($"{request.Scheme}://{request.Host}{request.Path}")" />
+
     <link rel="icon" type="image/png" href="~/favicon.png?v=2" />
     <link rel="shortcut icon" href="~/favicon.png?v=2" />
     <link rel="apple-touch-icon" href="~/favicon.png?v=2" />
