@@ -462,19 +462,19 @@ const adjustBrightness = (hex, percent) => {
 
 const templatePrimaryColor = computed(() => {
   const c = props.resumeData?.theme?.primaryColor
-  if (!c || c.toLowerCase() === '#0d6efd') return '#634c46'
+  if (!c || c.toLowerCase() === '#0d6efd' || c.toLowerCase() === '#2b5c8f') return '#634c46'
   return c
 })
 
 const templateSecondaryColor = computed(() => {
   const c = props.resumeData?.theme?.primaryColor
-  if (!c || c.toLowerCase() === '#0d6efd') return '#e5ddd5'
+  if (!c || c.toLowerCase() === '#0d6efd' || c.toLowerCase() === '#2b5c8f') return '#e5ddd5'
   return adjustBrightness(c, 0.88)
 })
 
 const badgeBgColor = computed(() => {
   const c = props.resumeData?.theme?.primaryColor
-  if (!c || c.toLowerCase() === '#0d6efd') return '#9b8a7e'
+  if (!c || c.toLowerCase() === '#0d6efd' || c.toLowerCase() === '#2b5c8f') return '#9b8a7e'
   return adjustBrightness(c, 0.35)
 })
 
