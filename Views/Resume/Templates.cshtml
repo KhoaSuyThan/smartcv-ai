@@ -4,22 +4,55 @@
 }
 
 <style>
+    body {
+        background-color: #f4f6f9 !important;
+    }
+
     /* Điều chỉnh tỷ lệ khung hình của thẻ Card để cao hơn, phù hợp với CV dọc */
     .template-card {
         position: relative; 
-        transition: transform 0.3s ease; 
-        border: 1px solid #eee !important;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: 1.25rem !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
+        overflow: hidden;
     }
-    .border-pro { border: 2px solid #ffc107 !important; }
+    
+    .template-card:hover {
+        transform: translateY(-8px); 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important; 
+    }
+
+    .border-pro { 
+        border: 2px solid #fbbf24 !important; 
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.25) !important;
+    }
+    .template-card.border-pro:hover {
+        box-shadow: 0 0 30px rgba(251, 191, 36, 0.5) !important;
+    }
+
+    /* Thêm wrapper nền cho ảnh để CV trắng nổi bật hẳn lên */
+    .template-card .position-relative {
+        padding: 1rem;
+        background: #f1f5f9;
+        border-radius: 1.25rem 1.25rem 0 0;
+        overflow: hidden;
+    }
 
     /* Sửa đổi CSS của thẻ ảnh để hiển thị phần trên cùng của CV rõ ràng */
     .template-card img {
         object-fit: contain !important; 
-        padding: 10px;
+        width: 100%;
+        height: 320px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        border-radius: 0.75rem;
+        background: white;
+        transition: transform 0.5s ease;
     }
-
-    /* Thêm hiệu ứng bóng đổ khi di chuột để ảnh xem trước trông nổi bật hơn */
-    .template-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    .template-card:hover img {
+        transform: scale(1.02);
+    }
 
     /* Đảm bảo lớp phủ (nút bấm) luôn nằm trên */
     .template-overlay {
@@ -45,16 +78,17 @@
         top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0, 0, 0, 0.4);
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: center;
         opacity: 0;
         transition: opacity 0.3s ease;
         z-index: 2;
+        border-radius: 1.25rem 1.25rem 0 0;
     }
     .template-card:hover .hover-overlay { opacity: 1; }
 </style>
 
-<div class="container py-5">
+<div class="container-fluid py-5" style="max-width: 1750px;">
     <div class="text-center mb-5">
         <h1 class="fw-bold mb-3 text-primary">Chọn mẫu CV để bắt đầu</h1>
         <p class="text-muted mx-auto" style="max-width: 600px;">
@@ -89,10 +123,10 @@
         </div>
     }
 
-    <div class="row g-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
         @foreach (var item in Model)
         {
-            <div class="col-md-4 col-lg-3 template-item" data-category="@item.Category">
+            <div class="col template-item" data-category="@item.Category">
                 <div class="card h-100 border-0 shadow-sm template-card @(item.IsProOnly ? "border-pro" : "")" style="background-color: #ffffff !important;">
                     @if (item.IsProOnly)
                     {
@@ -124,7 +158,7 @@
             </div>
         }
 
-        <div class="col-md-4 col-lg-3">
+        <div class="col">
             @if (User.IsInRole("Admin"))
             {
                 <a href="/Admin/CreateTemplate" class="text-decoration-none h-100 d-block">
