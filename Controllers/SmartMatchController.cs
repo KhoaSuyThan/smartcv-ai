@@ -103,26 +103,35 @@ namespace DoAnCS.Controllers
 
             // Gọi sang Python (Cổng 8000)
             var topCandidates = new List<Resume>();
-            using (var client = new HttpClient())
+            try
             {
-                var response = await client.PostAsJsonAsync("http://localhost:8000/api/filter-top-cvs", requestPayload);
-                if (!response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
-                    return Json(new { success = false, message = "Lỗi kết nối đến Python AI Service. Vui lòng kiểm tra server Python." });
-                }
+                    client.Timeout = TimeSpan.FromSeconds(10); // Giới hạn thời gian kết nối
+                    var response = await client.PostAsJsonAsync("http://localhost:8000/api/filter-top-cvs", requestPayload);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return Json(new { success = false, message = "Dịch vụ Python AI phản hồi lỗi. Vui lòng kiểm tra lại server Python." });
+                    }
 
-                var pythonResult = await response.Content.ReadFromJsonAsync<PythonFilterResponse>();
-                if (pythonResult != null && pythonResult.top_cvs != null)
-                {
-                    // Lấy Top 6 ứng viên xuất sắc nhất theo yêu cầu
-                    var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(6).ToList();
-                    
-                    // Lấy đúng các CV đã lọt Top
-                    topCandidates = publicResumes.Where(r => topResumeIds.Contains(r.ResumeID)).ToList();
-                    
-                    // Sắp xếp lại đúng thứ tự Python trả về (cao xuống thấp)
-                    topCandidates = topCandidates.OrderBy(r => topResumeIds.IndexOf(r.ResumeID)).ToList();
+                    var pythonResult = await response.Content.ReadFromJsonAsync<PythonFilterResponse>();
+                    if (pythonResult != null && pythonResult.top_cvs != null)
+                    {
+                        // Lấy Top 6 ứng viên xuất sắc nhất theo yêu cầu
+                        var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(6).ToList();
+                        
+                        // Lấy đúng các CV đã lọt Top
+                        topCandidates = publicResumes.Where(r => topResumeIds.Contains(r.ResumeID)).ToList();
+                        
+                        // Sắp xếp lại đúng thứ tự Python trả về (cao xuống thấp)
+                        topCandidates = topCandidates.OrderBy(r => topResumeIds.IndexOf(r.ResumeID)).ToList();
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SmartMatch Error] Lỗi kết nối Python: {ex.Message}");
+                return Json(new { success = false, message = "Không thể kết nối đến Dịch vụ Python AI (FastAPI tại cổng 8000). Vui lòng khởi chạy server Python trước!" });
             }
 
             Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm song song...");

@@ -6,13 +6,13 @@
 <style>
     /* Premium UI Styles */
     body {
-        background-color: #f8f9fa;
+        background-color: #f4f6f9 !important;
     }
     
     .hero-section {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         border-radius: 1.5rem;
-        padding: 4rem 2rem;
+        padding: 2rem 2rem;
         color: white;
         position: relative;
         overflow: hidden;
@@ -78,17 +78,18 @@
     }
 
     .template-card {
-        border: none !important;
-        border-radius: 1.25rem;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+        border-radius: 1.25rem !important;
         overflow: hidden;
         background: #ffffff;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02) !important;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
     }
 
     .template-card.border-pro { 
-        box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.2);
+        border: 2px solid #fbbf24 !important;
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.25) !important;
     }
     .template-card.border-pro::before {
         content: '';
@@ -100,13 +101,17 @@
 
     .template-card:hover { 
         transform: translateY(-8px); 
-        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15) !important; 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1) !important; 
+    }
+    
+    .template-card.border-pro:hover {
+        box-shadow: 0 0 30px rgba(251, 191, 36, 0.5) !important;
     }
 
     .card-img-wrapper {
         position: relative;
         padding: 1rem;
-        background: #f3f4f6;
+        background: #f1f5f9;
         border-radius: 1.25rem 1.25rem 0 0;
         overflow: hidden;
     }
@@ -117,7 +122,8 @@
         width: 100%;
         border-radius: 0.75rem;
         background: white;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
         transition: transform 0.5s ease;
     }
     
@@ -275,7 +281,7 @@
     }
 </style>
 
-<div class="container py-5">
+<div class="container-fluid py-5" style="max-width: 1750px;">
     <!-- Hero Section -->
     <div class="hero-section mb-5 text-center">
         <div class="hero-pattern"></div>
@@ -338,7 +344,7 @@
     }
 
     <!-- Cards Section -->
-    <div class="row g-4 justify-content-center">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 justify-content-center">
         @if (!Model.Any())
         {
             <div class="col-12 text-center py-5">
@@ -353,7 +359,7 @@
         {
             @foreach (var item in Model)
             {
-                <div class="col-md-6 col-lg-4 col-xl-3 template-item" data-category="@item.Category">
+                <div class="col template-item" data-category="@item.Category">
                     <div class="card h-100 template-card @(item.IsPremium ? "border-pro" : "")">
                         @if (item.IsPremium)
                         {

@@ -719,7 +719,7 @@
 
   <!-- MODAL TRÌNH TẠO THƯ XIN VIỆC AI -->
   <div class="modal fade" id="coverLetterModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 1200px;">
       <div class="modal-content border-0 shadow-2xl rounded-3xl overflow-hidden">
         <div class="modal-header bg-slate-900 text-white py-4 px-6 border-0">
           <div class="flex items-center gap-3">
@@ -734,28 +734,32 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body p-6 bg-slate-50">
-          <div class="space-y-5">
-            <div class="space-y-2">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển <span class="text-red-500">*</span></label>
-                <input 
-                    type="text" 
-                    v-model="targetCompany" 
-                    class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none" 
-                    placeholder="Ví dụ: FPT Software - Vị trí .NET Developer..."
-                >
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- CỘT TRÁI: NHẬP THÔNG TIN (HẸP HƠN - 5 CỘT) -->
+            <div class="md:col-span-5 space-y-4 flex flex-col justify-between">
+              <div class="space-y-2">
+                  <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển <span class="text-red-500">*</span></label>
+                  <input 
+                      type="text" 
+                      v-model="targetCompany" 
+                      class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none" 
+                      placeholder="Ví dụ: FPT Software - Vị trí .NET Developer..."
+                  >
+              </div>
+
+              <div class="space-y-2 flex-1 flex flex-col">
+                  <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả công việc (Tùy chọn - Giúp AI viết sát hơn)</label>
+                  <textarea 
+                      v-model="coverLetterJD" 
+                      class="w-full flex-1 bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none resize-none custom-scrollbar min-h-[300px]" 
+                      rows="10"
+                      placeholder="Dán nội dung yêu cầu công việc (JD) vào đây..."
+                  ></textarea>
+              </div>
             </div>
 
-            <div class="space-y-2 mt-4">
-                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả công việc (Tùy chọn - Giúp AI viết sát hơn)</label>
-                <textarea 
-                    v-model="coverLetterJD" 
-                    class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3 text-sm focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none resize-none custom-scrollbar" 
-                    rows="3"
-                    placeholder="Dán nội dung yêu cầu công việc (JD) vào đây..."
-                ></textarea>
-            </div>
-
-            <div class="space-y-2">
+            <!-- CỘT PHẢI: KẾT QUẢ AI TẠO (RỘNG HƠN - 7 CỘT) -->
+            <div class="md:col-span-7 space-y-2 flex flex-col">
                 <div class="flex items-center justify-between px-1">
                     <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Nội dung thư gợi ý</label>
                     <div class="flex items-center gap-4">
@@ -769,11 +773,12 @@
                         </button>
                     </div>
                 </div>
-                <div class="relative group">
+                <div class="relative group flex-1">
                     <textarea 
                         v-model="coverLetterResult" 
-                        class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed min-h-[350px] focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none custom-scrollbar" 
+                        class="w-full h-full min-h-[400px] bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
                         placeholder="Nội dung thư xin việc chuyên nghiệp sẽ xuất hiện tại đây..."
+                        rows="16"
                     ></textarea>
                     
                     <div v-if="isAIProcessing['cover_letter']" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center gap-3">

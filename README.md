@@ -86,13 +86,36 @@ Hoặc có thể chạy thủ công theo các lệnh sau:
 cd AiMatchService
 # Tạo môi trường ảo (nếu chưa có)
 python -m venv venv
-# Kích hoạt môi trường ảo (Windows)
+
+# Kích hoạt môi trường ảo:
+# - Trên Windows CMD / PowerShell:
 venv\Scripts\activate
+# - Trên Git Bash / Linux / macOS:
+source venv/Scripts/activate
+
 # Cài đặt thư viện cần thiết
-pip install -r requirements.txt
+pip install fastapi uvicorn pydantic sentence-transformers
+
 # Chạy server FastAPI
 python main.py
 ```
-Dịch vụ gợi ý việc làm sẽ hoạt động tại địa chỉ: `http://127.0.0.1:8000`
+Dịch vụ gợi ý việc làm sẽ hoạt động tại địa chỉ: `http://127.0.0.1:8000` hoặc `http://localhost:8000`
 
 ---
+
+## 👥 Đội Ngũ Phát Triển (Authors)
+
+Dự án được nghiên cứu và phát triển bởi:
+*   **Nguyễn Võ Lê Khoa**
+*   **Nguyễn Thành Nhất Nam**
+*   **Trần Đức Huy**
+
+---
+
+## ⚠️ Tuyên bố miễn trừ trách nhiệm (Disclaimer)
+Mọi thông tin liên quan đến các doanh nghiệp, tin tuyển dụng, hình ảnh và logo thương hiệu được sử dụng trong dự án này hoàn toàn là dữ liệu mẫu (mock data) được thu thập và giả lập với mục đích kiểm thử và minh họa tính năng (demo). Dự án không đại diện hoặc có bất kỳ mối quan hệ chính thức nào với các thương hiệu hoặc doanh nghiệp nói trên trong thực tế.
+
+---
+
+## 📝 Bản Quyền & Giấy Phép (License)
+Dự án được phát triển cho mục đích Đồ án cơ sở & đồ án chuyên ngành Công nghệ thông tin. Mọi hành vi sao chép hoặc phân phối lại cho các mục đích thương mại cần có sự đồng ý bằng văn bản của đội ngũ tác giả.
