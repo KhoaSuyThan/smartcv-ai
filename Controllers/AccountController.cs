@@ -62,60 +62,224 @@ namespace DoAnCS.Controllers
                 {
                     requestedRole = "User";
                 }
+                model.Register.Role = requestedRole;
 
-                // 2. Tạo đối tượng User mới từ dữ liệu người dùng nhập
+                // Sinh mã OTP 6 số để xác thực Email trước khi đăng ký chính thức
+                string otp = new Random().Next(100000, 999999).ToString();
+                
+                // Lưu thông tin đăng ký tạm thời vào Session dưới dạng JSON
+                HttpContext.Session.SetString("RegisterEmail", model.Register.Email);
+                HttpContext.Session.SetString("RegisterOTP", otp);
+                HttpContext.Session.SetString("RegisterOTPExpires", DateTime.Now.AddMinutes(3).ToString("o")); // Định dạng ISO 8601
+                HttpContext.Session.SetString("PendingRegister", System.Text.Json.JsonSerializer.Serialize(model.Register));
+
+                // Gửi Email chứa mã OTP xác nhận tài khoản chạy ngầm để tránh nghẽn luồng xử lý
+                var scheme = Request.Scheme;
+                var host = Request.Host;
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        string subject = "[CVBuilder Pro] Mã xác thực đăng ký tài khoản";
+                        string body = $@"
+                            <div style='font-family: &quot;Segoe UI&quot;, Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                                <div style='background: linear-gradient(135deg, #0d6efd, #6610f2); padding: 30px 20px; text-align: center; color: white;'>
+                                    <h2 style='margin: 0; font-size: 24px; font-weight: 700;'>Xác thực đăng ký tài khoản 🎉</h2>
+                                    <p style='margin: 8px 0 0 0; opacity: 0.9; font-size: 15px;'>Cảm ơn bạn đã lựa chọn CVBuilder Pro</p>
+                                </div>
+                                <div style='padding: 24px; color: #334155; line-height: 1.6; font-size: 15px;'>
+                                    <p>Xin chào <strong>{model.Register.FullName}</strong>,</p>
+                                    <p>Bạn đang thực hiện đăng ký tài khoản trên hệ thống <strong>CVBuilder Pro</strong>. Vui lòng sử dụng mã OTP dưới đây để xác thực địa chỉ email:</p>
+                                    
+                                    <div style='text-align: center; margin: 30px 0;'>
+                                        <span style='font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #0d6efd; background: #f8fafc; padding: 15px 30px; border-radius: 8px; border: 1px dashed #0d6efd; display: inline-block;'>{otp}</span>
+                                    </div>
+                                    
+                                    <p style='color: #ef4444; font-size: 14px; font-weight: 600;'>Lưu ý: Mã OTP này chỉ có hiệu lực trong vòng 3 phút.</p>
+                                    <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                                </div>
+                                <div style='background: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 12.5px; border-top: 1px solid #e2e8f0;'>
+                                    <p style='margin: 0;'>Đây là email tự động từ hệ thống CVBuilder Pro. Vui lòng không trả lời email này.</p>
+                                    <p style='margin: 4px 0 0 0;'>&copy; {DateTime.Now.Year} CVBuilder Pro. All rights reserved.</p>
+                                </div>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(model.Register.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Lỗi gửi email OTP đăng ký: " + ex.Message);
+                    }
+                });
+
+                return RedirectToAction("VerifyRegisterOTP");
+            }
+            return View("Login", model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult VerifyRegisterOTP()
+        {
+            var email = HttpContext.Session.GetString("RegisterEmail");
+            if (string.IsNullOrEmpty(email)) return RedirectToAction("Register");
+            
+            ViewBag.Email = email;
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> VerifyRegisterOTP(string otp)
+        {
+            var email = HttpContext.Session.GetString("RegisterEmail");
+            var sessionOtp = HttpContext.Session.GetString("RegisterOTP");
+            var expiresStr = HttpContext.Session.GetString("RegisterOTPExpires");
+            var pendingJson = HttpContext.Session.GetString("PendingRegister");
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(sessionOtp) || string.IsNullOrEmpty(expiresStr) || string.IsNullOrEmpty(pendingJson))
+            {
+                return RedirectToAction("Register");
+            }
+
+            ViewBag.Email = email;
+
+            if (!DateTime.TryParse(expiresStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime expires) || expires < DateTime.Now)
+            {
+                ViewBag.Error = "Mã OTP đã hết hạn. Vui lòng quay lại trang đăng ký để nhận mã mới.";
+                return View();
+            }
+
+            if (sessionOtp != otp)
+            {
+                ViewBag.Error = "Mã OTP không chính xác. Vui lòng kiểm tra lại.";
+                return View();
+            }
+
+            // OTP đúng, tiến hành tạo tài khoản chính thức vào Database
+            try
+            {
+                var registerModel = System.Text.Json.JsonSerializer.Deserialize<RegisterVM>(pendingJson);
+                if (registerModel == null)
+                {
+                    ViewBag.Error = "Lỗi xử lý dữ liệu đăng ký. Vui lòng đăng ký lại.";
+                    return View();
+                }
+
+                // Check trùng email lần cuối
+                var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == registerModel.Email);
+                if (existingUser != null)
+                {
+                    ViewBag.Error = "Email này đã được đăng ký bởi người dùng khác.";
+                    return View();
+                }
+
                 var user = new User
                 {
-                    FullName = model.Register.FullName,
-                    Email = model.Register.Email,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Register.Password),
-                    Role = requestedRole,                    
+                    FullName = registerModel.FullName,
+                    Email = registerModel.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerModel.Password),
+                    Role = registerModel.Role,
                     CreatedAt = DateTime.Now
                 };
 
-                // XỬ LÝ TỰ ĐỘNG TẠO CÔNG TY
                 if (user.Role == "Recruiter")
                 {
-                    if (string.IsNullOrEmpty(model.Register.CompanyName))
+                    if (string.IsNullOrEmpty(registerModel.CompanyName) || string.IsNullOrEmpty(registerModel.TaxCode))
                     {
-                        ModelState.AddModelError("Register.CompanyName", "Vui lòng nhập tên công ty.");
-                        return View("Login", model);
-                    }
-                    if (string.IsNullOrEmpty(model.Register.TaxCode))
-                    {
-                        ModelState.AddModelError("Register.TaxCode", "Vui lòng nhập mã số thuế.");
-                        return View("Login", model);
+                        ViewBag.Error = "Thông tin công ty hoặc mã số thuế không hợp lệ.";
+                        return View();
                     }
 
-                    // Tìm xem tên công ty đã có trong database chưa
-                    string inputCompanyName = model.Register.CompanyName.Trim();
+                    string inputCompanyName = registerModel.CompanyName.Trim();
                     var company = await _context.Companies
                         .FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompanyName.ToLower());
 
                     if (company == null)
                     {
-                        // Nếu chưa có thì tạo mới công ty
-                        company = new Company { 
+                        company = new Company
+                        {
                             Name = inputCompanyName,
-                            TaxCode = model.Register.TaxCode,
-                            CreatedAt = DateTime.Now 
+                            TaxCode = registerModel.TaxCode,
+                            CreatedAt = DateTime.Now
                         };
                         _context.Companies.Add(company);
-                        await _context.SaveChangesAsync(); // Lưu để lấy ID tự tăng
+                        await _context.SaveChangesAsync();
                     }
-                    
-                    // Gán ID công ty cho User
                     user.CompanyID = company.CompanyID;
                 }
 
-                // 3. Lưu vào SQL Server
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
-                // Đăng ký xong thì chuyển sang trang Đăng nhập
+                // Gửi thư chào mừng đăng ký thành công (chạy ngầm)
+                var scheme = Request.Scheme;
+                var host = Request.Host;
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        string roleName = user.Role == "Recruiter" ? "Nhà tuyển dụng" : "Ứng viên";
+                        string subject = "[CVBuilder Pro] Chúc mừng đăng ký tài khoản thành công!";
+                        string body = $@"
+                            <div style='font-family: &quot;Segoe UI&quot;, Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                                <div style='background: linear-gradient(135deg, #0d6efd, #6610f2); padding: 30px 20px; text-align: center; color: white;'>
+                                    <h2 style='margin: 0; font-size: 24px; font-weight: 700;'>Chào mừng gia nhập CVBuilder Pro! 🎉</h2>
+                                    <p style='margin: 8px 0 0 0; opacity: 0.9; font-size: 15px;'>Tài khoản của bạn đã được kích hoạt thành công</p>
+                                </div>
+                                <div style='padding: 24px; color: #334155; line-height: 1.6; font-size: 15px;'>
+                                    <p>Xin chào <strong>{user.FullName}</strong>,</p>
+                                    <p>Cảm ơn bạn đã xác thực và lựa chọn hệ thống <strong>CVBuilder Pro</strong>. Tài khoản của bạn đã được đăng ký thành công với các thông tin chi tiết sau:</p>
+                                    
+                                    <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 18px 0;'>
+                                        <div style='margin-bottom: 8px;'><strong>Email đăng nhập:</strong> <span style='color: #0d6efd;'>{user.Email}</span></div>
+                                        <div><strong>Vai trò tài khoản:</strong> <span style='color: #0d6efd; font-weight: bold;'>{roleName}</span></div>
+                                    </div>
+                                    
+                                    <div style='background: #f0fdf4; border-left: 4px solid #16a34a; padding: 14px 16px; margin: 20px 0; border-radius: 4px;'>
+                                        <h4 style='margin: 0 0 8px 0; color: #14532d; font-size: 15px;'>💡 Hướng dẫn bắt đầu nhanh:</h4>
+                                        <span style='font-size: 14.5px; color: #166534;'>
+                                            {(user.Role == "Recruiter" 
+                                                ? "• Truy cập mục quản lý công ty để cập nhật hồ sơ doanh nghiệp.<br/>• Tạo và đăng tin bài tuyển dụng miễn phí để tiếp cận ứng viên.<br/>• Sử dụng công cụ Talent Search/Smart Match (AI) để tìm và khớp hồ sơ nhân tài."
+                                                : "• Truy cập thư viện mẫu CV để lựa chọn hơn 30+ thiết kế miễn phí.<br/>• Sử dụng công cụ kéo thả để cá nhân hóa CV của bạn.<br/>• Nộp hồ sơ trực tuyến tới hàng trăm vị trí tuyển dụng trên hệ thống.")}
+                                        </span>
+                                    </div>
+                                    
+                                    <div style='text-align: center; margin-top: 30px; margin-bottom: 10px;'>
+                                        <a href='{scheme}://{host}/Account/Login' style='background: #0d6efd; color: white; padding: 12px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; display: inline-block; box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25); transition: 0.2s;'>Đăng nhập hệ thống ngay</a>
+                                    </div>
+                                </div>
+                                <div style='background: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 12.5px; border-top: 1px solid #e2e8f0;'>
+                                    <p style='margin: 0;'>Đây là email tự động từ hệ thống CVBuilder Pro. Vui lòng không trả lời email này.</p>
+                                    <p style='margin: 4px 0 0 0;'>&copy; {DateTime.Now.Year} CVBuilder Pro. All rights reserved.</p>
+                                </div>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(user.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Lỗi gửi email chào mừng: " + ex.Message);
+                    }
+                });
+
+                // Xóa sạch session đăng ký tạm thời
+                HttpContext.Session.Remove("RegisterEmail");
+                HttpContext.Session.Remove("RegisterOTP");
+                HttpContext.Session.Remove("RegisterOTPExpires");
+                HttpContext.Session.Remove("PendingRegister");
+
+                // Thêm thông báo thành công cho màn hình đăng nhập
+                TempData["SuccessMessage"] = "Đăng ký tài khoản và xác thực email thành công! Vui lòng đăng nhập.";
                 return RedirectToAction("Login");
             }
-            return View("Login", model);
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi VerifyRegisterOTP: " + ex.Message);
+                ViewBag.Error = "Có lỗi xảy ra khi tạo tài khoản. Vui lòng thử lại.";
+                return View();
+            }
         }
 
         // ==========================================
