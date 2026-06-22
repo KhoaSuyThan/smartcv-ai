@@ -29,6 +29,13 @@
                         </div>
                     }
 
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div style="color: #155724; background: rgba(223, 240, 216, 0.9); border: 1px solid #d4edda; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
                     <div class="input-box">
                         <input asp-for="Login.Email" placeholder="Email">
                         <i class='bx bxs-user'></i>
