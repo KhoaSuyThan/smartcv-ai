@@ -9,13 +9,15 @@ const DaoPhuQuy = ({ resumeData }) => {
                         <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="cv-avatar" />
                     </div>
                     <div className="cv-sidebar-content">
-                        <div className="cv-info-block">
-                            <h3 className="cv-side-title">LIÊN LẠC</h3>
-                            <p><i className="fas fa-phone"></i> {resumeData?.phone || 'SĐT'}</p>
-                            <p><i className="fas fa-envelope"></i> {resumeData?.email || 'Email'}</p>
-                            <p><i className="fas fa-calendar-alt"></i> {resumeData?.birthDate || 'Ngày sinh'}</p>
-                            <p><i className="fas fa-map-marker-alt"></i> {resumeData?.address || 'Địa chỉ'}</p>
-                        </div>
+                        {(resumeData?.phone || resumeData?.email || resumeData?.birthDate || resumeData?.address) && (
+                            <div className="cv-info-block">
+                                <h3 className="cv-side-title">LIÊN LẠC</h3>
+                                {resumeData?.phone && <p><i className="fas fa-phone"></i> {resumeData.phone}</p>}
+                                {resumeData?.email && <p><i className="fas fa-envelope"></i> {resumeData.email}</p>}
+                                {resumeData?.birthDate && <p><i className="fas fa-calendar-alt"></i> {resumeData.birthDate}</p>}
+                                {resumeData?.address && <p><i className="fas fa-map-marker-alt"></i> {resumeData.address}</p>}
+                            </div>
+                        )}
 
                         <div className="cv-info-block">
                             <h3 className="cv-side-title">HỌC VẤN</h3>

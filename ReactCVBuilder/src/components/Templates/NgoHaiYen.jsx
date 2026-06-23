@@ -35,15 +35,17 @@ const NgoHaiYen = ({ resumeData }) => {
                         <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
                     </div>
 
-                    <div className="sidebar-section">
-                        <h3 className="sidebar-title">LIÊN HỆ VỚI TÔI</h3>
-                        <div className="contact-list">
-                            <div className="contact-item"><i className="fas fa-map-marker-alt"></i> {resumeData?.address || 'Địa chỉ'}</div>
-                            <div className="contact-item"><i className="fas fa-envelope"></i> {resumeData?.email || 'Email'}</div>
-                            <div className="contact-item"><i className="fas fa-phone"></i> {resumeData?.phone || 'SĐT'}</div>
-                            {resumeData?.website && <div className="contact-item"><i className="fas fa-globe"></i> {resumeData.website}</div>}
+                    {(resumeData?.address || resumeData?.email || resumeData?.phone || resumeData?.website) && (
+                        <div className="sidebar-section">
+                            <h3 className="sidebar-title">LIÊN HỆ VỚI TÔI</h3>
+                            <div className="contact-list">
+                                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> {resumeData.address}</div>}
+                                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> {resumeData.email}</div>}
+                                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone"></i> {resumeData.phone}</div>}
+                                {resumeData?.website && <div className="contact-item"><i className="fas fa-globe"></i> {resumeData.website}</div>}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     <div className="sidebar-section">
                         <h3 className="sidebar-title">TÓM TẮT KỸ NĂNG</h3>

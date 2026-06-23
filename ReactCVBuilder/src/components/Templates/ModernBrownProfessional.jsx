@@ -9,11 +9,13 @@ const ModernBrownProfessional = ({ resumeData }) => {
                         <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar" />
                     </div>
 
-                    <div className="contact-list">
-                        <div className="contact-item"><i className="fas fa-phone"></i> {resumeData?.phone || 'SĐT'}</div>
-                        <div className="contact-item"><i className="fas fa-envelope"></i> {resumeData?.email || 'Email'}</div>
-                        <div className="contact-item"><i className="fas fa-map-marker-alt"></i> {resumeData?.address || 'Địa chỉ'}</div>
-                    </div>
+                    {(resumeData?.phone || resumeData?.email || resumeData?.address) && (
+                        <div className="contact-list">
+                            {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone"></i> {resumeData.phone}</div>}
+                            {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> {resumeData.email}</div>}
+                            {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> {resumeData.address}</div>}
+                        </div>
+                    )}
 
                     <div className="sidebar-section">
                         <h3 className="side-title">Kỹ năng</h3>

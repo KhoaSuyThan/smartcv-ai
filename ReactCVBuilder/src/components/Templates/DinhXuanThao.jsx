@@ -29,16 +29,18 @@ const DinhXuanThao = ({ resumeData }) => {
                 
                 <div className="cv-body">
                     <div className="cv-sidebar">
-                        <div className="sidebar-section">
-                            <h3 className="side-title">LIÊN HỆ</h3>
-                            <div className="side-content contact-info">
-                                <p><i className="fas fa-calendar-alt"></i> {resumeData?.birthDate || 'Ngày sinh'}</p>
-                                <p><i className="fas fa-map-marker-alt"></i> {resumeData?.address || 'Địa chỉ'}</p>
-                                <p><i className="fas fa-phone"></i> {resumeData?.phone || 'SĐT'}</p>
-                                <p><i className="fas fa-envelope"></i> {resumeData?.email || 'Email'}</p>
-                                <p><i className="fas fa-globe"></i> {resumeData?.website || 'Website'}</p>
+                        {(resumeData?.birthDate || resumeData?.address || resumeData?.phone || resumeData?.email || resumeData?.website) && (
+                            <div className="sidebar-section">
+                                <h3 className="side-title">LIÊN HỆ</h3>
+                                <div className="side-content contact-info">
+                                    {resumeData?.birthDate && <p><i className="fas fa-calendar-alt"></i> {resumeData.birthDate}</p>}
+                                    {resumeData?.address && <p><i className="fas fa-map-marker-alt"></i> {resumeData.address}</p>}
+                                    {resumeData?.phone && <p><i className="fas fa-phone"></i> {resumeData.phone}</p>}
+                                    {resumeData?.email && <p><i className="fas fa-envelope"></i> {resumeData.email}</p>}
+                                    {resumeData?.website && <p><i className="fas fa-globe"></i> {resumeData.website}</p>}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="sidebar-section">
                             <h3 className="side-title">KỸ NĂNG</h3>

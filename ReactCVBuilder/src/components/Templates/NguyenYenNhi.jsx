@@ -112,14 +112,16 @@ const NguyenYenNhi = ({ resumeData }) => {
                     </div>
 
                     <div className="col-right">
-                        <div className="section">
-                            <h1 className="section-title">LIÊN HỆ</h1>
-                            <div className="contact-list">
-                                <div className="contact-item"><span>📞</span> {resumeData?.phone || 'SĐT'}</div>
-                                <div className="contact-item"><span>✉️</span> {resumeData?.email || 'Email'}</div>
-                                <div className="contact-item"><span>📍</span> {resumeData?.address || 'Địa chỉ'}</div>
+                        {(resumeData?.phone || resumeData?.email || resumeData?.address) && (
+                            <div className="section">
+                                <h1 className="section-title">LIÊN HỆ</h1>
+                                <div className="contact-list">
+                                    {resumeData?.phone && <div className="contact-item"><span>📞</span> {resumeData.phone}</div>}
+                                    {resumeData?.email && <div className="contact-item"><span>✉️</span> {resumeData.email}</div>}
+                                    {resumeData?.address && <div className="contact-item"><span>📍</span> {resumeData.address}</div>}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <div className="section">
                             <h1 className="section-title">KINH NGHIỆM</h1>

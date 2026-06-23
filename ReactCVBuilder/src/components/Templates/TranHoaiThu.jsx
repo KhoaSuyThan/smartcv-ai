@@ -64,14 +64,15 @@ const TranHoaiThu = ({ resumeData }) => {
                     <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
                     <h2 className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
                     
-                    <div className="contact-info">
-                        <div className="contact-item"><i className="fas fa-venus-mars"></i> <span>{resumeData?.gender || 'Nữ'}</span></div>
-                        <div className="contact-item"><i className="fas fa-calendar-alt"></i> <span>{resumeData?.birthDate || 'Ngày sinh'}</span></div>
-                        <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData?.phone || 'SĐT'}</span></div>
-                        <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData?.email || 'Email'}</span></div>
-
-                        <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData?.address || 'Địa chỉ'}</span></div>
-                    </div>
+                    {(resumeData?.gender || resumeData?.birthDate || resumeData?.phone || resumeData?.email || resumeData?.address) && (
+                        <div className="contact-info">
+                            {resumeData?.gender && <div className="contact-item"><i className="fas fa-venus-mars"></i> <span>{resumeData.gender}</span></div>}
+                            {resumeData?.birthDate && <div className="contact-item"><i className="fas fa-calendar-alt"></i> <span>{resumeData.birthDate}</span></div>}
+                            {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></div>}
+                            {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></div>}
+                            {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></div>}
+                        </div>
+                    )}
                 </div>
                 
                 <div className="main-content">
