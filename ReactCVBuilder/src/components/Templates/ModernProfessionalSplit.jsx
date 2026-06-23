@@ -13,10 +13,10 @@ const ModernProfessionalSplit = ({ resumeData }) => {
                 {(resumeData?.phone || resumeData?.email || resumeData?.address || resumeData?.website) && (
                     <div className="contact-box">
                         <ul>
-                            {resumeData?.phone && <li><i className="fas fa-phone"></i> <span>{resumeData.phone}</span></li>}
-                            {resumeData?.email && <li><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></li>}
-                            {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></li>}
-                            {resumeData?.website && <li><i className="fas fa-link"></i> <span>{resumeData.website}</span></li>}
+                            {resumeData?.phone && <li><i className="fas fa-phone"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></span></li>}
+                            {resumeData?.email && <li><i className="fas fa-envelope"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></span></li>}
+                            {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></span></li>}
+                            {resumeData?.website && <li><i className="fas fa-link"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.website }}></span></span></li>}
                         </ul>
                     </div>
                 )}
@@ -25,7 +25,7 @@ const ModernProfessionalSplit = ({ resumeData }) => {
                 
                 <div className="section" style={{ display: resumeData.visibleSections?.summary !== false ? 'block' : 'none' }}>
                     <h3 style={{ display: 'none' }}>Về tôi</h3>
-                    <div className="side-summary">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                    <div className="side-summary"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                 
                     <div className="side-divider"></div>
                 </div>
@@ -67,8 +67,8 @@ const ModernProfessionalSplit = ({ resumeData }) => {
 
         <div className="right-main">
             <div className="header-box">
-                <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                <h2 className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+                <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                <h2 className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
             </div>
 
             <div className="main-content">

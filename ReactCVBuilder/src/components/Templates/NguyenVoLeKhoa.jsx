@@ -11,10 +11,10 @@ const NguyenVoLeKhoa = ({ resumeData }) => {
             
             {(resumeData?.phone || resumeData?.email || resumeData?.website || resumeData?.address) && (
                 <div className="sidebar-info">
-                    {resumeData?.phone && <div className="info-row"><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></div>}
-                    {resumeData?.email && <div className="info-row"><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></div>}
-                    {resumeData?.website && <div className="info-row"><i className="fas fa-globe"></i> <span>{resumeData.website}</span></div>}
-                    {resumeData?.address && <div className="info-row"><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></div>}
+                    {resumeData?.phone && <div className="info-row"><i className="fas fa-phone-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></span></div>}
+                    {resumeData?.email && <div className="info-row"><i className="fas fa-envelope"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></span></div>}
+                    {resumeData?.website && <div className="info-row"><i className="fas fa-globe"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.website }}></span></span></div>}
+                    {resumeData?.address && <div className="info-row"><i className="fas fa-map-marker-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></span></div>}
                 </div>
             )}
             <div className="side-section">
@@ -54,9 +54,9 @@ const NguyenVoLeKhoa = ({ resumeData }) => {
         </div>
         <div className="cv-main">
             <div className="dark-header">
-                <h1 className="name">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                <h2 className="title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
-                <div className="summary">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                <h1 className="name"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                <h2 className="title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
+                <div className="summary"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
             </div>
             <div className="main-body">
                 <div className="main-section">

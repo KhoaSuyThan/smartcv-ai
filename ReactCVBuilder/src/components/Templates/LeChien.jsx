@@ -9,9 +9,9 @@ const LeChien = ({ resumeData }) => {
                 <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
             </div>
             <div className="header-content">
-                <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                <p className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</p>
-                <div className="summary-box">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                <p className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></p>
+                <div className="summary-box"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
             </div>
         </div>
         <div className="middle-grid">
@@ -19,11 +19,11 @@ const LeChien = ({ resumeData }) => {
                 <div className="grid-col">
                     <h3 className="section-title">THÔNG TIN CÁ NHÂN</h3>
                     <ul className="contact-list">
-                        {resumeData?.birthDate && <li><i className="fas fa-calendar-alt"></i> <span>{resumeData.birthDate}</span></li>}
-                        {resumeData?.email && <li><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></li>}
-                        {resumeData?.phone && <li><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></li>}
-                        {resumeData?.website && <li><i className="fas fa-globe"></i> <span>{resumeData.website}</span></li>}
-                        {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></li>}
+                        {resumeData?.birthDate && <li><i className="fas fa-calendar-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></span></li>}
+                        {resumeData?.email && <li><i className="fas fa-envelope"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></span></li>}
+                        {resumeData?.phone && <li><i className="fas fa-phone-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></span></li>}
+                        {resumeData?.website && <li><i className="fas fa-globe"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.website }}></span></span></li>}
+                        {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></span></li>}
                     </ul>
                 </div>
             )}

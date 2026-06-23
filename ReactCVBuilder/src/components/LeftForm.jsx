@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import RichInput from './RichInput';
 
 const LeftForm = ({ resumeData, setResumeData }) => {
   const [activeTab, setActiveTab] = useState('basic');
@@ -439,46 +440,46 @@ const LeftForm = ({ resumeData, setResumeData }) => {
               <div style={styles.row}>
                 <div style={styles.col}>
                   <label style={styles.label}>Họ và tên</label>
-                  <input type="text" name="fullName" value={resumeData.fullName || ''} onChange={handleChange} style={styles.input} placeholder="Họ và tên" />
+                  <RichInput data-field="fullName" value={resumeData.fullName || ''} onChange={(val) => setResumeData(prev => ({ ...prev, fullName: val }))} style={styles.input} placeholder="Họ và tên" />
                 </div>
                 <div style={styles.col}>
                   <label style={styles.label}>Vị trí ứng tuyển</label>
-                  <input type="text" name="jobTitle" value={resumeData.jobTitle || ''} onChange={handleChange} style={styles.input} placeholder="Ví dụ: Backend Developer" />
+                  <RichInput data-field="jobTitle" value={resumeData.jobTitle || ''} onChange={(val) => setResumeData(prev => ({ ...prev, jobTitle: val }))} style={styles.input} placeholder="Ví dụ: Backend Developer" />
                 </div>
               </div>
 
               <div style={styles.row}>
                 <div style={styles.col}>
                   <label style={styles.label}>Email</label>
-                  <input type="text" name="email" value={resumeData.email || ''} onChange={handleChange} style={styles.input} placeholder="email@example.com" />
+                  <RichInput data-field="email" value={resumeData.email || ''} onChange={(val) => setResumeData(prev => ({ ...prev, email: val }))} style={styles.input} placeholder="email@example.com" />
                 </div>
                 <div style={styles.col}>
                   <label style={styles.label}>Số điện thoại</label>
-                  <input type="text" name="phone" value={resumeData.phone || ''} onChange={handleChange} style={styles.input} placeholder="0123.456.789" />
+                  <RichInput data-field="phone" value={resumeData.phone || ''} onChange={(val) => setResumeData(prev => ({ ...prev, phone: val }))} style={styles.input} placeholder="0123.456.789" />
                 </div>
               </div>
 
               <div style={styles.row}>
                 <div style={styles.col}>
                   <label style={styles.label}>Ngày sinh</label>
-                  <input type="text" name="birthDate" value={resumeData.birthDate || ''} onChange={handleChange} style={styles.input} placeholder="27/01/1998" />
+                  <RichInput data-field="birthDate" value={resumeData.birthDate || ''} onChange={(val) => setResumeData(prev => ({ ...prev, birthDate: val }))} style={styles.input} placeholder="27/01/1998" />
                 </div>
                 <div style={styles.col}>
                   <label style={styles.label}>Địa chỉ</label>
-                  <input type="text" name="address" value={resumeData.address || ''} onChange={handleChange} style={styles.input} placeholder="Quận 10, TP.HCM" />
+                  <RichInput data-field="address" value={resumeData.address || ''} onChange={(val) => setResumeData(prev => ({ ...prev, address: val }))} style={styles.input} placeholder="Quận 10, TP.HCM" />
                 </div>
               </div>
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Link liên kết (Website, Portfolio, LinkedIn...)</label>
-                <input type="text" name="website" value={resumeData.website || ''} onChange={handleChange} style={styles.input} placeholder="https://..." />
+                <RichInput data-field="website" value={resumeData.website || ''} onChange={(val) => setResumeData(prev => ({ ...prev, website: val }))} style={styles.input} placeholder="https://..." />
               </div>
             </div>
 
             <div style={styles.section}>
               {renderSectionHeader('Mục tiêu nghề nghiệp', 'summary', true, generateAISummary, 'summary')}
               <div style={{ opacity: resumeData.visibleSections?.summary !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
-                <textarea name="summary" data-field="summary" value={resumeData.summary || ''} onChange={handleChange} style={{...styles.input, ...styles.textarea}} placeholder="Tôi là một người đam mê..." />
+                <RichInput isTextarea={true} data-field="summary" value={resumeData.summary || ''} onChange={(val) => setResumeData(prev => ({ ...prev, summary: val }))} style={{...styles.input, ...styles.textarea}} placeholder="Tôi là một người đam mê..." />
               </div>
             </div>
           </div>
@@ -508,7 +509,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
                         {isAIProcessing[`experiences_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
                       </button>
                     </div>
-                    <textarea data-field="experiences" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(e) => handleArrayChange('experiences', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả công việc (Dùng dấu • để liệt kê)..." />
+                    <RichInput isTextarea={true} data-field="experiences" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(val) => handleArrayChange('experiences', idx, 'desc', val)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả công việc (Dùng dấu • để liệt kê)..." />
                   </div>
                 ))}
                 <button style={styles.addBtn} onClick={() => addItem('experiences', { company: '', role: '', time: '', desc: '' })}>+ Thêm kinh nghiệm</button>
@@ -554,7 +555,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
                         {isAIProcessing[`projects_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
                       </button>
                     </div>
-                    <textarea data-field="projects" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(e) => handleArrayChange('projects', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả và công nghệ..." />
+                    <RichInput isTextarea={true} data-field="projects" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(val) => handleArrayChange('projects', idx, 'desc', val)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả và công nghệ..." />
                   </div>
                 ))}
                 <button style={styles.addBtn} onClick={() => addItem('projects', { name: '', role: '', time: '', desc: '' })}>+ Thêm dự án</button>
@@ -579,7 +580,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
                         {isAIProcessing[`activities_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
                       </button>
                     </div>
-                    <textarea data-field="activities" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(e) => handleArrayChange('activities', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả hoạt động..." />
+                    <RichInput isTextarea={true} data-field="activities" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(val) => handleArrayChange('activities', idx, 'desc', val)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả hoạt động..." />
                   </div>
                 ))}
                 <button style={styles.addBtn} onClick={() => addItem('activities', { name: '', time: '', desc: '' })}>+ Thêm hoạt động</button>
@@ -702,10 +703,25 @@ const LeftForm = ({ resumeData, setResumeData }) => {
           from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, .rich-text-editor:focus {
           border-color: #3b82f6 !important;
           background-color: #ffffff !important;
           box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
+        }
+        .rich-text-editor.is-empty::before {
+          content: attr(placeholder);
+          color: #94a3b8;
+          font-style: italic;
+          pointer-events: none;
+          position: absolute;
+          left: 14px;
+          top: 10px;
+          right: 14px;
+          opacity: 0.6;
+        }
+        .rich-text-editor ul, .rich-text-editor ol {
+          padding-left: 20px;
+          margin: 4px 0;
         }
         button:hover {
           opacity: 0.9;

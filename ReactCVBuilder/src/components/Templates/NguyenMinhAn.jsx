@@ -6,8 +6,8 @@ const NguyenMinhAn = ({ resumeData }) => {
             <div className="academic-cv-wrapper">
         <div className="cv-main-col">
             <div className="header-area">
-                <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                <p className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</p>
+                <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                <p className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></p>
             </div>
 
             <div className="section">
@@ -52,7 +52,7 @@ const NguyenMinhAn = ({ resumeData }) => {
 
             <div className="side-section">
                 <h1 className="side-title">MỤC TIÊU LÀM VIỆC</h1>
-                <div className="side-content">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                <div className="side-content"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
             </div>
 
             <div className="side-section">
@@ -66,9 +66,9 @@ const NguyenMinhAn = ({ resumeData }) => {
                 <div className="side-section">
                     <h1 className="side-title">THÔNG TIN LIÊN HỆ</h1>
                     <div className="contact-info">
-                        {resumeData?.phone && <p>Di động: {resumeData.phone}</p>}
-                        {resumeData?.email && <p>Email: {resumeData.email}</p>}
-                        {resumeData?.address && <p>Địa chỉ: {resumeData.address}</p>}
+                        {resumeData?.phone && <p>Di động: <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></p>}
+                        {resumeData?.email && <p>Email: <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></p>}
+                        {resumeData?.address && <p>Địa chỉ: <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></p>}
                     </div>
                 </div>
             )}

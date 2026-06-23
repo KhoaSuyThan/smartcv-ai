@@ -12,10 +12,10 @@ const DaoPhuQuy = ({ resumeData }) => {
                         {(resumeData?.phone || resumeData?.email || resumeData?.birthDate || resumeData?.address) && (
                             <div className="cv-info-block">
                                 <h3 className="cv-side-title">LIÊN LẠC</h3>
-                                {resumeData?.phone && <p><i className="fas fa-phone"></i> {resumeData.phone}</p>}
-                                {resumeData?.email && <p><i className="fas fa-envelope"></i> {resumeData.email}</p>}
-                                {resumeData?.birthDate && <p><i className="fas fa-calendar-alt"></i> {resumeData.birthDate}</p>}
-                                {resumeData?.address && <p><i className="fas fa-map-marker-alt"></i> {resumeData.address}</p>}
+                                {resumeData?.phone && <p><i className="fas fa-phone"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></p>}
+                                {resumeData?.email && <p><i className="fas fa-envelope"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></p>}
+                                {resumeData?.birthDate && <p><i className="fas fa-calendar-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></p>}
+                                {resumeData?.address && <p><i className="fas fa-map-marker-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></p>}
                             </div>
                         )}
 
@@ -89,13 +89,13 @@ const DaoPhuQuy = ({ resumeData }) => {
 
                 <div className="cv-main">
                     <div className="cv-header">
-                        <h1 className="cv-name">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                        <h2 className="cv-job">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+                        <h1 className="cv-name"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                        <h2 className="cv-job"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
                     </div>
 
                     <div className="cv-section">
                         <h3 className="cv-section-title"><i className="fas fa-user"></i> MỤC TIÊU NGHỀ NGHIỆP</h3>
-                        <div className="cv-section-content">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                        <div className="cv-section-content"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                     </div>
 
                     <div className="cv-section">

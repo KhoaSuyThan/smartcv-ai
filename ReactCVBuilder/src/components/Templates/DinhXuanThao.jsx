@@ -21,8 +21,8 @@ const DinhXuanThao = ({ resumeData }) => {
                             <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
                         </div>
                         <div className="title-box">
-                            <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                            <h2 className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+                            <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                            <h2 className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
                         </div>
                     </div>
                 </div>
@@ -33,11 +33,11 @@ const DinhXuanThao = ({ resumeData }) => {
                             <div className="sidebar-section">
                                 <h3 className="side-title">LIÊN HỆ</h3>
                                 <div className="side-content contact-info">
-                                    {resumeData?.birthDate && <p><i className="fas fa-calendar-alt"></i> {resumeData.birthDate}</p>}
-                                    {resumeData?.address && <p><i className="fas fa-map-marker-alt"></i> {resumeData.address}</p>}
-                                    {resumeData?.phone && <p><i className="fas fa-phone"></i> {resumeData.phone}</p>}
-                                    {resumeData?.email && <p><i className="fas fa-envelope"></i> {resumeData.email}</p>}
-                                    {resumeData?.website && <p><i className="fas fa-globe"></i> {resumeData.website}</p>}
+                                    {resumeData?.birthDate && <p><i className="fas fa-calendar-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></p>}
+                                    {resumeData?.address && <p><i className="fas fa-map-marker-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></p>}
+                                    {resumeData?.phone && <p><i className="fas fa-phone"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></p>}
+                                    {resumeData?.email && <p><i className="fas fa-envelope"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></p>}
+                                    {resumeData?.website && <p><i className="fas fa-globe"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.website }}></span></p>}
                                 </div>
                             </div>
                         )}
@@ -101,7 +101,7 @@ const DinhXuanThao = ({ resumeData }) => {
                     <div className="cv-main">
                         <div className="main-section">
                             <h3 className="main-title">GIỚI THIỆU</h3>
-                            <div className="main-content">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                            <div className="main-content"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                         </div>
 
                         <div className="main-section">

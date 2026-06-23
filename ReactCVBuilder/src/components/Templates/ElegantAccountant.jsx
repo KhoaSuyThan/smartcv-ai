@@ -19,13 +19,13 @@ const ElegantAccountant = ({ resumeData }) => {
 
                 <div className="header-section">
                     <div className="header-left">
-                        <h1 className="name-display">{resumeData?.fullName || 'HỌ TÊN'}</h1>
+                        <h1 className="name-display"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
                         {(resumeData?.birthDate || resumeData?.address || resumeData?.email || resumeData?.phone) && (
                             <div className="personal-details">
-                                {resumeData?.birthDate && <p><strong>Ngày sinh:</strong> {resumeData.birthDate}</p>}
-                                {resumeData?.address && <p><strong>Địa chỉ:</strong> {resumeData.address}</p>}
-                                {resumeData?.email && <p><strong>Email:</strong> {resumeData.email}</p>}
-                                {resumeData?.phone && <p><strong>Số điện thoại:</strong> {resumeData.phone}</p>}
+                                {resumeData?.birthDate && <p><strong>Ngày sinh:</strong> <span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></p>}
+                                {resumeData?.address && <p><strong>Địa chỉ:</strong> <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></p>}
+                                {resumeData?.email && <p><strong>Email:</strong> <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></p>}
+                                {resumeData?.phone && <p><strong>Số điện thoại:</strong> <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></p>}
                             </div>
                         )}
                     </div>
@@ -37,7 +37,7 @@ const ElegantAccountant = ({ resumeData }) => {
                     </div>
 
                     <div className="header-right">
-                        <h2 className="job-display">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+                        <h2 className="job-display"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
                         <div className="job-line"></div>
                     </div>
                 </div>
@@ -45,7 +45,7 @@ const ElegantAccountant = ({ resumeData }) => {
                 <div className="body-section">
                     <div className="cv-block">
                         <h3 className="block-title">MỤC TIÊU NGHỀ NGHIỆP</h3>
-                        <div className="desc-text" style={{ fontSize: '15px', lineHeight: '1.6', textAlign: 'justify' }}>{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                        <div className="desc-text" style={{ fontSize: '15px', lineHeight: '1.6', textAlign: 'justify' }}><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                     </div>
 
                     <div className="cv-block">

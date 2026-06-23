@@ -51,6 +51,7 @@ function App() {
   });
 
   const [templateName, setTemplateName] = useState('Đặng Ngọc Linh'); // Default template
+  const [showTemplateSelector, setShowTemplateSelector] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const [zoom, setZoom] = useState(0.8);
@@ -68,14 +69,13 @@ function App() {
         return;
       }
 
-      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.classList.contains('rich-text-editor') || el.hasAttribute('contenteditable'))) {
         if (el.hasAttribute('data-field')) {
           setActiveInput({
+            el: el,
             field: el.getAttribute('data-field'),
             index: el.getAttribute('data-index') !== null ? parseInt(el.getAttribute('data-index'), 10) : null,
-            subfield: el.getAttribute('data-subfield'),
-            selectionStart: el.selectionStart,
-            selectionEnd: el.selectionEnd
+            subfield: el.getAttribute('data-subfield')
           });
         } else {
           setActiveInput(null); // Clear active formatting target when clicking unsupported inputs
@@ -404,77 +404,55 @@ function App() {
 
   const handleFormatText = (tag) => {
     if (!activeInput) {
-      alert("Vui lòng click chọn và bôi đen phần văn bản trong các ô mô tả (Mô tả công việc, Mô tả dự án, Hoạt động hoặc Mục tiêu nghề nghiệp) ở cột trái trước khi định dạng!");
+      alert("Vui lòng click chọn và bôi đen phần văn bản trong các ô nhập liệu ở cột trái trước khi định dạng!");
       return;
     }
 
-    const { field, index, subfield, selectionStart, selectionEnd } = activeInput;
-
-    // Lấy text hiện tại từ resumeData
-    let text = '';
-    if (index === null) {
-      text = resumeData[field] || '';
-    } else {
-      text = resumeData[field]?.[index]?.[subfield] || '';
+    const { el, field, index, subfield } = activeInput;
+    let targetEl = el;
+    if (!targetEl) {
+      let selector = `[data-field="${field}"]`;
+      if (index !== null) selector += `[data-index="${index}"]`;
+      if (subfield) selector += `[data-subfield="${subfield}"]`;
+      targetEl = document.querySelector(selector);
     }
 
-    const start = selectionStart;
-    const end = selectionEnd;
-    const selectedText = text.substring(start, end);
+    if (targetEl) {
+      targetEl.focus();
+      let command = '';
+      if (tag === 'b') command = 'bold';
+      else if (tag === 'i') command = 'italic';
+      else if (tag === 'u') command = 'underline';
+      else if (tag === 'ul') command = 'insertUnorderedList';
+      else if (tag === 'ol') command = 'insertOrderedList';
 
-    let formatted = '';
-    if (tag === 'ul' || tag === 'ol') {
-      const lines = selectedText.split('\n').filter(l => l.trim() !== '');
-      if (lines.length === 0) {
-        formatted = `<${tag}>\n  <li>${selectedText || 'Mục mới'}</li>\n</${tag}>`;
-      } else {
-        formatted = `<${tag}>\n${lines.map(line => `  <li>${line}</li>`).join('\n')}\n</${tag}>`;
+      if (command) {
+        document.execCommand(command, false, null);
       }
-    } else {
-      formatted = `<${tag}>${selectedText}</${tag}>`;
     }
+  };
 
-    const newText = text.substring(0, start) + formatted + text.substring(end);
-
-    // Cập nhật resumeData
-    if (index === null) {
+  const selectTemplate = (newName) => {
+    const entry = TemplateRegistry[newName];
+    if (entry) {
+      if (entry.isProOnly && !window.INITIAL_RESUME_DATA?.isPro) {
+        if (window.confirm("Mẫu CV này chỉ dành cho thành viên PRO. Bạn có muốn nâng cấp tài khoản để sử dụng mẫu này?")) {
+          window.open("/Account/Upgrade", "_blank");
+        }
+        return;
+      }
+      
+      setTemplateName(newName);
+      if (window.INITIAL_RESUME_DATA) {
+        window.INITIAL_RESUME_DATA.TemplateID = entry.id;
+      }
+      
+      // Update resumeData state to trigger auto-save
       setResumeData(prev => ({
         ...prev,
-        [field]: newText
+        templateId: entry.id
       }));
-    } else {
-      setResumeData(prev => {
-        const arr = [...(prev[field] || [])];
-        arr[index] = {
-          ...arr[index],
-          [subfield]: newText
-        };
-        return { ...prev, [field]: arr };
-      });
     }
-
-    // Cập nhật lại vùng chọn activeInput mới sau khi chèn thẻ HTML
-    setActiveInput(prev => ({
-      ...prev,
-      selectionStart: start,
-      selectionEnd: start + formatted.length
-    }));
-
-    // Khôi phục focus vào đúng phần tử trong DOM thực tế sau khi component re-render
-    setTimeout(() => {
-      let selector = `[data-field="${field}"]`;
-      if (index !== null) {
-        selector += `[data-index="${index}"]`;
-      }
-      if (subfield) {
-        selector += `[data-subfield="${subfield}"]`;
-      }
-      const el = document.querySelector(selector);
-      if (el) {
-        el.focus();
-        el.setSelectionRange(start, start + formatted.length);
-      }
-    }, 50);
   };
 
   const SelectedTemplate = TemplateRegistry[templateName]?.component;
@@ -482,7 +460,7 @@ function App() {
   return (
     <div style={{ display: 'flex', width: '100%', height: '100%', fontFamily: 'Arial, sans-serif', overflow: 'hidden' }}>
       {/* CỘT TRÁI - FORM */}
-      <div style={{ width: '500px', backgroundColor: '#f8f9fa', borderRight: '1px solid #ddd', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+      <div style={{ width: '500px', backgroundColor: '#f8f9fa', borderRight: '1px solid #ddd', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'relative' }}>
         <div style={{ padding: '15px', backgroundColor: '#343a40', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h2 style={{ margin: 0, fontSize: '16px' }}>📝 Chỉnh sửa CV (Beta)</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -502,14 +480,257 @@ function App() {
           </div>
         </div>
         
-        <div style={{ padding: '15px', borderBottom: '1px solid #ddd' }}>
-          <label style={{ fontWeight: 'bold', fontSize: '13px' }}>Đổi mẫu (Test): </label>
-          <select value={templateName} onChange={(e) => setTemplateName(e.target.value)} style={{ padding: '5px', width: '200px' }}>
-            {Object.keys(TemplateRegistry).map(key => (
-              <option key={key} value={key}>{key}</option>
-            ))}
-          </select>
+        <div style={{ padding: '12px 15px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#f8fafc' }}>
+          <div>
+            <span style={{ fontWeight: 'bold', fontSize: '12px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Mẫu đang dùng: </span>
+            <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#0d6efd', backgroundColor: '#e0f2fe', padding: '4px 8px', borderRadius: '6px', marginLeft: '5px' }}>
+              {templateName}
+            </span>
+          </div>
+          <button 
+            onClick={() => setShowTemplateSelector(prev => !prev)}
+            style={{ 
+              padding: '6px 12px', 
+              backgroundColor: '#0d6efd', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '6px', 
+              cursor: 'pointer', 
+              fontWeight: 'bold', 
+              fontSize: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 4px rgba(13, 110, 253, 0.2)',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#0b5ed7'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0d6efd'}
+          >
+            <i className="fas fa-palette"></i> Đổi mẫu CV
+          </button>
         </div>
+
+        {/* MODAL CHỌN MẪU CV (MỞ BÊN NGOÀI) */}
+        {showTemplateSelector && (
+          <div style={{
+            position: 'absolute',
+            top: '95px',
+            left: '515px',
+            width: '460px',
+            height: 'calc(100% - 120px)',
+            backgroundColor: '#ffffff',
+            borderRadius: '16px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 1px 1px rgba(0,0,0,0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            animation: 'slideInRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            overflow: 'hidden',
+            zIndex: 1000,
+            border: '1px solid #e2e8f0'
+          }}>
+            {/* Embedded styles for modal animation */}
+            <style>{`
+              @keyframes slideInRight {
+                from { transform: translateX(30px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+              }
+            `}</style>
+
+            {/* Header */}
+            <div style={{ 
+              padding: '18px 20px', 
+              borderBottom: '1px solid #e2e8f0', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              backgroundColor: '#f8fafc'
+            }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 'bold', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <i className="fas fa-th-large" style={{ color: '#0d6efd' }}></i> Thư viện mẫu CV
+                </h3>
+                <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#64748b' }}>Chọn phong cách thiết kế bạn muốn</p>
+              </div>
+              <button 
+                onClick={() => setShowTemplateSelector(false)}
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  cursor: 'pointer',
+                  fontSize: '22px',
+                  color: '#94a3b8',
+                  padding: '0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '50%',
+                  width: '28px',
+                  height: '28px',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f1f5f9';
+                  e.currentTarget.style.color = '#475569';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#94a3b8';
+                }}
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Grid mẫu CV - exactly 2 columns */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px', backgroundColor: '#f8fafc' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                {Object.entries(TemplateRegistry).map(([key, val]) => {
+                  const isCurrent = key === templateName;
+                  const isProOnly = val.isProOnly;
+                  
+                  // Look up preview image from database metadata passed from C# controller
+                  const dbTemplate = window.TEMPLATE_METADATA?.find(t => t.id === val.id);
+                  const previewImg = dbTemplate?.previewUrl || `/images/templates/templatesCV_${val.id}.jpg`;
+                  
+                  return (
+                    <div 
+                      key={key}
+                      onClick={() => {
+                        selectTemplate(key);
+                      }}
+                      style={{
+                        border: isCurrent ? '2.5px solid #0d6efd' : '1px solid #e2e8f0',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        position: 'relative',
+                        transition: 'all 0.25s ease',
+                        boxShadow: isCurrent ? '0 10px 15px -3px rgba(13, 110, 253, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                        backgroundColor: '#ffffff'
+                      }}
+                      onMouseOver={(e) => {
+                        if (!isCurrent) {
+                          e.currentTarget.style.borderColor = '#0d6efd';
+                          e.currentTarget.style.transform = 'translateY(-4px)';
+                          e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (!isCurrent) {
+                          e.currentTarget.style.borderColor = '#e2e8f0';
+                          e.currentTarget.style.transform = 'none';
+                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.05)';
+                        }
+                      }}
+                    >
+                      {/* Pro Badge */}
+                      {isProOnly && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '6px',
+                          right: '6px',
+                          backgroundColor: '#f59e0b',
+                          color: '#ffffff',
+                          fontSize: '8px',
+                          fontWeight: 'bold',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          zIndex: 5,
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '2px'
+                        }}>
+                          <i className="fas fa-crown" style={{ fontSize: '7px' }}></i> PRO
+                        </div>
+                      )}
+                      
+                      {/* Image wrapper keeping A4 ratio */}
+                      <div style={{
+                        padding: '8px',
+                        backgroundColor: '#f8fafc',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderBottom: '1px solid #e2e8f0'
+                      }}>
+                        <div style={{
+                          width: '100%',
+                          aspectRatio: '1 / 1.414', // Exact A4 aspect ratio
+                          borderRadius: '6px',
+                          overflow: 'hidden',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                          border: '1px solid #e2e8f0',
+                          position: 'relative',
+                          backgroundColor: '#ffffff'
+                        }}>
+                          <img 
+                            src={previewImg} 
+                            alt={key}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
+                              objectPosition: 'top center',
+                              transition: 'transform 0.3s ease'
+                            }}
+                            onError={(e) => {
+                              e.currentTarget.src = 'https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400';
+                            }}
+                          />
+                          
+                          {/* Checkmark overlay when selected */}
+                          {isCurrent && (
+                            <div style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              backgroundColor: 'rgba(13, 110, 253, 0.12)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <div style={{
+                                backgroundColor: '#0d6efd',
+                                color: '#ffffff',
+                                borderRadius: '50%',
+                                width: '32px',
+                                height: '32px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                boxShadow: '0 4px 8px rgba(13, 110, 253, 0.3)'
+                              }}>
+                                <i className="fas fa-check" style={{ fontSize: '14px' }}></i>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Title block */}
+                      <div style={{ 
+                        padding: '10px 8px', 
+                        fontSize: '11px', 
+                        fontWeight: 'bold', 
+                        color: isCurrent ? '#0d6efd' : '#1e293b',
+                        textAlign: 'center',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {key}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
           <LeftForm resumeData={resumeData} setResumeData={setResumeData} />
