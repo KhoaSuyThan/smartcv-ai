@@ -478,7 +478,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
             <div style={styles.section}>
               {renderSectionHeader('Mục tiêu nghề nghiệp', 'summary', true, generateAISummary, 'summary')}
               <div style={{ opacity: resumeData.visibleSections?.summary !== false ? 1 : 0.5, transition: 'opacity 0.2s' }}>
-                <textarea name="summary" value={resumeData.summary || ''} onChange={handleChange} style={{...styles.input, ...styles.textarea}} placeholder="Tôi là một người đam mê..." />
+                <textarea name="summary" data-field="summary" value={resumeData.summary || ''} onChange={handleChange} style={{...styles.input, ...styles.textarea}} placeholder="Tôi là một người đam mê..." />
               </div>
             </div>
           </div>
@@ -508,7 +508,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
                         {isAIProcessing[`experiences_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
                       </button>
                     </div>
-                    <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('experiences', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả công việc (Dùng dấu • để liệt kê)..." />
+                    <textarea data-field="experiences" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(e) => handleArrayChange('experiences', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả công việc (Dùng dấu • để liệt kê)..." />
                   </div>
                 ))}
                 <button style={styles.addBtn} onClick={() => addItem('experiences', { company: '', role: '', time: '', desc: '' })}>+ Thêm kinh nghiệm</button>
@@ -554,7 +554,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
                         {isAIProcessing[`projects_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
                       </button>
                     </div>
-                    <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('projects', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả và công nghệ..." />
+                    <textarea data-field="projects" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(e) => handleArrayChange('projects', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả và công nghệ..." />
                   </div>
                 ))}
                 <button style={styles.addBtn} onClick={() => addItem('projects', { name: '', role: '', time: '', desc: '' })}>+ Thêm dự án</button>
@@ -579,7 +579,7 @@ const LeftForm = ({ resumeData, setResumeData }) => {
                         {isAIProcessing[`activities_${idx}`] ? '🤖 Đang tối ưu...' : '🤖 AI Tối ưu'}
                       </button>
                     </div>
-                    <textarea value={item.desc || ''} onChange={(e) => handleArrayChange('activities', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả hoạt động..." />
+                    <textarea data-field="activities" data-index={idx} data-subfield="desc" value={item.desc || ''} onChange={(e) => handleArrayChange('activities', idx, 'desc', e.target.value)} style={{...styles.input, ...styles.textarea}} placeholder="Mô tả hoạt động..." />
                   </div>
                 ))}
                 <button style={styles.addBtn} onClick={() => addItem('activities', { name: '', time: '', desc: '' })}>+ Thêm hoạt động</button>
