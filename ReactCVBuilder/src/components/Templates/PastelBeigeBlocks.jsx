@@ -7,22 +7,22 @@ const PastelBeigeBlocks = ({ resumeData }) => {
         {/* Block 1: Contact */}
         {(resumeData?.phone || resumeData?.email || resumeData?.website || resumeData?.address) && (
             <div className="pastel-block contact-block">
-                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></div>}
-                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></div>}
-                {resumeData?.website && <div className="contact-item"><i className="fas fa-globe"></i> <span>{resumeData.website}</span></div>}
-                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></div>}
+                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></span></div>}
+                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></span></div>}
+                {resumeData?.website && <div className="contact-item"><i className="fas fa-globe"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.website }}></span></span></div>}
+                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></span></div>}
             </div>
         )}
 
         {/* Block 2: Profile */}
         <div className="pastel-block profile-block">
             <div className="profile-left">
-                <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
+                <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
                 <div className="job-title-wrapper">
-                    <span className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</span>
+                    <span className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></span>
                     <span className="title-line"></span>
                 </div>
-                <div className="summary-text">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                <div className="summary-text"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
             </div>
             <div className="profile-right">
                 <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />

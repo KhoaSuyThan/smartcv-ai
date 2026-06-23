@@ -61,16 +61,16 @@ const TranHoaiThu = ({ resumeData }) => {
             
             <div className="right-col">
                 <div className="header-content">
-                    <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                    <h2 className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+                    <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                    <h2 className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
                     
                     {(resumeData?.gender || resumeData?.birthDate || resumeData?.phone || resumeData?.email || resumeData?.address) && (
                         <div className="contact-info">
                             {resumeData?.gender && <div className="contact-item"><i className="fas fa-venus-mars"></i> <span>{resumeData.gender}</span></div>}
-                            {resumeData?.birthDate && <div className="contact-item"><i className="fas fa-calendar-alt"></i> <span>{resumeData.birthDate}</span></div>}
-                            {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></div>}
-                            {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></div>}
-                            {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></div>}
+                            {resumeData?.birthDate && <div className="contact-item"><i className="fas fa-calendar-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></span></div>}
+                            {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></span></div>}
+                            {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></span></div>}
+                            {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span><span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></span></div>}
                         </div>
                     )}
                 </div>
@@ -78,7 +78,7 @@ const TranHoaiThu = ({ resumeData }) => {
                 <div className="main-content">
                     <div className="content-block summary-section">
                         <h3 className="section-title">Mục tiêu nghề nghiệp</h3>
-                        <div className="summary-text">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                        <div className="summary-text"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                     </div>
                     <div className="content-block education-section">
                         <h3 className="section-title">Trình độ học vấn</h3>

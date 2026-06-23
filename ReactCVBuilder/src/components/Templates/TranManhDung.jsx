@@ -9,18 +9,18 @@ const TranManhDung = ({ resumeData }) => {
             <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} alt="Avatar" />
         </div>
         <div className="profile-header">
-            <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-            <h2 className="jobtitle">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+            <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+            <h2 className="jobtitle"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
         </div>
         
         <div className="left-divider"></div>
         
         {(resumeData?.phone || resumeData?.birthDate || resumeData?.email || resumeData?.address) && (
             <div className="contact-info">
-                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i><span>{resumeData.phone}</span></div>}
-                {resumeData?.birthDate && <div className="contact-item"><i className="fas fa-calendar-alt"></i><span>{resumeData.birthDate}</span></div>}
-                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i><span>{resumeData.email}</span></div>}
-                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i><span>{resumeData.address}</span></div>}
+                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i><span><span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></span></div>}
+                {resumeData?.birthDate && <div className="contact-item"><i className="fas fa-calendar-alt"></i><span><span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></span></div>}
+                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i><span><span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></span></div>}
+                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i><span><span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></span></div>}
             </div>
         )}
 
@@ -82,7 +82,7 @@ const TranManhDung = ({ resumeData }) => {
         <div className="right-section">
             <h3 className="right-title"><span>Mục tiêu nghề nghiệp</span></h3>
             <div className="right-content summary-text">
-                {resumeData?.summary || 'Mục tiêu nghề nghiệp'}
+                <span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span>
             </div>
         </div>
 

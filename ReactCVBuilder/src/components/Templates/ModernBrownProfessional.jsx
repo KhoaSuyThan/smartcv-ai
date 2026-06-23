@@ -11,9 +11,9 @@ const ModernBrownProfessional = ({ resumeData }) => {
 
                     {(resumeData?.phone || resumeData?.email || resumeData?.address) && (
                         <div className="contact-list">
-                            {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone"></i> {resumeData.phone}</div>}
-                            {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> {resumeData.email}</div>}
-                            {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> {resumeData.address}</div>}
+                            {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></div>}
+                            {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></div>}
+                            {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></div>}
                         </div>
                     )}
 
@@ -106,9 +106,9 @@ const ModernBrownProfessional = ({ resumeData }) => {
 
                 <div className="main-body">
                     <div className="header-brown">
-                        <h1>{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                        <h2>{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
-                        <div className="summary-text">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                        <h1><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                        <h2><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
+                        <div className="summary-text"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                     </div>
 
                     <div className="content-padding">

@@ -45,6 +45,7 @@
         window.INITIAL_RESUME_DATA = {
             ResumeID: @Model.ResumeID,
             TemplateID: @Model.TemplateID,
+            isPro: @(ViewBag.IsPro == true ? "true" : "false"),
             Title: '@Html.Raw((Model.Title ?? "CV React Beta").Replace("'", "\\'"))',
             fullName: '@Html.Raw((Model.FullName ?? "").Replace("'", "\\'"))',
             jobTitle: '@Html.Raw((Model.JobTitle ?? "").Replace("'", "\\'"))',
@@ -71,6 +72,7 @@
             languages: @Html.Raw(GetSectionJson("Languages", "[]")),
             otherSkills: @Html.Raw(GetSectionJson("OtherSkills", "[]"))
         };
+        window.TEMPLATE_METADATA = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.TemplatesMetadata));
     </script>
     <script type="module" src="~/js/react-beta/app.js"></script>
 }

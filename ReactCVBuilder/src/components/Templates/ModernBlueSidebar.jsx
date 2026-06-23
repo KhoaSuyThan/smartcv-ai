@@ -11,10 +11,10 @@ const ModernBlueSidebar = ({ resumeData }) => {
 
                     {(resumeData?.phone || resumeData?.email || resumeData?.birthDate || resumeData?.address) && (
                         <ul className="contact-info">
-                            {resumeData?.phone && <li><i className="fas fa-phone"></i> {resumeData.phone}</li>}
-                            {resumeData?.email && <li><i className="fas fa-envelope"></i> {resumeData.email}</li>}
-                            {resumeData?.birthDate && <li><i className="fas fa-calendar-alt"></i> {resumeData.birthDate}</li>}
-                            {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> {resumeData.address}</li>}
+                            {resumeData?.phone && <li><i className="fas fa-phone"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></li>}
+                            {resumeData?.email && <li><i className="fas fa-envelope"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></li>}
+                            {resumeData?.birthDate && <li><i className="fas fa-calendar-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.birthDate }}></span></li>}
+                            {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></li>}
                         </ul>
                     )}
 
@@ -96,13 +96,13 @@ const ModernBlueSidebar = ({ resumeData }) => {
 
                 <div className="cv-main">
                     <div className="main-header">
-                        <h1>{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                        <h2>{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
+                        <h1><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                        <h2><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></h2>
                     </div>
 
                     <div className="main-section">
                         <h3>Mục tiêu nghề nghiệp</h3>
-                        <p>{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</p>
+                        <p><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></p>
                     </div>
 
                     <div className="main-section">

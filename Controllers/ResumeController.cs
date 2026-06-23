@@ -59,6 +59,7 @@ namespace DoAnCS.Controllers
             // Kiểm tra quyền Pro
             var user = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
             bool isPro = user?.IsPro ?? false;
+            ViewBag.IsPro = isPro;
 
             if (template.IsProOnly && !isPro)
             {
@@ -96,6 +97,15 @@ namespace DoAnCS.Controllers
                     .Include(r => r.ResumeSections) // Bổ sung Include ResumeSections
                     .FirstOrDefaultAsync(r => r.ResumeID == resume.ResumeID);
             }
+
+            // Lấy danh sách template metadata truyền qua view
+            var templatesList = await _context.Templates.Where(t => t.IsActive).ToListAsync();
+            ViewBag.TemplatesMetadata = templatesList.Select(t => new {
+                id = t.TemplateID,
+                name = t.Name,
+                previewUrl = t.PreviewImageUrl,
+                isPro = t.IsProOnly
+            }).ToList();
 
             // 4. Gán ID vào ViewBag để dùng cho các script AutoSave
             ViewBag.ResumeId = resume.ResumeID; 
@@ -225,6 +235,18 @@ namespace DoAnCS.Controllers
                 var userIdClaim = User.FindFirst("UserID")?.Value;
                 int userId = string.IsNullOrEmpty(userIdClaim) ? 1 : int.Parse(userIdClaim);
 
+                // Kiểm tra phân quyền mẫu CV Pro/Free
+                var targetTemplate = await _context.Templates.FindAsync(model.TemplateID);
+                if (targetTemplate != null && targetTemplate.IsProOnly)
+                {
+                    var userObj = await _context.Users.FindAsync(userId);
+                    bool isPro = userObj?.IsPro ?? false;
+                    if (!isPro)
+                    {
+                        return Json(new { success = false, message = "Mẫu CV này chỉ dành cho thành viên Pro. Vui lòng nâng cấp tài khoản!" });
+                    }
+                }
+
                 // A. Lưu vào bảng Resumes (Thông tin cá nhân chính)
                 var resume = new Resume {
                     UserID = userId,
@@ -307,6 +329,23 @@ namespace DoAnCS.Controllers
                 resume.Summary = model.Summary;
                 resume.AvatarUrl = model.AvatarUrl; // Lưu Base64 ảnh đại diện
                 resume.ThemeColor = model.ThemeColor;
+                
+                // Chốt chặn bảo mật cho gói Pro/Free khi đổi mẫu
+                if (model.TemplateID > 0 && resume.TemplateID != model.TemplateID)
+                {
+                    var targetTemplate = await _context.Templates.FindAsync(model.TemplateID);
+                    if (targetTemplate != null)
+                    {
+                        var userObj = await _context.Users.FindAsync(userId);
+                        bool isPro = userObj?.IsPro ?? false;
+                        if (targetTemplate.IsProOnly && !isPro)
+                        {
+                            return Json(new { success = false, message = "Mẫu CV này chỉ dành cho thành viên Pro. Vui lòng nâng cấp tài khoản!" });
+                        }
+                        resume.TemplateID = model.TemplateID;
+                    }
+                }
+
                 resume.UpdatedAt = DateTime.Now;
                 resume.IsDraft = true; 
 

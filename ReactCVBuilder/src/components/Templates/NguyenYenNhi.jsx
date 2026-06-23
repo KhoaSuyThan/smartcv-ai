@@ -20,8 +20,8 @@ const NguyenYenNhi = ({ resumeData }) => {
 
                 <div className="cv-header">
                     <div className="header-info">
-                        <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                        <p className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</p>
+                        <h1 className="fullname"><span dangerouslySetInnerHTML={{ __html: resumeData?.fullName || 'HỌ TÊN' }}></span></h1>
+                        <p className="job-title"><span dangerouslySetInnerHTML={{ __html: resumeData?.jobTitle || 'VỊ TRÍ' }}></span></p>
                     </div>
                     <div className="header-photo">
                         <div className="photo-bg-circle"></div>
@@ -33,7 +33,7 @@ const NguyenYenNhi = ({ resumeData }) => {
                     <div className="col-left">
                         <div className="section">
                             <h1 className="section-title">VỀ TÔI</h1>
-                            <div className="content-text">{resumeData?.summary || 'Mục tiêu nghề nghiệp'}</div>
+                            <div className="content-text"><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                         </div>
 
                         <div className="section">
@@ -116,9 +116,9 @@ const NguyenYenNhi = ({ resumeData }) => {
                             <div className="section">
                                 <h1 className="section-title">LIÊN HỆ</h1>
                                 <div className="contact-list">
-                                    {resumeData?.phone && <div className="contact-item"><span>📞</span> {resumeData.phone}</div>}
-                                    {resumeData?.email && <div className="contact-item"><span>✉️</span> {resumeData.email}</div>}
-                                    {resumeData?.address && <div className="contact-item"><span>📍</span> {resumeData.address}</div>}
+                                    {resumeData?.phone && <div className="contact-item"><span>📞</span> <span dangerouslySetInnerHTML={{ __html: resumeData?.phone }}></span></div>}
+                                    {resumeData?.email && <div className="contact-item"><span>✉️</span> <span dangerouslySetInnerHTML={{ __html: resumeData?.email }}></span></div>}
+                                    {resumeData?.address && <div className="contact-item"><span>📍</span> <span dangerouslySetInnerHTML={{ __html: resumeData?.address }}></span></div>}
                                 </div>
                             </div>
                         )}
