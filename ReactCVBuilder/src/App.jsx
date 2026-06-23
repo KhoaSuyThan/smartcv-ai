@@ -14,13 +14,13 @@ const colors = [
 ];
 const bgColors = [
   '#ffffff', // Pure White
-  '#fbfbfb', // Off White
-  '#fcfaf2', // Soft Cream
-  '#f7f5eb', // Warm Beige
-  '#f0fdf4', // Soft Mint
-  '#f0f9ff', // Pale Blue
+  '#f1f5f9', // Slate Light Gray
+  '#fef3c7', // Warm Amber/Cream
+  '#fde8e8', // Soft Rose
+  '#e0f2fe', // Soft Sky Blue
+  '#dcfce7', // Soft Emerald Green
 ];
-
+  
 function App() {
   const [resumeData, setResumeData] = useState({
     fullName: 'Nguyễn Văn A',
@@ -54,8 +54,49 @@ function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const [zoom, setZoom] = useState(0.8);
+  const [activeInput, setActiveInput] = useState(null);
   const isInitialMount = useRef(true);
   const hasAppliedDefaults = useRef(false);
+
+  useEffect(() => {
+    const updateActiveInput = (e) => {
+      const el = e.target;
+      
+      // If clicking inside the toolbar, preserve the active input state so formatting works
+      const isClickInsideToolbar = el && (el.closest('[data-toolbar="true"]') || el.tagName === 'BUTTON' || el.tagName === 'SVG' || el.tagName === 'PATH');
+      if (isClickInsideToolbar) {
+        return;
+      }
+
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) {
+        if (el.hasAttribute('data-field')) {
+          setActiveInput({
+            field: el.getAttribute('data-field'),
+            index: el.getAttribute('data-index') !== null ? parseInt(el.getAttribute('data-index'), 10) : null,
+            subfield: el.getAttribute('data-subfield'),
+            selectionStart: el.selectionStart,
+            selectionEnd: el.selectionEnd
+          });
+        } else {
+          setActiveInput(null); // Clear active formatting target when clicking unsupported inputs
+        }
+      } else {
+        setActiveInput(null); // Clear when clicking elsewhere
+      }
+    };
+
+    document.addEventListener('focusin', updateActiveInput);
+    document.addEventListener('keyup', updateActiveInput);
+    document.addEventListener('mouseup', updateActiveInput);
+    document.addEventListener('select', updateActiveInput);
+
+    return () => {
+      document.removeEventListener('focusin', updateActiveInput);
+      document.removeEventListener('keyup', updateActiveInput);
+      document.removeEventListener('mouseup', updateActiveInput);
+      document.removeEventListener('select', updateActiveInput);
+    };
+  }, []);
 
   // Áp dụng visibleSections mặc định theo template khi CV mới (visibleSections rỗng)
   useEffect(() => {
@@ -361,6 +402,81 @@ function App() {
     }
   };
 
+  const handleFormatText = (tag) => {
+    if (!activeInput) {
+      alert("Vui lòng click chọn và bôi đen phần văn bản trong các ô mô tả (Mô tả công việc, Mô tả dự án, Hoạt động hoặc Mục tiêu nghề nghiệp) ở cột trái trước khi định dạng!");
+      return;
+    }
+
+    const { field, index, subfield, selectionStart, selectionEnd } = activeInput;
+
+    // Lấy text hiện tại từ resumeData
+    let text = '';
+    if (index === null) {
+      text = resumeData[field] || '';
+    } else {
+      text = resumeData[field]?.[index]?.[subfield] || '';
+    }
+
+    const start = selectionStart;
+    const end = selectionEnd;
+    const selectedText = text.substring(start, end);
+
+    let formatted = '';
+    if (tag === 'ul' || tag === 'ol') {
+      const lines = selectedText.split('\n').filter(l => l.trim() !== '');
+      if (lines.length === 0) {
+        formatted = `<${tag}>\n  <li>${selectedText || 'Mục mới'}</li>\n</${tag}>`;
+      } else {
+        formatted = `<${tag}>\n${lines.map(line => `  <li>${line}</li>`).join('\n')}\n</${tag}>`;
+      }
+    } else {
+      formatted = `<${tag}>${selectedText}</${tag}>`;
+    }
+
+    const newText = text.substring(0, start) + formatted + text.substring(end);
+
+    // Cập nhật resumeData
+    if (index === null) {
+      setResumeData(prev => ({
+        ...prev,
+        [field]: newText
+      }));
+    } else {
+      setResumeData(prev => {
+        const arr = [...(prev[field] || [])];
+        arr[index] = {
+          ...arr[index],
+          [subfield]: newText
+        };
+        return { ...prev, [field]: arr };
+      });
+    }
+
+    // Cập nhật lại vùng chọn activeInput mới sau khi chèn thẻ HTML
+    setActiveInput(prev => ({
+      ...prev,
+      selectionStart: start,
+      selectionEnd: start + formatted.length
+    }));
+
+    // Khôi phục focus vào đúng phần tử trong DOM thực tế sau khi component re-render
+    setTimeout(() => {
+      let selector = `[data-field="${field}"]`;
+      if (index !== null) {
+        selector += `[data-index="${index}"]`;
+      }
+      if (subfield) {
+        selector += `[data-subfield="${subfield}"]`;
+      }
+      const el = document.querySelector(selector);
+      if (el) {
+        el.focus();
+        el.setSelectionRange(start, start + formatted.length);
+      }
+    }, 50);
+  };
+
   const SelectedTemplate = TemplateRegistry[templateName]?.component;
 
   return (
@@ -404,7 +520,9 @@ function App() {
       <div style={{ flex: 1, backgroundColor: '#525659', display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         
         {/* TOOLBAR */}
-        <div style={{
+        <div 
+          data-toolbar="true"
+          style={{
           width: '100%',
           backgroundColor: '#ffffff',
           borderBottom: '1px solid #e2e8f0',
@@ -433,7 +551,7 @@ function App() {
 
             {/* Màu chủ đạo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #e2e8f0', paddingLeft: '16px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Màu chính:</span>
+              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Màu chữ (Màu chính):</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
                   onClick={() => setResumeData(prev => ({ ...prev, themeColor: '' }))}
@@ -466,10 +584,10 @@ function App() {
                       height: '20px',
                       borderRadius: '50%',
                       backgroundColor: c,
-                      border: (resumeData.themeColor || '').toLowerCase() === c.toLowerCase() ? '3px solid #2563eb' : '1px solid #cbd5e1',
+                      border: (resumeData.themeColor || '').toLowerCase() === c.toLowerCase() ? '2px solid #2563eb' : '1px solid #94a3b8',
                       cursor: 'pointer',
                       padding: 0,
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
                       transition: 'transform 0.1s'
                     }}
                     title={c}
@@ -487,7 +605,7 @@ function App() {
 
             {/* Màu nền CV */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderLeft: '1px solid #e2e8f0', paddingLeft: '16px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nền CV:</span>
+              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Màu nền (Nền CV):</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <button
                   onClick={() => setResumeData(prev => ({ ...prev, bgColor: '' }))}
@@ -520,10 +638,10 @@ function App() {
                       height: '20px',
                       borderRadius: '4px',
                       backgroundColor: c,
-                      border: (resumeData.bgColor || '').toLowerCase() === c.toLowerCase() ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                      border: (resumeData.bgColor || '').toLowerCase() === c.toLowerCase() ? '2px solid #2563eb' : '1px solid #94a3b8',
                       cursor: 'pointer',
                       padding: 0,
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                      boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.1)',
                       transition: 'transform 0.1s'
                     }}
                     title={c}
@@ -600,6 +718,47 @@ function App() {
                 </div>
               </div>
             </div>
+
+            {/* Định dạng */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', borderLeft: '1px solid #e2e8f0', paddingLeft: '16px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 'bold', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Định dạng:</span>
+              <div style={{ display: 'flex', gap: '2px', backgroundColor: '#f1f5f9', padding: '2px', borderRadius: '6px', border: '1px solid #cbd5e1' }}>
+                {[
+                  { value: 'b', label: 'In đậm', icon: 'M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-3 3.87A4 4 0 0 1 19 16a4 4 0 0 1-4 4H6V4z' },
+                  { value: 'i', label: 'In nghiêng', icon: 'M19 4h-9M14 4l-4 16M8 20h6' },
+                  { value: 'u', label: 'Gạch chân', icon: 'M6 3v7a6 6 0 0 0 12 0V3M4 21h16' },
+                  { value: 'ul', label: 'Dấu mục', icon: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01' },
+                  { value: 'ol', label: 'Đánh số', icon: 'M10 6h11M10 12h11M10 18h11M4 6h1v4M3 10h2M3 14h3v2H3v2h3' }
+                ].map(format => (
+                  <button
+                    key={format.value}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleFormatText(format.value);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '24px',
+                      height: '24px',
+                      border: 'none',
+                      borderRadius: '4px',
+                      backgroundColor: 'transparent',
+                      color: '#64748b',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      padding: 0
+                    }}
+                    title={format.label}
+                  >
+                    <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d={format.icon} />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Phải: Zoom & Export */}
@@ -654,21 +813,6 @@ function App() {
                 font-family: "${resumeData.fontFamily}", "Segoe UI", sans-serif !important;
               }
             ` : ''}
-            
-            ${resumeData.bgColor ? `
-            #cv-preview-area,
-            #cv-preview-area .cv-container,
-            #cv-preview-area .cv-main,
-            #cv-preview-area main,
-            #cv-preview-area .right-main,
-            #cv-preview-area .cv-classic-wrapper,
-            #cv-preview-area .cv-wrapper,
-            #cv-preview-area .cv-modern-wrapper,
-            #cv-preview-area .cv-yens-wrapper,
-            #cv-preview-area .brown-cv {
-              background-color: ${resumeData.bgColor} !important;
-            }
-            ` : ''}
 
             ${resumeData.textAlign ? `
             #cv-preview-area .summary-text,
@@ -681,7 +825,7 @@ function App() {
               text-align: ${resumeData.textAlign} !important;
             }
             ` : ''}
-
+            
             ${resumeData.themeColor ? `
               #cv-preview-area h3, 
               #cv-preview-area .section-title, 
@@ -689,7 +833,9 @@ function App() {
               #cv-preview-area i, 
               #cv-preview-area .contact-info i,
               #cv-preview-area [class*="title"],
-              #cv-preview-area [class*="name"] {
+              #cv-preview-area [class*="name"],
+              #cv-preview-area .job-title,
+              #cv-preview-area .role {
                 color: ${resumeData.themeColor} !important;
               }
               #cv-preview-area h3, 
@@ -697,20 +843,34 @@ function App() {
               #cv-preview-area [class*="title"] {
                 border-color: ${resumeData.themeColor} !important;
               }
+            ` : ''}
+            
+            ${resumeData.bgColor ? `
+              #cv-preview-area,
+              #cv-preview-area .cv-container,
+              #cv-preview-area .cv-main,
+              #cv-preview-area main,
+              #cv-preview-area .right-main,
+              #cv-preview-area .cv-classic-wrapper,
+              #cv-preview-area .cv-wrapper,
+              #cv-preview-area .cv-modern-wrapper,
+              #cv-preview-area .cv-yens-wrapper,
+              #cv-preview-area .brown-cv {
+                background-color: ${resumeData.bgColor} !important;
+              }
 
               /* Sidebar background lightened tint overrides */
               #cv-preview-area .cv-sidebar,
               #cv-preview-area .sidebar,
               #cv-preview-area .left-sidebar,
               #cv-preview-area .left-column {
-                background-color: ${adjustBrightness(resumeData.themeColor, 0.9)} !important;
+                background-color: ${adjustBrightness(resumeData.bgColor, 0.95)} !important;
               }
 
               /* Templates with dark sidebars (e.g. NgoHaiYen, ModernProfessionalSplit) */
               #cv-preview-area .cv-yens-wrapper .cv-sidebar,
               #cv-preview-area .cv-template-ModernProfessionalSplit .left-sidebar {
-                background-color: ${resumeData.themeColor} !important;
-                color: white !important;
+                background-color: ${adjustBrightness(resumeData.bgColor, 0.9)} !important;
               }
 
               /* Header banners and decorative shapes */
@@ -723,20 +883,12 @@ function App() {
               #cv-preview-area .shape-top-left-edge,
               #cv-preview-area .shape-bottom-right,
               #cv-preview-area .shape-bottom-right-edge {
-                background-color: ${resumeData.themeColor} !important;
-                color: white !important;
-              }
-
-              /* Target some specific name/job texts in headers to remain readable */
-              #cv-preview-area .header-box *,
-              #cv-preview-area .header-brown *,
-              #cv-preview-area .dark-header * {
-                color: white !important;
+                background-color: ${adjustBrightness(resumeData.bgColor, 0.85)} !important;
               }
 
               /* Pastel blocks or badges */
               #cv-preview-area .pastel-block {
-                background-color: ${adjustBrightness(resumeData.themeColor, 0.9)} !important;
+                background-color: ${adjustBrightness(resumeData.bgColor, 0.9)} !important;
               }
 
               /* Bullet list backgrounds or timeline dots */
@@ -744,13 +896,13 @@ function App() {
               #cv-preview-area .date-badge,
               #cv-preview-area .timeline-area .exp-item::after,
               #cv-preview-area .act-area .exp-item::after {
-                background-color: ${resumeData.themeColor} !important;
+                background-color: ${adjustBrightness(resumeData.bgColor, 0.8)} !important;
               }
 
               /* Skill meters */
               #cv-preview-area .skill-bar-fill,
               #cv-preview-area .skill-meter-fill {
-                background-color: ${resumeData.themeColor} !important;
+                background-color: ${adjustBrightness(resumeData.bgColor, 0.75)} !important;
               }
             ` : ''}
           `}</style>
