@@ -25,6 +25,90 @@
     /* Ngăn scroll dọc ngoài body và giới hạn chiều cao tuyệt đối (125vh để bù trừ cho zoom 80%) */
     body { overflow: hidden !important; height: 125vh !important; }
     html { overflow: hidden !important; height: 125vh !important; }
+
+    /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
+    @@page { 
+        size: A4; 
+        margin: 0; 
+    }
+
+    @@media print {
+        * { 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+        }
+
+        /* Ẩn các phần của layout trang web */
+        body > header, 
+        body > footer, 
+        body > nav, 
+        body > aside, 
+        .no-print,
+        button,
+        select,
+        .fixed,
+        .sticky,
+        #react-beta-root [data-toolbar="true"] { 
+            display: none !important; 
+        }
+
+        /* Thiết lập lại phần chứa React App và tất cả các tầng bọc ngoài của CV */
+        html, body, #react-beta-root, 
+        #react-beta-root > div,
+        #react-beta-root > div > div:last-child,
+        #react-beta-root > div > div:last-child > div:not([data-toolbar="true"]) { 
+            background: white !important; 
+            background-image: none !important;
+            display: block !important; 
+            margin: 0 !important; 
+            padding: 0 !important; 
+            width: 100% !important; 
+            height: auto !important; 
+            min-height: 0 !important;
+            overflow: visible !important;
+            position: static !important;
+            box-shadow: none !important;
+            zoom: 100% !important; /* Đảm bảo loại bỏ zoom 80% từ Layout */
+        }
+
+        /* Ẩn cột trái chỉnh sửa */
+        #react-beta-root > div > div:first-child {
+            display: none !important;
+        }
+
+        /* Ẩn các spacer bên ngoài CV */
+        #react-beta-root > div > div:last-child > div:not([data-toolbar="true"]) > div:last-child {
+            display: none !important;
+        }
+
+        /* Định cấu hình trang CV xem trước khi in */
+        #cv-preview-area { 
+            width: 210mm !important; 
+            min-height: 297mm !important;
+            overflow: visible !important; 
+            margin: 0 auto !important; 
+            box-shadow: none !important; 
+            zoom: 1.0 !important; /* Đưa về tỉ lệ 100% thực tế */
+            border: none !important;
+            position: relative !important; 
+            background: white !important; 
+            page-break-after: avoid !important;
+        }
+
+        /* Đảm bảo chiều cao các khối nội dung co dãn tự nhiên */
+        #cv-preview-area main,
+        #cv-preview-area aside,
+        #cv-preview-area .left-column,
+        #cv-preview-area .right-column,
+        #cv-preview-area .left-sidebar,
+        #cv-preview-area .right-main,
+        #cv-preview-area .cv-sidebar,
+        #cv-preview-area .cv-main-content {
+            overflow: visible !important;
+            height: auto !important;
+            min-height: 0 !important;
+        }
+    }
 </style>
 
 <div id="react-beta-root" style="width: 100%; flex: 1; margin: 0; padding: 0; display: flex; background: #525659; overflow: hidden;"></div>

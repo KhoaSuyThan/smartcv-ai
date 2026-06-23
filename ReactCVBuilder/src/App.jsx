@@ -20,7 +20,27 @@ const bgColors = [
   '#e0f2fe', // Soft Sky Blue
   '#dcfce7', // Soft Emerald Green
 ];
+const isHtmlEmpty = (str) => {
+  if (!str) return true;
+  const clean = str.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+  return clean === '';
+};
+
+const preprocessResumeData = (data) => {
+  if (!data) return data;
+  const processed = { ...data };
   
+  // Clean basic text fields so that empty html strings (e.g. <br>) are normalized to empty string
+  const textFields = ['fullName', 'jobTitle', 'email', 'phone', 'birthDate', 'address', 'website', 'summary'];
+  textFields.forEach(field => {
+    if (processed[field] !== undefined && isHtmlEmpty(processed[field])) {
+      processed[field] = '';
+    }
+  });
+
+  return processed;
+};
+
 function App() {
   const [resumeData, setResumeData] = useState({
     fullName: 'Nguyễn Văn A',
@@ -327,62 +347,10 @@ function App() {
   };
 
   const handleExportPDF = async () => {
-    const cvEl = document.getElementById('cv-preview-area');
-    if (!cvEl) return;
-
-    const exportBtn = document.getElementById('btn-export-pdf');
-    if (exportBtn) {
-      exportBtn.innerText = '⏳ Đang xuất...';
-      exportBtn.disabled = true;
-    }
-
     try {
-      // 1. Lưu lại zoom cũ và đưa zoom về 1.0 để html2canvas chụp chuẩn kích thước A4 gốc (210mm x 297mm)
-      const originalZoom = zoom;
-      setZoom(1.0);
-      
-      // Đợi DOM cập nhật lại scale 100%
-      await new Promise(resolve => setTimeout(resolve, 500));
+      window.print();
 
-      // 2. Chụp canvas bằng html2canvas
-      const canvas = await window.html2canvas(cvEl, {
-        scale: 2, // Đảm bảo độ sắc nét cao (retina scale)
-        useCORS: true, // Hỗ trợ tải ảnh đại diện từ domain khác (nếu có)
-        allowTaint: true,
-        backgroundColor: '#ffffff'
-      });
-
-      // 3. Khôi phục lại zoom của người dùng
-      setZoom(originalZoom);
-
-      // 4. Tạo file PDF bằng jsPDF
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgWidth = 210; // Chiều rộng trang A4 (mm)
-      const pageHeight = 297; // Chiều cao trang A4 (mm)
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      // Trang 1
-      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Các trang tiếp theo nếu nội dung CV dài hơn 1 trang A4
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      // 5. Tải file về máy người dùng
-      const fileName = `${resumeData.fullName || 'CV'}_${resumeData.jobTitle || 'Builder'}.pdf`;
-      pdf.save(fileName);
-
-      // 6. Ghi log export lên server để đổi trạng thái IsDraft = false
+      // Ghi log export lên server để đổi trạng thái IsDraft = false
       try {
         await fetch(`/Resume/LogExport?resumeId=${window.INITIAL_RESUME_DATA?.ResumeID || 0}`, {
           method: 'POST'
@@ -390,15 +358,8 @@ function App() {
       } catch (logErr) {
         console.error("Lỗi ghi log export:", logErr);
       }
-
     } catch (err) {
-      console.error("Lỗi xuất PDF:", err);
-      alert("Đã xảy ra lỗi trong quá trình xuất PDF. Vui lòng thử lại!");
-    } finally {
-      if (exportBtn) {
-        exportBtn.innerText = 'Xuất PDF';
-        exportBtn.disabled = false;
-      }
+      console.error("Lỗi in CV:", err);
     }
   };
 
@@ -1026,7 +987,7 @@ function App() {
         </div>
 
         {/* VÙNG CHỨA PREVIEW (SCROLLABLE) */}
-        <div style={{ flex: 1, width: '100%', overflowY: 'auto', display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
+        <div style={{ flex: 1, width: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 0' }}>
           {/* Override Styles bằng cách chèn thẻ style động */}
           <style>{`
             ${resumeData.fontFamily ? `
@@ -1134,14 +1095,14 @@ function App() {
               backgroundColor: 'white',
               width: '210mm',
               minHeight: '297mm',
-              transform: `scale(${zoom})`,
-              transformOrigin: 'top center',
-              marginBottom: `calc(297mm * (${zoom} - 1))`,
+              zoom: zoom,
               flexShrink: 0,
-              transition: 'transform 0.15s ease-out'
+              transition: 'zoom 0.15s ease-out'
           }}>
-            {SelectedTemplate ? <SelectedTemplate resumeData={resumeData} /> : <div style={{padding: 50}}>Không tìm thấy mẫu CV</div>}
+            {SelectedTemplate ? <SelectedTemplate resumeData={preprocessResumeData(resumeData)} /> : <div style={{padding: 50}}>Không tìm thấy mẫu CV</div>}
           </div>
+          {/* Khoảng cách an toàn phía dưới để CV không chạm sát viền màn hình */}
+          <div style={{ height: '60px', flexShrink: 0 }} />
         </div>
 
       </div>
