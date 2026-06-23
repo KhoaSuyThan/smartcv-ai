@@ -20,12 +20,14 @@ const ElegantAccountant = ({ resumeData }) => {
                 <div className="header-section">
                     <div className="header-left">
                         <h1 className="name-display">{resumeData?.fullName || 'HỌ TÊN'}</h1>
-                        <div className="personal-details">
-                            <p><strong>Ngày sinh:</strong> {resumeData?.birthDate || 'Ngày sinh'}</p>
-                            <p><strong>Địa chỉ:</strong> {resumeData?.address || 'Địa chỉ'}</p>
-                            <p><strong>Email:</strong> {resumeData?.email || 'Email'}</p>
-                            <p><strong>Số điện thoại:</strong> {resumeData?.phone || 'SĐT'}</p>
-                        </div>
+                        {(resumeData?.birthDate || resumeData?.address || resumeData?.email || resumeData?.phone) && (
+                            <div className="personal-details">
+                                {resumeData?.birthDate && <p><strong>Ngày sinh:</strong> {resumeData.birthDate}</p>}
+                                {resumeData?.address && <p><strong>Địa chỉ:</strong> {resumeData.address}</p>}
+                                {resumeData?.email && <p><strong>Email:</strong> {resumeData.email}</p>}
+                                {resumeData?.phone && <p><strong>Số điện thoại:</strong> {resumeData.phone}</p>}
+                            </div>
+                        )}
                     </div>
 
                     <div className="header-center">

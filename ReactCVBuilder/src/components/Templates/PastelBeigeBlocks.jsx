@@ -5,12 +5,14 @@ const PastelBeigeBlocks = ({ resumeData }) => {
         <div className="cv-template-PastelBeigeBlocks">
             <div className="cv-pastel-wrapper">
         {/* Block 1: Contact */}
-        <div className="pastel-block contact-block">
-            <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData?.phone || 'SĐT'}</span></div>
-            <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData?.email || 'Email'}</span></div>
-            <div className="contact-item"><i className="fas fa-globe"></i> <span>{resumeData?.website || 'Website'}</span></div>
-            <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData?.address || 'Địa chỉ'}</span></div>
-        </div>
+        {(resumeData?.phone || resumeData?.email || resumeData?.website || resumeData?.address) && (
+            <div className="pastel-block contact-block">
+                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></div>}
+                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></div>}
+                {resumeData?.website && <div className="contact-item"><i className="fas fa-globe"></i> <span>{resumeData.website}</span></div>}
+                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></div>}
+            </div>
+        )}
 
         {/* Block 2: Profile */}
         <div className="pastel-block profile-block">

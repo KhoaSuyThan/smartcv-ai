@@ -15,12 +15,14 @@ const TranManhDung = ({ resumeData }) => {
         
         <div className="left-divider"></div>
         
-        <div className="contact-info">
-            <div className="contact-item"><i className="fas fa-phone-alt"></i><span>{resumeData?.phone || 'SĐT'}</span></div>
-            <div className="contact-item"><i className="fas fa-calendar-alt"></i><span>{resumeData?.birthDate || 'Ngày sinh'}</span></div>
-            <div className="contact-item"><i className="fas fa-envelope"></i><span>{resumeData?.email || 'Email'}</span></div>
-            <div className="contact-item"><i className="fas fa-map-marker-alt"></i><span>{resumeData?.address || 'Địa chỉ'}</span></div>
-        </div>
+        {(resumeData?.phone || resumeData?.birthDate || resumeData?.email || resumeData?.address) && (
+            <div className="contact-info">
+                {resumeData?.phone && <div className="contact-item"><i className="fas fa-phone-alt"></i><span>{resumeData.phone}</span></div>}
+                {resumeData?.birthDate && <div className="contact-item"><i className="fas fa-calendar-alt"></i><span>{resumeData.birthDate}</span></div>}
+                {resumeData?.email && <div className="contact-item"><i className="fas fa-envelope"></i><span>{resumeData.email}</span></div>}
+                {resumeData?.address && <div className="contact-item"><i className="fas fa-map-marker-alt"></i><span>{resumeData.address}</span></div>}
+            </div>
+        )}
 
         <div className="left-section">
             <h3 className="left-title"><span>Học vấn</span></h3>

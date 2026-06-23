@@ -8,10 +8,10 @@ const DangNgocLinh = ({ resumeData }) => {
             <h1 className="fullname">{resumeData?.fullName || 'HỌ TÊN'}</h1>
             <h2 className="job-title">{resumeData?.jobTitle || 'VỊ TRÍ'}</h2>
             <div className="contact-info">
-                <span><i className="fas fa-phone-alt"></i> {resumeData?.phone || 'SĐT'}</span>
-                <span><i className="fas fa-envelope"></i> {resumeData?.email || 'Email'}</span>
-                <span><i className="fas fa-globe"></i> {resumeData?.website || 'Website'}</span>
-                <span><i className="fas fa-map-marker-alt"></i> {resumeData?.address || 'Địa chỉ'}</span>
+                {resumeData?.phone && <span><i className="fas fa-phone-alt"></i> {resumeData.phone}</span>}
+                {resumeData?.email && <span><i className="fas fa-envelope"></i> {resumeData.email}</span>}
+                {resumeData?.website && <span><i className="fas fa-globe"></i> {resumeData.website}</span>}
+                {resumeData?.address && <span><i className="fas fa-map-marker-alt"></i> {resumeData.address}</span>}
             </div>
         </div>
         <div className="section summary-section">

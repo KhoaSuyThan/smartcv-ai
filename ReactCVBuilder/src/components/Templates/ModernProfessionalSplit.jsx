@@ -10,14 +10,16 @@ const ModernProfessionalSplit = ({ resumeData }) => {
             </div>
             
             <div className="sidebar-padding">
-                <div className="contact-box">
-                    <ul>
-                        <li><i className="fas fa-phone"></i> <span>{resumeData?.phone || 'SĐT'}</span></li>
-                        <li><i className="fas fa-envelope"></i> <span>{resumeData?.email || 'Email'}</span></li>
-                        <li><i className="fas fa-map-marker-alt"></i> <span>{resumeData?.address || 'Địa chỉ'}</span></li>
-                        <li><i className="fas fa-link"></i> <span>{resumeData?.website || 'Website'}</span></li>
-                    </ul>
-                </div>
+                {(resumeData?.phone || resumeData?.email || resumeData?.address || resumeData?.website) && (
+                    <div className="contact-box">
+                        <ul>
+                            {resumeData?.phone && <li><i className="fas fa-phone"></i> <span>{resumeData.phone}</span></li>}
+                            {resumeData?.email && <li><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></li>}
+                            {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></li>}
+                            {resumeData?.website && <li><i className="fas fa-link"></i> <span>{resumeData.website}</span></li>}
+                        </ul>
+                    </div>
+                )}
                 
                 <div className="side-divider"></div>
                 

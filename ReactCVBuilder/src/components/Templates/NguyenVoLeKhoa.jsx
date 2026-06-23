@@ -9,12 +9,14 @@ const NguyenVoLeKhoa = ({ resumeData }) => {
                 <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="avatar-img" />
             </div>
             
-            <div className="sidebar-info">
-                <div className="info-row"><i className="fas fa-phone-alt"></i> <span>{resumeData?.phone || 'SĐT'}</span></div>
-                <div className="info-row"><i className="fas fa-envelope"></i> <span>{resumeData?.email || 'Email'}</span></div>
-                <div className="info-row"><i className="fas fa-globe"></i> <span>{resumeData?.website || 'Website'}</span></div>
-                <div className="info-row"><i className="fas fa-map-marker-alt"></i> <span>{resumeData?.address || 'Địa chỉ'}</span></div>
-            </div>
+            {(resumeData?.phone || resumeData?.email || resumeData?.website || resumeData?.address) && (
+                <div className="sidebar-info">
+                    {resumeData?.phone && <div className="info-row"><i className="fas fa-phone-alt"></i> <span>{resumeData.phone}</span></div>}
+                    {resumeData?.email && <div className="info-row"><i className="fas fa-envelope"></i> <span>{resumeData.email}</span></div>}
+                    {resumeData?.website && <div className="info-row"><i className="fas fa-globe"></i> <span>{resumeData.website}</span></div>}
+                    {resumeData?.address && <div className="info-row"><i className="fas fa-map-marker-alt"></i> <span>{resumeData.address}</span></div>}
+                </div>
+            )}
             <div className="side-section">
                 <h3 className="side-title">KỸ NĂNG</h3>
                 <div className="side-content"><ul className="other-skill-list-items">{resumeData?.otherSkills?.map((item, idx) => (

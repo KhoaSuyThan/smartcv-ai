@@ -9,12 +9,14 @@ const ModernBlueSidebar = ({ resumeData }) => {
                         <img src={resumeData?.avatarUrl || "/images/default-avatar.png"} className="profile-pic" />
                     </div>
 
-                    <ul className="contact-info">
-                        <li><i className="fas fa-phone"></i> {resumeData?.phone || 'SĐT'}</li>
-                        <li><i className="fas fa-envelope"></i> {resumeData?.email || 'Email'}</li>
-                        <li><i className="fas fa-calendar-alt"></i> {resumeData?.birthDate || 'Ngày sinh'}</li>
-                        <li><i className="fas fa-map-marker-alt"></i> {resumeData?.address || 'Địa chỉ'}</li>
-                    </ul>
+                    {(resumeData?.phone || resumeData?.email || resumeData?.birthDate || resumeData?.address) && (
+                        <ul className="contact-info">
+                            {resumeData?.phone && <li><i className="fas fa-phone"></i> {resumeData.phone}</li>}
+                            {resumeData?.email && <li><i className="fas fa-envelope"></i> {resumeData.email}</li>}
+                            {resumeData?.birthDate && <li><i className="fas fa-calendar-alt"></i> {resumeData.birthDate}</li>}
+                            {resumeData?.address && <li><i className="fas fa-map-marker-alt"></i> {resumeData.address}</li>}
+                        </ul>
+                    )}
 
                     <div className="sidebar-section">
                         <h3>Học vấn</h3>
