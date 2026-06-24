@@ -259,6 +259,7 @@ namespace DoAnCS.Controllers
                 SortBy = sortBy ?? "latest"
             };
 
+            Console.WriteLine($"[DEBUG] User: {User.Identity?.Name}, IsAuthenticated: {User.Identity?.IsAuthenticated}, IsInRole('User'): {User.IsInRole("User")}, ResumesCount: {userResumes?.Count ?? 0}");
             return View(viewModel);
         }
 

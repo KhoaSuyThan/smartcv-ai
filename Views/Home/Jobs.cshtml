@@ -163,11 +163,46 @@
         to { opacity: 1; transform: translateY(0); }
     }
     .cv-selector-card {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
+        background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 100%);
+        border: 1px solid #ddd6fe;
+        border-radius: 1.25rem;
         padding: 1.25rem;
-        margin-bottom: 1.25rem;
+        margin-bottom: 2rem;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.6), 0 4px 6px -1px rgba(79, 70, 229, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+    .cv-selector-card::before {
+        content: '';
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+        top: -50px;
+        right: -30px;
+        pointer-events: none;
+    }
+    .cv-selector-card h6 {
+        font-weight: 700 !important;
+        font-size: 0.95rem;
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-flex;
+        align-items: center;
+    }
+    .cv-selector-card select {
+        border: 1.5px solid #d8b4fe !important;
+        background-color: #ffffff !important;
+        color: #3730a3 !important;
+        font-weight: 600 !important;
+        border-radius: 0.75rem !important;
+        padding: 0.5rem 2rem 0.5rem 1rem !important;
+        transition: all 0.2s ease-in-out !important;
+    }
+    .cv-selector-card select:focus {
+        border-color: #818cf8 !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
     }
     
     /* Buttons */
@@ -205,99 +240,101 @@
 <div class="container py-5">
     <div class="row">
         <div class="col-lg-3 mb-4">
-            <form asp-action="Jobs" method="get" class="job-filter-sidebar">
-                <h5 class="fw-bold mb-4 text-dark"><i class='bx bx-filter-alt text-primary me-2'></i>Bộ lọc tìm kiếm</h5>
-
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label small fw-bold text-uppercase text-secondary mb-0">Từ khóa</label>
-                        
-                        <a href="@Url.Action("Jobs", "Home")" id="btnClearFilters" 
-                        class="text-danger small text-decoration-none d-none rounded px-2 py-1" 
-                        style="font-weight: 600; transition: all 0.2s ease;">
-                            <i class='bx bx-refresh'></i> Xóa
-                        </a>
-                    </div>
-                    <div class="position-relative">
-                        <input type="text" name="searchQuery" class="form-control" 
-                            placeholder="C#, AI, Flutter..." value="@Model.SearchQuery" style="padding-left: 2.5rem;">
-                        <i class='bx bx-search position-absolute text-muted' style="left: 1rem; top: 50%; transform: translateY(-50%);"></i>
-                    </div>
-                    <input type="hidden" name="sortBy" id="hiddenSortBy" value="@Model.SortBy">
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label small fw-bold text-uppercase text-secondary">Vị trí công việc</label>
-                    <input type="text" id="filterSearch" class="form-control form-control-sm mb-2" placeholder="Tìm vị trí nhanh...">
-                    
-                    <div class="filter-scroll-container p-3" style="max-height: 200px; overflow-y: auto;">
-                        @foreach (var spec in Model.AllSpecialties)
-                        {
-                            <div class="form-check mb-2 specialty-item">
-                                <input class="form-check-input" type="checkbox" name="specialties" value="@spec" 
-                                    id="spec-@spec.GetHashCode()" 
-                                    @(Model.SelectedSpecialties.Contains(spec) ? "checked" : "")>
-                                <label class="form-check-label small" for="spec-@spec.GetHashCode()">@spec</label>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label class="form-label small fw-bold text-uppercase text-secondary">Doanh nghiệp</label>
-                    <input type="text" id="companySearch" class="form-control form-control-sm mb-2" placeholder="Tìm tên công ty...">
-                    
-                    <div class="filter-scroll-container p-3" style="max-height: 150px; overflow-y: auto;">
-                        @if (Model.AllCompanies != null)
-                        {
-                            @foreach (var comName in Model.AllCompanies)
+            <div class="job-filter-sidebar">
+                @* === DROPDOWN CHỌN CV ĐỂ SO KHỚP === *@
+                @if (User.Identity.IsAuthenticated && ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
+                {
+                    var userResumes = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
+                    var selectedId = ViewBag.SelectedResumeId ?? 0;
+                    <div class="cv-selector-card">
+                        <h6 class="mb-2">
+                            <i class='bx bx-brain me-1'></i> So khớp việc làm
+                        </h6>
+                        <p class="text-muted small mb-3" style="font-size: 0.8rem; font-weight: 500;">Chọn CV để phân tích mức độ phù hợp:</p>
+                        <select id="cvMatchSelector" class="form-select form-select-sm">
+                            @foreach (var resume in userResumes)
                             {
-                                <div class="form-check mb-2 company-item">
-                                    <input class="form-check-input" type="checkbox" name="selectedCompanies" value="@comName" 
-                                        id="com-@comName.GetHashCode()" 
-                                        @(Model.SelectedCompanies.Contains(comName) ? "checked" : "")>
-                                    <label class="form-check-label small" for="com-@comName.GetHashCode()">@comName</label>
+                                var isSelected = resume.ResumeID == (int)selectedId;
+                                if (isSelected)
+                                {
+                                    <option value="@resume.ResumeID" selected="selected">
+                                        @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@resume.ResumeID">
+                                        @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                }
+
+                <form id="jobFilterForm" asp-action="Jobs" method="get" class="mb-0">
+                    <h5 class="fw-bold mb-4 text-dark"><i class='bx bx-filter-alt text-primary me-2'></i>Bộ lọc tìm kiếm</h5>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label small fw-bold text-uppercase text-secondary mb-0">Từ khóa</label>
+                            
+                            <a href="@Url.Action("Jobs", "Home")" id="btnClearFilters" 
+                            class="text-danger small text-decoration-none d-none rounded px-2 py-1" 
+                            style="font-weight: 600; transition: all 0.2s ease;">
+                                <i class='bx bx-refresh'></i> Xóa
+                            </a>
+                        </div>
+                        <div class="position-relative">
+                            <input type="text" name="searchQuery" class="form-control" 
+                                placeholder="C#, AI, Flutter..." value="@Model.SearchQuery" style="padding-left: 2.5rem;">
+                            <i class='bx bx-search position-absolute text-muted' style="left: 1rem; top: 50%; transform: translateY(-50%);"></i>
+                        </div>
+                        <input type="hidden" name="sortBy" id="hiddenSortBy" value="@Model.SortBy">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-secondary">Vị trí công việc</label>
+                        <input type="text" id="filterSearch" class="form-control form-control-sm mb-2" placeholder="Tìm vị trí nhanh...">
+                        
+                        <div class="filter-scroll-container p-3" style="max-height: 200px; overflow-y: auto;">
+                            @foreach (var spec in Model.AllSpecialties)
+                            {
+                                <div class="form-check mb-2 specialty-item">
+                                    <input class="form-check-input" type="checkbox" name="specialties" value="@spec" 
+                                        id="spec-@spec.GetHashCode()" 
+                                        @(Model.SelectedSpecialties.Contains(spec) ? "checked" : "")>
+                                    <label class="form-check-label small" for="spec-@spec.GetHashCode()">@spec</label>
                                 </div>
                             }
-                        }
+                        </div>
                     </div>
-                </div>
 
-                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm mt-2 py-2 fw-bold">
-                    Áp dụng bộ lọc
-                </button>
-            </form>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-secondary">Doanh nghiệp</label>
+                        <input type="text" id="companySearch" class="form-control form-control-sm mb-2" placeholder="Tìm tên công ty...">
+                        
+                        <div class="filter-scroll-container p-3" style="max-height: 150px; overflow-y: auto;">
+                            @if (Model.AllCompanies != null)
+                            {
+                                @foreach (var comName in Model.AllCompanies)
+                                {
+                                    <div class="form-check mb-2 company-item">
+                                        <input class="form-check-input" type="checkbox" name="selectedCompanies" value="@comName" 
+                                            id="com-@comName.GetHashCode()" 
+                                            @(Model.SelectedCompanies.Contains(comName) ? "checked" : "")>
+                                        <label class="form-check-label small" for="com-@comName.GetHashCode()">@comName</label>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
 
-            @* === DROPDOWN CHỌN CV ĐỂ SO KHỚP === *@
-            @if (User.IsInRole("User") && ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
-            {
-                var userResumes = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
-                var selectedId = ViewBag.SelectedResumeId ?? 0;
-                <div class="cv-selector-card mt-4">
-                    <h6 class="fw-bold mb-2" style="font-size: 0.9rem; color: #4f46e5;">
-                        <i class='bx bx-target-lock me-1'></i> So khớp việc làm
-                    </h6>
-                    <p class="text-muted small mb-3" style="font-size: 0.8rem;">Chọn CV để phân tích mức độ phù hợp:</p>
-                    <select id="cvMatchSelector" class="form-select form-select-sm" style="border-radius: 0.5rem; font-weight: 600;">
-                        @foreach (var resume in userResumes)
-                        {
-                            var isSelected = resume.ResumeID == (int)selectedId;
-                            if (isSelected)
-                            {
-                                <option value="@resume.ResumeID" selected="selected">
-                                    @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
-                                </option>
-                            }
-                            else
-                            {
-                                <option value="@resume.ResumeID">
-                                    @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
-                                </option>
-                            }
-                        }
-                    </select>
-                </div>
-            }
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm mt-2 py-2 fw-bold">
+                        Áp dụng bộ lọc
+                    </button>
+                </form>
+            </div>
         </div>
 
         <div class="col-lg-9">
@@ -322,7 +359,7 @@
                     @foreach (var job in Model.RealJobs)
                     {
                         var ms2 = ViewBag.MatchScores as Dictionary<string, int>;
-                        var isHighMatch = User.IsInRole("User") && ms2 != null && ms2.ContainsKey(job.job_id) && ms2[job.job_id] >= 70;
+                        var isHighMatch = User.Identity.IsAuthenticated && ms2 != null && ms2.ContainsKey(job.job_id) && ms2[job.job_id] >= 70;
                         <div class="job-item-row d-md-flex align-items-center @(isHighMatch ? "match-highlight" : "")">
                             <div class="me-4 mb-3 mb-md-0 company-logo-container">
                                 @if (!string.IsNullOrEmpty(job.employer_logo))
@@ -349,7 +386,7 @@
                                     </h5>
                                     @{
                                         var matchScores2 = ViewBag.MatchScores as Dictionary<string, int>;
-                                        if (User.IsInRole("User") && matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] >= 0)
+                                        if (User.Identity.IsAuthenticated && matchScores2 != null && matchScores2.ContainsKey(job.job_id) && matchScores2[job.job_id] >= 0)
                                         {
                                             var score2 = matchScores2[job.job_id];
                                             var badgeClass2 = score2 >= 70 ? "match-badge-high" : (score2 >= 40 ? "match-badge-medium" : "match-badge-low");
@@ -478,7 +515,7 @@
         document.getElementById('sortBySelector').addEventListener('change', function() {
             document.getElementById('hiddenSortBy').value = this.value;
             // Submit form filter ở bên trái
-            document.querySelector('form.job-filter-sidebar').submit();
+            document.getElementById('jobFilterForm').submit();
         });
 
         // Xử lý khi thay đổi CV để so khớp
