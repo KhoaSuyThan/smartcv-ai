@@ -207,7 +207,7 @@ Quy tắc:
                     if (!string.IsNullOrEmpty(configData?.SummaryTemplate)) {
                         prompt = configData.SummaryTemplate.Replace("{{context}}", context ?? "").Replace("{{content}}", content);
                     } else {
-                        prompt = $"Viết duy nhất một đoạn văn mục tiêu nghề nghiệp (3-4 câu) cho vị trí {context} dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC: Chỉ trả về nội dung đoạn văn. KHÔNG lời chào, KHÔNG tiêu đề, KHÔNG giải thích thêm.";
+                        prompt = $"Viết duy nhất một đoạn văn mục tiêu nghề nghiệp ngắn gọn (2-4 câu, tối đa 90 từ, TUYỆT ĐỐI KHÔNG sử dụng gạch đầu dòng hay danh sách liệt kê) cho vị trí {context} dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT): Chỉ trả về duy nhất đoạn văn mục tiêu nghề nghiệp cá nhân để đưa vào CV. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời chào, lời dẫn (ví dụ: KHÔNG viết \"Là một chuyên gia viết CV...\", \"Dưới đây là...\", \"Chào bạn...\"), KHÔNG tiêu đề, KHÔNG giải thích.";
                     }
                     break;
 
@@ -215,16 +215,16 @@ Quy tắc:
                     if (!string.IsNullOrEmpty(configData?.GrammarTemplate)) {
                         prompt = configData.GrammarTemplate.Replace("{{context}}", context ?? "").Replace("{{content}}", content);
                     } else {
-                        prompt = $"Viết duy nhất một đoạn văn mô tả công việc (2-3 câu) sau cho vị trí {context} theo chuẩn STAR: {content}. YÊU CẦU BẮT BUỘC: Chỉ trả về các gạch đầu dòng nội dung. TUYỆT ĐỐI KHÔNG có lời dẫn, không có câu 'Dưới đây là...', không tiêu đề.";
+                        prompt = $"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ và bắt đầu bằng động từ hành động) mô tả công việc cho vị trí {context} dựa trên thông tin: {content}. YÊU CẦU QUAN TRỌNG: Nếu thông tin cung cấp quá ngắn hoặc thiếu ý, bạn phải tự động suy luận thêm các nhiệm vụ và công việc đặc trưng của vị trí đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng. Chỉ trả về các gạch đầu dòng nội dung, không đánh số. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời dẫn, lời chào, không tiêu đề.";
                     }
                     break;
 
                 case "project": // Tối ưu dự án
-                    prompt = $"Viết duy nhất một đoạn văn mô tả dự án (2-3 câu) cho dự án '{context}' dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC: Chỉ trả về đoạn văn mô tả kết quả và công nghệ. KHÔNG lời chào, KHÔNG tiêu đề.";
+                    prompt = $"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ) mô tả dự án '{context}' dựa trên các ý: {content}. YÊU CẦU QUAN TRỌNG: Nếu thông tin quá ngắn, bạn phải tự động suy luận và bổ sung thêm các tính năng, công nghệ hoặc kết quả đặc trưng của loại dự án đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng. Chỉ trả về các gạch đầu dòng mô tả kết quả và công nghệ, không đánh số. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời dẫn hay lời chào.";
                     break;
 
                 case "activity": // Tối ưu hoạt động
-                    prompt = $"Viết duy nhất một đoạn văn mô tả hoạt động (2-3 câu) cho hoạt động '{context}' dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC: Chỉ trả về nội dung mô tả đóng góp và kỹ năng đạt được. KHÔNG lời chào, KHÔNG tiêu đề.";
+                    prompt = $"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ) mô tả hoạt động '{context}' dựa trên các ý: {content}. YÊU CẦU QUAN TRỌNG: Nếu thông tin quá ngắn, bạn phải tự động suy luận và bổ sung thêm các nhiệm vụ, vai trò hoặc kỹ năng đạt được đặc trưng của hoạt động đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng. Chỉ trả về các gạch đầu dòng mô tả đóng góp và kỹ năng đạt được, không đánh số. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời dẫn hay lời chào.";
                     break;
 
                 case "suggest_skills": // Gợi ý kỹ năng
@@ -273,6 +273,23 @@ YÊU CẦU CỰC KỲ KHẮT KHE:
 5. Nếu không có lỗi, trả về []. Tuyệt đối không trả về lời dẫn hay markdown.";
                     break;
 
+                case "custom_prompt": // Sinh nội dung theo prompt tự gõ kèm ngữ cảnh
+                    // content: prompt yêu cầu từ người dùng
+                    // context: nội dung hiện có của trường thông tin làm ngữ cảnh
+                    prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp hàng đầu. Hãy thực hiện yêu cầu của người dùng để cải thiện hoặc viết mới nội dung cho CV của họ.
+Yêu cầu của người dùng: {content}
+Nội dung hiện tại của ô nhập liệu (nếu có, hãy dùng làm ngữ cảnh hoặc sửa đổi dựa trên đây): {context}
+
+YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
+- Thực hiện chính xác và tập trung vào yêu cầu của người dùng.
+- Chỉ trả về duy nhất kết quả sau khi đã xử lý/viết lại để người dùng dán vào CV.
+- Kết quả phải cực kỳ ngắn gọn, súc tích, bắt buộc phải trả về từ 3 đến 5 gạch đầu dòng (tối thiểu là 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng không quá 15 từ, không đánh số).
+- YÊU CẦU BẮT BUỘC: Nếu thông tin người dùng cung cấp quá ngắn, bạn phải tự động suy luận và bổ sung thêm các chi tiết nghiệp vụ liên quan để đảm bảo có đủ ít nhất 3 gạch đầu dòng.
+- TUYỆT ĐỐI KHÔNG có lời chào, lời dẫn (ví dụ: KHÔNG viết ""Là một chuyên gia viết CV..."", ""Dưới đây là..."", ""Tôi sẽ giúp bạn..."", ""Chào bạn...""), KHÔNG có tiêu đề và KHÔNG giải thích thêm.
+- KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```). Chỉ trả về văn bản sạch sẽ.";
+                    break;
+
+
 
                 default:
                     // Dùng cho trường hợp Test Playground trên Admin
@@ -287,7 +304,8 @@ YÊU CẦU CỰC KỲ KHẮT KHE:
             // 6. Gọi Service AI (Truyền thêm trạng thái Pro)
             try 
             {
-                var aiResult = await _aiService.GenerateContent(prompt, isPro);
+                var rawResult = await _aiService.GenerateContent(prompt, isPro);
+                var aiResult = CleanAIResult(rawResult);
                 
                 // 7. Ghi Log AI và Cập nhật Token (Chỉ khi không phải gọi từ test_playground, hoặc nếu Admin tự test thì vẫn có userID)
                 // Ước lượng Token đơn giản: 1 Token ~ 4 ký tự
@@ -325,6 +343,71 @@ YÊU CẦU CỰC KỲ KHẮT KHE:
             {
                 return Json(new { success = false, data = "Lỗi server: " + ex.Message });
             }
+        }
+
+        // HÀM HẬU XỬ LÝ LÀM SẠCH KẾT QUẢ TỪ AI SERVICE (LOẠI BỎ DẤU NGOẶC KÉP VÀ CÂU DẪN THỪA)
+        private string CleanAIResult(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return "";
+
+            // 1. Loại bỏ khoảng trắng thừa
+            text = text.Trim();
+
+            // 2. Sửa lỗi dính chữ do AI ghép từ thiếu khoảng trắng (ví dụ: "tríSenior" -> "trí Senior")
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"trí([A-Z])", "trí $1");
+
+            // 3. Loại bỏ dấu ngoặc kép bao bọc ở đầu và cuối (cả dạng thẳng và dạng cong)
+            if ((text.StartsWith("\"") && text.EndsWith("\"")) ||
+                (text.StartsWith("'") && text.EndsWith("'")) ||
+                (text.StartsWith("“") && text.EndsWith("”")) ||
+                (text.StartsWith("`") && text.EndsWith("`")))
+            {
+                text = text.Substring(1, text.Length - 2).Trim();
+            }
+
+            // 4. Loại bỏ các tiền tố giới thiệu phổ biến của AI
+            string[] prefixesToRemove = new[] {
+                "dưới đây là", "đây là", "mục tiêu nghề nghiệp của", "mục tiêu nghề nghiệp là",
+                "mục tiêu nghề nghiệp", "mục tiêu", "mô tả công việc của", "mô tả công việc là",
+                "tôi xin gửi", "là một chuyên gia", "dưới đây là mục tiêu nghề nghiệp",
+                "dưới đây là mô tả công việc"
+            };
+
+            foreach (var prefix in prefixesToRemove)
+            {
+                if (text.ToLower().StartsWith(prefix))
+                {
+                    // Tìm vị trí dấu hai chấm tiếp theo để cắt
+                    int colonIndex = text.IndexOf(':');
+                    if (colonIndex != -1 && colonIndex < 120) // Chỉ cắt nếu dấu hai chấm ở gần đầu
+                    {
+                        text = text.Substring(colonIndex + 1).Trim();
+                    }
+                    else
+                    {
+                        // Nếu không có dấu hai chấm, cắt bỏ phần prefix
+                        text = text.Substring(prefix.Length).Trim();
+                    }
+                    break;
+                }
+            }
+
+            // 5. Nếu sau khi cắt prefix mà ký tự đầu là dấu hai chấm, dấu gạch ngang, dấu chấm... thì bỏ đi
+            while (text.StartsWith(":") || text.StartsWith("-") || text.StartsWith("–") || text.StartsWith(".") || text.StartsWith(" "))
+            {
+                text = text.Substring(1).Trim();
+            }
+
+            // Một lần nữa loại bỏ dấu ngoặc kép nếu sau khi cắt prefix lại lòi ra dấu ngoặc kép
+            if ((text.StartsWith("\"") && text.EndsWith("\"")) ||
+                (text.StartsWith("'") && text.EndsWith("'")) ||
+                (text.StartsWith("“") && text.EndsWith("”")) ||
+                (text.StartsWith("`") && text.EndsWith("`")))
+            {
+                text = text.Substring(1, text.Length - 2).Trim();
+            }
+
+            return text;
         }
     }
 }

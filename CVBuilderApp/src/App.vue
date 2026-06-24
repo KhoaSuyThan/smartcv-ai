@@ -128,6 +128,8 @@
       <!-- FORMS -->
       <div class="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth custom-scrollbar bg-slate-50 relative">
         
+
+        
         <!-- THÔNG TIN CHUNG -->
         <div id="field-general" v-show="activeEditorTab === 'basic'" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm relative animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
@@ -257,14 +259,33 @@
                 <div v-show="section.isVisible" class="p-4 bg-white">
                     <!-- Textarea đặc biệt cho Mục tiêu nghề nghiệp -->
                     <div v-if="section.id === 'summary'" class="space-y-2">
-                        <div class="flex justify-end">
-                            <button @click="generateAISummary" :disabled="isAIProcessing['summary']" class="cv-ai-btn text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold uppercase shadow-sm border border-amber-200 disabled:opacity-50">
+                        <!-- CỤM ĐIỀU KHIỂN AI CỐ ĐỊNH PHÍA TRÊN -->
+                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                            <input 
+                                type="text" 
+                                v-model="summaryAIPrompt" 
+                                class="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-400 placeholder-slate-400 text-slate-700 shadow-sm"
+                                placeholder="Nhập yêu cầu AI (ví dụ: Viết chuyên nghiệp hơn)..."
+                                @keyup.enter="runSummaryAI"
+                            />
+                            <select 
+                                v-model="summaryAIFunc" 
+                                class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-400 text-slate-700 cursor-pointer shadow-sm min-w-[130px]"
+                            >
+                                <option value="custom">🌟 Prompt tự chọn</option>
+                                <option value="optimize">⚡ Tối ưu mục tiêu</option>
+                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                <option value="grammar">📝 Sửa chính tả</option>
+                            </select>
+                            <button 
+                                @click="runSummaryAI" 
+                                :disabled="isAIProcessing['summary']" 
+                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                            >
                                 <template v-if="isAIProcessing['summary']">
-                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                 </template>
-                                <template v-else>
-                                    <span>✨ AI</span>
-                                </template>
+                                <span v-else>✨ AI</span>
                             </button>
                         </div>
                         <RichTextEditor v-model="resumeData.general.summary" class="w-full text-xs py-2.5 px-3 border border-slate-200 bg-slate-50 rounded-xl focus-within:ring-2 focus-within:ring-blue-400 focus-within:bg-blue-50/60 outline-none transition-all placeholder-slate-400 shadow-sm leading-relaxed" placeholder="Mô tả mục tiêu nghề nghiệp của bạn..." />
@@ -290,15 +311,38 @@
                                             <RichTextEditor v-model="item.role" :class="inputBaseClass" placeholder="Vị trí làm việc" />
                                             <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian (VD: 2020 - 2023)" />
                                         </div>
-                                        <div class="flex items-start gap-2">
-                                            <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả công việc (Dùng dấu • để liệt kê)" />
-                                            <button @click="improveAIDesc(item, 'experience')" :disabled="isAIProcessing[item._refId]" class="cv-ai-btn shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
+                                        <!-- CỤM ĐIỀU KHIỂN AI CỐ ĐỊNH PHÍA TRÊN -->
+                                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 mt-1">
+                                            <input 
+                                                type="text" 
+                                                :value="aiPromptByItem[item._refId] || ''" 
+                                                @input="e => aiPromptByItem[item._refId] = e.target.value"
+                                                class="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-400 placeholder-slate-400 text-slate-700 shadow-sm"
+                                                placeholder="Nhập yêu cầu AI (ví dụ: Viết chuyên nghiệp hơn)..."
+                                                @keyup.enter="runLocalAI(item, 'experience')"
+                                            />
+                                            <select 
+                                                :value="aiFuncByItem[item._refId] || 'custom'" 
+                                                @change="e => aiFuncByItem[item._refId] = e.target.value"
+                                                class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-400 text-slate-700 cursor-pointer shadow-sm min-w-[130px]"
+                                            >
+                                                <option value="custom">🌟 Prompt tự chọn</option>
+                                                <option value="optimize">⚡ Tối ưu nội dung</option>
+                                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                                <option value="grammar">📝 Sửa chính tả</option>
+                                            </select>
+                                            <button 
+                                                @click="runLocalAI(item, 'experience')" 
+                                                :disabled="isAIProcessing[item._refId]" 
+                                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                            >
                                                 <template v-if="isAIProcessing[item._refId]">
-                                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                                 </template>
                                                 <span v-else>✨ AI</span>
                                             </button>
                                         </div>
+                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="w-full leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả công việc (Dùng dấu • để liệt kê)" />
                                     </template>
 
                                     <!-- form học vấn -->
@@ -318,15 +362,38 @@
                                             <RichTextEditor v-model="item.role" :class="inputBaseClass" placeholder="Vai trò" />
                                             <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
                                         </div>
-                                        <div class="flex items-start gap-2">
-                                            <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Công nghệ sử dụng, Kết quả đạt được..." />
-                                            <button @click="improveAIDesc(item, 'project')" :disabled="isAIProcessing[item._refId]" class="cv-ai-btn shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
+                                        <!-- CỤM ĐIỀU KHIỂN AI CỐ ĐỊNH PHÍA TRÊN -->
+                                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 mt-1">
+                                            <input 
+                                                type="text" 
+                                                :value="aiPromptByItem[item._refId] || ''" 
+                                                @input="e => aiPromptByItem[item._refId] = e.target.value"
+                                                class="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-400 placeholder-slate-400 text-slate-700 shadow-sm"
+                                                placeholder="Nhập yêu cầu AI (ví dụ: Viết chuyên nghiệp hơn)..."
+                                                @keyup.enter="runLocalAI(item, 'project')"
+                                            />
+                                            <select 
+                                                :value="aiFuncByItem[item._refId] || 'custom'" 
+                                                @change="e => aiFuncByItem[item._refId] = e.target.value"
+                                                class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-400 text-slate-700 cursor-pointer shadow-sm min-w-[130px]"
+                                            >
+                                                <option value="custom">🌟 Prompt tự chọn</option>
+                                                <option value="optimize">⚡ Tối ưu nội dung</option>
+                                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                                <option value="grammar">📝 Sửa chính tả</option>
+                                            </select>
+                                            <button 
+                                                @click="runLocalAI(item, 'project')" 
+                                                :disabled="isAIProcessing[item._refId]" 
+                                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                            >
                                                 <template v-if="isAIProcessing[item._refId]">
-                                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                                 </template>
                                                 <span v-else>✨ AI</span>
                                             </button>
                                         </div>
+                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="w-full leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Công nghệ sử dụng, Kết quả đạt được..." />
                                     </template>
 
                                     <!-- form kỹ năng chung (name, level) -->
@@ -341,15 +408,38 @@
                                     <template v-else-if="section.id === 'activities'">
                                         <RichTextEditor v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tên Hoạt động/Tổ chức" />
                                         <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian" />
-                                        <div class="flex items-start gap-2">
-                                            <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="flex-1 leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả chi tiết hoạt động..." />
-                                            <button @click="improveAIDesc(item, 'activities')" :disabled="isAIProcessing[item._refId]" class="cv-ai-btn shrink-0 mt-1 text-[9px] flex items-center gap-1 bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full hover:bg-amber-200 transition-all font-bold shadow-sm border border-amber-200 disabled:opacity-50">
+                                        <!-- CỤM ĐIỀU KHIỂN AI CỐ ĐỊNH PHÍA TRÊN -->
+                                        <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200 mt-1">
+                                            <input 
+                                                type="text" 
+                                                :value="aiPromptByItem[item._refId] || ''" 
+                                                @input="e => aiPromptByItem[item._refId] = e.target.value"
+                                                class="flex-1 min-w-0 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-blue-400 placeholder-slate-400 text-slate-700 shadow-sm"
+                                                placeholder="Nhập yêu cầu AI (ví dụ: Viết chuyên nghiệp hơn)..."
+                                                @keyup.enter="runLocalAI(item, 'activities')"
+                                            />
+                                            <select 
+                                                :value="aiFuncByItem[item._refId] || 'custom'" 
+                                                @change="e => aiFuncByItem[item._refId] = e.target.value"
+                                                class="bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-blue-400 text-slate-700 cursor-pointer shadow-sm min-w-[130px]"
+                                            >
+                                                <option value="custom">🌟 Prompt tự chọn</option>
+                                                <option value="optimize">⚡ Tối ưu nội dung</option>
+                                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                                <option value="grammar">📝 Sửa chính tả</option>
+                                            </select>
+                                            <button 
+                                                @click="runLocalAI(item, 'activities')" 
+                                                :disabled="isAIProcessing[item._refId]" 
+                                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                            >
                                                 <template v-if="isAIProcessing[item._refId]">
-                                                    <svg class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                                    <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                                 </template>
                                                 <span v-else>✨ AI</span>
                                             </button>
                                         </div>
+                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="w-full leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả chi tiết hoạt động..." />
                                     </template>
 
                                     <!-- form chứng chỉ/giải thưởng -->
@@ -953,7 +1043,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, shallowRef, defineAsyncComponent, computed, nextTick } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, watch, shallowRef, defineAsyncComponent, computed, nextTick } from 'vue'
 import draggable from 'vuedraggable'
 import RichTextEditor from './components/RichTextEditor.vue'
 import { toJpeg } from 'html-to-image'
@@ -1920,6 +2010,248 @@ const generateAISkills = async (sectionIndex) => {
 const targetCompany = ref('');
 const coverLetterJD = ref('');
 const coverLetterResult = ref('');
+
+// --- TRỢ LÝ SOẠN THẢO AI TÙY BIẾN ---
+const isAIAssistantExpanded = ref(true);
+const aiAssistantPrompt = ref('');
+const aiAssistantTarget = ref('');
+const isAIAssistantLoading = ref(false);
+
+const quickPrompts = [
+  { label: '🌟 Viết chuyên nghiệp hơn', prompt: 'Hãy viết lại phần mô tả này sao cho chuyên nghiệp, thu hút nhà tuyển dụng và sử dụng văn phong công sở lịch sự.' },
+  { label: '⚡ Tối ưu chuẩn STAR', prompt: 'Hãy viết lại phần này theo chuẩn STAR (Situation, Task, Action, Result), mô tả chi tiết hành động và kết quả đạt được có kèm số liệu.' },
+  { label: '🇬🇧 Dịch sang tiếng Anh', prompt: 'Hãy dịch phần này sang tiếng Anh chuyên ngành IT, viết tự nhiên và chuyên nghiệp.' },
+  { label: '📝 Sửa lỗi chính tả & diễn đạt', prompt: 'Hãy sửa lỗi chính tả, lỗi dùng từ và cải thiện diễn đạt cho câu từ trôi chảy hơn.' }
+];
+
+const triggerAIAssistant = async () => {
+    if (!aiAssistantPrompt.value.trim() || !aiAssistantTarget.value) return;
+
+    let targetField = aiAssistantTarget.value;
+    let contextContent = '';
+    
+    // Xác định nội dung cũ làm ngữ cảnh (context) gửi kèm AI
+    if (targetField === 'summary') {
+        contextContent = (resumeData.value.general.summary || '').replace(/<[^>]*>/g, '').trim();
+    } else {
+        const [sectionId, itemId] = targetField.split('|');
+        const section = resumeData.value.sections.find(s => s.id === sectionId);
+        if (section && section.items) {
+            const item = section.items.find(i => i._refId === itemId);
+            if (item) {
+                contextContent = (item.desc || '').replace(/<[^>]*>/g, '').trim();
+            }
+        }
+    }
+
+    isAIAssistantLoading.value = true;
+
+    try {
+        // Gọi API xử lý prompt tùy biến
+        const result = await callAIService('custom_prompt', aiAssistantPrompt.value, contextContent);
+        if (result) {
+            // Cập nhật kết quả ngược lại vào ô thông tin CV tương ứng
+            if (targetField === 'summary') {
+                resumeData.value.general.summary = result;
+                scrollToField('section-summary');
+            } else {
+                const [sectionId, itemId] = targetField.split('|');
+                const section = resumeData.value.sections.find(s => s.id === sectionId);
+                if (section && section.items) {
+                    const item = section.items.find(i => i._refId === itemId);
+                    if (item) {
+                        item.desc = result;
+                        scrollToField(`section-${sectionId}`);
+                    }
+                }
+            }
+        }
+    } catch (e) {
+        console.error('AI Assistant Error:', e);
+        alert('Có lỗi xảy ra khi kết nối với trợ lý AI.');
+    } finally {
+        isAIAssistantLoading.value = false;
+    }
+};
+
+// --- TRỢ LÝ AI MINI CHO TỪNG MỤC NHẬP LIỆU ---
+const expandedAIs = reactive({});
+const summaryAIFunc = ref('custom');
+const summaryAIPrompt = ref('');
+const aiFuncByItem = reactive({});
+const aiPromptByItem = reactive({});
+
+const runSummaryAI = async () => {
+    const jobTitle = (resumeData.value.general.jobTitle || '').trim();
+    if (!jobTitle) {
+        alert("Vui lòng nhập Vị trí ứng tuyển của bạn tại mục Thông tin cá nhân trước khi sử dụng Trợ lý AI!");
+        return;
+    }
+
+    const func = summaryAIFunc.value;
+    let userPrompt = summaryAIPrompt.value.trim();
+    let currentSummary = (resumeData.value.general.summary || '').replace(/<[^>]*>/g, '').trim();
+
+    // Chuẩn hóa prompt lười biếng của người dùng
+    const lowerPrompt = userPrompt.toLowerCase();
+    const lazyKeywords = ['viết', 'viết hộ', 'viết giùm', 'viết mới', 'viết lại', 'viết mục tiêu', 'viết cv', 'tạo mục tiêu', 'sinh mục tiêu', 'summary', 'viet', 'viet ho', 'viet gium', 'viet moi', 'viet lai', 'viet lai muc tieu'];
+    const isLazy = lazyKeywords.includes(lowerPrompt) || !userPrompt;
+
+    isAIProcessing.value['summary'] = true;
+    
+    let result = null;
+    try {
+        if (func === 'custom') {
+            let finalPrompt = userPrompt;
+            if (isLazy) {
+                finalPrompt = `Viết duy nhất một đoạn văn ngắn gọn (2-3 câu, tối đa 60 từ, TUYỆT ĐỐI KHÔNG sử dụng gạch đầu dòng hay danh sách liệt kê) trình bày mục tiêu nghề nghiệp cá nhân để đưa vào CV cho vị trí: ${jobTitle}. Nội dung phải hướng tới việc đóng góp giá trị cho công ty và phát triển bản thân, viết ở ngôi thứ nhất.`;
+            }
+            result = await callAIService('custom_prompt', finalPrompt, currentSummary || jobTitle);
+        } else if (func === 'optimize') {
+            if (userPrompt && !isLazy) {
+                // Kết hợp tối ưu hóa và prompt bổ sung
+                const combinedPrompt = `Hãy tối ưu hóa mục tiêu nghề nghiệp này dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
+                result = await callAIService('custom_prompt', combinedPrompt, currentSummary || `Tôi đang ứng tuyển vị trí ${jobTitle}`);
+            } else {
+                result = await callAIService('summary', currentSummary || `Tôi đang ứng tuyển vị trí ${jobTitle}`, jobTitle);
+            }
+        } else if (func === 'english') {
+            if (userPrompt && !isLazy) {
+                // Kết hợp dịch và prompt bổ sung
+                const combinedPrompt = `Hãy dịch mục tiêu nghề nghiệp này sang tiếng Anh chuyên nghiệp dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
+                result = await callAIService('custom_prompt', combinedPrompt, currentSummary);
+            } else {
+                result = await callAIService('custom_prompt', 'Hãy dịch đoạn văn này sang tiếng Anh chuyên nghiệp phù hợp với CV.', currentSummary);
+            }
+        } else if (func === 'grammar') {
+            if (userPrompt && !isLazy) {
+                // Kết hợp sửa chính tả và prompt bổ sung
+                const combinedPrompt = `Hãy sửa lỗi chính tả, ngữ pháp và tinh chỉnh lại mục tiêu nghề nghiệp này dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
+                result = await callAIService('custom_prompt', combinedPrompt, currentSummary);
+            } else {
+                result = await callAIService('custom_prompt', 'Hãy sửa toàn bộ lỗi chính tả và ngữ pháp trong văn bản này, viết lại thật trơn tru.', currentSummary);
+            }
+        }
+
+        if (result) {
+            resumeData.value.general.summary = result;
+            expandedAIs['summary'] = false; // Tự đóng khi thành công
+        }
+    } catch(e) {
+        console.error(e);
+    } finally {
+        isAIProcessing.value['summary'] = false;
+    }
+};
+
+const runLocalAI = async (item, sectionId) => {
+    const jobTitle = (resumeData.value.general.jobTitle || '').trim();
+    if (!jobTitle) {
+        alert("Vui lòng nhập Vị trí ứng tuyển của bạn tại mục Thông tin cá nhân trước khi sử dụng Trợ lý AI!");
+        return;
+    }
+
+    // 1. Validation bắt buộc nhập đầy đủ các trường tương ứng trong giao diện Vue
+    if (sectionId === 'experience') {
+        const company = (item.company || '').trim();
+        const role = (item.role || '').trim();
+        const time = (item.time || '').trim();
+        if (!company || !role || !time) {
+            alert("Vui lòng điền đầy đủ các thông tin: Tên công ty, Vị trí làm việc và Thời gian trước khi sử dụng Trợ lý AI!");
+            return;
+        }
+    } else if (sectionId === 'project') {
+        const name = (item.name || '').trim();
+        const role = (item.role || '').trim();
+        const time = (item.time || '').trim();
+        if (!name || !role || !time) {
+            alert("Vui lòng điền đầy đủ các thông tin: Tên dự án, Vai trò và Thời gian trước khi sử dụng Trợ lý AI!");
+            return;
+        }
+    } else if (sectionId === 'activities') {
+        const name = (item.name || '').trim();
+        const time = (item.time || '').trim();
+        if (!name || !time) {
+            alert("Vui lòng điền đầy đủ các thông tin: Tên hoạt động/tổ chức và Thời gian trước khi sử dụng Trợ lý AI!");
+            return;
+        }
+    }
+
+    const itemId = item._refId;
+    const func = aiFuncByItem[itemId] || 'custom';
+    const userPrompt = (aiPromptByItem[itemId] || '').trim();
+    let currentDesc = (item.desc || '').replace(/<[^>]*>/g, '').trim();
+
+    // Khởi tạo reactive state cho item này nếu chưa có
+    if (!aiFuncByItem[itemId]) aiFuncByItem[itemId] = 'custom';
+
+    // Tạo ngữ cảnh đầy đủ sử dụng trường 'time' thay vì 'duration'
+    const itemContext = sectionId === 'experience'
+        ? `Vị trí: ${item.role}, tại công ty: ${item.company}, thời gian: ${item.time}`
+        : (sectionId === 'project'
+            ? `Dự án: ${item.name}, vai trò: ${item.role}, thời gian: ${item.time}`
+            : `Hoạt động: ${item.name}, thời gian: ${item.time}`);
+
+    // Chuẩn hóa prompt lười biếng
+    const lowerPrompt = userPrompt.toLowerCase();
+    const lazyKeywords = ['viết', 'viết hộ', 'viết giùm', 'viết mới', 'viết lại', 'viết mô tả', 'summary', 'viet', 'viet ho', 'viet gium', 'viet moi', 'viet lai'];
+    const isLazy = lazyKeywords.includes(lowerPrompt) || !userPrompt;
+
+    isAIProcessing.value[itemId] = true;
+
+    let result = null;
+    try {
+        if (func === 'custom') {
+            let finalPrompt = userPrompt;
+            if (isLazy) {
+                if (sectionId === 'experience') {
+                    finalPrompt = `Viết mô tả công việc chi tiết cho vị trí ${item.role} tại công ty ${item.company} trong thời gian ${item.time}`;
+                } else if (sectionId === 'project') {
+                    finalPrompt = `Viết mô tả dự án chi tiết cho dự án ${item.name} với vai trò ${item.role} trong thời gian ${item.time}`;
+                } else {
+                    finalPrompt = `Viết mô tả hoạt động chi tiết cho hoạt động ${item.name} trong thời gian ${item.time}`;
+                }
+            }
+            result = await callAIService('custom_prompt', finalPrompt, currentDesc || itemContext);
+        } else if (func === 'optimize') {
+            if (userPrompt && !isLazy) {
+                // Kết hợp tối ưu hóa và prompt bổ sung
+                const combinedPrompt = `Hãy tối ưu hóa mô tả công việc này dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
+                result = await callAIService('custom_prompt', combinedPrompt, currentDesc || itemContext);
+            } else {
+                const aiType = sectionId === 'experience' ? 'optimize' : (sectionId === 'project' ? 'project' : 'activity');
+                result = await callAIService(aiType, currentDesc || `Mô tả công việc cho ${itemContext}`, itemContext);
+            }
+        } else if (func === 'english') {
+            if (userPrompt && !isLazy) {
+                // Kết hợp dịch và prompt bổ sung
+                const combinedPrompt = `Hãy dịch mô tả công việc này sang tiếng Anh dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
+                result = await callAIService('custom_prompt', combinedPrompt, currentDesc || itemContext);
+            } else {
+                result = await callAIService('custom_prompt', `Hãy dịch đoạn mô tả công việc sau sang tiếng Anh chuyên nghiệp: "${currentDesc || itemContext}"`, currentDesc || itemContext);
+            }
+        } else if (func === 'grammar') {
+            if (userPrompt && !isLazy) {
+                // Kết hợp sửa chính tả và prompt bổ sung
+                const combinedPrompt = `Hãy sửa lỗi chính tả, ngữ pháp và tinh chỉnh lại mô tả công việc này dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
+                result = await callAIService('custom_prompt', combinedPrompt, currentDesc || itemContext);
+            } else {
+                result = await callAIService('custom_prompt', 'Hãy sửa toàn bộ lỗi chính tả, lỗi dùng từ và cải thiện diễn đạt cho đoạn văn này.', currentDesc || itemContext);
+            }
+        }
+
+        if (result) {
+            item.desc = result;
+            expandedAIs[itemId] = false; // Tự đóng khi thành công
+        }
+    } catch(e) {
+        console.error(e);
+    } finally {
+        isAIProcessing.value[itemId] = false;
+    }
+};
+
+
 
 const generateAICoverLetter = async () => {
     if (!targetCompany.value) {
