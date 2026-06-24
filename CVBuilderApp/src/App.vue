@@ -280,7 +280,7 @@
                             <button 
                                 @click="runSummaryAI" 
                                 :disabled="isAIProcessing['summary']" 
-                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                class="cv-ai-btn shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm disabled:opacity-50 transition-all cursor-pointer"
                             >
                                 <template v-if="isAIProcessing['summary']">
                                     <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -334,7 +334,7 @@
                                             <button 
                                                 @click="runLocalAI(item, 'experience')" 
                                                 :disabled="isAIProcessing[item._refId]" 
-                                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                                class="cv-ai-btn shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm disabled:opacity-50 transition-all cursor-pointer"
                                             >
                                                 <template v-if="isAIProcessing[item._refId]">
                                                     <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -385,7 +385,7 @@
                                             <button 
                                                 @click="runLocalAI(item, 'project')" 
                                                 :disabled="isAIProcessing[item._refId]" 
-                                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                                class="cv-ai-btn shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm disabled:opacity-50 transition-all cursor-pointer"
                                             >
                                                 <template v-if="isAIProcessing[item._refId]">
                                                     <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -431,7 +431,7 @@
                                             <button 
                                                 @click="runLocalAI(item, 'activities')" 
                                                 :disabled="isAIProcessing[item._refId]" 
-                                                class="shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
+                                                class="cv-ai-btn shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm disabled:opacity-50 transition-all cursor-pointer"
                                             >
                                                 <template v-if="isAIProcessing[item._refId]">
                                                     <svg class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -467,8 +467,8 @@
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> 
                             Thêm Dòng
                         </button>
-                        <button v-if="section.id === 'skills'" @click="generateAISkills(sectionIndex)" :disabled="isAIProcessing['skills']" class="cv-ai-btn mt-3 border border-amber-200 text-amber-800 bg-amber-100 hover:bg-amber-200 transition-colors rounded-full px-3 py-1 text-[9px] font-black uppercase flex items-center justify-center gap-1 focus:outline-none disabled:opacity-50 shadow-sm">
-                            <svg v-if="isAIProcessing['skills']" class="w-2.5 h-2.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <button v-if="section.id === 'skills'" @click="generateAISkills(sectionIndex)" :disabled="isAIProcessing['skills']" class="cv-ai-btn mt-3 shrink-0 flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm disabled:opacity-50 transition-all cursor-pointer focus:outline-none">
+                            <svg v-if="isAIProcessing['skills']" class="w-3.5 h-3.5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             <span v-else>✨ AI</span>
                         </button>
                     </div>
@@ -2741,6 +2741,6 @@ onUnmounted(() => {
 
     /* --- STYLING NÚT AI BO TRÒN --- */
     .cv-ai-btn {
-        border-radius: 6px !important; /* Bo tròn nhẹ nhàng */
+        border-radius: 9999px !important; /* Bo tròn hoàn toàn */
     }
 </style>
