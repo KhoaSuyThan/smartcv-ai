@@ -75,6 +75,7 @@ function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedTime, setLastSavedTime] = useState(null);
   const [zoom, setZoom] = useState(0.8);
+  const [pageCount, setPageCount] = useState(1);
   const [activeInput, setActiveInput] = useState(null);
   const isInitialMount = useRef(true);
   const hasAppliedDefaults = useRef(false);
@@ -286,6 +287,162 @@ function App() {
     const timer = setTimeout(applySectionVisibility, 100);
     return () => clearTimeout(timer);
   }, [resumeData.visibleSections, resumeData, templateName]);
+
+  // Pagination logic to mirror A4 print layout in Live Preview
+  useEffect(() => {
+    const cvRoot = document.getElementById('cv-preview-area');
+    if (!cvRoot) return;
+
+    let paginateTimer = null;
+
+    const requestPagination = () => {
+      if (paginateTimer) clearTimeout(paginateTimer);
+      paginateTimer = setTimeout(doPagination, 150); // Small delay to let React DOM update
+    };
+
+    const doPagination = () => {
+      const cvRoot = document.getElementById('cv-preview-area');
+      if (!cvRoot) return;
+
+      // 1. Reset all previously set margin-tops on all descendants to measure natural flow
+      const allDescendants = cvRoot.getElementsByTagName('*');
+      for (let i = 0; i < allDescendants.length; i++) {
+        const el = allDescendants[i];
+        if (el.style.marginTop) {
+          el.style.marginTop = '';
+        }
+      }
+
+      // Reset height to let container expand naturally
+      cvRoot.style.height = 'auto';
+
+      const offsetW = cvRoot.offsetWidth; // Layout width in pixels
+      if (!offsetW) return;
+
+      const cvRect = cvRoot.getBoundingClientRect();
+      const scale = cvRect.width / offsetW;
+
+      const A4_WIDTH_MM = 210;
+      const A4_HEIGHT_MM = 297;
+      const pxPerMm = offsetW / A4_WIDTH_MM;
+      const pageH = A4_HEIGHT_MM * pxPerMm;
+
+      // Margins/Safe zones for page splitting (exactly like Vue template calculations)
+      const bottomSafeZone = 14 * pxPerMm; 
+      const topMargin = 16 * pxPerMm;      
+
+      // 2. Select block-level layout elements that should not cross pages
+      const selectors = [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        '.header-section', '.header-brown', '.header-blue', '.header-classic',
+        '.personal-info', '.contact-info', '.contact-list', '.contact-item',
+        '.summary-text', '.summary-section', '.exp-item', 'li', 'p',
+        '.skill-item-block', '.skill-dot-item', '.cert-year-div', '.cert-name-div',
+        '.cv-block > div', '.cv-section-content > div', '.pastel-block', '.info-row'
+      ].join(', ');
+
+      let items = Array.from(cvRoot.querySelectorAll(selectors)).filter(el => {
+        // Ignore hidden elements
+        if (el.offsetHeight === 0) return false;
+        
+        // Ignore nested items (we only paginate the highest level containers to avoid breaking nested structures)
+        let parent = el.parentElement;
+        while (parent && parent !== cvRoot) {
+          if (parent.matches(selectors)) return false;
+          parent = parent.parentElement;
+        }
+        return true;
+      });
+
+      // 3. Paginate items by shifting elements down if they cross A4 boundary
+      let stable = false;
+      let passes = 0;
+
+      while (!stable && passes < 30) {
+        stable = true;
+        passes++;
+
+        const currentCvRect = cvRoot.getBoundingClientRect();
+
+        for (let i = 0; i < items.length; i++) {
+          const el = items[i];
+          if (el.offsetHeight === 0) continue;
+
+          const elRect = el.getBoundingClientRect();
+          const top = (elRect.top - currentCvRect.top) / scale;
+          const height = elRect.height / scale;
+
+          const pageIndex = Math.floor(top / pageH);
+          const topInPage = top - (pageIndex * pageH);
+          const bottomInPage = topInPage + height;
+
+          // Rule A: If the element is on page 2+ (pageIndex > 0) and is too close to the top of the page
+          if (pageIndex > 0 && topInPage < topMargin) {
+            const distToTopMargin = topMargin - topInPage;
+            const currentMt = parseFloat(el.style.marginTop || '0');
+            el.style.setProperty('margin-top', `${currentMt + distToTopMargin}px`, 'important');
+            stable = false;
+            break; // Restart calculation with new margins
+          }
+
+          // Rule B: If the element fits in a single page but overflows the current page
+          if (height <= (pageH - bottomSafeZone - topMargin)) {
+            if (bottomInPage > (pageH - bottomSafeZone)) {
+              // Check if we should push its previous sibling instead (header grouping)
+              let targetEl = el;
+              const prev = el.previousElementSibling;
+              
+              // If the previous sibling is a header/title element, push it instead of this content block
+              if (prev && (
+                prev.matches('h1, h2, h3, h4, h5, h6, .block-title, .section-title, [class*="title"], [class*="header"]')
+              )) {
+                targetEl = prev;
+              }
+
+              const targetRect = targetEl.getBoundingClientRect();
+              const targetTop = (targetRect.top - currentCvRect.top) / scale;
+              const targetTopInPage = targetTop - (pageIndex * pageH);
+
+              const distToNextPage = pageH - targetTopInPage + topMargin;
+              const currentMt = parseFloat(targetEl.style.marginTop || '0');
+              targetEl.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important');
+              stable = false;
+              break; // Restart calculation with new margins
+            }
+          }
+        }
+      }
+
+      // 4. Calculate total page count and apply to container height
+      const finalCvRect = cvRoot.getBoundingClientRect();
+      let maxBottom = 0;
+      items.forEach(el => {
+        const bottom = (el.getBoundingClientRect().bottom - finalCvRect.top) / scale;
+        if (bottom > maxBottom) maxBottom = bottom;
+      });
+
+      const finalPageCount = Math.max(1, Math.ceil(maxBottom / pageH));
+      cvRoot.style.height = `${finalPageCount * 297}mm`;
+      setPageCount(finalPageCount);
+    };
+
+    // Initial run
+    requestPagination();
+
+    // Listeners for layout recalculation
+    window.addEventListener('resize', requestPagination);
+    window.addEventListener('load', requestPagination);
+
+    const observer = new MutationObserver(requestPagination);
+    observer.observe(cvRoot, { childList: true, subtree: true, characterData: true });
+
+    return () => {
+      window.removeEventListener('resize', requestPagination);
+      window.removeEventListener('load', requestPagination);
+      observer.disconnect();
+      if (paginateTimer) clearTimeout(paginateTimer);
+    };
+  }, [resumeData, templateName, zoom]);
 
   // Debounced Auto-Save
   useEffect(() => {
@@ -1097,9 +1254,65 @@ function App() {
               minHeight: '297mm',
               zoom: zoom,
               flexShrink: 0,
-              transition: 'zoom 0.15s ease-out'
+              transition: 'zoom 0.15s ease-out',
+              position: 'relative'
           }}>
             {SelectedTemplate ? <SelectedTemplate resumeData={preprocessResumeData(resumeData)} /> : <div style={{padding: 50}}>Không tìm thấy mẫu CV</div>}
+            
+            {/* Page break markers */}
+            {Array.from({ length: pageCount - 1 }).map((_, idx) => {
+              const p = idx + 1;
+              return (
+                <div
+                  key={p}
+                  className="page-break-marker no-print"
+                  style={{
+                    position: 'absolute',
+                    left: '-10px',
+                    width: 'calc(100% + 20px)',
+                    top: `calc(${p * 297}mm - 12px)`,
+                    height: '24px',
+                    backgroundColor: '#525659', // Blends with editor background to create a visual gap
+                    zIndex: 50,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    pointerEvents: 'none',
+                    boxShadow: '0 -4px 6px -1px rgba(0,0,0,0.15), 0 4px 6px -1px rgba(0,0,0,0.15)'
+                  }}
+                >
+                  {/* Subtle split line */}
+                  <div style={{
+                    width: '100%',
+                    height: '1px',
+                    backgroundColor: 'rgba(255,255,255,0.06)',
+                    position: 'absolute',
+                    top: '50%'
+                  }} />
+                  
+                  {/* Badge */}
+                  <span style={{
+                    position: 'absolute',
+                    fontSize: '9px',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    color: '#cbd5e1',
+                    letterSpacing: '1px',
+                    backgroundColor: '#383b3d',
+                    padding: '3px 12px',
+                    borderRadius: '20px',
+                    border: '1px solid #4a4e51',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}>
+                    <span style={{ display: 'inline-block', width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#ef4444' }}></span>
+                    Ngắt trang {p + 1}
+                  </span>
+                </div>
+              );
+            })}
           </div>
           {/* Khoảng cách an toàn phía dưới để CV không chạm sát viền màn hình */}
           <div style={{ height: '60px', flexShrink: 0 }} />

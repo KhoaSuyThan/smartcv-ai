@@ -51,6 +51,42 @@
             height: 100% !important;
         }
 
+        /* HIỂN THỊ TÁCH ĐÔI TRANG GIẤY TRÊN LIVE PREVIEW */
+        #cv-printable-area div.z-50.no-print > div,
+        #cv-printable-area .page-break-mask {
+            height: 24px !important;
+            background-color: #1e293b !important; /* Trùng khớp hoàn hảo với bg-slate-800 của vùng preview */
+            background-image: none !important;
+            border-top: 1.5px solid #0f172a !important; /* Viền sậm tạo độ sâu cho mép cắt */
+            border-bottom: 1.5px solid #0f172a !important;
+            border-left: none !important;
+            border-right: none !important;
+            box-shadow: inset 0 8px 8px -6px rgba(0, 0, 0, 0.5), 
+                        inset 0 -8px 8px -6px rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: none !important;
+            opacity: 1 !important;
+        }
+
+        #cv-printable-area div.z-50.no-print {
+            height: 24px !important;
+            margin-top: -4px !important; /* Cân chỉnh cho khít mốc top: calc(p * 297mm - 8px) */
+        }
+
+        #cv-printable-area .page-break-indicator {
+            height: 24px !important;
+            margin-top: 13px !important; /* Cân chỉnh cho khít mốc top: calc(p * 297mm - 25px) */
+        }
+
+        /* Đồng bộ màu nền khi dùng chế độ Dark Mode nếu có */
+        [data-bs-theme="dark"] #cv-printable-area div.z-50.no-print > div,
+        [data-bs-theme="dark"] #cv-printable-area .page-break-mask {
+            background-color: #1e293b !important;
+            border-top: 1.5px solid #020617 !important;
+            border-bottom: 1.5px solid #020617 !important;
+            box-shadow: inset 0 8px 8px -6px rgba(0, 0, 0, 0.7), 
+                        inset 0 -8px 8px -6px rgba(0, 0, 0, 0.7) !important;
+        }
+
         /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
         @@page { size: A4; margin: 0; }
 
