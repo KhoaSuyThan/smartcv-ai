@@ -859,14 +859,12 @@ onUnmounted(() => {
 #cv-printable-area {
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
-  color-adjust: exact !important;
   overflow-wrap: anywhere;
 }
 
 #cv-printable-area * {
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
-  color-adjust: exact !important;
 }
 
 .section-title {
