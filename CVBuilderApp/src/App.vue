@@ -274,7 +274,7 @@
                             >
                                 <option value="custom">🌟 Prompt tự chọn</option>
                                 <option value="optimize">⚡ Tối ưu mục tiêu</option>
-                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                <option value="english">🌐 Đổi ngôn ngữ</option>
                                 <option value="grammar">📝 Sửa chính tả</option>
                             </select>
                             <button 
@@ -328,7 +328,7 @@
                                             >
                                                 <option value="custom">🌟 Prompt tự chọn</option>
                                                 <option value="optimize">⚡ Tối ưu nội dung</option>
-                                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                                <option value="english">🌐 Đổi ngôn ngữ</option>
                                                 <option value="grammar">📝 Sửa chính tả</option>
                                             </select>
                                             <button 
@@ -379,7 +379,7 @@
                                             >
                                                 <option value="custom">🌟 Prompt tự chọn</option>
                                                 <option value="optimize">⚡ Tối ưu nội dung</option>
-                                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                                <option value="english">🌐 Đổi ngôn ngữ</option>
                                                 <option value="grammar">📝 Sửa chính tả</option>
                                             </select>
                                             <button 
@@ -425,7 +425,7 @@
                                             >
                                                 <option value="custom">🌟 Prompt tự chọn</option>
                                                 <option value="optimize">⚡ Tối ưu nội dung</option>
-                                                <option value="english">🇬🇧 Dịch tiếng Anh</option>
+                                                <option value="english">🌐 Đổi ngôn ngữ</option>
                                                 <option value="grammar">📝 Sửa chính tả</option>
                                             </select>
                                             <button 
@@ -1280,7 +1280,8 @@ const scrollToField = (targetId) => {
     // Tự động chuyển Tab trước khi scroll
     if (targetId.startsWith('field-') || targetId === 'section-summary') {
         activeEditorTab.value = 'basic';
-    } else if (['section-experience', 'section-education', 'section-project'].includes(targetId)) {
+    } else if (['section-experience', 'section-education', 'section-project', 'section-activities'].includes(targetId)) {
+        // Chuyển sang tab Nội dung chính nếu click vào các mục thuộc tab này (bao gồm cả Hoạt động)
         activeEditorTab.value = 'main';
     } else {
         activeEditorTab.value = 'skills';
@@ -2020,7 +2021,7 @@ const isAIAssistantLoading = ref(false);
 const quickPrompts = [
   { label: '🌟 Viết chuyên nghiệp hơn', prompt: 'Hãy viết lại phần mô tả này sao cho chuyên nghiệp, thu hút nhà tuyển dụng và sử dụng văn phong công sở lịch sự.' },
   { label: '⚡ Tối ưu chuẩn STAR', prompt: 'Hãy viết lại phần này theo chuẩn STAR (Situation, Task, Action, Result), mô tả chi tiết hành động và kết quả đạt được có kèm số liệu.' },
-  { label: '🇬🇧 Dịch sang tiếng Anh', prompt: 'Hãy dịch phần này sang tiếng Anh chuyên ngành IT, viết tự nhiên và chuyên nghiệp.' },
+  { label: '🌐 Đổi ngôn ngữ', prompt: 'Hãy dịch phần này sang tiếng Anh (hoặc ghi rõ ngôn ngữ bạn muốn dịch, VD: "tiếng Nhật").' },
   { label: '📝 Sửa lỗi chính tả & diễn đạt', prompt: 'Hãy sửa lỗi chính tả, lỗi dùng từ và cải thiện diễn đạt cho câu từ trôi chảy hơn.' }
 ];
 
@@ -2106,30 +2107,24 @@ const runSummaryAI = async () => {
             if (isLazy) {
                 finalPrompt = `Viết duy nhất một đoạn văn ngắn gọn (2-3 câu, tối đa 60 từ, TUYỆT ĐỐI KHÔNG sử dụng gạch đầu dòng hay danh sách liệt kê) trình bày mục tiêu nghề nghiệp cá nhân để đưa vào CV cho vị trí: ${jobTitle}. Nội dung phải hướng tới việc đóng góp giá trị cho công ty và phát triển bản thân, viết ở ngôi thứ nhất.`;
             }
-            result = await callAIService('custom_prompt', finalPrompt, currentSummary || jobTitle);
+            result = await callAIService('custom_prompt_summary', finalPrompt, currentSummary || jobTitle);
         } else if (func === 'optimize') {
             if (userPrompt && !isLazy) {
                 // Kết hợp tối ưu hóa và prompt bổ sung
                 const combinedPrompt = `Hãy tối ưu hóa mục tiêu nghề nghiệp này dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
-                result = await callAIService('custom_prompt', combinedPrompt, currentSummary || `Tôi đang ứng tuyển vị trí ${jobTitle}`);
+                result = await callAIService('custom_prompt_summary', combinedPrompt, currentSummary || `Tôi đang ứng tuyển vị trí ${jobTitle}`);
             } else {
                 result = await callAIService('summary', currentSummary || `Tôi đang ứng tuyển vị trí ${jobTitle}`, jobTitle);
             }
         } else if (func === 'english') {
-            if (userPrompt && !isLazy) {
-                // Kết hợp dịch và prompt bổ sung
-                const combinedPrompt = `Hãy dịch mục tiêu nghề nghiệp này sang tiếng Anh chuyên nghiệp dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
-                result = await callAIService('custom_prompt', combinedPrompt, currentSummary);
-            } else {
-                result = await callAIService('custom_prompt', 'Hãy dịch đoạn văn này sang tiếng Anh chuyên nghiệp phù hợp với CV.', currentSummary);
-            }
+            result = await callAIService('custom_prompt_lang_summary', userPrompt || '', currentSummary || jobTitle);
         } else if (func === 'grammar') {
             if (userPrompt && !isLazy) {
                 // Kết hợp sửa chính tả và prompt bổ sung
                 const combinedPrompt = `Hãy sửa lỗi chính tả, ngữ pháp và tinh chỉnh lại mục tiêu nghề nghiệp này dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
-                result = await callAIService('custom_prompt', combinedPrompt, currentSummary);
+                result = await callAIService('custom_prompt_summary', combinedPrompt, currentSummary);
             } else {
-                result = await callAIService('custom_prompt', 'Hãy sửa toàn bộ lỗi chính tả và ngữ pháp trong văn bản này, viết lại thật trơn tru.', currentSummary);
+                result = await callAIService('custom_prompt_summary', 'Hãy sửa toàn bộ lỗi chính tả và ngữ pháp trong văn bản này, viết lại thật trơn tru.', currentSummary);
             }
         }
 
@@ -2223,13 +2218,7 @@ const runLocalAI = async (item, sectionId) => {
                 result = await callAIService(aiType, currentDesc || `Mô tả công việc cho ${itemContext}`, itemContext);
             }
         } else if (func === 'english') {
-            if (userPrompt && !isLazy) {
-                // Kết hợp dịch và prompt bổ sung
-                const combinedPrompt = `Hãy dịch mô tả công việc này sang tiếng Anh dựa trên yêu cầu bổ sung sau: "${userPrompt}"`;
-                result = await callAIService('custom_prompt', combinedPrompt, currentDesc || itemContext);
-            } else {
-                result = await callAIService('custom_prompt', `Hãy dịch đoạn mô tả công việc sau sang tiếng Anh chuyên nghiệp: "${currentDesc || itemContext}"`, currentDesc || itemContext);
-            }
+            result = await callAIService('custom_prompt_lang', userPrompt || '', currentDesc || itemContext);
         } else if (func === 'grammar') {
             if (userPrompt && !isLazy) {
                 // Kết hợp sửa chính tả và prompt bổ sung
