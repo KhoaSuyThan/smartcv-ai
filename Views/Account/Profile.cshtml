@@ -625,7 +625,7 @@
                                 <div class="col-md-12">
                                     <label class="custom-label text-dark"><i class="bi bi-key-fill me-2"></i>Mật khẩu mới</label>
                                     <div class="password-field-container">
-                                        <input type="password" name="newPassword" id="newPassword" class="form-control" required minlength="8" pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$" title="Mật khẩu phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt" placeholder="Nhập mật khẩu mới" />
+                                        <input type="password" name="newPassword" id="newPassword" class="form-control" required minlength="8" pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$" title="Mật khẩu phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt" oninvalid="this.setCustomValidity(this.validity.patternMismatch ? 'Vui lòng nhập đúng định dạng yêu cầu\n' + this.title : '')" oninput="this.setCustomValidity('')" placeholder="Nhập mật khẩu mới" />
                                         <span class="password-toggle" onclick="togglePasswordVisibility('newPassword')">
                                             <i class="bi bi-eye"></i>
                                         </span>
@@ -634,7 +634,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <label class="custom-label text-dark"><i class="bi bi-key-fill me-2"></i>Xác nhận mật khẩu mới</label>
-                                    <input type="password" name="confirmPassword" class="form-control" required minlength="8" pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$" title="Mật khẩu phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt" placeholder="Nhập lại mật khẩu mới" />
+                                    <input type="password" name="confirmPassword" class="form-control" required minlength="8" pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$" title="Mật khẩu phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt" oninvalid="this.setCustomValidity(this.validity.patternMismatch ? 'Vui lòng nhập đúng định dạng yêu cầu\n' + this.title : '')" oninput="this.setCustomValidity('')" placeholder="Nhập lại mật khẩu mới" />
                                 </div>
                             </div>
                             <div class="mt-4 pt-3 border-top d-flex justify-content-end">
