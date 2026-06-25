@@ -292,8 +292,8 @@ YÊU CẦU BẮT BUỘC (RẤT QUAN TRỌNG):
 
                 case "custom_prompt": // Sinh nội dung theo prompt tự gõ kèm ngữ cảnh (dành cho Experience, Project, Activity)
                     prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp hàng đầu. Hãy thực hiện yêu cầu của người dùng để cải thiện, viết lại, sửa lỗi hoặc dịch nội dung cho CV của họ.
-Yêu cầu của người dùng: {content}
 Nội dung hiện tại của ô nhập liệu: {context}
+Yêu cầu của người dùng: {content}
 
 YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
 1. Thực hiện chính xác và tập trung vào yêu cầu của người dùng.
@@ -303,13 +303,14 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
 - Công việc 1...
 - Công việc 2...).
 5. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Dưới đây là..."", ""Đây là bản dịch..."", ""Here is the translation:"", ""Tôi đã sửa lỗi chính tả..."", ""Là một chuyên gia viết CV..."").
-6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.
+7. Nếu yêu cầu liên quan đến dịch thuật hoặc đổi ngôn ngữ (ví dụ: người dùng nhập ""tiếng Anh"", ""dịch sang..."", ""translate...""), bạn BẮT BUỘC phải dịch toàn bộ các từ tiếng Việt sang ngôn ngữ đích, bao gồm cả các chức danh, vị trí làm việc, tên ngành nghề (ví dụ: ""Thiết kế đồ họa"" phải dịch sang tiếng Anh là ""Graphic design"" hoặc ""Graphic Designer"", ""Lập trình viên"" phải dịch là ""Developer""). Tuyệt đối không giữ nguyên cụm từ tiếng Việt trong kết quả dịch.";
                     break;
 
                 case "custom_prompt_summary": // Sinh nội dung theo prompt tự gõ kèm ngữ cảnh dành riêng cho Mục tiêu nghề nghiệp
                     prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp hàng đầu. Hãy thực hiện yêu cầu của người dùng để cải thiện, dịch hoặc sửa đổi mục tiêu nghề nghiệp (summary) của họ.
-Yêu cầu của người dùng: {content}
 Nội dung hiện tại của ô nhập liệu: {context}
+Yêu cầu của người dùng: {content}
 
 YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
 1. Thực hiện chính xác và tập trung vào yêu cầu của người dùng.
@@ -317,7 +318,8 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
 3. TUYỆT ĐỐI KHÔNG sử dụng bất kỳ gạch đầu dòng, danh sách liệt kê hay đánh số nào.
 4. CHỈ TRẢ VỀ DUY NHẤT đoạn văn mục tiêu nghề nghiệp sau khi đã xử lý xong.
 5. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Dưới đây là mục tiêu nghề nghiệp..."", ""Đây là bản dịch..."", ""Here is the translation:"", ""Tôi đã tối ưu hóa..."", ""Chào bạn..."").
-6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.
+7. Nếu yêu cầu liên quan đến dịch thuật hoặc đổi ngôn ngữ (ví dụ: người dùng nhập ""tiếng Anh"", ""dịch sang..."", ""translate...""), bạn BẮT BUỘC phải dịch toàn bộ các từ tiếng Việt sang ngôn ngữ đích, bao gồm cả các chức danh, vị trí làm việc, tên ngành nghề (ví dụ: ""Thiết kế đồ họa"" phải dịch sang tiếng Anh là ""Graphic design"" hoặc ""Graphic Designer"", ""Lập trình viên"" phải dịch là ""Developer""). Tuyệt đối không giữ nguyên cụm từ tiếng Việt trong kết quả dịch.";
                     break;
 
                 case "custom_prompt_lang": // Đổi ngôn ngữ cho Experience, Project, Activity
@@ -350,7 +352,8 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
 - Work 1...
 - Work 2...).
 4. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Here is the translation:"", ""Dưới đây là bản dịch..."", ""Translation to..."").
-5. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+5. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.
+6. Bạn BẮT BUỘC phải dịch toàn bộ từ ngữ trong văn bản sang ngôn ngữ đích {targetLang}, kể cả các chức danh, vị trí làm việc, tên ngành nghề (ví dụ: ""Thiết kế đồ họa"" phải dịch sang tiếng Anh là ""Graphic design"" hoặc ""Graphic Designer"", ""Lập trình viên"" phải dịch là ""Developer""). Tuyệt đối không giữ nguyên cụm từ tiếng Việt trong kết quả dịch.";
                     }
                     break;
 
@@ -383,7 +386,8 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
 3. TUYỆT ĐỐI KHÔNG sử dụng bất kỳ gạch đầu dòng, danh sách liệt kê hay đánh số nào.
 4. CHỈ TRẢ VỀ DUY NHẤT đoạn văn kết quả dịch sau khi đã dịch xong.
 5. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Here is the translation:"", ""Dưới đây là bản dịch..."", ""Translation to..."").
-6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.
+7. Bạn BẮT BUỘC phải dịch toàn bộ từ ngữ trong văn bản sang ngôn ngữ đích {targetLangSummary}, kể cả các chức danh, vị trí làm việc, tên ngành nghề (ví dụ: ""Thiết kế đồ họa"" phải dịch sang tiếng Anh là ""Graphic design"" hoặc ""Graphic Designer"", ""Lập trình viên"" phải dịch là ""Developer""). Tuyệt đối không giữ nguyên cụm từ tiếng Việt trong kết quả dịch.";
                     }
                     break;
 
@@ -461,6 +465,33 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
                 (text.StartsWith("`") && text.EndsWith("`")))
             {
                 text = text.Substring(1, text.Length - 2).Trim();
+            }
+
+            // 3.5. Loại bỏ các câu dẫn dắt hoàn chỉnh đầu tiên kết thúc bằng dấu chấm
+            bool hasRemovedIntro = true;
+            while (hasRemovedIntro)
+            {
+                hasRemovedIntro = false;
+                int firstDotIndex = text.IndexOf('.');
+                if (firstDotIndex > 0 && firstDotIndex < 180)
+                {
+                    string firstSentence = text.Substring(0, firstDotIndex).ToLower();
+                    string[] sentenceKeywords = new[] {
+                        "tôi sẽ giúp", "tôi sẽ cải thiện", "tôi hiểu yêu cầu", "tôi đã tối ưu", "tôi đã sửa", "tôi đã dịch", 
+                        "dưới đây là", "đây là bản", "sau đây là", "gửi bạn bản", "chúc bạn", "tôi xin gửi", "tôi đã cải thiện",
+                        "chào bạn", "tôi xin giúp", "tôi đã tinh chỉnh"
+                    };
+
+                    foreach (var kw in sentenceKeywords)
+                    {
+                        if (firstSentence.Contains(kw))
+                        {
+                            text = text.Substring(firstDotIndex + 1).Trim();
+                            hasRemovedIntro = true;
+                            break;
+                        }
+                    }
+                }
             }
 
             // 4. Phát hiện và loại bỏ lời dẫn giới thiệu có chứa dấu hai chấm ":" ở phần đầu (dưới 180 ký tự)

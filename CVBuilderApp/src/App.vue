@@ -646,14 +646,20 @@
             <div class="pointer-events-auto">
                 <button 
                     type="button" 
-                    class="flex items-center gap-1 bg-gradient-to-br from-indigo-600 via-blue-600 to-emerald-500 text-white px-2 py-1 rounded-full font-black text-[9px] uppercase tracking-wider shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 active:scale-95 transition-all animate-in slide-in-from-right-10 duration-700"
+                    class="flex items-center gap-1.5 bg-gradient-to-br from-indigo-600 via-blue-600 to-emerald-500 text-white px-2.5 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-wider shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 active:scale-95 transition-all animate-in slide-in-from-right-10 duration-700"
                     data-bs-toggle="modal" 
                     data-bs-target="#coverLetterModal"
                 >
-                    <span class="flex items-center justify-center w-4 h-4 bg-white/20 rounded-full">
+                    <span class="flex items-center justify-center w-3.5 h-3.5 bg-white/20 rounded-full">
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     </span>
-                    Cover Letter
+                    <span>Cover Letter</span>
+                    <span class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
+                        <svg class="w-2.5 h-2.5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
+                        </svg>
+                        PRO
+                    </span>
                 </button>
             </div>
 
@@ -662,12 +668,18 @@
                 <button 
                     type="button" 
                     @click="showJobMatcherModal = true"
-                    class="flex items-center gap-1 bg-gradient-to-br from-rose-500 via-orange-500 to-amber-400 text-white px-2 py-1 rounded-full font-black text-[9px] uppercase tracking-wider shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 active:scale-95 transition-all animate-in slide-in-from-right-10 duration-700"
+                    class="flex items-center gap-1.5 bg-gradient-to-br from-rose-500 via-orange-500 to-amber-400 text-white px-2.5 py-1.5 rounded-xl font-black text-[9px] uppercase tracking-wider shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-105 active:scale-95 transition-all animate-in slide-in-from-right-10 duration-700"
                 >
-                    <span class="flex items-center justify-center w-4 h-4 bg-white/20 rounded-full">
+                    <span class="flex items-center justify-center w-3.5 h-3.5 bg-white/20 rounded-full">
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     </span>
-                    Job Matcher
+                    <span>Job Matcher</span>
+                    <span class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
+                        <svg class="w-2.5 h-2.5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
+                        </svg>
+                        PRO
+                    </span>
                 </button>
             </div>
         </div>
@@ -823,77 +835,108 @@
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body p-6 bg-slate-50">
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <!-- CỘT TRÁI: NHẬP THÔNG TIN (HẸP HƠN - 5 CỘT) -->
-            <div class="md:col-span-5 space-y-4 flex flex-col justify-between">
-              <div class="space-y-2">
-                  <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển <span class="text-red-500">*</span></label>
-                  <input 
-                      type="text" 
-                      v-model="targetCompany" 
-                      class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none" 
-                      placeholder="Ví dụ: FPT Software - Vị trí .NET Developer..."
-                  >
+        <div class="relative flex-1 flex flex-col min-h-0">
+          <!-- Absolute Overlay khi !isProUser -->
+          <div v-if="!isProUser" class="absolute inset-0 z-50 bg-slate-900/10 backdrop-blur-[1px] flex items-center justify-center p-6">
+              <!-- PRO Banner Ngang Dài -->
+              <div class="bg-[#fffbeb] border border-amber-200 rounded-3xl px-8 py-6 max-w-6xl w-full flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all">
+                  <div class="flex items-center gap-4 text-left">
+                      <span class="text-3xl text-slate-900 flex items-center shrink-0">
+                          <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
+                          </svg>
+                      </span>
+                      <p class="text-sm md:text-base font-black text-amber-900 mb-0">Tính năng này chỉ dành cho thành viên PRO. Hãy nâng cấp tài khoản để sử dụng!</p>
+                  </div>
+                  <div class="flex items-center gap-5 shrink-0">
+                      <a href="/Account/Upgrade" class="px-6 py-3.5 bg-amber-500 hover:bg-amber-600 rounded-full font-black text-xs md:text-sm uppercase tracking-wider transition-all flex items-center gap-2 shadow-md" style="color: #0f172a !important; text-decoration: none !important;">
+                          <span>💎</span> Nâng cấp lên Pro ngay
+                      </a>
+                      <button type="button" class="text-slate-400 hover:text-slate-600 transition-colors" data-bs-dismiss="modal">
+                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+                  </div>
               </div>
+          </div>
 
-              <div class="space-y-2 flex-1 flex flex-col">
-                  <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả công việc (Tùy chọn - Giúp AI viết sát hơn)</label>
-                  <textarea 
-                      v-model="coverLetterJD" 
-                      class="w-full flex-1 bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none resize-none custom-scrollbar min-h-[300px]" 
-                      rows="10"
-                      placeholder="Dán nội dung yêu cầu công việc (JD) vào đây..."
-                  ></textarea>
-              </div>
-            </div>
+          <!-- Nội dung body và footer thực tế bị làm mờ và chặn tương tác khi không phải PRO -->
+          <div :class="{'filter blur-[1px] pointer-events-none select-none opacity-50 transition-all duration-300': !isProUser}" class="flex-1 flex flex-col min-h-0">
+            <div class="modal-body p-6 bg-slate-50 flex-1">
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- CỘT TRÁI: NHẬP THÔNG TIN (HẸP HƠN - 5 CỘT) -->
+                <div class="md:col-span-5 space-y-4 flex flex-col justify-between">
+                  <div class="space-y-2">
+                      <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Công ty & Vị trí ứng tuyển <span class="text-red-500">*</span></label>
+                      <input 
+                          type="text" 
+                          v-model="targetCompany" 
+                          :disabled="!isProUser"
+                          class="w-full bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm font-medium focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none" 
+                          placeholder="Ví dụ: FPT Software - Vị trí .NET Developer..."
+                      >
+                  </div>
 
-            <!-- CỘT PHẢI: KẾT QUẢ AI TẠO (RỘNG HƠN - 7 CỘT) -->
-            <div class="md:col-span-7 space-y-2 flex flex-col">
-                <div class="flex items-center justify-between px-1">
-                    <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Nội dung thư gợi ý</label>
-                    <div class="flex items-center gap-4">
-                        <button v-if="coverLetterResult" @click="downloadCoverLetter" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Tải TXT
-                        </button>
-                        <button v-if="coverLetterResult" @click="copyCoverLetter" class="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                            Sao chép
-                        </button>
+                  <div class="space-y-2 flex-1 flex flex-col">
+                      <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Mô tả công việc (Tùy chọn - Giúp AI viết sát hơn)</label>
+                      <textarea 
+                          v-model="coverLetterJD" 
+                          :disabled="!isProUser"
+                          class="w-full flex-1 bg-white border border-slate-200 rounded-2xl px-5 py-3.5 text-sm focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none resize-none custom-scrollbar min-h-[300px]" 
+                          rows="10"
+                          placeholder="Dán nội dung yêu cầu công việc (JD) vào đây..."
+                      ></textarea>
+                  </div>
+                </div>
+
+                <!-- CỘT PHẢI: KẾT QUẢ AI TẠO (RỘNG HƠN - 7 CỘT) -->
+                <div class="md:col-span-7 space-y-2 flex flex-col">
+                    <div class="flex items-center justify-between px-1">
+                        <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Nội dung thư gợi ý</label>
+                        <div class="flex items-center gap-4">
+                            <button v-if="coverLetterResult" @click="downloadCoverLetter" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Tải TXT
+                            </button>
+                            <button v-if="coverLetterResult" @click="copyCoverLetter" class="text-[10px] font-black text-blue-600 hover:text-blue-700 flex items-center gap-1.5 transition-colors uppercase tracking-widest">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                                Sao chép
+                            </button>
+                        </div>
+                    </div>
+                    <div class="relative group flex-1">
+                        <textarea 
+                            v-model="coverLetterResult" 
+                            :disabled="!isProUser"
+                            class="w-full h-full min-h-[400px] bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
+                            placeholder="Nội dung thư xin việc chuyên nghiệp sẽ xuất hiện tại đây..."
+                            rows="16"
+                        ></textarea>
+                        
+                        <div v-if="isAIProcessing['cover_letter']" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center gap-3">
+                            <div class="relative w-12 h-12">
+                                <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
+                                <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+                            </div>
+                            <span class="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] animate-pulse">AI đang soạn thảo...</span>
+                        </div>
                     </div>
                 </div>
-                <div class="relative group flex-1">
-                    <textarea 
-                        v-model="coverLetterResult" 
-                        class="w-full h-full min-h-[400px] bg-white border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
-                        placeholder="Nội dung thư xin việc chuyên nghiệp sẽ xuất hiện tại đây..."
-                        rows="16"
-                    ></textarea>
-                    
-                    <div v-if="isAIProcessing['cover_letter']" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] rounded-2xl flex flex-col items-center justify-center gap-3">
-                        <div class="relative w-12 h-12">
-                            <div class="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-                            <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
-                        </div>
-                        <span class="text-[11px] font-black text-blue-600 uppercase tracking-[0.2em] animate-pulse">AI đang soạn thảo...</span>
-                    </div>
+              </div>
+            </div>
+            <div class="modal-footer bg-white border-t border-slate-100 p-4 px-6 flex items-center justify-between">
+                <p class="text-[10px] text-slate-400 font-medium italic">* AI sẽ dựa vào thông tin CV của bạn để viết thư.</p>
+                <div class="flex items-center gap-3">
+                    <button type="button" class="px-6 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all" data-bs-dismiss="modal">Đóng</button>
+                    <button 
+                      @click="generateAICoverLetter" 
+                      :disabled="!isProUser || isAIProcessing['cover_letter']"
+                      class="bg-slate-900 text-white px-8 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:bg-blue-600 hover:shadow-blue-600/30 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                        {{ isAIProcessing['cover_letter'] ? 'Đang xử lý...' : '✨ Bắt đầu viết' }}
+                    </button>
                 </div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer bg-white border-t border-slate-100 p-4 px-6 flex items-center justify-between">
-            <p class="text-[10px] text-slate-400 font-medium italic">* AI sẽ dựa vào thông tin CV của bạn để viết thư.</p>
-            <div class="flex items-center gap-3">
-                <button type="button" class="px-6 py-2.5 rounded-xl font-bold text-[11px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 transition-all" data-bs-dismiss="modal">Đóng</button>
-                <button 
-                  @click="generateAICoverLetter" 
-                  :disabled="isAIProcessing['cover_letter']"
-                  class="bg-slate-900 text-white px-8 py-2.5 rounded-xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-slate-900/20 hover:bg-blue-600 hover:shadow-blue-600/30 transition-all active:scale-95 disabled:opacity-50"
-                >
-                    {{ isAIProcessing['cover_letter'] ? 'Đang xử lý...' : '✨ Bắt đầu viết' }}
-                </button>
-            </div>
         </div>
       </div>
     </div>
@@ -924,115 +967,144 @@
         </div>
         
         <!-- Modal Body -->
-        <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
-            <div class="flex gap-6" :class="jobMatchResult ? 'flex-row' : 'flex-col items-center'">
-                <!-- Cột trái: Nhập JD -->
-                <div :class="jobMatchResult ? 'w-[35%] shrink-0 flex flex-col' : 'w-full max-w-[1000px] flex flex-col'" class="space-y-4">
-                    <div class="space-y-2 flex-1 flex flex-col">
-                        <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Nội dung mô tả công việc (JD)</label>
-                        <textarea 
-                            v-model="jobDescription" 
-                            class="w-full flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-orange-100 focus:border-orange-400 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
-                            :class="jobMatchResult ? 'min-h-[500px]' : 'min-h-[370px]'"
-                            placeholder="Ví dụ:
+        <div class="relative flex-1 flex flex-col min-h-0">
+            <!-- Absolute Overlay khi !isProUser -->
+            <div v-if="!isProUser" class="absolute inset-0 z-50 bg-slate-900/10 backdrop-blur-[1px] flex items-center justify-center p-6">
+                <!-- PRO Banner Ngang Dài -->
+                <div class="bg-[#fffbeb] border border-amber-200 rounded-2xl px-8 py-6 max-w-6xl w-full flex flex-col sm:flex-row items-center justify-between gap-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] transition-all">
+                    <div class="flex items-center gap-4 text-left">
+                        <span class="text-3xl text-slate-900 flex items-center shrink-0">
+                            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
+                            </svg>
+                        </span>
+                        <p class="text-sm md:text-base font-black text-amber-900 mb-0">Tính năng này chỉ dành cho thành viên PRO. Hãy nâng cấp tài khoản để sử dụng!</p>
+                    </div>
+                    <div class="flex items-center gap-5 shrink-0">
+                        <a href="/Account/Upgrade" class="px-6 py-3.5 bg-amber-500 hover:bg-amber-600 rounded-full font-black text-xs md:text-sm uppercase tracking-wider transition-all flex items-center gap-2 shadow-md" style="color: #0f172a !important; text-decoration: none !important;">
+                            <span>💎</span> Nâng cấp lên Pro ngay
+                        </a>
+                        <button type="button" class="text-slate-400 hover:text-slate-600 transition-colors" @click="showJobMatcherModal = false">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nội dung body thực tế bị làm mờ và chặn tương tác khi không phải PRO -->
+            <div :class="{'filter blur-[1px] pointer-events-none select-none opacity-50 transition-all duration-300': !isProUser}" class="flex-1 flex flex-col min-h-0">
+                <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                    <div class="flex gap-6" :class="jobMatchResult ? 'flex-row' : 'flex-col items-center'">
+                        <!-- Cột trái: Nhập JD -->
+                        <div :class="jobMatchResult ? 'w-[35%] shrink-0 flex flex-col' : 'w-full max-w-[1000px] flex flex-col'" class="space-y-4">
+                            <div class="space-y-2 flex-1 flex flex-col">
+                                <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest ml-1">Nội dung mô tả công việc (JD)</label>
+                                <textarea 
+                                    v-model="jobDescription" 
+                                    :disabled="!isProUser"
+                                    class="w-full flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm leading-relaxed focus:ring-4 focus:ring-orange-100 focus:border-orange-400 transition-all shadow-sm outline-none custom-scrollbar resize-none" 
+                                    :class="jobMatchResult ? 'min-h-[500px]' : 'min-h-[370px]'"
+                                    placeholder="Ví dụ:
 - Vị trí: Backend Developer
 - Yêu cầu: Thành thạo C#, ASP.NET Core, SQL Server, Docker...
 - Kinh nghiệm: Tối thiểu 2 năm..."
-                        ></textarea>
-                    </div>
-                    
-                    <button 
-                        @click="analyzeJobMatch" 
-                        :disabled="isMatchingJob || !jobDescription.trim()"
-                        class="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white py-3.5 rounded-xl font-black text-[12px] uppercase tracking-[0.15em] shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                        <template v-if="isMatchingJob">
-                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                            <span>AI đang phân tích...</span>
-                        </template>
-                        <template v-else>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            <span>🎯 Phân tích mức độ phù hợp</span>
-                        </template>
-                    </button>
-                </div>
+                                ></textarea>
+                            </div>
+                            
+                            <button 
+                                @click="analyzeJobMatch" 
+                                :disabled="!isProUser || isMatchingJob || !jobDescription.trim()"
+                                class="w-full bg-gradient-to-r from-orange-500 to-rose-500 text-white py-3.5 rounded-xl font-black text-[12px] uppercase tracking-[0.15em] shadow-xl shadow-orange-500/20 hover:shadow-orange-500/40 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <template v-if="isMatchingJob">
+                                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                    <span>AI đang phân tích...</span>
+                                </template>
+                                <template v-else>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    <span>🎯 Phân tích mức độ phù hợp</span>
+                                </template>
+                            </button>
+                        </div>
 
-                <!-- Cột phải: Kết quả -->
-                <div v-if="jobMatchResult" class="flex-1 space-y-5 min-w-0">
-                    <!-- Match Score Circle -->
-                    <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
-                        <div class="relative w-32 h-32 mx-auto mb-4">
-                            <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
-                                <circle cx="60" cy="60" r="52" stroke="#e2e8f0" stroke-width="10" fill="none"/>
-                                <circle cx="60" cy="60" r="52" 
-                                    :stroke="matchScoreColor" 
-                                    stroke-width="10" 
-                                    fill="none" 
-                                    stroke-linecap="round"
-                                    :stroke-dasharray="`${jobMatchResult.matchScore * 3.267} 326.7`"
-                                    class="transition-all duration-1000 ease-out"
-                                />
-                            </svg>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-3xl font-black" :style="{ color: matchScoreColor }">{{ jobMatchResult.matchScore }}%</span>
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Match Score</span>
+                        <!-- Cột phải: Kết quả -->
+                        <div v-if="jobMatchResult" class="flex-1 space-y-5 min-w-0">
+                            <!-- Match Score Circle -->
+                            <div class="bg-gradient-to-br from-slate-50 to-white border border-slate-100 rounded-2xl p-6 text-center shadow-sm">
+                                <div class="relative w-32 h-32 mx-auto mb-4">
+                                    <svg class="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+                                        <circle cx="60" cy="60" r="52" stroke="#e2e8f0" stroke-width="10" fill="none"/>
+                                        <circle cx="60" cy="60" r="52" 
+                                            :stroke="matchScoreColor" 
+                                            stroke-width="10" 
+                                            fill="none" 
+                                            stroke-linecap="round"
+                                            :stroke-dasharray="`${jobMatchResult.matchScore * 3.267} 326.7`"
+                                            class="transition-all duration-1000 ease-out"
+                                        />
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-3xl font-black" :style="{ color: matchScoreColor }">{{ jobMatchResult.matchScore }}%</span>
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Match Score</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-bold" :style="{ color: matchScoreColor }">{{ matchScoreLabel }}</p>
+                            </div>
+
+                            <!-- Kỹ năng khớp -->
+                            <div v-if="jobMatchResult.matchedSkills?.length" class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4">
+                                <h4 class="text-[11px] font-black text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">✓</span>
+                                    Kỹ năng đã khớp ({{ jobMatchResult.matchedSkills.length }})
+                                </h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span v-for="skill in jobMatchResult.matchedSkills" :key="'matched-'+skill" 
+                                        class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-[11px] font-bold border border-emerald-200">✅ {{ skill }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Kỹ năng thiếu -->
+                            <div v-if="jobMatchResult.missingSkills?.length" class="bg-rose-50/50 border border-rose-100 rounded-2xl p-4">
+                                <h4 class="text-[11px] font-black text-rose-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-[10px]">✗</span>
+                                    Kỹ năng còn thiếu ({{ jobMatchResult.missingSkills.length }})
+                                </h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <span v-for="skill in jobMatchResult.missingSkills" :key="'missing-'+skill" 
+                                        class="px-3 py-1.5 bg-rose-100 text-rose-800 rounded-full text-[11px] font-bold border border-rose-200">❌ {{ skill }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Gợi ý cải thiện -->
+                            <div v-if="jobMatchResult.suggestions?.length" class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
+                                <h4 class="text-[11px] font-black text-blue-700 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <span class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">💡</span>
+                                    Gợi ý cải thiện CV
+                                </h4>
+                                <ul class="space-y-2">
+                                    <li v-for="(suggestion, idx) in jobMatchResult.suggestions" :key="'sug-'+idx" 
+                                        class="text-sm text-slate-700 leading-relaxed flex items-start gap-2 bg-white p-3 rounded-xl border border-blue-50">
+                                        <span class="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5">{{ idx + 1 }}</span>
+                                        <span>{{ suggestion }}</span>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- Nhận xét tổng quan -->
+                            <div v-if="jobMatchResult.summary" class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4">
+                                <h4 class="text-[11px] font-black text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <span>📋</span> Nhận xét tổng quan
+                                </h4>
+                                <p class="text-sm text-slate-700 leading-relaxed italic">"{{ jobMatchResult.summary }}"</p>
                             </div>
                         </div>
-                        <p class="text-sm font-bold" :style="{ color: matchScoreColor }">{{ matchScoreLabel }}</p>
-                    </div>
 
-                    <!-- Kỹ năng khớp -->
-                    <div v-if="jobMatchResult.matchedSkills?.length" class="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4">
-                        <h4 class="text-[11px] font-black text-emerald-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <span class="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center text-white text-[10px]">✓</span>
-                            Kỹ năng đã khớp ({{ jobMatchResult.matchedSkills.length }})
-                        </h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span v-for="skill in jobMatchResult.matchedSkills" :key="'matched-'+skill" 
-                                class="px-3 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-[11px] font-bold border border-emerald-200">✅ {{ skill }}</span>
+                        <!-- Placeholder khi chưa có kết quả -->
+                        <div v-if="!jobMatchResult && !isMatchingJob" class="w-full flex items-center justify-start gap-3 py-0 mt-[-1rem]">
+                            <span class="text-2xl opacity-40">🎯</span>
+                            <span class="text-slate-400 text-sm font-medium">Dán nội dung JD vào ô trên và nhấn nút phân tích để xem mức độ phù hợp của CV với công việc.</span>
                         </div>
                     </div>
-
-                    <!-- Kỹ năng thiếu -->
-                    <div v-if="jobMatchResult.missingSkills?.length" class="bg-rose-50/50 border border-rose-100 rounded-2xl p-4">
-                        <h4 class="text-[11px] font-black text-rose-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <span class="w-5 h-5 bg-rose-500 rounded-full flex items-center justify-center text-white text-[10px]">✗</span>
-                            Kỹ năng còn thiếu ({{ jobMatchResult.missingSkills.length }})
-                        </h4>
-                        <div class="flex flex-wrap gap-2">
-                            <span v-for="skill in jobMatchResult.missingSkills" :key="'missing-'+skill" 
-                                class="px-3 py-1.5 bg-rose-100 text-rose-800 rounded-full text-[11px] font-bold border border-rose-200">❌ {{ skill }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Gợi ý cải thiện -->
-                    <div v-if="jobMatchResult.suggestions?.length" class="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
-                        <h4 class="text-[11px] font-black text-blue-700 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <span class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">💡</span>
-                            Gợi ý cải thiện CV
-                        </h4>
-                        <ul class="space-y-2">
-                            <li v-for="(suggestion, idx) in jobMatchResult.suggestions" :key="'sug-'+idx" 
-                                class="text-sm text-slate-700 leading-relaxed flex items-start gap-2 bg-white p-3 rounded-xl border border-blue-50">
-                                <span class="shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-[10px] font-black mt-0.5">{{ idx + 1 }}</span>
-                                <span>{{ suggestion }}</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Nhận xét tổng quan -->
-                    <div v-if="jobMatchResult.summary" class="bg-amber-50/50 border border-amber-100 rounded-2xl p-4">
-                        <h4 class="text-[11px] font-black text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-2">
-                            <span>📋</span> Nhận xét tổng quan
-                        </h4>
-                        <p class="text-sm text-slate-700 leading-relaxed italic">"{{ jobMatchResult.summary }}"</p>
-                    </div>
-                </div>
-
-                <!-- Placeholder khi chưa có kết quả -->
-                <div v-if="!jobMatchResult && !isMatchingJob" class="w-full flex items-center justify-start gap-3 py-0 mt-[-1rem]">
-                    <span class="text-2xl opacity-40">🎯</span>
-                    <span class="text-slate-400 text-sm font-medium">Dán nội dung JD vào ô trên và nhấn nút phân tích để xem mức độ phù hợp của CV với công việc.</span>
                 </div>
             </div>
         </div>
@@ -1866,6 +1938,10 @@ const improveAIDesc = async (item, sectionId) => {
 const isScanningGrammar = ref(false);
 
 const scanCVForGrammar = async () => {
+    if (!isProUser.value) {
+        alert("Tính năng AI Scan (Quét lỗi chính tả & ngữ pháp bằng AI) chỉ dành cho thành viên PRO. Vui lòng nâng cấp tài khoản để sử dụng!");
+        return;
+    }
     if (isScanningGrammar.value) return;
     
     // 0. Hàm dọn dẹp highlight cũ (Xóa các thẻ span highlight nhưng giữ lại chữ)
