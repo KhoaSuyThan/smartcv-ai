@@ -12,7 +12,7 @@ namespace DoAnCS.Models.ViewModels
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
-        [MinLength(6, ErrorMessage = "Mật khẩu phải từ 6 ký tự")]
+        [RegularExpression(@"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$", ErrorMessage = "Mật khẩu phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt")]
         public string Password { get; set; }
 
         [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp")]
