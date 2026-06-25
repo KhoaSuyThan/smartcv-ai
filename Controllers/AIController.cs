@@ -207,7 +207,11 @@ Quy tắc:
                     if (!string.IsNullOrEmpty(configData?.SummaryTemplate)) {
                         prompt = configData.SummaryTemplate.Replace("{{context}}", context ?? "").Replace("{{content}}", content);
                     } else {
-                        prompt = $"Viết duy nhất một đoạn văn mục tiêu nghề nghiệp ngắn gọn (2-4 câu, tối đa 90 từ, TUYỆT ĐỐI KHÔNG sử dụng gạch đầu dòng hay danh sách liệt kê) cho vị trí {context} dựa trên các ý: {content}. YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT): Chỉ trả về duy nhất đoạn văn mục tiêu nghề nghiệp cá nhân để đưa vào CV. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời chào, lời dẫn (ví dụ: KHÔNG viết \"Là một chuyên gia viết CV...\", \"Dưới đây là...\", \"Chào bạn...\"), KHÔNG tiêu đề, KHÔNG giải thích.";
+                        prompt = $@"Viết duy nhất một đoạn văn mục tiêu nghề nghiệp ngắn gọn (2-4 câu, tối đa 90 từ) cho vị trí {context} dựa trên các ý: {content}.
+YÊU CẦU BẮT BUỘC:
+- Chỉ trả về duy nhất đoạn văn mục tiêu nghề nghiệp để đưa vào CV. Tuyệt đối không dùng gạch đầu dòng hay danh sách liệt kê.
+- TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép.
+- TUYỆT ĐỐI KHÔNG có lời chào, lời dẫn (ví dụ: KHÔNG viết ""Là một chuyên gia viết CV..."", ""Dưới đây là mục tiêu..."", ""Chào bạn...""), KHÔNG tiêu đề, KHÔNG giải thích.";
                     }
                     break;
 
@@ -215,16 +219,31 @@ Quy tắc:
                     if (!string.IsNullOrEmpty(configData?.GrammarTemplate)) {
                         prompt = configData.GrammarTemplate.Replace("{{context}}", context ?? "").Replace("{{content}}", content);
                     } else {
-                        prompt = $"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ và bắt đầu bằng động từ hành động) mô tả công việc cho vị trí {context} dựa trên thông tin: {content}. YÊU CẦU QUAN TRỌNG: Nếu thông tin cung cấp quá ngắn hoặc thiếu ý, bạn phải tự động suy luận thêm các nhiệm vụ và công việc đặc trưng của vị trí đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng. Chỉ trả về các gạch đầu dòng nội dung, không đánh số. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời dẫn, lời chào, không tiêu đề.";
+                        prompt = $@"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ và bắt đầu bằng động từ hành động) mô tả công việc cho vị trí {context} dựa trên thông tin: {content}.
+YÊU CẦU BẮT BUỘC:
+- Nếu thông tin cung cấp quá ngắn hoặc thiếu ý, bạn phải tự động suy luận thêm các nhiệm vụ và công việc đặc trưng của vị trí đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng.
+- Chỉ trả về duy nhất các gạch đầu dòng nội dung, không đánh số.
+- TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép.
+- TUYỆT ĐỐI KHÔNG có bất kỳ câu dẫn dắt, lời chào hay giải thích nào ở đầu và cuối kết quả (Ví dụ: KHÔNG viết ""Dưới đây là..."", ""Đây là các công việc..."", ""Tôi đã tối ưu hóa..."").";
                     }
                     break;
 
                 case "project": // Tối ưu dự án
-                    prompt = $"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ) mô tả dự án '{context}' dựa trên các ý: {content}. YÊU CẦU QUAN TRỌNG: Nếu thông tin quá ngắn, bạn phải tự động suy luận và bổ sung thêm các tính năng, công nghệ hoặc kết quả đặc trưng của loại dự án đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng. Chỉ trả về các gạch đầu dòng mô tả kết quả và công nghệ, không đánh số. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời dẫn hay lời chào.";
+                    prompt = $@"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ) mô tả dự án '{context}' dựa trên các ý: {content}.
+YÊU CẦU BẮT BUỘC:
+- Nếu thông tin quá ngắn, bạn phải tự động suy luận và bổ sung thêm các tính năng, công nghệ hoặc kết quả đặc trưng của loại dự án đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng.
+- Chỉ trả về duy nhất các gạch đầu dòng mô tả kết quả và công nghệ, không đánh số.
+- TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép.
+- TUYỆT ĐỐI KHÔNG có bất kỳ câu dẫn dắt, lời chào hay giải thích nào ở đầu và cuối kết quả (Ví dụ: KHÔNG viết ""Dưới đây là..."", ""Đây là mô tả dự án..."", ""Tôi đã viết lại..."").";
                     break;
 
                 case "activity": // Tối ưu hoạt động
-                    prompt = $"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ) mô tả hoạt động '{context}' dựa trên các ý: {content}. YÊU CẦU QUAN TRỌNG: Nếu thông tin quá ngắn, bạn phải tự động suy luận và bổ sung thêm các nhiệm vụ, vai trò hoặc kỹ năng đạt được đặc trưng của hoạt động đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng. Chỉ trả về các gạch đầu dòng mô tả đóng góp và kỹ năng đạt được, không đánh số. TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép. TUYỆT ĐỐI KHÔNG có lời dẫn hay lời chào.";
+                    prompt = $@"Hãy viết chính xác từ 3 đến 5 gạch đầu dòng ngắn gọn (bắt buộc tối thiểu phải có 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng dưới 15 từ) mô tả hoạt động '{context}' dựa trên các ý: {content}.
+YÊU CẦU BẮT BUỘC:
+- Nếu thông tin quá ngắn, bạn phải tự động suy luận và bổ sung thêm các nhiệm vụ, vai trò hoặc kỹ năng đạt được đặc trưng của hoạt động đó để đảm bảo có đủ ít nhất 3 gạch đầu dòng.
+- Chỉ trả về duy nhất các gạch đầu dòng mô tả đóng góp và kỹ năng đạt được, không đánh số.
+- TUYỆT ĐỐI KHÔNG bọc kết quả trong dấu ngoặc kép.
+- TUYỆT ĐỐI KHÔNG có bất kỳ câu dẫn dắt, lời chào hay giải thích nào ở đầu và cuối kết quả (Ví dụ: KHÔNG viết ""Dưới đây là..."", ""Tôi đã tối ưu..."").";
                     break;
 
                 case "suggest_skills": // Gợi ý kỹ năng
@@ -260,33 +279,112 @@ TUYỆT ĐỐI chỉ trả về JSON thuần (KHÔNG có markdown, KHÔNG có ``
                     break;
 
                 case "check_grammar": // Kiểm tra lỗi chính tả & ngữ pháp
-                    prompt = $@"Bạn là một chuyên gia tuyển dụng cao cấp và biên tập viên CV chuyên nghiệp. Hãy kiểm tra lỗi chính tả, ngữ pháp và tính chuyên nghiệp của văn bản sau đây.
-
-Văn bản cần kiểm tra:
+                    prompt = $@"Bạn là một biên tập viên CV chuyên nghiệp. Hãy kiểm tra các lỗi chính tả, lỗi dùng từ nghiêm trọng trong văn bản sau:
 ""{content}""
 
-YÊU CẦU CỰC KỲ KHẮT KHE:
-1. Bắt lỗi chính tả tiếng Việt, tiếng Anh và cả ""teen code"", viết tắt không trang trọng (ví dụ: 'mún' -> 'muốn', 'ko' -> 'không', 'toi' -> 'tôi').
-2. Bắt lỗi sai chính tả thuật ngữ chuyên ngành (ví dụ: 'Bachend' -> 'Backend', 'Develope' -> 'Developer').
-3. Kiểm tra tính chuyên nghiệp: Nếu văn bản quá bình dân, không phù hợp với CV, hãy đánh dấu là lỗi.
-4. Trả về kết quả dưới dạng JSON Array: [{{""error"": ""từ/cụm từ sai"", ""fix"": ""gợi ý đúng/trang trọng hơn"", ""reason"": ""lý do (Sai chính tả/Thiếu chuyên nghiệp/Sai thuật ngữ)""}}].
-5. Nếu không có lỗi, trả về []. Tuyệt đối không trả về lời dẫn hay markdown.";
+YÊU CẦU BẮT BUỘC (RẤT QUAN TRỌNG):
+1. CHỈ bắt lỗi chính tả thực sự (ví dụ: sai dấu, viết sai từ tiếng Việt/tiếng Anh) hoặc viết tắt không trang trọng (ví dụ: 'mún' -> 'muốn', 'ko' -> 'không', 'đc' -> 'được').
+2. CHỈ bắt lỗi sai thuật ngữ chuyên ngành rõ ràng (ví dụ: 'Bachend' -> 'Backend', 'Develope' -> 'Developer').
+3. TUYỆT ĐỐI KHÔNG tự ý sửa đổi, bắt bẻ hoặc báo lỗi đối với văn phong cá nhân, cách diễn đạt đúng ngữ pháp và các thông tin mẫu của khách hàng nếu chúng không sai chính tả hoặc không vi phạm lỗi dùng từ nghiêm trọng.
+4. Trả về kết quả dưới dạng JSON Array: [{{""error"": ""từ/cụm từ sai"", ""fix"": ""gợi ý đúng"", ""reason"": ""lý do cụ thể""}}].
+5. Nếu văn bản hoàn toàn không có lỗi chính tả hoặc lỗi dùng từ nghiêm trọng, hãy trả về mảng rỗng []. Tuyệt đối không tự bịa ra lỗi, không trả về lời dẫn hay markdown.";
                     break;
 
-                case "custom_prompt": // Sinh nội dung theo prompt tự gõ kèm ngữ cảnh
-                    // content: prompt yêu cầu từ người dùng
-                    // context: nội dung hiện có của trường thông tin làm ngữ cảnh
-                    prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp hàng đầu. Hãy thực hiện yêu cầu của người dùng để cải thiện hoặc viết mới nội dung cho CV của họ.
+                case "custom_prompt": // Sinh nội dung theo prompt tự gõ kèm ngữ cảnh (dành cho Experience, Project, Activity)
+                    prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp hàng đầu. Hãy thực hiện yêu cầu của người dùng để cải thiện, viết lại, sửa lỗi hoặc dịch nội dung cho CV của họ.
 Yêu cầu của người dùng: {content}
-Nội dung hiện tại của ô nhập liệu (nếu có, hãy dùng làm ngữ cảnh hoặc sửa đổi dựa trên đây): {context}
+Nội dung hiện tại của ô nhập liệu: {context}
 
 YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
-- Thực hiện chính xác và tập trung vào yêu cầu của người dùng.
-- Chỉ trả về duy nhất kết quả sau khi đã xử lý/viết lại để người dùng dán vào CV.
-- Kết quả phải cực kỳ ngắn gọn, súc tích, bắt buộc phải trả về từ 3 đến 5 gạch đầu dòng (tối thiểu là 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng không quá 15 từ, không đánh số).
-- YÊU CẦU BẮT BUỘC: Nếu thông tin người dùng cung cấp quá ngắn, bạn phải tự động suy luận và bổ sung thêm các chi tiết nghiệp vụ liên quan để đảm bảo có đủ ít nhất 3 gạch đầu dòng.
-- TUYỆT ĐỐI KHÔNG có lời chào, lời dẫn (ví dụ: KHÔNG viết ""Là một chuyên gia viết CV..."", ""Dưới đây là..."", ""Tôi sẽ giúp bạn..."", ""Chào bạn...""), KHÔNG có tiêu đề và KHÔNG giải thích thêm.
-- KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```). Chỉ trả về văn bản sạch sẽ.";
+1. Thực hiện chính xác và tập trung vào yêu cầu của người dùng.
+2. Kết quả bắt buộc phải trả về dưới dạng từ 3 đến 5 gạch đầu dòng ngắn gọn (tối thiểu là 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng không quá 15 từ, không đánh số).
+3. Nếu thông tin người dùng cung cấp quá ngắn, bạn phải tự động suy luận và bổ sung thêm các chi tiết nghiệp vụ liên quan để đảm bảo có đủ nhất 3 gạch đầu dòng.
+4. CHỈ TRẢ VỀ DUY NHẤT các gạch đầu dòng kết quả (ví dụ:
+- Công việc 1...
+- Công việc 2...).
+5. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Dưới đây là..."", ""Đây là bản dịch..."", ""Here is the translation:"", ""Tôi đã sửa lỗi chính tả..."", ""Là một chuyên gia viết CV..."").
+6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+                    break;
+
+                case "custom_prompt_summary": // Sinh nội dung theo prompt tự gõ kèm ngữ cảnh dành riêng cho Mục tiêu nghề nghiệp
+                    prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp hàng đầu. Hãy thực hiện yêu cầu của người dùng để cải thiện, dịch hoặc sửa đổi mục tiêu nghề nghiệp (summary) của họ.
+Yêu cầu của người dùng: {content}
+Nội dung hiện tại của ô nhập liệu: {context}
+
+YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
+1. Thực hiện chính xác và tập trung vào yêu cầu của người dùng.
+2. Kết quả bắt buộc phải viết dưới dạng MỘT ĐOẠN VĂN LIỀN MẠCH, ngắn gọn (từ 2 đến 3 câu, tối đa 60 từ).
+3. TUYỆT ĐỐI KHÔNG sử dụng bất kỳ gạch đầu dòng, danh sách liệt kê hay đánh số nào.
+4. CHỈ TRẢ VỀ DUY NHẤT đoạn văn mục tiêu nghề nghiệp sau khi đã xử lý xong.
+5. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Dưới đây là mục tiêu nghề nghiệp..."", ""Đây là bản dịch..."", ""Here is the translation:"", ""Tôi đã tối ưu hóa..."", ""Chào bạn..."").
+6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+                    break;
+
+                case "custom_prompt_lang": // Đổi ngôn ngữ cho Experience, Project, Activity
+                    {
+                        string targetLang = "tiếng Anh (English)";
+                        if (!string.IsNullOrWhiteSpace(content))
+                        {
+                            string contentLower = content.ToLower();
+                            if (contentLower.Contains("nhật") || contentLower.Contains("japan")) targetLang = "tiếng Nhật (Japanese)";
+                            else if (contentLower.Contains("trung") || contentLower.Contains("hoa") || contentLower.Contains("china") || contentLower.Contains("chinese")) targetLang = "tiếng Trung (Chinese)";
+                            else if (contentLower.Contains("hàn") || contentLower.Contains("korea")) targetLang = "tiếng Hàn (Korean)";
+                            else if (contentLower.Contains("pháp") || contentLower.Contains("french")) targetLang = "tiếng Pháp (French)";
+                            else if (contentLower.Contains("đức") || contentLower.Contains("german")) targetLang = "tiếng Đức (German)";
+                            else if (contentLower.Contains("nga") || contentLower.Contains("russian")) targetLang = "tiếng Nga (Russian)";
+                            else if (contentLower.Contains("tây ban nha") || contentLower.Contains("spanish")) targetLang = "tiếng Tây Ban Nha (Spanish)";
+                            else if (contentLower.Contains("việt") || contentLower.Contains("vietnamese")) targetLang = "tiếng Việt (Vietnamese)";
+                            else 
+                            {
+                                targetLang = content;
+                            }
+                        }
+
+                        prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp đa ngôn ngữ. Hãy dịch nội dung CV dưới đây sang {targetLang}.
+Nội dung hiện tại cần dịch: {context}
+
+YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
+1. Dịch chính xác nội dung sang {targetLang} với văn phong chuyên nghiệp phù hợp với CV.
+2. Kết quả dịch bắt buộc phải giữ nguyên cấu trúc dưới dạng từ 3 đến 5 gạch đầu dòng ngắn gọn (tối thiểu là 3 gạch đầu dòng và tối đa là 5 gạch đầu dòng, mỗi gạch đầu dòng không quá 15 từ, không đánh số).
+3. CHỈ TRẢ VỀ DUY NHẤT các gạch đầu dòng kết quả dịch (ví dụ:
+- Work 1...
+- Work 2...).
+4. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Here is the translation:"", ""Dưới đây là bản dịch..."", ""Translation to..."").
+5. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+                    }
+                    break;
+
+                case "custom_prompt_lang_summary": // Đổi ngôn ngữ cho Mục tiêu nghề nghiệp (Summary)
+                    {
+                        string targetLangSummary = "tiếng Anh (English)";
+                        if (!string.IsNullOrWhiteSpace(content))
+                        {
+                            string contentLower = content.ToLower();
+                            if (contentLower.Contains("nhật") || contentLower.Contains("japan")) targetLangSummary = "tiếng Nhật (Japanese)";
+                            else if (contentLower.Contains("trung") || contentLower.Contains("hoa") || contentLower.Contains("china") || contentLower.Contains("chinese")) targetLangSummary = "tiếng Trung (Chinese)";
+                            else if (contentLower.Contains("hàn") || contentLower.Contains("korea")) targetLangSummary = "tiếng Hàn (Korean)";
+                            else if (contentLower.Contains("pháp") || contentLower.Contains("french")) targetLangSummary = "tiếng Pháp (French)";
+                            else if (contentLower.Contains("đức") || contentLower.Contains("german")) targetLangSummary = "tiếng Đức (German)";
+                            else if (contentLower.Contains("nga") || contentLower.Contains("russian")) targetLangSummary = "tiếng Nga (Russian)";
+                            else if (contentLower.Contains("tây ban nha") || contentLower.Contains("spanish")) targetLangSummary = "tiếng Tây Ban Nha (Spanish)";
+                            else if (contentLower.Contains("việt") || contentLower.Contains("vietnamese")) targetLangSummary = "tiếng Việt (Vietnamese)";
+                            else 
+                            {
+                                targetLangSummary = content;
+                            }
+                        }
+
+                        prompt = $@"Bạn là một chuyên gia viết CV chuyên nghiệp đa ngôn ngữ. Hãy dịch mục tiêu nghề nghiệp (summary) dưới đây sang {targetLangSummary}.
+Nội dung hiện tại cần dịch: {context}
+
+YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
+1. Dịch chính xác nội dung sang {targetLangSummary} với văn phong chuyên nghiệp phù hợp với CV.
+2. Kết quả dịch bắt buộc phải viết dưới dạng MỘT ĐOẠN VĂN LIỀN MẠCH, ngắn gọn (từ 2 đến 3 câu, tối đa 60 từ).
+3. TUYỆT ĐỐI KHÔNG sử dụng bất kỳ gạch đầu dòng, danh sách liệt kê hay đánh số nào.
+4. CHỈ TRẢ VỀ DUY NHẤT đoạn văn kết quả dịch sau khi đã dịch xong.
+5. TUYỆT ĐỐI KHÔNG có bất kỳ lời chào, lời dẫn, giải thích hay câu mở đầu vô nghĩa nào (Ví dụ: KHÔNG viết ""Here is the translation:"", ""Dưới đây là bản dịch..."", ""Translation to..."").
+6. KHÔNG sử dụng các thẻ bao bọc markdown code block (như ```html hoặc ```) và không bọc kết quả trong dấu ngoặc kép.";
+                    }
                     break;
 
 
@@ -365,34 +463,54 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
                 text = text.Substring(1, text.Length - 2).Trim();
             }
 
-            // 4. Loại bỏ các tiền tố giới thiệu phổ biến của AI
+            // 4. Phát hiện và loại bỏ lời dẫn giới thiệu có chứa dấu hai chấm ":" ở phần đầu (dưới 180 ký tự)
+            int colonIndex = text.IndexOf(':');
+            if (colonIndex > 0 && colonIndex < 180)
+            {
+                string introPart = text.Substring(0, colonIndex).ToLower();
+                string[] introKeywords = new[] {
+                    "dưới đây là", "đây là", "yêu cầu", "người dùng", "sửa đổi", "tối ưu", "dịch",
+                    "bản dịch", "mục tiêu", "mô tả", "chào bạn", "tôi hiểu", "sau đây", "gửi bạn",
+                    "here is", "translation", "văn bản", "kết quả", "cải thiện", "chuyên nghiệp",
+                    "đoạn văn", "gạch đầu dòng", "tiếng anh", "chỉnh sửa"
+                };
+
+                bool isIntro = false;
+                foreach (var kw in introKeywords)
+                {
+                    if (introPart.Contains(kw))
+                    {
+                        isIntro = true;
+                        break;
+                    }
+                }
+
+                if (isIntro)
+                {
+                    text = text.Substring(colonIndex + 1).Trim();
+                }
+            }
+
+            // 5. Loại bỏ các tiền tố giới thiệu phổ biến của AI nếu nó vẫn còn ở đầu chuỗi (kể cả không có dấu hai chấm)
             string[] prefixesToRemove = new[] {
                 "dưới đây là", "đây là", "mục tiêu nghề nghiệp của", "mục tiêu nghề nghiệp là",
                 "mục tiêu nghề nghiệp", "mục tiêu", "mô tả công việc của", "mô tả công việc là",
                 "tôi xin gửi", "là một chuyên gia", "dưới đây là mục tiêu nghề nghiệp",
-                "dưới đây là mô tả công việc"
+                "dưới đây là mô tả công việc", "tôi hiểu yêu cầu của người dùng", "tôi hiểu yêu cầu",
+                "sau đây là", "gửi bạn bản dịch", "bản dịch sang tiếng", "đây là bản sửa đổi",
+                "đây là mục tiêu", "đây là mô tả"
             };
 
             foreach (var prefix in prefixesToRemove)
             {
                 if (text.ToLower().StartsWith(prefix))
                 {
-                    // Tìm vị trí dấu hai chấm tiếp theo để cắt
-                    int colonIndex = text.IndexOf(':');
-                    if (colonIndex != -1 && colonIndex < 120) // Chỉ cắt nếu dấu hai chấm ở gần đầu
-                    {
-                        text = text.Substring(colonIndex + 1).Trim();
-                    }
-                    else
-                    {
-                        // Nếu không có dấu hai chấm, cắt bỏ phần prefix
-                        text = text.Substring(prefix.Length).Trim();
-                    }
+                    text = text.Substring(prefix.Length).Trim();
                     break;
                 }
             }
 
-            // 5. Nếu sau khi cắt prefix mà ký tự đầu là dấu hai chấm, dấu gạch ngang, dấu chấm... thì bỏ đi
+            // 6. Nếu sau khi cắt prefix mà ký tự đầu là dấu hai chấm, dấu gạch ngang, dấu chấm... thì bỏ đi
             while (text.StartsWith(":") || text.StartsWith("-") || text.StartsWith("–") || text.StartsWith(".") || text.StartsWith(" "))
             {
                 text = text.Substring(1).Trim();
