@@ -628,6 +628,12 @@ namespace DoAnCS.Controllers
                 return RedirectToAction("Profile", new { t = "password" });
             }
 
+            if (!System.Text.RegularExpressions.Regex.IsMatch(newPassword, @"^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$"))
+            {
+                TempData["PasswordErrorMessage"] = "Mật khẩu mới phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt.";
+                return RedirectToAction("Profile", new { t = "password" });
+            }
+
             if (newPassword != confirmPassword)
             {
                 TempData["PasswordErrorMessage"] = "Mật khẩu mới và xác nhận mật khẩu không khớp.";

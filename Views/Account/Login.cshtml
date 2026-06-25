@@ -90,7 +90,7 @@
                         <i class='bx bxs-envelope'></i>
                     </div>
                     <div class="input-box">
-                        <input asp-for="Register.Password" type="password" placeholder="Password" id="registerPassword">
+                        <input asp-for="Register.Password" type="password" placeholder="Password" id="registerPassword" minlength="8" pattern="^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$" title="Mật khẩu phải từ 8 ký tự trở lên, chứa ít nhất 1 chữ cái, 1 chữ số và 1 ký tự đặc biệt" required>
                         <i class='bx bx-show toggle-password' onclick="toggleRegisterPassword()" id="registerEyeIcon"></i>
                     </div>
                     <div class="input-box">
