@@ -115,46 +115,45 @@
                         </div>
                         
                         <div class="card-body">
-                            <h6 class="card-title mb-1 fw-bold text-truncate" id="cv-name-@cv.ResumeID">@cv.Title</h6>
-                            <div class="text-primary small mb-1 fw-medium" style="cursor: pointer;" onclick="updateJobTitle(@cv.ResumeID)" title="Nhấn để sửa vị trí">
-                                <i class="bi bi-person-workspace me-1"></i> <span id="cv-job-@cv.ResumeID">@(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa cập nhật vị trí" : cv.JobTitle)</span>
-                                <i class="bi bi-pencil-square ms-1 text-muted" style="font-size: 0.75rem;"></i>
+                            <h6 class="card-title mb-1 fw-bold text-truncate d-flex align-items-center" style="line-height: 1.2;">
+                                <span id="cv-name-@cv.ResumeID" class="text-truncate">@(string.IsNullOrEmpty(cv.Title) ? "CV chưa đặt tên" : cv.Title)</span>
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 text-muted opacity-50" onclick="renameCV(@cv.ResumeID)">
+                                    <i class="bi bi-pencil-square small"></i>
+                                </button>
+                            </h6>
+                            <div class="text-primary small mb-1 fw-medium d-flex align-items-center" style="cursor: pointer;" onclick="updateJobTitle(@cv.ResumeID)" title="Nhấn để sửa vị trí">
+                                <i class="bi bi-person-workspace me-1 flex-shrink-0"></i> 
+                                <span id="cv-job-@cv.ResumeID" class="text-truncate">@(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa cập nhật vị trí" : cv.JobTitle)</span>
+                                <i class="bi bi-pencil-square ms-1 text-muted flex-shrink-0" style="font-size: 0.75rem;"></i>
                             </div>
                             <small class="text-muted d-block mb-3">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</small>
-                            
-                            <div class="d-grid gap-2">
+                            <div class="d-flex gap-2">
                                 @{
                                     bool isVueCV = (cv.Title != null && cv.Title.StartsWith("CV Vue:")) || !string.IsNullOrEmpty(cv.JsonContent);
                                 }
                                 
-                                 @if (isPdfUpload)
+                                @if (isPdfUpload)
                                 {
-                                    <a href="@cv.FileUploadUrl" target="_blank" class="btn btn-danger">
-                                        <i class="bi bi-eye me-1"></i> Xem file PDF
+                                    <a href="@cv.FileUploadUrl" target="_blank" class="btn btn-danger flex-grow-1">
+                                        <i class="bi bi-eye me-1"></i> Xem PDF
                                     </a>
                                 }
                                 else if (isVueCV)
                                 {
-                                    <a href="@Url.Action("Builder", "Resume", new { id = cv.ResumeID })" class="btn btn-primary">
-                                        <i class="bi bi-magic me-1"></i> Tiếp tục chỉnh sửa (Vue)
+                                    <a href="@Url.Action("Builder", "Resume", new { id = cv.ResumeID })" class="btn btn-primary flex-grow-1">
+                                        <i class="bi bi-magic me-1"></i> Chỉnh sửa (Vue)
                                     </a>
                                 }
                                 else
                                 {
-                                    <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-outline-primary">
-                                        <i class="bi bi-pencil-fill me-1"></i> Tiếp tục chỉnh sửa
+                                    <a href="@Url.Action("Create", "Resume", new { id = cv.TemplateID })" class="btn btn-outline-primary flex-grow-1">
+                                        <i class="bi bi-pencil-fill me-1"></i> Chỉnh sửa
                                     </a>
                                 }
                                 
-                                <div class="d-flex gap-2">
-                                    <button onclick="renameCV(@cv.ResumeID)" class="btn btn-light border flex-grow-1">
-                                        <i class="bi bi-pencil-square"></i> Sửa tên
-                                    </button>
-                                    
-                                    <button onclick="deleteCV(@cv.ResumeID)" class="btn btn-outline-danger px-3">
-                                        <i class="bi bi-trash"></i> Xóa
-                                    </button>
-                                </div>
+                                <button onclick="deleteCV(@cv.ResumeID)" class="btn btn-outline-danger px-3" title="Xóa CV">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -168,26 +167,30 @@
     /* Hiệu ứng hover card giống các trang tuyển dụng lớn */
     .transition-hover { transition: all 0.3s ease; border: 1px solid #eee !important; }
     .transition-hover:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1)!important; border-color: #0d6efd !important; }
-    
-    /* Đảm bảo nút Sửa tên có màu nền nhẹ nhàng */
-    .btn-light { background-color: #f8f9fa; color: #333; }
-    .btn-light:hover { background-color: #e2e6ea; }
+
 </style>
 
 @section Scripts {
     <script>
         // Hàm đổi tên CV qua AJAX
         function renameCV(cvId) {
+            // Lấy tên CV hiện tại từ giao diện và loại bỏ khoảng trắng thừa
             let currentTitle = $('#cv-name-' + cvId).text().trim();
+            if (currentTitle === "CV chưa đặt tên") {
+                currentTitle = "";
+            }
+            
+            // Hiển thị hộp thoại nhập tên mới cho người dùng
             let newName = prompt("Nhập tên mới cho bản CV này:", currentTitle);
             
-            if (newName && newName.trim() !== "" && newName.trim() !== currentTitle) {
+            if (newName !== null && newName.trim() !== "" && newName.trim() !== currentTitle) {
                 $.ajax({
                     url: '@Url.Action("UpdateName", "Resume")',
                     type: 'POST',
                     data: { id: cvId, newName: newName.trim() },
                     success: function(res) {
                         if (res.success) {
+                            // Cập nhật lại tên mới trên giao diện với hiệu ứng nhấp nháy
                             $('#cv-name-' + cvId).text(newName.trim());
                             $('#cv-name-' + cvId).fadeOut(100).fadeIn(100);
                         } else {
