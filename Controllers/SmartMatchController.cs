@@ -283,6 +283,12 @@ namespace DoAnCS.Controllers
             if (!results.Any())
                 return Json(new { success = false, message = "Chưa có kết quả phân tích cho tin tuyển dụng này." });
 
+            int recruiterId = CurrentUserId;
+            var savedResumeIds = await _context.SavedCandidates
+                .Where(s => s.RecruiterId == recruiterId)
+                .Select(s => s.ResumeId)
+                .ToListAsync();
+
             var data = results.Select((r, index) => new
             {
                 rank = index + 1,
@@ -299,7 +305,8 @@ namespace DoAnCS.Controllers
                 strengths = SafeParseJsonArray(r.Strengths),
                 summary = r.Summary,
                 recommendation = r.Recommendation,
-                analyzedAt = r.AnalyzedAt.ToString("dd/MM/yyyy HH:mm")
+                analyzedAt = r.AnalyzedAt.ToString("dd/MM/yyyy HH:mm"),
+                isSaved = savedResumeIds.Contains(r.ResumeID)
             });
 
             var job = results.First().Job;

@@ -462,6 +462,9 @@
                 <button class="btn btn-sm btn-outline-primary rounded-pill ms-2" onclick="toggleDetail(${c.resumeId})">
                     <i class="fas fa-chevron-down"></i> Chi tiết
                 </button>
+                <button class="btn btn-sm ${c.isSaved ? 'btn-success' : 'btn-outline-success'} rounded-pill ms-2" onclick="toggleSaveCandidate(${c.resumeId}, this)" title="${c.isSaved ? 'Bỏ lưu ứng viên' : 'Lưu ứng viên'}">
+                    <i class="${c.isSaved ? 'fas fa-bookmark' : 'far fa-bookmark'}"></i> ${c.isSaved ? 'Đã lưu' : 'Lưu'}
+                </button>
             </div>
             <div class="sm-detail-panel" id="detail-${c.resumeId}">
                 <div class="row g-3">
@@ -508,6 +511,39 @@
             <h5 class="fw-bold" style="color: var(--sm-text);">${msg || 'Chưa có kết quả'}</h5>
             <p class="text-muted">Chọn một vị trí tuyển dụng và nhấn "Phân tích AI" để bắt đầu</p>
         </div>`;
+    }
+
+    function toggleSaveCandidate(resumeId, btn) {
+        fetch(`/Talent/ToggleSave?resumeId=${resumeId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const icon = btn.querySelector('i');
+                if (data.saved) {
+                    btn.classList.remove('btn-outline-success');
+                    btn.classList.add('btn-success');
+                    icon.classList.remove('far', 'fa-bookmark');
+                    icon.classList.add('fas', 'fa-bookmark');
+                    btn.innerHTML = `<i class="fas fa-bookmark"></i> Đã lưu`;
+                    btn.title = "Bỏ lưu ứng viên";
+                } else {
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-success');
+                    icon.classList.remove('fas', 'fa-bookmark');
+                    icon.classList.add('far', 'fa-bookmark');
+                    btn.innerHTML = `<i class="far fa-bookmark"></i> Lưu`;
+                    btn.title = "Lưu ứng viên";
+                }
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(err => console.error(err));
     }
 </script>
 }
