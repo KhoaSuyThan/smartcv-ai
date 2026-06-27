@@ -96,6 +96,20 @@ namespace DoAnCS.Controllers
                 {
                     using (JsonDocument doc = JsonDocument.Parse(request.JsonContent))
                     {
+                        // Đồng bộ TemplateID trong database nếu người dùng đổi sang mẫu CV mới
+                        if (doc.RootElement.TryGetProperty("overrideTemplate", out JsonElement overrideTpl))
+                        {
+                            string compName = overrideTpl.GetString();
+                            if (!string.IsNullOrEmpty(compName))
+                            {
+                                var vt = await _context.VueTemplates.FirstOrDefaultAsync(t => t.ComponentName == compName);
+                                if (vt != null && resume.TemplateID != vt.Id)
+                                {
+                                    resume.TemplateID = vt.Id;
+                                }
+                            }
+                        }
+
                         if (doc.RootElement.TryGetProperty("general", out JsonElement general))
                         {
                             if (general.TryGetProperty("fullName", out JsonElement fn)) resume.FullName = fn.GetString();
@@ -153,6 +167,27 @@ namespace DoAnCS.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { success = true, message = "Đã lưu CV thành công." });
+        }
+
+        // GET: api/cvbuilder/templates
+        // Lấy danh sách các mẫu CV Vue đang hoạt động để hiển thị trong Modal đổi mẫu
+        [HttpGet("templates")]
+        public async Task<IActionResult> GetVueTemplates()
+        {
+            var templates = await _context.VueTemplates
+                .Where(t => t.IsActive == true)
+                .Select(t => new
+                {
+                    id = t.Id,
+                    templateName = t.TemplateName,
+                    componentName = t.ComponentName,
+                    thumbnailUrl = t.ThumbnailUrl,
+                    isPremium = t.IsPremium,
+                    category = t.Category
+                })
+                .ToListAsync();
+
+            return Ok(templates);
         }
     }
 
