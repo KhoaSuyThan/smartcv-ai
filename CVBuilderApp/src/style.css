@@ -11,3 +11,47 @@ body {
 #app {
   width: 100%;
 }
+
+/* Dark Mode Overrides for Template Selector Popover */
+[data-bs-theme="dark"] .template-popover-container {
+  background-color: #1e293b !important; /* slate-800 */
+  border-color: #334155 !important; /* slate-700 */
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-bs-theme="dark"] .template-popover-header {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .template-popover-title {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .template-close-btn {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+[data-bs-theme="dark"] .template-close-btn:hover {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .template-popover-body {
+  background-color: #0f172a !important; /* slate-900 */
+}
+
+[data-bs-theme="dark"] .template-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .template-card-meta {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .template-card-title {
+  color: #e2e8f0 !important;
+}
