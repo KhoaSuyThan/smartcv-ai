@@ -72,7 +72,7 @@
     .company-logo-container {
         position: relative;
         padding: 0.5rem;
-        background: #f8f9fa;
+        background: #ffffff;
         border-radius: 1rem;
         border: 1px solid #f3f4f6;
     }
@@ -234,6 +234,121 @@
     }
     .btn-primary:hover {
         background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+    }
+
+    /* ==========================================
+       ĐỒNG BỘ DARK MODE CHO TRANG JOBS
+       ========================================== */
+    [data-bs-theme="dark"] body {
+        background-color: #121212 !important;
+    }
+    
+    [data-bs-theme="dark"] .job-filter-sidebar {
+        background: #1e1e1e !important;
+        border: 1px solid #2d2d2d !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    [data-bs-theme="dark"] .job-filter-sidebar .text-dark {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .filter-scroll-container {
+        border-color: #2d2d2d !important;
+        background-color: #121212 !important;
+    }
+
+    [data-bs-theme="dark"] .form-control, 
+    [data-bs-theme="dark"] .form-select {
+        background-color: #121212 !important;
+        border-color: #2d2d2d !important;
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .form-check-label {
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .job-item-row {
+        background: #1e1e1e !important;
+        border: 1px solid #2d2d2d !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    [data-bs-theme="dark"] .job-item-row:hover {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    [data-bs-theme="dark"] .job-item-row h5 a {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .job-item-row .text-dark {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .job-item-row .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .job-item-row .text-secondary {
+        color: #94a3b8 !important;
+    }
+
+    /* Tiêu đề & Sắp xếp */
+    [data-bs-theme="dark"] .col-lg-9 .border-bottom {
+        border-color: #2d2d2d !important;
+    }
+    [data-bs-theme="dark"] .col-lg-9 h4.text-dark {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] #sortBySelector {
+        background-color: #1e1e1e !important;
+        color: #f8fafc !important;
+    }
+
+    /* Alert lưu ý */
+    [data-bs-theme="dark"] .alert-warning {
+        background-color: #2e2206 !important;
+        color: #fef08a !important;
+    }
+
+    /* Logo công ty luôn trên nền trắng */
+    [data-bs-theme="dark"] .company-logo-container {
+        background-color: #ffffff !important;
+        border-color: #e5e7eb !important;
+    }
+
+    /* Phân trang */
+    [data-bs-theme="dark"] .page-item .page-link {
+        background: #1e1e1e !important;
+        color: #cbd5e1 !important;
+        border-color: #2d2d2d !important;
+    }
+    [data-bs-theme="dark"] .page-item .page-link:hover {
+        background: #2d2d2d !important;
+        color: #ffffff !important;
+    }
+
+    /* Khối so khớp việc làm */
+    [data-bs-theme="dark"] .cv-selector-card {
+        background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%) !important;
+        border-color: #4c1d95 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+    }
+    [data-bs-theme="dark"] .cv-selector-card h6 {
+        background: linear-gradient(135deg, #c084fc 0%, #a78bfa 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+    }
+    [data-bs-theme="dark"] .cv-selector-card p {
+        color: #d8b4fe !important;
+    }
+    [data-bs-theme="dark"] #cvMatchSelector {
+        background-color: #1e1b4b !important;
+        color: #e9d5ff !important;
+        border-color: #6b21a8 !important;
     }
 </style>
 

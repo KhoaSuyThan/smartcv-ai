@@ -33,7 +33,7 @@
             @foreach (var cv in Model)
             {
                 <div class="col-md-6 col-lg-4 col-xl-3" id="cv-card-@cv.ResumeID">
-                    <div class="card h-100 shadow-sm border-0 transition-hover">
+                    <div class="card h-100 shadow-sm border-0 transition-hover force-light-card" data-bs-theme="light">
                         
                         <div class="position-relative overflow-hidden bg-white border-bottom" 
                              style="aspect-ratio: 1 / 1.4; width: 100%;">
@@ -168,6 +168,41 @@
     .transition-hover { transition: all 0.3s ease; border: 1px solid #eee !important; }
     .transition-hover:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1)!important; border-color: #0d6efd !important; }
 
+    /* Cưỡng bức giao diện sáng cho card CV */
+    .force-light-card,
+    [data-bs-theme="dark"] .force-light-card {
+        background-color: #ffffff !important;
+        border: 1px solid #e5e7eb !important;
+        color: #1a202c !important;
+    }
+    
+    .force-light-card .card-body,
+    [data-bs-theme="dark"] .force-light-card .card-body {
+        background-color: #ffffff !important;
+        color: #1a202c !important;
+    }
+
+    .force-light-card .card-title,
+    [data-bs-theme="dark"] .force-light-card .card-title,
+    .force-light-card .card-title span,
+    [data-bs-theme="dark"] .force-light-card .card-title span {
+        color: #1a202c !important;
+    }
+
+    .force-light-card .text-muted,
+    [data-bs-theme="dark"] .force-light-card .text-muted {
+        color: #6c757d !important;
+    }
+
+    .force-light-card .btn-link,
+    [data-bs-theme="dark"] .force-light-card .btn-link {
+        color: #6c757d !important;
+    }
+
+    .force-light-card .bg-white,
+    [data-bs-theme="dark"] .force-light-card .bg-white {
+        background-color: #ffffff !important;
+    }
 </style>
 
 @section Scripts {
