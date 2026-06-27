@@ -9,7 +9,7 @@
 
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-<div class="container-fluid px-5 py-4" style="background-color: #f8fbff; min-height: 100vh;">
+<div class="container-fluid admin-feedback-wrapper px-5 py-4" style="background-color: #f8fbff; min-height: 100vh;">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -28,7 +28,7 @@
     <!-- Tổng quan Cards -->
     <div class="row mb-4 g-4">
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
+            <div class="card rating-summary-card border-0 shadow-sm rounded-4 h-100 overflow-hidden" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);">
                 <div class="card-body p-4 position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -46,7 +46,7 @@
         </div>
         
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
+            <div class="card total-summary-card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-white">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
@@ -159,4 +159,59 @@
     .border-warning-subtle { border-color: #fde68a !important; }
     
     .bg-primary-subtle { background-color: #e0f2fe !important; }
+
+    /* CSS Dark Mode cho trang Feedbacks */
+    [data-bs-theme="dark"] .admin-feedback-wrapper {
+        background-color: #121212 !important;
+    }
+    
+    /* Card Điểm Trung Bình */
+    [data-bs-theme="dark"] .rating-summary-card {
+        background: linear-gradient(135deg, #2d2206 0%, #1e1602 100%) !important;
+        border: 1px solid #453008 !important;
+    }
+    [data-bs-theme="dark"] .rating-summary-card .text-dark {
+        color: #fef08a !important;
+    }
+    [data-bs-theme="dark"] .rating-summary-card .text-muted {
+        color: #ca8a04 !important;
+    }
+
+    /* Card Tổng Lượt Đánh Giá */
+    [data-bs-theme="dark"] .total-summary-card {
+        background-color: #1e1e1e !important;
+        border: 1px solid #2d2d2d !important;
+    }
+    [data-bs-theme="dark"] .total-summary-card .text-dark {
+        color: #ffffff !important;
+    }
+    [data-bs-theme="dark"] .total-summary-card .text-primary {
+        color: #60a5fa !important;
+    }
+
+    /* Bảng Đánh Giá */
+    [data-bs-theme="dark"] .table tbody tr td {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .table tbody tr td strong.text-dark {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .table tbody tr td div.text-dark {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .table thead.bg-light {
+        background-color: #1a202c !important;
+    }
+    [data-bs-theme="dark"] .table thead th {
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] .btn-white {
+        background-color: #1e1e1e !important;
+        border-color: #2d2d2d !important;
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .btn-white:hover {
+        background-color: #2d2d2d !important;
+        color: #ffffff !important;
+    }
 </style>

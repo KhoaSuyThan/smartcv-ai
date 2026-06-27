@@ -322,6 +322,84 @@
     .dot:nth-child(2) { animation-delay: 0.4s; }
     .dot:nth-child(3) { animation-delay: 0.6s; }
     @@keyframes blink { 0%, 100% { opacity: 0.2; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+
+    /* CSS Dark Mode cho trang Gemini Config */
+    [data-bs-theme="dark"] .admin-ai-page {
+        background-color: #121212 !important;
+    }
+
+    /* Các card header/footer */
+    [data-bs-theme="dark"] .admin-ai-page .card-header.bg-white,
+    [data-bs-theme="dark"] .admin-ai-page .card-footer.bg-white {
+        background-color: #1e1e1e !important;
+        border-color: #2d2d2d !important;
+    }
+
+    /* Input, Select, Textarea và Input-Group-Text */
+    [data-bs-theme="dark"] .admin-ai-page .form-control,
+    [data-bs-theme="dark"] .admin-ai-page .form-select,
+    [data-bs-theme="dark"] .admin-ai-page .input-group-text {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .form-control::placeholder {
+        color: #64748b !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .input-group button.btn {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .input-group button.btn:hover {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+    }
+
+    /* Cài đặt cốt lõi (FREE/PRO) label & text */
+    [data-bs-theme="dark"] .admin-ai-page label.form-label {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .text-dark {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page hr {
+        border-color: #334155 !important;
+    }
+
+    /* Card thống kê Hôm Nay (Usage) */
+    [data-bs-theme="dark"] .admin-ai-page .bg-gradient-premium {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+        border: 1px solid #334155 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .bg-gradient-premium .opacity-75 {
+        opacity: 0.85 !important;
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .bg-gradient-premium .bg-white.bg-opacity-50 {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .bg-gradient-premium .bg-white.bg-opacity-50 .text-dark {
+        color: #ffffff !important;
+    }
+
+    /* AI Playground */
+    [data-bs-theme="dark"] .admin-ai-page .msg-ai {
+        background-color: #334155 !important;
+        color: #f8fafc !important;
+        border-color: #475569 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page .card-footer .input-group {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page #playgroundInput {
+        background-color: transparent !important;
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .admin-ai-page #playgroundInput::placeholder {
+        color: #64748b !important;
+    }
 </style>
 
 <script>

@@ -629,10 +629,51 @@
         70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
         100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
     }
+
+    /* Tùy chỉnh màu sắc ô chọn và nút chọn thời gian cho Dark Mode */
+    [data-bs-theme="dark"] #revenueFilter {
+        background-color: #2d3748 !important;
+        color: #60a5fa !important;
+        border: 1px solid #4a5568 !important;
+    }
+    
+    /* Nút lọc khoảng thời gian */
+    #btn-range-7d, #btn-range-30d {
+        transition: all 0.3s ease;
+    }
+    #btn-range-7d.active, #btn-range-30d.active {
+        background-color: #3b82f6 !important;
+        color: white !important;
+        border-color: #3b82f6 !important;
+    }
+    [data-bs-theme="dark"] #btn-range-7d,
+    [data-bs-theme="dark"] #btn-range-30d {
+        background-color: #1e293b !important;
+        color: #94a3b8 !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] #btn-range-7d.active,
+    [data-bs-theme="dark"] #btn-range-30d.active {
+        background-color: #4f46e5 !important;
+        color: white !important;
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 12px rgba(79, 70, 229, 0.4) !important;
+    }
 </style>
 
 <script>
+    // Khai báo các biến lưu trữ instance của biểu đồ để cập nhật động theo theme
+    let recruitmentChartInstance = null;
+    let revenueChartInstance = null;
+    let timelineChartInstance = null;
+    let statusChartInstance = null;
+
     document.addEventListener("DOMContentLoaded", function() {
+        // Lấy theme hiện tại và cấu hình màu sắc biểu đồ tương ứng
+        const isDarkInitial = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        const initialTextColor = isDarkInitial ? '#cbd5e1' : '#475569';
+        const initialGridColor = isDarkInitial ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9';
+
         const ctx = document.getElementById('recruitmentChart').getContext('2d');
         
         // Dữ liệu thực tế xu hướng tuyển dụng đa ngành 2024-2025
@@ -655,7 +696,7 @@
             }]
         };
 
-        new Chart(ctx, {
+        recruitmentChartInstance = new Chart(ctx, {
             type: 'bar',
             data: sectorData,
             options: {
@@ -678,14 +719,17 @@
                 scales: {
                     x: { 
                         max: 40,
-                        grid: { color: '#f1f5f9' },
-                        ticks: { font: { size: 11 } }
+                        grid: { color: initialGridColor },
+                        ticks: { 
+                            font: { size: 11 },
+                            color: initialTextColor
+                        }
                     },
                     y: { 
                         grid: { display: false },
                         ticks: { 
                             font: { size: 12, weight: 'bold' },
-                            color: '#475569'
+                            color: initialTextColor
                         }
                     }
                 },
@@ -735,7 +779,7 @@
         gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)'); // Xanh lá
         gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
 
-        const revenueChart = new Chart(revenueCtx, {
+        revenueChartInstance = new Chart(revenueCtx, {
             type: 'line',
             data: {
                 labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
@@ -773,14 +817,17 @@
                 scales: {
                     x: {
                         grid: { display: false },
-                        ticks: { font: { size: 12 } }
+                        ticks: { 
+                            font: { size: 12 },
+                            color: initialTextColor
+                        }
                     },
                     y: {
-                        grid: { color: '#f1f5f9' },
+                        grid: { color: initialGridColor },
                         beginAtZero: true,
                         ticks: {
                             font: { size: 12, weight: 'bold' },
-                            color: '#475569',
+                            color: initialTextColor,
                             callback: function(value) {
                                 if (value >= 1000000) return (value / 1000000) + 'Tr';
                                 if (value >= 1000) return (value / 1000) + 'K';
@@ -801,30 +848,27 @@
             const val = this.value;
             let total = 0;
             if (val === 'year') {
-                revenueChart.data.labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-                revenueChart.data.datasets[0].data = monthlyRevenueData;
+                revenueChartInstance.data.labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                revenueChartInstance.data.datasets[0].data = monthlyRevenueData;
                 total = monthlyRevenueData.reduce((a, b) => a + b, 0);
             } else if (val === 'month') {
-                revenueChart.data.labels = Array.from({length: currentMonthDays}, (_, i) => 'Ngày ' + (i + 1));
-                revenueChart.data.datasets[0].data = currentMonthRevenueData;
+                revenueChartInstance.data.labels = Array.from({length: currentMonthDays}, (_, i) => 'Ngày ' + (i + 1));
+                revenueChartInstance.data.datasets[0].data = currentMonthRevenueData;
                 total = currentMonthRevenueData.reduce((a, b) => a + b, 0);
             } else if (val === 'week') {
-                revenueChart.data.labels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
-                revenueChart.data.datasets[0].data = weeklyRevenueData;
+                revenueChartInstance.data.labels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'];
+                revenueChartInstance.data.datasets[0].data = weeklyRevenueData;
                 total = weeklyRevenueData.reduce((a, b) => a + b, 0);
             }
             
             // Cập nhật biểu đồ
-            revenueChart.update();
+            revenueChartInstance.update();
 
             // Cập nhật tổng doanh thu hiển thị
             document.getElementById('totalRevenueDisplay').innerHTML = total.toLocaleString('vi-VN').replace(/,/g, '.') + ' <small class="fs-6 text-success opacity-75">VNĐ</small>';
         });
 
         // ================= BIỂU ĐỒ TUYỂN DỤNG =================
-        let timelineChartInstance = null;
-        let statusChartInstance = null;
-
         const timelineLabels7d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineLabels));
         const timelineValues7d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineValues));
         const timelineLabels30d = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.TimelineMonthLabels));
@@ -859,6 +903,10 @@
             if (timelineChartInstance) return; // Chỉ khởi tạo 1 lần
 
             const canvasTimeline = document.getElementById('timelineChart');
+            const isDarkCurr = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            const currTextColor = isDarkCurr ? '#cbd5e1' : '#475569';
+            const currGridColor = isDarkCurr ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9';
+
             if (canvasTimeline) {
                 const ctxTimeline = canvasTimeline.getContext('2d');
                 const gradientBg = ctxTimeline.createLinearGradient(0, 0, 0, 300);
@@ -889,8 +937,14 @@
                         maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: {
-                            x: { grid: { display: false } },
-                            y: { grid: { borderDash: [5, 5] }, ticks: { stepSize: 1, beginAtZero: true } }
+                            x: { 
+                                grid: { display: false },
+                                ticks: { color: currTextColor }
+                            },
+                            y: { 
+                                grid: { color: currGridColor, borderDash: [5, 5] }, 
+                                ticks: { color: currTextColor, stepSize: 1, beginAtZero: true } 
+                            }
                         }
                     }
                 });
@@ -907,14 +961,23 @@
                             data: [@Model.PendingApps, @Model.ReviewingApps, @Model.AcceptedApps, @Model.RejectedApps],
                             backgroundColor: ['#eab308', '#06b6d4', '#10b981', '#ef4444'],
                             borderWidth: 1.5,
-                            borderColor: '#ffffff',
+                            borderColor: isDarkCurr ? '#1e1e1e' : '#ffffff',
                             hoverOffset: 3
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'right', labels: { boxWidth: 8, font: { size: 9.5 } } } },
+                        plugins: { 
+                            legend: { 
+                                position: 'right', 
+                                labels: { 
+                                    boxWidth: 8, 
+                                    font: { size: 9.5 },
+                                    color: currTextColor
+                                } 
+                            } 
+                        },
                         cutout: '60%'
                     }
                 });
@@ -942,5 +1005,54 @@
                 }
             });
         });
+
+        // Hàm cập nhật màu sắc trục và lưới của một biểu đồ theo theme
+        function updateChartTheme(chart, isDark) {
+            if (!chart) return;
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : '#f1f5f9';
+
+            // Cập nhật các trục (x, y)
+            if (chart.options.scales) {
+                Object.keys(chart.options.scales).forEach(key => {
+                    const scale = chart.options.scales[key];
+                    if (scale.ticks) scale.ticks.color = textColor;
+                    if (scale.grid && scale.grid.display !== false) {
+                        scale.grid.color = gridColor;
+                    }
+                });
+            }
+
+            // Cập nhật legend labels (nếu có)
+            if (chart.options.plugins && chart.options.plugins.legend && chart.options.plugins.legend.labels) {
+                chart.options.plugins.legend.labels.color = textColor;
+            }
+
+            // Cập nhật viền cho Doughnut Chart (statusChart)
+            if (chart.config.type === 'doughnut' && chart.data.datasets && chart.data.datasets[0]) {
+                chart.data.datasets[0].borderColor = isDark ? '#1e1e1e' : '#ffffff';
+            }
+
+            chart.update();
+        }
+
+        // Hàm cập nhật tất cả biểu đồ
+        function applyThemeToAllCharts() {
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            updateChartTheme(recruitmentChartInstance, isDark);
+            updateChartTheme(revenueChartInstance, isDark);
+            updateChartTheme(timelineChartInstance, isDark);
+            updateChartTheme(statusChartInstance, isDark);
+        }
+
+        // Theo dõi sự thay đổi của attribute data-bs-theme để cập nhật biểu đồ ngay lập tức
+        const themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                    applyThemeToAllCharts();
+                }
+            });
+        });
+        themeObserver.observe(document.documentElement, { attributes: true });
     });
 </script>
