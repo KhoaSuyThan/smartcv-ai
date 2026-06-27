@@ -53,7 +53,7 @@
     <!-- CỘT TRÁI: EDITOR PANEL (STICKY) -->
     <div :class="[
       'cv-builder-editor-panel bg-white border-r border-slate-200 shadow-[0_0_20px_rgba(0,0,0,0.05)] z-20 flex flex-col shrink-0 transition-all duration-500 ease-in-out relative',
-      isPreviewMode ? 'w-0 opacity-0 border-r-0' : 'w-[700px] opacity-100'
+      isPreviewMode ? 'w-0 opacity-0 border-r-0' : 'w-[600px] opacity-100'
     ]" style="height: 100%;">
       <!-- HEADER -->
       <div class="py-3 border-b border-slate-100 bg-slate-900 text-white shrink-0 relative px-4">
@@ -106,7 +106,92 @@
         </div>
       </div>
 
-      <!-- TABS NAVIGATION CHO EDITOR -->
+      <div class="flex-1 min-h-0 flex flex-col relative" style="position: relative;">
+          <!-- KHUNG CHỌN MẪU CV LỌT LÒNG LƠ LỬNG BÊN PHẢI (FLOATING POPOVER) -->
+          <Teleport to="body">
+              <div v-if="showTemplateModal" class="fixed bg-white rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.22)] border border-slate-200/80 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200" style="position: fixed; left: 608px; top: 175px; width: 480px; height: 660px; z-index: 99999;">
+                  <!-- Header -->
+                  <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white text-slate-800">
+                      <div class="flex items-center gap-2">
+                          <div class="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                              <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                          </div>
+                          <div>
+                              <h5 class="font-black uppercase tracking-tight text-[11px] text-slate-800">Thư viện mẫu CV</h5>
+                          </div>
+                      </div>
+                      <button @click="showTemplateModal = false" class="w-7 h-7 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      </button>
+                  </div>
+
+                  <!-- Body -->
+                  <div class="flex-1 overflow-y-auto p-4 bg-slate-50 custom-scrollbar">
+                      <div class="grid grid-cols-2 gap-3.5">
+                          <div 
+                              v-for="tpl in availableTemplates" 
+                              :key="tpl.id"
+                              @click="confirmChangeTemplate(tpl)"
+                              class="group relative bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
+                              :class="[
+                                tpl.componentName === (resumeData.overrideTemplate || initialTemplateName) ? 'ring-2 ring-blue-500 border-blue-500 scale-[0.98]' : '',
+                                tpl.isPremium && !isProUser ? 'cursor-not-allowed' : 'cursor-pointer'
+                              ]"
+                          >
+                              <!-- Thumbnail -->
+                              <div class="aspect-[3/4] bg-slate-100 overflow-hidden relative">
+                                  <img 
+                                      :src="tpl.thumbnailUrl || `/images/templates/templatesCV_${tpl.id}.jpg`" 
+                                      :alt="tpl.templateName" 
+                                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                      :class="{ 'opacity-40 grayscale-[20%]': tpl.isPremium && !isProUser }"
+                                  />
+                                  
+                                  <!-- Badge PRO/Premium -->
+                                  <span v-if="tpl.isPremium" class="absolute top-2 right-2 bg-amber-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-sm z-20">
+                                      👑 PRO
+                                  </span>
+                                  <!-- Badge FREE -->
+                                  <span v-else class="absolute top-2 right-2 bg-emerald-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-sm z-20">
+                                      FREE
+                                  </span>
+                                  
+                                  <!-- Icon Tích tròn khi đang dùng -->
+                                  <div v-if="tpl.componentName === (resumeData.overrideTemplate || initialTemplateName)" class="absolute bottom-2.5 left-2.5 w-5.5 h-5.5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg border-2 border-white z-20 animate-in zoom-in-50 duration-300">
+                                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                  </div>
+
+                                  <!-- Overlay Khóa khi user Free xem mẫu Pro -->
+                                  <div v-if="tpl.isPremium && !isProUser" class="absolute inset-0 bg-slate-900/40 backdrop-blur-[0.5px] flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                                      <span class="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg">
+                                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                      </span>
+                                      <span class="text-[8px] font-black text-white uppercase tracking-wider bg-slate-950/80 px-1.5 py-0.5 rounded shadow-sm">Bản PRO</span>
+                                  </div>
+                              </div>
+                              
+                              <!-- Meta info -->
+                              <div class="p-2.5 bg-white flex items-center justify-center border-t border-slate-100 min-h-[34px]">
+                                  <h4 class="font-extrabold text-slate-800 text-[10px] text-center line-clamp-1">{{ tpl.templateName }}</h4>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </Teleport>
+ 
+          <!-- THANH ĐỔI MẪU CV (TEMPLATE SWITCHER) -->
+          <div class="py-2.5 px-6 border-b border-slate-150 bg-slate-50 flex items-center justify-between shrink-0">
+              <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Mẫu đang dùng:</span>
+                  <span class="text-xs font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100 shadow-sm">{{ currentTemplateName }}</span>
+              </div>
+              <button @click="showTemplateModal = !showTemplateModal" class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-md hover:shadow-blue-500/20 active:scale-95 transition-all">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                  Đổi mẫu CV
+              </button>
+          </div>
+          <!-- TABS NAVIGATION CHO EDITOR -->
       <div class="cv-editor-tabs-container flex items-center p-2 bg-slate-100/80 rounded-xl mx-6 mt-4 shadow-inner gap-1 shrink-0 border border-slate-200/60 backdrop-blur-sm">
           <button @click="activeEditorTab = 'basic'" :class="[activeEditorTab === 'basic' ? 'cv-active bg-white text-blue-600 shadow-[0_2px_10px_rgba(37,99,235,0.1)] font-bold ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50', 'cv-editor-tab-btn flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all relative']">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -479,6 +564,7 @@
         </div>
       </div>
     </div>
+  </div>
 
     <!-- CỘT PHẢI: PREVIEW PANEL THỜI GIAN THỰC -->
     <div class="flex-1 overflow-auto bg-slate-800 relative scroll-smooth pattern-dots" :style="{ height: '100%', '--theme-color': resumeData.theme.primaryColor }">
@@ -1112,6 +1198,7 @@
 
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -1188,6 +1275,96 @@ const exportPagesCount = ref(1)
 const modalPreviewScale = ref(0.85) // Tăng tỉ lệ mặc định để xem to hơn
 const lastSavedTime = ref('')
 const initialVisibleSectionIds = ref([]) // Lưu danh sách các mục active ban đầu của CV này
+
+// --- ĐỔI MẪU CV ---
+// Quản lý trạng thái và chức năng đổi mẫu CV động
+const showTemplateModal = ref(false)
+const availableTemplates = ref([])
+const initialTemplateName = ref('')
+
+// Lấy danh sách các mẫu CV Vue đang active trên hệ thống
+const fetchTemplates = async () => {
+    try {
+        const res = await fetch('/api/cvbuilder/templates');
+        const data = await res.json();
+        availableTemplates.value = data || [];
+    } catch (e) {
+        console.error('[CV Builder] Lỗi fetch templates:', e);
+    }
+}
+
+// Lấy tên hiển thị tiếng Việt của mẫu CV hiện tại
+const currentTemplateName = computed(() => {
+    const cmp = resumeData.value.overrideTemplate || initialTemplateName.value || 'Template';
+    const found = availableTemplates.value.find(t => t.componentName === cmp);
+    return found ? found.templateName : cmp;
+});
+
+// Tự động bật/tắt (active/deactive) các mục của CV dựa trên nội dung thực tế của người dùng
+const optimizeSectionVisibilityOnTemplateChange = () => {
+    resumeData.value.sections.forEach(s => {
+        if (s.id === 'summary') {
+            const hasContent = resumeData.value.general.summary && 
+                              resumeData.value.general.summary.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim().length > 0;
+            s.isVisible = !!hasContent;
+        } else {
+            const hasContent = s.items && s.items.length > 0 && s.items.some(item => {
+                return Object.entries(item).some(([key, v]) => {
+                    if (key === '_refId') return false;
+                    if (typeof v !== 'string') return false;
+                    const cleanV = v.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+                    return cleanV !== '';
+                });
+            });
+            s.isVisible = !!hasContent;
+        }
+    });
+};
+
+// Xác nhận đổi mẫu CV và tối ưu hóa phân mục
+const confirmChangeTemplate = (tpl) => {
+    if (tpl.isPremium && !isProUser.value) {
+        alert("Mẫu CV này chỉ dành cho thành viên PRO. Vui lòng nâng cấp tài khoản để sử dụng!");
+        return;
+    }
+    
+    // Ghi đè template và chuyển đổi component render
+    resumeData.value.overrideTemplate = tpl.componentName;
+    if (templateRegistry[tpl.componentName]) {
+        activeTemplate.value = templateRegistry[tpl.componentName];
+    }
+    
+    // Tự động lọc bật các mục có nội dung và tắt các mục thừa
+    optimizeSectionVisibilityOnTemplateChange();
+    
+    // Áp dụng định vị cột mặc định khi chuyển đổi sang các template cấu trúc cột cố định
+    if (tpl.componentName === 'VuTungDuong') {
+        const rightSections = ['summary', 'experience', 'education', 'activities'];
+        const leftSections = ['skills', 'certifications', 'awards', 'hobbies', 'references'];
+        resumeData.value.sections.forEach(s => {
+            if (rightSections.includes(s.id)) s.column = 'right';
+            else if (leftSections.includes(s.id)) s.column = 'left';
+        });
+        if (!resumeData.value.theme) resumeData.value.theme = {};
+        resumeData.value.theme.primaryColor = '#2b5c8f';
+    } else if (tpl.componentName === 'NguyenThanhNhatNam') {
+        const rightSections = ['education', 'project', 'activities', 'additional'];
+        const leftSections = ['skills', 'certifications', 'hobbies', 'summary'];
+        resumeData.value.sections.forEach(s => {
+            if (rightSections.includes(s.id)) s.column = 'right';
+            else if (leftSections.includes(s.id)) s.column = 'left';
+        });
+    }
+
+    // Cập nhật tính phản ứng của danh sách sections
+    sortSectionsByVisibility();
+    
+    // Đóng Modal chọn mẫu
+    showTemplateModal.value = false;
+    console.log(`[CV Builder] Đã chuyển đổi thành công sang mẫu: ${tpl.templateName}`);
+};
+
+
 
 // --- LOGIC TÍNH % HOÀN THIỆN CV (LINH HOẠT THEO TỪNG MẪU CV) ---
 const completionPercentage = computed(() => {
@@ -1723,6 +1900,10 @@ const loadData = async () => {
                 console.warn(`Không tìm thấy mẫu CV ID: ${data.templateId}, đang sử dụng mẫu:`, activeTemplate.value);
             }
         }
+
+        // Ghi nhận mẫu CV gốc ban đầu và gói tài khoản của người dùng
+        initialTemplateName.value = targetName || 'Template';
+        isProUser.value = data.isPro || false;
 
         if (data && data.jsonContent && data.jsonContent !== "{}") {
             const parsed = JSON.parse(data.jsonContent);
@@ -2538,6 +2719,7 @@ const handleGrammarFix = (e) => {
 
 onMounted(() => {
     loadData();
+    fetchTemplates(); // Lấy danh sách mẫu CV khi tải trang
     document.addEventListener('selectionchange', updateFormatState);
     document.addEventListener('mouseup', updateFormatState);
     document.addEventListener('keyup', updateFormatState);
