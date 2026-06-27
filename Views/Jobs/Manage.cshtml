@@ -457,6 +457,37 @@
     .progress-bar {
         transition: width 1s ease-in-out;
     }
+
+    /* Tối ưu hóa giao diện Dark Mode toàn diện cho Manage Jobs */
+    html[data-bs-theme="dark"] .card {
+        background-color: #1e1e1e !important;
+        border: 1px solid #2d2d2d !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+    }
+    html[data-bs-theme="dark"] .text-muted {
+        color: #94a3b8 !important;
+    }
+    html[data-bs-theme="dark"] .text-secondary {
+        color: #cbd5e1 !important;
+    }
+    html[data-bs-theme="dark"] .border-top,
+    html[data-bs-theme="dark"] .border-bottom,
+    html[data-bs-theme="dark"] .border {
+        border-color: #2d2d2d !important;
+    }
+    html[data-bs-theme="dark"] .table-light {
+        background-color: #1a202c !important;
+        color: #94a3b8 !important;
+    }
+    html[data-bs-theme="dark"] .table .text-dark {
+        color: #f8fafc !important;
+    }
+    html[data-bs-theme="dark"] .progress {
+        background-color: #121212 !important;
+    }
+    html[data-bs-theme="dark"] .text-body {
+        color: #f8fafc !important;
+    }
 </style>
 
 @section Scripts {
@@ -548,13 +579,15 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Listen to layout theme toggle btn
-            const themeBtn = document.getElementById('theme-toggle');
-            if (themeBtn) {
-                themeBtn.addEventListener('click', function() {
-                    setTimeout(updateChartThemes, 80);
+            // Sử dụng MutationObserver để tự động cập nhật theme biểu đồ khi thuộc tính html[data-bs-theme] thay đổi
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'data-bs-theme') {
+                        updateChartThemes();
+                    }
                 });
-            }
+            });
+            observer.observe(document.documentElement, { attributes: true });
 
             const isDarkInit = document.documentElement.getAttribute('data-bs-theme') === 'dark';
             const initTextCol = isDarkInit ? '#94a3b8' : '#64748b';
