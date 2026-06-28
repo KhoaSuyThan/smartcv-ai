@@ -109,17 +109,21 @@
       <div class="flex-1 min-h-0 flex flex-col relative" style="position: relative;">
           <!-- KHUNG CHỌN MẪU CV LỌT LÒNG LƠ LỬNG BÊN PHẢI (FLOATING POPOVER) -->
           <Teleport to="body">
+              <!-- KHUNG CHỌN MẪU CV LỌT LÒNG LƠ LỬNG BÊN PHẢI (FLOATING POPOVER) -->
               <div v-if="showTemplateModal" class="template-popover-container fixed bg-white rounded-[1.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-slate-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200" style="position: fixed; left: 608px; top: 175px; width: 480px; height: 660px; z-index: 99999;">
-                  <!-- Header -->
-                  <div class="template-popover-header px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white text-slate-800">
-                      <div class="flex items-center gap-2.5">
-                          <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-sm">
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                  <!-- Header: Nâng cấp giao diện tiêu đề với gradient hiện đại và icon nổi bật -->
+                  <div class="template-popover-header px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white text-slate-800">
+                      <div class="flex items-center gap-3">
+                          <span class="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/20">
+                              <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                           </span>
-                          <h5 class="template-popover-title font-black uppercase tracking-wider text-xs text-slate-800 m-0">Thư viện mẫu CV</h5>
+                          <div class="flex flex-col">
+                              <h5 class="template-popover-title font-black uppercase tracking-wider text-xs m-0 bg-gradient-to-r from-blue-600 to-indigo-650 bg-clip-text text-transparent">Thư viện mẫu CV</h5>
+                              <span class="text-[9px] text-slate-400 font-bold tracking-widest uppercase mt-0.5">Chọn phong cách của bạn</span>
+                          </div>
                       </div>
-                      <button @click="showTemplateModal = false" class="template-close-btn w-7 h-7 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                      <button @click="showTemplateModal = false" class="template-close-btn w-8 h-8 rounded-full hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-slate-400 transition-all border border-transparent hover:border-red-100">
+                          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                       </button>
                   </div>
 
@@ -136,13 +140,14 @@
                                 tpl.isPremium && !isProUser ? 'cursor-not-allowed' : 'cursor-pointer'
                               ]"
                           >
-                              <!-- Thumbnail (Khung chứa tỉ lệ A4: 210/297) -->
-                              <div class="aspect-[210/297] bg-slate-100 overflow-hidden relative p-1.5 flex items-center justify-center">
+                              <!-- Thumbnail: Chỉnh sửa padding p-1 và loại bỏ flex-center để ảnh CV lấp đầy 100% card, không bị viền trái phải rộng -->
+                              <div class="aspect-[210/297] bg-slate-100 overflow-hidden relative p-1">
                                   <div class="w-full h-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] rounded-lg overflow-hidden border border-slate-200/40 relative">
                                       <img 
                                           :src="tpl.thumbnailUrl || `/images/templates/templatesCV_${tpl.id}.jpg`" 
                                           :alt="tpl.templateName" 
                                           class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" 
+                                          style="width: 100% !important; height: 100% !important; object-fit: cover !important;"
                                           :class="{ 'opacity-40 grayscale-[20%]': tpl.isPremium && !isProUser }"
                                       />
                                   </div>
@@ -703,6 +708,13 @@
                     <template v-else>
                         <svg class="w-3.5 h-3.5 text-amber-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                         <span class="text-[10px] font-black uppercase tracking-wider">AI Scan</span>
+                        <!-- Logo PRO đồng bộ cho tính năng AI Scan cao cấp (tự động ẩn khi đã là PRO) -->
+                        <span v-if="!isProUser" class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
+                            <svg class="w-2.5 h-2.5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
+                            </svg>
+                            PRO
+                        </span>
                     </template>
                 </button>
             </div>
@@ -740,7 +752,8 @@
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     </span>
                     <span>Cover Letter</span>
-                    <span class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
+                    <!-- Tự động ẩn logo PRO khi đã nâng cấp tài khoản -->
+                    <span v-if="!isProUser" class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
                         <svg class="w-2.5 h-2.5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
                         </svg>
@@ -760,7 +773,8 @@
                         <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     </span>
                     <span>Job Matcher</span>
-                    <span class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
+                    <!-- Tự động ẩn logo PRO khi đã nâng cấp tài khoản -->
+                    <span v-if="!isProUser" class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
                         <svg class="w-2.5 h-2.5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
                         </svg>
