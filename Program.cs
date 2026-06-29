@@ -213,7 +213,7 @@ using (var scope = app.Services.CreateScope())
 
         context.Database.Migrate();
 
-        // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard
+        // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard hoặc NguyenMinhTrang
         try
         {
             if (!context.VueTemplates.Any(t => t.ComponentName == "ClassicHarvard"))
@@ -230,6 +230,22 @@ using (var scope = app.Services.CreateScope())
                 });
                 context.SaveChanges();
                 Console.WriteLine("Seed VueTemplate ClassicHarvard thành công!");
+            }
+
+            if (!context.VueTemplates.Any(t => t.ComponentName == "NguyenMinhTrang"))
+            {
+                context.VueTemplates.Add(new VueTemplate
+                {
+                    TemplateName = "Nguyễn Minh Trang",
+                    ComponentName = "NguyenMinhTrang",
+                    ThumbnailUrl = "/images/templates/NguyenMinhTrang.png",
+                    IsPremium = false,
+                    IsActive = true,
+                    Category = "Chuyên nghiệp, Banner pastel, 1 cột",
+                    CreatedAt = DateTime.Now
+                });
+                context.SaveChanges();
+                Console.WriteLine("Seed VueTemplate NguyenMinhTrang thành công!");
             }
         }
         catch (Exception seedEx)
