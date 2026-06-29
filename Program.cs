@@ -1,4 +1,5 @@
 using DoAnCS.Data;
+using DoAnCS.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -211,6 +212,30 @@ using (var scope = app.Services.CreateScope())
         }
 
         context.Database.Migrate();
+
+        // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard
+        try
+        {
+            if (!context.VueTemplates.Any(t => t.ComponentName == "ClassicHarvard"))
+            {
+                context.VueTemplates.Add(new VueTemplate
+                {
+                    TemplateName = "Classic Harvard",
+                    ComponentName = "ClassicHarvard",
+                    ThumbnailUrl = "/images/templates/ClassicHarvard.png",
+                    IsPremium = false,
+                    IsActive = true,
+                    Category = "IT, Chuyên nghiệp, Tối giản, 1 cột",
+                    CreatedAt = DateTime.Now
+                });
+                context.SaveChanges();
+                Console.WriteLine("Seed VueTemplate ClassicHarvard thành công!");
+            }
+        }
+        catch (Exception seedEx)
+        {
+            Console.WriteLine("Lỗi khi seed dữ liệu VueTemplates: " + seedEx.Message);
+        }
     }
     catch (Exception ex)
     {
