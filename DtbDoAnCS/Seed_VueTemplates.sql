@@ -101,4 +101,7 @@ VALUES
     (N'Classic Harvard', 'ClassicHarvard', '/images/templates/ClassicHarvard.png', 0, 1, N'IT, Chuyên nghiệp, Tối giản, 1 cột', GETDATE()),
 
     -- 33. Nguyễn Minh Trang
-    (N'Nguyễn Minh Trang', 'NguyenMinhTrang', '/images/templates/NguyenMinhTrang.png', 0, 1, N'Chuyên nghiệp, Banner pastel, 1 cột', GETDATE());
+    (N'Nguyễn Minh Trang', 'NguyenMinhTrang', '/images/templates/NguyenMinhTrang.png', 0, 1, N'Chuyên nghiệp, Banner pastel, 1 cột', GETDATE()),
+
+    -- 34. Đỗ Quỳnh An Nhiên
+    (N'Đỗ Quỳnh An Nhiên', 'DoQuynhAnNhien', '/images/templates/DoQuynhAnNhien.png', 0, 1, N'Cổ điển, Tối giản, Serif, 1 cột', GETDATE());

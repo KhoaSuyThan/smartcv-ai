@@ -225,8 +225,9 @@ const selectedSectionId = ref(null)
 
 const isEmpty = (val) => {
   if (!val) return true
-  if (typeof val !== 'string') return false
-  return val.replace(/<[^>]*>/g, '').trim() === ''
+  const str = String(val)
+  const stripped = str.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim()
+  return stripped === '' || stripped === 'undefined' || stripped === 'null'
 }
 
 // ─── CONTACT ITEMS (Centers information in Harvard format) ───
