@@ -98,4 +98,7 @@ VALUES
     (N'Blue Style Professional', 'BlueStyle', '/images/templates/BlueStyle.png', 1, 1, N'Chuyên nghiệp, 2 cột, Xanh dương', GETDATE()),
     
     -- 32. Classic Harvard
-    (N'Classic Harvard', 'ClassicHarvard', '/images/templates/ClassicHarvard.png', 0, 1, N'IT, Chuyên nghiệp, Tối giản, 1 cột', GETDATE());
+    (N'Classic Harvard', 'ClassicHarvard', '/images/templates/ClassicHarvard.png', 0, 1, N'IT, Chuyên nghiệp, Tối giản, 1 cột', GETDATE()),
+
+    -- 33. Nguyễn Minh Trang
+    (N'Nguyễn Minh Trang', 'NguyenMinhTrang', '/images/templates/NguyenMinhTrang.png', 0, 1, N'Chuyên nghiệp, Banner pastel, 1 cột', GETDATE());

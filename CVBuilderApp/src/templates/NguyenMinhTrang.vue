@@ -3,40 +3,51 @@
     id="cv-printable-area"
     ref="cvRoot"
     class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border leading-relaxed overflow-hidden py-[15mm] px-[15mm]"
-    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Lora\', Georgia, serif', color: '#000000' }"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif', color: '#1e293b' }"
     @click.self="selectedSectionId = null"
   >
     <!-- HEADER -->
-    <header class="text-left pb-4 mb-2 paginated-item">
-      <!-- Full Name -->
-      <h1 class="font-bold tracking-normal leading-tight mb-1"
-        style="font-size: 26px !important; color: #000000; text-transform: uppercase;"
-        v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN CỦA BẠN'">
-      </h1>
+    <header class="flex items-center gap-6 pb-5 mb-3 border-b border-slate-100 paginated-item" @click.stop="selectedSectionId = 'general'">
+      <!-- Left side: Avatar -->
+      <div class="shrink-0 relative">
+        <img :src="!isEmpty(resumeData.general.avatarUrl) ? resumeData.general.avatarUrl : '/images/default-avatar.png'" alt="Avatar" class="w-[110px] height-[110px] w-28 h-28 rounded-full object-cover border border-slate-200 shadow-sm" />
+      </div>
 
-      <!-- Job Title -->
-      <h2 class="italic font-medium text-slate-800 mb-2 leading-tight"
-        style="font-size: 15px !important; font-family: 'Lora', Georgia, serif;"
-        v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Vị trí ứng tuyển của bạn'">
-      </h2>
+      <!-- Right side: Info -->
+      <div class="flex-1 min-w-0">
+        <!-- Full Name -->
+        <h1 class="font-extrabold tracking-tight leading-none mb-1.5"
+          style="font-size: 28px !important; color: #000000;"
+          v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN CỦA BẠN'">
+        </h1>
 
-      <!-- Contact Information -->
-      <div v-if="contactItems.length > 0" 
-           class="flex flex-wrap justify-between items-center w-full gap-y-1 text-slate-800 contact-block relative"
-           :class="{ 'contact-active': selectedSectionId === 'contact' }"
-           @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
-           style="font-size: 12.5px !important; font-family: 'Lora', Georgia, serif;">
-        <template v-for="(ci, ciIdx) in contactItems" :key="ci.key">
-          <div class="flex items-center relative contact-item-container py-0.5"
-               :style="selectedSectionId === 'contact' ? 'padding-right: 62px; border: 1px dashed #cbd5e1; border-radius: 2px; padding-left: 4px;' : ''">
-            <span class="font-medium text-[#111111] break-words" v-html="ci.value"></span>
+        <!-- Job Title -->
+        <div class="inline-block pb-1 mb-2.5 border-b border-slate-300 pr-8">
+          <div class="italic font-semibold text-slate-500 leading-tight"
+            style="font-size: 13.5px !important;"
+            v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Vị trí ứng tuyển'">
+          </div>
+        </div>
+
+        <!-- Contact Information (Grid 3 Columns) -->
+        <div v-if="contactItems.length > 0" 
+             class="grid grid-cols-3 gap-x-4 gap-y-2 text-slate-600 contact-block relative"
+             :class="{ 'contact-active': selectedSectionId === 'contact' }"
+             @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
+             style="font-size: 12.5px !important;">
+          <div v-for="(ci, ciIdx) in contactItems" :key="ci.key"
+               class="flex items-center relative contact-item-container py-0.5"
+               :style="selectedSectionId === 'contact' ? 'padding-right: 65px;' : ''">
+            <!-- Icon Mapping -->
+            <span class="mr-1.5 shrink-0 text-slate-500" v-html="getContactIcon(ci.key)"></span>
+            <span class="font-normal truncate text-slate-700" v-html="ci.value"></span>
             
             <!-- Controls -->
             <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print flex gap-1 bg-white border border-slate-200 shadow rounded px-1" style="position: absolute; right: 2px; top: 50%; transform: translateY(-50%); z-index: 50;">
-              <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Sang trái" style="width:18px; height:18px; padding:0;">
+              <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Lên/Trái" style="width:18px; height:18px; padding:0;">
                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
               </button>
-              <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Sang phải" style="width:18px; height:18px; padding:0;">
+              <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Xuống/Phải" style="width:18px; height:18px; padding:0;">
                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </button>
               <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn-danger" title="Ẩn" style="width:18px; height:18px; padding:0;">
@@ -44,18 +55,16 @@
               </button>
             </div>
           </div>
-          <!-- Divider '|' -->
-          <span v-if="ciIdx < contactItems.length - 1" class="text-slate-400 font-normal px-1 select-none">|</span>
-        </template>
+        </div>
       </div>
     </header>
 
     <!-- DRAGGABLE SECTIONS IN A SINGLE COLUMN -->
-    <div class="flex-1 flex flex-col gap-4 mt-2" @click.self="selectedSectionId = null">
+    <div class="flex-1 flex flex-col gap-2.5 mt-1.5" @click.self="selectedSectionId = null">
       <draggable
         v-model="sectionsWritable"
         item-key="id"
-        class="flex flex-col gap-4 cursor-move"
+        class="flex flex-col gap-2.5 cursor-move"
         @end="onDragEnd"
         animation="200"
         ghost-class="opacity-30"
@@ -67,7 +76,7 @@
         <template #item="{ element: section }">
           <div
             v-show="section.isVisible"
-            :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
+            :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/[0.02] transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -84,19 +93,23 @@
               </button>
             </div>
 
-            <!-- Section Title (Harvard Style: Bold, Caps, Line Underneath) -->
-            <div class="paginated-item">
-              <h3 class="section-title"><span v-html="section.title"></span></h3>
+            <!-- Section Title (Banner Style) -->
+            <div class="paginated-item w-full">
+              <div class="section-banner">
+                <h3 class="font-bold text-center uppercase tracking-wider text-[#1e3a8a] m-0 py-1"
+                  style="font-size: 13.5px !important; line-height: 1.2 !important; margin: 0 !important;"
+                  v-html="section.title"></h3>
+              </div>
             </div>
 
             <!-- Summary Section -->
             <div v-if="section.id === 'summary'"
-              class="text-justify leading-relaxed html-content pr-1 text-[13px] text-black"
-              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tóm tắt mục tiêu nghề nghiệp và năng lực cốt lõi của bạn...')">
+              class="text-justify leading-relaxed html-content pr-1 text-[13px] text-slate-700 mt-1 px-1"
+              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tóm tắt mục tiêu nghề nghiệp...')">
             </div>
 
             <!-- Education Section -->
-            <div v-else-if="section.id === 'education'" class="space-y-3">
+            <div v-else-if="section.id === 'education'" class="space-y-2 mt-1 px-1">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                 <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
@@ -104,25 +117,27 @@
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 
-                <div class="paginated-item pr-1">
-                  <!-- Row 1: School Name & Year -->
-                  <div class="flex justify-between items-baseline font-bold text-[13.5px]">
-                    <span v-html="item.school || 'Tên trường học'"></span>
-                    <span class="text-right whitespace-nowrap" v-html="item.year || 'Thời gian'"></span>
+                <div class="paginated-item pr-1 flex gap-4">
+                  <!-- Left: Year -->
+                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold text-[13px] pt-0.5">
+                    <span v-html="item.year || 'Thời gian'"></span>
                   </div>
-                  <!-- Row 2: Degree/Major & Location -->
-                  <div class="flex justify-between items-baseline text-[13px] italic mt-0.5">
-                    <span v-html="item.major || 'Chuyên ngành học'"></span>
-                    <span class="text-right whitespace-nowrap" v-html="item.gradType || 'Địa điểm'"></span>
+                  <!-- Right: Details -->
+                  <div class="flex-1">
+                    <div class="text-[13.5px] leading-snug">
+                      <strong class="text-slate-800" v-html="item.school || 'Tên trường học'"></strong>
+                      <span class="mx-2 text-slate-300">|</span>
+                      <span class="font-semibold text-slate-700" v-html="item.major || 'Chuyên ngành học'"></span>
+                    </div>
+                    <div v-if="item.gradType" class="text-[12.5px] italic text-slate-500 mt-0.5" v-html="'Xếp loại: ' + item.gradType"></div>
+                    <div v-if="item.desc" class="html-content mt-1.5 text-[13px] text-slate-600 text-justify" v-html="formatDesc(item.desc)"></div>
                   </div>
-                  <!-- Description -->
-                  <div v-if="item.desc" class="html-content mt-1 text-[13px] text-justify leading-relaxed" v-html="formatDesc(item.desc)"></div>
                 </div>
               </div>
             </div>
 
             <!-- Experience, Projects, Activities Section -->
-            <div v-else-if="['experience', 'projects', 'project', 'activities', 'activity'].some(x => section.id.toLowerCase().includes(x))" class="space-y-3">
+            <div v-else-if="['experience', 'projects', 'project', 'activities', 'activity'].some(x => section.id.toLowerCase().includes(x))" class="space-y-2 mt-1 px-1">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                 <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
@@ -130,67 +145,81 @@
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
 
-                <div class="paginated-item pr-1">
-                  <!-- Row 1: Company Name & Time -->
-                  <div class="flex justify-between items-baseline font-bold text-[13.5px]">
-                    <span v-html="item.company || item.organization || item.name || item.title || 'Tên công ty / Dự án / Tổ chức'"></span>
-                    <span class="text-right whitespace-nowrap" v-html="item.time || item.year || 'Thời gian'"></span>
+                <div class="paginated-item pr-1 flex gap-4">
+                  <!-- Left: Time -->
+                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold text-[13px] pt-0.5">
+                    <span v-html="item.time || item.year || 'Thời gian'"></span>
                   </div>
-                  <!-- Row 2: Position/Role & Location -->
-                  <div class="flex justify-between items-baseline text-[13px] italic mt-0.5">
-                    <span v-html="item.role || item.position || 'Vị trí công việc'"></span>
-                    <!-- Hiển thị Location hoặc thông tin phụ khác bên phải nếu có -->
-                    <span class="text-right whitespace-nowrap" v-html="item.location || (item.name && item.company && item.name !== item.company ? item.name : '') || ''"></span>
+                  <!-- Right: Details -->
+                  <div class="flex-1">
+                    <div class="text-[13.5px] leading-snug">
+                      <strong class="text-slate-800" v-html="item.company || item.organization || item.name || item.title || 'Tên tổ chức'"></strong>
+                      <span class="mx-2 text-slate-300">|</span>
+                      <span class="font-semibold text-slate-700" v-html="item.role || item.position || 'Vai trò'"></span>
+                    </div>
+                    <div v-if="item.desc || item.info" class="html-content mt-1.5 text-[13px] text-slate-600 text-justify" v-html="formatDesc(item.desc || item.info || '')"></div>
                   </div>
-                  <!-- Description (Bullet Points) -->
-                  <div class="html-content mt-1.5 text-[13px] text-justify leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
                 </div>
               </div>
             </div>
 
-            <!-- Skills, Languages & Certifications Section -->
-            <div v-else-if="['skills', 'it_skills', 'languages'].some(x => section.id.toLowerCase().includes(x))" class="space-y-1">
-              <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
+            <!-- Skills Section (Split in 2 columns list) -->
+            <div v-else-if="section.id === 'skills'" class="mt-1 px-1">
+              <div class="grid grid-cols-2 gap-x-8 gap-y-1 item-container relative">
                 <button v-show="selectedSectionId === section.id"
-                  @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
+                  @click.stop.prevent="$emit('removeItem', section.id, 0)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="paginated-item pr-1 text-[13px]">
-                  <strong v-html="item.name || 'Kỹ năng'"></strong>: 
-                  <span v-html="item.level || item.info || 'Thông tin chi tiết'"></span>
-                  <div v-if="item.desc" class="html-content mt-0.5 pl-4 text-slate-700 text-justify" v-html="formatDesc(item.desc)"></div>
+                <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item pr-1 text-[13px] flex items-start gap-1.5">
+                  <span class="text-slate-400 mt-1.5 shrink-0">•</span>
+                  <div class="text-slate-700 py-0.5 leading-snug">
+                    <strong v-html="item.name || 'Kỹ năng'"></strong>
+                    <span v-if="item.level || item.info"> - <span v-html="item.level || item.info"></span></span>
+                    <span v-if="item.desc" class="text-slate-500 text-[12.5px] block mt-0.5" v-html="item.desc"></span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Awards / Certifications (Simple bullet format) -->
-            <div v-else-if="['awards', 'certifications'].includes(section.id)" class="space-y-1">
+            <!-- Languages & Certifications Section -->
+            <div v-else-if="['languages', 'certifications', 'awards'].some(x => section.id.toLowerCase().includes(x))" class="space-y-1.5 mt-1 px-1">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
                 <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="paginated-item pr-1 text-[13px]">
-                  <span v-if="item.year" class="font-bold mr-1" v-html="item.year"></span>
-                  <span v-html="item.name || item.info"></span>
-                  <span v-if="item.organization" class="text-slate-600 italic"> (<span v-html="item.organization"></span>)</span>
-                  <div v-if="item.desc" class="html-content mt-0.5 pl-4 text-slate-700" v-html="formatDesc(item.desc)"></div>
+                <div class="paginated-item pr-1 flex gap-4 text-[13px]">
+                  <!-- Left: Year/Level -->
+                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold pt-0.5">
+                    <span v-html="item.year || item.level || 'Thông tin'"></span>
+                  </div>
+                  <!-- Right: Name -->
+                  <div class="flex-1">
+                    <strong class="text-slate-800" v-html="item.name || item.info || ''"></strong>
+                    <span v-if="item.organization" class="text-slate-500 italic"> (<span v-html="item.organization"></span>)</span>
+                    <div v-if="item.desc" class="html-content mt-1 text-slate-600" v-html="formatDesc(item.desc)"></div>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- Fallback Section -->
-            <div v-else class="space-y-2">
+            <div v-else class="space-y-1.5 mt-1 px-1">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative text-[13px]">
                 <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div v-if="item.name || item.title" class="font-bold mb-0.5"><span v-html="item.name || item.title"></span></div>
-                <div class="html-content text-justify leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
+                <div class="flex gap-4">
+                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold" v-html="item.time || item.year || ''"></div>
+                  <div class="flex-1">
+                    <div v-if="item.name || item.title" class="font-bold text-slate-800 mb-0.5"><span v-html="item.name || item.title"></span></div>
+                    <div class="html-content text-justify text-slate-600 leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -229,7 +258,7 @@ const isEmpty = (val) => {
   return val.replace(/<[^>]*>/g, '').trim() === ''
 }
 
-// ─── CONTACT ITEMS (Centers information in Harvard format) ───
+// ─── CONTACT ITEMS ───
 const getContactValue = (key) => {
   const g = props.resumeData?.general
   if (!g) return ''
@@ -238,12 +267,25 @@ const getContactValue = (key) => {
     case 'phone': return isEmpty(g.phone) ? '' : g.phone
     case 'email': return isEmpty(g.email) ? '' : g.email
     case 'address': return isEmpty(g.address) ? '' : g.address
+    case 'gender': return isEmpty(g.gender) ? '' : g.gender
     case 'website': return g.website || g.github || g.linkedin || ''
     default: return ''
   }
 }
 
-const contactOrder = ref(['birthDate', 'email', 'phone', 'website', 'address'])
+const getContactIcon = (key) => {
+  switch (key) {
+    case 'birthDate': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`
+    case 'phone': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`
+    case 'email': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`
+    case 'address': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`
+    case 'gender': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`
+    case 'website': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>`
+    default: return ''
+  }
+}
+
+const contactOrder = ref(['birthDate', 'phone', 'email', 'gender', 'address', 'website'])
 const hiddenContacts = ref([])
 
 watch(() => props.resumeData.general, (newVal) => {
@@ -336,7 +378,7 @@ const formatDesc = (text) => {
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = text
 
-  // Preserve user custom color in RichTextEditor
+  // Preserve colors
   tempDiv.querySelectorAll('li').forEach(li => {
     const child = li.firstElementChild
     if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
@@ -346,7 +388,6 @@ const formatDesc = (text) => {
   })
 
   const blockTags = ['P', 'DIV', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
-  
   tempDiv.querySelectorAll('*').forEach(el => {
     if (blockTags.includes(el.tagName.toUpperCase())) {
       const hasBlockChild = Array.from(el.children).some(child => blockTags.includes(child.tagName.toUpperCase()))
@@ -381,7 +422,6 @@ const requestPagination = () => {
 const doPagination = async () => {
   if (!cvRoot.value) return
 
-  // Smart filter: only measure top-level paginated items
   const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
     if (el.offsetHeight === 0) return false;
     let parent = el.parentElement;
@@ -464,7 +504,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 #cv-printable-area {
   -webkit-print-color-adjust: exact;
@@ -472,17 +512,12 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
-.section-title {
-  font-family: 'Lora', Georgia, serif;
-  font-size: 14.5px !important;
-  font-weight: bold !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #000000 !important;
-  border-bottom: 1px solid #000000;
-  padding-bottom: 3px;
-  margin-bottom: 6px;
-  margin-top: 4px;
+.section-banner {
+  background-color: #f4ebe6;
+  border-radius: 2px;
+  width: 100%;
+  margin-bottom: 2px;
+  padding: 3px 0;
 }
 
 .section-block {
@@ -495,8 +530,8 @@ onUnmounted(() => {
 }
 
 .section-active {
-  border-color: rgba(0, 0, 0, 0.2) !important;
-  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(30, 58, 138, 0.15) !important;
+  background: rgba(30, 58, 138, 0.01) !important;
 }
 
 .contact-block {
@@ -507,8 +542,8 @@ onUnmounted(() => {
 }
 
 .contact-block.contact-active {
-  border: 1px solid rgba(0, 0, 0, 0.2) !important;
-  background: rgba(0, 0, 0, 0.02) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background: rgba(0, 0, 0, 0.01) !important;
 }
 
 .contact-item-btns {
@@ -559,7 +594,7 @@ onUnmounted(() => {
 }
 
 .item-container:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(0, 0, 0, 0.01);
 }
 
 .delete-btn {
