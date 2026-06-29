@@ -247,6 +247,22 @@ using (var scope = app.Services.CreateScope())
                 context.SaveChanges();
                 Console.WriteLine("Seed VueTemplate NguyenMinhTrang thành công!");
             }
+
+            if (!context.VueTemplates.Any(t => t.ComponentName == "DoQuynhAnNhien"))
+            {
+                context.VueTemplates.Add(new VueTemplate
+                {
+                    TemplateName = "Đỗ Quỳnh An Nhiên",
+                    ComponentName = "DoQuynhAnNhien",
+                    ThumbnailUrl = "/images/templates/DoQuynhAnNhien.png",
+                    IsPremium = false,
+                    IsActive = true,
+                    Category = "Cổ điển, Tối giản, Serif, 1 cột",
+                    CreatedAt = DateTime.Now
+                });
+                context.SaveChanges();
+                Console.WriteLine("Seed VueTemplate DoQuynhAnNhien thành công!");
+            }
         }
         catch (Exception seedEx)
         {

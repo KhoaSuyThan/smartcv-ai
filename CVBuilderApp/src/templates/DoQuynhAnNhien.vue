@@ -3,51 +3,49 @@
     id="cv-printable-area"
     ref="cvRoot"
     class="bg-white shadow-2xl w-[210mm] flex flex-col relative box-border leading-relaxed overflow-hidden py-[15mm] px-[15mm]"
-    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Inter\', sans-serif', color: '#1e293b' }"
+    :style="{ height: `${Math.max(1, pageCount) * 297}mm`, fontFamily: '\'Lora\', Georgia, serif', color: '#000000' }"
     @click.self="selectedSectionId = null"
   >
     <!-- HEADER -->
-    <header class="flex items-center gap-6 pb-5 mb-3 border-b border-slate-100 paginated-item" @click.stop="selectedSectionId = 'general'">
-      <!-- Left side: Avatar -->
+    <header class="flex items-start gap-6 pb-4 mb-3 border-b border-black paginated-item" @click.stop="selectedSectionId = 'general'">
+      <!-- Left side: Avatar (Rectangular, 3:4 ratio) -->
       <div class="shrink-0 relative">
-        <img :src="!isEmpty(resumeData.general.avatarUrl) ? resumeData.general.avatarUrl : '/images/default-avatar.png'" alt="Avatar" class="w-[110px] height-[110px] w-28 h-28 rounded-full object-cover border border-slate-200 shadow-sm" />
+        <img :src="!isEmpty(resumeData.general.avatarUrl) ? resumeData.general.avatarUrl : '/images/default-avatar.png'" alt="Avatar" class="w-[110px] h-[145px] rounded-sm object-cover border border-slate-300 shadow-sm" />
       </div>
 
-      <!-- Right side: Info -->
-      <div class="flex-1 min-w-0">
+      <!-- Right side: Name and Contact Info -->
+      <div class="flex-1 min-w-0 flex flex-col items-center">
         <!-- Full Name -->
-        <h1 class="font-extrabold tracking-tight leading-none mb-1.5"
-          style="font-size: 28px !important; color: #000000;"
+        <h1 class="font-bold tracking-normal leading-tight mb-1 text-center"
+          style="font-size: 26px !important; color: #000000; font-family: 'Lora', Georgia, serif; text-transform: uppercase;"
           v-html="!isEmpty(resumeData.general.fullName) ? resumeData.general.fullName : 'HỌ VÀ TÊN CỦA BẠN'">
         </h1>
 
-        <!-- Job Title -->
-        <div class="inline-block pb-1 mb-2.5 border-b border-slate-300 pr-8">
-          <div class="italic font-semibold text-slate-500 leading-tight"
-            style="font-size: 13.5px !important;"
-            v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'Vị trí ứng tuyển'">
-          </div>
-        </div>
+        <!-- Job Title (Vị trí ứng tuyển) -->
+        <h2 class="font-semibold tracking-wide text-slate-700 uppercase mb-2.5 text-center"
+          style="font-size: 13.5px !important; font-family: 'Lora', Georgia, serif;"
+          v-html="!isEmpty(resumeData.general.jobTitle) ? resumeData.general.jobTitle : 'VỊ TRÍ ỨNG TUYỂN'">
+        </h2>
 
-        <!-- Contact Information (Grid 3 Columns) -->
+        <!-- Contact Information (Grid 2 Columns, Căn đều 2 bên với max-width vừa phải) -->
         <div v-if="contactItems.length > 0" 
-             class="grid grid-cols-3 gap-x-4 gap-y-2 text-slate-600 contact-block relative"
+             class="grid grid-cols-2 gap-x-8 gap-y-1 text-slate-800 contact-block relative w-full max-w-[460px] mx-auto"
              :class="{ 'contact-active': selectedSectionId === 'contact' }"
              @click.stop="selectedSectionId = selectedSectionId === 'contact' ? null : 'contact'"
-             style="font-size: 12.5px !important;">
+             style="font-size: 12px !important; font-family: 'Lora', Georgia, serif; max-width: 100%;">
           <div v-for="(ci, ciIdx) in contactItems" :key="ci.key"
-               class="flex items-center relative contact-item-container py-0.5"
-               :style="selectedSectionId === 'contact' ? 'padding-right: 65px;' : ''">
-            <!-- Icon Mapping -->
-            <span class="mr-1.5 shrink-0 text-slate-500" v-html="getContactIcon(ci.key)"></span>
-            <span class="font-normal truncate text-slate-700" v-html="ci.value"></span>
+               class="flex items-center relative contact-item-container py-0.5 animate-fade-in"
+               :class="ciIdx % 2 === 0 ? 'justify-start' : 'justify-end'"
+               :style="selectedSectionId === 'contact' ? 'padding-right: 60px;' : ''">
+            <span class="font-bold text-[#111111] mr-1.5 shrink-0">{{ getContactLabel(ci.key) }}:</span>
+            <span class="font-normal text-slate-700 truncate" v-html="ci.value"></span>
             
             <!-- Controls -->
             <div v-if="selectedSectionId === 'contact'" class="contact-item-btns no-print flex gap-1 bg-white border border-slate-200 shadow rounded px-1" style="position: absolute; right: 2px; top: 50%; transform: translateY(-50%); z-index: 50;">
-              <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Lên/Trái" style="width:18px; height:18px; padding:0;">
+              <button v-if="ciIdx > 0" @click.stop.prevent="moveContactUp(ciIdx)" class="nav-btn" title="Sang trái/Lên" style="width:18px; height:18px; padding:0;">
                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
               </button>
-              <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Xuống/Phải" style="width:18px; height:18px; padding:0;">
+              <button v-if="ciIdx < contactItems.length - 1" @click.stop.prevent="moveContactDown(ciIdx)" class="nav-btn" title="Sang phải/Xuống" style="width:18px; height:18px; padding:0;">
                 <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </button>
               <button @click.stop.prevent="removeContactItem(ciIdx)" class="nav-btn nav-btn-danger" title="Ẩn" style="width:18px; height:18px; padding:0;">
@@ -60,11 +58,11 @@
     </header>
 
     <!-- DRAGGABLE SECTIONS IN A SINGLE COLUMN -->
-    <div class="flex-1 flex flex-col gap-2.5 mt-1.5" @click.self="selectedSectionId = null">
+    <div class="flex-1 flex flex-col gap-3 mt-1.5" @click.self="selectedSectionId = null">
       <draggable
         v-model="sectionsWritable"
         item-key="id"
-        class="flex flex-col gap-2.5 cursor-move"
+        class="flex flex-col gap-3 cursor-move"
         @end="onDragEnd"
         animation="200"
         ghost-class="opacity-30"
@@ -76,7 +74,7 @@
         <template #item="{ element: section }">
           <div
             v-show="section.isVisible"
-            :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/[0.02] transition-colors"
+            :data-section-id="section.id" class="section-block relative cursor-pointer hover:bg-black/5 transition-colors"
             :class="{ 'section-active': selectedSectionId === section.id }"
             @click.stop="selectedSectionId = selectedSectionId === section.id ? null : section.id"
           >
@@ -93,19 +91,15 @@
               </button>
             </div>
 
-            <!-- Section Title (Banner Style) -->
-            <div class="paginated-item w-full">
-              <div class="section-banner">
-                <h3 class="font-bold text-center uppercase tracking-wider text-[#1e3a8a] m-0 py-1"
-                  style="font-size: 13.5px !important; line-height: 1.2 !important; margin: 0 !important;"
-                  v-html="section.title"></h3>
-              </div>
+            <!-- Section Title (An Nhien Style: Bold, Caps, Line Underneath) -->
+            <div class="paginated-item">
+              <h3 class="section-title"><span v-html="section.title"></span></h3>
             </div>
 
             <!-- Summary Section -->
             <div v-if="section.id === 'summary'"
-              class="text-justify leading-relaxed html-content pr-1 text-[13px] text-slate-700 mt-1 px-1"
-              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tóm tắt mục tiêu nghề nghiệp...')">
+              class="text-justify leading-relaxed html-content pr-1 text-[13px] text-black mt-1 px-1"
+              v-html="formatDesc(!isEmpty(resumeData.general.summary) ? resumeData.general.summary : 'Tóm tắt mục tiêu nghề nghiệp và năng lực cốt lõi của bạn...')">
             </div>
 
             <!-- Education Section -->
@@ -117,21 +111,19 @@
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
                 
-                <div class="paginated-item pr-1 flex gap-4">
-                  <!-- Left: Year -->
-                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold text-[13px] pt-0.5">
-                    <span v-html="item.year || 'Thời gian'"></span>
+                <div class="paginated-item pr-1">
+                  <!-- Row 1: School Name & Year -->
+                  <div class="flex justify-between items-baseline font-bold text-[13.5px]">
+                    <span v-html="item.school || 'Tên trường học'"></span>
+                    <span class="text-right whitespace-nowrap" v-html="item.year || 'Thời gian'"></span>
                   </div>
-                  <!-- Right: Details -->
-                  <div class="flex-1">
-                    <div class="text-[13.5px] leading-snug">
-                      <strong class="text-slate-800" v-html="item.school || 'Tên trường học'"></strong>
-                      <span class="mx-2 text-slate-300">|</span>
-                      <span class="font-semibold text-slate-700" v-html="item.major || 'Chuyên ngành học'"></span>
-                    </div>
-                    <div v-if="item.gradType" class="text-[12.5px] italic text-slate-500 mt-0.5" v-html="'Xếp loại: ' + item.gradType"></div>
-                    <div v-if="item.desc" class="html-content mt-1.5 text-[13px] text-slate-600 text-justify" v-html="formatDesc(item.desc)"></div>
+                  <!-- Row 2: Degree/Major & Location -->
+                  <div class="flex justify-between items-baseline text-[13px] italic mt-0.5">
+                    <span v-html="item.major || 'Chuyên ngành học'"></span>
+                    <span class="text-right whitespace-nowrap text-slate-500" v-html="item.gradType || ''"></span>
                   </div>
+                  <!-- Description -->
+                  <div v-if="item.desc" class="html-content mt-1.5 text-[13px] text-justify leading-relaxed" v-html="formatDesc(item.desc)"></div>
                 </div>
               </div>
             </div>
@@ -145,20 +137,18 @@
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
 
-                <div class="paginated-item pr-1 flex gap-4">
-                  <!-- Left: Time -->
-                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold text-[13px] pt-0.5">
-                    <span v-html="item.time || item.year || 'Thời gian'"></span>
+                <div class="paginated-item pr-1">
+                  <!-- Row 1: Organization/Company & Year -->
+                  <div class="flex justify-between items-baseline font-bold text-[13.5px]">
+                    <span v-html="item.company || item.organization || item.name || item.title || 'Tên tổ chức'"></span>
+                    <span class="text-right whitespace-nowrap" v-html="item.time || item.year || 'Thời gian'"></span>
                   </div>
-                  <!-- Right: Details -->
-                  <div class="flex-1">
-                    <div class="text-[13.5px] leading-snug">
-                      <strong class="text-slate-800" v-html="item.company || item.organization || item.name || item.title || 'Tên tổ chức'"></strong>
-                      <span class="mx-2 text-slate-300">|</span>
-                      <span class="font-semibold text-slate-700" v-html="item.role || item.position || 'Vai trò'"></span>
-                    </div>
-                    <div v-if="item.desc || item.info" class="html-content mt-1.5 text-[13px] text-slate-600 text-justify" v-html="formatDesc(item.desc || item.info || '')"></div>
+                  <!-- Row 2: Role/Position -->
+                  <div class="text-[13px] italic mt-0.5">
+                    <span v-html="item.role || item.position || 'Vai trò'"></span>
                   </div>
+                  <!-- Description -->
+                  <div v-if="item.desc || item.info" class="html-content mt-1.5 text-[13px] text-justify leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
                 </div>
               </div>
             </div>
@@ -173,7 +163,7 @@
                 </button>
                 <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item pr-1 text-[13px] flex items-start gap-1.5">
                   <span class="text-slate-400 mt-1.5 shrink-0">•</span>
-                  <div class="text-slate-700 py-0.5 leading-snug">
+                  <div class="text-black py-0.5 leading-snug">
                     <strong v-html="item.name || 'Kỹ năng'"></strong>
                     <span v-if="item.level || item.info"> - <span v-html="item.level || item.info"></span></span>
                     <span v-if="item.desc" class="text-slate-500 text-[12.5px] block mt-0.5" v-html="item.desc"></span>
@@ -190,17 +180,13 @@
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="paginated-item pr-1 flex gap-4 text-[13px]">
-                  <!-- Left: Year/Level -->
-                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold pt-0.5">
-                    <span v-html="item.year || item.level || 'Thông tin'"></span>
-                  </div>
-                  <!-- Right: Name -->
-                  <div class="flex-1">
-                    <strong class="text-slate-800" v-html="item.name || item.info || ''"></strong>
+                <div class="paginated-item pr-1 flex justify-between items-baseline text-[13px]">
+                  <div>
+                    <strong class="text-black" v-html="item.name || item.info || ''"></strong>
                     <span v-if="item.organization" class="text-slate-500 italic"> (<span v-html="item.organization"></span>)</span>
                     <div v-if="item.desc" class="html-content mt-1 text-slate-600" v-html="formatDesc(item.desc)"></div>
                   </div>
+                  <span class="text-right whitespace-nowrap font-semibold text-slate-500" v-html="item.year || item.level || 'Thông tin'"></span>
                 </div>
               </div>
             </div>
@@ -213,43 +199,31 @@
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="flex gap-4">
-                  <div class="w-[110px] shrink-0 text-slate-500 font-semibold" v-html="item.time || item.year || ''"></div>
-                  <div class="flex-1">
-                    <div v-if="item.name || item.title" class="font-bold text-slate-800 mb-0.5"><span v-html="item.name || item.title"></span></div>
-                    <div class="html-content text-justify text-slate-600 leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
-                  </div>
+                <div class="flex justify-between items-baseline font-bold">
+                  <span v-if="item.name || item.title" v-html="item.name || item.title"></span>
+                  <span class="text-right whitespace-nowrap text-slate-500 font-semibold" v-html="item.time || item.year || ''"></span>
                 </div>
+                <div class="html-content text-justify text-slate-700 leading-relaxed mt-1" v-html="formatDesc(item.desc || item.info || '')"></div>
               </div>
             </div>
           </div>
         </template>
       </draggable>
     </div>
-
-    <!-- PAGE BREAK INDICATORS -->
-    <template v-for="p in (pageCount - 1)" :key="'div-' + p">
-      <div class="absolute left-0 w-full z-50 flex flex-col items-center justify-center pointer-events-none no-print"
-        :style="{ top: `calc(${p * 297}mm - 8px)` }">
-        <div class="w-[105%] h-[16px] bg-slate-800/95 shadow-inner border-y border-black/30"></div>
-        <span class="absolute text-[9px] uppercase font-bold text-slate-300 tracking-widest bg-slate-700 px-3 py-0.5 rounded border border-slate-600">Ngắt trang {{ p + 1 }}</span>
-      </div>
-    </template>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import draggable from 'vuedraggable'
 
 const props = defineProps({
-  resumeData: { type: Object, required: true }
+  resumeData: {
+    type: Object,
+    required: true
+  }
 })
 
-const emit = defineEmits(['moveUp', 'moveDown', 'removeItem'])
-
-const cvRoot = ref(null)
-const pageCount = ref(1)
 const selectedSectionId = ref(null)
 
 const isEmpty = (val) => {
@@ -257,6 +231,57 @@ const isEmpty = (val) => {
   const str = String(val)
   const stripped = str.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim()
   return stripped === '' || stripped === 'undefined' || stripped === 'null'
+}
+
+// ─── PAGINATION LOGIC ───
+const cvRoot = ref(null)
+const pageCount = ref(1)
+let paginateTimer = null
+
+const requestPagination = () => {
+  if (paginateTimer) clearTimeout(paginateTimer)
+  paginateTimer = setTimeout(() => {
+    doPagination()
+  }, 100)
+}
+
+const doPagination = async () => {
+  await nextTick()
+  if (!cvRoot.value) return
+
+  // Reset all manual pagination margins
+  const elements = cvRoot.value.querySelectorAll('.paginated-item')
+  elements.forEach(el => {
+    if (el.style.marginTop) {
+      el.style.marginTop = ''
+    }
+  })
+
+  const a4HeightPx = 297 * 3.779527559 // ~1122.5px
+  const paddingBoxPx = 15 * 3.779527559 * 2 // ~113.4px (top + bottom padding)
+  const pageContentLimit = a4HeightPx - paddingBoxPx // ~1009px
+
+  let currentPage = 1
+  let currentY = 0
+
+  elements.forEach(el => {
+    const rect = el.getBoundingClientRect()
+    const elHeight = rect.height
+    const absoluteTop = el.offsetTop
+
+    // Calculate Y coordinate relative to current page
+    const relativeTop = absoluteTop - (currentPage - 1) * pageContentLimit
+
+    if (relativeTop + elHeight > pageContentLimit) {
+      // Element overflows the page, push to next page
+      currentPage++
+      const newPageTop = (currentPage - 1) * pageContentLimit
+      const neededMargin = newPageTop - absoluteTop
+      el.style.marginTop = `${neededMargin}px`
+    }
+  })
+
+  pageCount.value = currentPage
 }
 
 // ─── CONTACT ITEMS ───
@@ -274,19 +299,19 @@ const getContactValue = (key) => {
   }
 }
 
-const getContactIcon = (key) => {
+const getContactLabel = (key) => {
   switch (key) {
-    case 'birthDate': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`
-    case 'phone': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`
-    case 'email': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`
-    case 'address': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`
-    case 'gender': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>`
-    case 'website': return `<svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>`
+    case 'birthDate': return 'Ngày sinh'
+    case 'phone': return 'Điện thoại'
+    case 'email': return 'Email'
+    case 'address': return 'Địa chỉ'
+    case 'gender': return 'Giới tính'
+    case 'website': return 'Website'
     default: return ''
   }
 }
 
-const contactOrder = ref(['birthDate', 'phone', 'email', 'gender', 'address', 'website'])
+const contactOrder = ref(['phone', 'email', 'address', 'website', 'birthDate', 'gender'])
 const hiddenContacts = ref([])
 
 watch(() => props.resumeData.general, (newVal) => {
@@ -379,7 +404,7 @@ const formatDesc = (text) => {
   const tempDiv = document.createElement('div')
   tempDiv.innerHTML = text
 
-  // Preserve colors
+  // Preserve user custom color in RichTextEditor
   tempDiv.querySelectorAll('li').forEach(li => {
     const child = li.firstElementChild
     if (child && (child.tagName === 'FONT' || child.tagName === 'SPAN')) {
@@ -389,6 +414,7 @@ const formatDesc = (text) => {
   })
 
   const blockTags = ['P', 'DIV', 'LI', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6']
+  
   tempDiv.querySelectorAll('*').forEach(el => {
     if (blockTags.includes(el.tagName.toUpperCase())) {
       const hasBlockChild = Array.from(el.children).some(child => blockTags.includes(child.tagName.toUpperCase()))
@@ -410,85 +436,6 @@ const formatDesc = (text) => {
   return tempDiv.innerHTML
 }
 
-// ─── PAGINATION LOGIC ───
-let paginateTimer = null
-const A4_W_MM = 210
-const A4_H_MM = 297
-
-const requestPagination = () => {
-  if (paginateTimer) clearTimeout(paginateTimer)
-  paginateTimer = setTimeout(doPagination, 60)
-}
-
-const doPagination = async () => {
-  if (!cvRoot.value) return
-
-  const allElements = Array.from(cvRoot.value.querySelectorAll('.paginated-item')).filter(el => {
-    if (el.offsetHeight === 0) return false;
-    let parent = el.parentElement;
-    while (parent && parent !== cvRoot.value) {
-      if (parent.classList.contains('paginated-item')) return false;
-      parent = parent.parentElement;
-    }
-    return true;
-  });
-
-  allElements.forEach(el => {
-    el.style.setProperty('margin-top', '0px', 'important')
-  })
-  await nextTick()
-
-  const cvRect = cvRoot.value.getBoundingClientRect()
-  const pxPerMm = cvRect.width / A4_W_MM
-  const pageH = A4_H_MM * pxPerMm
-  
-  const bottomSafeZone = 14 * pxPerMm
-  const topMargin = 14 * pxPerMm
-
-  let stable = false
-  let passes = 0
-
-  while (!stable && passes < 30) {
-    stable = true
-    passes++
-    
-    const currentCvRect = cvRoot.value.getBoundingClientRect()
-
-    for (let i = 0; i < allElements.length; i++) {
-      const el = allElements[i]
-      if (el.offsetHeight === 0) continue
-
-      const elRect = el.getBoundingClientRect()
-      const top = elRect.top - currentCvRect.top
-      const height = elRect.height
-
-      const pageIndex = Math.floor(top / pageH)
-      const topInPage = top - (pageIndex * pageH)
-      const bottomInPage = topInPage + height
-
-      if (height > (pageH - bottomSafeZone - topMargin)) continue
-
-      if (bottomInPage > (pageH - bottomSafeZone)) {
-         const distToNextPage = pageH - topInPage + topMargin
-         const currentMt = parseFloat(el.style.marginTop || '0')
-         el.style.setProperty('margin-top', `${currentMt + distToNextPage}px`, 'important')
-         stable = false
-         break
-      }
-    }
-  }
-
-  const finalCvRect = cvRoot.value.getBoundingClientRect()
-  let maxBottom = 0
-  allElements.forEach(el => {
-    const rect = el.getBoundingClientRect()
-    const bottom = rect.bottom - finalCvRect.top
-    if (bottom > maxBottom) maxBottom = bottom
-  })
-
-  pageCount.value = Math.max(1, Math.ceil(maxBottom / pageH))
-}
-
 watch(() => props.resumeData, requestPagination, { deep: true })
 
 onMounted(() => {
@@ -505,7 +452,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&display=swap');
 
 #cv-printable-area {
   -webkit-print-color-adjust: exact;
@@ -513,12 +460,17 @@ onUnmounted(() => {
   overflow-wrap: anywhere;
 }
 
-.section-banner {
-  background-color: #f4ebe6;
-  border-radius: 2px;
-  width: 100%;
-  margin-bottom: 2px;
-  padding: 3px 0;
+.section-title {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 14.5px !important;
+  font-weight: bold !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000000 !important;
+  border-bottom: 1px solid #000000;
+  padding-bottom: 3px;
+  margin-bottom: 6px;
+  margin-top: 4px;
 }
 
 .section-block {
@@ -531,8 +483,8 @@ onUnmounted(() => {
 }
 
 .section-active {
-  border-color: rgba(30, 58, 138, 0.15) !important;
-  background: rgba(30, 58, 138, 0.01) !important;
+  border-color: rgba(0, 0, 0, 0.2) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
 }
 
 .contact-block {
@@ -543,8 +495,8 @@ onUnmounted(() => {
 }
 
 .contact-block.contact-active {
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  background: rgba(0, 0, 0, 0.01) !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+  background: rgba(0, 0, 0, 0.02) !important;
 }
 
 .contact-item-btns {
@@ -595,7 +547,7 @@ onUnmounted(() => {
 }
 
 .item-container:hover {
-  background-color: rgba(0, 0, 0, 0.01);
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 .delete-btn {
