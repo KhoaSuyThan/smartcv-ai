@@ -95,4 +95,7 @@ VALUES
     (N'Nguyễn Mai Anh (IT Browser)', 'NguyenMaiAnh', 'https://www.topcv.vn/v4/image/cv-template/screenshots/thumbs/cv-template-thumbnails-v1.4/vi/chrome.webp?v=3.5&lang=vi', 1, 1, N'IT, Lập trình viên, Sáng tạo, Khối bo tròn', GETDATE()),
     
     -- 31. Blue Style Professional
-    (N'Blue Style Professional', 'BlueStyle', '/images/templates/BlueStyle.png', 1, 1, N'Chuyên nghiệp, 2 cột, Xanh dương', GETDATE());
+    (N'Blue Style Professional', 'BlueStyle', '/images/templates/BlueStyle.png', 1, 1, N'Chuyên nghiệp, 2 cột, Xanh dương', GETDATE()),
+    
+    -- 32. Classic Harvard
+    (N'Classic Harvard', 'ClassicHarvard', '/images/templates/ClassicHarvard.png', 0, 1, N'IT, Chuyên nghiệp, Tối giản, 1 cột', GETDATE());
