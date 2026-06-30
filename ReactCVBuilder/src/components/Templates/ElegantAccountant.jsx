@@ -45,7 +45,7 @@ const ElegantAccountant = ({ resumeData }) => {
                 <div className="body-section">
                     <div className="cv-block">
                         <h3 className="block-title">MỤC TIÊU NGHỀ NGHIỆP</h3>
-                        <div className="desc-text" style={{ fontSize: '15px', lineHeight: '1.6', textAlign: 'justify' }}><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
+                        <div className="desc-text" style={{ fontSize: '13px', lineHeight: '1.5', textAlign: 'justify' }}><span dangerouslySetInnerHTML={{ __html: resumeData?.summary || 'Mục tiêu nghề nghiệp' }}></span></div>
                     </div>
 
                     <div className="cv-block">
@@ -68,7 +68,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <h3 className="block-title">TRÌNH ĐỘ HỌC VẤN</h3>
                         <div className="education-list">
                             {resumeData?.educations?.map((item, idx) => (
-                                <div className="exp-item" key={idx} style={{ marginBottom: '15px' }}>
+                                <div className="exp-item" key={idx} style={{ marginBottom: '10px' }}>
                                     <span className="exp-year">• {item.year}</span>
                                     <div className="exp-content">
                                         <strong>{item.school}</strong><br/>
@@ -100,7 +100,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <h3 className="block-title">KỸ NĂNG</h3>
                         <div className="skills-flex">
                             {resumeData?.skills?.map((item, idx) => (
-                                <div key={idx} className="skill-item-block" style={{ marginBottom: '15px' }}>
+                                <div key={idx} className="skill-item-block" style={{ marginBottom: '10px' }}>
                                     <span className="skill-label">• {item.name}</span>
                                     <div className="progress-bg">
                                         <div className="progress-fill" style={{ width: getSkillPercent(item.level) }}></div>
@@ -115,7 +115,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <div className="skills-flex">
                             <ul className="skill-list-items" style={{ listStyleType: 'none', padding: 0 }}>
                                 {resumeData?.otherSkills?.map((item, idx) => (
-                                    <li key={idx} style={{ fontSize: '15px', marginBottom: '8px' }}>• {item.name} {item.level ? `(${item.level})` : ''}</li>
+                                    <li key={idx} style={{ fontSize: '13px', marginBottom: '4px' }}>• {item.name} {item.level ? `(${item.level})` : ''}</li>
                                 ))}
                             </ul>
                         </div>
@@ -126,7 +126,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <div className="skills-flex">
                             <ul className="skill-list-items" style={{ listStyleType: 'none', padding: 0, width: '100%' }}>
                                 {resumeData?.languages?.map((item, idx) => (
-                                    <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '15px', marginBottom: '8px' }}>
+                                    <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '13px', marginBottom: '4px' }}>
                                         <span>• {item.name}</span>
                                         <span style={{ fontStyle: 'italic', opacity: 0.8 }}>{item.level}</span>
                                     </li>
@@ -168,7 +168,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <h3 className="block-title">DANH HIỆU & GIẢI THƯỞNG</h3>
                         <ul style={{ paddingLeft: '20px', margin: 0 }}>
                             {resumeData?.awards?.map((item, idx) => (
-                                <li key={idx} style={{ fontSize: '15px', marginBottom: '8px' }}>• {item.name}</li>
+                                <li key={idx} style={{ fontSize: '13px', marginBottom: '4px' }}>• {item.name}</li>
                             ))}
                         </ul>
                     </div>
@@ -177,7 +177,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <h3 className="block-title">NGƯỜI THAM CHIẾU</h3>
                         <div className="ref-content">
                             {resumeData?.references?.map((item, idx) => (
-                                <p key={idx} style={{ marginBottom: '8px', fontSize: '15px' }}>• {item.info}</p>
+                                <p key={idx} style={{ marginBottom: '4px', fontSize: '13px' }}>• {item.info}</p>
                             ))}
                         </div>
                     </div>
@@ -186,7 +186,7 @@ const ElegantAccountant = ({ resumeData }) => {
                         <h3 className="block-title">SỞ THÍCH</h3>
                         <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
                             {resumeData?.hobbies?.map((item, idx) => (
-                                <li key={idx} style={{ fontSize: '15px' }}>• {item.name}</li>
+                                <li key={idx} style={{ fontSize: '13px' }}>• {item.name}</li>
                             ))}
                         </ul>
                     </div>
@@ -198,44 +198,46 @@ const ElegantAccountant = ({ resumeData }) => {
             <style>{`
                 /* Cấu trúc Layout */
                 .accountant-cv { background: white; min-height: 297mm; padding: 50px; font-family: "Segoe UI", sans-serif; color: #333; position: relative; overflow: hidden; }
+                .accountant-cv ul { margin: 0; padding: 0; }
+                .cv-block { margin-bottom: 15px; }
                 
                 /* Header (Neil Tran Style) */
-                .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+                .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
                 .header-left { flex: 1.5; border-top: 1px solid #ddd; padding-top: 15px; }
                 .header-center { flex: 1; display: flex; justify-content: center; }
                 .header-right { flex: 1; text-align: right; border-top: 1px solid #333; padding-top: 15px; }
 
-                .name-display { font-size: 55px; color: #556b8d; margin: 0; font-family: Georgia, serif; line-height: 1; font-weight: normal; }
-                .job-display { font-size: 28px; color: #333; line-height: 1.1; margin: 0; }
+                .name-display { font-size: 40px; color: #556b8d; margin: 0; font-family: Georgia, serif; line-height: 1; font-weight: normal; }
+                .job-display { font-size: 22px; color: #333; line-height: 1.1; margin: 0; }
                 
-                .personal-details { font-size: 14.5px; margin-top: 20px; line-height: 1.8; }
+                .personal-details { font-size: 13px; margin-top: 10px; line-height: 1.8; }
                 .avatar-img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; background: #eee; }
 
                 /* Nội dung các mục (Tăng cỡ chữ) */
-                .block-title { font-size: 24px; font-weight: bold; margin: 35px 0 15px 0; color: #222; border-bottom: 2px solid #556b8d; padding-bottom: 5px; text-transform: uppercase; }
+                .block-title { font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: #222; border-bottom: 2px solid #556b8d; padding-bottom: 5px; text-transform: uppercase; }
                 
                 /* CHIA 2 CỘT KINH NGHIỆM */
                 .experience-grid { 
                     display: grid; 
                     grid-template-columns: 1fr 1fr; 
-                    column-gap: 50px; 
-                    row-gap: 25px; 
+                    column-gap: 30px; 
+                    row-gap: 12px; 
                     align-items: flex-start;
                 }
                 
                 .exp-item { 
-                    font-size: 15px; 
+                    font-size: 13px; 
                     word-wrap: break-word; 
                     overflow-wrap: anywhere; 
                 }
                 
-                .exp-year { font-weight: bold; font-size: 17px; margin-bottom: 5px; display: block; color: #556b8d; }
-                .exp-content { line-height: 1.6; text-align: justify; }
+                .exp-year { font-weight: bold; font-size: 14.5px; margin-bottom: 5px; display: block; color: #556b8d; }
+                .exp-content { line-height: 1.5; text-align: justify; }
 
                 /* Học vấn và Kỹ năng */
-                .education-list { font-size: 15.5px; line-height: 1.7; }
-                .skills-flex { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 60px; }
-                .skill-label { font-size: 15.5px; font-weight: 600; margin-bottom: 8px; display: block; }
+                .education-list { font-size: 13px; line-height: 1.6; }
+                .skills-flex { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; }
+                .skill-label { font-size: 13.5px; font-weight: 600; margin-bottom: 8px; display: block; }
                 .progress-bg { height: 10px; background: #e0e6ed; border-radius: 5px; }
                 .progress-fill { height: 100%; background: #556b8d; border-radius: 5px; }
 
