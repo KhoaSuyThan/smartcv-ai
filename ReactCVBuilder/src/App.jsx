@@ -338,7 +338,7 @@ function App() {
         '.personal-info', '.contact-info', '.contact-list', '.contact-item',
         '.summary-text', '.summary-section', '.exp-item', 'li', 'p',
         '.skill-item-block', '.skill-dot-item', '.cert-year-div', '.cert-name-div',
-        '.cv-block > div', '.cv-section-content > div', '.pastel-block', '.info-row'
+        '.cv-block > div', '.cv-section-content > div', '.info-row'
       ].join(', ');
 
       let items = Array.from(cvRoot.querySelectorAll(selectors)).filter(el => {
@@ -348,7 +348,8 @@ function App() {
         // Ignore nested items (we only paginate the highest level containers to avoid breaking nested structures)
         let parent = el.parentElement;
         while (parent && parent !== cvRoot) {
-          if (parent.matches(selectors)) return false;
+          // If the parent matches selectors, but is NOT .pastel-block, we filter this element out
+          if (parent.matches(selectors) && !parent.classList.contains('pastel-block')) return false;
           parent = parent.parentElement;
         }
         return true;
@@ -397,6 +398,15 @@ function App() {
                 prev.matches('h1, h2, h3, h4, h5, h6, .block-title, .section-title, [class*="title"], [class*="header"]')
               )) {
                 targetEl = prev;
+              }
+
+              // Custom check for Pastel Beige Blocks: if targetEl is the first element in a .pastel-block, push the entire block
+              const pastelBlock = targetEl.closest('.pastel-block');
+              if (pastelBlock) {
+                const innerItems = Array.from(pastelBlock.querySelectorAll(selectors));
+                if (innerItems.length > 0 && (innerItems[0] === targetEl || innerItems[0] === el)) {
+                  targetEl = pastelBlock;
+                }
               }
 
               const targetRect = targetEl.getBoundingClientRect();
