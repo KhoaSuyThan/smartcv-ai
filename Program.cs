@@ -213,6 +213,24 @@ using (var scope = app.Services.CreateScope())
 
         context.Database.Migrate();
 
+        // Migration thủ công: Thêm cột TopCandidatesCount vào GeminiConfigs nếu chưa có
+        // (cột này được thêm sau khi DB đã khởi tạo, cần ALTER TABLE để tự động cập nhật)
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF COL_LENGTH('GeminiConfigs', 'TopCandidatesCount') IS NULL
+                BEGIN
+                    ALTER TABLE [GeminiConfigs]
+                    ADD [TopCandidatesCount] INT NOT NULL DEFAULT 6;
+                END
+            ");
+            Console.WriteLine("Migration GeminiConfigs.TopCandidatesCount: OK");
+        }
+        catch (Exception colEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể thêm cột TopCandidatesCount. Chi tiết: " + colEx.Message);
+        }
+
         // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard hoặc NguyenMinhTrang
         try
         {
