@@ -64,8 +64,8 @@ namespace DoAnCS.Controllers
                 }
                 model.Register.Role = requestedRole;
 
-                // Sinh mã OTP 6 số để xác thực Email trước khi đăng ký chính thức
-                string otp = new Random().Next(100000, 999999).ToString();
+                // Sinh mã OTP 6 số bằng Cryptographic RNG (không thể dự đoán, an toàn hơn Random)
+                string otp = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 999999).ToString();
                 
                 // Lưu thông tin đăng ký tạm thời vào Session dưới dạng JSON
                 HttpContext.Session.SetString("RegisterEmail", model.Register.Email);

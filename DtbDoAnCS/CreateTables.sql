@@ -65,6 +65,7 @@ CREATE TABLE [GeminiConfigs] (
 	ProMaxOutputTokens INT NOT NULL DEFAULT 4096,
 	ProUserRateLimit INT NOT NULL DEFAULT 50,
 	ChatbotApiKey nvarchar(max) NULL,
+	TopCandidatesCount INT NOT NULL DEFAULT 6, -- Số ứng viên tối đa Smart Match gửi vào LLM phân tích
     CONSTRAINT [PK_GeminiConfigs] PRIMARY KEY ([Id])
 );
 

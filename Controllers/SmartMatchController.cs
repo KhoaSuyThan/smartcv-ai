@@ -103,6 +103,9 @@ namespace DoAnCS.Controllers
 
             // Gọi sang Python (Cổng 8000)
             var topCandidates = new List<Resume>();
+
+            // Tải cấu hình sớm để dùng được TopCandidatesCount và thông tin model
+            var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
             try
             {
                 using (var client = new HttpClient())
@@ -117,8 +120,9 @@ namespace DoAnCS.Controllers
                     var pythonResult = await response.Content.ReadFromJsonAsync<PythonFilterResponse>();
                     if (pythonResult != null && pythonResult.top_cvs != null)
                     {
-                        // Lấy Top 6 ứng viên xuất sắc nhất theo yêu cầu
-                        var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(6).ToList();
+                        // Lấy số ứng viên tối đa từ cấu hình Admin (mặc định 6 nếu chưa cài đặt)
+                        int topN = (configData?.TopCandidatesCount > 0) ? configData.TopCandidatesCount : 6;
+                        var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(topN).ToList();
                         
                         // Lấy đúng các CV đã lọt Top
                         topCandidates = publicResumes.Where(r => topResumeIds.Contains(r.ResumeID)).ToList();
@@ -137,7 +141,6 @@ namespace DoAnCS.Controllers
             Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm song song...");
 
             var newMatchResults = new List<CVMatchResult>();
-            var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
             int userId = CurrentUserId;
             var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
             isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");

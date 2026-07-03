@@ -185,8 +185,11 @@ Quy tắc:
 
             int rateLimit = isPro ? (configData?.ProUserRateLimit ?? 50) : (configData?.UserRateLimit ?? 10);
 
+            // Chỉ đếm những lần gọi AI thành công (có kết quả trả về) ← lần lỗi không tốn quota
             var todayLogsCount = await _context.AILogs
-                .Where(l => l.UserID == userId && l.CreatedAt.Date == DateTime.Today)
+                .Where(l => l.UserID == userId
+                         && l.CreatedAt.Date == DateTime.Today
+                         && !string.IsNullOrEmpty(l.OutputText))
                 .CountAsync();
 
             if (todayLogsCount >= rateLimit) 

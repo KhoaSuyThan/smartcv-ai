@@ -31,5 +31,9 @@ namespace DoAnCS.Models
         public int UserRateLimit { get; set; } = 10;
         public int ProUserRateLimit { get; set; } = 50; 
         public long TotalTokensUsed { get; set; } = 0; // Cộng dồn để tính tiền
+
+        // 4. Smart Match Settings
+        /// <summary>Số ứng viên tối đa đưa vào phân tích LLM sau bước lọc Vector (mặc định: 6)</summary>
+        public int TopCandidatesCount { get; set; } = 6;
     }
 }
