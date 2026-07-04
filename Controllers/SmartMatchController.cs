@@ -7,6 +7,7 @@ using DoAnCS.Services;
 using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
+using TiktokenSharp;
 
 namespace DoAnCS.Controllers
 {
@@ -15,11 +16,13 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAIService _aiService;
+        private readonly IConfiguration _config;
 
-        public SmartMatchController(AppDbContext context, IAIService aiService)
+        public SmartMatchController(AppDbContext context, IAIService aiService, IConfiguration config)
         {
             _context = context;
             _aiService = aiService;
+            _config = config; // Dùng để đọc URL Python service từ biến môi trường
         }
 
         /// <summary>
@@ -111,7 +114,9 @@ namespace DoAnCS.Controllers
                 using (var client = new HttpClient())
                 {
                     client.Timeout = TimeSpan.FromSeconds(10); // Giới hạn thời gian kết nối
-                    var response = await client.PostAsJsonAsync("http://localhost:8000/api/filter-top-cvs", requestPayload);
+            // URL Python service: đọc từ config (Docker: http://aimatchservice:8000, Local: http://localhost:8000)
+                    var pythonBaseUrl = _config["PythonAI:BaseUrl"] ?? "http://localhost:8000";
+                    var response = await client.PostAsJsonAsync($"{pythonBaseUrl}/api/filter-top-cvs", requestPayload);
                     if (!response.IsSuccessStatusCode)
                     {
                         return Json(new { success = false, message = "Dịch vụ Python AI phản hồi lỗi. Vui lòng kiểm tra lại server Python." });
@@ -186,8 +191,14 @@ namespace DoAnCS.Controllers
                             AnalyzedAt = DateTime.Now
                         };
 
-                        // Log tokens (sử dụng biến cục bộ để tránh xung đột)
-                        int estimatedTokens = (prompt.Length / 4) + (aiResult.Length / 4);
+                        // Đếm token chính xác bằng TiktokenSharp (cl100k_base, tương thích Gemini/GPT)
+                        int estimatedTokens;
+                        try {
+                            var tikToken = TikToken.EncodingForModel("gpt-4");
+                            estimatedTokens = tikToken.Encode(prompt).Count + tikToken.Encode(aiResult ?? "").Count;
+                        } catch {
+                            estimatedTokens = (prompt.Length / 4) + ((aiResult?.Length ?? 0) / 4);
+                        }
                         lock (newMatchResults) // Lock list vì add từ nhiều thread
                         {
                             newMatchResults.Add(result);
