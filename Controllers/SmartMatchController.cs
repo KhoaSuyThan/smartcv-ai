@@ -93,45 +93,135 @@ namespace DoAnCS.Controllers
             // Chuẩn bị JD
             string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {StripHTML(job.Description)}\nYêu cầu: {StripHTML(job.Requirements)}\nMức lương: {job.Salary}";
 
-            // Chuẩn bị danh sách CV
-            var cvList = publicResumes.Select(r => new {
-                id = r.ResumeID,
-                text = ExtractCVText(r)
-            }).ToList();
-
-            var requestPayload = new {
-                jd_text = jdText,
-                cv_list = cvList
-            };
-
             // Gọi sang Python (Cổng 8000)
             var topCandidates = new List<Resume>();
 
             // Tải cấu hình sớm để dùng được TopCandidatesCount và thông tin model
             var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
+            var pythonBaseUrl = _config["PythonAI:BaseUrl"] ?? "http://localhost:8000";
+            var cacheExpireDays = 7; // Vector cache hợp lệ trong 7 ngày
+
             try
             {
                 using (var client = new HttpClient())
                 {
-                    client.Timeout = TimeSpan.FromSeconds(10); // Giới hạn thời gian kết nối
-            // URL Python service: đọc từ config (Docker: http://aimatchservice:8000, Local: http://localhost:8000)
-                    var pythonBaseUrl = _config["PythonAI:BaseUrl"] ?? "http://localhost:8000";
-                    var response = await client.PostAsJsonAsync($"{pythonBaseUrl}/api/filter-top-cvs", requestPayload);
-                    if (!response.IsSuccessStatusCode)
+                    client.Timeout = TimeSpan.FromSeconds(30); // Tăng timeout vì có thể encode nhiều CV
+
+                    // === BƯỚC 1: Phân loại CV có cache và CV cần encode mới ===
+                    var resumeIds = publicResumes.Select(r => r.ResumeID).ToList();
+                    var cutoffDate = DateTime.Now.AddDays(-cacheExpireDays);
+
+                    // Đọc tất cả cache còn hợp lệ từ DB một lần duy nhất
+                    var cachedEmbeddings = await _context.CVEmbeddings
+                        .Where(e => resumeIds.Contains(e.ResumeID) && e.UpdatedAt >= cutoffDate)
+                        .ToDictionaryAsync(e => e.ResumeID);
+
+                    // Tách thành 2 nhóm: có cache và chưa có cache
+                    var resumesNeedEncoding = publicResumes
+                        .Where(r => !cachedEmbeddings.ContainsKey(r.ResumeID))
+                        .ToList();
+                    var resumesWithCache = publicResumes
+                        .Where(r => cachedEmbeddings.ContainsKey(r.ResumeID))
+                        .ToList();
+
+                    Console.WriteLine($"[SmartMatch Cache] Có cache: {resumesWithCache.Count} CV | Cần encode mới: {resumesNeedEncoding.Count} CV");
+
+                    // === BƯỚC 2: Encode các CV chưa có cache → lưu vào DB ===
+                    foreach (var resume in resumesNeedEncoding)
+                    {
+                        try
+                        {
+                            var cvText = ExtractCVText(resume);
+                            var embedResponse = await client.PostAsJsonAsync(
+                                $"{pythonBaseUrl}/api/embed-cv",
+                                new { text = cvText }
+                            );
+
+                            if (embedResponse.IsSuccessStatusCode)
+                            {
+                                var embedResult = await embedResponse.Content
+                                    .ReadFromJsonAsync<EmbedCVResponse>();
+
+                                if (embedResult?.vector != null)
+                                {
+                                    // Upsert vào CVEmbeddings (cập nhật nếu đã có, thêm mới nếu chưa có)
+                                    var existing = await _context.CVEmbeddings
+                                        .FirstOrDefaultAsync(e => e.ResumeID == resume.ResumeID);
+
+                                    string vectorJson = System.Text.Json.JsonSerializer.Serialize(embedResult.vector);
+
+                                    if (existing != null)
+                                    {
+                                        existing.VectorJson = vectorJson;
+                                        existing.UpdatedAt = DateTime.Now;
+                                    }
+                                    else
+                                    {
+                                        _context.CVEmbeddings.Add(new CVEmbedding
+                                        {
+                                            ResumeID = resume.ResumeID,
+                                            VectorJson = vectorJson,
+                                            UpdatedAt = DateTime.Now
+                                        });
+                                    }
+
+                                    // Thêm vào dictionary để dùng ngay trong lần này
+                                    cachedEmbeddings[resume.ResumeID] = new CVEmbedding
+                                    {
+                                        ResumeID = resume.ResumeID,
+                                        VectorJson = vectorJson
+                                    };
+                                }
+                            }
+                        }
+                        catch (Exception embedEx)
+                        {
+                            Console.WriteLine($"[SmartMatch Cache] Lỗi encode CV {resume.ResumeID}: {embedEx.Message}");
+                        }
+                    }
+
+                    // Lưu tất cả embedding mới vào DB một lần
+                    if (resumesNeedEncoding.Any())
+                        await _context.SaveChangesAsync();
+
+                    // === BƯỚC 3: Gọi Python tính similarity từ vector đã có sẵn ===
+                    var cachedCVList = publicResumes
+                        .Where(r => cachedEmbeddings.ContainsKey(r.ResumeID))
+                        .Select(r => new
+                        {
+                            id = r.ResumeID,
+                            vector = System.Text.Json.JsonSerializer.Deserialize<List<float>>(
+                                cachedEmbeddings[r.ResumeID].VectorJson)
+                        })
+                        .Where(x => x.vector != null && x.vector.Count > 0)
+                        .ToList();
+
+                    if (!cachedCVList.Any())
+                    {
+                        return Json(new { success = false, message = "Không thể tạo vector cho bất kỳ CV nào. Kiểm tra Python service." });
+                    }
+
+                    // Gọi endpoint mới: chỉ tính similarity, không encode lại
+                    var simResponse = await client.PostAsJsonAsync(
+                        $"{pythonBaseUrl}/api/similarity-from-vectors",
+                        new { jd_text = jdText, cached_cvs = cachedCVList }
+                    );
+
+                    if (!simResponse.IsSuccessStatusCode)
                     {
                         return Json(new { success = false, message = "Dịch vụ Python AI phản hồi lỗi. Vui lòng kiểm tra lại server Python." });
                     }
 
-                    var pythonResult = await response.Content.ReadFromJsonAsync<PythonFilterResponse>();
+                    var pythonResult = await simResponse.Content.ReadFromJsonAsync<PythonFilterResponse>();
                     if (pythonResult != null && pythonResult.top_cvs != null)
                     {
                         // Lấy số ứng viên tối đa từ cấu hình Admin (mặc định 6 nếu chưa cài đặt)
                         int topN = (configData?.TopCandidatesCount > 0) ? configData.TopCandidatesCount : 6;
                         var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(topN).ToList();
-                        
+
                         // Lấy đúng các CV đã lọt Top
                         topCandidates = publicResumes.Where(r => topResumeIds.Contains(r.ResumeID)).ToList();
-                        
+
                         // Sắp xếp lại đúng thứ tự Python trả về (cao xuống thấp)
                         topCandidates = topCandidates.OrderBy(r => topResumeIds.IndexOf(r.ResumeID)).ToList();
                     }
@@ -581,6 +671,12 @@ Output JSON thuần (KHÔNG markdown, KHÔNG text phụ):
         {
             public int resume_id { get; set; }
             public double similarity { get; set; }
+        }
+
+        /// <summary>Response từ endpoint /api/embed-cv của Python</summary>
+        public class EmbedCVResponse
+        {
+            public List<float> vector { get; set; }
         }
     }
 }
