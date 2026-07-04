@@ -35,6 +35,12 @@ namespace DoAnCS.Models {
         public string? ExpectedLocation { get; set; } // Địa điểm làm việc mong muốn
         public int? ExpectedSalary { get; set; } // Mức lương mong muốn (triệu VNĐ/tháng)
 
+        /// <summary>
+        /// Timestamp (Ticks) của lần đăng nhập mới nhất — dùng để xác thực session đa thiết bị.
+        /// Cookie của thiết bị cũ sẽ bị từ chối nếu LoginTime nhỏ hơn giá trị này.
+        /// </summary>
+        public long? LastLoginTime { get; set; } = null;
+
         public virtual ICollection<Resume> Resumes { get; set; }   
     }
 }

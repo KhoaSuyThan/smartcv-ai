@@ -335,6 +335,9 @@ namespace DoAnCS.Controllers
                         authProperties);
 
                     // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
+                    // Ghi vào DB để bảo toàn qua restart server
+                    user.LastLoginTime = currentLoginTime;
+                    await _context.SaveChangesAsync();
                     DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
                     return RedirectToAction("Index", "Home");
@@ -423,6 +426,9 @@ namespace DoAnCS.Controllers
             await HttpContext.SignOutAsync("ExternalCookies");
 
             // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
+            // Ghi vào DB để bảo toàn qua restart server
+            user.LastLoginTime = currentLoginTime;
+            await _context.SaveChangesAsync();
             DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
             return LocalRedirect(returnUrl);

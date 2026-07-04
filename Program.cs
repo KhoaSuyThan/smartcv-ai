@@ -59,21 +59,57 @@ builder.Services.AddAuthentication(options =>
         {
             var userIdClaim = context.Principal.FindFirst("UserID")?.Value;
             var loginTimeClaim = context.Principal.FindFirst("LoginTime")?.Value;
-            
+
             if (int.TryParse(userIdClaim, out int userId) && long.TryParse(loginTimeClaim, out long loginTime))
             {
-                if (!DoAnCS.Services.SessionTracker.IsValidSession(userId, loginTime))
+                // === BƯỚC 1: Kiểm tra cache trước (không tốn DB query) ===
+                var cacheResult = DoAnCS.Services.SessionTracker.IsValidSessionFromCache(userId, loginTime);
+
+                if (cacheResult.HasValue)
                 {
-                    context.RejectPrincipal();
-                    await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                    return;
+                    // Cache còn hợp lệ → dùng kết quả từ cache
+                    if (!cacheResult.Value)
+                    {
+                        context.RejectPrincipal();
+                        await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                        return;
+                    }
+                }
+                else
+                {
+                    // === BƯỚC 2: Cache hết hạn → query DB lấy LastLoginTime ===
+                    var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                    var dbLoginTime = await dbContext.Users
+                        .Where(u => u.UserID == userId)
+                        .Select(u => u.LastLoginTime)
+                        .FirstOrDefaultAsync();
+
+                    if (dbLoginTime.HasValue)
+                    {
+                        // Refresh cache với giá trị mới từ DB
+                        DoAnCS.Services.SessionTracker.RefreshCache(userId, dbLoginTime.Value);
+
+                        if (loginTime < dbLoginTime.Value)
+                        {
+                            // Cookie cũ hơn DB → phiên không hợp lệ (đăng nhập thiết bị khác sau)
+                            context.RejectPrincipal();
+                            await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        // LastLoginTime chưa có trong DB (user cũ chưa đăng nhập lại lần nào)
+                        // → Chấp nhận và ghi lại để bảo vệ từ lần sau
+                        DoAnCS.Services.SessionTracker.RefreshCache(userId, loginTime);
+                    }
                 }
 
-                // Tự động làm mới quyền Pro ngầm mà không bắt đăng nhập lại
+                // === BƯỚC 3: Tự động làm mới quyền Pro ngầm ===
                 var isProClaim = context.Principal.HasClaim("IsPro", "True");
-                var dbContext = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
-                var userInDb = await dbContext.Users.FindAsync(userId);
-                
+                var dbCtx = context.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var userInDb = await dbCtx.Users.FindAsync(userId);
+
                 if (userInDb != null && userInDb.IsPro != isProClaim)
                 {
                     var identity = context.Principal.Identity as System.Security.Claims.ClaimsIdentity;
@@ -81,8 +117,8 @@ builder.Services.AddAuthentication(options =>
                     {
                         var oldClaim = identity.FindFirst("IsPro");
                         if (oldClaim != null) identity.RemoveClaim(oldClaim);
-                        
-                        if (userInDb.IsPro == true) 
+
+                        if (userInDb.IsPro == true)
                             identity.AddClaim(new System.Security.Claims.Claim("IsPro", "True"));
 
                         context.ReplacePrincipal(context.Principal);
@@ -229,6 +265,24 @@ using (var scope = app.Services.CreateScope())
         catch (Exception colEx)
         {
             Console.WriteLine("Lưu ý: Không thể thêm cột TopCandidatesCount. Chi tiết: " + colEx.Message);
+        }
+
+        // Migration thủ công: Thêm cột LastLoginTime vào Users nếu chưa có
+        // (dùng để kiểm tra phiên đăng nhập đa thiết bị, bền vững qua server restart)
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF COL_LENGTH('Users', 'LastLoginTime') IS NULL
+                BEGIN
+                    ALTER TABLE [Users]
+                    ADD [LastLoginTime] BIGINT NULL;
+                END
+            ");
+            Console.WriteLine("Migration Users.LastLoginTime: OK");
+        }
+        catch (Exception colEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể thêm cột LastLoginTime. Chi tiết: " + colEx.Message);
         }
 
         // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard hoặc NguyenMinhTrang

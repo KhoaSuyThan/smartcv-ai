@@ -109,6 +109,7 @@ CREATE TABLE Users (
     Address NVARCHAR(MAX) NULL,
     ExpectedLocation NVARCHAR(MAX) NULL,
     ExpectedSalary INT NULL,
+    LastLoginTime BIGINT NULL, -- Timestamp đăng nhập mới nhất (Ticks), dùng kiểm tra phiên đa thiết bị
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
