@@ -8,6 +8,7 @@ using DoAnCS.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using TiktokenSharp;
 
 namespace DoAnCS.Controllers 
 {
@@ -412,9 +413,9 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
                 var rawResult = await _aiService.GenerateContent(prompt, isPro);
                 var aiResult = CleanAIResult(rawResult);
                 
-                // 7. Ghi Log AI và Cập nhật Token (Chỉ khi không phải gọi từ test_playground, hoặc nếu Admin tự test thì vẫn có userID)
-                // Ước lượng Token đơn giản: 1 Token ~ 4 ký tự
-                int estimatedTokens = (prompt.Length / 4) + (aiResult.Length / 4);
+                // 7. Ghi Log AI và Cập nhật Token
+                // Đếm token chính xác bằng TiktokenSharp (cl100k_base dùng cho Gemini/GPT)
+                int estimatedTokens = CountTokens(prompt, aiResult);
                 
                 string selectedModel = isPro ? (configData?.ProModelName ?? "") : (configData?.ModelName ?? "");
                 string apiProvider = selectedModel.Contains("llama") || selectedModel.Contains("mixtral") ? "Groq" : "Gemini";
@@ -560,6 +561,25 @@ YÊU CẦU BẮT BUỘC (QUAN TRỌNG NHẤT):
             }
 
             return text;
+        }
+
+        /// <summary>
+        /// Đếm token chính xác bằng TiktokenSharp (cl100k_base — tokenizer tương thích Gemini và GPT-4).
+        /// Fallback về ước tính len/4 nếu có lỗi khởi tạo tokenizer.
+        /// </summary>
+        private static int CountTokens(string prompt, string result)
+        {
+            try
+            {
+                // cl100k_base là tokenizer dùng cho GPT-4 và tương thích Gemini
+                var tikToken = TikToken.EncodingForModel("gpt-4");
+                return tikToken.Encode(prompt).Count + tikToken.Encode(result ?? "").Count;
+            }
+            catch
+            {
+                // Fallback về ước tính nếu tokenizer lỗi (không crash app)
+                return (prompt.Length / 4) + ((result?.Length ?? 0) / 4);
+            }
         }
     }
 }

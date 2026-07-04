@@ -10,6 +10,16 @@ services:
     volumes:
       - mssql_data:/var/opt/mssql
 
+  # Dịch vụ Python AI (Sentence Transformers + FastAPI)
+  aimatchservice:
+    build: ./AiMatchService
+    container_name: ai_match_service
+    restart: unless-stopped   # Tự khởi động lại nếu crash hoặc server reboot
+    # KHÔNG expose port ra ngoài — chỉ giao tiếp nội bộ qua Docker network
+    # Port 8000 không thể truy cập từ internet
+    networks:
+      - default
+
   app:
     build: .
     container_name: smartcv_app
@@ -18,8 +28,11 @@ services:
     environment:
       - ConnectionStrings__OnlineConnection=Server=db;Database=DoAnWebCS;User Id=sa;Password=Password123!;TrustServerCertificate=True
       - StorageSettings__UploadsFolder=/app/uploads
+      # URL nội bộ đến Python service (dùng tên service thay vì localhost)
+      - PythonAI__BaseUrl=http://aimatchservice:8000
     depends_on:
       - db
+      - aimatchservice    # App chờ Python service khởi động trước
     volumes:
       - /var/www/uploads/DoAnWeb:/app/uploads
 
