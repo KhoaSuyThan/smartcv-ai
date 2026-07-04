@@ -2,28 +2,52 @@ using System.Collections.Concurrent;
 
 namespace DoAnCS.Services
 {
+    /// <summary>
+    /// Quản lý phiên đăng nhập để ngăn chặn đa thiết bị (SSO enforcement).
+    /// Chiến lược Hybrid: memory cache 30 giây để giảm DB query, DB làm nguồn sự thật sau restart.
+    /// </summary>
     public static class SessionTracker
     {
-        // UserID -> Latest LoginTime (Ticks)
-        private static readonly ConcurrentDictionary<int, long> UserLatestLoginTime = new();
+        // Cache ngắn hạn trong RAM: UserID → (LastLoginTime, CacheExpiry)
+        // Tránh query DB mỗi HTTP request — tự động expire sau 30 giây
+        private static readonly ConcurrentDictionary<int, (long LoginTime, DateTime Expiry)> _memCache = new();
 
+        private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// Cập nhật session mới nhất — ghi vào cache, DB được ghi riêng trong AccountController.
+        /// </summary>
         public static void UpdateSession(int userId, long loginTime)
         {
-            UserLatestLoginTime.AddOrUpdate(userId, loginTime, (key, existingVal) => Math.Max(existingVal, loginTime));
+            // Luôn ghi vào cache với thời gian mới nhất
+            _memCache[userId] = (loginTime, DateTime.UtcNow.Add(CacheDuration));
         }
 
-        public static bool IsValidSession(int userId, long loginTime)
+        /// <summary>
+        /// Kiểm tra session còn hợp lệ không từ cache.
+        /// Trả về null nếu cache đã hết hạn → cần query DB.
+        /// </summary>
+        public static bool? IsValidSessionFromCache(int userId, long loginTime)
         {
-            if (UserLatestLoginTime.TryGetValue(userId, out var latestLoginTime))
+            if (_memCache.TryGetValue(userId, out var cached))
             {
-                // Nếu thời gian login của Cookie cũ hơn thời gian login mới nhất -> Không hợp lệ
-                return loginTime >= latestLoginTime;
+                if (DateTime.UtcNow <= cached.Expiry)
+                {
+                    // Cache còn sống: so sánh trực tiếp
+                    return loginTime >= cached.LoginTime;
+                }
+                // Cache hết hạn: xóa để force query DB
+                _memCache.TryRemove(userId, out _);
             }
-            
-            // Nếu server vừa khởi động lại (Dictionary trống), chấp nhận request đầu tiên 
-            // và lưu lại LoginTime của nó để so sánh sau này.
-            UserLatestLoginTime.TryAdd(userId, loginTime);
-            return true;
+            return null; // Không có trong cache → cần DB
+        }
+
+        /// <summary>
+        /// Cập nhật cache sau khi đọc được giá trị mới từ DB.
+        /// </summary>
+        public static void RefreshCache(int userId, long loginTime)
+        {
+            _memCache[userId] = (loginTime, DateTime.UtcNow.Add(CacheDuration));
         }
     }
 }
