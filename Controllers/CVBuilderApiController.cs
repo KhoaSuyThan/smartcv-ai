@@ -6,6 +6,8 @@ using System.Text.Json;
 using DoAnCS.Data; 
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using System.Linq;
+
 namespace DoAnCS.Controllers
 {
     [ApiController]
@@ -162,6 +164,13 @@ namespace DoAnCS.Controllers
                 {
                     // Bỏ qua lỗi Parse JSON nếu cấu trúc hỏng
                 }
+            }
+
+            // Xóa cache vector cũ của CV này do nội dung đã thay đổi
+            var oldCache = await _context.CVEmbeddings.Where(e => e.ResumeID == id).ToListAsync();
+            if (oldCache.Any())
+            {
+                _context.CVEmbeddings.RemoveRange(oldCache);
             }
 
             await _context.SaveChangesAsync();
