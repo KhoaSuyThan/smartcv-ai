@@ -12,6 +12,8 @@ using PayOS;
 using PayOS.Models.V2.PaymentRequests;
 using PayOS.Models.Webhooks;
 
+using Microsoft.Extensions.Caching.Memory;
+
 namespace DoAnCS.Controllers
 {
     public class AccountController : Controller
@@ -21,13 +23,15 @@ namespace DoAnCS.Controllers
         private readonly IEmailService _emailService;
         private readonly PayOSClient _payOS;
         private readonly IConfiguration _config;
+        private readonly IMemoryCache _cache;
 
-        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService, PayOSClient payOS, IConfiguration config) {
+        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService, PayOSClient payOS, IConfiguration config, IMemoryCache cache) {
             _webHostEnvironment = webHostEnvironment;
             _context = context;
             _emailService = emailService;
             _payOS = payOS;
             _config = config;
+            _cache = cache;
         }
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
@@ -303,23 +307,43 @@ namespace DoAnCS.Controllers
 
             if (ModelState.IsValid)
             {
+                var email = model.Login?.Email?.Trim().ToLower();
+                if (string.IsNullOrEmpty(email))
+                {
+                    ViewBag.Error = "Vui lòng nhập Email";
+                    return View(model);
+                }
+
+                string cacheKey = $"LoginFail_{email}";
+
+                // 1. Kiểm tra trạng thái khóa Brute Force
+                if (_cache.TryGetValue(cacheKey, out LoginAttempt? attempt) && attempt.IsLocked)
+                {
+                    var timeRemaining = attempt.LockoutEnd!.Value - DateTime.UtcNow;
+                    ViewBag.Error = $"Tài khoản bị tạm khóa do nhập sai mật khẩu quá nhiều lần. Vui lòng thử lại sau {Math.Ceiling(timeRemaining.TotalMinutes)} phút.";
+                    return View(model);
+                }
+
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.Email == model.Login.Email);
 
                 if (user != null && BCrypt.Net.BCrypt.Verify(model.Login.Password, user.PasswordHash))
                 {
+                    // Đăng nhập thành công -> Reset bộ đếm cache khóa
+                    _cache.Remove(cacheKey);
+
                     long currentLoginTime = DateTime.UtcNow.Ticks;
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.FullName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim("UserID", user.UserID.ToString()),
-                new Claim("IsPro", user.IsPro.ToString()),
-                new Claim("CompanyID", user.CompanyID.ToString()?? ""),
-                new Claim("SessionId", Guid.NewGuid().ToString()),
-                new Claim("LoginTime", currentLoginTime.ToString())
-            };
+                    {
+                        new Claim(ClaimTypes.Name, user.FullName),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim(ClaimTypes.Role, user.Role),
+                        new Claim("UserID", user.UserID.ToString()),
+                        new Claim("IsPro", user.IsPro.ToString()),
+                        new Claim("CompanyID", user.CompanyID.ToString()?? ""),
+                        new Claim("SessionId", Guid.NewGuid().ToString()),
+                        new Claim("LoginTime", currentLoginTime.ToString())
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(
                         claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -335,7 +359,6 @@ namespace DoAnCS.Controllers
                         authProperties);
 
                     // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
-                    // Ghi vào DB để bảo toàn qua restart server
                     user.LastLoginTime = currentLoginTime;
                     await _context.SaveChangesAsync();
                     DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
@@ -343,7 +366,25 @@ namespace DoAnCS.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                ViewBag.Error = "Email hoặc mật khẩu không chính xác";
+                // Đăng nhập thất bại -> Ghi nhận và tăng số lần sai
+                if (attempt == null)
+                {
+                    attempt = new LoginAttempt { FailedCount = 0 };
+                }
+
+                attempt.FailedCount++;
+                if (attempt.FailedCount >= 5)
+                {
+                    attempt.LockoutEnd = DateTime.UtcNow.AddMinutes(15);
+                    ViewBag.Error = "Tài khoản của bạn đã bị khóa tạm thời 15 phút do nhập sai mật khẩu quá 5 lần.";
+                }
+                else
+                {
+                    ViewBag.Error = $"Email hoặc mật khẩu không chính xác. Bạn còn {5 - attempt.FailedCount} lần thử.";
+                }
+
+                // Lưu vào cache thời gian hết hạn 30 phút để dọn dẹp RAM
+                _cache.Set(cacheKey, attempt, TimeSpan.FromMinutes(30));
             }
             return View(model);
         }
@@ -1253,6 +1294,13 @@ namespace DoAnCS.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        private class LoginAttempt
+        {
+            public int FailedCount { get; set; }
+            public DateTime? LockoutEnd { get; set; }
+            public bool IsLocked => LockoutEnd.HasValue && DateTime.UtcNow < LockoutEnd.Value;
         }
     }
 }
