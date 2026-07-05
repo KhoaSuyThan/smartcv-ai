@@ -300,3 +300,10 @@ CREATE TABLE SiteFeedbacks (
     UpdatedAt DATETIME DEFAULT GETDATE(),
     CONSTRAINT FK_SiteFeedbacks_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
 );
+
+-- 21. Chỉ mục tìm kiếm (Database Indexes) để tối ưu hóa hiệu năng
+CREATE INDEX IX_Resumes_IsPublic ON Resumes(IsPublic);
+CREATE INDEX IX_Resumes_UserID ON Resumes(UserID);
+CREATE INDEX IX_Jobs_Status ON Jobs(Status);
+CREATE INDEX IX_AILogs_UserID_CreatedAt ON AILogs(UserID, CreatedAt);
+CREATE INDEX IX_CVEmbeddings_ResumeID ON CVEmbeddings(ResumeID);

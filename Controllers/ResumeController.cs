@@ -704,9 +704,13 @@ namespace DoAnCS.Controllers
 
             if (resume == null) return Content("Lỗi: CV không tồn tại hoặc chủ sở hữu đã tắt tính năng chia sẻ cộng đồng.", "text/plain; charset=utf-8");
 
-            // Tăng lượt xem
-            resume.ViewCount += 1;
-            await _context.SaveChangesAsync();
+            // Tăng lượt xem nếu không phải chủ sở hữu tự xem CV của chính mình
+            int currentUserId = GetCurrentUserId();
+            if (resume.UserID != currentUserId)
+            {
+                resume.ViewCount += 1;
+                await _context.SaveChangesAsync();
+            }
 
             // Kiểm tra trạng thái Pro của chủ sở hữu CV (để hiển thị watermark cho Free)
             var owner = await _context.Users.FirstOrDefaultAsync(u => u.UserID == resume.UserID);

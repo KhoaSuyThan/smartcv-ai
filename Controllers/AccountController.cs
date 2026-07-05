@@ -358,6 +358,32 @@ namespace DoAnCS.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
+                    // GỬI EMAIL CẢNH BÁO BẢO MẬT NẾU PHÁT HIỆN CÓ PHIÊN ĐĂNG NHẬP CŨ ĐANG HOẠT ĐỘNG
+                    if (user.LastLoginTime.HasValue && user.LastLoginTime.Value > 0)
+                    {
+                        try
+                        {
+                            var prevLoginTime = new DateTime(user.LastLoginTime.Value, DateTimeKind.Utc).ToLocalTime();
+                            string subject = "Cảnh báo bảo mật: Phát hiện đăng nhập mới trên RightChoiceVN";
+                            string body = $@"
+                                <h3>Phát hiện đăng nhập mới</h3>
+                                <p>Chào <b>{user.FullName}</b>,</p>
+                                <p>Tài khoản của bạn vừa được đăng nhập thành công vào lúc {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.</p>
+                                <p>Phiên đăng nhập cũ trước đó (khởi tạo lúc {prevLoginTime.ToString("dd/MM/yyyy HH:mm:ss")}) trên thiết bị khác sẽ bị đăng xuất tự động.</p>
+                                <p><b>Nếu không phải bạn thực hiện:</b> Vui lòng đổi mật khẩu ngay lập tức tại trang cá nhân để bảo vệ tài khoản.</p>
+                                <br/>
+                                <p>Trân trọng,<br/>RightChoiceVN Team</p>";
+
+                            // Chạy bất đồng bộ (Fire-and-forget) để không làm chậm luồng xử lý đăng nhập chính
+                            _ = Task.Run(() => _emailService.SendEmailAsync(user.Email, subject, body));
+                        }
+                        catch (Exception ex)
+                        {
+                            // Ghi log lỗi nếu không gửi được email nhưng không làm gián đoạn đăng nhập của người dùng
+                            Console.WriteLine("Lỗi khi gửi email cảnh báo đăng nhập: " + ex.Message);
+                        }
+                    }
+
                     // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
                     user.LastLoginTime = currentLoginTime;
                     await _context.SaveChangesAsync();
