@@ -8,7 +8,18 @@ using Microsoft.AspNetCore.HttpOverrides;
 using PayOS;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning) // Bỏ bớt log hệ thống thừa
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog();
 
 var onlineConnectionString = builder.Configuration.GetConnectionString("OnlineConnection");
 var localConnectionString = builder.Configuration.GetConnectionString("LocalConnection");
@@ -18,12 +29,18 @@ string activeConnectionString = !string.IsNullOrEmpty(onlineConnectionString) ? 
 Console.WriteLine($"Using Connection String: {activeConnectionString}");
 // --- 1. ĐĂNG KÝ SERVICES ---
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
 builder.Services.AddHostedService<ProExpirationService>();
+
+// Đăng ký dịch vụ Health Checks kiểm tra DB và FastAPI Python AI
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("Database")
+    .AddCheck<PythonAiHealthCheck>("Python_AI");
 
 // Cấu hình PayOS
 var clientId = builder.Configuration["PayOS:ClientId"] ?? throw new Exception("Không tìm thấy PayOS:ClientId");
@@ -372,8 +389,9 @@ var forwardedHeadersOptions = new ForwardedHeadersOptions
 forwardedHeadersOptions.KnownNetworks.Clear();
 forwardedHeadersOptions.KnownProxies.Clear();
 app.UseForwardedHeaders(forwardedHeadersOptions);
-
 // --- 4. CẤU HÌNH PIPELINE (MIDDLEWARE) ---
+app.UseSerilogRequestLogging();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -427,6 +445,26 @@ app.UseAuthorization();
 
 // Đăng ký API Controllers (attribute routing - dùng cho [ApiController] + [Route(...)])
 app.MapControllers();
+
+// Đăng ký Health Check Endpoint trả về thông tin chi tiết dạng JSON
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json; charset=utf-8";
+        var responseObj = new
+        {
+            status = report.Status.ToString(),
+            results = report.Entries.Select(e => new
+            {
+                key = e.Key,
+                status = e.Value.Status.ToString(),
+                description = e.Value.Description
+            })
+        };
+        await context.Response.WriteAsJsonAsync(responseObj);
+    }
+});
 
 app.MapHub<DoAnCS.Hubs.UserSessionHub>("/userSessionHub");
 
