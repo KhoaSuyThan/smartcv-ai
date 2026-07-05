@@ -6,6 +6,7 @@ using DoAnCS.Data;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using DoAnCS.Models.ViewModels;
+using System.Linq;
 
 namespace DoAnCS.Controllers
 {
@@ -368,6 +369,13 @@ namespace DoAnCS.Controllers
                 await SaveSectionJson(resume.ResumeID, "Projects", model.Projects ?? new List<ProjectItem>());
                 await SaveSectionJson(resume.ResumeID, "Website", model.Website ?? "");
 
+                // Xóa cache vector cũ của CV này do nội dung đã thay đổi
+                var oldCache = await _context.CVEmbeddings.Where(e => e.ResumeID == resume.ResumeID).ToListAsync();
+                if (oldCache.Any())
+                {
+                    _context.CVEmbeddings.RemoveRange(oldCache);
+                }
+
                 // 6. Thực thi lưu vào Database
                 await _context.SaveChangesAsync();
 
@@ -513,6 +521,13 @@ namespace DoAnCS.Controllers
 
             try
             {
+                // Xóa cache vector cũ của CV này do JobTitle đã thay đổi (ảnh hưởng đến embedding)
+                var oldCache = await _context.CVEmbeddings.Where(e => e.ResumeID == id).ToListAsync();
+                if (oldCache.Any())
+                {
+                    _context.CVEmbeddings.RemoveRange(oldCache);
+                }
+
                 _context.Resumes.Update(resume);
                 await _context.SaveChangesAsync();
                 return Json(new { success = true });

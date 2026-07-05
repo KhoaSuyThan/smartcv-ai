@@ -100,13 +100,12 @@ namespace DoAnCS.Controllers
                 query = query.OrderByDescending(j => j.CreatedAt);
             }
 
-            // 5. Lấy danh sách Job thô để tính match score trước khi map sang DTO
-            var jobsRaw = await query.ToListAsync();
-
             // === MATCHING LOGIC: So khớp kỹ năng CV với yêu cầu công việc ===
             var matchScores = new Dictionary<string, int>(); // job_id (string) -> MatchScore %
             var userIdClaim = User.FindFirst("UserID")?.Value;
             List<Resume> userResumes = null;
+            Resume selectedResume = null;
+            List<string> userSkills = null;
 
             if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
             {
@@ -117,7 +116,6 @@ namespace DoAnCS.Controllers
                     .ToListAsync();
 
                 // Xác định CV được chọn (mặc định = CV mới nhất)
-                Resume selectedResume = null;
                 if (selectedResumeId.HasValue)
                 {
                     selectedResume = userResumes.FirstOrDefault(r => r.ResumeID == selectedResumeId.Value);
@@ -128,23 +126,65 @@ namespace DoAnCS.Controllers
                 if (selectedResume != null)
                 {
                     // Trích xuất kỹ năng từ CV
-                    var userSkills = ExtractSkillsFromResume(selectedResume);
-                    
-                    // Tính match score cho từng Job
+                    userSkills = ExtractSkillsFromResume(selectedResume);
+                    ViewBag.SelectedResumeId = selectedResume.ResumeID;
+                }
+            }
+
+            // Cấu hình phân trang
+            int pageSize = 10; // Mỗi trang hiện 10 tin
+            int pageNumber = page ?? 1;
+            int totalItemCount = 0;
+            List<Job> jobsRaw = null;
+
+            // Xác định xem có cần sắp xếp theo độ tương thích (Match Score) hay không
+            // Điều kiện: người dùng đăng nhập, có CV, và không yêu cầu sắp xếp theo lương (sortBy == "salary")
+            bool sortByMatchScore = (selectedResume != null && userSkills != null && userSkills.Any() && sortBy != "salary");
+
+            if (sortByMatchScore)
+            {
+                // Tải tất cả các job đang tuyển dụng để tính match score trước (phân trang trên bộ nhớ để đảm bảo tính đúng đắn khi sắp xếp theo Score)
+                var allActiveJobs = await query.ToListAsync();
+
+                // Tính match score cho tất cả jobs
+                foreach (var job in allActiveJobs)
+                {
+                    int score = CalculateMatchScore(userSkills, job);
+                    matchScores[job.JobID.ToString()] = score;
+                }
+
+                // Sắp xếp danh sách Jobs theo match score trước, sau đó theo thời gian tạo
+                var sortedJobs = allActiveJobs
+                    .OrderByDescending(j => matchScores.ContainsKey(j.JobID.ToString()) ? matchScores[j.JobID.ToString()] : 0)
+                    .ThenByDescending(j => j.CreatedAt)
+                    .ToList();
+
+                totalItemCount = sortedJobs.Count;
+
+                // Phân trang trên bộ nhớ
+                jobsRaw = sortedJobs.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+            }
+            else
+            {
+                // Phân trang thực sự trên Database
+                totalItemCount = await query.CountAsync();
+                jobsRaw = await query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+
+                // Nếu người dùng có CV, tính match score chỉ cho 10 tin hiển thị hiện tại để tối ưu hiệu năng
+                if (selectedResume != null && userSkills != null && userSkills.Any())
+                {
                     foreach (var job in jobsRaw)
                     {
                         int score = CalculateMatchScore(userSkills, job);
                         matchScores[job.JobID.ToString()] = score;
                     }
-
-                    ViewBag.SelectedResumeId = selectedResume.ResumeID;
                 }
             }
 
             ViewBag.MatchScores = matchScores;
             ViewBag.UserResumes = userResumes;
 
-            // 6. Mapping sang JobDto
+            // 6. Mapping sang JobDto (chỉ map tối đa 10 tin hiển thị trên trang hiện tại)
             var jobDtos = jobsRaw.Select(j => new JobDto
             {
                 job_id = j.JobID.ToString(),
@@ -157,19 +197,9 @@ namespace DoAnCS.Controllers
                 job_apply_link = j.Company != null ? j.Company.Website : "#"
             }).ToList();
 
-            // Nếu user đăng nhập và có match score, sắp xếp ưu tiên job phù hợp nhất
-            if (sortBy != "salary" && matchScores.Any())
-            {
-                jobDtos = jobDtos
-                    .OrderByDescending(j => matchScores.ContainsKey(j.job_id) ? matchScores[j.job_id] : 0)
-                    .ThenByDescending(j => jobsRaw.FirstOrDefault(jr => jr.JobID.ToString() == j.job_id)?.CreatedAt)
-                    .ToList();
-            }
+            var pagedList = new StaticPagedList<JobDto>(jobDtos, pageNumber, pageSize, totalItemCount);
 
-            // 7. Cấu hình phân trang
-            int pageSize = 10; // Mỗi trang hiện 10 tin
-            int pageNumber = page ?? 1;
-
+            // 7. Tạo danh sách chuyên môn (allSpecs) để hiển thị trong bộ lọc
             var allSpecs = new List<string>{".NET Engineer",
                 "Accounting Intern",
                 "Administrative Intern",
@@ -250,7 +280,7 @@ namespace DoAnCS.Controllers
 
             var viewModel = new HomeViewModel
             {
-                RealJobs = jobDtos.ToPagedList(pageNumber, pageSize),
+                RealJobs = pagedList,
                 SearchQuery = searchQuery,
                 SelectedSpecialties = specialties ?? new List<string>(), // Lưu lại các checkbox đã chọn
                 SelectedCompanies = selectedCompanies ?? new List<string>(),

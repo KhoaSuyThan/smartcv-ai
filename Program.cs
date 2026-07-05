@@ -208,6 +208,24 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// Cấu hình dịch vụ nén phản hồi (Response Compression) dùng Brotli & Gzip
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+    options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProviderOptions>(options =>
+{
+    options.Level = System.IO.Compression.CompressionLevel.Fastest;
+});
+
 var app = builder.Build();
 
 // --- TỰ ĐỘNG CHẠY MIGRATION KHI STARTUP ---
@@ -364,6 +382,7 @@ if (!app.Environment.IsDevelopment())
 
 // Đoạn lệnh tạo bảng bằng raw SQL đã được loại bỏ để sử dụng chuẩn Entity Framework Migrations
 
+app.UseResponseCompression();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
