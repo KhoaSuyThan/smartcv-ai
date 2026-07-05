@@ -132,6 +132,17 @@ namespace DoAnCS.Controllers
 
             // Lấy danh sách ID các CV mà nhà tuyển dụng này đã lưu
             int recruiterId = CurrentUserId;
+
+            // Tăng lượt xem cho các CV công khai của ứng viên này khi được nhà tuyển dụng xem chi tiết
+            if (user.UserID != recruiterId)
+            {
+                foreach (var resume in publicResumes)
+                {
+                    resume.ViewCount += 1;
+                }
+                await _context.SaveChangesAsync();
+            }
+
             ViewBag.SavedResumeIds = await _context.SavedCandidates
                 .Where(s => s.RecruiterId == recruiterId)
                 .Select(s => s.ResumeId)

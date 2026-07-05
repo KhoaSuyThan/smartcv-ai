@@ -320,6 +320,32 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể thêm cột LastLoginTime. Chi tiết: " + colEx.Message);
         }
 
+        // Migration thủ công: Tạo Database Indexes để tăng tốc độ query (nếu chưa có)
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Resumes_IsPublic' AND object_id = OBJECT_ID('Resumes'))
+                    CREATE INDEX IX_Resumes_IsPublic ON Resumes(IsPublic);
+
+                IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Resumes_UserID' AND object_id = OBJECT_ID('Resumes'))
+                    CREATE INDEX IX_Resumes_UserID ON Resumes(UserID);
+
+                IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Jobs_Status' AND object_id = OBJECT_ID('Jobs'))
+                    CREATE INDEX IX_Jobs_Status ON Jobs(Status);
+
+                IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_AILogs_UserID_CreatedAt' AND object_id = OBJECT_ID('AILogs'))
+                    CREATE INDEX IX_AILogs_UserID_CreatedAt ON AILogs(UserID, CreatedAt);
+
+                IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_CVEmbeddings_ResumeID' AND object_id = OBJECT_ID('CVEmbeddings'))
+                    CREATE INDEX IX_CVEmbeddings_ResumeID ON CVEmbeddings(ResumeID);
+            ");
+            Console.WriteLine("Migration Database Indexes: OK");
+        }
+        catch (Exception indexEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể tạo Database Indexes. Chi tiết: " + indexEx.Message);
+        }
+
         // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard hoặc NguyenMinhTrang
         try
         {
