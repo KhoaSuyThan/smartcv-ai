@@ -122,10 +122,23 @@
         .footer-link:hover { color: #0d6efd; padding-left: 5px; }
 
         /* Styles cho Admin Sidebar cố định (Phiên bản sáng sủa có chia khối) */
-        .admin-sidebar-container { border-right: 2px solid #dee2e6; }
+        .admin-sidebar-container { 
+            border-right: 2px solid #dee2e6; 
+            overflow-y: auto !important;
+        }
+        .admin-sidebar-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .admin-sidebar-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
+        }
+        [data-bs-theme="dark"] .admin-sidebar-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.08);
+        }
         .sidebar-group { border-color: #e9ecef !important; background-color: #fcfcfc; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-        .admin-sidebar-container .menu-label { color: #043277ff; font-size: 0.75rem; font-weight: 900; letter-spacing: 1.2px; padding: 5px 10px; text-transform: uppercase; margin-bottom: 0; opacity: 0.9; }
-        .admin-sidebar-container .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; color: #495057; text-decoration: none; border-radius: 8px; transition: 0.2s; font-weight: 600; margin: 2px 0; }
+        .admin-sidebar-container .menu-label { color: #043277ff; font-size: 0.72rem; font-weight: 900; letter-spacing: 1.2px; padding: 3px 10px; text-transform: uppercase; margin-bottom: 0; opacity: 0.9; }
+        .admin-sidebar-container .menu-item { display: flex; align-items: center; gap: 12px; padding: 7px 12px; color: #495057; text-decoration: none; border-radius: 8px; transition: 0.2s; font-weight: 600; margin: 1px 0; }
         .admin-sidebar-container .menu-item i { font-size: 1.25rem; color: #6c757d; transition: 0.2s; }
         .admin-sidebar-container .menu-item:hover { background: #e9ecef; color: #0d6efd; transform: translateX(2px); }
         .admin-sidebar-container .menu-item:hover i { color: #0d6efd; }
@@ -481,21 +494,21 @@
                 var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
                 <div class="d-flex">
                     <!-- Admin Sidebar Cố định dạng Sticky bản sáng -->
-                    <div class="admin-sidebar-container d-none d-lg-block bg-white shadow-sm" style="width: 280px; height: 100vh; position: sticky; top: 0; align-self: flex-start; overflow-y: hidden;">
-                        <div class="p-4 border-bottom border-1 mb-3 text-center">
-                            <h5 class="text-primary fw-bolder m-0" style="letter-spacing: 1.5px;">
-                                <i class='fas fa-user-shield text-primary me-2 fs-4' style="vertical-align: middle;"></i>ADMIN PANEL
+                    <div class="admin-sidebar-container d-none d-lg-block bg-white shadow-sm" style="width: 280px; height: 100vh; position: sticky; top: 0; align-self: flex-start; overflow-y: auto;">
+                        <div class="p-3 border-bottom border-1 mb-2 text-center">
+                            <h5 class="text-primary fw-bolder m-0" style="letter-spacing: 1.5px; font-size: 1.2rem;">
+                                <i class='fas fa-user-shield text-primary me-2 fs-5' style="vertical-align: middle;"></i>ADMIN PANEL
                             </h5>
                         </div>
-                        <div class="px-3 pb-4">
+                        <div class="px-3 pb-3">
                             <!-- Nhóm Tổng quan -->
-                            <div class="sidebar-group border rounded-3 p-2 mb-3">
+                            <div class="sidebar-group border rounded-3 p-2 mb-2">
                                 <a href="/Admin" class="menu-item @(currentAction == "Index" ? "active" : "")"><i class='bx bxs-dashboard'></i> Tổng quan</a>
                             </div>
                             
                             <!-- Nhóm Dữ liệu -->
-                            <div class="sidebar-group border rounded-3 p-2 mb-3">
-                                <div class="menu-label mb-2 mt-1">QUẢN LÝ DỮ LIỆU</div>
+                            <div class="sidebar-group border rounded-3 p-2 mb-2">
+                                <div class="menu-label mb-1 mt-1">QUẢN LÝ DỮ LIỆU</div>
                                 <a href="/Admin/Templates" class="menu-item @(currentAction == "Templates" ? "active" : "")"><i class='bx bxs-flask'></i> Mẫu thiết kế CV Beta</a>
                                 <a href="/Admin/VueTemplates" class="menu-item @(currentAction == "VueTemplates" ? "active" : "")"><i class='bx bxs-id-card'></i> Mẫu thiết kế CV</a>
                                 <a href="/Admin/Jobs" class="menu-item @(currentAction == "Jobs" ? "active" : "")"><i class='bx bxs-briefcase-alt-2'></i> Tin tuyển dụng</a>
@@ -504,10 +517,11 @@
                             </div>
 
                             <!-- Nhóm Hệ thống -->
-                            <div class="sidebar-group border rounded-3 p-2 pb-3 mb-3">
-                                <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
+                            <div class="sidebar-group border rounded-3 p-2 pb-2 mb-2">
+                                <div class="menu-label mb-1 mt-1">HỆ THỐNG</div>
                                 <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
                                 <a href="/Admin/GeminiConfig" class="menu-item @(currentAction == "GeminiConfig" ? "active" : "")"><i class='bx bxs-bot'></i> Cấu hình AI</a>
+                                <a href="/Admin/TestingDashboard" class="menu-item @(currentAction == "TestingDashboard" ? "active" : "")"><i class='bx bxs-shield'></i> Automation Test</a>
                                 <a href="/Admin/Feedbacks" class="menu-item @(currentAction == "Feedbacks" ? "active" : "")"><i class='bx bxs-star text-warning'></i> Đánh giá trang web</a>
                             </div>
                         </div>
@@ -558,6 +572,7 @@
                     <div class="menu-label mb-2 mt-1">HỆ THỐNG</div>
                     <a href="/Admin/Users" class="menu-item @(currentAction == "Users" ? "active" : "")"><i class='bx bxs-group'></i> Người dùng</a>
                     <a href="/Admin/GeminiConfig" class="menu-item @(currentAction == "GeminiConfig" ? "active" : "")"><i class='bx bxs-bot'></i> Cấu hình AI</a>
+                    <a href="/Admin/TestingDashboard" class="menu-item @(currentAction == "TestingDashboard" ? "active" : "")"><i class='bx bxs-shield'></i> Automation Test</a>
                     <a href="/Admin/Feedbacks" class="menu-item @(currentAction == "Feedbacks" ? "active" : "")"><i class='bx bxs-star text-warning'></i> Đánh giá trang web</a>
                 </div>
             </div>

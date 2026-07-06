@@ -23,14 +23,22 @@ namespace DoAnCS.Controllers
         private readonly IAIService _aiService;
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
+        private readonly IAutomationTestRunner _testRunner;
 
-        public AdminController(AppDbContext context, IWebHostEnvironment webHost, IAIService aiService, IConfiguration config, IMemoryCache cache)
+        public AdminController(
+            AppDbContext context, 
+            IWebHostEnvironment webHost, 
+            IAIService aiService, 
+            IConfiguration config, 
+            IMemoryCache cache,
+            IAutomationTestRunner testRunner)
         {
             _context = context;
             _webHost = webHost;
             _aiService = aiService;
             _config = config;
             _cache = cache;
+            _testRunner = testRunner;
         }
 
         // 1. Trang Dashboard của Admin
@@ -1032,6 +1040,31 @@ namespace DoAnCS.Controllers
             }
 
             return RedirectToAction(nameof(UpgradeRequests));
+        }
+
+        // 17. Giao diện Testing Dashboard của Admin
+        [HttpGet]
+        public IActionResult TestingDashboard()
+        {
+            return View();
+        }
+
+        // API Endpoint chạy Automation Test bất đồng bộ
+        [HttpPost]
+        public async Task<IActionResult> RunTestSuite()
+        {
+            try
+            {
+                // Lấy localBaseUrl động từ request hiện tại
+                string localBaseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+                
+                var results = await _testRunner.RunAllTestsAsync(localBaseUrl);
+                return Json(new { success = true, suites = results });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
     }
 }

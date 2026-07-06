@@ -1,0 +1,943 @@
+@{
+    ViewData["Title"] = "Automation Testing Dashboard";
+}
+
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<div class="testing-dashboard-page py-4">
+    <div class="container-fluid px-4">
+        
+        <!-- Header Section -->
+        <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold m-0 page-title">
+                    <i class='bx bx-shield-quarter text-primary-gradient me-2 animate-float'></i>Automation Testing
+                </h3>
+                <p class="text-muted small mb-0 font-outfit">Hệ thống tự động giám sát sức khỏe, kiểm thử tích hợp API và đo lường hiệu năng thời gian thực.</p>
+            </div>
+            <div>
+                <button id="btnRunTests" class="btn btn-run-tests font-outfit shadow-sm" onclick="startTestSuiteExecution()">
+                    <i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử
+                </button>
+            </div>
+        </div>
+
+        <!-- Metric Dashboard Cards (Glassmorphism) -->
+        <div class="row g-4 mb-4">
+            <!-- 1. Circular Progress Success Rate -->
+            <div class="col-md-3">
+                <div class="glass-card stat-card d-flex align-items-center p-4">
+                    <div class="circular-progress-wrapper me-3">
+                        <svg class="circular-progress-svg" viewBox="0 0 100 100">
+                            <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                            <circle id="successProgressCircle" class="fg-circle" cx="50" cy="50" r="40" style="stroke-dashoffset: 251.2;"></circle>
+                        </svg>
+                        <div class="progress-percentage font-outfit" id="percentageText">0%</div>
+                    </div>
+                    <div>
+                        <h6 class="text-muted small mb-1 uppercase-label font-outfit">Tỷ lệ vượt qua</h6>
+                        <h4 class="fw-bold mb-0 font-outfit text-gradient" id="statPassRate">0%</h4>
+                        <small class="text-muted font-outfit" id="statPassDetails">0 / 0 test case</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Avg Response Time -->
+            <div class="col-md-3">
+                <div class="glass-card stat-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="icon-box-glass bg-blue">
+                            <i class='bx bx-timer fs-4 text-blue-glow'></i>
+                        </div>
+                        <span class="badge badge-trend bg-blue-soft text-blue font-outfit" id="timeTrend">N/A</span>
+                    </div>
+                    <h6 class="text-muted small mb-1 uppercase-label font-outfit">Thời gian chạy tb</h6>
+                    <h3 class="fw-bold mb-1 font-outfit text-value" id="statAvgTime">0 ms</h3>
+                    <p class="text-muted small mb-0 font-outfit" id="statMaxTime">Cao nhất: 0 ms</p>
+                </div>
+            </div>
+
+            <!-- 3. Infrastructure status -->
+            <div class="col-md-6">
+                <div class="glass-card stat-card p-4">
+                    <h6 class="text-muted small mb-3 uppercase-label font-outfit"><i class='bx bx-server me-1'></i>Trạng thái các hạ tầng dịch vụ</h6>
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                <i class='bx bx-data text-muted fs-4 mb-1' id="statusDbIcon"></i>
+                                <div class="small fw-semibold text-value font-outfit">SQL Server</div>
+                                <div class="status-indicator mt-1" id="statusDbBadge">
+                                    <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                <i class='bx bxl-python text-muted fs-4 mb-1' id="statusPythonIcon"></i>
+                                <div class="small fw-semibold text-value font-outfit">Python AI</div>
+                                <div class="status-indicator mt-1" id="statusPythonBadge">
+                                    <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                <i class='bx bx-brain text-muted fs-4 mb-1' id="statusGeminiIcon"></i>
+                                <div class="small fw-semibold text-value font-outfit">Gemini AI</div>
+                                <div class="status-indicator mt-1" id="statusGeminiBadge">
+                                    <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Panel: Interactive Console -->
+            <div class="col-lg-6">
+                <div class="glass-card console-card p-0 d-flex flex-column">
+                    <div class="console-header px-4 py-3 d-flex justify-content-between align-items-center border-bottom-glass">
+                        <div class="d-flex align-items-center">
+                            <span class="console-dot bg-danger-dot me-2"></span>
+                            <span class="console-dot bg-warning-dot me-2"></span>
+                            <span class="console-dot bg-success-dot me-3"></span>
+                            <span class="fw-semibold text-muted font-outfit small"><i class='bx bx-terminal me-1'></i>TEST RUNNER CONSOLE LOGS</span>
+                        </div>
+                        <button class="btn-clear-console" onclick="clearConsoleLog()"><i class='bx bx-trash me-1'></i>Xóa log</button>
+                    </div>
+                    <div class="console-body p-4 font-fira" id="consoleLogs">
+                        <div class="console-line text-muted">&gt; Ready to start automation testing...</div>
+                        <div class="console-line text-muted">&gt; Click "Kích hoạt Kiểm Thử" button above to execute tests.</div>
+                        <span class="console-cursor">_</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results & Filter -->
+            <div class="col-lg-6">
+                <div class="glass-card results-card p-4 d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 font-outfit text-value"><i class='bx bx-list-check me-2 text-primary'></i>Chi Tiết Các Ca Kiểm Thử</h5>
+                        
+                        <!-- Filter Tabs -->
+                        <div class="btn-group filter-btn-group p-1 font-outfit" role="group">
+                            <button type="button" class="btn btn-filter active" id="btnFilterAll" onclick="filterResults('all')">Tất cả</button>
+                            <button type="button" class="btn btn-filter text-success" id="btnFilterPass" onclick="filterResults('success')">Thành công</button>
+                            <button type="button" class="btn btn-filter text-danger" id="btnFilterFail" onclick="filterResults('failed')">Thất bại</button>
+                        </div>
+                    </div>
+
+                    <!-- Test Case Detail Accordion List -->
+                    <div class="accordion-results overflow-auto flex-grow-1 pe-1" id="testCasesContainer" style="max-height: 480px;">
+                        <div class="text-center text-muted my-5 py-5 font-outfit" id="emptyResultsState">
+                            <i class='bx bx-list-check fs-1 opacity-50 mb-3 text-primary-gradient'></i>
+                            <p class="mb-0">Chưa có kết quả kiểm thử nào được ghi nhận.</p>
+                            <p class="small text-muted">Kích hoạt kiểm thử để tự động phân tích hệ thống.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    :root {
+        --glass-bg-light: rgba(255, 255, 255, 0.45);
+        --glass-bg-dark: rgba(30, 41, 59, 0.45);
+        --glass-border-light: rgba(255, 255, 255, 0.25);
+        --glass-border-dark: rgba(255, 255, 255, 0.08);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.08);
+        --text-glow-blue: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    body {
+        background-color: #f1f5f9;
+        transition: background-color 0.3s;
+    }
+
+    [data-bs-theme="dark"] body {
+        background-color: #0f172a;
+    }
+
+    .font-outfit {
+        font-family: 'Outfit', sans-serif;
+    }
+
+    .font-fira {
+        font-family: 'Fira Code', monospace;
+        font-size: 0.85rem;
+    }
+
+    .animate-float {
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @@keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .text-primary-gradient {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+    }
+
+    .text-gradient {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .glass-card {
+        background: var(--glass-bg-light);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border-light);
+        border-radius: 1.25rem;
+        box-shadow: var(--glass-shadow);
+        transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+    }
+
+    [data-bs-theme="dark"] .glass-card {
+        background: var(--glass-bg-dark);
+        border: 1px solid var(--glass-border-dark);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .glass-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.12);
+    }
+
+    .testing-dashboard-page .page-title {
+        color: #1e293b;
+    }
+
+    [data-bs-theme="dark"] .testing-dashboard-page .page-title {
+        color: #f8fafc;
+    }
+
+    .text-value {
+        color: #1e293b;
+    }
+    [data-bs-theme="dark"] .text-value {
+        color: #cbd5e1;
+    }
+
+    /* Button styles */
+    .btn-run-tests {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 50px;
+        padding: 0.6rem 1.8rem;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-run-tests:hover {
+        transform: scale(1.03);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        color: #ffffff;
+    }
+
+    .btn-run-tests:disabled {
+        background: #94a3b8;
+        transform: none !important;
+        box-shadow: none !important;
+        cursor: not-allowed;
+    }
+
+    /* Circular progress indicator */
+    .circular-progress-wrapper {
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+
+    .circular-progress-svg {
+        transform: rotate(-90deg);
+        width: 100%;
+        height: 100%;
+    }
+
+    .bg-circle {
+        fill: none;
+        stroke: rgba(226, 232, 240, 0.5);
+        stroke-width: 8px;
+    }
+    
+    [data-bs-theme="dark"] .bg-circle {
+        stroke: rgba(51, 65, 85, 0.4);
+    }
+
+    .fg-circle {
+        fill: none;
+        stroke: url(#progressGradient);
+        stroke: #10b981;
+        stroke-width: 8px;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.6s ease-in-out;
+    }
+
+    .progress-percentage {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    [data-bs-theme="dark"] .progress-percentage {
+        color: #cbd5e1;
+    }
+
+    .uppercase-label {
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b !important;
+    }
+
+    .icon-box-glass {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .bg-blue {
+        background: rgba(59, 130, 246, 0.15);
+        border: 1px solid rgba(59, 130, 246, 0.25);
+    }
+
+    .text-blue-glow {
+        color: #3b82f6;
+        text-shadow: var(--text-glow-blue);
+    }
+
+    .badge-trend {
+        padding: 0.35em 0.8em;
+        font-weight: 500;
+        border-radius: 30px;
+        font-size: 0.72rem;
+    }
+
+    .bg-blue-soft {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+    }
+
+    .border-glass {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    [data-bs-theme="dark"] .border-glass {
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Service Status Box */
+    .service-status-box {
+        background: rgba(255, 255, 255, 0.2);
+        transition: background 0.3s;
+    }
+    
+    [data-bs-theme="dark"] .service-status-box {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .service-status-box:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    [data-bs-theme="dark"] .service-status-box:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .dot-status {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 5px;
+    }
+
+    .status-text {
+        font-size: 0.65rem;
+        color: #64748b;
+    }
+
+    .dot-pulse {
+        animation: pulse-dot 1.5s infinite;
+    }
+
+    @@keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.2); }
+    }
+
+    /* Terminal Console */
+    .console-card {
+        height: 520px;
+    }
+
+    .border-bottom-glass {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    [data-bs-theme="dark"] .border-bottom-glass {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .console-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .bg-danger-dot { background-color: #ff5f56; }
+    .bg-warning-dot { background-color: #ffbd2e; }
+    .bg-success-dot { background-color: #27c93f; }
+
+    .btn-clear-console {
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .btn-clear-console:hover {
+        color: #ef4444;
+    }
+
+    .console-body {
+        background: #0d1117;
+        color: #c9d1d9;
+        flex-grow: 1;
+        overflow-y: auto;
+        border-bottom-left-radius: 1.2rem;
+        border-bottom-right-radius: 1.2rem;
+        padding-bottom: 1.5rem !important;
+        scroll-behavior: smooth;
+    }
+
+    .console-body .text-muted {
+        color: #8b949e !important;
+    }
+
+    .console-body .text-light {
+        color: #c9d1d9 !important;
+    }
+
+    .console-body .text-success {
+        color: #34d399 !important;
+    }
+
+    .console-body .text-danger {
+        color: #f87171 !important;
+    }
+
+    .console-body .text-warning {
+        color: #fbbf24 !important;
+    }
+
+    .console-body .text-info {
+        color: #38bdf8 !important;
+    }
+
+    .console-line {
+        line-height: 1.6;
+        margin-bottom: 4px;
+        word-break: break-all;
+    }
+
+    .console-cursor {
+        display: inline-block;
+        width: 8px;
+        background-color: #c9d1d9;
+        animation: cursor-blink 1.2s infinite;
+    }
+
+    @@keyframes cursor-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+
+    /* Filters & Accordion results */
+    .results-card {
+        height: 520px;
+    }
+
+    .filter-btn-group {
+        background: rgba(226, 232, 240, 0.8);
+        border-radius: 30px;
+    }
+    
+    [data-bs-theme="dark"] .filter-btn-group {
+        background: rgba(51, 65, 85, 0.5);
+    }
+
+    .btn-filter {
+        border-radius: 30px !important;
+        font-size: 0.72rem;
+        padding: 0.25rem 0.9rem;
+        border: none;
+        color: #64748b;
+        background: transparent;
+        font-weight: 600;
+    }
+
+    .btn-filter:hover {
+        color: #1e293b;
+    }
+    
+    [data-bs-theme="dark"] .btn-filter:hover {
+        color: #cbd5e1;
+    }
+
+    .btn-filter.active {
+        background: #ffffff !important;
+        color: #0d6efd !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    [data-bs-theme="dark"] .btn-filter.active {
+        background: #1e293b !important;
+        color: #3b82f6 !important;
+    }
+
+    .test-case-item {
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background: rgba(255, 255, 255, 0.25);
+        border-radius: 12px;
+        transition: background 0.3s;
+        margin-bottom: 10px;
+    }
+
+    [data-bs-theme="dark"] .test-case-item {
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        background: rgba(255, 255, 255, 0.01);
+    }
+
+    .test-case-item:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+    [data-bs-theme="dark"] .test-case-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tc-header {
+        padding: 12px 16px;
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .tc-body {
+        display: none;
+        padding: 16px;
+        border-top: 1px solid rgba(0,0,0,0.04);
+        background: rgba(0,0,0,0.01);
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
+    }
+
+    [data-bs-theme="dark"] .tc-body {
+        border-top: 1px solid rgba(255,255,255,0.03);
+        background: rgba(0,0,0,0.1);
+    }
+
+    .tc-title {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1e293b;
+    }
+
+    [data-bs-theme="dark"] .tc-title {
+        color: #cbd5e1;
+    }
+
+    .tc-meta {
+        font-size: 0.72rem;
+        color: #94a3b8;
+    }
+
+    .tc-duration {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #64748b;
+    }
+
+    /* Badges */
+    .badge-status {
+        padding: 0.35rem 0.7rem;
+        border-radius: 30px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .badge-status-pass {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .badge-status-fail {
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    /* Table key-value detail list */
+    .tc-detail-row {
+        display: flex;
+        margin-bottom: 8px;
+        font-size: 0.82rem;
+    }
+
+    .tc-detail-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .tc-detail-label {
+        width: 120px;
+        font-weight: 600;
+        color: #64748b;
+        flex-shrink: 0;
+    }
+
+    .tc-detail-value {
+        color: #334155;
+        word-break: break-all;
+    }
+
+    [data-bs-theme="dark"] .tc-detail-value {
+        color: #94a3b8;
+    }
+
+    .bg-method {
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.68rem;
+        color: #ffffff;
+    }
+
+    .bg-get { background-color: #61affe; }
+    .bg-post { background-color: #49cc90; }
+    .bg-ef { background-color: #fca130; }
+
+    /* Custom Scrollbar */
+    .overflow-auto::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .overflow-auto::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .overflow-auto::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.3);
+        border-radius: 4px;
+    }
+
+    .overflow-auto::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.5);
+    }
+</style>
+
+<script>
+    let rawTestSuites = []; // Lưu trữ kết quả gốc để lọc danh sách
+
+    // Xóa log console hiển thị
+    function clearConsoleLog() {
+        const consoleLogs = document.getElementById("consoleLogs");
+        consoleLogs.innerHTML = `<div class="console-line text-muted">&gt; Terminal cleared. Ready to start new test run...</div><span class="console-cursor">_</span>`;
+    }
+
+    // In log ra màn hình console giả lập kèm màu sắc tương ứng
+    function writeConsoleLog(text, type = "info") {
+        const container = document.getElementById("consoleLogs");
+        const cursor = container.querySelector(".console-cursor");
+        
+        const line = document.createElement("div");
+        line.className = "console-line";
+        
+        let colorClass = "text-light";
+        if (type === "success") colorClass = "text-success"; // Green
+        else if (type === "error") colorClass = "text-danger"; // Red
+        else if (type === "warning") colorClass = "text-warning"; // Gold
+        else if (type === "muted") colorClass = "text-muted"; // Grey
+        else if (type === "info") colorClass = "text-info"; // Cyan
+
+        const now = new Date();
+        const timeStr = `[${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}]`;
+        
+        line.innerHTML = `<span class="text-muted font-fira">${timeStr}</span> <span class="${colorClass}">&gt; ${text}</span>`;
+        
+        container.insertBefore(line, cursor);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Toggle đóng mở hiển thị chi tiết test case
+    function toggleTestCaseDetail(element) {
+        const body = element.nextElementSibling;
+        const arrow = element.querySelector(".tc-arrow");
+        
+        if (body.style.display === "block") {
+            body.style.display = "none";
+            if (arrow) arrow.style.transform = "rotate(0deg)";
+        } else {
+            body.style.display = "block";
+            if (arrow) arrow.style.transform = "rotate(90deg)";
+        }
+    }
+
+    // Lọc danh sách test case dựa trên bộ lọc hoạt động (tất cả, pass, fail)
+    function filterResults(filterType) {
+        // Cập nhật trạng thái nút Active
+        document.querySelectorAll(".btn-filter").forEach(b => b.classList.remove("active"));
+        if (filterType === 'all') document.getElementById("btnFilterAll").classList.add("active");
+        else if (filterType === 'success') document.getElementById("btnFilterPass").classList.add("active");
+        else if (filterType === 'failed') document.getElementById("btnFilterFail").classList.add("active");
+
+        renderTestCases(filterType);
+    }
+
+    // Cập nhật các service status badges
+    function updateServiceBadges(suites) {
+        const systemSuite = suites.find(s => s.suiteName === "System Health Check");
+        if (!systemSuite) return;
+
+        systemSuite.testCases.forEach(tc => {
+            let iconId = "";
+            let badgeId = "";
+            
+            if (tc.name.includes("SQL Server")) {
+                iconId = "statusDbIcon";
+                badgeId = "statusDbBadge";
+            } else if (tc.name.includes("Python FastAPI")) {
+                iconId = "statusPythonIcon";
+                badgeId = "statusPythonBadge";
+            } else if (tc.name.includes("Gemini")) {
+                iconId = "statusGeminiIcon";
+                badgeId = "statusGeminiBadge";
+            }
+
+            if (iconId && badgeId) {
+                const iconEl = document.getElementById(iconId);
+                const badgeEl = document.getElementById(badgeId);
+
+                if (tc.status === "Success") {
+                    iconEl.className = "bx bx-check-shield text-success fs-4 mb-1";
+                    badgeEl.innerHTML = `<span class="dot-status bg-success dot-pulse"></span><span class="status-text text-success font-outfit">Hoạt động</span>`;
+                } else {
+                    iconEl.className = "bx bx-error text-danger fs-4 mb-1";
+                    badgeEl.innerHTML = `<span class="dot-status bg-danger dot-pulse"></span><span class="status-text text-danger font-outfit">Lỗi</span>`;
+                }
+            }
+        });
+    }
+
+    // Hiển thị biểu đồ tròn Success rate
+    function updateProgressCircle(percentage) {
+        const circle = document.getElementById("successProgressCircle");
+        const radius = circle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius; // 251.2
+        
+        const offset = circumference - (percentage / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+        
+        document.getElementById("percentageText").innerText = `${Math.round(percentage)}%`;
+        document.getElementById("statPassRate").innerText = `${Math.round(percentage)}%`;
+    }
+
+    // Đưa kết quả kiểm thử vào Dashboard
+    function renderTestCases(filter = "all") {
+        const container = document.getElementById("testCasesContainer");
+        const emptyState = document.getElementById("emptyResultsState");
+        
+        // Clear container nhưng giữ emptyState
+        container.innerHTML = "";
+        container.appendChild(emptyState);
+
+        let filteredCount = 0;
+
+        rawTestSuites.forEach(suite => {
+            // Lọc test cases trong suite
+            const cases = suite.testCases.filter(tc => {
+                if (filter === "all") return true;
+                if (filter === "success") return tc.status === "Success";
+                if (filter === "failed") return tc.status === "Failed";
+                return true;
+            });
+
+            if (cases.length === 0) return;
+
+            filteredCount += cases.length;
+            emptyState.style.display = "none";
+
+            // Tạo Header cho Suite
+            const suiteHeader = document.createElement("div");
+            suiteHeader.className = "suite-header-label mt-3 mb-2 small fw-bold text-muted font-outfit uppercase-label";
+            suiteHeader.innerText = suite.suiteName;
+            container.appendChild(suiteHeader);
+
+            // Render từng test case
+            cases.forEach(tc => {
+                const item = document.createElement("div");
+                item.className = "test-case-item shadow-sm border-glass";
+                
+                const isPass = tc.status === "Success";
+                const badgeClass = isPass ? "badge-status-pass" : "badge-status-fail";
+                const statusLabel = isPass ? "Thành công" : "Thất bại";
+                const statusIcon = isPass ? "bx-check-circle" : "bx-x-circle";
+                
+                let methodClass = "bg-get";
+                if (tc.method.includes("POST")) methodClass = "bg-post";
+                else if (tc.method.includes("EF")) methodClass = "bg-ef";
+
+                item.innerHTML = `
+                    <div class="tc-header" onclick="toggleTestCaseDetail(this)">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="bg-method ${methodClass} font-fira">${tc.method}</span>
+                            <div>
+                                <div class="tc-title font-outfit">${tc.name}</div>
+                                <div class="tc-meta font-fira">${tc.url}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="tc-duration font-outfit"><i class='bx bx-time-five me-1'></i>${tc.responseTimeMs} ms</span>
+                            <span class="badge-status ${badgeClass} font-outfit">
+                                <i class='bx ${statusIcon}'></i>${statusLabel}
+                            </span>
+                            <i class='bx bx-chevron-right tc-arrow text-muted fs-5' style="transition: transform 0.2s;"></i>
+                        </div>
+                    </div>
+                    <div class="tc-body">
+                        <div class="tc-detail-row">
+                            <div class="tc-detail-label font-outfit">Expected:</div>
+                            <div class="tc-detail-value font-outfit">${tc.expected || "N/A"}</div>
+                        </div>
+                        <div class="tc-detail-row">
+                            <div class="tc-detail-label font-outfit">Actual:</div>
+                            <div class="tc-detail-value font-outfit">${tc.actual || "N/A"}</div>
+                        </div>
+                        ${tc.errorMessage ? `
+                        <div class="tc-detail-row mt-2">
+                            <div class="tc-detail-label text-danger font-outfit">System Error:</div>
+                            <div class="tc-detail-value text-danger font-fira bg-dark p-2 rounded-3 text-sm overflow-auto" style="max-height:120px; width:100%">${tc.errorMessage}</div>
+                        </div>` : ""}
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        });
+
+        if (filteredCount === 0) {
+            emptyState.style.display = "block";
+            emptyState.querySelector("p").innerText = `Không tìm thấy kết quả nào khớp với bộ lọc.`;
+        }
+    }
+
+    // Kích hoạt chạy toàn bộ test
+    function startTestSuiteExecution() {
+        const btn = document.getElementById("btnRunTests");
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang kiểm thử...`;
+        
+        clearConsoleLog();
+        writeConsoleLog("Khởi động hệ thống Runner...", "info");
+        writeConsoleLog("Bắt đầu biên dịch và thiết lập các kịch bản kiểm thử.", "info");
+
+        // Gọi API chạy test
+        fetch("/Admin/RunTestSuite", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử`;
+
+            if (data.success) {
+                rawTestSuites = data.suites;
+                writeConsoleLog("Thực thi thành công tất cả các bộ kiểm thử!", "success");
+                
+                // Cập nhật thống kê
+                let totalCases = 0;
+                let passedCases = 0;
+                let totalTime = 0;
+                let maxTime = 0;
+
+                data.suites.forEach(suite => {
+                    writeConsoleLog(`=== Suite: ${suite.suiteName} ===`, "info");
+                    suite.testCases.forEach(tc => {
+                        totalCases++;
+                        totalTime += tc.responseTimeMs;
+                        if (tc.responseTimeMs > maxTime) maxTime = tc.responseTimeMs;
+
+                        if (tc.status === "Success") {
+                            passedCases++;
+                            writeConsoleLog(`[PASS] ${tc.name} (${tc.responseTimeMs}ms) - ${tc.actual}`, "success");
+                        } else {
+                            writeConsoleLog(`[FAIL] ${tc.name} (${tc.responseTimeMs}ms) - ${tc.actual}`, "error");
+                            if (tc.errorMessage) {
+                                writeConsoleLog(`   -> Error: ${tc.errorMessage.substring(0, 100)}...`, "error");
+                            }
+                        }
+                    });
+                });
+
+                const passRate = totalCases > 0 ? (passedCases / totalCases) * 100 : 0;
+                const avgTime = totalCases > 0 ? Math.round(totalTime / totalCases) : 0;
+
+                // Cập nhật UI Stats
+                updateProgressCircle(passRate);
+                document.getElementById("statPassDetails").innerText = `${passedCases} / ${totalCases} test case`;
+                document.getElementById("statAvgTime").innerText = `${avgTime} ms`;
+                document.getElementById("statMaxTime").innerText = `Cao nhất: ${maxTime} ms`;
+                document.getElementById("timeTrend").innerText = `Avg: ${avgTime}ms`;
+
+                // Cập nhật dịch vụ
+                updateServiceBadges(data.suites);
+
+                // Render kết quả chi tiết
+                filterResults('all');
+            } else {
+                writeConsoleLog("Lỗi khi chạy bộ kiểm thử: " + data.message, "error");
+                alert("Kiểm thử thất bại: " + data.message);
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử`;
+            writeConsoleLog("Không thể gửi yêu cầu chạy kiểm thử đến máy chủ. Hãy đảm bảo web app đang chạy.", "error");
+            console.error("Test execution failed:", err);
+        });
+    }
+</script>

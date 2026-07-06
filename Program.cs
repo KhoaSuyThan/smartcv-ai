@@ -35,6 +35,7 @@ builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
+builder.Services.AddScoped<IAutomationTestRunner, AutomationTestRunner>();
 builder.Services.AddHostedService<ProExpirationService>();
 
 // Đăng ký dịch vụ Health Checks kiểm tra DB và FastAPI Python AI
