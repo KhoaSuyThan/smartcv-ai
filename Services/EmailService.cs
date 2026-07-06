@@ -14,6 +14,12 @@ namespace DoAnCS.Services
 
         public async Task SendEmailAsync(string email, string subject, string message)
         {
+            // Bảo mật & Tiết kiệm tài nguyên: Bỏ qua gửi email thực đối với tài khoản kiểm thử E2E
+            if (string.IsNullOrEmpty(email) || email.StartsWith("test_e2e_"))
+            {
+                return;
+            }
+
             var emailSettings = _configuration.GetSection("EmailSettings");
             var smtpServer = emailSettings["SmtpServer"];
             var smtpPort = int.Parse(emailSettings["SmtpPort"] ?? "587");

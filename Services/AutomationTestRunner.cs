@@ -575,6 +575,86 @@ namespace DoAnCS.Services
             jobsTest.ResponseTimeMs = sw.ElapsedMilliseconds;
             suite.TestCases.Add(jobsTest);
 
+            // 3. CHẠY TEST LUỒNG AUTH VALIDATION E2E
+            var authValidationSteps = await _context.TestSteps
+                .Where(s => s.ScenarioName == "Auth Validation E2E")
+                .OrderBy(s => s.StepOrder)
+                .ToListAsync();
+
+            var authValidationTest = new TestCaseResult
+            {
+                Name = "Kiểm thử nhập liệu & Validation Auth (Auth Validation E2E)",
+                Method = "Playwright E2E",
+                Url = localBaseUrl + "/Account/Login",
+                Expected = "Kiểm tra chặn form trống, lỗi email/mật khẩu yếu, và thông báo lỗi nhập liệu đăng ký/đăng nhập."
+            };
+            sw.Restart();
+            try
+            {
+                using var playwright = await Playwright.CreateAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+                var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+                var page = await context.NewPageAsync();
+
+                if (!authValidationSteps.Any())
+                {
+                    throw new Exception("Không tìm thấy các bước cấu hình kiểm thử Auth Validation E2E trong database.");
+                }
+
+                await ExecuteDynamicStepsAsync(page, authValidationSteps, localBaseUrl);
+
+                authValidationTest.Status = "Success";
+                authValidationTest.Actual = $"Hoàn tất thành công {authValidationSteps.Count} bước kiểm thử validation.";
+            }
+            catch (Exception ex)
+            {
+                authValidationTest.Status = "Failed";
+                authValidationTest.Actual = "Gặp lỗi trong quá trình thực thi E2E Auth Validation động.";
+                authValidationTest.ErrorMessage = ex.Message + "\n" + ex.StackTrace;
+            }
+            authValidationTest.ResponseTimeMs = sw.ElapsedMilliseconds;
+            suite.TestCases.Add(authValidationTest);
+
+            // 4. CHẠY TEST LUỒNG JOBS VALIDATION E2E
+            var jobsValidationSteps = await _context.TestSteps
+                .Where(s => s.ScenarioName == "Jobs Validation E2E")
+                .OrderBy(s => s.StepOrder)
+                .ToListAsync();
+
+            var jobsValidationTest = new TestCaseResult
+            {
+                Name = "Kiểm thử nghiệp vụ & Validation Đăng tin (Jobs Validation E2E)",
+                Method = "Playwright E2E",
+                Url = localBaseUrl + "/Jobs/Create",
+                Expected = "Kiểm tra chặn form trống và thông báo lỗi khi nhập hạn nộp hồ sơ trong quá khứ."
+            };
+            sw.Restart();
+            try
+            {
+                using var playwright = await Playwright.CreateAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+                var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+                var page = await context.NewPageAsync();
+
+                if (!jobsValidationSteps.Any())
+                {
+                    throw new Exception("Không tìm thấy các bước cấu hình kiểm thử Jobs Validation E2E trong database.");
+                }
+
+                await ExecuteDynamicStepsAsync(page, jobsValidationSteps, localBaseUrl);
+
+                jobsValidationTest.Status = "Success";
+                jobsValidationTest.Actual = $"Hoàn tất thành công {jobsValidationSteps.Count} bước kiểm thử validation.";
+            }
+            catch (Exception ex)
+            {
+                jobsValidationTest.Status = "Failed";
+                jobsValidationTest.Actual = "Gặp lỗi trong quá trình thực thi E2E Jobs Validation động.";
+                jobsValidationTest.ErrorMessage = ex.Message + "\n" + ex.StackTrace;
+            }
+            jobsValidationTest.ResponseTimeMs = sw.ElapsedMilliseconds;
+            suite.TestCases.Add(jobsValidationTest);
+
             // Dọn dẹp dữ liệu kiểm thử sau khi hoàn thành
             await CleanE2ETestDataAsync();
 
