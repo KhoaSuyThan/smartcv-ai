@@ -283,7 +283,15 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể kiểm tra cột ProExpirationDate bằng raw SQL, tiến hành chạy migration mặc định. Chi tiết: " + dbEx.Message);
         }
 
-        context.Database.Migrate();
+        try
+        {
+            context.Database.Migrate();
+            Console.WriteLine("EF Core Database Migration: OK");
+        }
+        catch (Exception migrateEx)
+        {
+            Console.WriteLine("Lưu ý: EF Core Migration gặp lỗi nhưng sẽ tiếp tục các bước migration thủ công. Chi tiết: " + migrateEx.Message);
+        }
 
         // Migration thủ công: Thêm cột TopCandidatesCount vào GeminiConfigs nếu chưa có
         // (cột này được thêm sau khi DB đã khởi tạo, cần ALTER TABLE để tự động cập nhật)
