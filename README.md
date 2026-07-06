@@ -80,7 +80,16 @@ dotnet run
 ---
 
 ### Bước 4: Chạy Server AI Gợi Ý Việc Làm (Python)
-Tại thư mục gốc, bạn chỉ cần click đúp vào file `run_ai_server.bat` để chạy tự động.
+Tại thư mục gốc, bạn có thể chạy file khởi chạy nhanh tùy vào loại Terminal đang sử dụng:
+*   **Trên CMD hoặc PowerShell:**
+    ```cmd
+    run_ai_server.bat
+    ```
+*   **Trên Git Bash:**
+    ```bash
+    ./run_ai_server.bat
+    ```
+
 Hoặc có thể chạy thủ công theo các lệnh sau:
 ```bash
 cd AiMatchService
@@ -94,7 +103,7 @@ venv\Scripts\activate
 source venv/Scripts/activate
 
 # Cài đặt thư viện cần thiết
-pip install fastapi uvicorn pydantic sentence-transformers
+pip install -r requirements.txt
 
 # Chạy server FastAPI
 python main.py
