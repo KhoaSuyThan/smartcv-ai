@@ -26,10 +26,20 @@ namespace DoAnCS.Data
         public DbSet<CVMatchResult> CVMatchResults { get; set; }
         public DbSet<CVEmbedding> CVEmbeddings { get; set; }
         public DbSet<SiteFeedback> SiteFeedbacks { get; set; }
+        public DbSet<TestRun> TestRuns { get; set; }
+        public DbSet<TestCaseDetail> TestCaseDetails { get; set; }
+        public DbSet<TestStep> TestSteps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Cấu hình quan hệ 1-N giữa TestRun và TestCaseDetail
+            modelBuilder.Entity<TestCaseDetail>()
+                .HasOne(td => td.TestRun)
+                .WithMany(tr => tr.Details)
+                .HasForeignKey(td => td.TestRunID)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Cấu hình khóa chính hỗn hợp cho ResumeSkill
             modelBuilder.Entity<ResumeSkill>()

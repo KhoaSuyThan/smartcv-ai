@@ -1049,17 +1049,156 @@ namespace DoAnCS.Controllers
             return View();
         }
 
-        // API Endpoint chạy Automation Test bất đồng bộ
+        // API Endpoint chạy Suite Hệ thống
         [HttpPost]
-        public async Task<IActionResult> RunTestSuite()
+        public async Task<IActionResult> RunSystemTestSuite()
         {
             try
             {
-                // Lấy localBaseUrl động từ request hiện tại
                 string localBaseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+                var health = await _testRunner.RunSystemHealthSuiteAsync();
+                var api = await _testRunner.RunApiVerificationSuiteAsync(localBaseUrl);
+                var perf = await _testRunner.RunPerformanceSuiteAsync(localBaseUrl);
+
+                var combined = new TestSuiteResult
+                {
+                    SuiteName = "System Health & API Check",
+                    TestCases = health.TestCases.Concat(api.TestCases).Concat(perf.TestCases).ToList()
+                };
+
+                await _testRunner.SaveTestRunToDbAsync(combined);
+                return Json(new { success = true, suite = combined });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // API Endpoint chạy Suite E2E Playwright
+        [HttpPost]
+        public async Task<IActionResult> RunE2ETestSuite()
+        {
+            try
+            {
+                string localBaseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+                var e2eResult = await _testRunner.RunE2EFlowSuiteAsync(localBaseUrl);
+                return Json(new { success = true, suite = e2eResult });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // API Endpoint lấy lịch sử kiểm thử từ database
+        [HttpGet]
+        public async Task<IActionResult> GetTestHistory()
+        {
+            try
+            {
+                var history = await _testRunner.GetTestHistoryAsync();
                 
-                var results = await _testRunner.RunAllTestsAsync(localBaseUrl);
-                return Json(new { success = true, suites = results });
+                // Tránh lỗi tham chiếu vòng (Circular Reference) bằng cách chiếu sang đối tượng sạch
+                var cleanHistory = history.Select(tr => new {
+                    tr.TestRunID,
+                    tr.ExecutionTime,
+                    tr.SuiteName,
+                    tr.TotalCases,
+                    tr.PassedCases,
+                    tr.FailedCases,
+                    tr.AvgResponseTimeMs,
+                    Details = tr.Details.Select(td => new {
+                        td.TestCaseID,
+                        td.TestRunID,
+                        td.Name,
+                        td.Method,
+                        td.Url,
+                        td.Status,
+                        td.ResponseTimeMs,
+                        td.ExpectedResult,
+                        td.ActualResult,
+                        td.ErrorMessage
+                    }).ToList()
+                }).ToList();
+
+                return Json(new { success = true, history = cleanHistory });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // API Endpoint xóa một bản ghi kiểm thử
+        [HttpPost]
+        public async Task<IActionResult> DeleteTestRun(int id)
+        {
+            try
+            {
+                var deleted = await _testRunner.DeleteTestRunAsync(id);
+                return Json(new { success = deleted });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // API Endpoint lấy danh sách các bước kịch bản kiểm thử động
+        [HttpGet]
+        public async Task<IActionResult> GetTestSteps(string scenarioName)
+        {
+            try
+            {
+                var steps = await _context.TestSteps
+                    .Where(s => s.ScenarioName == scenarioName)
+                    .OrderBy(s => s.StepOrder)
+                    .ToListAsync();
+                return Json(new { success = true, steps = steps });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // API Endpoint lưu danh sách các bước kịch bản đã chỉnh sửa
+        [HttpPost]
+        public async Task<IActionResult> SaveTestSteps([FromBody] List<TestStep> steps)
+        {
+            try
+            {
+                if (steps == null || !steps.Any())
+                {
+                    return Json(new { success = false, message = "Dữ liệu bước kiểm thử không hợp lệ." });
+                }
+
+                // Lấy tên kịch bản từ phần tử đầu tiên
+                string scenarioName = steps.First().ScenarioName;
+
+                // Xóa tất cả các bước cũ của kịch bản này
+                var oldSteps = await _context.TestSteps
+                    .Where(s => s.ScenarioName == scenarioName)
+                    .ToListAsync();
+                _context.TestSteps.RemoveRange(oldSteps);
+
+                // Thêm các bước mới
+                int order = 1;
+                foreach (var step in steps)
+                {
+                    step.StepID = 0; // Để EF tự sinh ID mới
+                    step.StepOrder = order++;
+                    
+                    step.TargetSelector = string.IsNullOrEmpty(step.TargetSelector) ? null : step.TargetSelector.Trim();
+                    step.Value = string.IsNullOrEmpty(step.Value) ? null : step.Value.Trim();
+                    step.Description = string.IsNullOrEmpty(step.Description) ? null : step.Description.Trim();
+                    
+                    _context.TestSteps.Add(step);
+                }
+
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
             }
             catch (Exception ex)
             {

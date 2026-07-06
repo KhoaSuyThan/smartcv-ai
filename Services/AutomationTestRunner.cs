@@ -1,32 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Playwright;
 using DoAnCS.Data;
+using DoAnCS.Models;
 
 namespace DoAnCS.Services
 {
     // Cấu trúc kết quả của từng ca kiểm thử nhỏ
     public class TestCaseResult
     {
-        public string Name { get; set; }
-        public string Method { get; set; }
-        public string Url { get; set; }
-        public string Expected { get; set; }
-        public string Actual { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Method { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string Expected { get; set; } = string.Empty;
+        public string Actual { get; set; } = string.Empty;
         public long ResponseTimeMs { get; set; }
-        public string Status { get; set; } // "Success" hoặc "Failed"
-        public string ErrorMessage { get; set; }
+        public string Status { get; set; } = "Failed"; // "Success" hoặc "Failed"
+        public string? ErrorMessage { get; set; }
     }
 
     // Cấu trúc kết quả của cả bộ kiểm thử
     public class TestSuiteResult
     {
-        public string SuiteName { get; set; }
+        public string SuiteName { get; set; } = string.Empty;
         public List<TestCaseResult> TestCases { get; set; } = new List<TestCaseResult>();
     }
 
@@ -34,6 +37,13 @@ namespace DoAnCS.Services
     public interface IAutomationTestRunner
     {
         Task<List<TestSuiteResult>> RunAllTestsAsync(string localBaseUrl);
+        Task<TestSuiteResult> RunSystemHealthSuiteAsync();
+        Task<TestSuiteResult> RunApiVerificationSuiteAsync(string localBaseUrl);
+        Task<TestSuiteResult> RunPerformanceSuiteAsync(string localBaseUrl);
+        Task<TestSuiteResult> RunE2EFlowSuiteAsync(string localBaseUrl);
+        Task SaveTestRunToDbAsync(TestSuiteResult suiteResult);
+        Task<List<TestRun>> GetTestHistoryAsync();
+        Task<bool> DeleteTestRunAsync(int testRunId);
     }
 
     public class AutomationTestRunner : IAutomationTestRunner
@@ -55,25 +65,31 @@ namespace DoAnCS.Services
             _config = config;
         }
 
-        // Chạy toàn bộ các suite kiểm thử
+        // Chạy toàn bộ các suite kiểm thử (System Health, API, Performance) và tự động lưu DB
         public async Task<List<TestSuiteResult>> RunAllTestsAsync(string localBaseUrl)
         {
             var results = new List<TestSuiteResult>();
 
             // 1. Chạy Suite kiểm tra sức khỏe hệ thống
-            results.Add(await RunSystemHealthSuiteAsync());
+            var healthSuite = await RunSystemHealthSuiteAsync();
+            results.Add(healthSuite);
+            await SaveTestRunToDbAsync(healthSuite);
 
             // 2. Chạy Suite xác thực tích hợp API
-            results.Add(await RunApiVerificationSuiteAsync(localBaseUrl));
+            var apiSuite = await RunApiVerificationSuiteAsync(localBaseUrl);
+            results.Add(apiSuite);
+            await SaveTestRunToDbAsync(apiSuite);
 
-            // 3. Chạy Suite kiểm thử hiệu năng / tải đồng thời
-            results.Add(await RunPerformanceSuiteAsync(localBaseUrl));
+            // 3. Chạy Suite kiểm thử hiệu năng
+            var perfSuite = await RunPerformanceSuiteAsync(localBaseUrl);
+            results.Add(perfSuite);
+            await SaveTestRunToDbAsync(perfSuite);
 
             return results;
         }
 
         // Kiểm tra kết nối SQL Server, FastAPI Python AI và Google Gemini API
-        private async Task<TestSuiteResult> RunSystemHealthSuiteAsync()
+        public async Task<TestSuiteResult> RunSystemHealthSuiteAsync()
         {
             var suite = new TestSuiteResult { SuiteName = "System Health Check" };
             var client = _httpClientFactory.CreateClient();
@@ -154,7 +170,6 @@ namespace DoAnCS.Services
             sw.Restart();
             try
             {
-                // Thử sinh một phản hồi siêu ngắn để kiểm tra khóa API và cấu hình hoạt động
                 var response = await _aiService.GenerateContent("hello, reply 'ok' only.");
                 if (!string.IsNullOrEmpty(response) && !response.StartsWith("Lỗi"))
                 {
@@ -180,7 +195,7 @@ namespace DoAnCS.Services
         }
 
         // Kiểm tra các API đầu vào quan trọng của trang web
-        private async Task<TestSuiteResult> RunApiVerificationSuiteAsync(string localBaseUrl)
+        public async Task<TestSuiteResult> RunApiVerificationSuiteAsync(string localBaseUrl)
         {
             var suite = new TestSuiteResult { SuiteName = "API Integration Verification" };
             var client = _httpClientFactory.CreateClient();
@@ -217,7 +232,7 @@ namespace DoAnCS.Services
             homeTest.ResponseTimeMs = sw.ElapsedMilliseconds;
             suite.TestCases.Add(homeTest);
 
-            // 2. Kiểm tra API CV Templates /Resume/VueTemplates
+            // 2. API CV Templates
             var templatesUrl = localBaseUrl.TrimEnd('/') + "/Resume/VueTemplates";
             var templatesTest = new TestCaseResult 
             { 
@@ -251,7 +266,7 @@ namespace DoAnCS.Services
             templatesTest.ResponseTimeMs = sw.ElapsedMilliseconds;
             suite.TestCases.Add(templatesTest);
 
-            // 3. Kiểm tra Job Board /Home/Jobs
+            // 3. Job Board /Home/Jobs
             var jobsUrl = localBaseUrl.TrimEnd('/') + "/Home/Jobs";
             var jobsTest = new TestCaseResult 
             { 
@@ -288,7 +303,7 @@ namespace DoAnCS.Services
         }
 
         // Kiểm thử hiệu năng và độ trễ
-        private async Task<TestSuiteResult> RunPerformanceSuiteAsync(string localBaseUrl)
+        public async Task<TestSuiteResult> RunPerformanceSuiteAsync(string localBaseUrl)
         {
             var suite = new TestSuiteResult { SuiteName = "Performance & Stress Testing" };
             var client = _httpClientFactory.CreateClient();
@@ -356,6 +371,299 @@ namespace DoAnCS.Services
             suite.TestCases.Add(dbLatencyTest);
 
             return suite;
+        }
+
+        // Hàm phụ trợ thực thi động danh sách các bước kịch bản kiểm thử
+        private async Task ExecuteDynamicStepsAsync(IPage page, List<TestStep> steps, string localBaseUrl)
+        {
+            foreach (var step in steps)
+            {
+                // In log ra debug console
+                Console.WriteLine($"[Playwright E2E] Running Step {step.StepOrder}: {step.Description} (Action: {step.ActionType}, Selector: {step.TargetSelector}, Value: {step.Value})");
+                
+                switch (step.ActionType)
+                {
+                    case "Navigate":
+                        await page.GotoAsync(localBaseUrl + step.Value);
+                        break;
+
+                    case "Click":
+                        if (step.Value == "ACCEPT_DIALOG")
+                        {
+                            page.Dialog += (_, dialog) => dialog.AcceptAsync();
+                        }
+                        
+                        // Chờ selector hiển thị trước khi click
+                        await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+                        await page.ClickAsync(step.TargetSelector);
+                        
+                        if (int.TryParse(step.Value, out int timeoutClickMs))
+                        {
+                            await page.WaitForTimeoutAsync(timeoutClickMs);
+                        }
+                        break;
+
+                    case "Fill":
+                        if (step.TargetSelector == ".otp-input")
+                        {
+                            var otpInputs = await page.QuerySelectorAllAsync(".otp-input");
+                            if (otpInputs.Count == 6)
+                            {
+                                string otp = step.Value ?? "123456";
+                                for (int i = 0; i < 6; i++)
+                                {
+                                    await otpInputs[i].FillAsync(otp[i].ToString());
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception("Không tìm thấy đủ 6 ô nhập mã OTP trên màn hình xác thực.");
+                            }
+                        }
+                        else
+                        {
+                            string fillValue = step.Value ?? "";
+                            if (fillValue == "TOMORROW")
+                            {
+                                fillValue = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+                            }
+                            await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+                            await page.FillAsync(step.TargetSelector, fillValue);
+                        }
+                        break;
+
+                    case "Select":
+                        await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+                        await page.SelectOptionAsync(step.TargetSelector, new[] { step.Value });
+                        if (step.TargetSelector == "#roleSelect")
+                        {
+                            await page.WaitForTimeoutAsync(500);
+                        }
+                        break;
+
+                    case "AssertUrl":
+                        string expectedUrl = step.Value ?? "";
+                        if (expectedUrl.Contains("**/"))
+                        {
+                            await page.WaitForURLAsync(expectedUrl);
+                        }
+                        else
+                        {
+                            string fullExpected = expectedUrl.StartsWith("/") ? (localBaseUrl + expectedUrl) : expectedUrl;
+                            if (fullExpected.EndsWith("*"))
+                            {
+                                string prefix = fullExpected.TrimEnd('*');
+                                await page.WaitForURLAsync(url => url.StartsWith(prefix));
+                            }
+                            else
+                            {
+                                await page.WaitForURLAsync(fullExpected);
+                            }
+                        }
+                        break;
+
+                    case "AssertText":
+                        await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+                        var element = page.Locator(step.TargetSelector);
+                        var text = await element.InnerTextAsync();
+                        if (!text.Contains(step.Value ?? ""))
+                        {
+                            throw new Exception($"Kiểm tra nội dung thất bại ở selector '{step.TargetSelector}'. Mong đợi chứa: '{step.Value}', Thực tế: '{text}'");
+                        }
+                        break;
+
+                    case "AssertTextNot":
+                        await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+                        var textContent = await page.Locator(step.TargetSelector).InnerTextAsync();
+                        if (textContent.Contains(step.Value ?? ""))
+                        {
+                            throw new Exception($"Kiểm tra phủ định thất bại ở selector '{step.TargetSelector}'. Mong đợi KHÔNG chứa: '{step.Value}', nhưng nội dung thực tế vẫn chứa.");
+                        }
+                        break;
+
+                    default:
+                        throw new Exception($"Hành động kiểm thử '{step.ActionType}' không được hỗ trợ.");
+                }
+            }
+        }
+
+        // Chạy kiểm thử luồng người dùng E2E sử dụng Playwright và các bước cấu hình động từ database
+        public async Task<TestSuiteResult> RunE2EFlowSuiteAsync(string localBaseUrl)
+        {
+            var suite = new TestSuiteResult { SuiteName = "E2E User Flow Testing" };
+
+            // Khởi tạo các bản ghi dọn dẹp dữ liệu kiểm thử trùng lặp trước khi bắt đầu
+            await CleanE2ETestDataAsync();
+
+            // 1. CHẠY TEST LUỒNG ĐĂNG KÝ/ĐĂNG NHẬP (AUTH E2E)
+            var authSteps = await _context.TestSteps
+                .Where(s => s.ScenarioName == "Auth E2E")
+                .OrderBy(s => s.StepOrder)
+                .ToListAsync();
+
+            var authTest = new TestCaseResult
+            {
+                Name = "Test Luồng Đăng nhập/Đăng ký (Auth E2E)",
+                Method = "Playwright E2E",
+                Url = localBaseUrl + "/Account/Login",
+                Expected = "Người dùng đăng ký mới với OTP 123456 -> Đăng nhập thành công -> Điều hướng về Trang chủ -> Đăng xuất (thực thi động từ DB)."
+            };
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                using var playwright = await Playwright.CreateAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+                var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+                var page = await context.NewPageAsync();
+
+                if (!authSteps.Any())
+                {
+                    throw new Exception("Không tìm thấy các bước cấu hình kiểm thử Auth E2E trong database.");
+                }
+
+                await ExecuteDynamicStepsAsync(page, authSteps, localBaseUrl);
+
+                authTest.Status = "Success";
+                authTest.Actual = $"Hoàn tất thành công {authSteps.Count} bước kiểm thử động.";
+            }
+            catch (Exception ex)
+            {
+                authTest.Status = "Failed";
+                authTest.Actual = "Gặp lỗi trong quá trình thực thi E2E Auth động.";
+                authTest.ErrorMessage = ex.Message + "\n" + ex.StackTrace;
+            }
+            authTest.ResponseTimeMs = sw.ElapsedMilliseconds;
+            suite.TestCases.Add(authTest);
+
+            // 2. CHẠY TEST LUỒNG QUẢN LÝ TIN TUYỂN DỤNG (JOBS E2E)
+            var jobsSteps = await _context.TestSteps
+                .Where(s => s.ScenarioName == "Jobs E2E")
+                .OrderBy(s => s.StepOrder)
+                .ToListAsync();
+
+            var jobsTest = new TestCaseResult
+            {
+                Name = "Test Luồng Tin tuyển dụng (Jobs E2E)",
+                Method = "Playwright E2E",
+                Url = localBaseUrl + "/Jobs/Create",
+                Expected = "Đăng ký Recruiter -> Đăng nhập -> Tạo tin tuyển dụng -> Chỉnh sửa bài -> Xóa bài đăng (thực thi động từ DB)."
+            };
+            sw.Restart();
+            try
+            {
+                using var playwright = await Playwright.CreateAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+                var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+                var page = await context.NewPageAsync();
+
+                if (!jobsSteps.Any())
+                {
+                    throw new Exception("Không tìm thấy các bước cấu hình kiểm thử Jobs E2E trong database.");
+                }
+
+                await ExecuteDynamicStepsAsync(page, jobsSteps, localBaseUrl);
+
+                jobsTest.Status = "Success";
+                jobsTest.Actual = $"Hoàn tất thành công {jobsSteps.Count} bước kiểm thử động.";
+            }
+            catch (Exception ex)
+            {
+                jobsTest.Status = "Failed";
+                jobsTest.Actual = "Gặp lỗi trong quá trình thực thi E2E Jobs động.";
+                jobsTest.ErrorMessage = ex.Message + "\n" + ex.StackTrace;
+            }
+            jobsTest.ResponseTimeMs = sw.ElapsedMilliseconds;
+            suite.TestCases.Add(jobsTest);
+
+            // Dọn dẹp dữ liệu kiểm thử sau khi hoàn thành
+            await CleanE2ETestDataAsync();
+
+            // Lưu kết quả vào database
+            await SaveTestRunToDbAsync(suite);
+
+            return suite;
+        }
+
+        // Dọn dẹp dữ liệu của E2E kiểm thử khỏi database
+        private async Task CleanE2ETestDataAsync()
+        {
+            try
+            {
+                // Xóa Users test_e2e_
+                var testUsers = await _context.Users.Where(u => u.Email.StartsWith("test_e2e_")).ToListAsync();
+                if (testUsers.Any())
+                {
+                    _context.Users.RemoveRange(testUsers);
+                }
+
+                // Xóa Companies E2E Test Company
+                var testCompanies = await _context.Companies.Where(c => c.Name.StartsWith("E2E Test Company")).ToListAsync();
+                if (testCompanies.Any())
+                {
+                    _context.Companies.RemoveRange(testCompanies);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi dọn dẹp dữ liệu E2E: " + ex.Message);
+            }
+        }
+
+        // Lưu kết quả kiểm thử vào Database
+        public async Task SaveTestRunToDbAsync(TestSuiteResult suiteResult)
+        {
+            if (suiteResult == null || suiteResult.TestCases.Count == 0) return;
+
+            int total = suiteResult.TestCases.Count;
+            int passed = suiteResult.TestCases.Count(tc => tc.Status == "Success");
+            int failed = total - passed;
+            long avgResponseTime = total > 0 ? (long)suiteResult.TestCases.Average(tc => tc.ResponseTimeMs) : 0;
+
+            var testRun = new TestRun
+            {
+                ExecutionTime = DateTime.Now,
+                SuiteName = suiteResult.SuiteName,
+                TotalCases = total,
+                PassedCases = passed,
+                FailedCases = failed,
+                AvgResponseTimeMs = avgResponseTime,
+                Details = suiteResult.TestCases.Select(tc => new TestCaseDetail
+                {
+                    Name = tc.Name,
+                    Method = tc.Method,
+                    Url = tc.Url,
+                    Status = tc.Status,
+                    ResponseTimeMs = tc.ResponseTimeMs,
+                    ExpectedResult = tc.Expected,
+                    ActualResult = tc.Actual,
+                    ErrorMessage = tc.ErrorMessage
+                }).ToList()
+            };
+
+            _context.TestRuns.Add(testRun);
+            await _context.SaveChangesAsync();
+        }
+
+        // Lấy lịch sử kiểm thử
+        public async Task<List<TestRun>> GetTestHistoryAsync()
+        {
+            return await _context.TestRuns
+                .Include(tr => tr.Details)
+                .OrderByDescending(tr => tr.ExecutionTime)
+                .ToListAsync();
+        }
+
+        // Xóa một lịch sử kiểm thử
+        public async Task<bool> DeleteTestRunAsync(int testRunId)
+        {
+            var run = await _context.TestRuns.FindAsync(testRunId);
+            if (run == null) return false;
+
+            _context.TestRuns.Remove(run);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

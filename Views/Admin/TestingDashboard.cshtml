@@ -14,134 +14,387 @@
                 <h3 class="fw-bold m-0 page-title">
                     <i class='bx bx-shield-quarter text-primary-gradient me-2 animate-float'></i>Automation Testing
                 </h3>
-                <p class="text-muted small mb-0 font-outfit">Hệ thống tự động giám sát sức khỏe, kiểm thử tích hợp API và đo lường hiệu năng thời gian thực.</p>
+                <p class="text-muted small mb-0 font-outfit">Hệ thống tự động giám sát sức khỏe, kiểm thử tích hợp API và chạy kịch bản E2E Playwright thời gian thực.</p>
             </div>
-            <div>
-                <button id="btnRunTests" class="btn btn-run-tests font-outfit shadow-sm" onclick="startTestSuiteExecution()">
-                    <i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử
+        </div>
+
+        <!-- Custom Tabs Bar -->
+        <ul class="nav nav-tabs border-0 mb-4 font-outfit" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="system-tab" data-bs-toggle="tab" data-bs-target="#system-pane" type="button" role="tab" aria-controls="system-pane" aria-selected="true">
+                    <i class='bx bx-desktop me-2'></i>Giám sát Hệ thống
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="e2e-tab" data-bs-toggle="tab" data-bs-target="#e2e-pane" type="button" role="tab" aria-controls="e2e-pane" aria-selected="false">
+                    <i class='bx bx-play-circle me-2'></i>Kiểm thử Luồng E2E
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history-pane" type="button" role="tab" aria-controls="history-pane" aria-selected="false" onclick="loadTestHistory()">
+                    <i class='bx bx-history me-2'></i>Lịch sử Kiểm thử
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="config-tab" data-bs-toggle="tab" data-bs-target="#config-pane" type="button" role="tab" aria-controls="config-pane" aria-selected="false" onclick="loadScenarioSteps()">
+                    <i class='bx bx-cog me-2'></i>Cấu hình Kịch bản
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Panes Content -->
+        <div class="tab-content" id="dashboardTabsContent">
+            
+            <!-- TAB 1: SYSTEM HEALTH & API MONITOR -->
+            <div class="tab-pane fade show active" id="system-pane" role="tabpanel" aria-labelledby="system-tab">
+                <div class="d-flex justify-content-end mb-3">
+                    <button id="btnRunSystemTests" class="btn btn-run-tests font-outfit shadow-sm" onclick="startSystemTests()">
+                        <i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Giám Sát
+                    </button>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Circular Progress -->
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card d-flex align-items-center p-4">
+                            <div class="circular-progress-wrapper me-3">
+                                <svg class="circular-progress-svg" viewBox="0 0 100 100">
+                                    <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                                    <circle id="successProgressCircle" class="fg-circle" cx="50" cy="50" r="40" style="stroke-dashoffset: 251.2;"></circle>
+                                </svg>
+                                <div class="progress-percentage font-outfit" id="percentageText">0%</div>
+                            </div>
+                            <div>
+                                <h6 class="text-muted small mb-1 uppercase-label font-outfit">Tỷ lệ vượt qua</h6>
+                                <h4 class="fw-bold mb-0 font-outfit text-gradient" id="statPassRate">0%</h4>
+                                <small class="text-muted font-outfit" id="statPassDetails">0 / 0 test case</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avg Response Time -->
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="icon-box-glass bg-blue">
+                                    <i class='bx bx-timer fs-4 text-blue-glow'></i>
+                                </div>
+                                <span class="badge badge-trend bg-blue-soft text-blue font-outfit" id="timeTrend">N/A</span>
+                            </div>
+                            <h6 class="text-muted small mb-1 uppercase-label font-outfit">Thời gian chạy tb</h6>
+                            <h3 class="fw-bold mb-1 font-outfit text-value" id="statAvgTime">0 ms</h3>
+                            <p class="text-muted small mb-0 font-outfit" id="statMaxTime">Cao nhất: 0 ms</p>
+                        </div>
+                    </div>
+
+                    <!-- Infrastructure Status -->
+                    <div class="col-md-6">
+                        <div class="glass-card stat-card p-4">
+                            <h6 class="text-muted small mb-3 uppercase-label font-outfit"><i class='bx bx-server me-1'></i>Trạng thái các hạ tầng dịch vụ</h6>
+                            <div class="row g-3">
+                                <div class="col-4">
+                                    <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                        <i class='bx bx-data text-muted fs-4 mb-1' id="statusDbIcon"></i>
+                                        <div class="small fw-semibold text-value font-outfit">SQL Server</div>
+                                        <div class="status-indicator mt-1" id="statusDbBadge">
+                                            <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                        <i class='bx bxl-python text-muted fs-4 mb-1' id="statusPythonIcon"></i>
+                                        <div class="small fw-semibold text-value font-outfit">Python AI</div>
+                                        <div class="status-indicator mt-1" id="statusPythonBadge">
+                                            <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                        <i class='bx bx-brain text-muted fs-4 mb-1' id="statusGeminiIcon"></i>
+                                        <div class="small fw-semibold text-value font-outfit">Gemini AI</div>
+                                        <div class="status-indicator mt-1" id="statusGeminiBadge">
+                                            <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Console Log -->
+                    <div class="col-lg-6">
+                        <div class="glass-card console-card p-0 d-flex flex-column">
+                            <div class="console-header px-4 py-3 d-flex justify-content-between align-items-center border-bottom-glass">
+                                <div class="d-flex align-items-center">
+                                    <span class="console-dot bg-danger-dot me-2"></span>
+                                    <span class="console-dot bg-warning-dot me-2"></span>
+                                    <span class="console-dot bg-success-dot me-3"></span>
+                                    <span class="fw-semibold text-muted font-outfit small"><i class='bx bx-terminal me-1'></i>MONITORING LOGS</span>
+                                </div>
+                                <button class="btn-clear-console" onclick="clearConsoleLog('consoleLogsSystem')"><i class='bx bx-trash me-1'></i>Xóa log</button>
+                            </div>
+                            <div class="console-body p-4 font-fira" id="consoleLogsSystem">
+                                <div class="console-line text-muted">&gt; Ready to start system health check...</div>
+                                <span class="console-cursor">_</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Results -->
+                    <div class="col-lg-6">
+                        <div class="glass-card results-card p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 font-outfit text-value"><i class='bx bx-list-check me-2 text-primary'></i>Chi Tiết Các Ca Kiểm Thử</h5>
+                                <div class="btn-group filter-btn-group p-1 font-outfit" role="group">
+                                    <button type="button" class="btn btn-filter active" id="btnFilterAll" onclick="filterResults('all', 'system')">Tất cả</button>
+                                    <button type="button" class="btn btn-filter text-success" id="btnFilterPass" onclick="filterResults('success', 'system')">Thành công</button>
+                                    <button type="button" class="btn btn-filter text-danger" id="btnFilterFail" onclick="filterResults('failed', 'system')">Thất bại</button>
+                                </div>
+                            </div>
+
+                            <div class="accordion-results overflow-auto flex-grow-1 pe-1" id="systemTestCasesContainer" style="max-height: 480px;">
+                                <div class="text-center text-muted my-5 py-5 font-outfit empty-results-state">
+                                    <i class='bx bx-list-check fs-1 opacity-50 mb-3 text-primary-gradient'></i>
+                                    <p class="mb-0">Chưa có kết quả kiểm thử nào được ghi nhận.</p>
+                                    <p class="small text-muted">Kích hoạt kiểm thử để bắt đầu phân tích hệ thống.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: PLAYWRIGHT E2E AUTOMATION TESTING -->
+            <div class="tab-pane fade" id="e2e-pane" role="tabpanel" aria-labelledby="e2e-tab">
+                <div class="d-flex justify-content-end mb-3">
+                    <button id="btnRunE2ETests" class="btn btn-run-tests font-outfit shadow-sm" onclick="startE2ETests()">
+                        <i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E
+                    </button>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <!-- Circular Progress -->
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card d-flex align-items-center p-4">
+                            <div class="circular-progress-wrapper me-3">
+                                <svg class="circular-progress-svg" viewBox="0 0 100 100">
+                                    <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                                    <circle id="successProgressCircleE2E" class="fg-circle" cx="50" cy="50" r="40" style="stroke-dashoffset: 251.2;"></circle>
+                                </svg>
+                                <div class="progress-percentage font-outfit" id="percentageTextE2E">0%</div>
+                            </div>
+                            <div>
+                                <h6 class="text-muted small mb-1 uppercase-label font-outfit">Tỷ lệ vượt qua</h6>
+                                <h4 class="fw-bold mb-0 font-outfit text-gradient" id="statPassRateE2E">0%</h4>
+                                <small class="text-muted font-outfit" id="statPassDetailsE2E">0 / 0 test case</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avg Response Time -->
+                    <div class="col-md-3">
+                        <div class="glass-card stat-card p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="icon-box-glass bg-purple">
+                                    <i class='bx bx-timer fs-4 text-purple-glow'></i>
+                                </div>
+                                <span class="badge badge-trend bg-purple-soft text-purple font-outfit" id="timeTrendE2E">N/A</span>
+                            </div>
+                            <h6 class="text-muted small mb-1 uppercase-label font-outfit">Thời gian chạy tb</h6>
+                            <h3 class="fw-bold mb-1 font-outfit text-value" id="statAvgTimeE2E">0 ms</h3>
+                            <p class="text-muted small mb-0 font-outfit" id="statMaxTimeE2E">Cao nhất: 0 ms</p>
+                        </div>
+                    </div>
+
+                    <!-- E2E Engine Status -->
+                    <div class="col-md-6">
+                        <div class="glass-card stat-card p-4">
+                            <h6 class="text-muted small mb-3 uppercase-label font-outfit"><i class='bx bx-bot me-1'></i>Trạng thái Môi trường E2E</h6>
+                            <div class="row g-3">
+                                <div class="col-4">
+                                    <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                        <i class='bx bx-globe text-muted fs-4 mb-1' id="statusE2EBrowserIcon"></i>
+                                        <div class="small fw-semibold text-value font-outfit">Playwright Chrome</div>
+                                        <div class="status-indicator mt-1" id="statusE2EBrowserBadge">
+                                            <span class="dot-status bg-success dot-pulse"></span><span class="status-text text-success font-outfit">Sẵn sàng</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                        <i class='bx bx-lock-open text-muted fs-4 mb-1' id="statusE2EBypassIcon"></i>
+                                        <div class="small fw-semibold text-value font-outfit">OTP Bypass</div>
+                                        <div class="status-indicator mt-1" id="statusE2EBypassBadge">
+                                            <span class="dot-status bg-success dot-pulse"></span><span class="status-text text-success font-outfit">Hoạt động (123456)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="service-status-box text-center p-2 rounded-3 border-glass">
+                                        <i class='bx bx-user-check text-muted fs-4 mb-1' id="statusE2EAuthIcon"></i>
+                                        <div class="small fw-semibold text-value font-outfit">Candidate/Recruiter</div>
+                                        <div class="status-indicator mt-1" id="statusE2EAuthBadge">
+                                            <span class="dot-status bg-success dot-pulse"></span><span class="status-text text-success font-outfit">Tự sinh & Dọn dẹp</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <!-- Console Log -->
+                    <div class="col-lg-6">
+                        <div class="glass-card console-card p-0 d-flex flex-column">
+                            <div class="console-header px-4 py-3 d-flex justify-content-between align-items-center border-bottom-glass">
+                                <div class="d-flex align-items-center">
+                                    <span class="console-dot bg-danger-dot me-2"></span>
+                                    <span class="console-dot bg-warning-dot me-2"></span>
+                                    <span class="console-dot bg-success-dot me-3"></span>
+                                    <span class="fw-semibold text-muted font-outfit small"><i class='bx bx-terminal me-1'></i>E2E PLAYWRIGHT CONSOLE LOGS</span>
+                                </div>
+                                <button class="btn-clear-console" onclick="clearConsoleLog('consoleLogsE2E')"><i class='bx bx-trash me-1'></i>Xóa log</button>
+                            </div>
+                            <div class="console-body p-4 font-fira" id="consoleLogsE2E">
+                                <div class="console-line text-muted">&gt; Ready to start Playwright E2E testing...</div>
+                                <span class="console-cursor">_</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Results -->
+                    <div class="col-lg-6">
+                        <div class="glass-card results-card p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0 font-outfit text-value"><i class='bx bx-list-check me-2 text-primary'></i>Chi Tiết Các Ca Kiểm Thử E2E</h5>
+                                <div class="btn-group filter-btn-group p-1 font-outfit" role="group">
+                                    <button type="button" class="btn btn-filter active" id="btnFilterAllE2E" onclick="filterResults('all', 'e2e')">Tất cả</button>
+                                    <button type="button" class="btn btn-filter text-success" id="btnFilterPassE2E" onclick="filterResults('success', 'e2e')">Thành công</button>
+                                    <button type="button" class="btn btn-filter text-danger" id="btnFilterFailE2E" onclick="filterResults('failed', 'e2e')">Thất bại</button>
+                                </div>
+                            </div>
+
+                            <div class="accordion-results overflow-auto flex-grow-1 pe-1" id="e2eTestCasesContainer" style="max-height: 480px;">
+                                <div class="text-center text-muted my-5 py-5 font-outfit empty-results-state">
+                                    <i class='bx bx-list-check fs-1 opacity-50 mb-3 text-primary-gradient'></i>
+                                    <p class="mb-0">Chưa có kết quả kiểm thử nào được ghi nhận.</p>
+                                    <p class="small text-muted">Kích hoạt kiểm thử để khởi chạy Playwright.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: RUN HISTORY -->
+            <div class="tab-pane fade" id="history-pane" role="tabpanel" aria-labelledby="history-tab">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0 font-outfit text-value"><i class='bx bx-history me-2 text-primary'></i>Lịch sử thực thi kiểm thử tự động</h5>
+                        <button class="btn btn-outline-secondary btn-sm font-outfit rounded-pill px-3" onclick="loadTestHistory()">
+                            <i class='bx bx-refresh me-1'></i>Làm mới danh sách
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table align-middle table-hover text-value font-outfit mb-0" id="historyTable">
+                            <thead>
+                                <tr class="text-muted border-bottom-glass" style="font-size: 0.85rem;">
+                                    <th class="py-3">Mã lượt chạy</th>
+                                    <th class="py-3">Bộ kiểm thử (Suite)</th>
+                                    <th class="py-3">Thời gian thực thi</th>
+                                    <th class="py-3 text-center">Tổng số ca</th>
+                                    <th class="py-3 text-center">Thành công</th>
+                                    <th class="py-3 text-center">Thất bại</th>
+                                    <th class="py-3 text-center">Tỷ lệ đạt</th>
+                                    <th class="py-3 text-end">Thời gian chạy TB</th>
+                                    <th class="py-3 text-center" style="width: 150px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center py-5 text-muted">
+                                        <i class='bx bx-loader-alt bx-spin fs-3 mb-2'></i>
+                                        <p class="mb-0">Đang tải lịch sử từ máy chủ...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: SCENARIO CONFIGURATION -->
+            <div class="tab-pane fade" id="config-pane" role="tabpanel" aria-labelledby="config-tab">
+                <div class="row g-4">
+                    <!-- Scenario Sidebar Selector -->
+                    <div class="col-md-3">
+                        <div class="glass-card p-4">
+                            <h6 class="text-muted small mb-3 uppercase-label font-outfit">Chọn kịch bản E2E</h6>
+                            <div class="d-flex flex-column gap-3 font-outfit">
+                                <button class="btn btn-scenario-select active w-100 text-start p-3 rounded-3" id="btnSelectAuthScenario" onclick="selectScenario('Auth E2E')">
+                                    <div class="fw-bold"><i class='bx bx-user me-2'></i>Auth E2E Scenario</div>
+                                    <small class="text-muted opacity-75 d-block mt-1">Đăng ký -> OTP -> Đăng nhập -> Đăng xuất</small>
+                                </button>
+                                <button class="btn btn-scenario-select w-100 text-start p-3 rounded-3" id="btnSelectJobsScenario" onclick="selectScenario('Jobs E2E')">
+                                    <div class="fw-bold"><i class='bx bx-briefcase me-2'></i>Jobs E2E Scenario</div>
+                                    <small class="text-muted opacity-75 d-block mt-1">Đăng Recruiter -> Tạo tin -> Sửa tin -> Xóa tin</small>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Steps Editor Panel -->
+                    <div class="col-md-9">
+                        <div class="glass-card p-4 d-flex flex-column" style="min-height: 500px;">
+                            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom-glass pb-3 flex-wrap gap-2">
+                                <div>
+                                    <h5 class="fw-bold mb-1 font-outfit text-value" id="editorTitle">Cấu hình kịch bản: Auth E2E</h5>
+                                    <p class="text-muted small mb-0 font-outfit">Thêm, xóa, chỉnh sửa các bước thực thi Playwright trực tiếp trên trình duyệt.</p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-outline-primary btn-sm font-outfit rounded-pill px-3" onclick="addTestStep()">
+                                        <i class='bx bx-plus-circle me-1'></i>Thêm bước
+                                    </button>
+                                    <button class="btn btn-save-steps font-outfit rounded-pill px-4" onclick="saveTestSteps()">
+                                        <i class='bx bx-save me-1'></i>Lưu kịch bản
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Steps List Wrapper -->
+                            <div class="steps-editor-container flex-grow-1 pe-1" id="stepsEditorContainer" style="max-height: 520px; overflow-y: auto;">
+                                <!-- Dynamic steps will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Glassmorphic Modal for viewing test run details -->
+<div class="modal fade glass-modal" id="testDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content glass-card">
+            <div class="modal-header border-bottom-glass py-3 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="modal-title font-outfit text-value fw-bold" id="modalSuiteName">Chi tiết Lượt Kiểm thử</h5>
+                <button type="button" class="btn-close-glass" data-bs-dismiss="modal" aria-label="Close">
+                    <i class='bx bx-x fs-3'></i>
                 </button>
             </div>
-        </div>
-
-        <!-- Metric Dashboard Cards (Glassmorphism) -->
-        <div class="row g-4 mb-4">
-            <!-- 1. Circular Progress Success Rate -->
-            <div class="col-md-3">
-                <div class="glass-card stat-card d-flex align-items-center p-4">
-                    <div class="circular-progress-wrapper me-3">
-                        <svg class="circular-progress-svg" viewBox="0 0 100 100">
-                            <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
-                            <circle id="successProgressCircle" class="fg-circle" cx="50" cy="50" r="40" style="stroke-dashoffset: 251.2;"></circle>
-                        </svg>
-                        <div class="progress-percentage font-outfit" id="percentageText">0%</div>
-                    </div>
-                    <div>
-                        <h6 class="text-muted small mb-1 uppercase-label font-outfit">Tỷ lệ vượt qua</h6>
-                        <h4 class="fw-bold mb-0 font-outfit text-gradient" id="statPassRate">0%</h4>
-                        <small class="text-muted font-outfit" id="statPassDetails">0 / 0 test case</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. Avg Response Time -->
-            <div class="col-md-3">
-                <div class="glass-card stat-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div class="icon-box-glass bg-blue">
-                            <i class='bx bx-timer fs-4 text-blue-glow'></i>
-                        </div>
-                        <span class="badge badge-trend bg-blue-soft text-blue font-outfit" id="timeTrend">N/A</span>
-                    </div>
-                    <h6 class="text-muted small mb-1 uppercase-label font-outfit">Thời gian chạy tb</h6>
-                    <h3 class="fw-bold mb-1 font-outfit text-value" id="statAvgTime">0 ms</h3>
-                    <p class="text-muted small mb-0 font-outfit" id="statMaxTime">Cao nhất: 0 ms</p>
-                </div>
-            </div>
-
-            <!-- 3. Infrastructure status -->
-            <div class="col-md-6">
-                <div class="glass-card stat-card p-4">
-                    <h6 class="text-muted small mb-3 uppercase-label font-outfit"><i class='bx bx-server me-1'></i>Trạng thái các hạ tầng dịch vụ</h6>
-                    <div class="row g-3">
-                        <div class="col-4">
-                            <div class="service-status-box text-center p-2 rounded-3 border-glass">
-                                <i class='bx bx-data text-muted fs-4 mb-1' id="statusDbIcon"></i>
-                                <div class="small fw-semibold text-value font-outfit">SQL Server</div>
-                                <div class="status-indicator mt-1" id="statusDbBadge">
-                                    <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="service-status-box text-center p-2 rounded-3 border-glass">
-                                <i class='bx bxl-python text-muted fs-4 mb-1' id="statusPythonIcon"></i>
-                                <div class="small fw-semibold text-value font-outfit">Python AI</div>
-                                <div class="status-indicator mt-1" id="statusPythonBadge">
-                                    <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="service-status-box text-center p-2 rounded-3 border-glass">
-                                <i class='bx bx-brain text-muted fs-4 mb-1' id="statusGeminiIcon"></i>
-                                <div class="small fw-semibold text-value font-outfit">Gemini AI</div>
-                                <div class="status-indicator mt-1" id="statusGeminiBadge">
-                                    <span class="dot-status bg-secondary"></span><span class="status-text font-outfit">Chưa kiểm tra</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-body p-4 overflow-auto" style="max-height: 500px;" id="modalTestCasesContainer">
+                <!-- Test cases rendered here -->
             </div>
         </div>
-
-        <div class="row g-4">
-            <!-- Left Panel: Interactive Console -->
-            <div class="col-lg-6">
-                <div class="glass-card console-card p-0 d-flex flex-column">
-                    <div class="console-header px-4 py-3 d-flex justify-content-between align-items-center border-bottom-glass">
-                        <div class="d-flex align-items-center">
-                            <span class="console-dot bg-danger-dot me-2"></span>
-                            <span class="console-dot bg-warning-dot me-2"></span>
-                            <span class="console-dot bg-success-dot me-3"></span>
-                            <span class="fw-semibold text-muted font-outfit small"><i class='bx bx-terminal me-1'></i>TEST RUNNER CONSOLE LOGS</span>
-                        </div>
-                        <button class="btn-clear-console" onclick="clearConsoleLog()"><i class='bx bx-trash me-1'></i>Xóa log</button>
-                    </div>
-                    <div class="console-body p-4 font-fira" id="consoleLogs">
-                        <div class="console-line text-muted">&gt; Ready to start automation testing...</div>
-                        <div class="console-line text-muted">&gt; Click "Kích hoạt Kiểm Thử" button above to execute tests.</div>
-                        <span class="console-cursor">_</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Panel: Results & Filter -->
-            <div class="col-lg-6">
-                <div class="glass-card results-card p-4 d-flex flex-column">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold mb-0 font-outfit text-value"><i class='bx bx-list-check me-2 text-primary'></i>Chi Tiết Các Ca Kiểm Thử</h5>
-                        
-                        <!-- Filter Tabs -->
-                        <div class="btn-group filter-btn-group p-1 font-outfit" role="group">
-                            <button type="button" class="btn btn-filter active" id="btnFilterAll" onclick="filterResults('all')">Tất cả</button>
-                            <button type="button" class="btn btn-filter text-success" id="btnFilterPass" onclick="filterResults('success')">Thành công</button>
-                            <button type="button" class="btn btn-filter text-danger" id="btnFilterFail" onclick="filterResults('failed')">Thất bại</button>
-                        </div>
-                    </div>
-
-                    <!-- Test Case Detail Accordion List -->
-                    <div class="accordion-results overflow-auto flex-grow-1 pe-1" id="testCasesContainer" style="max-height: 480px;">
-                        <div class="text-center text-muted my-5 py-5 font-outfit" id="emptyResultsState">
-                            <i class='bx bx-list-check fs-1 opacity-50 mb-3 text-primary-gradient'></i>
-                            <p class="mb-0">Chưa có kết quả kiểm thử nào được ghi nhận.</p>
-                            <p class="small text-muted">Kích hoạt kiểm thử để tự động phân tích hệ thống.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 
@@ -231,6 +484,37 @@
         color: #cbd5e1;
     }
 
+    /* Tabs styling */
+    .nav-tabs .nav-link {
+        background: rgba(255, 255, 255, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 30px;
+        padding: 0.6rem 1.5rem;
+        color: #64748b;
+        font-weight: 600;
+        margin-right: 10px;
+        transition: all 0.3s;
+    }
+    [data-bs-theme="dark"] .nav-tabs .nav-link {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: #94a3b8;
+    }
+    .nav-tabs .nav-link:hover {
+        background: rgba(255, 255, 255, 0.6);
+        color: #1e293b;
+    }
+    [data-bs-theme="dark"] .nav-tabs .nav-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #f8fafc;
+    }
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+        color: #ffffff !important;
+        border: none;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
     /* Button styles */
     .btn-run-tests {
         background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
@@ -280,7 +564,6 @@
 
     .fg-circle {
         fill: none;
-        stroke: url(#progressGradient);
         stroke: #10b981;
         stroke-width: 8px;
         stroke-linecap: round;
@@ -323,9 +606,19 @@
         border: 1px solid rgba(59, 130, 246, 0.25);
     }
 
+    .bg-purple {
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.25);
+    }
+
     .text-blue-glow {
         color: #3b82f6;
         text-shadow: var(--text-glow-blue);
+    }
+
+    .text-purple-glow {
+        color: #8b5cf6;
+        text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
     }
 
     .badge-trend {
@@ -338,6 +631,11 @@
     .bg-blue-soft {
         background: rgba(59, 130, 246, 0.1);
         color: #3b82f6;
+    }
+
+    .bg-purple-soft {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
     }
 
     .border-glass {
@@ -437,29 +735,12 @@
         scroll-behavior: smooth;
     }
 
-    .console-body .text-muted {
-        color: #8b949e !important;
-    }
-
-    .console-body .text-light {
-        color: #c9d1d9 !important;
-    }
-
-    .console-body .text-success {
-        color: #34d399 !important;
-    }
-
-    .console-body .text-danger {
-        color: #f87171 !important;
-    }
-
-    .console-body .text-warning {
-        color: #fbbf24 !important;
-    }
-
-    .console-body .text-info {
-        color: #38bdf8 !important;
-    }
+    .console-body .text-muted { color: #8b949e !important; }
+    .console-body .text-light { color: #c9d1d9 !important; }
+    .console-body .text-success { color: #34d399 !important; }
+    .console-body .text-danger { color: #f87171 !important; }
+    .console-body .text-warning { color: #fbbf24 !important; }
+    .console-body .text-info { color: #38bdf8 !important; }
 
     .console-line {
         line-height: 1.6;
@@ -491,6 +772,118 @@
     
     [data-bs-theme="dark"] .filter-btn-group {
         background: rgba(51, 65, 85, 0.5);
+    }
+
+    /* Scenario Config Styles */
+    .btn-scenario-select {
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        background: rgba(255, 255, 255, 0.25);
+        color: #475569;
+        transition: all 0.3s;
+    }
+
+    [data-bs-theme="dark"] .btn-scenario-select {
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.02);
+        color: #cbd5e1;
+    }
+
+    .btn-scenario-select:hover {
+        background: rgba(255, 255, 255, 0.50);
+        color: #0f172a;
+    }
+
+    [data-bs-theme="dark"] .btn-scenario-select:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+    }
+
+    .btn-scenario-select.active {
+        background: rgba(59, 130, 246, 0.15) !important;
+        border-color: rgba(59, 130, 246, 0.4) !important;
+        color: #2563eb !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+
+    [data-bs-theme="dark"] .btn-scenario-select.active {
+        background: rgba(59, 130, 246, 0.25) !important;
+        border-color: rgba(59, 130, 246, 0.6) !important;
+        color: #60a5fa !important;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .step-editor-card {
+        transition: all 0.3s ease;
+    }
+
+    .step-editor-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    [data-bs-theme="dark"] .step-editor-card:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-save-steps {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        transition: all 0.3s;
+    }
+
+    .btn-save-steps:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .bg-dark-soft {
+        background-color: rgba(15, 23, 42, 0.03);
+    }
+
+    [data-bs-theme="dark"] .bg-dark-soft {
+        background-color: rgba(15, 23, 42, 0.25);
+    }
+
+    .border-dashed {
+        border: 2px dashed rgba(148, 163, 184, 0.3);
+    }
+
+    .btn-icon-glass {
+        background: rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        color: #64748b;
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: all 0.2s;
+    }
+
+    [data-bs-theme="dark"] .btn-icon-glass {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        color: #94a3b8;
+    }
+
+    .btn-icon-glass:hover:not(:disabled) {
+        background: rgba(0,0,0,0.08);
+        color: #1e293b;
+    }
+
+    [data-bs-theme="dark"] .btn-icon-glass:hover:not(:disabled) {
+        background: rgba(255,255,255,0.08);
+        color: #f8fafc;
+    }
+
+    .btn-icon-glass:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
     }
 
     .btn-filter {
@@ -649,6 +1042,25 @@
     .bg-post { background-color: #49cc90; }
     .bg-ef { background-color: #fca130; }
 
+    /* Modal Close */
+    .btn-close-glass {
+        background: transparent;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .btn-close-glass:hover {
+        color: #ef4444;
+    }
+    .glass-modal .modal-content {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 1.5rem;
+    }
+    [data-bs-theme="dark"] .glass-modal .modal-content {
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
     /* Custom Scrollbar */
     .overflow-auto::-webkit-scrollbar {
         width: 6px;
@@ -669,28 +1081,29 @@
 </style>
 
 <script>
-    let rawTestSuites = []; // Lưu trữ kết quả gốc để lọc danh sách
+    let systemTestResult = null; // Lưu trữ kết quả suite hệ thống
+    let e2eTestResult = null;    // Lưu trữ kết quả suite E2E
 
     // Xóa log console hiển thị
-    function clearConsoleLog() {
-        const consoleLogs = document.getElementById("consoleLogs");
+    function clearConsoleLog(containerId) {
+        const consoleLogs = document.getElementById(containerId);
         consoleLogs.innerHTML = `<div class="console-line text-muted">&gt; Terminal cleared. Ready to start new test run...</div><span class="console-cursor">_</span>`;
     }
 
     // In log ra màn hình console giả lập kèm màu sắc tương ứng
-    function writeConsoleLog(text, type = "info") {
-        const container = document.getElementById("consoleLogs");
+    function writeConsoleLog(containerId, text, type = "info") {
+        const container = document.getElementById(containerId);
         const cursor = container.querySelector(".console-cursor");
         
         const line = document.createElement("div");
         line.className = "console-line";
         
         let colorClass = "text-light";
-        if (type === "success") colorClass = "text-success"; // Green
-        else if (type === "error") colorClass = "text-danger"; // Red
-        else if (type === "warning") colorClass = "text-warning"; // Gold
-        else if (type === "muted") colorClass = "text-muted"; // Grey
-        else if (type === "info") colorClass = "text-info"; // Cyan
+        if (type === "success") colorClass = "text-success"; 
+        else if (type === "error") colorClass = "text-danger"; 
+        else if (type === "warning") colorClass = "text-warning"; 
+        else if (type === "muted") colorClass = "text-muted"; 
+        else if (type === "info") colorClass = "text-info"; 
 
         const now = new Date();
         const timeStr = `[${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}]`;
@@ -699,6 +1112,41 @@
         
         container.insertBefore(line, cursor);
         container.scrollTop = container.scrollHeight;
+    }
+
+    // Hiệu ứng chữ chạy từng dòng log cho mượt mà
+    function printStaggeredLogs(containerId, lines, callback) {
+        let index = 0;
+        const container = document.getElementById(containerId);
+        const cursor = container.querySelector(".console-cursor");
+        
+        function printNext() {
+            if (index < lines.length) {
+                const lineData = lines[index];
+                const line = document.createElement("div");
+                line.className = "console-line";
+                
+                let colorClass = "text-light";
+                if (lineData.type === "success") colorClass = "text-success";
+                else if (lineData.type === "error") colorClass = "text-danger";
+                else if (lineData.type === "warning") colorClass = "text-warning";
+                else if (lineData.type === "muted") colorClass = "text-muted";
+                else if (lineData.type === "info") colorClass = "text-info";
+                
+                const now = new Date();
+                const timeStr = `[${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}]`;
+                
+                line.innerHTML = `<span class="text-muted font-fira">${timeStr}</span> <span class="${colorClass}">&gt; ${lineData.text}</span>`;
+                
+                container.insertBefore(line, cursor);
+                container.scrollTop = container.scrollHeight;
+                index++;
+                setTimeout(printNext, 120);
+            } else {
+                if (callback) callback();
+            }
+        }
+        printNext();
     }
 
     // Toggle đóng mở hiển thị chi tiết test case
@@ -716,22 +1164,25 @@
     }
 
     // Lọc danh sách test case dựa trên bộ lọc hoạt động (tất cả, pass, fail)
-    function filterResults(filterType) {
-        // Cập nhật trạng thái nút Active
-        document.querySelectorAll(".btn-filter").forEach(b => b.classList.remove("active"));
-        if (filterType === 'all') document.getElementById("btnFilterAll").classList.add("active");
-        else if (filterType === 'success') document.getElementById("btnFilterPass").classList.add("active");
-        else if (filterType === 'failed') document.getElementById("btnFilterFail").classList.add("active");
-
-        renderTestCases(filterType);
+    function filterResults(filterType, type) {
+        if (type === 'system') {
+            document.querySelectorAll("#system-pane .btn-filter").forEach(b => b.classList.remove("active"));
+            if (filterType === 'all') document.getElementById("btnFilterAll").classList.add("active");
+            else if (filterType === 'success') document.getElementById("btnFilterPass").classList.add("active");
+            else if (filterType === 'failed') document.getElementById("btnFilterFail").classList.add("active");
+            renderTestCasesList('systemTestCasesContainer', systemTestResult, filterType);
+        } else {
+            document.querySelectorAll("#e2e-pane .btn-filter").forEach(b => b.classList.remove("active"));
+            if (filterType === 'all') document.getElementById("btnFilterAllE2E").classList.add("active");
+            else if (filterType === 'success') document.getElementById("btnFilterPassE2E").classList.add("active");
+            else if (filterType === 'failed') document.getElementById("btnFilterFailE2E").classList.add("active");
+            renderTestCasesList('e2eTestCasesContainer', e2eTestResult, filterType);
+        }
     }
 
-    // Cập nhật các service status badges
-    function updateServiceBadges(suites) {
-        const systemSuite = suites.find(s => s.suiteName === "System Health Check");
-        if (!systemSuite) return;
-
-        systemSuite.testCases.forEach(tc => {
+    // Cập nhật các service status badges cho System Check
+    function updateServiceBadges(testCases) {
+        testCases.forEach(tc => {
             let iconId = "";
             let badgeId = "";
             
@@ -751,193 +1202,604 @@
                 const badgeEl = document.getElementById(badgeId);
 
                 if (tc.status === "Success") {
-                    iconEl.className = "bx bx-check-shield text-success fs-4 mb-1";
+                    iconEl.className = "bx bx-check-shield text-success fs-4 mb-1 animate-float";
                     badgeEl.innerHTML = `<span class="dot-status bg-success dot-pulse"></span><span class="status-text text-success font-outfit">Hoạt động</span>`;
                 } else {
                     iconEl.className = "bx bx-error text-danger fs-4 mb-1";
-                    badgeEl.innerHTML = `<span class="dot-status bg-danger dot-pulse"></span><span class="status-text text-danger font-outfit">Lỗi</span>`;
+                    badgeEl.innerHTML = `<span class="dot-status bg-danger dot-pulse"></span><span class="status-text text-danger font-outfit">Lỗi kết nối</span>`;
                 }
             }
         });
     }
 
     // Hiển thị biểu đồ tròn Success rate
-    function updateProgressCircle(percentage) {
-        const circle = document.getElementById("successProgressCircle");
+    function updateProgressCircle(circleId, textId, rateId, detailsId, passed, total) {
+        const percentage = total > 0 ? (passed / total) * 100 : 0;
+        const circle = document.getElementById(circleId);
         const radius = circle.r.baseVal.value;
-        const circumference = 2 * Math.PI * radius; // 251.2
+        const circumference = 2 * Math.PI * radius; 
         
         const offset = circumference - (percentage / 100) * circumference;
         circle.style.strokeDashoffset = offset;
         
-        document.getElementById("percentageText").innerText = `${Math.round(percentage)}%`;
-        document.getElementById("statPassRate").innerText = `${Math.round(percentage)}%`;
+        document.getElementById(textId).innerText = `${Math.round(percentage)}%`;
+        document.getElementById(rateId).innerText = `${Math.round(percentage)}%`;
+        document.getElementById(detailsId).innerText = `${passed} / ${total} test case`;
     }
 
-    // Đưa kết quả kiểm thử vào Dashboard
-    function renderTestCases(filter = "all") {
-        const container = document.getElementById("testCasesContainer");
-        const emptyState = document.getElementById("emptyResultsState");
-        
-        // Clear container nhưng giữ emptyState
+    // Render danh sách test case
+    function renderTestCasesList(containerId, suite, filter = "all") {
+        const container = document.getElementById(containerId);
         container.innerHTML = "";
-        container.appendChild(emptyState);
 
-        let filteredCount = 0;
+        if (!suite || !suite.testCases || suite.testCases.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted my-5 py-5 font-outfit">
+                    <i class='bx bx-list-check fs-1 opacity-50 mb-3 text-primary-gradient'></i>
+                    <p class="mb-0">Chưa có kết quả kiểm thử nào.</p>
+                </div>`;
+            return;
+        }
 
-        rawTestSuites.forEach(suite => {
-            // Lọc test cases trong suite
-            const cases = suite.testCases.filter(tc => {
-                if (filter === "all") return true;
-                if (filter === "success") return tc.status === "Success";
-                if (filter === "failed") return tc.status === "Failed";
-                return true;
-            });
-
-            if (cases.length === 0) return;
-
-            filteredCount += cases.length;
-            emptyState.style.display = "none";
-
-            // Tạo Header cho Suite
-            const suiteHeader = document.createElement("div");
-            suiteHeader.className = "suite-header-label mt-3 mb-2 small fw-bold text-muted font-outfit uppercase-label";
-            suiteHeader.innerText = suite.suiteName;
-            container.appendChild(suiteHeader);
-
-            // Render từng test case
-            cases.forEach(tc => {
-                const item = document.createElement("div");
-                item.className = "test-case-item shadow-sm border-glass";
-                
-                const isPass = tc.status === "Success";
-                const badgeClass = isPass ? "badge-status-pass" : "badge-status-fail";
-                const statusLabel = isPass ? "Thành công" : "Thất bại";
-                const statusIcon = isPass ? "bx-check-circle" : "bx-x-circle";
-                
-                let methodClass = "bg-get";
-                if (tc.method.includes("POST")) methodClass = "bg-post";
-                else if (tc.method.includes("EF")) methodClass = "bg-ef";
-
-                item.innerHTML = `
-                    <div class="tc-header" onclick="toggleTestCaseDetail(this)">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="bg-method ${methodClass} font-fira">${tc.method}</span>
-                            <div>
-                                <div class="tc-title font-outfit">${tc.name}</div>
-                                <div class="tc-meta font-fira">${tc.url}</div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="tc-duration font-outfit"><i class='bx bx-time-five me-1'></i>${tc.responseTimeMs} ms</span>
-                            <span class="badge-status ${badgeClass} font-outfit">
-                                <i class='bx ${statusIcon}'></i>${statusLabel}
-                            </span>
-                            <i class='bx bx-chevron-right tc-arrow text-muted fs-5' style="transition: transform 0.2s;"></i>
-                        </div>
-                    </div>
-                    <div class="tc-body">
-                        <div class="tc-detail-row">
-                            <div class="tc-detail-label font-outfit">Expected:</div>
-                            <div class="tc-detail-value font-outfit">${tc.expected || "N/A"}</div>
-                        </div>
-                        <div class="tc-detail-row">
-                            <div class="tc-detail-label font-outfit">Actual:</div>
-                            <div class="tc-detail-value font-outfit">${tc.actual || "N/A"}</div>
-                        </div>
-                        ${tc.errorMessage ? `
-                        <div class="tc-detail-row mt-2">
-                            <div class="tc-detail-label text-danger font-outfit">System Error:</div>
-                            <div class="tc-detail-value text-danger font-fira bg-dark p-2 rounded-3 text-sm overflow-auto" style="max-height:120px; width:100%">${tc.errorMessage}</div>
-                        </div>` : ""}
-                    </div>
-                `;
-                container.appendChild(item);
-            });
+        const cases = suite.testCases.filter(tc => {
+            if (filter === "all") return true;
+            if (filter === "success") return tc.status === "Success";
+            if (filter === "failed") return tc.status === "Failed";
+            return true;
         });
 
-        if (filteredCount === 0) {
-            emptyState.style.display = "block";
-            emptyState.querySelector("p").innerText = `Không tìm thấy kết quả nào khớp với bộ lọc.`;
+        if (cases.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted my-5 py-5 font-outfit">
+                    <p class="mb-0">Không có ca kiểm thử nào khớp với bộ lọc.</p>
+                </div>`;
+            return;
         }
+
+        cases.forEach(tc => {
+            const item = document.createElement("div");
+            item.className = "test-case-item shadow-sm border-glass";
+            
+            const isPass = tc.status === "Success";
+            const badgeClass = isPass ? "badge-status-pass" : "badge-status-fail";
+            const statusLabel = isPass ? "Thành công" : "Thất bại";
+            const statusIcon = isPass ? "bx-check-circle" : "bx-x-circle";
+            
+            let methodClass = "bg-get";
+            if (tc.method.includes("POST")) methodClass = "bg-post";
+            else if (tc.method.includes("EF") || tc.method.includes("Playwright")) methodClass = "bg-ef";
+
+            item.innerHTML = `
+                <div class="tc-header" onclick="toggleTestCaseDetail(this)">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="bg-method ${methodClass} font-fira">${tc.method}</span>
+                        <div style="text-align: left;">
+                            <div class="tc-title font-outfit">${tc.name}</div>
+                            <div class="tc-meta font-fira">${tc.url}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="tc-duration font-outfit"><i class='bx bx-time-five me-1'></i>${tc.responseTimeMs} ms</span>
+                        <span class="badge-status ${badgeClass} font-outfit">
+                            <i class='bx ${statusIcon}'></i>${statusLabel}
+                        </span>
+                        <i class='bx bx-chevron-right tc-arrow text-muted fs-5' style="transition: transform 0.2s;"></i>
+                    </div>
+                </div>
+                <div class="tc-body" style="text-align: left;">
+                    <div class="tc-detail-row">
+                        <div class="tc-detail-label font-outfit">Kết quả mong đợi:</div>
+                        <div class="tc-detail-value font-outfit">${tc.expected || tc.expectedResult || "N/A"}</div>
+                    </div>
+                    <div class="tc-detail-row">
+                        <div class="tc-detail-label font-outfit">Kết quả thực tế:</div>
+                        <div class="tc-detail-value font-outfit">${tc.actual || tc.actualResult || "N/A"}</div>
+                    </div>
+                    ${(tc.errorMessage) ? `
+                    <div class="tc-detail-row mt-2">
+                        <div class="tc-detail-label text-danger font-outfit">Lỗi hệ thống:</div>
+                        <div class="tc-detail-value text-danger font-fira bg-dark p-2 rounded-3 text-sm overflow-auto" style="max-height:120px; width:100%">${tc.errorMessage}</div>
+                    </div>` : ""}
+                </div>
+            `;
+            container.appendChild(item);
+        });
     }
 
-    // Kích hoạt chạy toàn bộ test
-    function startTestSuiteExecution() {
-        const btn = document.getElementById("btnRunTests");
+    // CHẠY GIÁM SÁT HỆ THỐNG (Tab 1)
+    function startSystemTests() {
+        const btn = document.getElementById("btnRunSystemTests");
         btn.disabled = true;
-        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang kiểm thử...`;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang kiểm tra...`;
         
-        clearConsoleLog();
-        writeConsoleLog("Khởi động hệ thống Runner...", "info");
-        writeConsoleLog("Bắt đầu biên dịch và thiết lập các kịch bản kiểm thử.", "info");
-
-        // Gọi API chạy test
-        fetch("/Admin/RunTestSuite", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
+        clearConsoleLog("consoleLogsSystem");
+        writeConsoleLog("consoleLogsSystem", "Đang khởi tạo các luồng giám sát hệ thống...", "info");
+        
+        fetch("/Admin/RunSystemTestSuite", { method: "POST" })
         .then(res => res.json())
         .then(data => {
             btn.disabled = false;
-            btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử`;
+            btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Giám Sát`;
 
             if (data.success) {
-                rawTestSuites = data.suites;
-                writeConsoleLog("Thực thi thành công tất cả các bộ kiểm thử!", "success");
+                systemTestResult = data.suite;
                 
-                // Cập nhật thống kê
-                let totalCases = 0;
-                let passedCases = 0;
+                const logsToPrint = [
+                    { text: "Máy chủ phản hồi yêu cầu. Đang giải nén các kịch bản sức khỏe...", type: "info" }
+                ];
+
                 let totalTime = 0;
                 let maxTime = 0;
+                let passed = 0;
 
-                data.suites.forEach(suite => {
-                    writeConsoleLog(`=== Suite: ${suite.suiteName} ===`, "info");
-                    suite.testCases.forEach(tc => {
-                        totalCases++;
-                        totalTime += tc.responseTimeMs;
-                        if (tc.responseTimeMs > maxTime) maxTime = tc.responseTimeMs;
-
-                        if (tc.status === "Success") {
-                            passedCases++;
-                            writeConsoleLog(`[PASS] ${tc.name} (${tc.responseTimeMs}ms) - ${tc.actual}`, "success");
-                        } else {
-                            writeConsoleLog(`[FAIL] ${tc.name} (${tc.responseTimeMs}ms) - ${tc.actual}`, "error");
-                            if (tc.errorMessage) {
-                                writeConsoleLog(`   -> Error: ${tc.errorMessage.substring(0, 100)}...`, "error");
-                            }
-                        }
-                    });
+                systemTestResult.testCases.forEach(tc => {
+                    totalTime += tc.responseTimeMs;
+                    if (tc.responseTimeMs > maxTime) maxTime = tc.responseTimeMs;
+                    if (tc.status === "Success") {
+                        passed++;
+                        logsToPrint.push({ text: `[PASS] ${tc.name} (${tc.responseTimeMs}ms) - ${tc.actual}`, type: "success" });
+                    } else {
+                        logsToPrint.push({ text: `[FAIL] ${tc.name} (${tc.responseTimeMs}ms) - ${tc.actual}`, type: "error" });
+                    }
                 });
 
-                const passRate = totalCases > 0 ? (passedCases / totalCases) * 100 : 0;
-                const avgTime = totalCases > 0 ? Math.round(totalTime / totalCases) : 0;
+                const total = systemTestResult.testCases.length;
+                const avgTime = total > 0 ? Math.round(totalTime / total) : 0;
+                
+                logsToPrint.push({ text: `Hoàn tất chạy giám sát! Tỷ lệ vượt qua: ${passed}/${total}.`, type: "warning" });
 
-                // Cập nhật UI Stats
-                updateProgressCircle(passRate);
-                document.getElementById("statPassDetails").innerText = `${passedCases} / ${totalCases} test case`;
-                document.getElementById("statAvgTime").innerText = `${avgTime} ms`;
-                document.getElementById("statMaxTime").innerText = `Cao nhất: ${maxTime} ms`;
-                document.getElementById("timeTrend").innerText = `Avg: ${avgTime}ms`;
-
-                // Cập nhật dịch vụ
-                updateServiceBadges(data.suites);
-
-                // Render kết quả chi tiết
-                filterResults('all');
+                // In console logs dạng staggered hiệu ứng
+                printStaggeredLogs("consoleLogsSystem", logsToPrint, () => {
+                    updateProgressCircle("successProgressCircle", "percentageText", "statPassRate", "statPassDetails", passed, total);
+                    document.getElementById("statAvgTime").innerText = `${avgTime} ms`;
+                    document.getElementById("statMaxTime").innerText = `Cao nhất: ${maxTime} ms`;
+                    document.getElementById("timeTrend").innerText = `Avg: ${avgTime}ms`;
+                    
+                    updateServiceBadges(systemTestResult.testCases);
+                    renderTestCasesList("systemTestCasesContainer", systemTestResult, "all");
+                });
             } else {
-                writeConsoleLog("Lỗi khi chạy bộ kiểm thử: " + data.message, "error");
+                writeConsoleLog("consoleLogsSystem", "Kiểm thử thất bại: " + data.message, "error");
                 alert("Kiểm thử thất bại: " + data.message);
             }
         })
         .catch(err => {
             btn.disabled = false;
-            btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử`;
-            writeConsoleLog("Không thể gửi yêu cầu chạy kiểm thử đến máy chủ. Hãy đảm bảo web app đang chạy.", "error");
-            console.error("Test execution failed:", err);
+            btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Giám Sát`;
+            writeConsoleLog("consoleLogsSystem", "Lỗi gửi request kiểm thử.", "error");
+        });
+    }
+
+    // CHẠY KIỂM THỬ E2E PLAYWRIGHT (Tab 2)
+    function startE2ETests() {
+        const btn = document.getElementById("btnRunE2ETests");
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang chạy E2E Playwright...`;
+        
+        clearConsoleLog("consoleLogsE2E");
+        
+        const initLogs = [
+            { text: "Đang khởi tạo Playwright E2E Runner trên máy chủ...", type: "info" },
+            { text: "Mở phiên trình duyệt ẩn danh Chromium...", type: "info" },
+            { text: "Bắt đầu chạy luồng kiểm thử. Quá trình E2E có thể mất 15-30 giây để hoàn thành...", type: "warning" }
+        ];
+
+        printStaggeredLogs("consoleLogsE2E", initLogs, () => {
+            fetch("/Admin/RunE2ETestSuite", { method: "POST" })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E`;
+
+                if (data.success) {
+                    e2eTestResult = data.suite;
+                    
+                    const logsToPrint = [];
+                    let totalTime = 0;
+                    let maxTime = 0;
+                    let passed = 0;
+
+                    e2eTestResult.testCases.forEach(tc => {
+                        totalTime += tc.responseTimeMs;
+                        if (tc.responseTimeMs > maxTime) maxTime = tc.responseTimeMs;
+                        if (tc.status === "Success") {
+                            passed++;
+                            logsToPrint.push({ text: `[PASS] ${tc.name} (${tc.responseTimeMs}ms)`, type: "success" });
+                            logsToPrint.push({ text: `   -> Kết quả: ${tc.actual}`, type: "muted" });
+                        } else {
+                            logsToPrint.push({ text: `[FAIL] ${tc.name} (${tc.responseTimeMs}ms)`, type: "error" });
+                            logsToPrint.push({ text: `   -> Chi tiết: ${tc.actual}`, type: "error" });
+                            if (tc.errorMessage) {
+                                logsToPrint.push({ text: `   -> Lỗi: ${tc.errorMessage.substring(0, 150)}...`, type: "error" });
+                            }
+                        }
+                    });
+
+                    const total = e2eTestResult.testCases.length;
+                    const avgTime = total > 0 ? Math.round(totalTime / total) : 0;
+                    
+                    logsToPrint.push({ text: `Hoàn thành kiểm thử Playwright E2E! Tỷ lệ đạt: ${passed}/${total}.`, type: "warning" });
+
+                    printStaggeredLogs("consoleLogsE2E", logsToPrint, () => {
+                        updateProgressCircle("successProgressCircleE2E", "percentageTextE2E", "statPassRateE2E", "statPassDetailsE2E", passed, total);
+                        document.getElementById("statAvgTimeE2E").innerText = `${avgTime} ms`;
+                        document.getElementById("statMaxTimeE2E").innerText = `Cao nhất: ${maxTime} ms`;
+                        document.getElementById("timeTrendE2E").innerText = `Avg: ${avgTime}ms`;
+                        
+                        renderTestCasesList("e2eTestCasesContainer", e2eTestResult, "all");
+                    });
+                } else {
+                    writeConsoleLog("consoleLogsE2E", "Lỗi thực thi kiểm thử E2E: " + data.message, "error");
+                    alert("Lỗi thực thi E2E: " + data.message);
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E`;
+                writeConsoleLog("consoleLogsE2E", "Thất bại khi kết nối server E2E.", "error");
+            });
+        });
+    }
+
+    // TẢI LỊCH SỬ KIỂM THỬ (Tab 3)
+    function loadTestHistory() {
+        const tbody = document.getElementById("historyTableBody");
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center py-5 text-muted">
+                    <i class='bx bx-loader-alt bx-spin fs-3 mb-2'></i>
+                    <p class="mb-0">Đang tải lịch sử từ database...</p>
+                </td>
+            </tr>`;
+
+        fetch("/Admin/GetTestHistory")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                tbody.innerHTML = "";
+                if (data.history.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class='bx bx-data fs-2 mb-2'></i>
+                                <p class="mb-0">Chưa có lịch sử chạy kiểm thử nào được lưu trong database.</p>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                data.history.forEach(run => {
+                    const date = new Date(run.executionTime);
+                    const dateStr = `${date.getDate().toString().padStart(2,'0')}/${(date.getMonth()+1).toString().padStart(2,'0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
+                    
+                    const rate = run.totalCases > 0 ? Math.round((run.passedCases / run.totalCases) * 100) : 0;
+                    let rateClass = "text-danger";
+                    if (rate >= 80) rateClass = "text-success";
+                    else if (rate >= 50) rateClass = "text-warning";
+
+                    const tr = document.createElement("tr");
+                    tr.className = "border-bottom-glass";
+                    tr.innerHTML = `
+                        <td class="fw-bold">#${run.testRunID}</td>
+                        <td class="fw-semibold text-value">${run.suiteName}</td>
+                        <td>${dateStr}</td>
+                        <td class="text-center">${run.totalCases}</td>
+                        <td class="text-center text-success fw-semibold">${run.passedCases}</td>
+                        <td class="text-center text-danger fw-semibold">${run.failedCases}</td>
+                        <td class="text-center fw-bold ${rateClass}">${rate}%</td>
+                        <td class="text-end fw-semibold">${run.avgResponseTimeMs} ms</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-2.5 me-1" onclick="viewHistoryDetails(${run.testRunID})" title="Xem chi tiết">
+                                <i class='bx bx-show-alt'></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-2.5" onclick="deleteHistoryRun(${run.testRunID})" title="Xóa lịch sử">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Lỗi: ${data.message}</td></tr>`;
+            }
+        })
+        .catch(err => {
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">Không thể kết nối đến máy chủ lấy lịch sử.</td></tr>`;
+        });
+    }
+
+    // XEM CHI TIẾT LƯỢT CHẠY LỊCH SỬ QUA MODAL
+    function viewHistoryDetails(runId) {
+        fetch("/Admin/GetTestHistory")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const run = data.history.find(r => r.testRunID === runId);
+                if (run) {
+                    document.getElementById("modalSuiteName").innerText = `Lượt chạy #${run.testRunID} - ${run.suiteName}`;
+                    const container = document.getElementById("modalTestCasesContainer");
+                    container.innerHTML = "";
+                    
+                    run.details.forEach(tc => {
+                        const item = document.createElement("div");
+                        item.className = "test-case-item shadow-sm border-glass";
+                        
+                        const isPass = tc.status === "Success";
+                        const badgeClass = isPass ? "badge-status-pass" : "badge-status-fail";
+                        const statusLabel = isPass ? "Thành công" : "Thất bại";
+                        const statusIcon = isPass ? "bx-check-circle" : "bx-x-circle";
+                        
+                        let methodClass = "bg-get";
+                        if (tc.method.includes("POST")) methodClass = "bg-post";
+                        else if (tc.method.includes("EF") || tc.method.includes("Playwright")) methodClass = "bg-ef";
+
+                        item.innerHTML = `
+                            <div class="tc-header" onclick="toggleTestCaseDetail(this)">
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="bg-method ${methodClass} font-fira">${tc.method}</span>
+                                    <div style="text-align: left;">
+                                        <div class="tc-title font-outfit">${tc.name}</div>
+                                        <div class="tc-meta font-fira">${tc.url}</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="tc-duration font-outfit"><i class='bx bx-time-five me-1'></i>${tc.responseTimeMs} ms</span>
+                                    <span class="badge-status ${badgeClass} font-outfit">
+                                        <i class='bx ${statusIcon}'></i>${statusLabel}
+                                    </span>
+                                    <i class='bx bx-chevron-right tc-arrow text-muted fs-5' style="transition: transform 0.2s;"></i>
+                                </div>
+                            </div>
+                            <div class="tc-body" style="text-align: left;">
+                                <div class="tc-detail-row">
+                                    <div class="tc-detail-label font-outfit">Kết quả mong đợi:</div>
+                                    <div class="tc-detail-value font-outfit">${tc.expectedResult || "N/A"}</div>
+                                </div>
+                                <div class="tc-detail-row">
+                                    <div class="tc-detail-label font-outfit">Kết quả thực tế:</div>
+                                    <div class="tc-detail-value font-outfit">${tc.actualResult || "N/A"}</div>
+                                </div>
+                                ${tc.errorMessage ? `
+                                <div class="tc-detail-row mt-2">
+                                    <div class="tc-detail-label text-danger font-outfit">Lỗi hệ thống:</div>
+                                    <div class="tc-detail-value text-danger font-fira bg-dark p-2 rounded-3 text-sm overflow-auto" style="max-height:120px; width:100%">${tc.errorMessage}</div>
+                                </div>` : ""}
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+
+                    // Hiển thị modal
+                    const modal = new bootstrap.Modal(document.getElementById('testDetailsModal'));
+                    modal.show();
+                }
+            }
+        });
+    }
+
+    // XÓA LỊCH SỬ KIỂM THỬ KHỎI DATABASE
+    function deleteHistoryRun(runId) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa lượt kiểm thử #${runId} khỏi cơ sở dữ liệu?`)) {
+            return;
+        }
+
+        fetch(`/Admin/DeleteTestRun?id=${runId}`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                loadTestHistory();
+            } else {
+                alert("Xóa lịch sử thất bại: " + data.message);
+            }
+        })
+        .catch(err => {
+            alert("Lỗi khi kết nối đến máy chủ.");
+        });
+    }
+
+    // DỮ LIỆU CẤU HÌNH KỊCH BẢN ĐỘNG
+    let currentScenario = "Auth E2E";
+    let scenarioSteps = [];
+
+    // Chọn kịch bản và tải danh sách các bước
+    function selectScenario(scenarioName) {
+        currentScenario = scenarioName;
+        
+        // Cập nhật class active cho nút chọn kịch bản
+        document.getElementById("btnSelectAuthScenario").classList.toggle("active", scenarioName === "Auth E2E");
+        document.getElementById("btnSelectJobsScenario").classList.toggle("active", scenarioName === "Jobs E2E");
+        
+        // Cập nhật tiêu đề editor
+        document.getElementById("editorTitle").innerText = `Cấu hình kịch bản: ${scenarioName}`;
+        
+        loadScenarioSteps();
+    }
+
+    // Tải danh sách các bước từ Server
+    function loadScenarioSteps() {
+        const container = document.getElementById("stepsEditorContainer");
+        container.innerHTML = `
+            <div class="text-center text-muted my-5 py-5">
+                <i class='bx bx-loader-alt bx-spin fs-2 mb-2 text-primary'></i>
+                <p>Đang tải danh sách các bước từ cơ sở dữ liệu...</p>
+            </div>
+        `;
+
+        fetch(`/Admin/GetTestSteps?scenarioName=${currentScenario}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                scenarioSteps = data.steps;
+                renderScenarioSteps();
+            } else {
+                container.innerHTML = `<div class="alert alert-danger font-outfit m-3">Không thể tải kịch bản: ${data.message}</div>`;
+            }
+        })
+        .catch(err => {
+            container.innerHTML = `<div class="alert alert-danger font-outfit m-3">Lỗi kết nối máy chủ khi tải kịch bản.</div>`;
+        });
+    }
+
+    // Hiển thị danh sách các bước lên giao diện editor
+    function renderScenarioSteps() {
+        const container = document.getElementById("stepsEditorContainer");
+        container.innerHTML = "";
+
+        if (scenarioSteps.length === 0) {
+            container.innerHTML = `
+                <div class="text-center text-muted my-5 py-5 border-dashed rounded-3">
+                    <i class='bx bx-list-ol fs-1 opacity-50 mb-3 text-primary-gradient'></i>
+                    <p class="mb-0">Kịch bản này hiện chưa có bước nào.</p>
+                    <p class="small">Bấm "Thêm bước" ở phía trên để bắt đầu.</p>
+                </div>
+            `;
+            return;
+        }
+
+        scenarioSteps.forEach((step, index) => {
+            const card = document.createElement("div");
+            card.className = "glass-card step-editor-card p-3 mb-3 border-glass";
+            card.setAttribute("data-step-index", index);
+
+            card.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle px-2 py-1" style="font-size: 0.8rem; line-height: 1;">${index + 1}</span>
+                        <span class="fw-semibold text-value font-outfit">Bước #${step.stepOrder || (index + 1)}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-icon-glass btn-sm" onclick="moveStep(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Di chuyển lên">
+                            <i class='bx bx-chevron-up fs-5'></i>
+                        </button>
+                        <button class="btn btn-icon-glass btn-sm" onclick="moveStep(${index}, 1)" ${index === scenarioSteps.length - 1 ? 'disabled' : ''} title="Di chuyển xuống">
+                            <i class='bx bx-chevron-down fs-5'></i>
+                        </button>
+                        <button class="btn btn-icon-glass btn-sm text-danger" onclick="deleteStep(${index})" title="Xóa bước này">
+                            <i class='bx bx-trash fs-5'></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row g-3 font-outfit">
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Loại hành động</label>
+                        <select class="form-select bg-dark-soft text-value border-glass" onchange="updateStepField(${index}, 'actionType', this.value)">
+                            <option value="Navigate" ${step.actionType === 'Navigate' ? 'selected' : ''}>Navigate (Điều hướng)</option>
+                            <option value="Fill" ${step.actionType === 'Fill' ? 'selected' : ''}>Fill (Nhập liệu)</option>
+                            <option value="Click" ${step.actionType === 'Click' ? 'selected' : ''}>Click (Bấm nút)</option>
+                            <option value="Select" ${step.actionType === 'Select' ? 'selected' : ''}>Select (Chọn option)</option>
+                            <option value="AssertUrl" ${step.actionType === 'AssertUrl' ? 'selected' : ''}>AssertUrl (Xác thực URL)</option>
+                            <option value="AssertText" ${step.actionType === 'AssertText' ? 'selected' : ''}>AssertText (Xác thực chữ có)</option>
+                            <option value="AssertTextNot" ${step.actionType === 'AssertTextNot' ? 'selected' : ''}>AssertTextNot (Xác thực chữ không)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Target CSS Selector</label>
+                        <input type="text" class="form-control bg-dark-soft text-value border-glass font-fira" placeholder="Ví dụ: input[name='Email']" value="${step.targetSelector || ''}" onchange="updateStepField(${index}, 'targetSelector', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Giá trị / Tham số</label>
+                        <input type="text" class="form-control bg-dark-soft text-value border-glass font-fira" placeholder="Ví dụ: 123456 hoặc /Account/Login" value="${step.value || ''}" onchange="updateStepField(${index}, 'value', this.value)">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-muted small fw-semibold">Mô tả hiển thị</label>
+                        <input type="text" class="form-control bg-dark-soft text-value border-glass" placeholder="Mô tả hành động của bước này" value="${step.description || ''}" onchange="updateStepField(${index}, 'description', this.value)">
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    // Cập nhật trường dữ liệu của từng bước khi người dùng sửa đổi trên UI
+    function updateStepField(index, field, value) {
+        scenarioSteps[index][field] = value;
+    }
+
+    // Di chuyển bước lên hoặc xuống
+    function moveStep(index, direction) {
+        const targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= scenarioSteps.length) return;
+
+        // Hoán đổi vị trí trong mảng
+        const temp = scenarioSteps[index];
+        scenarioSteps[index] = scenarioSteps[targetIndex];
+        scenarioSteps[targetIndex] = temp;
+
+        // Cập nhật lại thuộc tính stepOrder
+        scenarioSteps.forEach((step, idx) => {
+            step.stepOrder = idx + 1;
+        });
+
+        renderScenarioSteps();
+    }
+
+    // Thêm bước mới
+    function addTestStep() {
+        const nextOrder = scenarioSteps.length + 1;
+        scenarioSteps.push({
+            stepID: 0,
+            scenarioName: currentScenario,
+            stepOrder: nextOrder,
+            actionType: "Navigate",
+            targetSelector: "",
+            value: "",
+            description: `Mô tả bước #${nextOrder}`
+        });
+        renderScenarioSteps();
+        
+        // Tự động cuộn xuống cuối danh sách
+        const container = document.getElementById("stepsEditorContainer");
+        setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
+    }
+
+    // Xóa bước khỏi danh sách tạm thời
+    function deleteStep(index) {
+        if (!confirm("Bạn có chắc chắn muốn xóa bước kiểm thử này?")) return;
+
+        scenarioSteps.splice(index, 1);
+        
+        // Cập nhật lại số thứ tự
+        scenarioSteps.forEach((step, idx) => {
+            step.stepOrder = idx + 1;
+        });
+
+        renderScenarioSteps();
+    }
+
+    // Lưu danh sách các bước vào database
+    function saveTestSteps() {
+        if (scenarioSteps.length === 0) {
+            alert("Kịch bản kiểm thử phải có ít nhất 1 bước!");
+            return;
+        }
+
+        const btn = document.querySelector(".btn-save-steps");
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = `<i class='bx bx-loader-alt bx-spin me-1'></i> Đang lưu...`;
+        btn.disabled = true;
+
+        fetch("/Admin/SaveTestSteps", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(scenarioSteps)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Đã lưu cấu hình kịch bản thành công vào cơ sở dữ liệu!");
+                loadScenarioSteps();
+            } else {
+                alert("Lưu thất bại: " + data.message);
+            }
+        })
+        .catch(err => {
+            alert("Lỗi kết nối máy chủ khi lưu cấu hình kịch bản.");
+        })
+        .finally(() => {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
         });
     }
 </script>
