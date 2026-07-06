@@ -364,7 +364,7 @@ namespace DoAnCS.Controllers
                         try
                         {
                             var prevLoginTime = new DateTime(user.LastLoginTime.Value, DateTimeKind.Utc).ToLocalTime();
-                            string subject = "Cảnh báo bảo mật: Phát hiện đăng nhập mới trên RightChoiceVN";
+                            string subject = "Cảnh báo bảo mật: Phát hiện đăng nhập mới trên CVBuilder";
                             string body = $@"
                                 <h3>Phát hiện đăng nhập mới</h3>
                                 <p>Chào <b>{user.FullName}</b>,</p>
@@ -372,7 +372,7 @@ namespace DoAnCS.Controllers
                                 <p>Phiên đăng nhập cũ trước đó (khởi tạo lúc {prevLoginTime.ToString("dd/MM/yyyy HH:mm:ss")}) trên thiết bị khác sẽ bị đăng xuất tự động.</p>
                                 <p><b>Nếu không phải bạn thực hiện:</b> Vui lòng đổi mật khẩu ngay lập tức tại trang cá nhân để bảo vệ tài khoản.</p>
                                 <br/>
-                                <p>Trân trọng,<br/>RightChoiceVN Team</p>";
+                                <p>Trân trọng,<br/>CVBuilder Team</p>";
 
                             // Chạy bất đồng bộ (Fire-and-forget) để không làm chậm luồng xử lý đăng nhập chính
                             _ = Task.Run(() => _emailService.SendEmailAsync(user.Email, subject, body));
