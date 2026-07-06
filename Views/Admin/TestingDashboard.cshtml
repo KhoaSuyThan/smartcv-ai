@@ -345,6 +345,14 @@
                                     <div class="fw-bold"><i class='bx bx-briefcase me-2'></i>Jobs E2E Scenario</div>
                                     <small class="text-muted opacity-75 d-block mt-1">Đăng Recruiter -> Tạo tin -> Sửa tin -> Xóa tin</small>
                                 </button>
+                                <button class="btn btn-scenario-select w-100 text-start p-3 rounded-3" id="btnSelectAuthValidationScenario" onclick="selectScenario('Auth Validation E2E')">
+                                    <div class="fw-bold"><i class='bx bx-shield-x me-2'></i>Auth Validation E2E</div>
+                                    <small class="text-muted opacity-75 d-block mt-1">Kiểm thử lỗi nhập liệu & Validation Auth</small>
+                                </button>
+                                <button class="btn btn-scenario-select w-100 text-start p-3 rounded-3" id="btnSelectJobsValidationScenario" onclick="selectScenario('Jobs Validation E2E')">
+                                    <div class="fw-bold"><i class='bx bx-error-alt me-2'></i>Jobs Validation E2E</div>
+                                    <small class="text-muted opacity-75 d-block mt-1">Kiểm thử nghiệp vụ & lỗi tạo tin tuyển dụng</small>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1808,6 +1816,8 @@
         // Cập nhật class active cho nút chọn kịch bản
         document.getElementById("btnSelectAuthScenario").classList.toggle("active", scenarioName === "Auth E2E");
         document.getElementById("btnSelectJobsScenario").classList.toggle("active", scenarioName === "Jobs E2E");
+        document.getElementById("btnSelectAuthValidationScenario").classList.toggle("active", scenarioName === "Auth Validation E2E");
+        document.getElementById("btnSelectJobsValidationScenario").classList.toggle("active", scenarioName === "Jobs Validation E2E");
         
         // Cập nhật tiêu đề editor
         document.getElementById("editorTitle").innerText = `Cấu hình kịch bản: ${scenarioName}`;

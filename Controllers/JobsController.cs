@@ -217,6 +217,11 @@ namespace DoAnCS.Controllers
             ModelState.Remove("Company");
             ModelState.Remove("Applications");
 
+            if (job.Deadline.HasValue && job.Deadline.Value.Date < DateTime.Today)
+            {
+                ModelState.AddModelError("Deadline", "Hạn nộp hồ sơ phải lớn hơn ngày hiện tại.");
+            }
+
             if (ModelState.IsValid)
             {
                 // 2. Thiết lập các thông tin mặc định
