@@ -347,6 +347,141 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể tạo Database Indexes. Chi tiết: " + indexEx.Message);
         }
 
+        // Migration thủ công: Tạo bảng TestRuns và TestCaseDetails nếu chưa có phục vụ lưu lịch sử kiểm thử
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID('TestRuns', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE TestRuns (
+                        TestRunID INT PRIMARY KEY IDENTITY(1,1),
+                        ExecutionTime DATETIME DEFAULT GETDATE(),
+                        SuiteName NVARCHAR(100) NOT NULL,
+                        TotalCases INT NOT NULL,
+                        PassedCases INT NOT NULL,
+                        FailedCases INT NOT NULL,
+                        AvgResponseTimeMs BIGINT NOT NULL
+                    );
+                END
+
+                IF OBJECT_ID('TestCaseDetails', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE TestCaseDetails (
+                        TestCaseID INT PRIMARY KEY IDENTITY(1,1),
+                        TestRunID INT NOT NULL,
+                        Name NVARCHAR(255) NOT NULL,
+                        Method NVARCHAR(50) NOT NULL,
+                        Url NVARCHAR(500) NULL,
+                        Status NVARCHAR(50) NOT NULL,
+                        ResponseTimeMs BIGINT NOT NULL,
+                        ExpectedResult NVARCHAR(MAX) NULL,
+                        ActualResult NVARCHAR(MAX) NULL,
+                        ErrorMessage NVARCHAR(MAX) NULL,
+                        CONSTRAINT FK_TestCaseDetails_TestRuns FOREIGN KEY (TestRunID) REFERENCES TestRuns(TestRunID) ON DELETE CASCADE
+                    );
+                END
+            ");
+            Console.WriteLine("Migration Test History Tables: OK");
+        }
+        catch (Exception dbEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể tự động tạo bảng lịch sử kiểm thử. Chi tiết: " + dbEx.Message);
+        }
+
+        // Migration thủ công: Tạo bảng TestSteps và seed dữ liệu kịch bản mặc định nếu chưa có
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID('TestSteps', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE TestSteps (
+                        StepID INT IDENTITY(1,1) PRIMARY KEY,
+                        ScenarioName NVARCHAR(50) NOT NULL,
+                        StepOrder INT NOT NULL,
+                        ActionType NVARCHAR(20) NOT NULL,
+                        TargetSelector NVARCHAR(250) NULL,
+                        Value NVARCHAR(MAX) NULL,
+                        Description NVARCHAR(500) NULL
+                    );
+                END
+            ");
+            Console.WriteLine("Migration TestSteps Table: OK");
+
+            // Seed dữ liệu mặc định cho các bước E2E
+            if (!context.TestSteps.Any())
+            {
+                // 1. Auth E2E steps
+                context.TestSteps.AddRange(new List<TestStep>
+                {
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 1, ActionType = "Navigate", TargetSelector = "", Value = "/Account/Login", Description = "Vào trang Login" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 2, ActionType = "Click", TargetSelector = ".register-btn", Value = "1000", Description = "Chuyển sang Tab Register (chờ 1s)" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 3, ActionType = "Fill", TargetSelector = "input[name='Register.FullName']", Value = "E2E Candidate", Description = "Nhập họ tên ứng viên" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 4, ActionType = "Fill", TargetSelector = "input[name='Register.Email']", Value = "test_e2e_candidate@smartcv.vn", Description = "Nhập email ứng viên" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 5, ActionType = "Fill", TargetSelector = "input[name='Register.Password']", Value = "Password123!", Description = "Nhập mật khẩu" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 6, ActionType = "Fill", TargetSelector = "input[name='Register.ConfirmPassword']", Value = "Password123!", Description = "Nhập xác nhận mật khẩu" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 7, ActionType = "Click", TargetSelector = "form[action='/Account/Register'] button[type='submit']", Value = "", Description = "Nhấp Đăng ký" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 8, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Account/VerifyRegisterOTP", Description = "Kiểm tra chuyển sang trang OTP" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 9, ActionType = "Fill", TargetSelector = ".otp-input", Value = "123456", Description = "Điền mã OTP bypass 123456" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 10, ActionType = "Click", TargetSelector = "button[type='submit']", Value = "", Description = "Xác thực OTP" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 11, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Account/Login", Description = "Kiểm tra chuyển về trang Đăng nhập" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 12, ActionType = "Fill", TargetSelector = "input[name='Login.Email']", Value = "test_e2e_candidate@smartcv.vn", Description = "Nhập email đăng nhập" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 13, ActionType = "Fill", TargetSelector = "input[name='Login.Password']", Value = "Password123!", Description = "Nhập mật khẩu đăng nhập" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 14, ActionType = "Click", TargetSelector = "form[action='/Account/Login'] button[type='submit']", Value = "", Description = "Nhấp nút Đăng nhập" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 15, ActionType = "AssertUrl", TargetSelector = "", Value = "/", Description = "Xác nhận đăng nhập thành công và về Trang chủ" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 16, ActionType = "Navigate", TargetSelector = "", Value = "/Account/Logout", Description = "Đăng xuất tài khoản" },
+                    new TestStep { ScenarioName = "Auth E2E", StepOrder = 17, ActionType = "AssertUrl", TargetSelector = "", Value = "/", Description = "Kiểm tra đăng xuất hoàn tất" }
+                });
+
+                // 2. Jobs E2E steps
+                context.TestSteps.AddRange(new List<TestStep>
+                {
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 1, ActionType = "Navigate", TargetSelector = "", Value = "/Account/Login", Description = "Vào trang Login" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 2, ActionType = "Click", TargetSelector = ".register-btn", Value = "1000", Description = "Chuyển sang Tab Register (chờ 1s)" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 3, ActionType = "Fill", TargetSelector = "input[name='Register.FullName']", Value = "E2E Recruiter User", Description = "Nhập họ tên nhà tuyển dụng" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 4, ActionType = "Fill", TargetSelector = "input[name='Register.Email']", Value = "test_e2e_recruiter@smartcv.vn", Description = "Nhập email nhà tuyển dụng" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 5, ActionType = "Fill", TargetSelector = "input[name='Register.Password']", Value = "Password123!", Description = "Nhập mật khẩu" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 6, ActionType = "Fill", TargetSelector = "input[name='Register.ConfirmPassword']", Value = "Password123!", Description = "Nhập xác nhận mật khẩu" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 7, ActionType = "Select", TargetSelector = "#roleSelect", Value = "Recruiter", Description = "Chọn vai trò Recruiter" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 8, ActionType = "Fill", TargetSelector = "input[name='Register.CompanyName']", Value = "E2E Test Company", Description = "Nhập tên công ty" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 9, ActionType = "Fill", TargetSelector = "input[name='Register.TaxCode']", Value = "123456789", Description = "Nhập mã số thuế" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 10, ActionType = "Click", TargetSelector = "form[action='/Account/Register'] button[type='submit']", Value = "", Description = "Nhấp nút Đăng ký" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 11, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Account/VerifyRegisterOTP", Description = "Kiểm tra chuyển sang trang OTP" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 12, ActionType = "Fill", TargetSelector = ".otp-input", Value = "123456", Description = "Điền mã OTP bypass 123456" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 13, ActionType = "Click", TargetSelector = "button[type='submit']", Value = "", Description = "Xác thực OTP" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 14, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Account/Login", Description = "Kiểm tra chuyển về trang Đăng nhập" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 15, ActionType = "Fill", TargetSelector = "input[name='Login.Email']", Value = "test_e2e_recruiter@smartcv.vn", Description = "Nhập email đăng nhập" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 16, ActionType = "Fill", TargetSelector = "input[name='Login.Password']", Value = "Password123!", Description = "Nhập mật khẩu đăng nhập" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 17, ActionType = "Click", TargetSelector = "form[action='/Account/Login'] button[type='submit']", Value = "", Description = "Nhấp nút Đăng nhập" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 18, ActionType = "AssertUrl", TargetSelector = "", Value = "/", Description = "Xác nhận đăng nhập thành công và về Trang chủ" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 19, ActionType = "Navigate", TargetSelector = "", Value = "/Jobs/Create", Description = "Vào trang Tạo tin tuyển dụng" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 20, ActionType = "Fill", TargetSelector = "input[name='Title']", Value = "Vị trí tuyển dụng E2E Test", Description = "Nhập tiêu đề tin tuyển dụng" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 21, ActionType = "Select", TargetSelector = "#salaryType", Value = "Nhập liệu", Description = "Chọn loại lương Nhập liệu" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 22, ActionType = "Fill", TargetSelector = "#customSalary", Value = "15-20", Description = "Nhập mức lương tự chọn" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 23, ActionType = "Fill", TargetSelector = "input[name='Deadline']", Value = "TOMORROW", Description = "Nhập hạn nộp hồ sơ (ngày mai)" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 24, ActionType = "Fill", TargetSelector = "textarea[name='Description']", Value = "Mô tả công việc kiểm thử tự động.", Description = "Nhập mô tả công việc" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 25, ActionType = "Fill", TargetSelector = "textarea[name='Requirements']", Value = "Yêu cầu ứng viên thành thạo Playwright.", Description = "Nhập yêu cầu công việc" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 26, ActionType = "Click", TargetSelector = "button[type='submit']", Value = "", Description = "Đăng tin tuyển dụng" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 27, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Jobs/Manage", Description = "Kiểm tra chuyển hướng về trang Quản lý tin" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 28, ActionType = "AssertText", TargetSelector = "body", Value = "Vị trí tuyển dụng E2E Test", Description = "Xác nhận tin tuyển dụng hiển thị trên danh sách" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 29, ActionType = "Click", TargetSelector = "a[title='Chỉnh sửa']", Value = "", Description = "Nhấn nút Chỉnh sửa tin" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 30, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Jobs/Edit/*", Description = "Kiểm tra chuyển hướng về trang Sửa tin" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 31, ActionType = "Fill", TargetSelector = "input[name='Title']", Value = "Vị trí tuyển dụng E2E Test - Updated", Description = "Nhập tiêu đề mới đã chỉnh sửa" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 32, ActionType = "Click", TargetSelector = "button[type='submit']", Value = "", Description = "Cập nhật tin tuyển dụng" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 33, ActionType = "AssertUrl", TargetSelector = "", Value = "**/Jobs/Manage", Description = "Kiểm tra chuyển hướng về trang Quản lý tin sau khi cập nhật" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 34, ActionType = "AssertText", TargetSelector = "body", Value = "Vị trí tuyển dụng E2E Test - Updated", Description = "Xác nhận tin đã được cập nhật tiêu đề mới" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 35, ActionType = "Click", TargetSelector = "button[title='Xóa']", Value = "ACCEPT_DIALOG", Description = "Nhấn nút Xóa tin (chấp nhận dialog)" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 36, ActionType = "AssertTextNot", TargetSelector = "body", Value = "Vị trí tuyển dụng E2E Test - Updated", Description = "Xác nhận tin tuyển dụng đã bị biến mất" },
+                    new TestStep { ScenarioName = "Jobs E2E", StepOrder = 37, ActionType = "Navigate", TargetSelector = "", Value = "/Account/Logout", Description = "Đăng xuất tài khoản Recruiter" }
+                });
+                context.SaveChanges();
+                Console.WriteLine("Seed default E2E TestSteps successfully!");
+            }
+        }
+        catch (Exception tsEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể khởi tạo bảng hoặc seed TestSteps: " + tsEx.Message);
+        }
+
         // Khởi tạo dữ liệu tự động cho VueTemplates nếu chưa tồn tại ClassicHarvard hoặc NguyenMinhTrang
         try
         {

@@ -307,3 +307,39 @@ CREATE INDEX IX_Resumes_UserID ON Resumes(UserID);
 CREATE INDEX IX_Jobs_Status ON Jobs(Status);
 CREATE INDEX IX_AILogs_UserID_CreatedAt ON AILogs(UserID, CreatedAt);
 CREATE INDEX IX_CVEmbeddings_ResumeID ON CVEmbeddings(ResumeID);
+
+-- 22. Quản lý lịch sử kiểm thử tự động (Automation Testing History)
+CREATE TABLE TestRuns (
+    TestRunID INT PRIMARY KEY IDENTITY(1,1),
+    ExecutionTime DATETIME DEFAULT GETDATE(),
+    SuiteName NVARCHAR(100) NOT NULL, -- 'System Health Check' hoặc 'E2E Flow Testing'
+    TotalCases INT NOT NULL,
+    PassedCases INT NOT NULL,
+    FailedCases INT NOT NULL,
+    AvgResponseTimeMs BIGINT NOT NULL
+);
+-- 23.
+CREATE TABLE TestCaseDetails (
+    TestCaseID INT PRIMARY KEY IDENTITY(1,1),
+    TestRunID INT NOT NULL,
+    Name NVARCHAR(255) NOT NULL,
+    Method NVARCHAR(50) NOT NULL,
+    Url NVARCHAR(500) NULL,
+    Status NVARCHAR(50) NOT NULL, -- 'Success' hoặc 'Failed'
+    ResponseTimeMs BIGINT NOT NULL,
+    ExpectedResult NVARCHAR(MAX) NULL,
+    ActualResult NVARCHAR(MAX) NULL,
+    ErrorMessage NVARCHAR(MAX) NULL,
+    CONSTRAINT FK_TestCaseDetails_TestRuns FOREIGN KEY (TestRunID) REFERENCES TestRuns(TestRunID) ON DELETE CASCADE
+);
+
+-- 24. Các bước của kịch bản kiểm thử động (Dynamic Test Steps)
+CREATE TABLE TestSteps (
+    StepID INT IDENTITY(1,1) PRIMARY KEY,
+    ScenarioName NVARCHAR(50) NOT NULL, -- e.g. 'Auth E2E' hoặc 'Jobs E2E'
+    StepOrder INT NOT NULL,              -- Thứ tự chạy của bước
+    ActionType NVARCHAR(20) NOT NULL,    -- Navigate, Fill, Click, Select, AssertUrl, AssertText
+    TargetSelector NVARCHAR(250) NULL,   -- CSS selector để thao tác
+    Value NVARCHAR(MAX) NULL,            -- Giá trị truyền vào hoặc so khớp
+    Description NVARCHAR(500) NULL       -- Mô tả bước kiểm thử
+);
