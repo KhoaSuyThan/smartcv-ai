@@ -44,7 +44,7 @@ namespace DoAnCS.Controllers
                 // Lấy CompanyID từ Claim (đã lưu lúc đăng nhập)
                 var companyIdClaim = User.FindFirst("CompanyID")?.Value;
 
-                if (companyIdClaim != null)
+                if (!string.IsNullOrEmpty(companyIdClaim))
                 {
                     int currentCompanyId = int.Parse(companyIdClaim);
                     // CHỈ LẤY các tin thuộc công ty này
