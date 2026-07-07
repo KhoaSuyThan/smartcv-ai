@@ -26,3 +26,6 @@ AiMatchService/venv/
 venv/
 __pycache__/
 *.pyc
+
+# Temporary publish folder
+publish_temp/
