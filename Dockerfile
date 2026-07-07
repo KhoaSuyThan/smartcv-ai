@@ -15,6 +15,8 @@ COPY . .
 # Copy kết quả build của frontend vào thư mục wwwroot của backend
 COPY --from=frontend-build /app/wwwroot/cvbuilder ./wwwroot/cvbuilder
 RUN dotnet publish "DoAnCS.csproj" -c Release -o /app/publish
+# Sao chép thủ công thư mục .playwright từ output build sang output publish vì dotnet publish mặc định bỏ qua nó
+RUN cp -r bin/Release/net10.0/.playwright /app/publish/
 
 # --- Giai đoạn 3: Runtime ---
 # Sử dụng base image aspnet nhẹ nhàng (~100MB) để tránh lỗi hết dung lượng đĩa (no space left on device)
