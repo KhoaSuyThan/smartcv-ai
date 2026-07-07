@@ -44,7 +44,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxtst6 \
     libxi6 \
     fonts-liberation \
-    && dotnet Microsoft.Playwright.dll install chromium \
+    && PLAYWRIGHT_SH=$(find .playwright/node/ -name "playwright.sh" | head -n 1) \
+    && chmod +x "$PLAYWRIGHT_SH" \
+    && "$PLAYWRIGHT_SH" install chromium \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Mở port 8080 (mặc định của App Runner)
