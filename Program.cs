@@ -713,4 +713,19 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// Tải trước trình duyệt Playwright Chromium trong nền để tránh timeout khi chạy test E2E lần đầu
+_ = Task.Run(() =>
+{
+    try
+    {
+        Console.WriteLine("[Playwright Startup] Đang tải/kiểm tra trình duyệt Chromium trong nền...");
+        var exitCode = Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
+        Console.WriteLine($"[Playwright Startup] Hoàn tất kiểm tra Chromium với mã thoát: {exitCode}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Playwright Startup] Lỗi tải Chromium trong nền: {ex.Message}");
+    }
+});
+
 app.Run();
