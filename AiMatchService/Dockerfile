@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 COPY . .
 
 # Pre-download model vào image khi build → container khởi động nhanh hơn
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')"
+# RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')"
 
 # Expose port nội bộ (chỉ trong Docker network, không expose ra internet)
 EXPOSE 8000
