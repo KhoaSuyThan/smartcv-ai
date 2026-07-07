@@ -20,6 +20,12 @@ RUN dotnet publish "DoAnCS.csproj" -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=backend-build /app/publish .
+
+# Cài đặt trình duyệt Chromium và các thư viện liên kết hệ thống cần thiết cho Playwright
+RUN apt-get update && \
+    dotnet Microsoft.Playwright.dll install chromium --with-deps && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 # Mở port 8080 (mặc định của App Runner)
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080

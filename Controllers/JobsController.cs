@@ -199,6 +199,25 @@ namespace DoAnCS.Controllers
         [Authorize(Roles = "Recruiter,Admin")]
         public async Task<IActionResult> Create()
         {
+            if (User.IsInRole("Recruiter"))
+            {
+                var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == CurrentUserId);
+                if (user == null || 
+                    string.IsNullOrEmpty(user.FullName) ||
+                    string.IsNullOrEmpty(user.Phone) ||
+                    string.IsNullOrEmpty(user.AvatarUrl) ||
+                    user.Company == null ||
+                    string.IsNullOrEmpty(user.Company.Name) ||
+                    string.IsNullOrEmpty(user.Company.Address) ||
+                    string.IsNullOrEmpty(user.Company.TaxCode) ||
+                    string.IsNullOrEmpty(user.Company.Website) ||
+                    string.IsNullOrEmpty(user.Company.Description))
+                {
+                    TempData["ErrorMessage"] = "Bạn cần cập nhật đầy đủ thông tin doanh nghiệp (Tên, Địa chỉ, Mã số thuế, Website, Giới thiệu công ty và Logo công ty) trước khi đăng tin tuyển dụng.";
+                    return RedirectToAction("Profile", "Account");
+                }
+            }
+
             // LUÔN LUÔN nạp danh sách, kể cả không dùng đến để tránh lỗi Null ở View
             var companies = await _context.Companies.ToListAsync();
             ViewBag.Companies = companies ?? new List<Company>(); 
@@ -212,6 +231,25 @@ namespace DoAnCS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Job job)
         {
+            if (User.IsInRole("Recruiter"))
+            {
+                var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == CurrentUserId);
+                if (user == null || 
+                    string.IsNullOrEmpty(user.FullName) ||
+                    string.IsNullOrEmpty(user.Phone) ||
+                    string.IsNullOrEmpty(user.AvatarUrl) ||
+                    user.Company == null ||
+                    string.IsNullOrEmpty(user.Company.Name) ||
+                    string.IsNullOrEmpty(user.Company.Address) ||
+                    string.IsNullOrEmpty(user.Company.TaxCode) ||
+                    string.IsNullOrEmpty(user.Company.Website) ||
+                    string.IsNullOrEmpty(user.Company.Description))
+                {
+                    TempData["ErrorMessage"] = "Bạn cần cập nhật đầy đủ thông tin doanh nghiệp (Tên, Địa chỉ, Mã số thuế, Website, Giới thiệu công ty và Logo công ty) trước khi đăng tin tuyển dụng.";
+                    return RedirectToAction("Profile", "Account");
+                }
+            }
+
             // 1. Gỡ bỏ kiểm tra các trường không nhập từ Form
             ModelState.Remove("Recruiter");
             ModelState.Remove("Company");

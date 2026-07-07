@@ -552,7 +552,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,ProfessionalTitle,PortfolioLinks,YearsOfExperience,Skills,Address,ExpectedLocation,ExpectedSalary")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null, string? taxCode = null)
+        public async Task<IActionResult> Profile([Bind("FullName,Phone,Summary,ProfessionalTitle,PortfolioLinks,YearsOfExperience,Skills,Address,ExpectedLocation,ExpectedSalary")] User model, IFormFile? avatarFile, bool isDeleteAvatar = false, string? companyName = null, string? companyAddress = null, string? taxCode = null, string? companyWebsite = null, string? companyIndustry = null)
         {
             var userIdClaim = User.FindFirst("UserID")?.Value;
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId)) return RedirectToAction("Login");
@@ -572,6 +572,10 @@ namespace DoAnCS.Controllers
                         if (System.IO.File.Exists(oldFilePath)) System.IO.File.Delete(oldFilePath);
                         
                         user.AvatarUrl = null; // Reset về null
+                    }
+                    if (user.Role == "Recruiter" && user.Company != null)
+                    {
+                        user.Company.LogoUrl = null;
                     }
                 }
                 // TRƯỜNG HỢP 2: NGƯỜI DÙNG TẢI ẢNH MỚI
@@ -616,7 +620,7 @@ namespace DoAnCS.Controllers
                 }
 
                 // --- XỬ LÝ THÔNG TIN CÔNG TY CHO NHÀ TUYỂN DỤNG ---
-                if (user.Role == "Recruiter" && (!string.IsNullOrEmpty(companyName) || !string.IsNullOrEmpty(companyAddress) || !string.IsNullOrEmpty(taxCode)))
+                if (user.Role == "Recruiter")
                 {
                     if (user.Company != null)
                     {
@@ -624,8 +628,14 @@ namespace DoAnCS.Controllers
                         if (!string.IsNullOrEmpty(companyName)) user.Company.Name = companyName;
                         if (companyAddress != null) user.Company.Address = companyAddress;
                         if (taxCode != null) user.Company.TaxCode = taxCode;
+                        if (companyWebsite != null) user.Company.Website = companyWebsite;
+                        if (companyIndustry != null) user.Company.Industry = companyIndustry;
+                        
+                        // Đối với nhà tuyển dụng, ảnh đại diện là logo công ty luôn, mô tả là giới thiệu công ty luôn
+                        user.Company.LogoUrl = user.AvatarUrl;
+                        user.Company.Description = user.Summary;
                     }
-                    else
+                    else if (!string.IsNullOrEmpty(companyName) || !string.IsNullOrEmpty(companyAddress) || !string.IsNullOrEmpty(taxCode) || !string.IsNullOrEmpty(companyWebsite) || !string.IsNullOrEmpty(companyIndustry))
                     {
                         string inputCompName = (companyName ?? "Chưa cập nhật").Trim();
                         var existingComp = await _context.Companies.FirstOrDefaultAsync(c => c.Name.ToLower() == inputCompName.ToLower());
@@ -633,6 +643,12 @@ namespace DoAnCS.Controllers
                         if (existingComp != null)
                         {
                             user.CompanyID = existingComp.CompanyID;
+                            existingComp.Address = companyAddress;
+                            existingComp.TaxCode = taxCode;
+                            existingComp.Website = companyWebsite;
+                            existingComp.Industry = companyIndustry;
+                            existingComp.LogoUrl = user.AvatarUrl;
+                            existingComp.Description = user.Summary;
                         }
                         else
                         {
@@ -642,6 +658,10 @@ namespace DoAnCS.Controllers
                                 Name = inputCompName,
                                 Address = companyAddress,
                                 TaxCode = taxCode,
+                                Website = companyWebsite,
+                                Industry = companyIndustry,
+                                LogoUrl = user.AvatarUrl,
+                                Description = user.Summary,
                                 CreatedAt = DateTime.Now
                             };
                             _context.Companies.Add(newCompany);
