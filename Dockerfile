@@ -15,8 +15,11 @@ COPY . .
 # Copy kết quả build của frontend vào thư mục wwwroot của backend
 COPY --from=frontend-build /app/wwwroot/cvbuilder ./wwwroot/cvbuilder
 RUN dotnet publish "DoAnCS.csproj" -c Release -o /app/publish
-# Sao chép thủ công thư mục .playwright từ output build sang output publish vì dotnet publish mặc định bỏ qua nó
-RUN cp -r bin/Release/net10.0/.playwright /app/publish/
+
+# Cài đặt Playwright CLI tool và cài đặt chromium ngay trong giai đoạn build (nơi có đầy đủ SDK và Internet)
+RUN dotnet tool install --global Microsoft.Playwright.CLI
+ENV PATH="$PATH:/root/.dotnet/tools"
+RUN playwright install chromium
 
 # --- Giai đoạn 3: Runtime ---
 # Sử dụng base image aspnet nhẹ nhàng (~100MB) để tránh lỗi hết dung lượng đĩa (no space left on device)
@@ -24,7 +27,10 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=backend-build /app/publish .
 
-# Cài đặt các thư viện hệ thống tối thiểu để chạy Chromium (không dùng --with-deps để tránh seccomp/exit code 131)
+# Sao chép các trình duyệt đã tải ở giai đoạn build sang giai đoạn runtime
+COPY --from=backend-build /root/.cache/ms-playwright /root/.cache/ms-playwright
+
+# Cài đặt các thư viện hệ thống tối thiểu để chạy Chromium (không chạy script cài của playwright tránh seccomp/exit code 131)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libnss3 \
     libnspr4 \
@@ -46,10 +52,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxtst6 \
     libxi6 \
     fonts-liberation \
-    && PLAYWRIGHT_SH=$(find .playwright/node/ -name "playwright.sh" | head -n 1) \
-    && chmod +x "$PLAYWRIGHT_SH" \
-    && "$PLAYWRIGHT_SH" install chromium \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Cấu hình biến môi trường chỉ định thư mục chứa trình duyệt
+ENV PLAYWRIGHT_BROWSERS_PATH=/root/.cache/ms-playwright
 
 # Mở port 8080 (mặc định của App Runner)
 ENV ASPNETCORE_URLS=http://+:8080
