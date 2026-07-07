@@ -492,6 +492,18 @@ namespace DoAnCS.Services
         {
             var suite = new TestSuiteResult { SuiteName = "E2E User Flow Testing" };
 
+            // Tự động kiểm tra/cài đặt Chromium trước khi chạy bộ E2E
+            try
+            {
+                Console.WriteLine("[Playwright E2E] Đang kiểm tra và tải trình duyệt Chromium...");
+                Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
+                Console.WriteLine("[Playwright E2E] Chromium đã sẵn sàng.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Playwright E2E] Lỗi tự động cài đặt Chromium: " + ex.Message);
+            }
+
             // Khởi tạo các bản ghi dọn dẹp dữ liệu kiểm thử trùng lặp trước khi bắt đầu
             await CleanE2ETestDataAsync();
 
