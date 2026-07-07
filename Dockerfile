@@ -52,6 +52,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxtst6 \
     libxi6 \
     fonts-liberation \
+    libxfixes3 \
+    libxcursor1 \
+    libxshmfence1 \
+    libgtk-3-0t64 \
+    libdbus-1-3 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Cấu hình biến môi trường chỉ định thư mục chứa trình duyệt
