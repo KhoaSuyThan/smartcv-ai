@@ -1,0 +1,18 @@
+# Ignore build outputs
+bin/
+obj/
+publish/
+
+# Ignore local dependencies
+node_modules/
+CVBuilderApp/node_modules/
+
+# Ignore git and IDE configurations
+.git/
+.vs/
+.vscode/
+
+# Ignore temp folders and logs
+publish_temp/
+logs/
+*.log
