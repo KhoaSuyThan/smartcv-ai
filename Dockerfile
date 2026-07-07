@@ -17,14 +17,15 @@ COPY --from=frontend-build /app/wwwroot/cvbuilder ./wwwroot/cvbuilder
 RUN dotnet publish "DoAnCS.csproj" -c Release -o /app/publish
 
 # --- Giai đoạn 3: Runtime ---
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+# Sử dụng image Playwright chính thức của Microsoft đã cài đặt sẵn các trình duyệt và thư viện liên quan
+FROM mcr.microsoft.com/playwright/dotnet:v1.61.0-noble AS final
 WORKDIR /app
-COPY --from=backend-build /app/publish .
 
-# Cài đặt trình duyệt Chromium và các thư viện liên kết hệ thống cần thiết cho Playwright
-RUN apt-get update && \
-    dotnet Microsoft.Playwright.dll install chromium --with-deps && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Sao chép .NET 10.0 runtime từ image chính thức để đảm bảo chạy được ứng dụng .NET 10
+COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0 /usr/share/dotnet /usr/share/dotnet
+
+# Sao chép kết quả build của backend
+COPY --from=backend-build /app/publish .
 
 # Mở port 8080 (mặc định của App Runner)
 ENV ASPNETCORE_URLS=http://+:8080
