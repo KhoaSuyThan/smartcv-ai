@@ -254,7 +254,7 @@
             <div class="card glass-card text-center p-4">
                 <div class="avatar-wrapper mb-4">
                     <img id="avatarPreview" 
-                         src="@(string.IsNullOrEmpty(Model.AvatarUrl) ? defaultAvt : Model.AvatarUrl)" 
+                         src="@(isRecruiter && Model.Company != null && !string.IsNullOrEmpty(Model.Company.LogoUrl) ? Model.Company.LogoUrl : (string.IsNullOrEmpty(Model.AvatarUrl) ? defaultAvt : Model.AvatarUrl))" 
                          alt="Avatar" class="rounded-circle main-avatar">
                     
                     @if (Model.IsPro)
@@ -268,7 +268,7 @@
                         <label for="avatarInput" class="action-btn edit-btn" title="Thay đổi ảnh">
                             <i class="bi bi-camera-fill"></i>
                         </label>
-                        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                        @if (!string.IsNullOrEmpty(Model.AvatarUrl) || (isRecruiter && Model.Company != null && !string.IsNullOrEmpty(Model.Company.LogoUrl)))
                         {
                             <button type="button" class="action-btn delete-btn" onclick="deleteAvatar()" title="Xóa ảnh">
                                 <i class="bi bi-trash-fill"></i>
@@ -386,6 +386,16 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         }
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-5 rounded-4 p-3" role="alert">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+                                    <div><strong>Lỗi!</strong> @TempData["ErrorMessage"]</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
 
                         <form id="profileForm" asp-controller="Account" asp-action="Profile" method="post" enctype="multipart/form-data" onsubmit="prepareProfileSubmit()">
                             <input type="hidden" asp-for="UserID" />
@@ -422,6 +432,22 @@
                                             value="@(Model.Company?.TaxCode)" 
                                             class="form-control edit-locked" readonly 
                                             placeholder="Nhập mã số thuế" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-globe me-2"></i>Website công ty</label>
+                                        <input type="text" name="companyWebsite" id="CompanyWebsite" 
+                                            value="@(Model.Company?.Website)" 
+                                            class="form-control edit-locked" readonly 
+                                            placeholder="Nhập website công ty (VD: https://company.com)" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="custom-label text-dark"><i class="bi bi-tags me-2"></i>Lĩnh vực hoạt động</label>
+                                        <input type="text" name="companyIndustry" id="CompanyIndustry" 
+                                            value="@(Model.Company?.Industry)" 
+                                            class="form-control edit-locked" readonly 
+                                            placeholder="Nhập lĩnh vực hoạt động (VD: Công nghệ thông tin)" />
                                     </div>
                                 }
                                 else
@@ -959,6 +985,8 @@
         let oldCompanyName = "@Html.Raw(Model.Company?.Name)";
         let oldCompanyAddress = "@Html.Raw(Model.Company?.Address)";
         let oldTaxCode = "@Html.Raw(Model.Company?.TaxCode)";
+        let oldCompanyWebsite = "@Html.Raw(Model.Company?.Website)";
+        let oldCompanyIndustry = "@Html.Raw(Model.Company?.Industry)";
         let isRecruiter = @(isRecruiter ? "true" : "false");
 
         let cropper;
@@ -1133,7 +1161,7 @@
             fields.push('ProvinceSelect');
             fields.push('DistrictSelect');
             if (isRecruiter) {
-                fields.push('CompanyName', 'CompanyAddress', 'TaxCode');
+                fields.push('CompanyName', 'CompanyAddress', 'TaxCode', 'CompanyWebsite', 'CompanyIndustry');
             }
             return fields;
         }
@@ -1209,9 +1237,13 @@
                 let cn = document.getElementById('CompanyName');
                 let ca = document.getElementById('CompanyAddress');
                 let tc = document.getElementById('TaxCode');
+                let cw = document.getElementById('CompanyWebsite');
+                let ci = document.getElementById('CompanyIndustry');
                 if (cn) cn.value = oldCompanyName;
                 if (ca) ca.value = oldCompanyAddress;
                 if (tc) tc.value = oldTaxCode;
+                if (cw) cw.value = oldCompanyWebsite;
+                if (ci) ci.value = oldCompanyIndustry;
             }
             document.getElementById('editActions').style.setProperty('display', 'none', 'important');
             document.getElementById('btnEdit').classList.remove('d-none');
@@ -1294,6 +1326,9 @@
                 if (isRecruiter) {
                     formData.append('companyName', document.getElementById('CompanyName').value);
                     formData.append('companyAddress', document.getElementById('CompanyAddress').value);
+                    formData.append('taxCode', document.getElementById('TaxCode').value);
+                    formData.append('companyWebsite', document.getElementById('CompanyWebsite').value);
+                    formData.append('companyIndustry', document.getElementById('CompanyIndustry').value);
                 }
                 
                 // Gửi request bằng Fetch API
