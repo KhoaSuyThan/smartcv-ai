@@ -19,6 +19,12 @@ services:
     # Port 8000 không thể truy cập từ internet
     networks:
       - default
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
+      interval: 10s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
 
   app:
     build: .
@@ -31,8 +37,10 @@ services:
       # URL nội bộ đến Python service (dùng tên service thay vì localhost)
       - PythonAI__BaseUrl=http://aimatchservice:8000
     depends_on:
-      - db
-      - aimatchservice    # App chờ Python service khởi động trước
+      db:
+        condition: service_started
+      aimatchservice:
+        condition: service_healthy    # App chỉ khởi động khi Python service đã tải xong model và healthy
     volumes:
       - /var/www/uploads/DoAnWeb:/app/uploads
 
