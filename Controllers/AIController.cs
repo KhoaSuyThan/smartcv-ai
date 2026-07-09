@@ -9,23 +9,32 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using TiktokenSharp;
+using Microsoft.AspNetCore.RateLimiting; // Sử dụng middleware Rate Limiting
 
 namespace DoAnCS.Controllers 
 {
+    [EnableRateLimiting("AiApiPolicy")] // Áp dụng Rate Limit theo IP cho toàn bộ Controller xử lý AI
     public class AIController : Controller
     {
         private readonly IAIService _aiService;
         private readonly DoAnCS.Data.AppDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IEncryptionService _encryptionService; // Thêm dịch vụ giải mã API Key
 
         // Tiêm (Inject) Service xử lý AI và AppDbContext thông qua Constructor
-        public AIController(IAIService aiService, DoAnCS.Data.AppDbContext context, IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public AIController(
+            IAIService aiService, 
+            DoAnCS.Data.AppDbContext context, 
+            IConfiguration configuration, 
+            IHttpClientFactory httpClientFactory,
+            IEncryptionService encryptionService) // Inject Encryption Service
         {
             _aiService = aiService;
             _context = context;
             _configuration = configuration;
             _httpClientFactory = httpClientFactory;
+            _encryptionService = encryptionService;
         }
 
         // ============================================================
@@ -46,7 +55,8 @@ namespace DoAnCS.Controllers
             if (string.IsNullOrEmpty(chatbotApiKey))
                 return Json(new { success = false, reply = "Tính năng Chatbot đang được bảo trì. Vui lòng quay lại sau!" });
 
-            chatbotApiKey = chatbotApiKey.Trim();
+            // Giải mã Chatbot API key được mã hóa bảo mật từ DB
+            chatbotApiKey = _encryptionService.Decrypt(chatbotApiKey).Trim();
 
             // 3. Chuẩn bị Request Body cho Groq
             var systemPrompt = dbConfig?.ChatbotSystemInstruction;

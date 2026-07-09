@@ -7,6 +7,8 @@ using DoAnCS.Data;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Linq;
+using Ganss.Xss; // Dùng cho HTML Sanitization
+using Newtonsoft.Json.Linq; // Sử dụng JToken để duyệt JSON linh hoạt
 
 namespace DoAnCS.Controllers
 {
@@ -86,17 +88,20 @@ namespace DoAnCS.Controllers
                 return Forbid();
             }
 
-            // Lưu toàn bộ cấu trúc Vue vào trường JsonContent
-            resume.JsonContent = request.JsonContent;
+            // Lọc mã độc HTML/XSS từ nội dung JSON tự do do người dùng nhập trước khi lưu xuống DB
+            string sanitizedJson = SanitizeJsonContent(request.JsonContent);
+
+            // Lưu toàn bộ cấu trúc Vue vào trường JsonContent đã làm sạch
+            resume.JsonContent = sanitizedJson;
             resume.UpdatedAt = System.DateTime.Now;
             resume.IsDraft = true; // Lưu nháp
 
             // Trích xuất dữ liệu General từ JSON để lưu vào các cột tương ứng (Hỗ trợ tìm kiếm sau này)
-            if (!string.IsNullOrEmpty(request.JsonContent))
+            if (!string.IsNullOrEmpty(sanitizedJson))
             {
                 try
                 {
-                    using (JsonDocument doc = JsonDocument.Parse(request.JsonContent))
+                    using (JsonDocument doc = JsonDocument.Parse(sanitizedJson))
                     {
                         // Đồng bộ TemplateID trong database nếu người dùng đổi sang mẫu CV mới
                         if (doc.RootElement.TryGetProperty("overrideTemplate", out JsonElement overrideTpl))
@@ -197,6 +202,64 @@ namespace DoAnCS.Controllers
                 .ToListAsync();
 
             return Ok(templates);
+        }
+
+        /// <summary>
+        /// Giải mã và lọc sạch các chuỗi HTML/XSS trong toàn bộ cấu trúc JSON của CV
+        /// </summary>
+        private string SanitizeJsonContent(string jsonStr)
+        {
+            if (string.IsNullOrWhiteSpace(jsonStr)) return jsonStr;
+            try
+            {
+                var token = JToken.Parse(jsonStr);
+                var sanitizer = new HtmlSanitizer();
+                
+                // Lọc bỏ mã độc JavaScript, thẻ script, các sự kiện onerror, onload...
+                SanitizeJToken(token, sanitizer);
+                return token.ToString(Newtonsoft.Json.Formatting.None);
+            }
+            catch
+            {
+                return jsonStr;
+            }
+        }
+
+        /// <summary>
+        /// Duyệt đệ quy qua JToken để làm sạch mọi thuộc tính có kiểu dữ liệu chuỗi (String)
+        /// </summary>
+        private void SanitizeJToken(JToken token, HtmlSanitizer sanitizer)
+        {
+            if (token is JObject obj)
+            {
+                foreach (var property in obj.Properties())
+                {
+                    if (property.Value.Type == JTokenType.String)
+                    {
+                        var val = property.Value.ToString();
+                        property.Value = sanitizer.Sanitize(val);
+                    }
+                    else
+                    {
+                        SanitizeJToken(property.Value, sanitizer);
+                    }
+                }
+            }
+            else if (token is JArray arr)
+            {
+                for (int i = 0; i < arr.Count; i++)
+                {
+                    if (arr[i].Type == JTokenType.String)
+                    {
+                        var val = arr[i].ToString();
+                        arr[i] = sanitizer.Sanitize(val);
+                    }
+                    else
+                    {
+                        SanitizeJToken(arr[i], sanitizer);
+                    }
+                }
+            }
         }
     }
 

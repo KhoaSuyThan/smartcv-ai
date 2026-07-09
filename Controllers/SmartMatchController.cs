@@ -8,10 +8,12 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Text.RegularExpressions;
 using TiktokenSharp;
+using Microsoft.AspNetCore.RateLimiting; // Sử dụng middleware Rate Limiting
 
 namespace DoAnCS.Controllers
 {
     [Authorize(Roles = "Recruiter,Admin")]
+    [EnableRateLimiting("AiApiPolicy")] // Áp dụng Rate Limit theo IP
     public class SmartMatchController : BaseController
     {
         private readonly AppDbContext _context;
