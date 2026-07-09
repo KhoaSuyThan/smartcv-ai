@@ -98,13 +98,14 @@
             <!-- Education Section -->
             <div v-else-if="section.id === 'education'" class="space-y-3">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id"
+                      <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                
-                <div class="paginated-item pr-1">
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item pr-1">
                   <!-- Row 1: School Name & Year -->
                   <div class="flex justify-between items-baseline font-bold text-[13.5px]">
                     <span v-html="item.school || 'Tên trường học'"></span>
@@ -118,19 +119,21 @@
                   <!-- Description -->
                   <div v-if="item.desc" class="html-content mt-1 text-[13px] text-justify leading-relaxed" v-html="formatDesc(item.desc)"></div>
                 </div>
-              </div>
+                      </template>
+</div>
             </div>
 
             <!-- Experience, Projects, Activities Section -->
             <div v-else-if="['experience', 'projects', 'project', 'activities', 'activity'].some(x => section.id.toLowerCase().includes(x))" class="space-y-3">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id"
+                      <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-
-                <div class="paginated-item pr-1">
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item pr-1">
                   <!-- Row 1: Company Name & Time -->
                   <div class="flex justify-between items-baseline font-bold text-[13.5px]">
                     <span v-html="item.company || item.organization || item.name || item.title || 'Tên công ty / Dự án / Tổ chức'"></span>
@@ -145,53 +148,63 @@
                   <!-- Description (Bullet Points) -->
                   <div class="html-content mt-1.5 text-[13px] text-justify leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
                 </div>
-              </div>
+                      </template>
+</div>
             </div>
 
             <!-- Skills, Languages & Certifications Section -->
             <div v-else-if="['skills', 'it_skills', 'languages'].some(x => section.id.toLowerCase().includes(x))" class="space-y-1">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id"
+                      <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="paginated-item pr-1 text-[13px]">
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item pr-1 text-[13px]">
                   <strong v-html="item.name || 'Kỹ năng'"></strong>: 
                   <span v-html="item.level || item.info || 'Thông tin chi tiết'"></span>
                   <div v-if="item.desc" class="html-content mt-0.5 pl-4 text-slate-700 text-justify" v-html="formatDesc(item.desc)"></div>
                 </div>
-              </div>
+                      </template>
+</div>
             </div>
 
             <!-- Awards / Certifications (Simple bullet format) -->
             <div v-else-if="['awards', 'certifications'].includes(section.id)" class="space-y-1">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative">
-                <button v-show="selectedSectionId === section.id"
+                      <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="paginated-item pr-1 text-[13px]">
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item pr-1 text-[13px]">
                   <span v-if="item.year" class="font-bold mr-1" v-html="item.year"></span>
                   <span v-html="item.name || item.info"></span>
                   <span v-if="item.organization" class="text-slate-600 italic"> (<span v-html="item.organization"></span>)</span>
                   <div v-if="item.desc" class="html-content mt-0.5 pl-4 text-slate-700" v-html="formatDesc(item.desc)"></div>
                 </div>
-              </div>
+                      </template>
+</div>
             </div>
 
             <!-- Fallback Section -->
             <div v-else class="space-y-2">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="paginated-item item-container relative text-[13px]">
-                <button v-show="selectedSectionId === section.id"
+                      <button v-show="selectedSectionId === section.id"
                   @click.stop.prevent="$emit('removeItem', section.id, itemIndex)"
                   class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div v-if="item.name || item.title" class="font-bold mb-0.5"><span v-html="item.name || item.title"></span></div>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div v-if="item.name || item.title" class="font-bold mb-0.5"><span v-html="item.name || item.title"></span></div>
                 <div class="html-content text-justify leading-relaxed" v-html="formatDesc(item.desc || item.info || '')"></div>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>

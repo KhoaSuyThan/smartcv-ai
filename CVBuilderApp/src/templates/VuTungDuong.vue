@@ -144,12 +144,15 @@
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container paginated-item"
                 style="position: relative; color: #ffffff; font-size: 12.5px; font-weight: 700; line-height: 1.45; padding-right: 20px;">
-                <span style="font-weight: 800;" v-html="item.name"></span>
-                <span v-if="item.level" style="color: #cbd5e1; font-weight: 400; margin-left: 4px;">- <span v-html="item.level"></span></span>
-                <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-              </div>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <span style="font-weight: 800;" v-html="item.name"></span>
+                <span v-if="item.level" style="color: #cbd5e1; font-weight: 400; margin-left: 4px;">- <span v-html="item.level"></span></span>
+                      </template>
+</div>
             </div>
 
             <div v-else-if="['awards','certifications'].includes(section.id)"
@@ -157,21 +160,28 @@
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container paginated-item"
                 style="position: relative; font-size: 12.5px; line-height: 1.45; padding-right: 20px;">
-                <span style="font-weight: 700;" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }"><span v-html="item.year"></span></span>
-                <span v-if="item.year" style="color: #ffffff; font-weight: 400;"> - </span>
-                <span style="color: #ffffff; font-weight: 700;"><span v-html="item.name"></span></span>
-                <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
                   <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-              </div>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <span style="font-weight: 700;" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor }"><span v-html="item.year"></span></span>
+                <span v-if="item.year" style="color: #ffffff; font-weight: 400;"> - </span>
+                <span style="color: #ffffff; font-weight: 700;"><span v-html="item.name"></span></span>
+                      </template>
+</div>
             </div>
 
             <div v-else style="display: flex; flex-direction: column; gap: 12px;">
               <div v-for="(item, itemIndex) in section.items" :key="item._refId"
                 class="item-container"
                 style="position: relative; color: #fff; line-height: 1.5; padding-right: 20px;">
-                
-                <!-- Thời gian in màu nhấn -->
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0px; right: 0px;">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <!-- Thời gian in màu nhấn -->
                 <div v-if="item.time || item.year" class="paginated-item" :style="{ color: isCustomTheme ? '#ffffff' : templateAccentColor, fontWeight: '800', fontSize: '12px', marginBottom: '2px' }">
                   <span v-html="item.time || item.year"></span>
                 </div>
@@ -203,11 +213,8 @@
                 
                 <!-- Mô tả chi tiết (Được băm nhỏ bởi thuật toán) -->
                 <div v-if="item.desc || item.info" class="sidebar-html-content" style="font-weight: 500; font-size: 12.5px;" v-html="formatDesc(item.desc || item.info)"></div>
-
-                <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0px; right: 0px;">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </div>
@@ -269,8 +276,9 @@
           <div v-else-if="section.id.toLowerCase().includes('experience') || section.id.toLowerCase().includes('project') || section.id.toLowerCase().includes('activit')"
             style="display: flex; flex-direction: column; gap: 16px;">
             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container" style="position: relative;">
-              <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
-              
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
                         <div class="paginated-item" style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
               <span style="font-weight: 800; font-size: 14px; color: #111; line-height: 1.3; padding-right: 15px;">
                 <!-- Experience: lấy role/position | Project: lấy name/title -->
@@ -294,16 +302,18 @@
             </div>
               
               <div class="html-content" style="font-size: 13px; line-height: 1.6; color: #222; text-align: justify;" v-html="formatDesc(item.desc)"></div>
-            </div>
+                      </template>
+</div>
           </div>
 
           <!-- HỌC VẤN -->
           <div v-else-if="section.id.toLowerCase().includes('education')"
             style="display: flex; flex-direction: column; gap: 14px;">
             <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container" style="position: relative;">
-              <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
-              
-              <div class="paginated-item" style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: 0; right: 0;"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item" style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
                 <span style="font-weight: 800; font-size: 14px; color: #111;"><span v-html="item.major || item.school"></span></span>
                 <span style="font-size: 12.5px; font-weight: 700; color: #555; white-space: nowrap; padding-left: 6px;"><span v-html="item.year"></span></span>
               </div>
@@ -314,7 +324,8 @@
                 <span v-if="item.gpa">GPA: <strong><span v-html="item.gpa"></span></strong></span>
               </div>
               <div v-if="item.desc" class="html-content" style="font-size: 13px; line-height: 1.6; color: #222; margin-top: 4px;" v-html="formatDesc(item.desc)"></div>
-            </div>
+                      </template>
+</div>
           </div>
 
           <!-- CÁC MỤC MẶC ĐỊNH KHÁC -->
@@ -322,8 +333,12 @@
             <div v-for="(item, itemIndex) in section.items" :key="item._refId"
               class="item-container"
               style="position: relative; font-size: 13px; line-height: 1.6; color: #222;">
-              
-              <div class="paginated-item" style="display: flex; justify-content: space-between; align-items: baseline;">
+                      <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -4px; right: -4px;">
+                <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item" style="display: flex; justify-content: space-between; align-items: baseline;">
                 <div style="font-weight: 800; font-size: 14px; color: #111;" class="html-content flex-1" v-html="formatDesc(item.name || item.title || '')"></div>
                 
                 <span v-if="['skills', 'languages', 'it_skills'].includes(section.id.toLowerCase()) && (item.level || item.info)" style="font-size: 13px; font-weight: 700; color: #555; margin-left: 12px; white-space: nowrap;">
@@ -337,11 +352,8 @@
               
               <div v-if="item.desc" class="html-content" style="margin-top: 3px;" v-html="formatDesc(item.desc)"></div>
               <div v-else-if="!['skills', 'languages', 'it_skills'].includes(section.id.toLowerCase()) && item.info" class="html-content" style="margin-top: 3px;" v-html="formatDesc(item.info)"></div>
-
-              <button v-if="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print" style="top: -4px; right: -4px;">
-                <svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-              </button>
-            </div>
+                      </template>
+</div>
           </div>
         </div>
       </template>

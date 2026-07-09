@@ -130,7 +130,12 @@
                 class="item-container relative w-full text-white"
                 :style="{ fontSize: '13px !important', lineHeight: '1.5', margin: '0 !important', padding: '0 !important' }"
               >
-                <!-- Kinh nghiệm / Học vấn / Hoạt động cột trái -->
+                      <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
+                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <!-- Kinh nghiệm / Học vấn / Hoạt động cột trái -->
                 <div v-if="['education','experience','project','activities'].includes(section.id)" class="w-full flex flex-col">
                   <div class="paginated-item w-full flex justify-between items-start gap-2 relative">
                     <span class="font-bold flex-1 break-words leading-tight flex flex-col" v-html="formatDesc(item.school || item.company || item.organization || item.name || item.title)"></span>
@@ -159,11 +164,8 @@
                   <div v-if="item.major || item.role || item.info" class="italic opacity-90 mt-[2px] text-[12px] paginated-item flex flex-col" v-html="formatDesc(item.major || item.role || item.info)"></div>
                   <div v-if="item.desc || item.details" class="html-content-sidebar text-justify whitespace-pre-line break-words w-full mt-[2px] flex flex-col" :style="{ lineHeight: '1.5' }" v-html="formatDesc(item.desc || item.details)"></div>
                 </div>
-
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
-                  <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>
@@ -270,7 +272,12 @@
                 class="item-container relative w-full text-[#333]"
                 :style="{ margin: '0 !important', padding: '0 !important' }"
               >
-                <!-- Kinh nghiệm / Học vấn / Hoạt động cột phải -->
+                      <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
+                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <!-- Kinh nghiệm / Học vấn / Hoạt động cột phải -->
                 <div v-if="['education','experience','project','activities'].includes(section.id)" class="w-full flex flex-col pl-[20px]">
                   <div class="w-full flex justify-between items-start gap-2 mt-[2px] relative">
                     <div class="absolute -left-[20px] top-[6px] w-[6px] h-[6px] rounded-full bg-black"></div>
@@ -302,11 +309,8 @@
                   <div v-if="item.info || item.role || item.major" class="paginated-item text-[14px] font-medium text-[#555] mt-[2px] flex flex-col" v-html="formatDesc(item.info || item.role || item.major)"></div>
                   <div v-if="item.desc || item.details" class="html-content text-justify whitespace-pre-line break-words w-full text-[#444] flex flex-col mt-[5px]" :style="{ fontSize: '13.5px', lineHeight: '1.65' }" v-html="formatDesc(item.desc || item.details)"></div>
                 </div>
-
-                <button v-show="selectedSectionId === section.id" @click.stop.prevent="$emit('removeItem', section.id, itemIndex)" class="delete-btn no-print">
-                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>

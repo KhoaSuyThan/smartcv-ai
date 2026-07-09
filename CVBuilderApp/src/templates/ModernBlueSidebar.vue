@@ -108,8 +108,17 @@
 
             <div class="space-y-4 px-1">
   <div v-for="(item, itemIndex) in section.items" :key="item._refId" class="item-container relative text-slate-800">
-    
-    <!-- SỬA LỖI VÀ ĐỊNH DẠNG HỌC VẤN / KINH NGHIỆM GIỐNG ẢNH MẪU SỐ 3 -->
+                      <button
+      v-if="selectedSectionId === section.id"
+      @click.stop="$emit('removeItem', section.id, itemIndex)"
+      class="delete-btn no-print"
+      title="Xóa"
+    >
+      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <!-- SỬA LỖI VÀ ĐỊNH DẠNG HỌC VẤN / KINH NGHIỆM GIỐNG ẢNH MẪU SỐ 3 -->
     <template v-if="['education','experience','project','activities'].includes(section.id)">
       <!-- Ngành học / Vị trí in đậm -->
       <div class="html-content font-bold text-[14px] leading-snug flex flex-col text-slate-800 paginated-item" v-html="formatDesc(item.major || item.role || item.position || item.name)"></div>
@@ -137,16 +146,8 @@
       <div v-if="item.year || item.time" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col paginated-item" v-html="formatDesc(item.year || item.time)" />
       <div v-if="item.desc" class="html-content text-[12px] text-slate-500 mt-0.5 flex flex-col paginated-item text-justify" v-html="formatDesc(item.desc)" />
     </template>
-    
-    <button
-      v-if="selectedSectionId === section.id"
-      @click.stop="$emit('removeItem', section.id, itemIndex)"
-      class="delete-btn no-print"
-      title="Xóa"
-    >
-      <svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
-    </button>
-  </div>
+                      </template>
+</div>
 </div>
           </div>
         </template>
@@ -238,7 +239,17 @@
                 :key="item._refId"
                 class="item-container relative w-full text-slate-700"
               >
-                <!-- Education / Experience / Project / Activities -->
+                      <button
+                  v-if="selectedSectionId === section.id"
+                  @click.stop="$emit('removeItem', section.id, itemIndex)"
+                  class="delete-btn delete-btn--main no-print"
+                  title="Xóa"
+                >
+                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <!-- Education / Experience / Project / Activities -->
                 <template v-if="['education','experience','project','activities'].includes(section.id)">
                   <div class="flex justify-between items-start gap-4 mb-1 paginated-item">
                     <div class="font-bold text-[16px] text-slate-900 leading-tight">
@@ -275,16 +286,8 @@
                       v-html="formatDesc(item.desc)" />
                 </div>
               </template>
-
-                <button
-                  v-if="selectedSectionId === section.id"
-                  @click.stop="$emit('removeItem', section.id, itemIndex)"
-                  class="delete-btn delete-btn--main no-print"
-                  title="Xóa"
-                >
-                  <svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>

@@ -887,6 +887,27 @@
 </div>
 
 @* MODAL QUẢN LÝ HIỂN THỊ CV *@
+<style>
+    #manageCVsModal .list-group-scrollable {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+    #manageCVsModal .list-group-scrollable::-webkit-scrollbar {
+        width: 6px;
+    }
+    #manageCVsModal .list-group-scrollable::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    #manageCVsModal .list-group-scrollable::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 10px;
+    }
+    #manageCVsModal .list-group-scrollable::-webkit-scrollbar-thumb:hover {
+        background: #999;
+    }
+</style>
 <div class="modal fade" id="manageCVsModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-4">
@@ -898,7 +919,7 @@
                 <div class="alert alert-info border-0 rounded-4 mb-4 small">
                     <i class="bi bi-info-circle-fill me-2"></i> Bạn chỉ có thể chọn tối đa <strong>4 CV</strong> để hiển thị công khai trên hồ sơ cá nhân.
                 </div>
-                <div class="list-group list-group-flush">
+                <div class="list-group list-group-flush list-group-scrollable">
                     @if (Model.Resumes != null && Model.Resumes.Any())
                     {
                         foreach (var cv in Model.Resumes.OrderByDescending(r => r.IsPublic).ThenByDescending(r => r.UpdatedAt))
