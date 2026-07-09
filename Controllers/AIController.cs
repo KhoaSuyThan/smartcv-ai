@@ -184,6 +184,24 @@ Quy tắc:
                 _ => request.TargetLanguage
             };
 
+            string originalAvatarUrl = null;
+            string payloadJson = request.JsonContent;
+
+            try
+            {
+                var cvObj = Newtonsoft.Json.Linq.JObject.Parse(request.JsonContent);
+                if (cvObj["general"] != null && cvObj["general"]["avatarUrl"] != null)
+                {
+                    originalAvatarUrl = cvObj["general"]["avatarUrl"]?.ToString();
+                    cvObj["general"]["avatarUrl"] = ""; // Tạm xóa để tiết kiệm token và tránh bị tràn/cắt cụt dữ liệu
+                    payloadJson = cvObj.ToString(Newtonsoft.Json.Formatting.None);
+                }
+            }
+            catch (Exception pEx)
+            {
+                Console.WriteLine($"[TranslateCV] Cảnh báo parse JSON đầu vào: {pEx.Message}");
+            }
+
             string prompt = $@"Bạn là chuyên gia dịch thuật CV và tối ưu hóa hồ sơ chuyên nghiệp. Hãy dịch toàn bộ nội dung của cấu trúc JSON CV sau đây sang ngôn ngữ: {languageText}.
 YÊU CẦU BẮT BUỘC:
 1. Dịch tất cả các giá trị chuỗi văn bản (ví dụ: kinh nghiệm, dự án, kỹ năng, mục tiêu nghề nghiệp, tóm tắt...) và tên các đề mục lớn/nhỏ (ví dụ: 'title', 'name'...).
@@ -193,7 +211,7 @@ YÊU CẦU BẮT BUỘC:
 5. TUYỆT ĐỐI KHÔNG được sử dụng escape unicode sequence kiểu '\uXXXX' (như '\u90d0\u7d22'). Hãy xuất các ký tự Unicode/tiếng Nhật/tiếng Hàn/tiếng Việt trực tiếp dưới dạng ký tự UTF-8 bình thường (ví dụ: '日本語', '한국어', 'Nguyễn Văn A').
 
 Dưới đây là dữ liệu JSON CV cần dịch:
-{request.JsonContent}";
+{payloadJson}";
 
             try
             {
@@ -208,10 +226,16 @@ Dưới đây là dữ liệu JSON CV cần dịch:
                 {
                     var parsed = Newtonsoft.Json.Linq.JToken.Parse(translatedJson);
                     
+                    // Khôi phục lại ảnh đại diện ban đầu nếu có
+                    if (parsed is Newtonsoft.Json.Linq.JObject parsedObj && originalAvatarUrl != null && parsedObj["general"] != null)
+                    {
+                        parsedObj["general"]["avatarUrl"] = originalAvatarUrl;
+                    }
+
                     // Ghi log sử dụng AI vào DB
                     try
                     {
-                        int tokens = (request.JsonContent.Length / 4) + (translatedJson.Length / 4) + 150;
+                        int tokens = (payloadJson.Length / 4) + (translatedJson.Length / 4) + 150;
                         var log = new AILog {
                             UserID = userId > 0 ? userId : (int?)null,
                             RequestType = "translate",
@@ -226,7 +250,7 @@ Dưới đây là dữ liệu JSON CV cần dịch:
                     }
                     catch { /* Không chặn luồng chính khi lỗi ghi log */ }
 
-                    return Json(new { success = true, translatedJson = parsed.ToString(Formatting.None) });
+                    return Json(new { success = true, translatedJson = parsed.ToString(Newtonsoft.Json.Formatting.None) });
                 }
                 catch (Exception jsonEx)
                 {

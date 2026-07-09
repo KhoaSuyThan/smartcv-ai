@@ -1,6 +1,21 @@
 <template>
   <div class="w-full bg-slate-50 flex font-sans text-slate-800 cv-builder-container relative" style="height: 100%; overflow: hidden;">
     
+    <!-- FULL SCREEN AI TRANSLATING LOADING OVERLAY -->
+    <div v-if="isTranslating" 
+         class="absolute inset-0 bg-slate-900/60 backdrop-blur-md z-[99999] flex flex-col items-center justify-center gap-4 transition-all duration-300 animate-in fade-in"
+    >
+        <div class="bg-white/10 p-8 rounded-3xl border border-white/25 shadow-2xl flex flex-col items-center max-w-sm text-center">
+            <!-- Modern Premium Spinner -->
+            <div class="relative w-16 h-16 mb-4">
+                <div class="absolute inset-0 rounded-full border-4 border-white/10"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
+            </div>
+            <h3 class="text-white text-base font-black uppercase tracking-wider mb-2">Đang Dịch CV Bằng AI</h3>
+            <p class="text-slate-300 text-xs font-medium leading-relaxed">Vui lòng không đóng trình duyệt hoặc chỉnh sửa nội dung trong quá trình dịch thuật để tránh mất dữ liệu.</p>
+        </div>
+    </div>
+
     <!-- PANEL GỢI Ý HÀNH ĐỘNG (Đặt ở Root để đảm bảo luôn hiển thị) -->
     <div v-if="showTips && !isPreviewMode" 
          class="absolute left-[715px] top-24 w-72 z-[9999] rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.3)] border overflow-hidden transition-all duration-500 completion-tips-panel"
