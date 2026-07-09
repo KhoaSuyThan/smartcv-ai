@@ -153,6 +153,121 @@ Quy tắc:
                 return Json(new { success = false, reply = "Hệ thống đang bận. Vui lòng thử lại sau!" });
             }
         }
+        [HttpPost]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> TranslateCV([FromBody] TranslateCVRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request?.JsonContent) || string.IsNullOrWhiteSpace(request?.TargetLanguage))
+            {
+                Console.WriteLine($"[TranslateCV] Validation FAILED! TargetLanguage: '{request?.TargetLanguage}', JsonContent: '{request?.JsonContent}'");
+                return Json(new { success = false, message = "Dữ liệu yêu cầu không hợp lệ!" });
+            }
+
+            int userId = 0;
+            var userIdClaim = User.FindFirst("UserID");
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parsedId)) 
+            {
+                userId = parsedId;
+            }
+
+            if (userId == 0 && (User.Identity == null || !User.Identity.IsAuthenticated))
+            {
+                return Json(new { success = false, message = "Vui lòng đăng nhập để sử dụng tính năng dịch thuật CV!" });
+            }
+
+            string languageText = request.TargetLanguage.ToLower() switch
+            {
+                "en" => "Tiếng Anh (English)",
+                "ja" => "Tiếng Nhật (Japanese)",
+                "ko" => "Tiếng Hàn (Korean)",
+                "vi" => "Tiếng Việt (Vietnamese)",
+                _ => request.TargetLanguage
+            };
+
+            string prompt = $@"Bạn là chuyên gia dịch thuật CV và tối ưu hóa hồ sơ chuyên nghiệp. Hãy dịch toàn bộ nội dung của cấu trúc JSON CV sau đây sang ngôn ngữ: {languageText}.
+YÊU CẦU BẮT BUỘC:
+1. Dịch tất cả các giá trị chuỗi văn bản (ví dụ: kinh nghiệm, dự án, kỹ năng, mục tiêu nghề nghiệp, tóm tắt...) và tên các đề mục lớn/nhỏ (ví dụ: 'title', 'name'...).
+2. Giữ nguyên cấu trúc khóa (keys) của JSON, tuyệt đối KHÔNG được thay đổi bất kỳ thuộc tính kỹ thuật nào (ví dụ: 'id', 'overrideTemplate', 'general', 'fullName', 'jobTitle', 'sections', 'items'...).
+3. Chỉ trả về chuỗi JSON kết quả hợp lệ duy nhất. KHÔNG kèm theo bất kỳ lời giải thích nào, KHÔNG bọc trong block code ```json ... ```. Đảm bảo cấu trúc JSON hoàn chỉnh, không bị cắt ngang hoặc thiếu ngoặc đóng.
+4. Nếu một số phần hoặc toàn bộ nội dung ban đầu đã là ngôn ngữ đích, hãy giữ nguyên phần đó và trả về JSON chuẩn, không thêm bớt thông tin ngoài lề.
+5. TUYỆT ĐỐI KHÔNG được sử dụng escape unicode sequence kiểu '\uXXXX' (như '\u90d0\u7d22'). Hãy xuất các ký tự Unicode/tiếng Nhật/tiếng Hàn/tiếng Việt trực tiếp dưới dạng ký tự UTF-8 bình thường (ví dụ: '日本語', '한국어', 'Nguyễn Văn A').
+
+Dưới đây là dữ liệu JSON CV cần dịch:
+{request.JsonContent}";
+
+            try
+            {
+                string systemInstruction = $"Bạn là chuyên gia dịch thuật CV chuyên nghiệp. Nhiệm vụ của bạn là dịch các giá trị văn bản trong chuỗi JSON sang ngôn ngữ {languageText}. Hãy giữ nguyên cấu trúc JSON gốc và các key kỹ thuật (như 'id', 'overrideTemplate', 'theme', 'general', 'sections', 'items', 'title'...). Chỉ trả về chuỗi JSON thô hợp lệ duy nhất, tuyệt đối không kèm giải thích hay bọc trong markdown block code. QUY TẮC QUAN TRỌNG: Hãy viết chữ bản địa trực tiếp dưới dạng UTF-8 (ví dụ: '日本語', '한국어'), TUYỆT ĐỐI KHÔNG sử dụng ký tự escape dạng '\\uXXXX'.";
+                string translatedJson = await _aiService.GenerateContent(prompt, true, systemInstruction, 0.2, true);
+                
+                // Dọn dẹp nếu AI tự động bọc Markdown
+                translatedJson = CleanMarkdownCodeBlocks(translatedJson);
+
+                // Thử parse để xác thực JSON
+                try
+                {
+                    var parsed = Newtonsoft.Json.Linq.JToken.Parse(translatedJson);
+                    
+                    // Ghi log sử dụng AI vào DB
+                    try
+                    {
+                        int tokens = (request.JsonContent.Length / 4) + (translatedJson.Length / 4) + 150;
+                        var log = new AILog {
+                            UserID = userId > 0 ? userId : (int?)null,
+                            RequestType = "translate",
+                            InputText = $"Translate to {request.TargetLanguage}",
+                            OutputText = "Successfully translated CV JSON.",
+                            UsedTokens = tokens,
+                            ApiProvider = "Gemini",
+                            CreatedAt = DateTime.Now
+                        };
+                        _context.AILogs.Add(log);
+                        await _context.SaveChangesAsync();
+                    }
+                    catch { /* Không chặn luồng chính khi lỗi ghi log */ }
+
+                    return Json(new { success = true, translatedJson = parsed.ToString(Formatting.None) });
+                }
+                catch (Exception jsonEx)
+                {
+                    Console.WriteLine($"[TranslateCV] Lỗi parse JSON kết quả dịch: {jsonEx.Message}");
+                    Console.WriteLine($"[TranslateCV] RAW AI OUTPUT: {translatedJson}");
+                    return Json(new { success = false, message = $"AI trả về cấu trúc JSON không hợp lệ. Lỗi: {jsonEx.Message}. Kết quả thô: {(translatedJson.Length > 300 ? translatedJson.Substring(0, 300) + "..." : translatedJson)}" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[TranslateCV] Lỗi dịch thuật: {ex.Message}");
+                return Json(new { success = false, message = "Có lỗi xảy ra trong quá trình dịch thuật CV!" });
+            }
+        }
+
+        private static string CleanMarkdownCodeBlocks(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input)) return input;
+            var cleaned = input.Trim();
+            if (cleaned.StartsWith("```json", StringComparison.OrdinalIgnoreCase))
+            {
+                cleaned = cleaned.Substring(7);
+            }
+            else if (cleaned.StartsWith("```", StringComparison.OrdinalIgnoreCase))
+            {
+                cleaned = cleaned.Substring(3);
+            }
+
+            if (cleaned.EndsWith("```", StringComparison.OrdinalIgnoreCase))
+            {
+                cleaned = cleaned.Substring(0, cleaned.Length - 3);
+            }
+
+            return cleaned.Trim();
+        }
+
+        public class TranslateCVRequest
+        {
+            public string? JsonContent { get; set; }
+            public string? TargetLanguage { get; set; }
+        }
 
         public class ChatboxRequest
         {

@@ -717,6 +717,38 @@
                         </span>
                     </template>
                 </button>
+
+                <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                <!-- AI Translation Dropdown -->
+                <div class="relative translation-dropdown">
+                    <button @click="showTransMenu = !showTransMenu" :disabled="isTranslating" class="flex items-center gap-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition-all shadow-sm group disabled:opacity-50" title="Dịch CV sang ngôn ngữ khác bằng AI">
+                        <template v-if="isTranslating">
+                            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            <span class="text-[10px] font-black uppercase tracking-wider">Đang dịch...</span>
+                        </template>
+                        <template v-else>
+                            <svg class="w-3.5 h-3.5 text-blue-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5c-.347 2.288-1.513 4.41-3.199 6.09L9 11.5m0 0a17.324 17.324 0 01-2.277-2.316"></path></svg>
+                            <span class="text-[10px] font-black uppercase tracking-wider">Vi | En</span>
+                            <!-- Logo PRO đồng bộ cho tính năng dịch thuật cao cấp -->
+                            <span v-if="!isProUser" class="bg-amber-400 text-slate-900 text-[8px] font-black px-1.5 py-0.5 rounded-full ml-1 inline-flex items-center gap-0.5 shadow-sm scale-110 shrink-0">
+                                <svg class="w-2.5 h-2.5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M2 19h20v2H2v-2zm2-3L2 8l5 4 5-7 5 7 5-4-2 8H4z"/>
+                                </svg>
+                                PRO
+                            </span>
+                        </template>
+                    </button>
+                    
+                    <!-- Dropdown Languages -->
+                    <div v-if="showTransMenu" class="absolute top-full left-0 mt-2 p-2 bg-white border border-slate-200 shadow-xl rounded-xl z-50 w-40 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div class="text-[9px] font-black text-slate-400 uppercase mb-1.5 px-2 tracking-wider">Chọn Ngôn Ngữ</div>
+                        <button @click="translateCV('vi')" class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">🇻🇳 Tiếng Việt</button>
+                        <button @click="translateCV('en')" class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">🇺🇸 Tiếng Anh</button>
+                        <button @click="translateCV('ja')" class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">🇯🇵 Tiếng Nhật</button>
+                        <button @click="translateCV('ko')" class="w-full text-left px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-lg transition-colors flex items-center gap-2">🇰🇷 Tiếng Hàn</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Nút Export (Trên thanh) -->
@@ -1290,6 +1322,177 @@ const modalPreviewScale = ref(0.85) // Tăng tỉ lệ mặc định để xem t
 const lastSavedTime = ref('')
 const initialVisibleSectionIds = ref([]) // Lưu danh sách các mục active ban đầu của CV này
 
+const showTransMenu = ref(false)
+const isTranslating = ref(false)
+
+const staticLabels = [
+    { vi: 'Xếp loại tốt nghiệp', en: 'Graduation Class', ja: '卒業区分', ko: '졸업 구분' },
+    { vi: 'Tốt nghiệp loại', en: 'Graduation Class', ja: '卒業区分', ko: '졸업 구분' },
+    { vi: 'Điểm trung bình', en: 'GPA', ja: 'GPA', ko: 'GPA' },
+    { vi: 'GPA', en: 'GPA', ja: 'GPA', ko: 'GPA' },
+    { vi: 'Ngày sinh', en: 'Date of Birth', ja: '生年月日', ko: '생년월일' },
+    { vi: 'Giới tính', en: 'Gender', ja: '性別', ko: '성별' },
+    { vi: 'Điện thoại', en: 'Phone', ja: '電話番号', ko: '전화번호' },
+    { vi: 'Địa chỉ', en: 'Address', ja: '住所', ko: '주소' },
+    { vi: 'Website', en: 'Website', ja: 'ウェブサイト', ko: '웹사이트' },
+    { vi: 'Email', en: 'Email', ja: 'メールアドレス', ko: '이메일' },
+    { vi: 'Thành thạo', en: 'Proficient', ja: '堪能', ko: '유창함' },
+    { vi: 'Khá', en: 'Good', ja: '良い', ko: '좋음' },
+    { vi: 'Trung bình', en: 'Medium', ja: '普通', ko: '보통' },
+    // Bổ sung các nhãn đề mục và placeholder phổ biến cho CV
+    { vi: 'Thông tin liên hệ', en: 'Contact Information', ja: '連絡先情報', ko: '연락처 정보' },
+    { vi: 'Liên hệ', en: 'Contact', ja: '連絡先', ko: '연락처' },
+    { vi: 'Mục tiêu nghề nghiệp', en: 'Career Objective', ja: 'キャリア目標', ko: '경력 목표' },
+    { vi: 'Mục tiêu', en: 'Objective', ja: '目標', ko: '목표' },
+    { vi: 'Tóm tắt', en: 'Summary', ja: '概要', ko: '요약' },
+    { vi: 'Học vấn', en: 'Education', ja: '学歴', ko: '학력' },
+    { vi: 'Kinh nghiệm làm việc', en: 'Work Experience', ja: '職歴', ko: '경력' },
+    { vi: 'Kinh nghiệm', en: 'Experience', ja: '経験', ko: '경력' },
+    { vi: 'Kỹ năng chuyên môn', en: 'Technical Skills', ja: '専門スキル', ko: '전문 기술' },
+    { vi: 'Kỹ năng', en: 'Skills', ja: 'スキル', ko: '기술' },
+    { vi: 'Dự án', en: 'Projects', ja: 'プロジェクト', ko: '프로젝트' },
+    { vi: 'Chứng chỉ', en: 'Certifications', ja: '資格', ko: '자격증' },
+    { vi: 'Giải thưởng', en: 'Awards', ja: '受賞歴', ko: '수상 경력' },
+    { vi: 'Hoạt động', en: 'Activities', ja: '活動', ko: '활동' },
+    { vi: 'Sở thích', en: 'Hobbies', ja: '趣味', ko: '취미' },
+    { vi: 'Người tham chiếu', en: 'References', ja: '推薦人', ko: '추천인' },
+    { vi: 'Thông tin thêm', en: 'Additional Information', ja: '追加情報', ko: '추가 정보' },
+    { vi: 'Họ và tên của bạn', en: 'Your Full Name', ja: '氏名', ko: '성명' },
+    { vi: 'Vị trí ứng tuyển của bạn', en: 'Your Target Position', ja: '希望職種', ko: '희망 직무' },
+    { vi: 'Vị trí ứng tuyển', en: 'Target Position', ja: '希望職種', ko: '희망 직무' },
+    { vi: 'Tên trường học', en: 'School Name', ja: '学校名', ko: '학교명' },
+    { vi: 'Chuyên ngành học', en: 'Major', ja: '専攻', ko: '전공' },
+    { vi: 'Tên công ty / Dự án / Tổ chức', en: 'Company / Project / Organization Name', ja: '会社/プロジェクト/団体名', ko: '회사/프로젝트/단체명' },
+    { vi: 'Vị trí công việc', en: 'Job Position', ja: '職位', ko: '직위' },
+    { vi: 'Thời gian', en: 'Duration', ja: '期間', ko: '기간' },
+    { vi: 'Thông tin chi tiết', en: 'Details', ja: '詳細情報', ko: '상세 정보' }
+]
+
+const replacePreservingCasing = (originalText, variant, targetText) => {
+    const escapedVariant = variant.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(escapedVariant, 'gi');
+    return originalText.replace(regex, (match) => {
+        if (match === match.toUpperCase()) {
+            return targetText.toUpperCase();
+        }
+        if (match === match.toLowerCase()) {
+            return targetText.toLowerCase();
+        }
+        return targetText;
+    });
+}
+
+const translateStaticLabels = () => {
+    nextTick(() => {
+        const cvEl = document.getElementById('cv-printable-area') || document.querySelector('.cv-preview-card');
+        if (!cvEl) return;
+
+        let detectedLang = 'vi';
+        const hasEnKeywords = resumeData.value.sections.some(s => {
+            const title = (s.title || '').toLowerCase();
+            return title.includes('experience') || title.includes('education') || title.includes('skills') || title.includes('summary') || title.includes('project') || title.includes('award') || title.includes('cert');
+        });
+        const hasJaKeywords = resumeData.value.sections.some(s => {
+            const title = s.title || '';
+            return /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(title) && (title.includes('経歴') || title.includes('学歴') || title.includes('スキル') || title.includes('自己'));
+        });
+        const hasKoKeywords = resumeData.value.sections.some(s => {
+            const title = s.title || '';
+            return /[\uac00-\ud7a3]/.test(title) && (title.includes('경력') || title.includes('학력') || title.includes('기술') || title.includes('자기'));
+        });
+
+        if (hasKoKeywords) detectedLang = 'ko';
+        else if (hasJaKeywords) detectedLang = 'ja';
+        else if (hasEnKeywords) detectedLang = 'en';
+
+        const walk = document.createTreeWalker(cvEl, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while (node = walk.nextNode()) {
+            let text = node.nodeValue;
+            let changed = false;
+
+            for (const label of staticLabels) {
+                const targetText = label[detectedLang];
+                if (!targetText) continue;
+
+                const variants = [label.vi, label.en, label.ja, label.ko].filter(Boolean);
+
+                for (const variant of variants) {
+                    if (variant === targetText) continue;
+
+                    const lowerText = text.toLowerCase();
+                    const lowerVariant = variant.toLowerCase();
+
+                    if (lowerText.includes(lowerVariant)) {
+                        const trimmedLower = text.trim().toLowerCase();
+                        if (trimmedLower === lowerVariant || trimmedLower === `${lowerVariant}:` || trimmedLower.startsWith(`${lowerVariant}:`) || trimmedLower.startsWith(`${lowerVariant} `)) {
+                            text = replacePreservingCasing(text, variant, targetText);
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (changed) {
+                node.nodeValue = text;
+            }
+        }
+    });
+}
+
+const translateCV = async (targetLang) => {
+    if (!isProUser.value) {
+        alert("Tính năng dịch thuật CV tự động bằng AI chỉ dành cho thành viên PRO. Vui lòng nâng cấp tài khoản để sử dụng!");
+        return;
+    }
+    const confirmMsg = "Hành động này sẽ dịch và thay thế toàn bộ nội dung CV hiện tại sang ngôn ngữ đã chọn. Bạn có chắc chắn muốn tiếp tục?";
+    if (!confirm(confirmMsg)) return;
+
+    showTransMenu.value = false;
+    isTranslating.value = true;
+    try {
+        const response = await fetch('/AI/TranslateCV', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonContent: JSON.stringify(resumeData.value),
+                targetLanguage: targetLang
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.success) {
+            let parsed;
+            try {
+                parsed = JSON.parse(result.translatedJson);
+            } catch (parseErr) {
+                console.error('JSON Parse Error of translated JSON:', parseErr);
+                alert("Lỗi: AI phản hồi định dạng JSON không hợp lệ hoặc bị thiếu dấu ngoặc. Vui lòng thử lại!");
+                return;
+            }
+            
+            // Bảo toàn overrideTemplate nếu có
+            if (resumeData.value.overrideTemplate) {
+                parsed.overrideTemplate = resumeData.value.overrideTemplate;
+            }
+            
+            resumeData.value = parsed;
+            alert("Đã dịch CV thành công!");
+        } else {
+            alert(result.message || 'Lỗi dịch thuật CV.');
+        }
+    } catch (e) {
+        console.error('Translation Error:', e);
+        alert(`Không thể thực hiện dịch thuật: ${e.message || 'Lỗi kết nối hoặc xử lý từ máy chủ.'}`);
+    } finally {
+        isTranslating.value = false;
+    }
+};
+
 // --- ĐỔI MẪU CV ---
 // Quản lý trạng thái và chức năng đổi mẫu CV động
 const showTemplateModal = ref(false)
@@ -1376,6 +1579,7 @@ const confirmChangeTemplate = (tpl) => {
     // Đóng Modal chọn mẫu
     showTemplateModal.value = false;
     console.log(`[CV Builder] Đã chuyển đổi thành công sang mẫu: ${tpl.templateName}`);
+    translateStaticLabels();
 };
 
 
@@ -1626,6 +1830,9 @@ const handleOutsideClick = (e) => {
     if (!e.target.closest('.color-picker-dropdown')) {
         showThemeMenu.value = false
         showFontMenu.value = false
+    }
+    if (!e.target.closest('.translation-dropdown')) {
+        showTransMenu.value = false
     }
 }
 
@@ -2011,10 +2218,12 @@ const loadData = async () => {
             resumeData.value.sections[2].items.push({ _refId: '3', name: 'C# / .NET', level: 'Chuyên gia' });
         }
     } catch (err) { console.error("Lỗi:", err); }
+    translateStaticLabels();
 }
 
 let saveTimeout = null;
 watch(resumeData, () => {
+   translateStaticLabels();
    if (saveTimeout) clearTimeout(saveTimeout);
    saveTimeout = setTimeout(async () => {
        if (resumeId === 0) return;
