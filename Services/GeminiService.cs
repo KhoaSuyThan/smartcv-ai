@@ -12,11 +12,13 @@ namespace DoAnCS.Services
     {
         private readonly AppDbContext _context;
         private readonly HttpClient _httpClient;
+        private readonly IEncryptionService _encryptionService; // Inject Encryption Service
 
-        public GeminiService(AppDbContext context, IHttpClientFactory httpClientFactory)
+        public GeminiService(AppDbContext context, IHttpClientFactory httpClientFactory, IEncryptionService encryptionService)
         {
             _context = context;
             _httpClient = httpClientFactory.CreateClient();
+            _encryptionService = encryptionService;
         }
 
         public async Task<string> GenerateContent(string prompt, bool isPro = false)
@@ -35,6 +37,10 @@ namespace DoAnCS.Services
                         return "Lỗi: Hệ thống chưa lấy được mã API!";
                     }
 
+                    // Giải mã API key bảo mật trước khi gọi các dịch vụ LLM bên ngoài
+                    string decryptedApiKey = _encryptionService.Decrypt(config.ApiKey);
+                    string decryptedGroqApiKey = _encryptionService.Decrypt(config.GroqApiKey);
+
                     // Chọn Model dựa trên trạng thái Pro
                     string selectedModel = isPro ? (config.ProModelName ?? "gemini-2.5-pro") : config.ModelName;
                     double selectedTemp = isPro ? config.ProTemperature : config.Temperature;
@@ -50,14 +56,14 @@ namespace DoAnCS.Services
                         if (selectedMaxTokens > 4000) selectedMaxTokens = 4000;
                     }
 
-                    if (isGroq && string.IsNullOrEmpty(config.GroqApiKey)) {
+                    if (isGroq && string.IsNullOrEmpty(decryptedGroqApiKey)) {
                         Console.WriteLine("CRITICAL ERROR: Groq API Key is NULL in Database!");
                         return "Lỗi: Hệ thống chưa có mã Groq API Key!";
                     }
 
-                    // 2. Build URL
+                    // 2. Build URL với Key đã giải mã
                     string url = isGroq ? "https://api.groq.com/openai/v1/chat/completions" 
-                                        : $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={config.ApiKey}";
+                                        : $"https://generativelanguage.googleapis.com/v1beta/models/{selectedModel}:generateContent?key={decryptedApiKey}";
 
                     // 2. Đảm bảo Prompt không rỗng
                     if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";
@@ -100,7 +106,7 @@ namespace DoAnCS.Services
 
                     var requestMsg = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
                     if (isGroq) {
-                        requestMsg.Headers.Add("Authorization", $"Bearer {config.GroqApiKey}");
+                        requestMsg.Headers.Add("Authorization", $"Bearer {decryptedGroqApiKey}");
                     }
 
                     var response = await _httpClient.SendAsync(requestMsg);
@@ -189,8 +195,11 @@ namespace DoAnCS.Services
 
                 if (string.IsNullOrWhiteSpace(text)) return Array.Empty<float>();
 
+                // Giải mã API key bảo mật
+                string decryptedApiKey = _encryptionService.Decrypt(config.ApiKey);
+
                 // Sử dụng chính xác model gemini-embedding-001 từ danh sách API của bạn
-                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={config.ApiKey}";
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key={decryptedApiKey}";
 
                 // Payload chuẩn của Google Gemini API embedContent
                 var requestBody = new
@@ -243,8 +252,11 @@ namespace DoAnCS.Services
                     return new List<float[]>();
                 }
 
-                // URL cho batch embedding
-                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents?key={config.ApiKey}";
+                // Giải mã API key bảo mật
+                string decryptedApiKey = _encryptionService.Decrypt(config.ApiKey);
+
+                // URL cho batch embedding với Key đã giải mã
+                string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:batchEmbedContents?key={decryptedApiKey}";
 
                 // Payload chuẩn cho batchEmbedContents
                 var requestBody = new

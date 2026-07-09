@@ -24,6 +24,7 @@ namespace DoAnCS.Controllers
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
         private readonly IAutomationTestRunner _testRunner;
+        private readonly IEncryptionService _encryptionService; // Thêm dịch vụ mã hóa
 
         public AdminController(
             AppDbContext context, 
@@ -31,7 +32,8 @@ namespace DoAnCS.Controllers
             IAIService aiService, 
             IConfiguration config, 
             IMemoryCache cache,
-            IAutomationTestRunner testRunner)
+            IAutomationTestRunner testRunner,
+            IEncryptionService encryptionService) // Inject dịch vụ mã hóa
         {
             _context = context;
             _webHost = webHost;
@@ -39,6 +41,7 @@ namespace DoAnCS.Controllers
             _config = config;
             _cache = cache;
             _testRunner = testRunner;
+            _encryptionService = encryptionService;
         }
 
         // 1. Trang Dashboard của Admin
@@ -877,6 +880,55 @@ namespace DoAnCS.Controllers
                 _context.GeminiConfigs.Add(config);
                 await _context.SaveChangesAsync();
             }
+            else
+            {
+                // Tự động Migration: nếu API key cũ đang lưu dạng plain text, tự động mã hóa và lưu đè vào DB
+                bool needsMigration = false;
+                if (!string.IsNullOrEmpty(config.ApiKey) && !config.ApiKey.StartsWith("ENC:"))
+                {
+                    config.ApiKey = _encryptionService.Encrypt(config.ApiKey);
+                    needsMigration = true;
+                }
+                if (!string.IsNullOrEmpty(config.GroqApiKey) && !config.GroqApiKey.StartsWith("ENC:"))
+                {
+                    config.GroqApiKey = _encryptionService.Encrypt(config.GroqApiKey);
+                    needsMigration = true;
+                }
+                if (!string.IsNullOrEmpty(config.ChatbotApiKey) && !config.ChatbotApiKey.StartsWith("ENC:"))
+                {
+                    config.ChatbotApiKey = _encryptionService.Encrypt(config.ChatbotApiKey);
+                    needsMigration = true;
+                }
+                
+                if (needsMigration)
+                {
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            // Giải mã trước khi hiển thị lên Form của Admin để sửa dễ dàng
+            var displayConfig = new GeminiConfig
+            {
+                Id = config.Id,
+                ApiKey = _encryptionService.Decrypt(config.ApiKey),
+                GroqApiKey = _encryptionService.Decrypt(config.GroqApiKey),
+                ChatbotApiKey = _encryptionService.Decrypt(config.ChatbotApiKey),
+                ModelName = config.ModelName,
+                Temperature = config.Temperature,
+                MaxOutputTokens = config.MaxOutputTokens,
+                ProModelName = config.ProModelName,
+                ProTemperature = config.ProTemperature,
+                ProMaxOutputTokens = config.ProMaxOutputTokens,
+                SystemInstruction = config.SystemInstruction,
+                ChatbotSystemInstruction = config.ChatbotSystemInstruction,
+                SkillTemplate = config.SkillTemplate,
+                SummaryTemplate = config.SummaryTemplate,
+                GrammarTemplate = config.GrammarTemplate,
+                UserRateLimit = config.UserRateLimit,
+                ProUserRateLimit = config.ProUserRateLimit,
+                TotalTokensUsed = config.TotalTokensUsed,
+                TopCandidatesCount = config.TopCandidatesCount
+            };
 
             // Lấy thêm Usage Tracker cho View
             var today = DateTime.Today;
@@ -900,7 +952,7 @@ namespace DoAnCS.Controllers
             var totalTokensAll = await _context.AILogs.SumAsync(l => (long?)l.UsedTokens) ?? 0L;
             ViewBag.TotalTokensAll = totalTokensAll;
 
-            return View(config);
+            return View(displayConfig);
         }
 
         [HttpPost]
@@ -910,10 +962,10 @@ namespace DoAnCS.Controllers
             var config = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == 1);
             if (config != null)
             {
-                // Cập nhật giá trị
-                config.ApiKey = model.ApiKey;
-                config.GroqApiKey = model.GroqApiKey;
-                config.ChatbotApiKey = model.ChatbotApiKey; // Key riêng cho chatbox
+                // Cập nhật giá trị và mã hóa các API Keys nhạy cảm trước khi lưu
+                config.ApiKey = _encryptionService.Encrypt(model.ApiKey);
+                config.GroqApiKey = _encryptionService.Encrypt(model.GroqApiKey);
+                config.ChatbotApiKey = _encryptionService.Encrypt(model.ChatbotApiKey); // Key riêng cho chatbox
                 config.ModelName = model.ModelName;
                 config.Temperature = model.Temperature;
                 config.MaxOutputTokens = model.MaxOutputTokens;
@@ -930,9 +982,10 @@ namespace DoAnCS.Controllers
                 config.SummaryTemplate = model.SummaryTemplate;
                 config.GrammarTemplate = model.GrammarTemplate;
                 config.UserRateLimit = model.UserRateLimit;
+                config.TopCandidatesCount = model.TopCandidatesCount;
 
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã lưu cài đặt AI thành công!";
+                TempData["Success"] = "Đã lưu cài đặt AI và mã hóa API Key thành công!";
             }
             return RedirectToAction(nameof(GeminiConfig));
         }

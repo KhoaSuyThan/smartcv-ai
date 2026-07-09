@@ -36,6 +36,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
 builder.Services.AddScoped<IEmailService, EmailService>(); 
 builder.Services.AddScoped<IAutomationTestRunner, AutomationTestRunner>();
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>(); // Đăng ký dịch vụ mã hóa API Key
 builder.Services.AddHostedService<ProExpirationService>();
 
 // Đăng ký dịch vụ Health Checks kiểm tra DB và FastAPI Python AI
@@ -196,7 +197,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Cấu hình Rate Limiting (Chống Spam API/Form)
+// Cấu hình Rate Limiting (Chống Spam API/Form và AI API Endpoints)
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("ContactLimiter", opt =>
@@ -207,22 +208,47 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueLimit = 0;
     });
     
+    // Thêm Policy cho các API Trí Tuệ Nhân Tạo (AI Endpoints) để giới hạn theo địa chỉ IP
+    options.AddPolicy("AiApiPolicy", httpContext =>
+    {
+        var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromMinutes(1),
+            PermitLimit = 15, // Tối đa 15 request/phút trên mỗi địa chỉ IP
+            QueueLimit = 0
+        });
+    });
+    
     // Tùy chỉnh thông báo lỗi khi vượt giới hạn (429 Too Many Requests)
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.OnRejected = async (context, token) =>
     {
         context.HttpContext.Response.StatusCode = 429;
-        context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
-        await context.HttpContext.Response.WriteAsync(@"
-            <html>
-            <head><title>Quá nhiều yêu cầu</title></head>
-            <body style='text-align:center; padding: 50px; font-family: sans-serif;'>
-                <h2 style='color:#dc3545;'>Bạn đã gửi quá nhiều yêu cầu!</h2>
-                <p>Vui lòng đợi một khoảng thời gian trước khi gửi thêm tin nhắn mới.</p>
-                <button onclick='window.history.back()' style='padding:10px 20px; border:none; background:#0d6efd; color:white; border-radius:5px; cursor:pointer;'>Quay lại</button>
-            </body>
-            </html>
-        ", cancellationToken: token);
+        var path = context.HttpContext.Request.Path.Value ?? "";
+        
+        // Nếu là yêu cầu API/AI, trả về định dạng JSON thay vì trang HTML
+        if (path.Contains("/api/", StringComparison.OrdinalIgnoreCase) || 
+            path.Contains("/AI/", StringComparison.OrdinalIgnoreCase) || 
+            path.Contains("/SmartMatch/", StringComparison.OrdinalIgnoreCase))
+        {
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+            await context.HttpContext.Response.WriteAsync("{\"success\": false, \"reply\": \"Hệ thống phát hiện tần suất yêu cầu quá cao từ IP của bạn. Vui lòng thử lại sau 1 phút!\", \"data\": \"Hệ thống phát hiện tần suất yêu cầu quá cao từ IP của bạn. Vui lòng thử lại sau 1 phút!\"}", cancellationToken: token);
+        }
+        else
+        {
+            context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
+            await context.HttpContext.Response.WriteAsync(@"
+                <html>
+                <head><title>Quá nhiều yêu cầu</title></head>
+                <body style='text-align:center; padding: 50px; font-family: sans-serif;'>
+                    <h2 style='color:#dc3545;'>Bạn đã gửi quá nhiều yêu cầu!</h2>
+                    <p>Vui lòng đợi một khoảng thời gian trước khi gửi thêm tin nhắn mới.</p>
+                    <button onclick='window.history.back()' style='padding:10px 20px; border:none; background:#0d6efd; color:white; border-radius:5px; cursor:pointer;'>Quay lại</button>
+                </body>
+                </html>
+            ", cancellationToken: token);
+        }
     };
 });
 
