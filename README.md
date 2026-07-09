@@ -127,4 +127,4 @@ Mọi thông tin liên quan đến các doanh nghiệp, tin tuyển dụng, hìn
 ---
 
 ## 📝 Bản Quyền & Giấy Phép (License)
-Dự án được phát triển cho mục đích Đồ án cơ sở & đồ án chuyên ngành Công nghệ thông tin. Mọi hành vi sao chép hoặc phân phối lại cho các mục đích thương mại cần có sự đồng ý bằng văn bản của đội ngũ tác giả.
+Dự án được bảo vệ bởi **Giấy phép Sở hữu độc quyền phi thương mại (Proprietary Non-Commercial License)**. Nghiêm cấm mọi hành vi khai thác thương mại, sao chép, tự ý phân phối lại hoặc lưu trữ/host công khai mã nguồn này dưới mọi hình thức khi chưa có sự đồng ý bằng văn bản của đội ngũ tác giả. Chi tiết điều khoản có thể xem tại tệp [LICENSE](LICENSE).
