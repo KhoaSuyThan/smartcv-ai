@@ -603,11 +603,11 @@
 
           <!-- Add Custom Section Button -->
           <div v-show="activeEditorTab === 'skills'" class="mt-4 mb-6">
-              <button @click="addCustomSection" class="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-dashed border-blue-400 hover:border-blue-600 text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 bg-white font-bold text-xs uppercase tracking-wider rounded-2xl shadow-sm transition-all transform active:scale-[0.98] cursor-pointer focus:outline-none">
-                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button @click="addCustomSection" class="w-full flex items-center justify-center gap-2 py-3.5 border border-dashed border-slate-300 hover:border-blue-500 text-slate-600 hover:text-blue-600 bg-white hover:bg-blue-50/20 font-bold text-xs uppercase tracking-wider rounded-2xl shadow-sm transition-all transform active:scale-[0.98] cursor-pointer focus:outline-none">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                   </svg>
-                  Thêm mục tùy chỉnh mới
+                  Thêm mục tùy chỉnh
               </button>
           </div>
         </div>

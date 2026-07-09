@@ -63,10 +63,14 @@
 
                             @if (isPdf_Img)
                             {
-                                <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light border-bottom">
+                                <div id="pdf-placeholder-@cv.ResumeID" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light border-bottom">
                                     <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 5rem;"></i>
                                     <p class="text-muted small mt-2">Bản PDF tải lên</p>
                                 </div>
+                                <canvas id="pdf-canvas-@cv.ResumeID" style="position: absolute; left: -9999px; top: -9999px; visibility: hidden;"></canvas>
+                                <img id="pdf-img-@cv.ResumeID" class="card-img-top" 
+                                     style="height: 100%; width: 100%; object-fit: cover; object-position: top; display: none;" 
+                                     alt="Template Preview">
                             }
                             else if (!string.IsNullOrEmpty(previewUrl))
                             {
@@ -206,7 +210,89 @@
 </style>
 
 @section Scripts {
+    <!-- Tải PDF.js tĩnh tại local để tránh lỗi Same-Origin Policy đối với Web Worker -->
+    <script src="~/lib/pdfjs/pdf.min.js" asp-append-version="true"></script>
     <script>
+        // Cấu hình Worker cho PDF.js tại local
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '@Url.Content("~/lib/pdfjs/pdf.worker.min.js")';
+
+        $(document).ready(function() {
+            const pdfCVs = [];
+            @foreach (var cv in Model)
+            {
+                if (!string.IsNullOrEmpty(cv.FileUploadUrl))
+                {
+                    <text>
+                    pdfCVs.push({
+                        id: @cv.ResumeID,
+                        url: '@Html.Raw(cv.FileUploadUrl)'
+                    });
+                    </text>
+                }
+            }
+            
+            pdfCVs.forEach(function(item) {
+                renderPdfPreview(item.url, 'pdf-canvas-' + item.id, 'pdf-img-' + item.id);
+            });
+        });
+        
+        async function renderPdfPreview(pdfUrl, canvasId, imgId) {
+            console.log('[PDF Preview] Bắt đầu tải PDF:', pdfUrl);
+            try {
+                const loadingTask = pdfjsLib.getDocument({
+                    url: pdfUrl,
+                    withCredentials: true
+                });
+                const pdf = await loadingTask.promise;
+                console.log('[PDF Preview] Đã tải xong tệp PDF, số trang:', pdf.numPages);
+                const page = await pdf.getPage(1);
+                console.log('[PDF Preview] Đã lấy được trang 1');
+                
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) {
+                    console.error('[PDF Preview] Không tìm thấy canvas với ID:', canvasId);
+                    return;
+                }
+                const context = canvas.getContext('2d');
+                
+                // Render tỉ lệ 1.5x để đảm bảo nét chữ sắc nét
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                console.log('[PDF Preview] Đã thiết lập kích thước canvas:', canvas.width, 'x', canvas.height);
+                
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                console.log('[PDF Preview] Bắt đầu gọi page.render...');
+                const renderTask = page.render(renderContext);
+                await renderTask.promise;
+                console.log('[PDF Preview] page.render hoàn tất thành công');
+                
+                const img = document.getElementById(imgId);
+                if (img) {
+                    console.log('[PDF Preview] Đang chuyển canvas thành dữ liệu ảnh...');
+                    img.src = canvas.toDataURL('image/png');
+                    img.style.display = 'block';
+                    
+                    const resumeId = canvasId.replace('pdf-canvas-', '');
+                    const placeholder = document.getElementById('pdf-placeholder-' + resumeId);
+                    if (placeholder) {
+                        placeholder.classList.add('d-none');
+                        placeholder.classList.remove('d-flex');
+                        console.log('[PDF Preview] Đã ẩn placeholder và hiển thị ảnh thành công cho resumeId:', resumeId);
+                    } else {
+                        console.warn('[PDF Preview] Không tìm thấy placeholder cho resumeId:', resumeId);
+                    }
+                } else {
+                    console.error('[PDF Preview] Không tìm thấy phần tử ảnh với ID:', imgId);
+                }
+            } catch (e) {
+                console.error('[PDF Preview] Lỗi trong quá trình render PDF:', e);
+            }
+        }
+
         // Hàm đổi tên CV qua AJAX
         function renameCV(cvId) {
             // Lấy tên CV hiện tại từ giao diện và loại bỏ khoảng trắng thừa
