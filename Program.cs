@@ -422,6 +422,39 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể tự động tạo bảng lịch sử kiểm thử. Chi tiết: " + dbEx.Message);
         }
 
+        // Tự động seed tài khoản PRO test để phục vụ kiểm thử dịch thuật CV
+        try
+        {
+            var testUser = context.Users.FirstOrDefault(u => u.Email == "test_e2e_translation@smartcv.vn");
+            if (testUser == null)
+            {
+                testUser = new User
+                {
+                    FullName = "Test CV Translation",
+                    Email = "test_e2e_translation@smartcv.vn",
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
+                    Role = "User",
+                    IsPro = true,
+                    ProExpirationDate = DateTime.Now.AddYears(5),
+                    CreatedAt = DateTime.Now
+                };
+                context.Users.Add(testUser);
+                context.SaveChanges();
+                Console.WriteLine("Seed PRO Test User for translation: OK");
+            }
+            else if (!testUser.IsPro)
+            {
+                testUser.IsPro = true;
+                testUser.ProExpirationDate = DateTime.Now.AddYears(5);
+                context.SaveChanges();
+                Console.WriteLine("Update PRO status for test user: OK");
+            }
+        }
+        catch (Exception userEx)
+        {
+            Console.WriteLine("Lỗi seed PRO user: " + userEx.Message);
+        }
+
         // Migration thủ công: Tạo bảng TestSteps và seed dữ liệu kịch bản mặc định nếu chưa có
         try
         {

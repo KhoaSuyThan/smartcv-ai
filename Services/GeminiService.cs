@@ -21,7 +21,7 @@ namespace DoAnCS.Services
             _encryptionService = encryptionService;
         }
 
-        public async Task<string> GenerateContent(string prompt, bool isPro = false)
+        public async Task<string> GenerateContent(string prompt, bool isPro = false, string? systemInstruction = null, double? temperature = null, bool responseJson = false)
         {
             int maxRetries = 5;
             int delayMs = 5000;
@@ -43,7 +43,7 @@ namespace DoAnCS.Services
 
                     // Chọn Model dựa trên trạng thái Pro
                     string selectedModel = isPro ? (config.ProModelName ?? "gemini-2.5-pro") : config.ModelName;
-                    double selectedTemp = isPro ? config.ProTemperature : config.Temperature;
+                    double selectedTemp = temperature ?? (isPro ? config.ProTemperature : config.Temperature);
                     int selectedMaxTokens = isPro ? config.ProMaxOutputTokens : config.MaxOutputTokens;
                     
                     bool isGroq = selectedModel.Contains("llama") || selectedModel.Contains("mixtral");
@@ -68,15 +68,28 @@ namespace DoAnCS.Services
                     // 2. Đảm bảo Prompt không rỗng
                     if (string.IsNullOrWhiteSpace(prompt)) return "Nội dung yêu cầu trống.";
 
+                    string finalSystemInstruction = systemInstruction ?? config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp.";
+
                     object requestBody;
                     if (isGroq)
                     {
-                        requestBody = new
+                        requestBody = responseJson ? (object)new
                         {
                             model = selectedModel,
                             messages = new[]
                             {
-                                new { role = "system", content = config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp." },
+                                new { role = "system", content = finalSystemInstruction },
+                                new { role = "user", content = prompt }
+                            },
+                            temperature = selectedTemp,
+                            max_tokens = selectedMaxTokens,
+                            response_format = new { type = "json_object" }
+                        } : new
+                        {
+                            model = selectedModel,
+                            messages = new[]
+                            {
+                                new { role = "system", content = finalSystemInstruction },
                                 new { role = "user", content = prompt }
                             },
                             temperature = selectedTemp,
@@ -87,12 +100,18 @@ namespace DoAnCS.Services
                     {
                         requestBody = new { 
                             system_instruction = new {
-                                parts = new { text = config.SystemInstruction ?? "Bạn là trợ lý ảo hỗ trợ tạo CV chuyên nghiệp." }
+                                parts = new { text = finalSystemInstruction }
                             },
                             contents = new[] { 
                                 new { parts = new[] { new { text = prompt } } } 
                             },
-                            generationConfig = new {
+                            generationConfig = responseJson ? (object)new {
+                                temperature = selectedTemp,
+                                maxOutputTokens = selectedMaxTokens,
+                                topP = 0.95,
+                                topK = 64,
+                                responseMimeType = "application/json"
+                            } : new {
                                 temperature = selectedTemp,
                                 maxOutputTokens = selectedMaxTokens,
                                 topP = 0.95,
