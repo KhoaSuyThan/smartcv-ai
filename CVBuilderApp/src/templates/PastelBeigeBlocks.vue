@@ -91,7 +91,10 @@
               </div>
               <div class="content-area">
                 <div v-for="(edu, i) in (educationSection?.items || [])" :key="i" class="edu-item item-container">
-                  <div class="edu-header paginated-item">
+                      <button v-if="selectedSectionId === 'edu_cert' && educationSection?.items?.length" @click.stop="$emit('removeItem','education',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="edu" />
+                      <template v-else>
+                        <div class="edu-header paginated-item">
                     <div class="exp-content">
                       <strong>{{ edu.school }}</strong>
                       <div>{{ edu.major || edu.degree }}</div>
@@ -100,8 +103,8 @@
                     <div class="exp-year">{{ edu.year || edu.time }}</div>
                   </div>
                   <div v-if="edu.desc" class="html-content" v-html="formatDesc(edu.desc)"></div>
-                  <button v-if="selectedSectionId === 'edu_cert' && educationSection?.items?.length" @click.stop="$emit('removeItem','education',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                </div>
+                      </template>
+</div>
               </div>
             </div>
     
@@ -112,11 +115,14 @@
               </div>
               <div class="content-area">
                 <div v-for="(cert, i) in (certSection?.items || [])" :key="i" class="cert-entry item-container paginated-item">
-                  <div class="cert-year-div">{{ cert.year || cert.time }}</div>
+                      <button v-if="selectedSectionId === 'edu_cert' && certSection?.items?.length" @click.stop="$emit('removeItem','certifications',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="cert" />
+                      <template v-else>
+                        <div class="cert-year-div">{{ cert.year || cert.time }}</div>
                   <div class="cert-name-div">{{ cert.name || cert.title || cert.info }}</div>
                   <div v-if="cert.desc" class="html-content" v-html="formatDesc(cert.desc)"></div>
-                  <button v-if="selectedSectionId === 'edu_cert' && certSection?.items?.length" @click.stop="$emit('removeItem','certifications',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                </div>
+                      </template>
+</div>
               </div>
             </div>
           </div>
@@ -142,7 +148,10 @@
               </div>
               <div class="timeline-area">
                 <div v-for="(proj, i) in (projectSection?.items || [])" :key="i" class="timeline-item item-container">
-                  <div class="exp-header-wrap paginated-item">
+                      <button v-if="selectedSectionId === 'work' && projectSection?.items?.length" @click.stop="$emit('removeItem','projects',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="proj" />
+                      <template v-else>
+                        <div class="exp-header-wrap paginated-item">
                     <div class="exp-year">{{ proj.year || proj.time }}</div>
                     <div class="exp-content-wrap">
                       <div class="info-name">{{ proj.name || proj.title || proj.company }}</div>
@@ -150,8 +159,8 @@
                     </div>
                   </div>
                   <div v-if="proj.desc || proj.description" class="desc-text html-content" v-html="formatDesc(proj.desc || proj.description)"></div>
-                  <button v-if="selectedSectionId === 'work' && projectSection?.items?.length" @click.stop="$emit('removeItem','projects',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                </div>
+                      </template>
+</div>
               </div>
             </div>
     
@@ -162,7 +171,10 @@
               </div>
               <div class="timeline-area">
                 <div v-for="(exp, i) in (experienceSection?.items || [])" :key="i" class="timeline-item item-container">
-                  <div class="exp-header-wrap paginated-item">
+                      <button v-if="selectedSectionId === 'work' && experienceSection?.items?.length" @click.stop="$emit('removeItem','experience',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="exp" />
+                      <template v-else>
+                        <div class="exp-header-wrap paginated-item">
                     <div class="exp-year">{{ exp.year || exp.time }}</div>
                     <div class="exp-content-wrap">
                       <div class="info-name">{{ exp.company || exp.name }}</div>
@@ -170,8 +182,8 @@
                     </div>
                   </div>
                   <div v-if="exp.desc || exp.description" class="desc-text html-content" v-html="formatDesc(exp.desc || exp.description)"></div>
-                  <button v-if="selectedSectionId === 'work' && experienceSection?.items?.length" @click.stop="$emit('removeItem','experience',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                </div>
+                      </template>
+</div>
               </div>
             </div>
           </div>
@@ -194,15 +206,18 @@
             </div>
             <div class="act-area">
               <div v-for="(act, i) in (activitiesSection?.items || [])" :key="i" class="timeline-item item-container">
-                <div class="exp-header-wrap paginated-item">
+                      <button v-if="selectedSectionId === 'activities' && activitiesSection?.items?.length" @click.stop="$emit('removeItem','activities',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="act" />
+                      <template v-else>
+                        <div class="exp-header-wrap paginated-item">
                   <div class="date-badge">{{ act.date || act.time || act.year }}</div>
                   <div class="exp-content-wrap">
                     <div class="company-name">{{ act.organization || act.name || act.company }}</div>
                   </div>
                 </div>
                 <div class="exp-desc html-content" v-html="formatDesc(act.desc || act.description)"></div>
-                <button v-if="selectedSectionId === 'activities' && activitiesSection?.items?.length" @click.stop="$emit('removeItem','activities',i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>
@@ -226,10 +241,13 @@
             <div class="content-area">
               <ul class="skill-ul">
                 <li v-for="(skill, i) in (skillsSection?.items || [])" :key="i" class="item-container paginated-item">
-                  <template v-if="skill.name"><strong>{{ skill.name }}</strong>{{ skill.level ? ': ' + skill.level : '' }}{{ skill.info ? ': ' + skill.info : '' }}</template>
+                      <button v-if="selectedSectionId === 'skills' && skillsSection?.items?.length" @click.stop="$emit('removeItem','skills',i)" class="delete-item-btn no-print" style="right: 0; top: 2px;"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="skill" />
+                      <template v-else>
+                        <template v-if="skill.name"><strong>{{ skill.name }}</strong>{{ skill.level ? ': ' + skill.level : '' }}{{ skill.info ? ': ' + skill.info : '' }}</template>
                   <template v-else>{{ skill }}</template>
-                  <button v-if="selectedSectionId === 'skills' && skillsSection?.items?.length" @click.stop="$emit('removeItem','skills',i)" class="delete-item-btn no-print" style="right: 0; top: 2px;"><i class="fas fa-times"></i></button>
-                </li>
+                      </template>
+</li>
               </ul>
             </div>
           </div>
@@ -256,9 +274,12 @@
               <div class="content-area">
                 <ul class="hobbies-ul">
                   <li v-for="(hobby, i) in (hobbiesSection?.items || [])" :key="i" class="item-container paginated-item">
-                    {{ hobby.name || hobby.title || hobby }}
-                    <button v-if="selectedSectionId === 'footer' && hobbiesSection?.items?.length" @click.stop="$emit('removeItem','hobbies',i)" class="delete-item-btn no-print" style="right: -10px; top: -5px;"><i class="fas fa-times"></i></button>
-                  </li>
+                      <button v-if="selectedSectionId === 'footer' && hobbiesSection?.items?.length" @click.stop="$emit('removeItem','hobbies',i)" class="delete-item-btn no-print" style="right: -10px; top: -5px;"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="hobby" />
+                      <template v-else>
+                        {{ hobby.name || hobby.title || hobby }}
+                      </template>
+</li>
                 </ul>
               </div>
             </div>
@@ -272,10 +293,13 @@
                 <div class="content-area">
                   <ul class="awards-ul">
                     <li v-for="(award, i) in (awardsSection?.items || [])" :key="i" class="item-container paginated-item">
-                      <span v-if="award.year || award.time"><strong>{{ award.year || award.time }}</strong> — </span>
-                      {{ award.name || award.title || award }}
                       <button v-if="selectedSectionId === 'footer' && awardsSection?.items?.length" @click.stop="$emit('removeItem','awards',i)" class="delete-item-btn no-print" style="right: 0; top: 0;"><i class="fas fa-times"></i></button>
-                    </li>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="award" />
+                      <template v-else>
+                        <span v-if="award.year || award.time"><strong>{{ award.year || award.time }}</strong> — </span>
+                      {{ award.name || award.title || award }}
+                      </template>
+</li>
                   </ul>
                 </div>
               </div>
@@ -306,8 +330,9 @@
               
               <div v-for="(item, i) in (unmappedSections.find(s => s.id === block.id).items?.length ? unmappedSections.find(s => s.id === block.id).items : ((unmappedSections.find(s => s.id === block.id).desc || unmappedSections.find(s => s.id === block.id).description) ? [] : [{ name: 'Chưa có dữ liệu' }]))" 
                   :key="i" class="item-container" style="margin-bottom: 12px; position: relative;">
-                
-                <template v-if="typeof item === 'object'">
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <template v-if="typeof item === 'object'">
                   <div v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" class="html-content" v-html="formatDesc(item.name)"></div>
                   <div v-else-if="item.name || item.title || item.level || item.year || item.time || item.role" class="paginated-item" style="margin-bottom: 4px;">
                     <strong v-if="item.name || item.title"><span v-html="item.name || item.title"></span></strong>
@@ -326,7 +351,8 @@
                         class="delete-item-btn no-print" style="top: -5px; right: -5px;">
                   <i class="fas fa-times"></i>
                 </button>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>

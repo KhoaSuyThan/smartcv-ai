@@ -349,6 +349,15 @@
                         <RichTextEditor v-model="section.title" class="font-bold text-blue-700 bg-transparent py-1 px-2 rounded-md outline-none focus:ring-2 ring-blue-100 hover:bg-white w-full transition-all uppercase tracking-wide text-sm" />
                     </div>
                     <div class="flex items-center gap-2 ml-2 pl-3 border-l border-slate-200">
+                        <!-- Delete Section Button (for custom sections) -->
+                        <button v-if="section.isCustom" 
+                                @click="removeCustomSection(sectionIndex)" 
+                                class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors mr-1" 
+                                title="Xóa phần tùy chỉnh này">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
                         <!-- Toggle -->
                         <label class="relative inline-flex items-center cursor-pointer" title="Ẩn/Hiện thẻ này">
                             <input type="checkbox" 
@@ -562,6 +571,16 @@
                                     <template v-else-if="section.id === 'references'">
                                         <RichTextEditor v-model="item.info" :class="inputBaseClass" class="leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Họ tên, Chức vụ, Số điện thoại người tham chiếu" />
                                     </template>
+
+                                    <!-- form tùy chỉnh (custom section) -->
+                                    <template v-else-if="section.isCustom">
+                                        <RichTextEditor v-model="item.name" :class="inputBaseClass" class="font-bold text-slate-800" placeholder="Tiêu đề mục (VD: Tên dự án, Tên tổ chức, Kỹ năng...)" />
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <RichTextEditor v-model="item.role" :class="inputBaseClass" placeholder="Vai trò / Chức vụ / Chi tiết phụ" />
+                                            <RichTextEditor v-model="item.time" :class="inputBaseClass" class="text-xs" placeholder="Thời gian (VD: 2021 - Hiện tại)" />
+                                        </div>
+                                        <RichTextEditor v-model="item.desc" :class="inputBaseClass" class="w-full leading-relaxed text-xs border border-transparent !px-2 focus-within:bg-blue-50 focus-within:rounded-md transition-colors" placeholder="Mô tả chi tiết nội dung..." />
+                                    </template>
                                 </div>
                             </div>
                         </template>
@@ -581,6 +600,16 @@
               </div>
             </template>
           </draggable>
+
+          <!-- Add Custom Section Button -->
+          <div v-show="activeEditorTab === 'skills'" class="mt-4 mb-6">
+              <button @click="addCustomSection" class="w-full flex items-center justify-center gap-2 py-3.5 border-2 border-dashed border-blue-400 hover:border-blue-600 text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 bg-white font-bold text-xs uppercase tracking-wider rounded-2xl shadow-sm transition-all transform active:scale-[0.98] cursor-pointer focus:outline-none">
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Thêm mục tùy chỉnh mới
+              </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1911,9 +1940,40 @@ const addItem = (sectionIndex) => {
   else if(section.id === 'activities') Object.assign(newItem, { name: '', time: '', desc: '' });
   else if(section.id === 'hobbies' || section.id === 'additional')    Object.assign(newItem, { name: '' });
   else if(section.id === 'references') Object.assign(newItem, { info: '' });
+  else if(section.isCustom)            Object.assign(newItem, { name: '', role: '', time: '', desc: '' });
   else Object.assign(newItem, { name: '', year: '' });
 
   section.items.push(newItem);
+}
+
+const addCustomSection = () => {
+  const customId = 'custom_project_' + generateId();
+  const newSection = {
+    id: customId,
+    title: 'Mục Tùy Chỉnh Mới',
+    isVisible: true,
+    column: 'right',
+    isCustom: true,
+    items: [
+      {
+        _refId: generateId(),
+        name: '',
+        role: '',
+        time: '',
+        desc: ''
+      }
+    ]
+  };
+  resumeData.value.sections.push(newSection);
+  nextTick(() => {
+    scrollToField('section-' + customId);
+  });
+}
+
+const removeCustomSection = (index) => {
+  if (confirm('Bạn có chắc chắn muốn xóa mục tùy chỉnh này? Toàn bộ dữ liệu trong mục này sẽ bị xóa vĩnh viễn.')) {
+    resumeData.value.sections.splice(index, 1);
+  }
 }
 
 const removeItem = (sIdx, iIdx) => resumeData.value.sections[sIdx].items.splice(iIdx, 1);

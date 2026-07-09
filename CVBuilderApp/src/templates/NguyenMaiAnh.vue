@@ -161,7 +161,10 @@
                 
                 <ul class="bullet-list" v-if="['skills', 'it_skills', 'languages', 'hobbies'].includes(section.id)">
                   <li v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="item-container" :class="{'no-bullet': !item.level && item.name && /<[a-z][\s\S]*>/i.test(item.name)}">
-                    <template v-if="typeof item === 'object'">
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <template v-if="typeof item === 'object'">
                       <div class="flex flex-col paginated-item">
                         <span v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" v-html="item.name"></span>
                         <span class="text-gray-600" v-else><span v-html="item.name || item.title || item.info"></span></span>
@@ -171,13 +174,16 @@
                     <template v-else>
                       <div class="html-content" v-html="formatDesc(item)"></div>
                     </template>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </li>
+                      </template>
+</li>
                 </ul>
 
                 <div class="detailed-list" v-else>
                   <div v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="item-container relative mb-5 last:mb-0">
-                    <template v-if="typeof item === 'object'">
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" style="top: 0; right: -10px;"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <template v-if="typeof item === 'object'">
                       <div class="paginated-item">
                         <div class="flex justify-between items-start mb-1" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
                           <span class="entry-entity">
@@ -201,9 +207,8 @@
                     <template v-else>
                       <div class="html-content" v-html="formatDesc(item)"></div>
                     </template>
-                    
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" style="top: 0; right: -10px;"><i class="fas fa-times"></i></button>
-                  </div>
+                      </template>
+</div>
                 </div>
               </div>
             </div>
@@ -260,7 +265,10 @@
                 
                 <ul class="bullet-list" v-if="['skills', 'it_skills', 'languages', 'hobbies'].includes(section.id)">
                   <li v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="item-container" :class="{'no-bullet': !item.level && item.name && /<[a-z][\s\S]*>/i.test(item.name)}">
-                    <template v-if="typeof item === 'object'">
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <template v-if="typeof item === 'object'">
                       <div class="flex flex-col paginated-item">
                         <span v-if="item.name && /<[a-z][\s\S]*>/i.test(item.name)" v-html="item.name"></span>
                         <span class="text-gray-600" v-else><span v-html="item.name || item.title || item.info"></span></span>
@@ -270,13 +278,16 @@
                     <template v-else>
                       <div class="html-content" v-html="formatDesc(item)"></div>
                     </template>
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                  </li>
+                      </template>
+</li>
                 </ul>
 
                 <div class="detailed-list" v-else>
                   <div v-for="(item, i) in (section.items?.length ? section.items : getMockData(section.id))" :key="i" class="item-container relative mb-5 last:mb-0">
-                    <template v-if="typeof item === 'object'">
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" style="top: 0; right: -10px;"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <template v-if="typeof item === 'object'">
                       <div class="paginated-item">
                         <div class="flex justify-between items-start mb-1" v-if="item.company || item.school || item.organization || item.name || item.title || item.time || item.year || item.date">
                           <span class="entry-entity">
@@ -300,9 +311,8 @@
                     <template v-else>
                       <div class="html-content" v-html="formatDesc(item)"></div>
                     </template>
-                    
-                    <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop.prevent="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" style="top: 0; right: -10px;"><i class="fas fa-times"></i></button>
-                  </div>
+                      </template>
+</div>
                 </div>
               </div>
             </div>

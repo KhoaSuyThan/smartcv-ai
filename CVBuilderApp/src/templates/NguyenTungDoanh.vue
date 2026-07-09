@@ -90,7 +90,10 @@
                 <div class="card-body">
                   <ul class="bullet-list" v-if="section.items?.length">
                     <li v-for="(item, i) in section.items" :key="i" class="item-container paginated-item">
-                      <div class="flex flex-col">
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="flex flex-col">
                         <span class="font-bold text-[#FF9500]" v-if="item.time || item.year"><span v-html="item.time || item.year"></span></span>
                         <span class="font-semibold text-[#2B4C7E]" v-else-if="item.name && item.level"><span v-html="item.name"></span></span>
                         <span class="text-[#4A5568]" v-else><span v-html="item.name || item.title || item"></span></span>
@@ -98,8 +101,8 @@
                         <span class="text-[#4A5568] text-xs mt-0.5" v-if="item.name && item.level">• <span v-html="item.level"></span></span>
                         <span class="text-[#4A5568] text-xs mt-0.5" v-if="(item.time || item.year) && item.name"><span v-html="item.name"></span></span>
                       </div>
-                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                    </li>
+                      </template>
+</li>
                   </ul>
                 </div>
               </div>
@@ -148,7 +151,9 @@
                     <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
                     <div class="timeline-wrapper" v-if="section.items?.length">
                       <div v-for="(item, i) in section.items" :key="i" class="timeline-item item-container">
-                        
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" style="top: 0; right: 0;"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
                         <div class="timeline-icon no-print-bg">
                           <i v-if="section.id === 'education'" class="fas fa-graduation-cap"></i>
                           <i v-else-if="section.id === 'activities'" class="fas fa-users"></i>
@@ -170,9 +175,8 @@
                         </div>
 
                         <div class="html-content mt-2" v-if="item.desc || item.description" v-html="formatDesc(item.desc || item.description)"></div>
-                        
-                        <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print" style="top: 0; right: 0;"><i class="fas fa-times"></i></button>
-                      </div>
+                      </template>
+</div>
                     </div>
                   </template>
 
@@ -180,6 +184,9 @@
                     <div v-if="section.desc || section.description || section.content || section.value" class="html-content mb-3" v-html="formatDesc(section.desc || section.description || section.content || section.value)"></div>
                     <div v-if="section.items?.length">
                       <div v-for="(item, i) in section.items" :key="i" class="item-container relative mb-4 last:mb-0">
+                      <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
                         <template v-if="typeof item === 'object'">
                           <div v-if="item.year || item.time" class="paginated-item entry-time mb-1 inline-block"><span v-html="item.year || item.time"></span></div>
                           
@@ -193,8 +200,8 @@
                         <template v-else>
                           <div class="html-content" v-html="formatDesc(item)"></div>
                         </template>
-                        <button v-if="selectedSectionId === section.id && section.items?.length" @click.stop="$emit('removeItem', section.id, i)" class="delete-item-btn no-print"><i class="fas fa-times"></i></button>
-                      </div>
+                      </template>
+</div>
                     </div>
                   </template>
                 </div>

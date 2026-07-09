@@ -79,7 +79,10 @@
             <h3 class="section-title">HỌC VẤN</h3>
             <div class="content-text">
               <div v-for="(item, idx) in (educationSection ? educationSection.items : [])" :key="item._refId || idx" class="exp-item item-container">
-                <div class="exp-content">
+                      <transition name="fade-btns"><button v-if="selectedSectionId === 'education'" @click.stop="$emit('removeItem','education',idx)" class="delete-item-btn no-print"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="exp-content">
                   <div class="paginated-item"><strong><span v-html="item.school"></span></strong></div>
                   <div v-if="item.major" class="paginated-item" style="color:#555"><span v-html="item.major"></span></div>
                   <div v-if="item.gradType || item.info" class="paginated-item" style="font-size: 12.5px; color: #333; margin-top: 2px;">
@@ -88,8 +91,8 @@
                 </div>
                 <div class="exp-year paginated-item"><span v-html="item.year || item.time"></span></div>
                 <div v-if="item.desc" class="html-content" v-html="formatDesc(item.desc)"></div>
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'education'" @click.stop="$emit('removeItem','education',idx)" class="delete-item-btn no-print"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
   
@@ -106,10 +109,13 @@
             <h3 class="section-title">CHỨNG CHỈ</h3>
             <div class="content-text">
               <div v-for="(item, idx) in (certSection ? certSection.items : [])" :key="item._refId || idx" class="item-container" style="margin-bottom:12px">
-                <div class="paginated-item" style="font-weight:700;font-size:13px;color:#111"><span v-html="item.year || item.time"></span></div>
+                      <transition name="fade-btns"><button v-if="selectedSectionId === 'certifications'" @click.stop="$emit('removeItem','certifications',idx)" class="delete-item-btn no-print"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item" style="font-weight:700;font-size:13px;color:#111"><span v-html="item.year || item.time"></span></div>
                 <div class="paginated-item" style="font-size:12.5px;color:#333"><span v-html="item.name || item.info"></span></div>
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'certifications'" @click.stop="$emit('removeItem','certifications',idx)" class="delete-item-btn no-print"><svg width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
         </template>
@@ -144,14 +150,17 @@
             <h3 class="section-title">KINH NGHIỆM LÀM VIỆC</h3>
             <div class="timeline-container">
               <div v-for="(item, idx) in experienceSection.items" :key="item._refId || idx" class="exp-item item-container">
-                <div class="exp-year paginated-item"><span v-html="item.time || item.year"></span></div>
+                      <transition name="fade-btns"><button v-if="selectedSectionId === 'experience'" @click.stop="$emit('removeItem','experience',idx)" class="delete-item-btn delete-item-btn--lg no-print"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="exp-year paginated-item"><span v-html="item.time || item.year"></span></div>
                 <div class="exp-content">
                   <div class="info-line paginated-item"><strong v-if="item.company || item.name"><span v-html="item.company || item.name"></span></strong></div>
                   <div v-if="item.role || item.title || item.info" class="info-line paginated-item"><strong><span v-html="item.role || item.title || item.info"></span></strong></div>
                   <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
                 </div>
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'experience'" @click.stop="$emit('removeItem','experience',idx)" class="delete-item-btn delete-item-btn--lg no-print"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
   
@@ -170,14 +179,17 @@
             <h3 class="section-title">DỰ ÁN NỔI BẬT</h3>
             <div class="timeline-container">
               <div v-for="(item, idx) in projectSection.items" :key="item._refId || idx" class="exp-item item-container">
-                <div class="exp-year paginated-item"><span v-html="item.time || item.year"></span></div>
+                      <transition name="fade-btns"><button v-if="selectedSectionId === 'project'" @click.stop="$emit('removeItem','project',idx)" class="delete-item-btn delete-item-btn--lg no-print"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="exp-year paginated-item"><span v-html="item.time || item.year"></span></div>
                 <div class="exp-content">
                   <div class="info-line paginated-item"><strong v-if="item.name || item.company"><span v-html="item.name || item.company"></span></strong></div>
                   <div v-if="item.role || item.title || item.info" class="info-line paginated-item"><strong><span v-html="item.role || item.title || item.info"></span></strong></div>
                   <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
                 </div>
-                <transition name="fade-btns"><button v-if="selectedSectionId === 'project'" @click.stop="$emit('removeItem','project',idx)" class="delete-item-btn delete-item-btn--lg no-print"><svg width="9" height="9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-              </div>
+                      </template>
+</div>
             </div>
           </div>
   
@@ -197,19 +209,25 @@
             <div class="content-text">
               <ul v-if="id !== 'hobbies'">
                 <li v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
-                  <div class="paginated-item" style="width: 100%;">
+                      <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item" style="width: 100%;">
                     <strong style="color: #111; font-size: 13px;"><span v-html="item.name"></span></strong>
                     <span v-if="item.info || item.level" style="color: #444; font-size: 12.5px;"> — <span v-html="item.info || item.level"></span></span>
                   </div>
                   <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </li>
+                      </template>
+</li>
               </ul>
               <div v-else style="display: flex; flex-wrap: wrap; gap: 8px;">
                 <span v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="paginated-item item-container" style="display: inline-flex; align-items: center; background: #f1f5f9; padding: 5px 12px; border-radius: 20px; font-size: 12.5px; color: #334155; border: 1px solid #e2e8f0; position: relative;">
-                  <span v-html="item.name"></span>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="width: 16px; height: 16px; top: -6px; right: -6px;"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </span>
+                      <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="width: 16px; height: 16px; top: -6px; right: -6px;"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <span v-html="item.name"></span>
+                      </template>
+</span>
               </div>
             </div>
           </div>
@@ -230,36 +248,45 @@
             <div class="content-text">
               <ul v-if="id === 'awards'">
                 <li v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="item-container" style="flex-direction: column; align-items: flex-start;">
-                  <div class="paginated-item" style="width: 100%;">
+                      <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item" style="width: 100%;">
                     <strong v-if="item.time || item.year" style="color: #111; font-size: 13px;"><span v-html="item.time || item.year"></span></strong>
                     <span v-if="(item.time || item.year) && (item.name || item.info)"> — </span>
                     <span style="color: #333; font-size: 12.5px;"><span v-html="item.name || item.info"></span></span>
                   </div>
                   <div v-if="item.desc" class="paginated-item html-content" v-html="formatDesc(item.desc)" style="margin-top: 4px; color: #555;"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:4px;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </li>
+                      </template>
+</li>
               </ul>
               <div v-else-if="id === 'activities'" class="timeline-container small-timeline">
                 <div v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="exp-item item-container">
-                  <div class="exp-year paginated-item"><span v-html="item.time || item.year"></span></div>
+                      <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="exp-year paginated-item"><span v-html="item.time || item.year"></span></div>
                   <div class="exp-content">
                     <div class="info-line paginated-item"><span v-html="item.name || item.company"></span></div>
                     <div class="info-line paginated-item"><span v-html="item.role || item.title || item.info"></span></div>
                     <div v-if="item.desc" class="desc-text html-content" v-html="formatDesc(item.desc)"></div>
                   </div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </div>
+                      </template>
+</div>
               </div>
               <div v-else-if="id === 'references'">
                 <div v-for="(item, i) in sec(id).value.items" :key="item._refId || i" class="item-container" style="position:relative; margin-bottom: 12px;">
-                  <div class="paginated-item" v-if="item.name || item.title || item.role" style="margin-bottom: 3px; font-size: 13px;">
+                      <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
+                      <CustomSectionItem v-if="(typeof section !== 'undefined' && section && section.isCustom) || (typeof id !== 'undefined' && typeof sec !== 'undefined' && sec(id)?.value?.isCustom) || (typeof block !== 'undefined' && block && block.isCustom)" :item="item" />
+                      <template v-else>
+                        <div class="paginated-item" v-if="item.name || item.title || item.role" style="margin-bottom: 3px; font-size: 13px;">
                     <strong v-if="item.name" style="color: #111;"><span v-html="item.name"></span></strong>
                     <span v-if="(item.title || item.role) && item.name"> — </span>
                     <span v-if="item.title || item.role" style="color: #444;"><span v-html="item.title || item.role"></span></span>
                   </div>
                   <div class="html-content" v-if="item.contact || item.info" v-html="formatDesc(item.contact || item.info)"></div>
-                  <transition name="fade-btns"><button v-if="selectedSectionId === id" @click.stop="$emit('removeItem',id,i)" class="delete-item-btn no-print" style="top:0;right:0"><svg width="7" height="7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg></button></transition>
-                </div>
+                      </template>
+</div>
               </div>
             </div>
           </div>
