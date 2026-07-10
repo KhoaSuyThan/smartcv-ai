@@ -67,6 +67,34 @@
                     <form asp-controller="Interview" asp-action="StartPracticeSession" method="post">
                         @Html.AntiForgeryToken()
 
+                        <!-- Thống kê lượt phỏng vấn hôm nay -->
+                        <div class="p-3 mb-4 rounded-3 border bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small fw-bold text-secondary">
+                                    <i class="fas fa-calendar-day me-1"></i> Số lượt phỏng vấn hôm nay:
+                                </span>
+                                <span class="small fw-bold text-primary">
+                                    @ViewBag.TodaySessionsCount / @ViewBag.MaxDailySessions lượt
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "bg-danger" : "bg-primary")" 
+                                     role="progressbar" 
+                                     style="width: @(Math.Min((double)ViewBag.TodaySessionsCount / ViewBag.MaxDailySessions * 100, 100))%">
+                                </div>
+                            </div>
+                            @if (ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions)
+                            {
+                                <small class="text-danger d-block mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i> Bạn đã dùng hết lượt phỏng vấn của ngày hôm nay. 
+                                    @if (!ViewBag.IsPro)
+                                    {
+                                        <span>Vui lòng nâng cấp tài khoản Pro để tăng lên 5 lượt/ngày!</span>
+                                    }
+                                </small>
+                            }
+                        </div>
+
                         <!-- Chọn CV -->
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary mb-2"><i class="fas fa-id-card me-1"></i> 1. Chọn bản CV làm nguồn phỏng vấn:</label>
@@ -120,8 +148,26 @@
                             </div>
                         </div>
 
+                        <!-- Chọn Số câu hỏi -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary mb-2">
+                                <i class="fas fa-question-circle me-1"></i> 3. Chọn số lượng câu hỏi:
+                            </label>
+                            <div class="row align-items-center g-3">
+                                <div class="col-sm-5">
+                                    <div class="input-group shadow-sm">
+                                        <input type="number" name="questionCount" id="questionCountInput" class="form-control rounded-start-3 border-2 fw-bold" style="max-width: 150px;" required />
+                                        <span class="input-group-text rounded-end-3 bg-white border-2 border-start-0 fw-semibold text-secondary">câu hỏi</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-7" id="proLimitBadge">
+                                    <!-- Ghi chú giới hạn tài khoản -->
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Nút Bắt đầu -->
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
                             <i class="fas fa-rocket me-2 animate-bounce"></i> Bắt đầu Phòng phỏng vấn AI
                         </button>
                     </form>
@@ -250,3 +296,80 @@
         }
     }
 </style>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const isPro = @(ViewBag.IsPro ? "true" : "false");
+            const interviewTypeInputs = document.querySelectorAll('input[name="interviewType"]');
+            const questionCountInput = document.getElementById('questionCountInput');
+            const proLimitBadge = document.getElementById('proLimitBadge');
+
+            function updateQuestionCountOptions() {
+                const selectedType = document.querySelector('input[name="interviewType"]:checked').value;
+
+                let min = 3, max = 5, defaultValue = 3;
+                let label = "";
+
+                if (selectedType === "0") {
+                    // Tự luận STAR
+                    min = 3;
+                    max = isPro ? 10 : 5;
+                    defaultValue = 3;
+                    label = isPro ? '<span class="badge bg-success text-white border border-success px-2 py-1 rounded-pill"><i class="fas fa-crown me-1"></i>Tài khoản Pro (Nhập 3 - 10 câu)</span>' 
+                                  : '<span class="badge bg-secondary text-white border border-secondary px-2 py-1 rounded-pill"><i class="fas fa-user me-1"></i>Free (Nhập 3 - 5 câu). Nâng Pro để mở 10 câu!</span>';
+                } else {
+                    // Trắc nghiệm
+                    min = 5;
+                    max = isPro ? 20 : 10;
+                    defaultValue = 5;
+                    label = isPro ? '<span class="badge bg-success text-white border border-success px-2 py-1 rounded-pill"><i class="fas fa-crown me-1"></i>Tài khoản Pro (Nhập 5 - 20 câu)</span>' 
+                                  : '<span class="badge bg-secondary text-white border border-secondary px-2 py-1 rounded-pill"><i class="fas fa-user me-1"></i>Free (Nhập 5 - 10 câu). Nâng Pro để mở 20 câu!</span>';
+                }
+
+                questionCountInput.min = min;
+                questionCountInput.max = max;
+
+                // Cập nhật giá trị hiện tại nếu nằm ngoài khoảng mới
+                let currentValue = parseInt(questionCountInput.value);
+                if (isNaN(currentValue) || currentValue < min || currentValue > max) {
+                    questionCountInput.value = defaultValue;
+                }
+
+                proLimitBadge.innerHTML = label;
+            }
+
+            // Ràng buộc nhập liệu số hợp lệ
+            questionCountInput.addEventListener('change', function () {
+                const min = parseInt(this.min);
+                const max = parseInt(this.max);
+                let val = parseInt(this.value);
+                if (isNaN(val)) {
+                    this.value = min;
+                } else if (val < min) {
+                    this.value = min;
+                } else if (val > max) {
+                    this.value = max;
+                }
+            });
+
+            // Ngăn nhập ký tự không phải số và đảm bảo sự kiện input chạy validate
+            questionCountInput.addEventListener('input', function () {
+                const min = parseInt(this.min);
+                const max = parseInt(this.max);
+                let val = parseInt(this.value);
+                if (!isNaN(val)) {
+                    if (val > max) {
+                        this.value = max;
+                    }
+                }
+            });
+
+            interviewTypeInputs.forEach(input => {
+                input.addEventListener('change', updateQuestionCountOptions);
+            });
+
+            updateQuestionCountOptions();
+        });
+    </script>
+}

@@ -31,11 +31,23 @@ namespace DoAnCS.Controllers
         public async Task<IActionResult> Practice()
         {
             int userId = CurrentUserId;
-            // Lấy danh sách CV của người dùng này để chọn làm nguồn phỏng vấn
+            // Chỉ hiện mẫu CV đã có public trong Profile
             var resumes = await _context.Resumes
-                .Where(r => r.UserID == userId && (r.IsDraft == false || r.IsPublic == true))
+                .Where(r => r.UserID == userId && r.IsPublic == true)
                 .OrderByDescending(r => r.UpdatedAt)
                 .ToListAsync();
+
+            // Lấy thông tin user để kiểm tra Pro
+            var user = await _context.Users.FindAsync(userId);
+            bool isPro = user != null && user.IsPro;
+            int maxDailySessions = isPro ? 5 : 3;
+
+            // Đếm số lượt phỏng vấn tự do đã thực hiện trong ngày hôm nay (tổng cả 2 loại Tự luận và Trắc nghiệm)
+            var today = DateTime.Today;
+            var todaySessionsCount = await _context.InterviewSessions
+                .CountAsync(s => s.UserID == userId && 
+                                 (s.InterviewType == 0 || s.InterviewType == 1) && 
+                                 s.CreatedAt >= today);
 
             // Lấy lịch sử các phiên phỏng vấn luyện tập
             var history = await _context.InterviewSessions
@@ -46,18 +58,40 @@ namespace DoAnCS.Controllers
 
             ViewBag.Resumes = resumes;
             ViewBag.History = history;
+            ViewBag.TodaySessionsCount = todaySessionsCount;
+            ViewBag.MaxDailySessions = maxDailySessions;
+            ViewBag.IsPro = isPro;
             return View();
         }
+
+
 
         // Bắt đầu một phiên phỏng vấn luyện tập mới
         [HttpPost]
         [Authorize(Roles = "User")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> StartPracticeSession(int resumeId, int interviewType)
+        public async Task<IActionResult> StartPracticeSession(int resumeId, int interviewType, int questionCount)
         {
             int userId = CurrentUserId;
 
-            // Kiểm tra CV có tồn tại và thuộc về user không
+            // 1. Kiểm tra giới hạn lượt phỏng vấn hàng ngày (Free tối đa 3 lần/ngày, Pro 5 lần/ngày)
+            var user = await _context.Users.FindAsync(userId);
+            bool isPro = user != null && user.IsPro;
+            int maxDailySessions = isPro ? 5 : 3;
+
+            var today = DateTime.Today;
+            var todaySessionsCount = await _context.InterviewSessions
+                .CountAsync(s => s.UserID == userId && 
+                                 (s.InterviewType == 0 || s.InterviewType == 1) && 
+                                 s.CreatedAt >= today);
+
+            if (todaySessionsCount >= maxDailySessions)
+            {
+                TempData["ErrorMessage"] = $"Bạn đã đạt giới hạn tối đa {maxDailySessions} lượt phỏng vấn trong ngày hôm nay. Hãy nâng cấp Pro để nhận thêm lượt hoặc quay lại vào ngày mai.";
+                return RedirectToAction(nameof(Practice));
+            }
+
+            // 2. Kiểm tra CV có tồn tại và thuộc về user không
             var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.ResumeID == resumeId && r.UserID == userId);
             if (resume == null)
             {
@@ -65,14 +99,36 @@ namespace DoAnCS.Controllers
                 return RedirectToAction(nameof(Practice));
             }
 
+            // 3. Giới hạn số câu hỏi hợp lệ (phòng ngừa Client gửi sai lệch)
+            if (interviewType == 0) // STAR
+            {
+                int minQ = 3;
+                int maxQ = isPro ? 10 : 5;
+                if (questionCount < minQ || questionCount > maxQ)
+                {
+                    questionCount = minQ;
+                }
+            }
+            else if (interviewType == 1) // Trắc nghiệm
+            {
+                int minQ = 5;
+                int maxQ = isPro ? 20 : 10;
+                if (questionCount < minQ || questionCount > maxQ)
+                {
+                    questionCount = minQ;
+                }
+            }
+
             // Tạo mới một phiên phỏng vấn
+            // Dùng cột AiEvaluation làm nơi lưu cấu hình số câu hỏi STAR tạm thời: "MaxQuestions:X"
             var session = new InterviewSession
             {
                 UserID = userId,
                 ResumeID = resumeId,
                 InterviewType = interviewType, // 0: Tự luận chat 1-1, 1: Trắc nghiệm
                 Status = 0, // Đang diễn ra
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                AiEvaluation = interviewType == 0 ? ("MaxQuestions:" + questionCount) : null
             };
 
             _context.InterviewSessions.Add(session);
@@ -118,14 +174,19 @@ namespace DoAnCS.Controllers
 
             if (interviewType == 1)
             {
-                // CHẾ ĐỘ TRẮC NGHIỆM: Sinh 5 câu hỏi trắc nghiệm dựa trên CV
-                string prompt = $@"Hãy đóng vai là một nhà tuyển dụng kỹ thuật chuyên nghiệp. Dựa trên thông tin CV của ứng viên sau đây, hãy sinh ra đúng 5 câu hỏi trắc nghiệm để kiểm tra kiến thức chuyên môn kỹ thuật liên quan đến CV.
+                // CHẾ ĐỘ TRẮC NGHIỆM: Sinh câu hỏi trắc nghiệm chuyên môn kỹ thuật trực tiếp cho ứng viên dựa trên công nghệ trong CV
+                string prompt = $@"Bạn là một nhà tuyển dụng kỹ thuật chuyên nghiệp. Dựa trên thông tin CV của ứng viên dưới đây, hãy sinh ra đúng {questionCount} câu hỏi trắc nghiệm kiểm tra kiến thức chuyên môn kỹ thuật thực tế.
+
+Yêu cầu QUAN TRỌNG VỀ NỘI DUNG CÂU HỎI:
+1. Đây là bài kiểm tra dành cho ứng viên tự làm. Câu hỏi phải là câu hỏi kỹ thuật, kiến thức lý thuyết chuyên môn hoặc kinh nghiệm thực tế (Ví dụ: hỏi về cách giải quyết bài toán cụ thể trong React/SQL, khái niệm OOP, cách tối ưu hóa truy vấn, HTTP protocol,... liên quan đến các kỹ năng công nghệ được liệt kê trong CV).
+2. Tuyệt đối KHÔNG đặt các câu hỏi hỏi về thông tin có sẵn trên CV của ứng viên (Ví dụ KHÔNG hỏi: 'Ứng viên đã học công nghệ nào?', 'Ứng viên làm việc ở đâu?', 'Ứng viên có bao nhiêu năm kinh nghiệm?', 'Ứng viên có kỹ năng mềm gì?'). Người trả lời là chính ứng viên, do đó họ cần được thử thách bằng câu hỏi kiến thức kỹ thuật thực tế.
+
 Mỗi câu hỏi phải bao gồm nội dung câu hỏi, 4 đáp án lựa chọn A, B, C, D (ghi rõ nhãn 'A.', 'B.', 'C.', 'D.') và chỉ rõ chữ cái đáp án đúng (A, B, C hoặc D).
 Yêu cầu trả về duy nhất một chuỗi JSON hợp lệ theo định dạng mảng đối tượng như mẫu sau (không chứa ký tự markdown hay văn bản thừa bên ngoài):
 [
   {{
-    ""question"": ""Nội dung câu hỏi 1?"",
-    ""options"": [""A. Tùy chọn A"", ""B. Tùy chọn B"", ""C. Tùy chọn C"", ""D. Tùy chọn D""],
+    ""question"": ""Nội dung câu hỏi kỹ thuật trực tiếp cần hỏi ứng viên?"",
+    ""options"": [""A. Đáp án A"", ""B. Đáp án B"", ""C. Đáp án C"", ""D. Đáp án D""],
     ""correctAnswer"": ""A""
   }}
 ]
@@ -170,9 +231,22 @@ Thông tin CV ứng viên:
                             {
                                 foreach (var prop in root.EnumerateObject())
                                 {
-                                    if (prop.Value.ValueKind == JsonValueKind.Object && prop.Value.TryGetProperty("question", out _))
+                                    // Chấp nhận Object có thuộc tính tương tự question (không phân biệt hoa thường)
+                                    if (prop.Value.ValueKind == JsonValueKind.Object)
                                     {
-                                        questionElements.Add(prop.Value);
+                                        bool isQuestionObj = false;
+                                        foreach (var subProp in prop.Value.EnumerateObject())
+                                        {
+                                            if (subProp.Name.Equals("question", StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                isQuestionObj = true;
+                                                break;
+                                            }
+                                        }
+                                        if (isQuestionObj)
+                                        {
+                                            questionElements.Add(prop.Value);
+                                        }
                                     }
                                 }
                             }
@@ -184,33 +258,58 @@ Thông tin CV ứng viên:
                         }
 
                         int index = 1;
+                        int addedCount = 0;
                         foreach (var item in questionElements)
                         {
-                            if (item.TryGetProperty("question", out var qProp) && 
-                                item.TryGetProperty("options", out var optProp) && 
-                                item.TryGetProperty("correctAnswer", out var correctProp))
+                            if (item.ValueKind == JsonValueKind.Object)
                             {
-                                string qText = qProp.GetString();
-                                var optList = new List<string>();
-                                if (optProp.ValueKind == JsonValueKind.Array)
-                                {
-                                    optList = optProp.EnumerateArray().Select(o => o.GetString()).ToList();
-                                }
-                                string correctAns = correctProp.GetString();
+                                string qText = null;
+                                List<string> optList = new List<string>();
+                                string correctAns = null;
 
-                                var msg = new InterviewMessage
+                                foreach (var prop in item.EnumerateObject())
                                 {
-                                    SessionID = session.SessionID,
-                                    Role = "interviewer",
-                                    Content = qText,
-                                    ChoicesJson = JsonSerializer.Serialize(optList),
-                                    SelectedAnswer = correctAns, // Lưu đáp án đúng vào cột SelectedAnswer của interviewer để đối chiếu
-                                    CreatedAt = DateTime.Now.AddSeconds(index)
-                                };
-                                _context.InterviewMessages.Add(msg);
-                                index++;
+                                    string name = prop.Name.ToLower();
+                                    if (name == "question")
+                                    {
+                                        qText = prop.Value.GetString();
+                                    }
+                                    else if (name == "options")
+                                    {
+                                        if (prop.Value.ValueKind == JsonValueKind.Array)
+                                        {
+                                            optList = prop.Value.EnumerateArray().Select(o => o.GetString()).ToList();
+                                        }
+                                    }
+                                    else if (name == "correctanswer" || name == "correct_answer" || name == "answer")
+                                    {
+                                        correctAns = prop.Value.GetString();
+                                    }
+                                }
+
+                                if (!string.IsNullOrEmpty(qText) && optList.Any() && !string.IsNullOrEmpty(correctAns))
+                                {
+                                    var msg = new InterviewMessage
+                                    {
+                                        SessionID = session.SessionID,
+                                        Role = "interviewer",
+                                        Content = qText,
+                                        ChoicesJson = JsonSerializer.Serialize(optList),
+                                        SelectedAnswer = correctAns,
+                                        CreatedAt = DateTime.Now.AddSeconds(index)
+                                    };
+                                    _context.InterviewMessages.Add(msg);
+                                    index++;
+                                    addedCount++;
+                                }
                             }
                         }
+
+                        if (addedCount == 0)
+                        {
+                            throw new Exception("AI sinh ra câu hỏi nhưng không đúng định dạng thuộc tính yêu cầu (question, options, correctAnswer).");
+                        }
+
                         await _context.SaveChangesAsync();
                     }
                     return RedirectToAction(nameof(PracticeQuiz), new { sessionId = session.SessionID });
@@ -354,10 +453,20 @@ Câu trả lời của ứng viên: ""{answer}""";
             candidateMsg.Feedback = itemFeedback;
             await _context.SaveChangesAsync();
 
+            // Đọc số câu hỏi cấu hình từ trường AiEvaluation tạm thời
+            int maxQuestions = 3; // Mặc định là 3
+            if (!string.IsNullOrEmpty(session.AiEvaluation) && session.AiEvaluation.StartsWith("MaxQuestions:"))
+            {
+                if (int.TryParse(session.AiEvaluation.Substring("MaxQuestions:".Length), out int parsedMax))
+                {
+                    maxQuestions = parsedMax;
+                }
+            }
+
             // Tính số lượng câu trả lời đã gửi trong phiên này
             int answerCount = session.Messages.Count(m => m.Role == "candidate");
 
-            if (answerCount >= 3) // Kết thúc phỏng vấn sau 3 lượt trả lời
+            if (answerCount >= maxQuestions) // Kết thúc phỏng vấn sau số lượng câu hỏi đã chọn
             {
                 session.Status = 1; // Đã hoàn thành
                 session.CompletedAt = DateTime.Now;
