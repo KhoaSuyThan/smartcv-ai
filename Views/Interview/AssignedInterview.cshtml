@@ -1,0 +1,143 @@
+@model DoAnCS.Models.InterviewSession
+@{
+    ViewData["Title"] = "Làm bài phỏng vấn tuyển dụng";
+    var questions = Model.Messages.Where(m => m.Role == "interviewer").OrderBy(m => m.CreatedAt).ToList();
+    var candidateAnswers = Model.Messages.Where(m => m.Role == "candidate").OrderBy(m => m.CreatedAt).ToList();
+    bool isCompleted = Model.Status == 1;
+}
+
+<div class="container py-4" style="min-height: 85vh;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Assigned" class="btn btn-outline-secondary px-4 rounded-pill shadow-sm bg-white">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại
+        </a>
+        <div class="text-end">
+            <h6 class="fw-bold text-dark mb-0">Công việc: <span class="text-primary">@Model.Job?.Title</span></h6>
+            <small class="text-muted"><i class="fas fa-building me-1"></i> @Model.Job?.Company?.Name</small>
+        </div>
+    </div>
+
+    @if (isCompleted && Model.OverallScore.HasValue)
+    {
+        <!-- Khung kết quả chấm điểm của Nhà tuyển dụng -->
+        <div class="card border-0 shadow-lg rounded-4 p-4 mb-5 text-center text-white" 
+             style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);">
+            <h3 class="fw-bold mb-2"><i class="fas fa-trophy text-warning me-2"></i> Đánh giá kết quả từ Nhà tuyển dụng</h3>
+            <h1 class="display-3 fw-extrabold mb-2">@Model.OverallScore<span style="font-size: 1.5rem;">/100</span></h1>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="p-3 bg-white text-dark rounded-3 shadow-sm text-start" style="line-height: 1.6;">
+                        <h6 class="fw-bold text-secondary mb-1"><i class="fas fa-comment-dots text-primary me-1"></i> Nhận xét chung:</h6>
+                        <p class="mb-0 text-muted small">@Model.AiEvaluation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (isCompleted)
+    {
+        <!-- Thông báo chờ chấm điểm -->
+        <div class="alert alert-info rounded-4 shadow-sm border-0 p-4 mb-5 d-flex align-items-center">
+            <i class="fas fa-info-circle display-6 text-info me-3"></i>
+            <div>
+                <h5 class="fw-bold text-info-dark mb-1">Bạn đã nộp bài phỏng vấn thành công!</h5>
+                <p class="mb-0 text-muted small">Nhà tuyển dụng đã nhận được bài làm tự luận của bạn và đang tiến hành chấm điểm. Vui lòng kiểm tra lại sau.</p>
+            </div>
+        </div>
+    }
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 p-4 bg-white">
+                <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">
+                    <i class="fas fa-clipboard-list text-primary me-2"></i> Đề thi tự luận tuyển dụng
+                </h4>
+
+                <form asp-controller="Interview" asp-action="SubmitAssignedAnswers" asp-route-sessionId="@Model.SessionID" method="post" id="assignedForm">
+                    @Html.AntiForgeryToken()
+
+                    @{
+                        int qIndex = 1;
+                    }
+                    @foreach (var q in questions)
+                    {
+                        // Tìm câu trả lời tương ứng dựa trên câu hỏi gốc
+                        var matchedAnsMsg = candidateAnswers.FirstOrDefault(a => a.ChoicesJson == q.Content);
+                        string candidateAns = matchedAnsMsg != null ? matchedAnsMsg.Content : "";
+
+                        <div class="mb-5 p-4 rounded-4 bg-light border border-light">
+                            <div class="d-flex align-items-start gap-2 mb-3">
+                                <span class="badge bg-primary rounded-circle px-3 py-2 fw-bold text-white fs-6">
+                                    @qIndex
+                                </span>
+                                <h5 class="fw-bold text-dark mb-0 pt-1" style="line-height: 1.4;">@q.Content</h5>
+                            </div>
+
+                            <div class="mt-3">
+                                <label class="form-label fw-bold text-secondary mb-2 small"><i class="fas fa-pen-fancy"></i> Câu trả lời của bạn:</label>
+                                @if (!isCompleted)
+                                {
+                                    <textarea name="answers[@q.MessageID]" class="form-control rounded-3 border-secondary-subtle p-3 text-dark small" 
+                                              placeholder="Nhập câu trả lời tự luận chi tiết cho câu hỏi này..." rows="4" required></textarea>
+                                }
+                                else
+                                {
+                                    <div class="p-3 border rounded-3 bg-white small text-dark" style="min-height: 80px; text-align: justify; line-height: 1.6;">
+                                        @(string.IsNullOrEmpty(candidateAns) ? "(Không có câu trả lời)" : candidateAns)
+                                    </div>
+
+                                    <!-- Hiển thị chấm điểm và nhận xét của Nhà tuyển dụng cho từng câu -->
+                                    @if (matchedAnsMsg != null && matchedAnsMsg.Score.HasValue)
+                                    {
+                                        <div class="mt-3 p-3 rounded-3 bg-white border border-light-subtle shadow-sm">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-bold text-dark small"><i class="fas fa-star text-warning me-1"></i> Điểm chấm của Recruiter:</span>
+                                                <span class="badge @(matchedAnsMsg.Score >= 80 ? "bg-success" : matchedAnsMsg.Score >= 50 ? "bg-warning text-dark" : "bg-danger") fw-bold rounded-pill">
+                                                    @matchedAnsMsg.Score / 100
+                                                </span>
+                                            </div>
+                                            <div class="p-2 bg-light rounded text-muted small" style="line-height: 1.5;">
+                                                <h6 class="fw-bold mb-1" style="font-size: 0.8rem;">Nhận xét chi tiết:</h6>
+                                                @Html.Raw(matchedAnsMsg.Feedback?.Replace("\n", "<br/>"))
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+
+                        qIndex++;
+                    }
+
+                    @if (!isCompleted)
+                    {
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold btn-submit-assigned">
+                                <i class="fas fa-check-circle me-2"></i> Nộp bài làm phỏng vấn
+                            </button>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Confirm when submit quiz
+            $('#assignedForm').on('submit', function (e) {
+                if (!confirm("Bạn có chắc chắn muốn nộp bài thi phỏng vấn này? Sau khi nộp bạn sẽ không thể chỉnh sửa câu trả lời.")) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                var btn = $('.btn-submit-assigned');
+                btn.prop('disabled', true);
+                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Đang nộp bài...');
+            });
+        });
+    </script>
+}

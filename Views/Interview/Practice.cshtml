@@ -1,0 +1,252 @@
+@model dynamic
+@{
+    ViewData["Title"] = "Luyện phỏng vấn AI";
+    var resumes = ViewBag.Resumes as IEnumerable<DoAnCS.Models.Resume>;
+    var history = ViewBag.History as IEnumerable<DoAnCS.Models.InterviewSession>;
+}
+
+<div class="container py-5" style="min-height: 85vh;">
+    <!-- Tiêu đề lớn & Banner động -->
+    <div class="p-5 mb-5 rounded-4 shadow-sm border position-relative overflow-hidden" 
+         style="background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%); color: white;">
+        <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 15rem; transform: translate(20%, -20%);">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill text-uppercase tracking-wider" style="font-size: 0.8rem;">
+                    <i class="fas fa-magic me-1"></i> Trợ lý AI thế hệ mới
+                </span>
+                <h1 class="display-5 fw-extrabold mb-3">Phòng Luyện Phỏng Vấn Thông Minh AI</h1>
+                <p class="lead mb-0 text-white-50">
+                    Nâng tầm kỹ năng trả lời phỏng vấn cùng Trí Tuệ Nhân Tạo. Nhận phản hồi chuyên sâu theo mô hình STAR dựa trên CV và JD.
+                </p>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <i class="fas fa-comments-dollar text-warning" style="font-size: 8rem; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));"></i>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+            <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Cột Bên trái: Thiết lập phiên mới -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h4 class="fw-bold text-dark mb-4 d-flex align-items-center">
+                    <i class="fas fa-play-circle text-primary me-2"></i> Thiết lập phòng phỏng vấn mới
+                </h4>
+
+                @if (resumes == null || !resumes.Any())
+                {
+                    <div class="text-center py-5 border border-dashed rounded-4 bg-light">
+                        <i class="fas fa-file-invoice display-3 text-muted mb-3"></i>
+                        <h5 class="fw-bold text-secondary">Bạn chưa có CV hoàn thiện nào</h5>
+                        <p class="text-muted small px-4 mb-4">Bạn cần ít nhất một bản CV hoàn chỉnh (không phải bản nháp) để làm tư liệu cho AI sinh câu hỏi.</p>
+                        <a href="@Url.Action("MyResumes", "Resume")" class="btn btn-primary px-4 rounded-pill shadow-sm">
+                            <i class="fas fa-plus me-1"></i> Đi tới Quản lý CV
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <form asp-controller="Interview" asp-action="StartPracticeSession" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Chọn CV -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary mb-2"><i class="fas fa-id-card me-1"></i> 1. Chọn bản CV làm nguồn phỏng vấn:</label>
+                            <div class="row g-3">
+                                @foreach (var cv in resumes)
+                                {
+                                    <div class="col-md-6">
+                                        <label class="w-100 m-0">
+                                            <input type="radio" name="resumeId" value="@cv.ResumeID" class="card-radio-input" required @(cv == resumes.First() ? "checked" : "") />
+                                            <div class="card-radio-box p-3 border rounded-3 h-100 transition-hover">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="fas fa-file-alt text-primary me-2 fs-5"></i>
+                                                    <strong class="text-truncate d-block" style="max-width: 180px;">@cv.Title</strong>
+                                                </div>
+                                                <small class="text-muted d-block text-truncate">Vị trí: @(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa cập nhật" : cv.JobTitle)</small>
+                                                <small class="text-muted d-block" style="font-size: 0.75rem;">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</small>
+                                            </div>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Chọn Hình thức -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-secondary mb-2"><i class="fas fa-sliders-h me-1"></i> 2. Chọn hình thức phỏng vấn:</label>
+                            <div class="row g-3">
+                                <!-- Card Tự luận -->
+                                <div class="col-md-6">
+                                    <label class="w-100 m-0">
+                                        <input type="radio" name="interviewType" value="0" class="card-radio-input" checked />
+                                        <div class="card-radio-box p-3 border rounded-3 h-100 transition-hover text-center py-4">
+                                            <i class="fas fa-comments text-success mb-3" style="font-size: 2.5rem;"></i>
+                                            <h6 class="fw-bold mb-1">Tự luận Tương tác (STAR)</h6>
+                                            <p class="text-muted small mb-0">Hội thoại 1-1 trực tiếp với AI, chấm điểm và góp ý chi tiết.</p>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Card Trắc nghiệm -->
+                                <div class="col-md-6">
+                                    <label class="w-100 m-0">
+                                        <input type="radio" name="interviewType" value="1" class="card-radio-input" />
+                                        <div class="card-radio-box p-3 border rounded-3 h-100 transition-hover text-center py-4">
+                                            <i class="fas fa-tasks text-info mb-3" style="font-size: 2.5rem;"></i>
+                                            <h6 class="fw-bold mb-1">Trắc nghiệm Chuyên môn</h6>
+                                            <p class="text-muted small mb-0">Làm 5 câu hỏi nhanh để kiểm tra độ rộng kiến thức của bạn.</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nút Bắt đầu -->
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview">
+                            <i class="fas fa-rocket me-2 animate-bounce"></i> Bắt đầu Phòng phỏng vấn AI
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+
+        <!-- Cột Bên phải: Lịch sử luyện tập -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                <h4 class="fw-bold text-dark mb-4 d-flex align-items-center">
+                    <i class="fas fa-history text-secondary me-2"></i> Lịch sử phỏng vấn gần đây
+                </h4>
+
+                <div class="overflow-auto pe-1" style="max-height: 450px;">
+                    @if (history == null || !history.Any())
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-folder-open display-4 mb-3 opacity-30"></i>
+                            <p class="mb-0 small">Bạn chưa thực hiện phiên phỏng vấn nào gần đây.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex flex-column gap-3">
+                            @foreach (var s in history)
+                            {
+                                <div class="border rounded-3 p-3 transition-hover bg-white shadow-sm position-relative">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <span class="badge @(s.InterviewType == 1 ? "bg-info text-dark" : "bg-success text-white") mb-2">
+                                                <i class="@(s.InterviewType == 1 ? "fas fa-tasks" : "fas fa-comments") me-1"></i>
+                                                @(s.InterviewType == 1 ? "Trắc nghiệm" : "Tự luận")
+                                            </span>
+                                            <h6 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 200px;">@s.Resume?.Title</h6>
+                                            <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                                <i class="far fa-clock me-1"></i> @s.CreatedAt.ToString("HH:mm - dd/MM/yyyy")
+                                            </small>
+                                        </div>
+
+                                        @if (s.Status == 1)
+                                        {
+                                            <div class="text-end">
+                                                <span class="badge @(s.OverallScore >= 80 ? "bg-success" : s.OverallScore >= 50 ? "bg-warning text-dark" : "bg-danger") fs-6 py-2 px-3 rounded-pill fw-bold">
+                                                    @s.OverallScore<span style="font-size: 0.7rem;">/100</span>
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary py-2 px-3 rounded-pill fw-medium">Chưa hoàn thành</span>
+                                        }
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2 mt-3 pt-2 border-top">
+                                        @if (s.Status == 0)
+                                        {
+                                            string targetAction = s.InterviewType == 1 ? "PracticeQuiz" : "PracticeChat";
+                                            <a asp-action="@targetAction" asp-route-sessionId="@s.SessionID" class="btn btn-warning btn-sm px-3 rounded-pill fw-bold">
+                                                <i class="fas fa-play me-1"></i> Tiếp tục làm
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            string targetAction = s.InterviewType == 1 ? "PracticeQuiz" : "PracticeChat";
+                                            <a asp-action="@targetAction" asp-route-sessionId="@s.SessionID" class="btn btn-outline-primary btn-sm px-3 rounded-pill fw-bold">
+                                                <i class="fas fa-eye me-1"></i> Xem lại chi tiết
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Card Radio Styling */
+    .card-radio-input {
+        display: none;
+    }
+    .card-radio-box {
+        cursor: pointer;
+        background-color: #f8fafc;
+        border: 2px solid #e2e8f0 !important;
+        color: #475569;
+        transition: all 0.3s ease;
+    }
+    .card-radio-input:checked + .card-radio-box {
+        border-color: #0d6efd !important;
+        background-color: rgba(13, 110, 253, 0.05);
+        color: #0d6efd;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    }
+    
+    /* Hover Effects */
+    .transition-hover {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .transition-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(148, 163, 184, 0.15);
+    }
+    
+    .btn-start-interview {
+        transition: all 0.3s ease;
+    }
+    .btn-start-interview:hover {
+        transform: scale(1.02);
+    }
+
+    /* Keyframe Animations */
+    .animate-bounce {
+        animation: bounce 2s infinite;
+    }
+    @@keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-4px);
+        }
+    }
+</style>

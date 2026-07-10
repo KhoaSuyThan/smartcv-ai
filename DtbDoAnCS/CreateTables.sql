@@ -343,3 +343,49 @@ CREATE TABLE TestSteps (
     Value NVARCHAR(MAX) NULL,            -- Giá trị truyền vào hoặc so khớp
     Description NVARCHAR(500) NULL       -- Mô tả bước kiểm thử
 );
+
+-- 25. Quản lý các phiên phỏng vấn (Interview Sessions)
+CREATE TABLE InterviewSessions (
+    SessionID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    JobID INT NULL, -- Cho phép Null nếu luyện tập tự do không theo JD cụ thể
+    ResumeID INT NOT NULL,
+    Status INT NOT NULL DEFAULT 0, -- 0: Đang diễn ra, 1: Đã hoàn thành
+    OverallScore INT NULL,
+    AiEvaluation NVARCHAR(MAX) NULL,
+    AssignedByRecruiterID INT NULL, -- Nullable, lưu ID của Nhà tuyển dụng nếu là bài giao
+    InterviewType INT NOT NULL DEFAULT 0, -- 0: Tự luận chat 1-1, 1: Trắc nghiệm, 2: Bài thi do Recruiter giao
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CompletedAt DATETIME NULL,
+    CONSTRAINT FK_InterviewSessions_Users FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    CONSTRAINT FK_InterviewSessions_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID),
+    CONSTRAINT FK_InterviewSessions_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
+    CONSTRAINT FK_InterviewSessions_Recruiters FOREIGN KEY (AssignedByRecruiterID) REFERENCES Users(UserID)
+);
+
+-- 26. Các tin nhắn trong phiên phỏng vấn (Interview Messages)
+CREATE TABLE InterviewMessages (
+    MessageID INT PRIMARY KEY IDENTITY(1,1),
+    SessionID INT NOT NULL,
+    Role NVARCHAR(50) NOT NULL, -- 'interviewer' hoặc 'candidate'
+    Content NVARCHAR(MAX) NOT NULL,
+    ChoicesJson NVARCHAR(MAX) NULL, -- Lưu các tùy chọn trắc nghiệm A, B, C, D dưới dạng JSON nếu là câu trắc nghiệm
+    SelectedAnswer NVARCHAR(MAX) NULL, -- Lưu đáp án ứng viên chọn
+    Score INT NULL, -- Điểm của câu trả lời tự luận
+    Feedback NVARCHAR(MAX) NULL, -- Nhận xét STAR của AI hoặc Nhà tuyển dụng cho câu trả lời này
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_InterviewMessages_Sessions FOREIGN KEY (SessionID) REFERENCES InterviewSessions(SessionID) ON DELETE CASCADE
+);
+
+-- 27. Bộ câu hỏi phỏng vấn chuẩn bị cho Nhà tuyển dụng (Recruiter Interview Preps)
+CREATE TABLE RecruiterInterviewPreps (
+    PrepID INT PRIMARY KEY IDENTITY(1,1),
+    RecruiterID INT NOT NULL,
+    ResumeID INT NOT NULL,
+    JobID INT NOT NULL,
+    QuestionsJson NVARCHAR(MAX) NOT NULL, -- JSON lưu danh sách các câu hỏi, đáp án gợi ý và tiêu chí
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_RecruiterInterviewPreps_Recruiters FOREIGN KEY (RecruiterID) REFERENCES Users(UserID),
+    CONSTRAINT FK_RecruiterInterviewPreps_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
+    CONSTRAINT FK_RecruiterInterviewPreps_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID)
+);
