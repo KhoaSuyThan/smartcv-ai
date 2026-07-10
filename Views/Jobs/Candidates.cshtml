@@ -164,20 +164,94 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow-lg">
             <div class="modal-header bg-purple text-white py-3 rounded-top-4">
-                <h5 class="modal-title fw-bold" id="assignInterviewModalLabel"><i class="fas fa-robot me-2"></i>Thiết lập & Giao phỏng vấn AI</h5>
+                <h5 class="modal-title fw-bold" id="assignInterviewModalLabel"><i class="fas fa-robot me-2"></i>Thiết lập & Giao phỏng vấn</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <div id="aiLoadingSection" class="text-center py-5">
-                    <div class="spinner-border text-purple mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-                    <h6 class="fw-bold text-secondary">AI đang so sánh CV & JD để đề xuất câu hỏi tối ưu...</h6>
-                    <p class="text-muted small">Quá trình này có thể mất từ 5-10 giây. Vui lòng chờ.</p>
-                </div>
-
-                <div id="aiConfigSection" style="display: none;">
-                    <p class="text-muted small mb-4">
-                        Dưới đây là 3 câu hỏi phỏng vấn tự luận do AI gợi ý riêng cho ứng viên <strong class="text-dark" id="assignCandidateName"></strong> dựa trên độ lệch năng lực. Bạn có thể chỉnh sửa nội dung hoặc tiêu chí đánh giá trước khi giao việc.
+                <div id="aiConfigSection">
+                    <p class="text-muted small mb-3">
+                        Thiết lập các câu hỏi phỏng vấn tự luận cho ứng viên <strong class="text-dark" id="assignCandidateName"></strong>. Bạn có thể tự viết câu hỏi hoặc sử dụng công cụ AI gợi ý dựa trên CV & JD.
                     </p>
+
+                    <!-- Lưu thông tin trạng thái Pro -->
+                    <input type="hidden" id="isRecruiterPro" value="@(ViewBag.IsPro == true ? "true" : "false")" />
+
+                    <!-- Khu vực tuỳ chọn sinh câu hỏi -->
+                    <div class="card bg-light border-0 rounded-3 mb-4">
+                        <div class="card-body p-3">
+                            <!-- Nhập yêu cầu tùy chỉnh cho AI -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label fw-bold text-secondary small mb-0 d-flex align-items-center">
+                                        <i class="fas fa-comment-dots text-purple me-1"></i> Yêu cầu đặc biệt cho AI (không bắt buộc):
+                                    </label>
+                                    <span class="text-muted" style="font-size: 0.7rem;"><span id="aiPromptCharCount">0</span>/300 ký tự</span>
+                                </div>
+                                <textarea id="aiCustomPrompt" class="form-control border-secondary-subtle small rounded-3" rows="2" maxlength="300" placeholder="Ví dụ: Tập trung hỏi sâu về kỹ năng mềm, tư duy logic, khả năng làm việc nhóm hoặc thái độ làm việc..."></textarea>
+                            </div>
+
+                            <div class="row align-items-center g-3 pt-2 border-top border-secondary-subtle">
+                                <div class="col-md-7">
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <label class="form-label mb-0 fw-bold text-secondary small text-nowrap">Số câu hỏi AI gợi ý:</label>
+                                        <select id="aiQuestionCount" class="form-select form-select-sm border-secondary-subtle rounded-3" style="width: 80px; height: 35px;">
+                                            @if (ViewBag.IsPro == true)
+                                            {
+                                                for (int i = 3; i <= 10; i++)
+                                                {
+                                                    if (i == 3)
+                                                    {
+                                                        <option value="@i" selected>@i</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@i">@i</option>
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                for (int i = 3; i <= 5; i++)
+                                                {
+                                                    if (i == 3)
+                                                    {
+                                                        <option value="@i" selected>@i</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@i">@i</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                        <button type="button" onclick="generateSuggestedQuestions()" class="btn btn-sm btn-purple text-white rounded-pill px-3 fw-bold text-nowrap d-flex align-items-center" style="height: 35px;">
+                                            <i class="fas fa-magic me-1"></i> Tạo bằng AI
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-5 text-md-end">
+                                    <button type="button" onclick="addNewManualQuestion()" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold d-inline-flex align-items-center" style="height: 35px;">
+                                        <i class="fas fa-plus me-1"></i> Thêm câu hỏi thủ công
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            @if (ViewBag.IsPro != true)
+                            {
+                                <div class="mt-2 text-muted d-flex align-items-center" style="font-size: 0.75rem;">
+                                    <i class="fas fa-info-circle me-1 text-info"></i>
+                                    <span>Tài khoản thường được chọn từ 3-5 câu hỏi. Nâng cấp <strong class="text-purple">Pro</strong> để chọn từ 3-10 câu hỏi.</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mt-2 text-purple fw-bold d-flex align-items-center" style="font-size: 0.75rem;">
+                                    <i class="fas fa-star me-1 text-warning"></i>
+                                    <span>Bạn đang sử dụng quyền lợi tài khoản <strong>Pro</strong>: Hỗ trợ tạo tối đa 10 câu hỏi.</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
 
                     <form asp-controller="Interview" asp-action="AssignInterviewToCandidate" method="post" id="assignForm">
                         @Html.AntiForgeryToken()
@@ -185,8 +259,22 @@
                         <input type="hidden" name="resumeId" id="assignResumeId" />
                         <input type="hidden" name="questionsJson" id="assignQuestionsJson" />
 
-                        <div id="questionsContainer" class="d-flex flex-column gap-4">
+                        <!-- Container câu hỏi -->
+                        <div id="questionsContainer" class="d-flex flex-column gap-3 position-relative">
                             <!-- Các khối câu hỏi sẽ được sinh động bằng JS -->
+                        </div>
+
+                        <!-- Overlay loading cục bộ -->
+                        <div id="questionsLoadingOverlay" class="text-center py-5 border rounded-3 bg-white mt-3" style="display: none;">
+                            <div class="spinner-border text-purple mb-3" style="width: 2rem; height: 2rem;" role="status"></div>
+                            <h6 class="fw-bold text-secondary">AI đang so sánh CV & JD để đề xuất câu hỏi...</h6>
+                            <p class="text-muted small mb-0">Quá trình này có thể mất từ 5-10 giây. Vui lòng chờ.</p>
+                        </div>
+
+                        <!-- Vùng hiển thị lỗi validation -->
+                        <div id="validationErrorMsg" class="alert alert-danger p-3 rounded-3 mt-3 shadow-sm border-0 d-none align-items-center" style="font-size: 0.85rem;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span class="error-text"></span>
                         </div>
 
                         <div class="text-end mt-4 pt-3 border-top">
@@ -204,9 +292,9 @@
 
 <!-- ================= MODAL XEM CHI TIẾT & CHẤM ĐIỂM ================= -->
 <div class="modal fade" id="evaluateInterviewModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="evaluateInterviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-dialog modal-xl modal-dialog-centered custom-eval-modal">
         <div class="modal-content rounded-4 border-0 shadow-lg">
-            <div class="modal-header bg-dark text-white py-3 rounded-top-4">
+            <div class="modal-header text-white py-3 rounded-top-4 border-0" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
                 <h5 class="modal-title fw-bold" id="evaluateInterviewModalLabel"><i class="fas fa-poll-h me-2"></i>Đánh giá bài làm phỏng vấn tự luận</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -228,32 +316,34 @@
 
                         <!-- Cột Phải: Điểm và Nhận xét chung cuộc -->
                         <div class="col-lg-4 border-start">
-                            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-clipboard-check text-success"></i> Đánh giá chung cuộc</h6>
-                            <form asp-controller="Interview" asp-action="SubmitRecruiterEvaluation" method="post" id="evaluationForm">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="sessionId" id="evalSessionId" />
+                            <div class="sticky-eval-panel">
+                                <h6 class="fw-bold text-dark mb-3"><i class="fas fa-clipboard-check text-success"></i> Đánh giá chung cuộc</h6>
+                                <form asp-controller="Interview" asp-action="SubmitRecruiterEvaluation" method="post" id="evaluationForm">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="sessionId" id="evalSessionId" />
 
-                                <!-- Container lưu điểm và nhận xét của từng câu hỏi để submit dạng POST -->
-                                <div id="hiddenQuestionsInputs"></div>
+                                    <!-- Container lưu điểm và nhận xét của từng câu hỏi để submit dạng POST -->
+                                    <div id="hiddenQuestionsInputs"></div>
 
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold text-secondary small">Điểm chung cuộc (0 - 100):</label>
-                                    <div class="input-group">
-                                        <input type="number" name="overallScore" id="evalOverallScore" class="form-control text-center fw-bold fs-5 border-secondary" min="0" max="100" required />
-                                        <span class="input-group-text bg-light fw-bold text-secondary">/100</span>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold text-secondary small">Điểm chung cuộc (0 - 100):</label>
+                                        <div class="input-group">
+                                            <input type="number" name="overallScore" id="evalOverallScore" class="form-control text-center fw-bold fs-5 border-secondary" min="0" max="100" required />
+                                            <span class="input-group-text bg-light fw-bold text-secondary">/100</span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold text-secondary small">Nhận xét & Đánh giá chính thức:</label>
-                                    <textarea name="overallEvaluation" id="evalOverallComment" class="form-control small border-secondary" rows="8" placeholder="Nhập nhận xét tổng quan về buổi phỏng vấn tự luận của ứng viên..." required></textarea>
-                                </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-bold text-secondary small">Nhận xét & Đánh giá chính thức:</label>
+                                        <textarea name="overallEvaluation" id="evalOverallComment" class="form-control small border-secondary" rows="8" placeholder="Nhập nhận xét tổng quan về buổi phỏng vấn tự luận của ứng viên..." required></textarea>
+                                    </div>
 
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-secondary w-50 rounded-pill py-2" data-bs-dismiss="modal">Hủy</button>
-                                    <button type="submit" class="btn btn-primary w-50 rounded-pill py-2 fw-bold" id="btnSaveEvaluation">Lưu kết quả</button>
-                                </div>
-                            </form>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-outline-secondary w-50 rounded-pill py-2" data-bs-dismiss="modal">Hủy</button>
+                                        <button type="submit" class="btn btn-primary w-50 rounded-pill py-2 fw-bold" id="btnSaveEvaluation">Lưu kết quả</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -264,24 +354,133 @@
 
 @section Scripts {
 <script>
-    // ============ LOGIC MỞ MODAL GIAO PHỎNG VẤN AI ============
-    function openAssignInterviewModal(jobId, resumeId, candidateName) {
-        $('#assignJobId').val(jobId);
-        $('#assignResumeId').val(resumeId);
-        $('#assignCandidateName').text(candidateName);
-        
-        $('#aiLoadingSection').show();
-        $('#aiConfigSection').hide();
-        
-        var modal = new bootstrap.Modal(document.getElementById('assignInterviewModal'));
-        modal.show();
+    // Hàm tự động giãn chiều cao cho textarea theo số dòng và có giới hạn
+    function autoResizeTextarea(el) {
+        el.style.height = '31px'; // Trả về chiều cao cơ bản để đo chính xác scrollHeight
+        var newHeight = el.scrollHeight;
+        var maxHeight = 120; // Giới hạn chiều cao tối đa khoảng 4-5 dòng
+        if (newHeight > maxHeight) {
+            el.style.height = maxHeight + 'px';
+            el.style.overflowY = 'auto';
+        } else {
+            el.style.height = (newHeight < 31 ? 31 : newHeight) + 'px';
+            el.style.overflowY = 'hidden';
+        }
+    }
 
-        // Gọi API sinh câu hỏi gợi ý từ AI
+    // Helper function render câu hỏi block
+    function renderQuestionBlock(index, questionText, criteriaText) {
+        return `
+            <div class="question-item-block p-3 border rounded-3 bg-white shadow-sm position-relative mb-3">
+                <button type="button" class="btn-close position-absolute" style="top: 15px; right: 15px; font-size: 0.8rem;" onclick="removeQuestionBlock(this)" title="Xóa câu hỏi này"></button>
+                <div class="mb-2 pe-4">
+                    <label class="form-label fw-bold text-primary small mb-1">Câu hỏi số <span class="q-index-number">${index}</span>:</label>
+                    <input type="text" class="form-control font-medium q-text-input border-secondary-subtle small" value="${questionText}" placeholder="Nhập câu hỏi tự luận..." required />
+                </div>
+                <div>
+                    <label class="form-label fw-bold text-secondary small mb-1">Đáp án gợi ý / Tiêu chí đánh giá:</label>
+                    <textarea class="form-control q-criteria-input small" rows="2" placeholder="Gợi ý đáp án hoặc tiêu chí chấm điểm của câu này...">${criteriaText}</textarea>
+                </div>
+            </div>
+        `;
+    }
+
+    // Hàm cập nhật lại số thứ tự câu hỏi
+    function updateQuestionIndexes() {
+        $('#questionsContainer .question-item-block').each(function(index) {
+            $(this).find('.q-index-number').text(index + 1);
+        });
+    }
+
+    // Hàm xóa câu hỏi
+    function removeQuestionBlock(btn) {
+        $(btn).closest('.question-item-block').remove();
+        updateQuestionIndexes();
+        $('#validationErrorMsg').removeClass('d-flex').addClass('d-none');
+
+        // Đồng bộ lại dropdown số câu hỏi nếu khớp
+        var count = $('#questionsContainer .question-item-block').length;
+        if ($('#aiQuestionCount option[value="' + count + '"]').length > 0) {
+            $('#aiQuestionCount').val(count);
+        }
+    }
+
+    // Hàm thêm câu hỏi trống thủ công
+    function addNewManualQuestion() {
+        var container = $('#questionsContainer');
+        var count = container.find('.question-item-block').length;
+        
+        var isPro = $('#isRecruiterPro').val() === 'true';
+        var maxQuestions = isPro ? 10 : 5;
+        
+        if (count >= maxQuestions) {
+            alert("Tài khoản của bạn chỉ được phép tạo tối đa " + maxQuestions + " câu hỏi.");
+            return;
+        }
+
+        var html = renderQuestionBlock(count + 1, "", "");
+        container.append(html);
+        $('#validationErrorMsg').removeClass('d-flex').addClass('d-none');
+
+        // Đồng bộ lại dropdown số câu hỏi nếu khớp
+        var newCount = count + 1;
+        if ($('#aiQuestionCount option[value="' + newCount + '"]').length > 0) {
+            $('#aiQuestionCount').val(newCount);
+        }
+    }
+
+    // Sự kiện thay đổi số lượng trên dropdown Số câu hỏi AI gợi ý
+    $(document).on('change', '#aiQuestionCount', function () {
+        var targetCount = parseInt($(this).val());
+        var container = $('#questionsContainer');
+        var currentCount = container.find('.question-item-block').length;
+
+        if (currentCount < targetCount) {
+            // Tự động thêm câu hỏi trống cho đủ
+            for (var i = currentCount + 1; i <= targetCount; i++) {
+                container.append(renderQuestionBlock(i, "", ""));
+            }
+        } else if (currentCount > targetCount) {
+            // Cắt bớt câu hỏi từ cuối lên
+            for (var i = currentCount; i > targetCount; i--) {
+                container.find('.question-item-block').last().remove();
+            }
+        }
+        updateQuestionIndexes();
+        $('#validationErrorMsg').removeClass('d-flex').addClass('d-none');
+    });
+
+    // Lắng nghe sự kiện gõ phím trên ô nhập yêu cầu đặc biệt của AI để cập nhật đếm số ký tự
+    $(document).on('input', '#aiCustomPrompt', function () {
+        var len = $(this).val().length;
+        if (len > 300) {
+            $(this).val($(this).val().substring(0, 300));
+            len = 300;
+        }
+        $('#aiPromptCharCount').text(len);
+    });
+
+    // Hàm gọi AI tự sinh câu hỏi gợi ý
+    function generateSuggestedQuestions() {
+        var jobId = $('#assignJobId').val();
+        var resumeId = $('#assignResumeId').val();
+        var count = $('#aiQuestionCount').val();
+        var customPrompt = $('#aiCustomPrompt').val().trim();
+
+        $('#questionsLoadingOverlay').show();
+        $('#questionsContainer').hide();
+        $('#validationErrorMsg').removeClass('d-flex').addClass('d-none');
+        $('button').prop('disabled', true); // Khóa các nút để tránh spam
+
         $.ajax({
             url: '/Interview/GetAiSuggestedQuestions',
             type: 'POST',
-            data: { jobId: jobId, resumeId: resumeId },
+            data: { jobId: jobId, resumeId: resumeId, count: count, customPrompt: customPrompt },
             success: function (res) {
+                $('#questionsLoadingOverlay').hide();
+                $('#questionsContainer').show();
+                $('button').prop('disabled', false);
+
                 if (res.success) {
                     try {
                         var parsed = typeof res.questions === 'string' ? JSON.parse(res.questions) : res.questions;
@@ -299,51 +498,89 @@
                         container.empty();
 
                         questionsList.forEach(function (q, index) {
-                            var html = `
-                                <div class="question-item-block p-3 border rounded-3 bg-light">
-                                    <div class="mb-2">
-                                        <label class="form-label fw-bold text-primary small">Câu hỏi số ${index + 1}:</label>
-                                        <input type="text" class="form-control font-medium q-text-input border-secondary-subtle small" value="${q.question}" required />
-                                    </div>
-                                    <div>
-                                        <label class="form-label fw-bold text-secondary small">Đáp án gợi ý / Tiêu chí đánh giá:</label>
-                                        <textarea class="form-control q-criteria-input small" rows="2" placeholder="AI gợi ý đáp án...">${q.expectedAnswer || q.expectedCriteria || ''}</textarea>
-                                    </div>
-                                </div>
-                            `;
+                            var html = renderQuestionBlock(index + 1, q.question, q.expectedAnswer || q.expectedCriteria || '');
                             container.append(html);
                         });
-
-                        $('#aiLoadingSection').hide();
-                        $('#aiConfigSection').show();
                     } catch (e) {
                         console.error("Lỗi parse JSON câu hỏi AI:", e, res.questions);
-                        alert("Không thể phân tích định dạng câu hỏi do AI phản hồi không đúng cấu trúc JSON. Chi tiết: " + e.message);
-                        modal.hide();
+                        alert("Không thể phân tích định dạng câu hỏi do AI phản hồi không đúng cấu trúc JSON.");
                     }
                 } else {
                     alert(res.message || "Lỗi khi sinh câu hỏi gợi ý.");
-                    modal.hide();
                 }
             },
             error: function () {
+                $('#questionsLoadingOverlay').hide();
+                $('#questionsContainer').show();
+                $('button').prop('disabled', false);
                 alert("Lỗi kết nối đến máy chủ.");
-                modal.hide();
             }
         });
+    }
+
+    // ============ LOGIC MỞ MODAL GIAO PHỎNG VẤN AI ============
+    function openAssignInterviewModal(jobId, resumeId, candidateName) {
+        $('#assignJobId').val(jobId);
+        $('#assignResumeId').val(resumeId);
+        $('#assignCandidateName').text(candidateName);
+        $('#validationErrorMsg').removeClass('d-flex').addClass('d-none');
+        $('#aiCustomPrompt').val('');
+        $('#aiPromptCharCount').text('0');
+        
+        // Reset container và tự động thêm sẵn 3 câu hỏi trống ban đầu
+        var container = $('#questionsContainer');
+        container.empty();
+        for (var i = 1; i <= 3; i++) {
+            container.append(renderQuestionBlock(i, "", ""));
+        }
+
+        // Hiện modal
+        $('#questionsLoadingOverlay').hide();
+        $('#questionsContainer').show();
+        
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('assignInterviewModal'));
+        modal.show();
     }
 
     // Khi submit form Giao phỏng vấn, đóng gói dữ liệu JSON
     $('#assignForm').on('submit', function (e) {
         var questions = [];
+        var isValid = true;
+        var emptyCount = 0;
+
         $('.question-item-block').each(function () {
             var qText = $(this).find('.q-text-input').val().trim();
             var qCrit = $(this).find('.q-criteria-input').val().trim();
+            
+            if (qText === "") {
+                emptyCount++;
+            }
+
             questions.push({
                 question: qText,
                 expectedAnswer: qCrit
             });
         });
+
+        var qCount = questions.length;
+        var isPro = $('#isRecruiterPro').val() === 'true';
+        var minQuestions = 3;
+        var maxQuestions = isPro ? 10 : 5;
+
+        // Validate số lượng câu hỏi
+        if (qCount < minQuestions || qCount > maxQuestions) {
+            e.preventDefault();
+            var limitMsg = isPro ? "3 - 10 câu hỏi" : "3 - 5 câu hỏi";
+            $('#validationErrorMsg').find('.error-text').text("Số lượng câu hỏi không hợp lệ. Bạn cần thiết lập từ " + limitMsg + ". Hiện tại đang có " + qCount + " câu hỏi.").end().removeClass('d-none').addClass('d-flex');
+            return false;
+        }
+
+        // Validate nội dung trống
+        if (emptyCount > 0) {
+            e.preventDefault();
+            $('#validationErrorMsg').find('.error-text').text("Vui lòng nhập nội dung câu hỏi đầy đủ (không được để trống câu hỏi).").end().removeClass('d-none').addClass('d-flex');
+            return false;
+        }
 
         $('#assignQuestionsJson').val(JSON.stringify(questions));
         
@@ -359,7 +596,7 @@
         $('#evalLoadingSection').show();
         $('#evalMainSection').hide();
         
-        var modal = new bootstrap.Modal(document.getElementById('evaluateInterviewModal'));
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('evaluateInterviewModal'));
         modal.show();
 
         // Gọi API lấy thông tin bài làm
@@ -398,34 +635,46 @@
                         var ansMsgId = ans ? ans.messageId : 0;
 
                         var html = `
-                            <div class="eval-item border rounded-3 p-3 bg-light position-relative">
-                                <h6 class="fw-bold text-primary mb-2">Câu hỏi số ${index + 1}: ${q.content}</h6>
-                                <div class="p-2 bg-white rounded border border-light-subtle small mb-3 text-secondary font-monospace" style="font-size: 0.75rem;">
-                                    <strong>Tiêu chí:</strong> ${q.feedback || 'Không có tiêu chí'}
+                            <div class="eval-item border rounded-3 p-3 position-relative mb-3">
+                                <h6 class="fw-bold mb-2" style="color: #1e293b; font-size: 1.05rem;">
+                                    <span class="badge bg-purple-light text-purple me-1">Câu hỏi ${index + 1}</span> ${q.content}
+                                </h6>
+                                <div class="eval-criteria-box p-2.5 rounded-3 mb-3 small mx-1" style="font-size: 0.8rem; line-height: 1.4;">
+                                    <i class="fas fa-info-circle me-1"></i><strong>Tiêu chí đánh giá:</strong> ${q.feedback || 'Chưa thiết lập tiêu chí đánh giá cho câu hỏi này.'}
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold text-dark small"><i class="fas fa-reply text-success"></i> Câu trả lời của ứng viên:</label>
-                                    <div class="p-3 border rounded bg-white text-dark small" style="text-align: justify; line-height: 1.5; white-space: pre-wrap;">${ansText}</div>
+                                    <label class="form-label fw-bold text-secondary small mb-1"><i class="fas fa-reply text-success"></i> Câu trả lời của ứng viên:</label>
+                                    <div class="eval-answer-box p-3 rounded-3 small mx-1" style="text-align: justify; line-height: 1.5; white-space: pre-wrap;">${ansText}</div>
                                 </div>
                         `;
 
                         if (ans) {
                             html += `
-                                <div class="row g-3 align-items-end mt-2 pt-2 border-top">
+                                <div class="row g-3 align-items-center mt-2 pt-3 border-top border-secondary-subtle">
                                     <div class="col-md-3">
-                                        <label class="form-label fw-bold text-secondary small">Điểm số (0-100):</label>
-                                        <input type="number" class="form-control text-center score-input-${ansMsgId} border-secondary" value="${ansScore}" min="0" max="100" onchange="updateHiddenInput(${ansMsgId}, this.value, null)" ${data.overallScore !== null ? 'disabled' : ''} required />
+                                        <label class="form-label fw-bold text-secondary small mb-1">Điểm số:</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" class="form-control text-center score-input-${ansMsgId} border-secondary-subtle fw-bold text-purple" value="${ansScore}" min="0" max="100" onchange="updateHiddenInput(${ansMsgId}, this.value, null)" ${data.overallScore !== null ? 'disabled' : ''} required />
+                                            <span class="input-group-text bg-light text-secondary border-secondary-subtle font-monospace" style="font-size: 0.7rem;">/100</span>
+                                        </div>
                                     </div>
-                                    <div class="col-md-7">
-                                        <label class="form-label fw-bold text-secondary small">Nhận xét chi tiết (STAR):</label>
-                                        <textarea class="form-control feedback-input-${ansMsgId} border-secondary small" rows="2" onchange="updateHiddenInput(${ansMsgId}, null, this.value)" ${data.overallScore !== null ? 'disabled' : ''} required>${ansFeedback}</textarea>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold text-secondary small mb-1">Nhận xét chi tiết (STAR):</label>
+                                        <textarea class="form-control feedback-input-${ansMsgId} eval-feedback-textarea border-secondary-subtle small py-1" rows="1" oninput="autoResizeTextarea(this)" onchange="updateHiddenInput(${ansMsgId}, null, this.value)" ${data.overallScore !== null ? 'disabled' : ''} placeholder="Nhập nhận xét chi tiết..." required>${ansFeedback}</textarea>
                                     </div>
-                                    <div class="col-md-2">
-                                        ${data.overallScore === null ? `
-                                            <button type="button" class="btn btn-outline-purple btn-sm w-100 py-2 btn-ai-evaluate" onclick="getAiFeedback(${ansMsgId})" title="Gọi AI tự động chấm điểm và gợi ý nhận xét">
-                                                <i class="fas fa-robot me-1"></i> AI Chấm
-                                            </button>
-                                        ` : ''}
+                                    <div class="col-md-3 text-end">
+                                        <label class="form-label d-block mb-1">&nbsp;</label>
+                            `;
+
+                            if (data.overallScore === null) {
+                                html += `
+                                        <button type="button" class="btn btn-outline-purple btn-sm w-100 py-2 fw-bold d-inline-flex align-items-center justify-content-center btn-ai-evaluate" style="height: 31px; border-width: 1.5px;" onclick="getAiFeedback(${ansMsgId})" title="AI tự động chấm điểm và nhận xét">
+                                            <i class="fas fa-robot me-1.5"></i> AI Chấm
+                                        </button>
+                                `;
+                            }
+
+                            html += `
                                     </div>
                                 </div>
                             `;
@@ -439,6 +688,11 @@
 
                         html += `</div>`;
                         container.append(html);
+                    });
+
+                    // Tự động căn chỉnh chiều cao cho toàn bộ các textarea nhận xét chi tiết sau khi render
+                    $('.eval-feedback-textarea').each(function () {
+                        autoResizeTextarea(this);
                     });
 
                     $('#evalLoadingSection').hide();
@@ -469,22 +723,29 @@
     // Hàm tự động tính điểm trung bình cộng các câu hỏi và điền vào OverallScore
     function calculateAverageScore() {
         var total = 0;
-        var count = 0;
+        var countValid = 0;
+        var totalInputs = $('input[id^="hidScore-"]').length;
+
         $('input[id^="hidScore-"]').each(function () {
             var val = parseInt($(this).val());
-            if (!isNaN(val)) {
+            if (!isNaN(val) && $(this).val() !== "") {
                 total += val;
-                count++;
+                countValid++;
             }
         });
-        if (count > 0) {
-            $('#evalOverallScore').val(Math.round(total / count));
+
+        // Chỉ tính điểm chung cuộc và điền vào ô khi đã chấm đủ tất cả các câu hỏi
+        if (totalInputs > 0 && countValid === totalInputs) {
+            $('#evalOverallScore').val(Math.round(total / totalInputs));
+        } else {
+            // Nếu chưa chấm đủ thì để trống
+            $('#evalOverallScore').val('');
         }
     }
 
     // Gọi AI tự động chấm điểm và viết nhận xét STAR nháp cho 1 câu trả lời
     function getAiFeedback(messageId) {
-        var btn = $('.btn-ai-evaluate').filter(`[onclick="getAiFeedback(${messageId})"]`);
+        var btn = $('.btn-ai-evaluate').filter('[onclick="getAiFeedback(' + messageId + ')"]');
         var oldHtml = btn.html();
         btn.prop('disabled', true);
         btn.html('<span class="spinner-border spinner-border-sm"></span>');
@@ -495,8 +756,12 @@
             data: { messageId: messageId },
             success: function (res) {
                 if (res.success) {
-                    $(`.score-input-${messageId}`).val(res.score);
-                    $(`.feedback-input-${messageId}`).val(res.feedback);
+                    $('.score-input-' + messageId).val(res.score);
+                    var textarea = $('.feedback-input-' + messageId);
+                    textarea.val(res.feedback);
+                    if (textarea.length > 0) {
+                        autoResizeTextarea(textarea[0]);
+                    }
                     
                     // Cập nhật vào hidden input
                     $('#hidScore-' + messageId).val(res.score);
@@ -518,6 +783,58 @@
 
     // Xác nhận khi lưu kết quả chấm điểm
     $('#evaluationForm').on('submit', function (e) {
+        // Đồng bộ dữ liệu hiển thị từ các ô input/textarea sang hidden input trước khi validate
+        $('input[class*="score-input-"]').each(function () {
+            var classAttr = $(this).attr('class');
+            var match = classAttr.match(/score-input-(\d+)/);
+            if (match) {
+                var msgId = match[1];
+                $('#hidScore-' + msgId).val($(this).val());
+            }
+        });
+        $('textarea[class*="feedback-input-"]').each(function () {
+            var classAttr = $(this).attr('class');
+            var match = classAttr.match(/feedback-input-(\d+)/);
+            if (match) {
+                var msgId = match[1];
+                $('#hidFeedback-' + msgId).val($(this).val());
+            }
+        });
+
+        // Kiểm tra xem đã chấm đủ toàn bộ câu hỏi hay chưa
+        var totalInputs = $('input[id^="hidScore-"]').length;
+        var countValid = 0;
+        var hasEmptyFeedback = false;
+
+        $('input[id^="hidScore-"]').each(function () {
+            var val = $(this).val();
+            if (val !== "" && !isNaN(parseInt(val))) {
+                countValid++;
+            }
+        });
+
+        $('input[id^="hidFeedback-"]').each(function () {
+            var val = $(this).val().trim();
+            if (val === "") {
+                hasEmptyFeedback = true;
+            }
+        });
+
+        if (countValid < totalInputs || hasEmptyFeedback) {
+            e.preventDefault();
+            alert("Bạn bắt buộc phải chấm điểm và nhập nhận xét chi tiết cho tất cả " + totalInputs + " câu hỏi trước khi lưu kết quả!");
+            return false;
+        }
+
+        // Kiểm tra điểm chung cuộc và nhận xét tổng quan
+        var overallScore = $('#evalOverallScore').val();
+        var overallComment = $('#evalOverallComment').val().trim();
+        if (overallScore === "" || overallComment === "") {
+            e.preventDefault();
+            alert("Vui lòng nhập Điểm chung cuộc và Nhận xét tổng quan chính thức!");
+            return false;
+        }
+
         if (!confirm("Bạn có chắc chắn muốn lưu kết quả chấm điểm? Trạng thái sẽ chuyển thành Đã chấm điểm.")) {
             e.preventDefault();
             return false;
@@ -599,5 +916,92 @@
     .hover-primary:hover {
         background-color: #0d6efd !important;
         color: white !important;
+    }
+    
+    #questionsContainer {
+        max-height: 420px;
+        overflow-y: auto;
+        padding-right: 8px;
+    }
+    
+    /* Thiết kế thanh cuộn tinh tế, mượt mà */
+    #questionsContainer::-webkit-scrollbar {
+        width: 6px;
+    }
+    #questionsContainer::-webkit-scrollbar-track {
+        background: #f8fafc;
+        border-radius: 4px;
+    }
+    #questionsContainer::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+    }
+    #questionsContainer::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Tối ưu hóa độ rộng modal đánh giá trên màn hình lớn */
+    @@media (min-width: 1200px) {
+        .custom-eval-modal {
+            max-width: 1380px !important;
+        }
+    }
+    
+    /* Cột đánh giá chung cuộc cố định khi cuộn */
+    .sticky-eval-panel {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+    }
+
+    /* Style các block câu hỏi trong đánh giá */
+    .eval-item {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.3s ease;
+    }
+    .eval-item:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04) !important;
+        border-color: #cbd5e1 !important;
+    }
+    
+    .eval-criteria-box {
+        background-color: #f5f3ff !important;
+        border-left: 4px solid #8b5cf6 !important;
+        color: #4c1d95 !important;
+        font-family: inherit !important;
+        margin-left: 5px !important;
+        margin-right: 5px !important;
+        padding: 10px 15px !important;
+    }
+
+    .eval-answer-box {
+        border-left: 4px solid #10b981 !important;
+        background-color: #f8fafc !important;
+        color: #334155 !important;
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    /* Ẩn nút mũi tên tăng giảm của input number */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+        -webkit-appearance: none; 
+        margin: 0; 
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    /* Textarea tự động co giãn theo số dòng */
+    .eval-feedback-textarea {
+        min-height: 31px;
+        max-height: 120px;
+        overflow-y: hidden;
+        resize: none !important;
+        line-height: 1.4;
+        transition: height 0.08s ease;
     }
 </style>

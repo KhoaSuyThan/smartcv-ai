@@ -492,6 +492,9 @@ namespace DoAnCS.Controllers
                 .Where(s => s.JobID == id && s.InterviewType == 2)
                 .ToListAsync();
 
+            var currentUser = await _context.Users.FindAsync(CurrentUserId);
+            ViewBag.IsPro = currentUser?.IsPro ?? false;
+
             ViewBag.JobTitle = job.Title;
             ViewBag.JobId = job.JobID;
             ViewBag.InterviewSessions = interviewSessions;
