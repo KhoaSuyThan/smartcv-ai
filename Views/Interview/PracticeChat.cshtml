@@ -1,0 +1,251 @@
+@model DoAnCS.Models.InterviewSession
+@{
+    ViewData["Title"] = "Hội thoại phỏng vấn AI";
+    var interviewMsgs = Model.Messages.OrderBy(m => m.CreatedAt).ToList();
+    int currentAnswerCount = interviewMsgs.Count(m => m.Role == "candidate");
+}
+
+<div class="container py-4" style="min-height: 88vh;">
+    <!-- Nút quay lại & Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Practice" class="btn btn-outline-secondary px-4 rounded-pill shadow-sm bg-white">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại
+        </a>
+        <div class="text-end">
+            <h5 class="fw-bold text-dark mb-0">Hồ sơ: <span class="text-primary">@Model.Resume?.Title</span></h5>
+            <small class="text-muted">Chế độ: Tự luận Tương tác 1-1</small>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Khung chính: Chatbox -->
+        <div class="@(Model.Status == 1 ? "col-lg-8" : "col-lg-12") transition-all">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white" style="height: 680px; display: flex; flex-direction: column;">
+                <!-- Header của Chatbox -->
+                <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.25rem;">
+                            <i class="fas fa-robot animate-pulse"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Nhà phỏng vấn AI (Gemini Assistant)</h6>
+                            <small class="text-success"><span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span> Đang hoạt động</small>
+                        </div>
+                    </div>
+                    <div>
+                        @if (Model.Status == 0)
+                        {
+                            <span class="badge bg-secondary px-3 py-2 rounded-pill fw-bold">
+                                Lượt trả lời: @currentAnswerCount / 3
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success px-3 py-2 rounded-pill fw-bold">
+                                Đã hoàn thành
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <!-- Vùng nội dung tin nhắn (Scrollable) -->
+                <div class="card-body p-4 scroll-chat" style="flex: 1; overflow-y: auto; background-color: #f8fafc;" id="chatBody">
+                    <div class="d-flex flex-column gap-4">
+                        <!-- Tin nhắn chào mừng mặc định -->
+                        <div class="d-flex align-items-start gap-2 max-w-75">
+                            <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="p-3 rounded-4 bg-white shadow-sm border border-light" style="border-top-left-radius: 0 !important;">
+                                <p class="mb-0 text-dark small">Chào bạn! Tôi là nhà phỏng vấn AI. Tôi sẽ hỏi bạn 3 câu hỏi tự luận dựa trên CV để thử sức khả năng trả lời phỏng vấn của bạn. Chúng ta bắt đầu nhé!</p>
+                            </div>
+                        </div>
+
+                        <!-- Danh sách hội thoại thực tế -->
+                        @foreach (var m in interviewMsgs)
+                        {
+                            if (m.Role == "interviewer")
+                            {
+                                <!-- Câu hỏi AI -->
+                                <div class="d-flex align-items-start gap-2 max-w-75">
+                                    <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                        <i class="fas fa-robot"></i>
+                                    </div>
+                                    <div class="p-3 rounded-4 bg-white shadow-sm border border-light" style="border-top-left-radius: 0 !important;">
+                                        <p class="mb-0 text-dark font-medium small">@m.Content</p>
+                                        <span class="text-muted d-block text-end mt-1" style="font-size: 0.65rem;">@m.CreatedAt.ToString("HH:mm")</span>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Câu trả lời ứng viên -->
+                                <div class="d-flex align-items-start gap-2 max-w-75 ms-auto justify-content-end">
+                                    <div class="w-100">
+                                        <div class="p-3 rounded-4 text-white shadow-sm bg-primary" style="border-top-right-radius: 0 !important;">
+                                            <p class="mb-0 small">@m.Content</p>
+                                            <span class="text-white-50 d-block text-end mt-1" style="font-size: 0.65rem;">@m.CreatedAt.ToString("HH:mm")</span>
+                                        </div>
+
+                                        <!-- Đánh giá câu trả lời này (Nếu có) -->
+                                        @if (m.Score.HasValue)
+                                        {
+                                            <div class="mt-2 p-3 rounded-3 bg-white border shadow-sm">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <span class="fw-bold text-dark small"><i class="fas fa-star text-warning me-1"></i> AI chấm điểm:</span>
+                                                    <span class="badge @(m.Score >= 80 ? "bg-success" : m.Score >= 50 ? "bg-warning text-dark" : "bg-danger") fw-bold rounded-pill">
+                                                        @m.Score / 100
+                                                    </span>
+                                                </div>
+                                                <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none d-inline-flex align-items-center" 
+                                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseStar-@m.MessageID" aria-expanded="false">
+                                                    Xem nhận xét STAR <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>
+                                                </button>
+                                                <div class="collapse mt-2" id="collapseStar-@m.MessageID">
+                                                    <div class="card card-body bg-light border-0 p-3 small text-secondary" style="line-height: 1.5;">
+                                                        @Html.Raw(m.Feedback?.Replace("\n", "<br/>"))
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="bg-secondary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem; background-color: #64748b !important;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Khung nhập tin nhắn hoặc Trạng thái Hoàn thành -->
+                <div class="p-3 bg-light border-top">
+                    @if (Model.Status == 0)
+                    {
+                        <form asp-controller="Interview" asp-action="SubmitChatAnswer" asp-route-sessionId="@Model.SessionID" method="post" id="chatForm">
+                            @Html.AntiForgeryToken()
+                            <div class="input-group rounded-pill overflow-hidden border shadow-sm bg-white p-1">
+                                <textarea name="answer" class="form-control border-0 px-4 py-2 text-dark" placeholder="Gõ câu trả lời tự luận của bạn tại đây (sử dụng phương pháp STAR)..." rows="2" style="resize: none; font-size: 0.9rem;" required></textarea>
+                                <button type="submit" class="btn btn-primary px-4 rounded-pill d-flex align-items-center justify-content-center m-1 shadow-sm" id="sendBtn" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-center py-3">
+                            <h5 class="fw-bold text-success mb-2"><i class="fas fa-check-double"></i> Buổi phỏng vấn đã hoàn thành!</h5>
+                            <p class="text-muted small mb-0">Cảm ơn bạn đã tham gia phỏng vấn luyện tập cùng trợ lý AI.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Cột Bên Phải: Hiển thị kết quả tổng quan (Chỉ hiện khi hoàn thành) -->
+        @if (Model.Status == 1)
+        {
+            <div class="col-lg-4 animate-fade-in">
+                <div class="card border-0 shadow-lg rounded-4 p-4 bg-white h-100 text-center position-relative overflow-hidden">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-light opacity-30" style="z-index: 0;"></div>
+                    
+                    <div class="position-relative" style="z-index: 1;">
+                        <h4 class="fw-bold text-dark mb-4"><i class="fas fa-poll-h text-primary"></i> Đánh giá chung cuộc</h4>
+
+                        <!-- Điểm số lớn -->
+                        <div class="d-inline-block rounded-circle p-4 mb-4" 
+                             style="background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%); width: 140px; height: 140px; line-height: 92px; box-shadow: 0 10px 20px rgba(13,110,253,0.25);">
+                            <span class="display-4 fw-extrabold text-white">@Model.OverallScore</span>
+                        </div>
+
+                        <!-- Xếp hạng sao -->
+                        <div class="mb-4 text-warning" style="font-size: 1.25rem;">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (Model.OverallScore >= i * 20)
+                                {
+                                    <i class="fas fa-star"></i>
+                                }
+                                else if (Model.OverallScore >= (i * 20) - 10)
+                                {
+                                    <i class="fas fa-star-half-alt"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-star"></i>
+                                }
+                            }
+                        </div>
+
+                        <!-- Nhận xét chi tiết của AI -->
+                        <div class="text-start bg-light rounded-4 p-3 mb-4 shadow-inner border border-light" style="max-height: 250px; overflow-y: auto;">
+                            <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-clipboard-list"></i> Nhận xét chi tiết từ AI:</h6>
+                            <p class="text-muted small mb-0 font-medium" style="line-height: 1.6; text-align: justify;">
+                                @Html.Raw(Model.AiEvaluation?.Replace("\n", "<br/>"))
+                            </p>
+                        </div>
+
+                        <a asp-action="Practice" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm fw-bold">
+                            Luyện tập phiên mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    /* Chatbox max width */
+    .max-w-75 {
+        max-width: 75%;
+    }
+    
+    /* Smooth Scrollbar for chat body */
+    .scroll-chat::-webkit-scrollbar {
+        width: 6px;
+    }
+    .scroll-chat::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scroll-chat::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .scroll-chat::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* Pulse effect */
+    .animate-pulse {
+        animation: pulse-effect 2s infinite;
+    }
+    @@keyframes pulse-effect {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.6;
+        }
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Auto scroll chatbox to bottom
+            var chatBody = document.getElementById("chatBody");
+            if (chatBody) {
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            // Disable submit button during submit to avoid double post
+            $('#chatForm').on('submit', function () {
+                var btn = $('#sendBtn');
+                btn.prop('disabled', true);
+                btn.html('<span class="spinner-border spinner-border-sm"></span>');
+            });
+        });
+    </script>
+}

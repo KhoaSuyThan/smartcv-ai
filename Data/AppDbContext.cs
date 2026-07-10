@@ -29,6 +29,9 @@ namespace DoAnCS.Data
         public DbSet<TestRun> TestRuns { get; set; }
         public DbSet<TestCaseDetail> TestCaseDetails { get; set; }
         public DbSet<TestStep> TestSteps { get; set; }
+        public DbSet<InterviewSession> InterviewSessions { get; set; }
+        public DbSet<InterviewMessage> InterviewMessages { get; set; }
+        public DbSet<RecruiterInterviewPrep> RecruiterInterviewPreps { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -57,6 +60,55 @@ namespace DoAnCS.Data
                 .WithMany()
                 .HasForeignKey(r => r.TemplateID)
                 .IsRequired(false);
+
+            // Cấu hình quan hệ không cascade delete để tránh Multiple Cascade Paths lỗi SQL Server
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.User)
+                .WithMany()
+                .HasForeignKey(s => s.UserID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.Job)
+                .WithMany()
+                .HasForeignKey(s => s.JobID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.Resume)
+                .WithMany()
+                .HasForeignKey(s => s.ResumeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.Recruiter)
+                .WithMany()
+                .HasForeignKey(s => s.AssignedByRecruiterID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InterviewMessage>()
+                .HasOne(m => m.Session)
+                .WithMany(s => s.Messages)
+                .HasForeignKey(m => m.SessionID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RecruiterInterviewPrep>()
+                .HasOne(p => p.Recruiter)
+                .WithMany()
+                .HasForeignKey(p => p.RecruiterID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RecruiterInterviewPrep>()
+                .HasOne(p => p.Resume)
+                .WithMany()
+                .HasForeignKey(p => p.ResumeID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<RecruiterInterviewPrep>()
+                .HasOne(p => p.Job)
+                .WithMany()
+                .HasForeignKey(p => p.JobID)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Seed mặc định cho bảng cấu hình Gemini
             modelBuilder.Entity<GeminiConfig>().HasData(new GeminiConfig

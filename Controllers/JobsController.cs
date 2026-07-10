@@ -488,8 +488,13 @@ namespace DoAnCS.Controllers
                 .OrderByDescending(a => a.AppliedAt)
                 .ToListAsync();
 
+            var interviewSessions = await _context.InterviewSessions
+                .Where(s => s.JobID == id && s.InterviewType == 2)
+                .ToListAsync();
+
             ViewBag.JobTitle = job.Title;
             ViewBag.JobId = job.JobID;
+            ViewBag.InterviewSessions = interviewSessions;
             return View(applications);
         }
 

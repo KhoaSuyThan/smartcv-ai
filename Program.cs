@@ -422,6 +422,69 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể tự động tạo bảng lịch sử kiểm thử. Chi tiết: " + dbEx.Message);
         }
 
+        // Migration thủ công: Tạo các bảng phục vụ tính năng Phỏng vấn thông minh AI
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID('InterviewSessions', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE InterviewSessions (
+                        SessionID INT PRIMARY KEY IDENTITY(1,1),
+                        UserID INT NOT NULL,
+                        JobID INT NULL,
+                        ResumeID INT NOT NULL,
+                        Status INT NOT NULL DEFAULT 0,
+                        OverallScore INT NULL,
+                        AiEvaluation NVARCHAR(MAX) NULL,
+                        AssignedByRecruiterID INT NULL,
+                        InterviewType INT NOT NULL DEFAULT 0,
+                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                        CompletedAt DATETIME NULL,
+                        CONSTRAINT FK_InterviewSessions_Users FOREIGN KEY (UserID) REFERENCES Users(UserID),
+                        CONSTRAINT FK_InterviewSessions_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID),
+                        CONSTRAINT FK_InterviewSessions_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
+                        CONSTRAINT FK_InterviewSessions_Recruiters FOREIGN KEY (AssignedByRecruiterID) REFERENCES Users(UserID)
+                    );
+                END
+
+                IF OBJECT_ID('InterviewMessages', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE InterviewMessages (
+                        MessageID INT PRIMARY KEY IDENTITY(1,1),
+                        SessionID INT NOT NULL,
+                        Role NVARCHAR(50) NOT NULL,
+                        Content NVARCHAR(MAX) NOT NULL,
+                        ChoicesJson NVARCHAR(MAX) NULL,
+                        SelectedAnswer NVARCHAR(MAX) NULL,
+                        Score INT NULL,
+                        Feedback NVARCHAR(MAX) NULL,
+                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT FK_InterviewMessages_Sessions FOREIGN KEY (SessionID) REFERENCES InterviewSessions(SessionID) ON DELETE CASCADE
+                    );
+                END
+
+                IF OBJECT_ID('RecruiterInterviewPreps', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE RecruiterInterviewPreps (
+                        PrepID INT PRIMARY KEY IDENTITY(1,1),
+                        RecruiterID INT NOT NULL,
+                        ResumeID INT NOT NULL,
+                        JobID INT NOT NULL,
+                        QuestionsJson NVARCHAR(MAX) NOT NULL,
+                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT FK_RecruiterInterviewPreps_Recruiters FOREIGN KEY (RecruiterID) REFERENCES Users(UserID),
+                        CONSTRAINT FK_RecruiterInterviewPreps_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
+                        CONSTRAINT FK_RecruiterInterviewPreps_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID)
+                    );
+                END
+            ");
+            Console.WriteLine("Migration Interview Tables: OK");
+        }
+        catch (Exception interviewDbEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể tự động tạo các bảng Phỏng vấn. Chi tiết: " + interviewDbEx.Message);
+        }
+
         // Tự động seed tài khoản PRO test để phục vụ kiểm thử dịch thuật CV
         try
         {

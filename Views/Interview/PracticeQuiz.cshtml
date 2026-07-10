@@ -1,0 +1,226 @@
+@model DoAnCS.Models.InterviewSession
+@{
+    ViewData["Title"] = "Trắc nghiệm chuyên môn AI";
+    var questions = Model.Messages.Where(m => m.Role == "interviewer").OrderBy(m => m.CreatedAt).ToList();
+    var candidateAnswers = Model.Messages.Where(m => m.Role == "candidate").OrderBy(m => m.CreatedAt).ToList();
+    bool isCompleted = Model.Status == 1;
+}
+
+<div class="container py-4" style="min-height: 85vh;">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Practice" class="btn btn-outline-secondary px-4 rounded-pill shadow-sm bg-white">
+            <i class="fas fa-arrow-left me-2"></i> Quay lại
+        </a>
+        <div class="text-end">
+            <h5 class="fw-bold text-dark mb-0">Hồ sơ: <span class="text-primary">@Model.Resume?.Title</span></h5>
+            <small class="text-muted">Chế độ: Trắc nghiệm Chuyên môn</small>
+        </div>
+    </div>
+
+    @if (isCompleted)
+    {
+        <!-- Banner Kết Quả khi đã Hoàn thành -->
+        <div class="card border-0 shadow-lg rounded-4 p-4 mb-5 text-center position-relative overflow-hidden text-white" 
+             style="background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);">
+            <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 10rem; transform: translate(10%, -10%);">
+                <i class="fas fa-medal"></i>
+            </div>
+            <div class="position-relative" style="z-index: 1;">
+                <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill text-uppercase" style="font-size: 0.8rem;">
+                    Kết quả làm bài
+                </span>
+                <h1 class="display-3 fw-extrabold mb-1">@Model.OverallScore<span style="font-size: 1.5rem;">/100</span></h1>
+                <p class="lead mb-3">@Model.AiEvaluation</p>
+                <a asp-action="Practice" class="btn btn-warning rounded-pill px-4 fw-bold">Luyện phiên mới</a>
+            </div>
+        </div>
+    }
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg rounded-4 p-4 bg-white">
+                <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">
+                    <i class="fas fa-file-signature text-primary me-2"></i> Đề thi trắc nghiệm (5 Câu hỏi)
+                </h4>
+
+                <form asp-controller="Interview" asp-action="SubmitQuizAnswer" asp-route-sessionId="@Model.SessionID" method="post" id="quizForm">
+                    @Html.AntiForgeryToken()
+
+                    @{
+                        int qIndex = 1;
+                    }
+                    @foreach (var q in questions)
+                    {
+                        var options = new List<string>();
+                        if (!string.IsNullOrEmpty(q.ChoicesJson))
+                        {
+                            try
+                            {
+                                options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(q.ChoicesJson);
+                            }
+                            catch { }
+                        }
+
+                        // Đáp án đúng của câu này
+                        string correctAns = q.SelectedAnswer;
+
+                        // Tìm câu trả lời tương ứng của ứng viên cho câu hỏi này
+                        // (Dựa trên thứ tự: câu trả lời thứ X ứng với câu hỏi thứ X)
+                        string candidateAns = "";
+                        string feedbackText = "";
+                        if (isCompleted && candidateAnswers.Count >= qIndex)
+                        {
+                            var matchedAnsMsg = candidateAnswers[qIndex - 1];
+                            candidateAns = matchedAnsMsg.SelectedAnswer;
+                            feedbackText = matchedAnsMsg.Feedback;
+                        }
+
+                        <div class="mb-5 p-4 rounded-4 bg-light border border-light question-block">
+                            <div class="d-flex align-items-start gap-2 mb-3">
+                                <span class="badge bg-primary rounded-circle px-3 py-2 fw-bold text-white fs-6">
+                                    @qIndex
+                                </span>
+                                <h5 class="fw-bold text-dark mb-0 pt-1">@q.Content</h5>
+                            </div>
+
+                            <div class="row g-3 mt-1">
+                                @foreach (var opt in options)
+                                {
+                                    // Trích xuất chữ cái đầu tiên (A, B, C, D)
+                                    string optLetter = opt.Trim().Substring(0, 1).ToUpper();
+
+                                    // Xác định class CSS cho các đáp án nếu đã nộp bài
+                                    string boxClass = "quiz-option-box border bg-white p-3 rounded-3 transition-hover";
+                                    string iconHtml = "";
+
+                                    if (isCompleted)
+                                    {
+                                        if (optLetter == correctAns)
+                                        {
+                                            boxClass += " border-success bg-success-light text-success fw-bold";
+                                            iconHtml = "<i class=\"fas fa-check-circle ms-auto text-success fs-5\"></i>";
+                                        }
+                                        else if (optLetter == candidateAns)
+                                        {
+                                            boxClass += " border-danger bg-danger-light text-danger fw-bold";
+                                            iconHtml = "<i class=\"fas fa-times-circle ms-auto text-danger fs-5\"></i>";
+                                        }
+                                        else
+                                        {
+                                            boxClass += " opacity-60";
+                                        }
+                                    }
+
+                                    <div class="col-md-6">
+                                        <label class="w-100 m-0">
+                                            <input type="radio" name="answers[@q.MessageID]" value="@optLetter" class="quiz-option-input" 
+                                                   required @(isCompleted ? "disabled" : "") @(isCompleted && candidateAns == optLetter ? "checked" : "") />
+                                            <div class="@boxClass d-flex align-items-center">
+                                                <span class="option-indicator me-2 fw-bold bg-light rounded-circle text-center">@optLetter</span>
+                                                <span class="small">@opt.Substring(opt.IndexOf('.') + 1).Trim()</span>
+                                                @Html.Raw(iconHtml)
+                                            </div>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+
+                            @if (isCompleted && !string.IsNullOrEmpty(feedbackText))
+                            {
+                                <div class="mt-3 p-3 rounded-3 @(candidateAns == correctAns ? "bg-success-light text-success" : "bg-danger-light text-danger") small fw-medium">
+                                    <i class="@(candidateAns == correctAns ? "fas fa-check-circle" : "fas fa-times-circle") me-1"></i>
+                                    Kết quả của bạn: @feedbackText
+                                </div>
+                            }
+                        </div>
+
+                        qIndex++;
+                    }
+
+                    @if (!isCompleted)
+                    {
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold btn-submit-quiz">
+                                <i class="fas fa-paper-plane me-2"></i> Nộp bài làm trắc nghiệm
+                            </button>
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Radio Option Box Styling */
+    .quiz-option-input {
+        display: none;
+    }
+    .quiz-option-box {
+        cursor: pointer;
+        border-color: #cbd5e1 !important;
+        color: #334155;
+        transition: all 0.25s ease;
+    }
+    .quiz-option-input:checked + .quiz-option-box {
+        border-color: #0d6efd !important;
+        background-color: rgba(13, 110, 253, 0.05);
+        color: #0d6efd;
+        box-shadow: 0 4px 10px rgba(13, 110, 253, 0.12);
+    }
+    .quiz-option-input:checked + .quiz-option-box .option-indicator {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+    
+    .option-indicator {
+        width: 28px;
+        height: 28px;
+        line-height: 28px;
+        display: inline-block;
+        font-size: 0.85rem;
+    }
+
+    /* Completed state coloring */
+    .bg-success-light {
+        background-color: rgba(25, 135, 84, 0.08) !important;
+    }
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.08) !important;
+    }
+    
+    .opacity-60 {
+        opacity: 0.6;
+    }
+
+    .transition-hover {
+        transition: all 0.2s ease;
+    }
+    .transition-hover:hover:not(.opacity-60) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .question-block {
+        box-shadow: 0 4px 6px rgba(15, 23, 42, 0.015);
+    }
+</style>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Confirm when submit quiz
+            $('#quizForm').on('submit', function (e) {
+                if (!confirm("Bạn có chắc chắn muốn nộp bài thi trắc nghiệm này?")) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                var btn = $('.btn-submit-quiz');
+                btn.prop('disabled', true);
+                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Đang nộp bài...');
+            });
+        });
+    </script>
+}
