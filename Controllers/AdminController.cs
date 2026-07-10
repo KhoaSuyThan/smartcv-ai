@@ -262,7 +262,20 @@ namespace DoAnCS.Controllers
             // Chỉ cập nhật các trường cần thiết, tuyệt đối không đụng vào PasswordHash
             userInDb.FullName = FullName;
             userInDb.Role = Role;
-            userInDb.IsPro = Request.Form["IsPro"] == "true"; // Lấy từ checkbox
+            
+            bool isPro = Request.Form["IsPro"] == "true";
+            userInDb.IsPro = isPro;
+            if (isPro)
+            {
+                // Tự động thiết lập thời hạn Pro là 1 tháng sau kể từ hiện tại
+                userInDb.ProExpirationDate = DateTime.Now.AddMonths(1);
+            }
+            else
+            {
+                // Xóa ngày hết hạn Pro nếu tắt chế độ Pro
+                userInDb.ProExpirationDate = null;
+            }
+
             userInDb.CompanyID = (Role == "Recruiter") ? CompanyID : null;
 
             try

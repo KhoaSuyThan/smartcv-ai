@@ -588,7 +588,7 @@ Lịch sử phỏng vấn:
         // API gọi AI sinh câu hỏi phỏng vấn gợi ý (CV vs JD)
         [HttpPost]
         [Authorize(Roles = "Recruiter,Admin")]
-        public async Task<IActionResult> GetAiSuggestedQuestions(int jobId, int resumeId)
+        public async Task<IActionResult> GetAiSuggestedQuestions(int jobId, int resumeId, int count = 3, string? customPrompt = null)
         {
             var job = await _context.Jobs.FindAsync(jobId);
             var resume = await _context.Resumes.FindAsync(resumeId);
@@ -627,7 +627,23 @@ Lịch sử phỏng vấn:
                 catch { }
             }
 
-            string prompt = $@"Bạn là trợ lý AI chuyên nghiệp hỗ trợ nhà tuyển dụng chuẩn bị phỏng vấn. Hãy so sánh độ lệch giữa CV ứng viên và mô tả công việc (JD) dưới đây, từ đó sinh ra đúng 3 câu hỏi phỏng vấn tự luận sắc sảo kèm gợi ý đáp án/tiêu chí chấm điểm để đánh giá năng lực của ứng viên đó.
+            string customInstruction = "";
+            if (!string.IsNullOrEmpty(customPrompt))
+            {
+                // Ràng buộc giới hạn độ dài tối đa 300 ký tự ở phía Backend để bảo vệ API
+                var sanitizedPrompt = customPrompt.Trim();
+                if (sanitizedPrompt.Length > 300)
+                {
+                    sanitizedPrompt = sanitizedPrompt.Substring(0, 300);
+                }
+
+                // Mã hóa các ký tự HTML nguy hiểm để chống Prompt Injection
+                sanitizedPrompt = System.Net.WebUtility.HtmlEncode(sanitizedPrompt);
+
+                customInstruction = $"\n[YÊU CẦU ĐẶC BIỆT CỦA NHÀ TUYỂN DỤNG]:\n- Hãy ưu tiên tập trung thiết lập câu hỏi xoay quanh yêu cầu sau: {sanitizedPrompt}";
+            }
+
+            string prompt = $@"Bạn là trợ lý AI chuyên nghiệp hỗ trợ nhà tuyển dụng chuẩn bị phỏng vấn. Hãy so sánh độ lệch giữa CV ứng viên và mô tả công việc (JD) dưới đây, từ đó sinh ra đúng {count} câu hỏi phỏng vấn tự luận sắc sảo kèm gợi ý đáp án/tiêu chí chấm điểm để đánh giá năng lực của ứng viên đó.{customInstruction}
 Yêu cầu trả về duy nhất định dạng JSON (không chứa markdown ```json):
 [
   {{
@@ -809,12 +825,28 @@ Tóm tắt CV của Ứng viên:
             string question = questionMsg != null ? questionMsg.Content : "Câu hỏi phỏng vấn";
             string expectedCriteria = questionMsg != null ? questionMsg.Feedback : "Không có tiêu chí cụ thể";
 
-            string prompt = $@"Bạn là nhà phỏng vấn chuyên nghiệp chấm điểm câu trả lời của ứng viên.
-Dựa trên câu hỏi phỏng vấn, tiêu chí chấm điểm và câu trả lời thực tế của ứng viên dưới đây, hãy chấm điểm (từ 0 đến 100) và viết nhận xét chi tiết theo phương pháp STAR.
-Yêu cầu trả về định dạng JSON (không chứa văn bản phụ):
+            string prompt = $@"Bạn là một nhà tuyển dụng và chuyên gia đánh giá phỏng vấn cực kỳ nghiêm khắc và chuyên nghiệp.
+Nhiệm vụ của bạn là đánh giá câu trả lời tự luận của ứng viên dựa trên câu hỏi và tiêu chí đánh giá được cung cấp.
+
+Hãy phân tích và chấm điểm thật chi tiết theo thang điểm 100 dựa trên các khía cạnh:
+1. Độ chính xác và chiều sâu kiến thức chuyên môn (Technical Depth & Accuracy).
+2. Sự mạch lạc, rõ ràng và cấu trúc câu trả lời (phương pháp STAR).
+3. Tính thực tiễn, kinh nghiệm thực tế và giải pháp ứng viên đưa ra.
+
+QUY TẮC CHẤM ĐIỂM NGHIÊM NGẶT:
+- KHÔNG được chấm các điểm số trung bình mang tính an toàn (như luôn cho 80, 85) một cách rập khuôn cho mọi câu hỏi.
+- Phải có sự phân hóa điểm số rõ ràng giữa các câu trả lời dựa trên chất lượng thực tế:
+  + Nếu câu trả lời quá ngắn gọn, chung chung, thiếu ví dụ thực tế hoặc chỉ lý thuyết suông: Điểm số phải dưới 70 điểm.
+  + Nếu câu trả lời ở mức khá, đúng trọng tâm nhưng chưa thực sự xuất sắc: Điểm số từ 70 - 80 điểm.
+  + Chỉ cho điểm từ 85 - 100 điểm khi câu trả lời thực sự xuất sắc, đầy đủ ý, thể hiện tư duy sâu sắc và kinh nghiệm thực tiễn rõ ràng.
+- Viết nhận xét chi tiết, chỉ ra điểm mạnh và điểm cần cải thiện của ứng viên theo cấu trúc STAR.
+
+- Viết nhận xét chi tiết, chỉ ra điểm mạnh và điểm cần cải thiện của ứng viên theo cấu trúc STAR.
+
+Yêu cầu bắt buộc trả về định dạng JSON (không chứa bất kỳ văn bản phụ nào ngoài JSON):
 {{
-  ""score"": 80,
-  ""feedback"": ""Nhận xét chi tiết...""
+  ""score"": 75,
+  ""feedback"": ""Nhận xét chi tiết theo cấu trúc STAR...""
 }}
 
 Câu hỏi: ""{question}""
@@ -830,7 +862,25 @@ Câu trả lời của Ứng viên: ""{candidateMsg.Content}""";
                 using (JsonDocument doc = JsonDocument.Parse(aiFeedback))
                 {
                     var root = doc.RootElement;
-                    int score = root.GetProperty("score").GetInt32();
+                    
+                    // Xử lý an toàn phòng trường hợp AI vẫn trả về mảng hoặc chuỗi cho score
+                    int score = 0;
+                    var scoreProp = root.GetProperty("score");
+                    if (scoreProp.ValueKind == JsonValueKind.Number)
+                    {
+                        score = scoreProp.GetInt32();
+                    }
+                    else if (scoreProp.ValueKind == JsonValueKind.Array && scoreProp.GetArrayLength() > 0)
+                    {
+                        var firstEl = scoreProp[0];
+                        if (firstEl.ValueKind == JsonValueKind.Number) score = firstEl.GetInt32();
+                        else if (firstEl.ValueKind == JsonValueKind.String) int.TryParse(firstEl.GetString(), out score);
+                    }
+                    else if (scoreProp.ValueKind == JsonValueKind.String)
+                    {
+                        int.TryParse(scoreProp.GetString(), out score);
+                    }
+
                     string feedback = root.GetProperty("feedback").GetString();
 
                     return Json(new { success = true, score = score, feedback = feedback });
