@@ -303,12 +303,42 @@
                             </li>
                         }
 
-                        <li class="nav-item">
-                            <a class="nav-link @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" || ViewContext.RouteData.Values["action"]?.ToString() == "Details")) || (ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" && ViewContext.RouteData.Values["action"]?.ToString() == "Index") ? "active" : "")" 
-                               asp-controller="Home" asp-action="Jobs">
-                                <i class="fas fa-search me-1"></i> Ứng tuyển
-                            </a>
-                        </li>
+                        @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("User"))
+                        {
+                            <li class="nav-item dropdown dropdown-hover">
+                                <a class="nav-link d-inline-flex align-items-center @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" || ViewContext.RouteData.Values["action"]?.ToString() == "Details")) || ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" ? "active" : "")" 
+                                   id="applyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-search me-1"></i> Ứng tuyển <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity: 0.85;"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-hover shadow border-0 mt-0" aria-labelledby="applyDropdown">
+                                    <li>
+                                        <a class="dropdown-item py-2 px-3 fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" ? "active-item" : "")" asp-controller="Home" asp-action="Jobs">
+                                            <i class="fas fa-briefcase me-2"></i> Việc làm tuyển dụng
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1 opacity-10"></li>
+                                    <li>
+                                        <a class="dropdown-item py-2 px-3 fw-bold text-primary @(ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" && ViewContext.RouteData.Values["action"]?.ToString() == "Practice" ? "active-item" : "")" asp-controller="Interview" asp-action="Practice">
+                                            <i class="fas fa-laptop-code me-2"></i> Luyện phỏng vấn (Tự do)
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-2 px-3 fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" && ViewContext.RouteData.Values["action"]?.ToString() == "Assigned" ? "active-item" : "")" asp-controller="Interview" asp-action="Assigned" style="color: #7c3aed !important;">
+                                            <i class="fas fa-envelope-open-text me-2"></i> Lời mời phỏng vấn
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" || ViewContext.RouteData.Values["action"]?.ToString() == "Details")) || (ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" && ViewContext.RouteData.Values["action"]?.ToString() == "Index") ? "active" : "")" 
+                                   asp-controller="Home" asp-action="Jobs">
+                                    <i class="fas fa-search me-1"></i> Ứng tuyển
+                                </a>
+                            </li>
+                        }
 
                         <li class="nav-item">
                             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Companies" ? "active" : "")" 
@@ -367,25 +397,6 @@
                                        asp-controller="Resume" asp-action="MyResumes">
                                         <i class="fas fa-file-alt me-1"></i> CV của tôi
                                     </a>
-                                </li>
-                                <li class="nav-item dropdown dropdown-hover">
-                                    <a class="nav-link text-primary fw-bold d-inline-flex align-items-center @(ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" ? "active" : "")" 
-                                       id="interviewDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-robot me-1"></i> Phòng phỏng vấn AI <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity: 0.85;"></i>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-hover shadow border-0 mt-0" aria-labelledby="interviewDropdown">
-                                        <li>
-                                            <a class="dropdown-item py-2 px-3 fw-bold text-primary @(ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" && ViewContext.RouteData.Values["action"]?.ToString() == "Practice" ? "active-item" : "")" asp-controller="Interview" asp-action="Practice">
-                                                <i class="fas fa-laptop-code me-2"></i> Luyện phỏng vấn (Tự do)
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider my-1 opacity-10"></li>
-                                        <li>
-                                            <a class="dropdown-item py-2 px-3 fw-bold @(ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" && ViewContext.RouteData.Values["action"]?.ToString() == "Assigned" ? "active-item" : "")" asp-controller="Interview" asp-action="Assigned" style="color: #7c3aed !important;">
-                                                <i class="fas fa-envelope-open-text me-2"></i> Lời mời phỏng vấn
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </li>
                             }
                         }

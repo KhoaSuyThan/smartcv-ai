@@ -33,7 +33,7 @@ namespace DoAnCS.Controllers
             int userId = CurrentUserId;
             // Lấy danh sách CV của người dùng này để chọn làm nguồn phỏng vấn
             var resumes = await _context.Resumes
-                .Where(r => r.UserID == userId && r.IsDraft == false)
+                .Where(r => r.UserID == userId && (r.IsDraft == false || r.IsPublic == true))
                 .OrderByDescending(r => r.UpdatedAt)
                 .ToListAsync();
 
@@ -141,24 +141,75 @@ Thông tin CV ứng viên:
 
                     using (JsonDocument doc = JsonDocument.Parse(aiResponse))
                     {
-                        int index = 1;
-                        foreach (var item in doc.RootElement.EnumerateArray())
-                        {
-                            string qText = item.GetProperty("question").GetString();
-                            var optList = item.GetProperty("options").EnumerateArray().Select(o => o.GetString()).ToList();
-                            string correctAns = item.GetProperty("correctAnswer").GetString();
+                        var root = doc.RootElement;
+                        var questionElements = new List<JsonElement>();
 
-                            var msg = new InterviewMessage
+                        if (root.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var el in root.EnumerateArray())
                             {
-                                SessionID = session.SessionID,
-                                Role = "interviewer",
-                                Content = qText,
-                                ChoicesJson = JsonSerializer.Serialize(optList),
-                                SelectedAnswer = correctAns, // Lưu đáp án đúng vào cột SelectedAnswer của interviewer để đối chiếu
-                                CreatedAt = DateTime.Now.AddSeconds(index)
-                            };
-                            _context.InterviewMessages.Add(msg);
-                            index++;
+                                questionElements.Add(el);
+                            }
+                        }
+                        else if (root.ValueKind == JsonValueKind.Object)
+                        {
+                            bool foundArray = false;
+                            foreach (var prop in root.EnumerateObject())
+                            {
+                                if (prop.Value.ValueKind == JsonValueKind.Array)
+                                {
+                                    foreach (var el in prop.Value.EnumerateArray())
+                                    {
+                                        questionElements.Add(el);
+                                    }
+                                    foundArray = true;
+                                    break;
+                                }
+                            }
+                            if (!foundArray)
+                            {
+                                foreach (var prop in root.EnumerateObject())
+                                {
+                                    if (prop.Value.ValueKind == JsonValueKind.Object && prop.Value.TryGetProperty("question", out _))
+                                    {
+                                        questionElements.Add(prop.Value);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (!questionElements.Any())
+                        {
+                            throw new Exception("AI phản hồi sai định dạng JSON. Vui lòng thử lại.");
+                        }
+
+                        int index = 1;
+                        foreach (var item in questionElements)
+                        {
+                            if (item.TryGetProperty("question", out var qProp) && 
+                                item.TryGetProperty("options", out var optProp) && 
+                                item.TryGetProperty("correctAnswer", out var correctProp))
+                            {
+                                string qText = qProp.GetString();
+                                var optList = new List<string>();
+                                if (optProp.ValueKind == JsonValueKind.Array)
+                                {
+                                    optList = optProp.EnumerateArray().Select(o => o.GetString()).ToList();
+                                }
+                                string correctAns = correctProp.GetString();
+
+                                var msg = new InterviewMessage
+                                {
+                                    SessionID = session.SessionID,
+                                    Role = "interviewer",
+                                    Content = qText,
+                                    ChoicesJson = JsonSerializer.Serialize(optList),
+                                    SelectedAnswer = correctAns, // Lưu đáp án đúng vào cột SelectedAnswer của interviewer để đối chiếu
+                                    CreatedAt = DateTime.Now.AddSeconds(index)
+                                };
+                                _context.InterviewMessages.Add(msg);
+                                index++;
+                            }
                         }
                         await _context.SaveChangesAsync();
                     }
@@ -413,7 +464,7 @@ Lịch sử phỏng vấn:
             int totalQuestions = session.Messages.Count(m => m.Role == "interviewer");
 
             // Duyệt danh sách các câu hỏi trắc nghiệm của phiên để đối chiếu kết quả
-            foreach (var qMsg in session.Messages.Where(m => m.Role == "interviewer"))
+            foreach (var qMsg in session.Messages.Where(m => m.Role == "interviewer").ToList())
             {
                 string chosenAnswer = answers.ContainsKey(qMsg.MessageID) ? answers[qMsg.MessageID] : "";
                 string correctAnswer = qMsg.SelectedAnswer; // Đã lưu đáp án đúng vào SelectedAnswer của interviewer lúc khởi tạo
