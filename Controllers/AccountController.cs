@@ -358,8 +358,8 @@ namespace DoAnCS.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
-                    // GỬI EMAIL CẢNH BÁO BẢO MẬT NẾU PHÁT HIỆN CÓ PHIÊN ĐĂNG NHẬP CŨ ĐANG HOẠT ĐỘNG
-                    if (user.LastLoginTime.HasValue && user.LastLoginTime.Value > 0)
+                    // GỬI EMAIL CẢNH BÁO BẢO MẬT NẾU PHÁT HIỆN CÓ PHIÊN ĐĂNG NHẬP CŨ ĐANG HOẠT ĐỘNG (BỎ QUA TÀI KHOẢN ADMIN)
+                    if (user.LastLoginTime.HasValue && user.LastLoginTime.Value > 0 && !string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase))
                     {
                         try
                         {
