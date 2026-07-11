@@ -32,6 +32,7 @@ namespace DoAnCS.Data
         public DbSet<InterviewSession> InterviewSessions { get; set; }
         public DbSet<InterviewMessage> InterviewMessages { get; set; }
         public DbSet<RecruiterInterviewPrep> RecruiterInterviewPreps { get; set; }
+        public DbSet<Notification> Notifications { get; set; } // Bảng thông báo hệ thống
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -109,6 +110,13 @@ namespace DoAnCS.Data
                 .WithMany()
                 .HasForeignKey(p => p.JobID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình quan hệ Notification -> User (cascade delete khi xóa User)
+            modelBuilder.Entity<Notification>()
+                .HasOne(n => n.User)
+                .WithMany()
+                .HasForeignKey(n => n.UserID)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Seed mặc định cho bảng cấu hình Gemini
             modelBuilder.Entity<GeminiConfig>().HasData(new GeminiConfig

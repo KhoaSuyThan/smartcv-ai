@@ -389,3 +389,18 @@ CREATE TABLE RecruiterInterviewPreps (
     CONSTRAINT FK_RecruiterInterviewPreps_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
     CONSTRAINT FK_RecruiterInterviewPreps_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID)
 );
+
+-- 28. Hệ thống Thông báo (Notifications)
+CREATE TABLE Notifications (
+    NotificationID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT NOT NULL,
+    Type NVARCHAR(50) NOT NULL DEFAULT 'System', -- Application, Interview, Login, System, Admin
+    Title NVARCHAR(200) NOT NULL,                -- Tiêu đề ngắn gọn
+    Message NVARCHAR(MAX) NOT NULL,              -- Nội dung chi tiết
+    Link NVARCHAR(500) NULL,                     -- URL điều hướng khi nhấn vào
+    IsRead BIT NOT NULL DEFAULT 0,               -- 0: Chưa đọc, 1: Đã đọc
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_Notifications_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+);
+
+CREATE INDEX IX_Notifications_UserID_IsRead ON Notifications(UserID, IsRead);

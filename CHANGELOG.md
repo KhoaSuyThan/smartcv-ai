@@ -5,6 +5,29 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-11] - Hệ thống Thông báo (Notification Bell)
+
+### Added
+- Thêm biểu tượng chuông thông báo (🔔) trên thanh navbar, ngay bên cạnh nút tên người dùng.
+- Tạo bảng Database mới `Notifications` lưu trữ toàn bộ thông báo cho từng user.
+- Tạo `NotificationController` với 5 API: GetAll, UnreadCount, MarkAsRead, MarkAllAsRead, Delete.
+- Tạo Model `Notification.cs` với các trường: Type, Title, Message, Link, IsRead, CreatedAt.
+- Badge đỏ hiển thị số thông báo chưa đọc trên chuông (ẩn khi 0, tối đa 99+).
+- Dropdown panel hiển thị 20 thông báo gần nhất với icon phân loại theo màu (Ứng tuyển, Phỏng vấn, Đăng nhập, Hệ thống, Admin).
+- Nút "Đọc tất cả" đánh dấu toàn bộ thông báo là đã đọc.
+- Tự động tạo thông báo khi: đăng nhập thành công, ứng tuyển thành công, Recruiter thay đổi trạng thái đơn ứng tuyển.
+- Tích hợp SignalR real-time: thông báo mới được đẩy tức thì tới client mà không cần refresh trang.
+- Hỗ trợ Dark Mode đầy đủ cho toàn bộ dropdown thông báo.
+- Tự động dọn dẹp thông báo cũ quá 30 ngày khi khởi động server.
+- Cập nhật `DtbDoAnCS/CreateTables.sql` thêm bảng Notifications + Index.
+- Cập nhật `Program.cs` thêm migration tự động tạo bảng + logic cleanup 30 ngày.
+
+### Changed
+- `AccountController`: Inject `IHubContext<UserSessionHub>`, gọi `CreateNotification()` sau khi đăng nhập thành công.
+- `JobsController`: Inject `IHubContext<UserSessionHub>`, gọi `CreateNotification()` khi ứng tuyển và khi cập nhật trạng thái đơn.
+- `AppDbContext`: Thêm `DbSet<Notification>` và cấu hình FK cascade delete.
+- `_Layout.cshtml`: Thêm HTML/CSS/JS cho notification bell, dropdown panel và logic client-side.
+
 ## [2026-07-10] - Tối ưu hóa phòng phỏng vấn AI & Bảo mật đăng nhập
 
 ### Added

@@ -259,6 +259,123 @@
         @@keyframes bubbleFadeInLeft {
             from { opacity: 0; transform: translateY(-50%) translateX(-15px) scale(0.95); }
             to { opacity: 1; transform: translateY(-50%) translateX(0) scale(1); }
+        /* === NOTIFICATION BELL STYLES === */
+        .notif-dropdown-panel {
+            width: 380px;
+            border-radius: 12px !important;
+            overflow: hidden;
+            animation: notifSlideDown 0.25s ease;
+        }
+        .notif-header {
+            background: #f8f9fa;
+        }
+        .notif-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .notif-item:hover {
+            background: #f0f7ff;
+        }
+        .notif-item.unread {
+            background: #eef5ff;
+            border-left: 3px solid #0d6efd;
+        }
+        .notif-item.unread:hover {
+            background: #dceeff;
+        }
+        .notif-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .notif-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .notif-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .notif-msg {
+            font-size: 0.78rem;
+            color: #6c757d;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.35;
+        }
+        .notif-time {
+            font-size: 0.7rem;
+            color: #adb5bd;
+            margin-top: 3px;
+            white-space: nowrap;
+        }
+        .notif-dot {
+            width: 8px;
+            height: 8px;
+            background: #0d6efd;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+        #notif-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        #notif-list::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+        @@keyframes notifSlideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Dark Mode cho Notification Bell */
+        [data-bs-theme="dark"] .notif-dropdown-panel {
+            background-color: #1e1e1e !important;
+        }
+        [data-bs-theme="dark"] .notif-header {
+            background: #252525 !important;
+            border-color: #333 !important;
+        }
+        [data-bs-theme="dark"] .notif-item {
+            border-color: #2d2d2d !important;
+            color: #e0e0e0 !important;
+        }
+        [data-bs-theme="dark"] .notif-item:hover {
+            background: #2a2a3a !important;
+        }
+        [data-bs-theme="dark"] .notif-item.unread {
+            background: #1a2235 !important;
+            border-left-color: #0d6efd !important;
+        }
+        [data-bs-theme="dark"] .notif-item.unread:hover {
+            background: #1e2a42 !important;
+        }
+        [data-bs-theme="dark"] .notif-msg {
+            color: #aaa !important;
+        }
+        [data-bs-theme="dark"] .notif-time {
+            color: #666 !important;
+        }
+        [data-bs-theme="dark"] #notif-empty {
+            color: #888 !important;
         }
     </style>
 </head>
@@ -416,6 +533,43 @@
                                     <i class="fas fa-crown me-1"></i> Nâng cấp Pro
                                 </a>
                             }
+
+                            @* === CHUÔNG THÔNG BÁO (Notification Bell) === *@
+                            <div class="dropdown" id="notification-bell-container">
+                                <button class="btn btn-light rounded-circle shadow-sm me-1 d-flex align-items-center justify-content-center position-relative"
+                                        id="notificationBell" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                        style="width: 40px; height: 40px; border: 1px solid #dee2e6; transition: all 0.3s;" title="Thông báo">
+                                    <i class="fas fa-bell text-secondary" style="font-size: 1.05rem;"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                          id="notif-badge" style="display: none; font-size: 0.6rem; padding: 3px 5px; min-width: 18px;">
+                                        0
+                                    </span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 notif-dropdown-panel" id="notif-dropdown">
+                                    @* Header *@
+                                    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom notif-header">
+                                        <h6 class="mb-0 fw-bold" style="font-size: 0.95rem;">
+                                            <i class="fas fa-bell me-1 text-primary"></i> Thông báo
+                                        </h6>
+                                        <button class="btn btn-sm btn-link text-primary text-decoration-none p-0" id="mark-all-read" style="font-size: 0.8rem;"
+                                                onclick="markAllNotificationsRead()">
+                                            <i class="fas fa-check-double me-1"></i>Đọc tất cả
+                                        </button>
+                                    </div>
+                                    @* Danh sách thông báo *@
+                                    <div id="notif-list" style="max-height: 380px; overflow-y: auto;">
+                                        <div class="text-center py-3">
+                                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                        </div>
+                                    </div>
+                                    @* Empty state *@
+                                    <div id="notif-empty" class="text-center py-4 text-muted" style="display: none;">
+                                        <i class="fas fa-bell-slash d-block mb-2" style="font-size: 2rem; opacity: 0.3;"></i>
+                                        <span style="font-size: 0.85rem;">Không có thông báo nào</span>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="dropdown position-relative">
                                 @{
                                     bool showProWarning = false;
@@ -765,6 +919,160 @@
             }
         }
     </script>
+
+    @* === NOTIFICATION BELL JAVASCRIPT === *@
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <script>
+            // ==========================================
+            // HỆ THỐNG THÔNG BÁO (Notification Bell)
+            // ==========================================
+
+            // Icon và màu sắc theo loại thông báo
+            const notifTypeConfig = {
+                'Application': { icon: 'fas fa-briefcase', bg: '#dbeafe', color: '#2563eb' },
+                'Interview':   { icon: 'fas fa-microphone-alt', bg: '#fce7f3', color: '#db2777' },
+                'Login':       { icon: 'fas fa-key', bg: '#d1fae5', color: '#059669' },
+                'System':      { icon: 'fas fa-cog', bg: '#e2e8f0', color: '#475569' },
+                'Admin':       { icon: 'fas fa-bullhorn', bg: '#fef3c7', color: '#d97706' }
+            };
+
+            // Lấy cấu hình icon theo type
+            function getNotifTypeConfig(type) {
+                return notifTypeConfig[type] || notifTypeConfig['System'];
+            }
+
+            // Render HTML cho 1 thông báo
+            function renderNotifItem(n) {
+                const config = getNotifTypeConfig(n.type);
+                const unreadClass = !n.isRead ? 'unread' : '';
+                const link = n.link || 'javascript:void(0)';
+                return `
+                    <a href="${link}" class="notif-item ${unreadClass}" data-id="${n.notificationID}"
+                       onclick="markNotifRead(${n.notificationID}, this)">
+                        <div class="notif-icon" style="background: ${config.bg}; color: ${config.color};">
+                            <i class="${config.icon}"></i>
+                        </div>
+                        <div class="notif-content">
+                            <div class="notif-title">${n.title}</div>
+                            <div class="notif-msg">${n.message}</div>
+                            <div class="notif-time"><i class="far fa-clock me-1"></i>${n.timeAgo}</div>
+                        </div>
+                        ${!n.isRead ? '<div class="notif-dot"></div>' : ''}
+                    </a>
+                `;
+            }
+
+            // Cập nhật badge đếm thông báo chưa đọc
+            function updateNotifBadge(count) {
+                const badge = document.getElementById('notif-badge');
+                if (!badge) return;
+                if (count > 0) {
+                    badge.textContent = count > 99 ? '99+' : count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            // Load số lượng chưa đọc khi trang tải xong
+            async function loadUnreadCount() {
+                try {
+                    const res = await fetch('/Notification/UnreadCount');
+                    const data = await res.json();
+                    updateNotifBadge(data.count);
+                } catch (e) { console.warn('Lỗi load unread count:', e); }
+            }
+
+            // Load danh sách thông báo khi mở dropdown
+            async function loadNotifications() {
+                const listEl = document.getElementById('notif-list');
+                const emptyEl = document.getElementById('notif-empty');
+                if (!listEl) return;
+
+                try {
+                    const res = await fetch('/Notification/GetAll');
+                    const data = await res.json();
+
+                    if (data.length === 0) {
+                        listEl.innerHTML = '';
+                        if (emptyEl) emptyEl.style.display = 'block';
+                    } else {
+                        if (emptyEl) emptyEl.style.display = 'none';
+                        listEl.innerHTML = data.map(renderNotifItem).join('');
+                    }
+                } catch (e) {
+                    listEl.innerHTML = '<div class="text-center py-3 text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Lỗi tải thông báo</div>';
+                }
+            }
+
+            // Đánh dấu 1 thông báo đã đọc
+            async function markNotifRead(id, el) {
+                try {
+                    await fetch(`/Notification/MarkAsRead/${id}`, { method: 'POST' });
+                    if (el) {
+                        el.classList.remove('unread');
+                        const dot = el.querySelector('.notif-dot');
+                        if (dot) dot.remove();
+                    }
+                    loadUnreadCount(); // Cập nhật lại badge
+                } catch (e) { console.warn('Lỗ đánh dấu đã đọc:', e); }
+            }
+
+            // Đánh dấu tất cả đã đọc
+            async function markAllNotificationsRead() {
+                try {
+                    await fetch('/Notification/MarkAllAsRead', { method: 'POST' });
+                    // Cập nhật UI
+                    document.querySelectorAll('.notif-item.unread').forEach(el => {
+                        el.classList.remove('unread');
+                        const dot = el.querySelector('.notif-dot');
+                        if (dot) dot.remove();
+                    });
+                    updateNotifBadge(0);
+                } catch (e) { console.warn('Lỗi đánh dấu tất cả:', e); }
+            }
+
+            // Khởi tạo khi DOM ready
+            document.addEventListener('DOMContentLoaded', function() {
+                // Load badge ngay lập tức
+                loadUnreadCount();
+
+                // Load danh sách khi mở dropdown
+                const bellBtn = document.getElementById('notificationBell');
+                if (bellBtn) {
+                    bellBtn.addEventListener('click', function() {
+                        loadNotifications();
+                    });
+                }
+
+                // Nhận thông báo real-time từ SignalR (nếu connection đã tồn tại)
+                if (typeof window._notifSignalR === 'undefined') {
+                    window._notifSignalR = true;
+                    // Kiểm tra nếu signalR đã load (từ UserSessionHub)
+                    const checkSignalR = setInterval(() => {
+                        if (window._userSessionConnection) {
+                            window._userSessionConnection.on("ReceiveNotification", function(notification) {
+                                // Cập nhật badge
+                                loadUnreadCount();
+                                // Thêm thông báo mới vào đầu danh sách nếu dropdown đang mở
+                                const listEl = document.getElementById('notif-list');
+                                const emptyEl = document.getElementById('notif-empty');
+                                if (listEl && listEl.closest('.dropdown-menu.show')) {
+                                    if (emptyEl) emptyEl.style.display = 'none';
+                                    listEl.insertAdjacentHTML('afterbegin', renderNotifItem(notification));
+                                }
+                            });
+                            clearInterval(checkSignalR);
+                        }
+                    }, 1000);
+                    // Dọn dẹp sau 30s nếu không tìm thấy SignalR
+                    setTimeout(() => clearInterval(checkSignalR), 30000);
+                }
+            });
+        </script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
 
     @* ============================
