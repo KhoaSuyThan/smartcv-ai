@@ -157,68 +157,68 @@
 
         /* Hỗ trợ chế độ tối (Dark Mode) cho các thành phần chính */
         [data-bs-theme="dark"] body {
-            background-color: #121212 !important;
-            color: #e0e0e0 !important;
+            background-color: #0f172a !important;
+            color: #cbd5e1 !important;
         }
         [data-bs-theme="dark"] .navbar {
-            background-color: #1e1e1e !important;
-            border-bottom: 1px solid #2d2d2d !important;
+            background-color: #1e293b !important;
+            border-bottom: 1px solid #334155 !important;
         }
         [data-bs-theme="dark"] .nav-link {
-            color: #b0b0b0 !important;
+            color: #cbd5e1 !important;
         }
         [data-bs-theme="dark"] .nav-link:hover,
         [data-bs-theme="dark"] .nav-link.active {
-            color: #0d6efd !important;
+            color: #38bdf8 !important;
         }
         [data-bs-theme="dark"] footer {
-            background-color: #1a1a1a !important;
-            border-top: 1px solid #2d2d2d !important;
-            color: #b0b0b0 !important;
+            background-color: #1e293b !important;
+            border-top: 1px solid #334155 !important;
+            color: #94a3b8 !important;
         }
         [data-bs-theme="dark"] .footer-link {
-            color: #888888 !important;
+            color: #64748b !important;
         }
         [data-bs-theme="dark"] .footer-link:hover {
-            color: #0d6efd !important;
+            color: #38bdf8 !important;
         }
         [data-bs-theme="dark"] .admin-sidebar-container {
-            background-color: #1e1e1e !important;
-            border-right: 2px solid #2d2d2d !important;
+            background-color: #1e293b !important;
+            border-right: 2px solid #334155 !important;
         }
         [data-bs-theme="dark"] .sidebar-group {
-            background-color: #1a1a1a !important;
-            border-color: #2d2d2d !important;
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
         }
         [data-bs-theme="dark"] .admin-sidebar-container .menu-item {
-            color: #c0c0c0 !important;
+            color: #cbd5e1 !important;
         }
         [data-bs-theme="dark"] .admin-sidebar-container .menu-item:hover {
-            background-color: #2d2d2d !important;
-            color: #0d6efd !important;
+            background-color: #334155 !important;
+            color: #38bdf8 !important;
         }
         [data-bs-theme="dark"] .admin-sidebar-container .menu-item.active {
-            background-color: #252525 !important;
-            border-color: #0d6efd !important;
-            color: #0d6efd !important;
+            background-color: #1e293b !important;
+            border-color: #38bdf8 !important;
+            color: #38bdf8 !important;
         }
         [data-bs-theme="dark"] .card,
         [data-bs-theme="dark"] .modal-content {
-            background-color: #1e1e1e !important;
-            border-color: #2d2d2d !important;
-            color: #e0e0e0 !important;
+            background-color: #1e293b !important;
+            border-color: #334155 !important;
+            color: #f8fafc !important;
         }
-        [data-bs-theme="dark"] .text-dark:not(.bg-warning) {
-            color: #e0e0e0 !important;
+        [data-bs-theme="dark"] .text-dark:not(.force-light-card *):not(.cv-preview-card *):not(.cv-preview-wrapper *):not(#resume-preview *):not(.template-card *):not(.bg-warning) {
+            color: #f8fafc !important;
         }
         [data-bs-theme="dark"] .bg-warning.text-dark {
             color: #000 !important;
         }
-        [data-bs-theme="dark"] .bg-white {
-            background-color: #1e1e1e !important;
+        [data-bs-theme="dark"] .bg-white:not(.force-light-card):not(.force-light-card *) {
+            background-color: #1e293b !important;
         }
-        [data-bs-theme="dark"] .bg-light {
-            background-color: #121212 !important;
+        [data-bs-theme="dark"] .bg-light:not(.force-light-card):not(.force-light-card *) {
+            background-color: #0f172a !important;
         }
         .pro-warning-bubble {
             position: absolute;
@@ -457,7 +457,7 @@
                         {
                             <li class="nav-item dropdown dropdown-hover">
                                 <a class="nav-link d-inline-flex align-items-center @((ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && (ViewContext.RouteData.Values["action"]?.ToString() == "Jobs" || ViewContext.RouteData.Values["action"]?.ToString() == "Details")) || ViewContext.RouteData.Values["controller"]?.ToString() == "Interview" ? "active" : "")" 
-                                   id="applyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                   id="applyDropdown" asp-controller="Home" asp-action="Jobs">
                                     <i class="fas fa-search me-1"></i> Ứng tuyển <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem; opacity: 0.85;"></i>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-hover shadow border-0 mt-0" aria-labelledby="applyDropdown">
