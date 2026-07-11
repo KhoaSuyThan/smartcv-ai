@@ -54,12 +54,19 @@
         }
 
         html, body.cv-builder-page { 
-            overflow: auto !important; 
+            overflow: hidden !important; /* Khóa cuộn trang chính để cuộn trong iframe/app */
             height: 100% !important;
             background-color: #f3f4f6 !important;
         }
 
-        .content-wrapper, .content-wrapper > main { 
+        .content-wrapper { 
+            padding: 0 !important; 
+            overflow: hidden !important;
+            background-color: #f3f4f6 !important;
+            height: calc(100vh - 72px) !important; /* Chiều cao khít màn hình dưới navbar */
+        }
+
+        .content-wrapper > main { 
             padding: 0 !important; 
             overflow: hidden !important;
             background-color: #f3f4f6 !important;
@@ -77,13 +84,31 @@
             margin: 40px auto !important;
             box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
         }
+
+        /* Hỗ trợ Dark Mode đồng bộ */
+        [data-bs-theme="dark"] html, 
+        [data-bs-theme="dark"] body.cv-builder-page,
+        [data-bs-theme="dark"] .content-wrapper,
+        [data-bs-theme="dark"] .content-wrapper > main,
+        [data-bs-theme="dark"] #app {
+            background-color: #0f172a !important;
+        }
     </style>
 }
+
+<script>
+    // Chạy chung cho cả 2 luồng để ẩn footer và thêm class body cv-builder-page
+    document.addEventListener('DOMContentLoaded', function () {
+        var footer = document.querySelector('footer');
+        if (footer) footer.style.display = 'none';
+        document.body.classList.add('cv-builder-page');
+    });
+</script>
 
 @if (Model != null && !string.IsNullOrEmpty(Model.FileUploadUrl))
 {
     @* Nếu đây là CV được người dùng upload dưới dạng PDF *@
-    <div style="width: 100%; height: 100vh; background: #333; margin: 0; padding: 0;">
+    <div style="width: 100%; height: 100%; background: #333; margin: 0; padding: 0;">
         <iframe src="@Model.FileUploadUrl" width="100%" height="100%" style="border: none;"></iframe>
     </div>
 }
@@ -96,11 +121,6 @@ else
         window.IS_PRO_USER = @(ViewBag.IsOwnerPro == true ? "true" : "false");
 
         document.addEventListener('DOMContentLoaded', function () {
-            var footer = document.querySelector('footer');
-            if (footer) footer.style.display = 'none';
-            
-            document.body.classList.add('cv-builder-page');
-
             // Bắt sự kiện click ở giai đoạn Capture (trước khi Vue nhận được)
             // để ngăn chặn hoàn toàn các thao tác chọn section/kích hoạt edit trong Vue
             document.addEventListener('click', function(e) {

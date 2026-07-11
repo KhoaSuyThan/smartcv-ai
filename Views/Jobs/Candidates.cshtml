@@ -356,9 +356,9 @@
 <script>
     // Hàm tự động giãn chiều cao cho textarea theo số dòng và có giới hạn
     function autoResizeTextarea(el) {
-        el.style.height = '31px'; // Trả về chiều cao cơ bản để đo chính xác scrollHeight
+        el.style.height = 'auto'; // Trả về auto để đo chính xác scrollHeight tự nhiên
         var newHeight = el.scrollHeight;
-        var maxHeight = 120; // Giới hạn chiều cao tối đa khoảng 4-5 dòng
+        var maxHeight = 400; // Tăng giới hạn chiều cao tối đa lên 400px để hiển thị đầy đủ
         if (newHeight > maxHeight) {
             el.style.height = maxHeight + 'px';
             el.style.overflowY = 'auto';
@@ -636,7 +636,7 @@
 
                         var html = `
                             <div class="eval-item border rounded-3 p-3 position-relative mb-3">
-                                <h6 class="fw-bold mb-2" style="color: #1e293b; font-size: 1.05rem;">
+                                <h6 class="fw-bold mb-2 eval-question-title" style="font-size: 1.05rem;">
                                     <span class="badge bg-purple-light text-purple me-1">Câu hỏi ${index + 1}</span> ${q.content}
                                 </h6>
                                 <div class="eval-criteria-box p-2.5 rounded-3 mb-3 small mx-1" style="font-size: 0.8rem; line-height: 1.4;">
@@ -690,13 +690,15 @@
                         container.append(html);
                     });
 
-                    // Tự động căn chỉnh chiều cao cho toàn bộ các textarea nhận xét chi tiết sau khi render
-                    $('.eval-feedback-textarea').each(function () {
-                        autoResizeTextarea(this);
-                    });
-
                     $('#evalLoadingSection').hide();
                     $('#evalMainSection').show();
+
+                    // Tự động căn chỉnh chiều cao cho toàn bộ các textarea nhận xét chi tiết sau khi hiển thị (tránh display: none làm scrollHeight = 0)
+                    setTimeout(function() {
+                        $('.eval-feedback-textarea').each(function () {
+                            autoResizeTextarea(this);
+                        });
+                    }, 50);
                 } else {
                     alert(res.message || "Không thể tải bài làm.");
                     modal.hide();
@@ -998,10 +1000,105 @@
     /* Textarea tự động co giãn theo số dòng */
     .eval-feedback-textarea {
         min-height: 31px;
-        max-height: 120px;
+        max-height: 400px;
         overflow-y: hidden;
         resize: none !important;
         line-height: 1.4;
         transition: height 0.08s ease;
+    }
+
+    /* Hỗ trợ Dark Mode cho Modal Giao phỏng vấn & Đánh giá bài làm */
+    [data-bs-theme="dark"] #assignInterviewModal .modal-content,
+    [data-bs-theme="dark"] #evaluateInterviewModal .modal-content {
+        background-color: #1e293b !important;
+        color: #f1f5f9 !important;
+        border: 1px solid #334155 !important;
+    }
+    
+    [data-bs-theme="dark"] #assignInterviewModal .modal-header,
+    [data-bs-theme="dark"] #evaluateInterviewModal .modal-header {
+        border-bottom: 1px solid #334155 !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal .modal-body,
+    [data-bs-theme="dark"] #evaluateInterviewModal .modal-body {
+        background-color: #1e293b !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal .card.bg-light,
+    [data-bs-theme="dark"] #assignInterviewModal .bg-light {
+        background-color: #0f172a !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal label,
+    [data-bs-theme="dark"] #evaluateInterviewModal label {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal .text-dark,
+    [data-bs-theme="dark"] #evaluateInterviewModal .text-dark {
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal .text-muted,
+    [data-bs-theme="dark"] #evaluateInterviewModal .text-muted {
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .question-item-block {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] .eval-item {
+        background: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    
+    [data-bs-theme="dark"] .eval-question-title {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .eval-criteria-box {
+        background-color: rgba(139, 92, 246, 0.15) !important;
+        border-left-color: #8b5cf6 !important;
+        color: #c084fc !important;
+    }
+
+    [data-bs-theme="dark"] .eval-answer-box {
+        background-color: #1e293b !important;
+        border-left-color: #10b981 !important;
+        color: #e2e8f0 !important;
+    }
+
+    [data-bs-theme="dark"] .custom-eval-modal .form-control {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .custom-eval-modal .input-group-text {
+        background-color: #334155 !important;
+        border-color: #334155 !important;
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] #questionsLoadingOverlay {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal .form-control,
+    [data-bs-theme="dark"] #assignInterviewModal .form-select {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] #assignInterviewModal .form-control:focus,
+    [data-bs-theme="dark"] #assignInterviewModal .form-select:focus {
+        background-color: #1e293b !important;
+        border-color: #8b5cf6 !important;
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25) !important;
     }
 </style>

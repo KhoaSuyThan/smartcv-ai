@@ -295,6 +295,57 @@
             transform: translateY(-4px);
         }
     }
+
+    /* Dark Mode cục bộ */
+    [data-bs-theme="dark"] .card-radio-box {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .card-radio-input:checked + .card-radio-box {
+        border-color: #3b82f6 !important;
+        background-color: rgba(59, 130, 246, 0.15) !important;
+        color: #60a5fa !important;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+    }
+    [data-bs-theme="dark"] .card-radio-box .text-muted {
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] .card-radio-box strong {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .bg-light {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .border {
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .text-dark {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .text-secondary {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .card {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .input-group-text {
+        background-color: #1e293b !important;
+        color: #cbd5e1 !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] #questionCountInput {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .history-card {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+    }
 </style>
 
 @section Scripts {

@@ -509,6 +509,13 @@ namespace DoAnCS.Controllers
             await _context.SaveChangesAsync();
             DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
+            // Tạo thông báo đăng nhập thành công (Social Login)
+            _ = NotificationController.CreateNotification(
+                _context, _hubContext, user.UserID, "Login",
+                "Đăng nhập thành công",
+                $"Bạn đã đăng nhập bằng mạng xã hội vào lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
+                "/Account/Profile");
+
             return LocalRedirect(returnUrl);
         }
 
