@@ -485,6 +485,51 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể tự động tạo các bảng Phỏng vấn. Chi tiết: " + interviewDbEx.Message);
         }
 
+        // Migration thủ công: Tạo bảng Notifications (Hệ thống thông báo) nếu chưa có
+        try
+        {
+            context.Database.ExecuteSqlRaw(@"
+                IF OBJECT_ID('Notifications', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE Notifications (
+                        NotificationID INT PRIMARY KEY IDENTITY(1,1),
+                        UserID INT NOT NULL,
+                        Type NVARCHAR(50) NOT NULL DEFAULT 'System',
+                        Title NVARCHAR(200) NOT NULL,
+                        Message NVARCHAR(MAX) NOT NULL,
+                        Link NVARCHAR(500) NULL,
+                        IsRead BIT NOT NULL DEFAULT 0,
+                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT FK_Notifications_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+                    );
+
+                    CREATE INDEX IX_Notifications_UserID_IsRead ON Notifications(UserID, IsRead);
+                END
+            ");
+            Console.WriteLine("Migration Notifications Table: OK");
+        }
+        catch (Exception notifEx)
+        {
+            Console.WriteLine("Lưu ý: Không thể tạo bảng Notifications. Chi tiết: " + notifEx.Message);
+        }
+
+        // Tự động dọn dẹp thông báo cũ quá 30 ngày để giữ DB gọn nhẹ
+        try
+        {
+            var cutoffDate = DateTime.Now.AddDays(-30);
+            var oldNotifications = context.Notifications.Where(n => n.CreatedAt < cutoffDate).ToList();
+            if (oldNotifications.Any())
+            {
+                context.Notifications.RemoveRange(oldNotifications);
+                context.SaveChanges();
+                Console.WriteLine($"Đã dọn dẹp {oldNotifications.Count} thông báo cũ quá 30 ngày.");
+            }
+        }
+        catch (Exception cleanEx)
+        {
+            Console.WriteLine("Lỗi dọn dẹp thông báo cũ: " + cleanEx.Message);
+        }
+
         // Tự động seed tài khoản PRO test để phục vụ kiểm thử dịch thuật CV
         try
         {

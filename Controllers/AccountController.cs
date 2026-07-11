@@ -13,6 +13,8 @@ using PayOS.Models.V2.PaymentRequests;
 using PayOS.Models.Webhooks;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.SignalR;
+using DoAnCS.Hubs;
 
 namespace DoAnCS.Controllers
 {
@@ -24,14 +26,16 @@ namespace DoAnCS.Controllers
         private readonly PayOSClient _payOS;
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
+        private readonly IHubContext<UserSessionHub> _hubContext;
 
-        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService, PayOSClient payOS, IConfiguration config, IMemoryCache cache) {
+        public AccountController(IWebHostEnvironment webHostEnvironment, AppDbContext context, IEmailService emailService, PayOSClient payOS, IConfiguration config, IMemoryCache cache, IHubContext<UserSessionHub> hubContext) {
             _webHostEnvironment = webHostEnvironment;
             _context = context;
             _emailService = emailService;
             _payOS = payOS;
             _config = config;
             _cache = cache;
+            _hubContext = hubContext;
         }
         // ==========================================
         // ĐĂNG KÝ (REGISTER)
@@ -388,6 +392,13 @@ namespace DoAnCS.Controllers
                     user.LastLoginTime = currentLoginTime;
                     await _context.SaveChangesAsync();
                     DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
+
+                    // Tạo thông báo đăng nhập thành công
+                    _ = NotificationController.CreateNotification(
+                        _context, _hubContext, user.UserID, "Login",
+                        "Đăng nhập thành công",
+                        $"Bạn đã đăng nhập vào lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
+                        "/Account/Profile");
 
                     return RedirectToAction("Index", "Home");
                 }

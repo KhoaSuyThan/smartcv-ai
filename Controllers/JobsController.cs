@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using DoAnCS.Data;
 using DoAnCS.Models;
+using DoAnCS.Hubs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DoAnCS.Controllers
@@ -9,10 +11,12 @@ namespace DoAnCS.Controllers
     public class JobsController : BaseController
     {
         private readonly AppDbContext _context;
+        private readonly IHubContext<UserSessionHub> _hubContext;
 
-        public JobsController(AppDbContext context)
+        public JobsController(AppDbContext context, IHubContext<UserSessionHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // ==========================================
@@ -513,6 +517,28 @@ namespace DoAnCS.Controllers
 
             application.Status = status;
             await _context.SaveChangesAsync();
+
+            // Thông báo cho ứng viên khi Recruiter thay đổi trạng thái đơn ứng tuyển
+            var applicantUserId = await _context.Resumes
+                .Where(r => r.ResumeID == application.ResumeID)
+                .Select(r => r.UserID)
+                .FirstOrDefaultAsync();
+            if (applicantUserId > 0)
+            {
+                string statusVi = status switch
+                {
+                    "Reviewing" => "đang được xem xét",
+                    "Accepted" => "đã được chấp nhận 🎉",
+                    "Rejected" => "đã bị từ chối",
+                    _ => "đã được cập nhật"
+                };
+                _ = NotificationController.CreateNotification(
+                    _context, _hubContext, applicantUserId, "Application",
+                    $"Cập nhật đơn ứng tuyển",
+                    $"Đơn ứng tuyển vị trí \"{application.Job.Title}\" {statusVi}.",
+                    "/Account/Applications");
+            }
+
             return Json(new { success = true, message = "Cập nhật trạng thái thành công" });
         }
 
@@ -578,6 +604,13 @@ namespace DoAnCS.Controllers
 
                 _context.Applications.Add(application);
                 await _context.SaveChangesAsync();
+
+                // Tạo thông báo cho ứng viên khi ứng tuyển thành công
+                _ = NotificationController.CreateNotification(
+                    _context, _hubContext, userId, "Application",
+                    $"Ứng tuyển thành công",
+                    $"Bạn đã nộp đơn ứng tuyển vị trí \"{job.Title}\". Hãy chờ nhà tuyển dụng phản hồi.",
+                    "/Account/Applications");
 
                 return Json(new { success = true, message = "Ứng tuyển thành công!" });
             }
