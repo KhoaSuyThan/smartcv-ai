@@ -1594,6 +1594,8 @@
                     .withAutomaticReconnect()
                     .build();
 
+                window._userSessionConnection = connection;
+
                 connection.on("ForceLogout", function () {
                     const modal = document.getElementById("session-conflict-modal");
                     if (modal) {
