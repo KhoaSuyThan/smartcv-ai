@@ -26,7 +26,7 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 - `AccountController`: Inject `IHubContext<UserSessionHub>`, gọi `CreateNotification()` sau khi đăng nhập thành công.
 - `JobsController`: Inject `IHubContext<UserSessionHub>`, gọi `CreateNotification()` khi ứng tuyển và khi cập nhật trạng thái đơn.
 - `AppDbContext`: Thêm `DbSet<Notification>` và cấu hình FK cascade delete.
-- `_Layout.cshtml`: Thêm HTML/CSS/JS cho notification bell, dropdown panel và logic client-side.
+- `_Layout.cshtml`: Thêm HTML/CSS/JS cho notification bell, dropdown panel; sửa lỗi cú pháp CSS keyframes, gán biến SignalR toàn cục để bắt thông báo real-time.
 
 ## [2026-07-10] - Tối ưu hóa phòng phỏng vấn AI & Bảo mật đăng nhập
 
