@@ -88,17 +88,23 @@
                                             <span class="badge bg-secondary px-3 py-2 rounded-pill">@app.Status</span>
                                         }
                                     </td>
-                                    <td class="px-4 py-4 text-end">
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <a href="/Home/Details/@app.JobID" class="btn btn-sm btn-light border rounded-pill fw-bold text-secondary hover-primary">Xem tin</a>
+                                    <td class="px-4 py-4 text-end" style="white-space: nowrap;">
+                                        <div class="d-flex justify-content-end align-items-center gap-2">
+                                            <a href="/Home/Details/@app.JobID" class="btn btn-sm btn-light border rounded-pill fw-bold text-secondary hover-primary"><i class="fas fa-info-circle me-1"></i>Xem tin</a>
                                             
                                             @if (app.Status == "Pending" || app.Status == "Reviewing")
                                             {
-                                                <button onclick="withdrawApplication(@app.ApplicationID)" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">Hủy đơn</button>
+                                                <button onclick="withdrawApplication(@app.ApplicationID)" class="btn btn-sm btn-outline-danger rounded-pill fw-bold"><i class="fas fa-ban me-1"></i>Hủy đơn</button>
                                             }
-                                            else if (app.Status == "Offered")
+                                            
+                                            @if (app.InterviewSchedule != null)
                                             {
-                                                <button onclick="openCandidateOfferModal(@app.ApplicationID, '@(app.JobOffer?.Salary ?? "")', '@(app.JobOffer?.StartDate.ToString("yyyy-MM-dd") ?? "")', '@(app.JobOffer?.Notes ?? "")', '@(app.JobOffer?.Status ?? "")', '@(app.JobOffer?.WorkLocation ?? "")')" class="btn btn-sm btn-orange text-white rounded-pill fw-bold" style="background-color: #fd7e14; border-color: #fd7e14;">Xem Offer</button>
+                                                <button onclick="openCandidateInterviewModal('@(app.InterviewSchedule?.InterviewTime.ToString("yyyy-MM-ddTHH:mm") ?? "")', '@(app.InterviewSchedule?.LocationType ?? "")', '@(app.InterviewSchedule?.Location ?? "")', '@(app.InterviewSchedule?.Notes ?? "")')" class="btn btn-sm btn-outline-purple rounded-pill fw-bold" title="Xem chi tiết lịch phỏng vấn"><i class="fas fa-calendar-alt me-1"></i>Xem lịch PV</button>
+                                            }
+
+                                            @if (app.JobOffer != null)
+                                            {
+                                                <button onclick="openCandidateOfferModal(@app.ApplicationID, '@(app.JobOffer?.Salary ?? "")', '@(app.JobOffer?.StartDate.ToString("yyyy-MM-dd") ?? "")', '@(app.JobOffer?.Notes ?? "")', '@(app.JobOffer?.Status ?? "")', '@(app.JobOffer?.WorkLocation ?? "")')" class="btn btn-sm text-white rounded-pill fw-bold" style="background-color: #fd7e14; border-color: #fd7e14;" title="Xem chi tiết Offer"><i class="fas fa-file-signature me-1"></i>Xem Offer</button>
                                             }
                                         </div>
                                     </td>
