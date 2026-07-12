@@ -394,7 +394,7 @@ namespace DoAnCS.Controllers
                     DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
                     // Tạo thông báo đăng nhập thành công
-                    _ = NotificationController.CreateNotification(
+                    await NotificationController.CreateNotification(
                         _context, _hubContext, user.UserID, "Login",
                         "Đăng nhập thành công",
                         $"Bạn đã đăng nhập vào lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
@@ -510,7 +510,7 @@ namespace DoAnCS.Controllers
             DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
 
             // Tạo thông báo đăng nhập thành công (Social Login)
-            _ = NotificationController.CreateNotification(
+            await NotificationController.CreateNotification(
                 _context, _hubContext, user.UserID, "Login",
                 "Đăng nhập thành công",
                 $"Bạn đã đăng nhập bằng mạng xã hội vào lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
@@ -560,6 +560,8 @@ namespace DoAnCS.Controllers
                 .Include(a => a.Job)
                     .ThenInclude(j => j.Company)
                 .Include(a => a.Resume)
+                .Include(a => a.InterviewSchedule)
+                .Include(a => a.JobOffer)
                 .Where(a => a.Resume.UserID == userId)
                 .OrderByDescending(a => a.AppliedAt)
                 .ToListAsync();

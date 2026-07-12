@@ -5,6 +5,29 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-12] - Tự động hóa quy trình tuyển dụng sau khi chấp nhận hồ sơ (Đặt lịch Phỏng vấn & Thư mời nhận việc)
+
+### Added
+- Bổ sung các thuộc tính Navigation trong `Application.cs` đến `InterviewSchedule` và `JobOffer` để hỗ trợ Eager Loading đồng bộ dữ liệu.
+- Cập nhật trang quản lý ứng viên của Nhà tuyển dụng (`Views/Jobs/Candidates.cshtml`):
+  - Hiển thị badge trạng thái động cho các đơn ở trạng thái `Interviewing`, `Offered` (Đã gửi Offer) và `DeclinedOffer` (Từ chối Offer).
+  - Tích hợp Modal Quyết định duyệt hồ sơ cho phép lựa chọn giữa **Đặt lịch phỏng vấn** (Online qua Google Meet/Zoom hoặc Offline trực tiếp) hoặc **Gửi Offer mời nhận việc trực tiếp**.
+  - Tích hợp Modal xem chi tiết lịch hẹn phỏng vấn đã lên và Modal xem chi tiết Thư mời nhận việc đã gửi (lương đề xuất, ngày đi làm, điều khoản).
+  - Thêm nút nhanh "Mời nhận việc" dành riêng cho ứng viên ở trạng thái `Interviewing`.
+- Cập nhật trang đơn ứng tuyển của Ứng viên (`Views/Account/Applications.cshtml`):
+  - Hiển thị các badge trạng thái phỏng vấn và Offer trực quan, cho phép ứng viên click vào để xem chi tiết.
+  - Tích hợp Modal hiển thị thông tin lịch phỏng vấn chi tiết (Thời gian, hình thức, địa điểm/link họp và chỉ dẫn từ nhà tuyển dụng).
+  - Tích hợp Modal thư mời nhận việc (Job Offer) chứa chi tiết lương, ngày bắt đầu và điều khoản, đồng thời cung cấp 2 nút phản hồi nhanh: **Đồng ý nhận việc** hoặc **Từ chối Offer**.
+  - Gửi yêu cầu phản hồi bất đồng bộ thông qua API `RespondToOffer` và tự động cập nhật giao diện thời gian thực.
+
+### Changed
+- `JobsController.cs`: Cập nhật Action `Candidates` để Include thêm dữ liệu `InterviewSchedule` và `JobOffer`.
+- `AccountController.cs`: Cập nhật Action `Applications` để Include thêm dữ liệu `InterviewSchedule` and `JobOffer`.
+
+### Fixed
+- Khắc phục xung đột tiến trình `DoAnCS.exe` bị treo bằng cách tự động tắt tiến trình trước khi thực hiện build hệ thống.
+- Dọn dẹp các khối database migration thủ công cũ trong `Program.cs`, chỉ giữ lại đoạn tự động tạo 2 bảng mới (`InterviewSchedules` và `JobOffers`).
+
 ## [2026-07-11] - Cải tiến Dark Mode & Sửa lỗi Thông báo Đăng nhập
 
 ### Added

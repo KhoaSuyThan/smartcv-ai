@@ -33,6 +33,8 @@ namespace DoAnCS.Data
         public DbSet<InterviewMessage> InterviewMessages { get; set; }
         public DbSet<RecruiterInterviewPrep> RecruiterInterviewPreps { get; set; }
         public DbSet<Notification> Notifications { get; set; } // Bảng thông báo hệ thống
+        public DbSet<InterviewSchedule> InterviewSchedules { get; set; } // Bảng lịch phỏng vấn
+        public DbSet<JobOffer> JobOffers { get; set; } // Bảng thư mời nhận việc
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -130,6 +132,19 @@ namespace DoAnCS.Data
                 UserRateLimit = 10,
                 TotalTokensUsed = 0
             });
+            // Cấu hình quan hệ 1-1 cho InterviewSchedule (Xóa đơn ứng tuyển thì tự động xóa lịch phỏng vấn liên quan)
+            modelBuilder.Entity<InterviewSchedule>()
+                .HasOne(s => s.Application)
+                .WithOne(a => a.InterviewSchedule)
+                .HasForeignKey<InterviewSchedule>(s => s.ApplicationID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình quan hệ 1-1 cho JobOffer (Xóa đơn ứng tuyển thì tự động xóa Offer nhận việc liên quan)
+            modelBuilder.Entity<JobOffer>()
+                .HasOne(o => o.Application)
+                .WithOne(a => a.JobOffer)
+                .HasForeignKey<JobOffer>(o => o.ApplicationID)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

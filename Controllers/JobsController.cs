@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using DoAnCS.Data;
 using DoAnCS.Models;
 using DoAnCS.Hubs;
+using DoAnCS.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace DoAnCS.Controllers
@@ -12,11 +13,13 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IHubContext<UserSessionHub> _hubContext;
+        private readonly IEmailService _emailService;
 
-        public JobsController(AppDbContext context, IHubContext<UserSessionHub> hubContext)
+        public JobsController(AppDbContext context, IHubContext<UserSessionHub> hubContext, IEmailService emailService)
         {
             _context = context;
             _hubContext = hubContext;
+            _emailService = emailService;
         }
 
         // ==========================================
@@ -488,6 +491,8 @@ namespace DoAnCS.Controllers
             var applications = await _context.Applications
                 .Include(a => a.Resume)
                     .ThenInclude(r => r.User) // Để lấy thông tin liên hệ của ứng viên
+                .Include(a => a.InterviewSchedule)
+                .Include(a => a.JobOffer)
                 .Where(a => a.JobID == id)
                 .OrderByDescending(a => a.AppliedAt)
                 .ToListAsync();
@@ -532,7 +537,7 @@ namespace DoAnCS.Controllers
                     "Rejected" => "đã bị từ chối",
                     _ => "đã được cập nhật"
                 };
-                _ = NotificationController.CreateNotification(
+                await NotificationController.CreateNotification(
                     _context, _hubContext, applicantUserId, "Application",
                     $"Cập nhật đơn ứng tuyển",
                     $"Đơn ứng tuyển vị trí \"{application.Job.Title}\" {statusVi}.",
@@ -540,6 +545,301 @@ namespace DoAnCS.Controllers
             }
 
             return Json(new { success = true, message = "Cập nhật trạng thái thành công" });
+        }
+
+        // API đặt lịch phỏng vấn cho ứng viên
+        [HttpPost]
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> ScheduleInterview(int applicationId, DateTime interviewTime, string locationType, string location, string? notes)
+        {
+            var application = await _context.Applications
+                .Include(a => a.Job)
+                .ThenInclude(j => j.Company)
+                .FirstOrDefaultAsync(a => a.ApplicationID == applicationId);
+
+            if (application == null) 
+                return Json(new { success = false, message = "Không tìm thấy đơn ứng tuyển." });
+
+            if (User.IsInRole("Recruiter") && application.Job.CompanyID != CurrentCompanyId)
+                return Json(new { success = false, message = "Bạn không có quyền lên lịch phỏng vấn cho đơn này." });
+
+            if (interviewTime <= DateTime.Now)
+                return Json(new { success = false, message = "Thời gian phỏng vấn phải lớn hơn thời gian hiện tại." });
+
+            // Cập nhật trạng thái đơn ứng tuyển sang Interviewing
+            application.Status = "Interviewing";
+
+            // Tạo bản ghi lịch phỏng vấn mới
+            var schedule = new InterviewSchedule
+            {
+                ApplicationID = applicationId,
+                InterviewTime = interviewTime,
+                LocationType = locationType,
+                Location = location,
+                Notes = notes,
+                CreatedAt = DateTime.Now
+            };
+            _context.InterviewSchedules.Add(schedule);
+            await _context.SaveChangesAsync();
+
+            // Lấy thông tin ứng viên để gửi email và notification
+            var applicant = await _context.Resumes
+                .Include(r => r.User)
+                .Where(r => r.ResumeID == application.ResumeID)
+                .Select(r => r.User)
+                .FirstOrDefaultAsync();
+
+            if (applicant != null)
+            {
+                // 1. Tạo thông báo trên hệ thống
+                await NotificationController.CreateNotification(
+                    _context, _hubContext, applicant.UserID, "Interview",
+                    "Lời mời phỏng vấn mới",
+                    $"Bạn có lịch phỏng vấn cho vị trí \"{application.Job.Title}\" vào lúc {interviewTime:HH:mm dd/MM/yyyy}.",
+                    "/Account/Applications");
+
+                // 2. Gửi Email thông báo (chạy ngầm)
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        string subject = $"[SmartCV] Thư mời phỏng vấn vị trí {application.Job.Title} - {application.Job.Company.Name}";
+                        string body = $@"
+                            <div style='font-family: &quot;Segoe UI&quot;, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                                <div style='background: linear-gradient(135deg, #0d6efd, #0a58ca); padding: 30px 20px; text-align: center; color: white;'>
+                                    <h2 style='margin: 0; font-size: 24px; font-weight: 700;'>Thư Mời Phỏng Vấn 📅</h2>
+                                    <p style='margin: 8px 0 0 0; opacity: 0.9; font-size: 15px;'>Cơ hội nghề nghiệp của bạn tại {application.Job.Company.Name}</p>
+                                </div>
+                                <div style='padding: 24px; color: #334155; line-height: 1.6; font-size: 15px;'>
+                                    <p>Xin chào <strong>{applicant.FullName}</strong>,</p>
+                                    <p>Cảm ơn bạn đã quan tâm và nộp hồ sơ ứng tuyển vào vị trí <strong>{application.Job.Title}</strong>. Đại diện công ty <strong>{application.Job.Company.Name}</strong> trân trọng mời bạn tham dự buổi phỏng vấn với thông tin chi tiết như sau:</p>
+                                    
+                                    <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 18px 0;'>
+                                        <div style='margin-bottom: 8px;'><strong>Thời gian:</strong> <span style='color: #0d6efd; font-weight: bold;'>{interviewTime:HH:mm - dd/MM/yyyy}</span></div>
+                                        <div style='margin-bottom: 8px;'><strong>Hình thức:</strong> <span style='color: #0d6efd;'>{(locationType == "Online" ? "Phỏng vấn trực tuyến (Online)" : "Phỏng vấn trực tiếp tại văn phòng (Offline)")}</span></div>
+                                        <div style='margin-bottom: 8px;'><strong>Địa điểm / Link họp:</strong> <a href='{(location.StartsWith("http") ? location : "#")}' style='color: #0d6efd; text-decoration: underline;'>{location}</a></div>
+                                        {(!string.IsNullOrEmpty(notes) ? $"<div><strong>Ghi chú bổ sung:</strong> <i>{notes}</i></div>" : "")}
+                                    </div>
+                                    
+                                    <p>Vui lòng đăng nhập vào tài khoản SmartCV để xem lại lịch phỏng vấn và chuẩn bị tốt nhất cho buổi trao đổi.</p>
+                                </div>
+                                <div style='background: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 12.5px; border-top: 1px solid #e2e8f0;'>
+                                    <p style='margin: 0;'>Đây là email tự động từ hệ thống SmartCV. Vui lòng không trả lời email này.</p>
+                                    <p style='margin: 4px 0 0 0;'>&copy; {DateTime.Now.Year} SmartCV. All rights reserved.</p>
+                                </div>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(applicant.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Lỗi gửi email mời phỏng vấn: " + ex.Message);
+                    }
+                });
+            }
+
+            return Json(new { success = true, message = "Lên lịch phỏng vấn và gửi thông báo thành công!" });
+        }
+
+        // API gửi Offer nhận việc trực tiếp cho ứng viên
+        [HttpPost]
+        [Authorize(Roles = "Recruiter,Admin")]
+        public async Task<IActionResult> SendJobOffer(int applicationId, string salary, DateTime startDate, string? notes, string? workLocation)
+        {
+            var application = await _context.Applications
+                .Include(a => a.Job)
+                .ThenInclude(j => j.Company)
+                .FirstOrDefaultAsync(a => a.ApplicationID == applicationId);
+
+            if (application == null) 
+                return Json(new { success = false, message = "Không tìm thấy đơn ứng tuyển." });
+
+            if (User.IsInRole("Recruiter") && application.Job.CompanyID != CurrentCompanyId)
+                return Json(new { success = false, message = "Bạn không có quyền gửi offer cho đơn này." });
+
+            if (startDate <= DateTime.Now)
+                return Json(new { success = false, message = "Ngày nhận việc phải lớn hơn thời gian hiện tại." });
+
+            // Cập nhật trạng thái đơn ứng tuyển sang Offered
+            application.Status = "Offered";
+
+            // Tạo bản ghi JobOffer mới
+            var offer = new JobOffer
+            {
+                ApplicationID = applicationId,
+                Salary = salary,
+                StartDate = startDate,
+                Notes = notes,
+                WorkLocation = workLocation,
+                Status = "Pending",
+                CreatedAt = DateTime.Now
+            };
+            _context.JobOffers.Add(offer);
+            await _context.SaveChangesAsync();
+
+            // Lấy thông tin ứng viên
+            var applicant = await _context.Resumes
+                .Include(r => r.User)
+                .Where(r => r.ResumeID == application.ResumeID)
+                .Select(r => r.User)
+                .FirstOrDefaultAsync();
+
+            if (applicant != null)
+            {
+                // 1. Tạo thông báo trên hệ thống
+                await NotificationController.CreateNotification(
+                    _context, _hubContext, applicant.UserID, "Application",
+                    "Bạn nhận được một thư mời làm việc (Job Offer)",
+                    $"Công ty \"{application.Job.Company.Name}\" đã gửi thư mời làm việc cho bạn với mức lương {salary}.",
+                    "/Account/Applications");
+
+                // 2. Gửi Email thông báo (chạy ngầm)
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        string subject = $"[SmartCV] Thư mời nhận việc (Job Offer) vị trí {application.Job.Title} - {application.Job.Company.Name}";
+                        string body = $@"
+                            <div style='font-family: &quot;Segoe UI&quot;, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                                <div style='background: linear-gradient(135deg, #198754, #146c43); padding: 30px 20px; text-align: center; color: white;'>
+                                    <h2 style='margin: 0; font-size: 24px; font-weight: 700;'>Thư Mời Nhận Việc 🎉</h2>
+                                    <p style='margin: 8px 0 0 0; opacity: 0.9; font-size: 15px;'>Chúc mừng bạn đã xuất sắc vượt qua quy trình tuyển dụng!</p>
+                                </div>
+                                <div style='padding: 24px; color: #334155; line-height: 1.6; font-size: 15px;'>
+                                    <p>Xin chào <strong>{applicant.FullName}</strong>,</p>
+                                    <p>Đại diện công ty <strong>{application.Job.Company.Name}</strong> trân trọng gửi tới bạn lời mời nhận việc cho vị trí <strong>{application.Job.Title}</strong>. Thông tin chi tiết về lời mời nhận việc:</p>
+                                    
+                                    <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 18px 0;'>
+                                        <div style='margin-bottom: 8px;'><strong>Vị trí:</strong> <span style='color: #198754; font-weight: bold;'>{application.Job.Title}</span></div>
+                                        <div style='margin-bottom: 8px;'><strong>Mức lương đề xuất:</strong> <span style='color: #198754; font-weight: bold;'>{salary}</span></div>
+                                        <div style='margin-bottom: 8px;'><strong>Ngày bắt đầu làm việc:</strong> <span style='color: #198754;'>{startDate:dd/MM/yyyy}</span></div>
+                                        {(!string.IsNullOrEmpty(workLocation) ? $"<div style='margin-bottom: 8px;'><strong>Địa điểm làm việc:</strong> <span style='color: #198754;'>{workLocation}</span></div>" : "")}
+                                        {(!string.IsNullOrEmpty(notes) ? $"<div><strong>Điều khoản bổ sung:</strong> <i>{notes}</i></div>" : "")}
+                                    </div>
+                                    
+                                    <p>Vui lòng đăng nhập vào tài khoản SmartCV để xem chi tiết offer và nhấn <strong>Đồng ý nhận việc</strong> hoặc <strong>Từ chối</strong> trước thời hạn.</p>
+                                </div>
+                                <div style='background: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 12.5px; border-top: 1px solid #e2e8f0;'>
+                                    <p style='margin: 0;'>Đây là email tự động từ hệ thống SmartCV. Vui lòng không trả lời email này.</p>
+                                    <p style='margin: 4px 0 0 0;'>&copy; {DateTime.Now.Year} SmartCV. All rights reserved.</p>
+                                </div>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(applicant.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Lỗi gửi email Job Offer: " + ex.Message);
+                    }
+                });
+            }
+
+            return Json(new { success = true, message = "Gửi Offer thành công!" });
+        }
+
+        // API phản hồi Offer từ ứng viên
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        public async Task<IActionResult> RespondToOffer(int applicationId, string response)
+        {
+            var offer = await _context.JobOffers
+                .Include(o => o.Application)
+                    .ThenInclude(a => a.Job)
+                        .ThenInclude(j => j.Company)
+                .Include(o => o.Application)
+                    .ThenInclude(a => a.Resume)
+                .FirstOrDefaultAsync(o => o.ApplicationID == applicationId);
+
+            if (offer == null)
+                return Json(new { success = false, message = "Không tìm thấy thông tin Offer." });
+
+            // Kiểm tra xem Offer này có phải của ứng viên hiện tại hay không
+            var userIdClaim = User.FindFirst("UserID")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId) || offer.Application.Resume.UserID != userId)
+            {
+                return Json(new { success = false, message = "Bạn không có quyền phản hồi Offer này." });
+            }
+
+            if (offer.Status != "Pending")
+            {
+                return Json(new { success = false, message = "Offer này đã được phản hồi trước đó." });
+            }
+
+            if (response != "Accepted" && response != "Declined")
+            {
+                return Json(new { success = false, message = "Trạng thái phản hồi không hợp lệ." });
+            }
+
+            // Cập nhật trạng thái của Offer
+            offer.Status = response;
+
+            // Cập nhật trạng thái của Application tương ứng
+            if (response == "Accepted")
+            {
+                offer.Application.Status = "Accepted"; // Đồng ý nhận việc
+            }
+            else
+            {
+                offer.Application.Status = "DeclinedOffer"; // Từ chối nhận việc
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Gửi thông báo cho Nhà tuyển dụng
+            var recruiterId = offer.Application.Job.RecruiterID;
+            string feedbackMsg = response == "Accepted" 
+                ? $"Ứng viên \"{User.Identity.Name}\" đã ĐỒNG Ý nhận thư mời làm việc cho vị trí \"{offer.Application.Job.Title}\" 🎉."
+                : $"Ứng viên \"{User.Identity.Name}\" đã TỪ CHỐI thư mời làm việc cho vị trí \"{offer.Application.Job.Title}\".";
+
+            await NotificationController.CreateNotification(
+                _context, _hubContext, recruiterId, "Application",
+                $"Phản hồi Offer từ ứng viên",
+                feedbackMsg,
+                $"/Jobs/Candidates?jobId={offer.Application.JobID}");
+
+            // Gửi Email thông báo cho Nhà tuyển dụng (chạy ngầm)
+            var recruiter = await _context.Users.FindAsync(recruiterId);
+            if (recruiter != null)
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        string subject = $"[SmartCV] Phản hồi Job Offer vị trí {offer.Application.Job.Title} từ ứng viên";
+                        string body = $@"
+                            <div style='font-family: &quot;Segoe UI&quot;, Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                                <div style='background: linear-gradient(135deg, #0d6efd, #0a58ca); padding: 30px 20px; text-align: center; color: white;'>
+                                    <h2 style='margin: 0; font-size: 24px; font-weight: 700;'>Phản Hồi Thư Mời Nhận Việc 📧</h2>
+                                    <p style='margin: 8px 0 0 0; opacity: 0.9; font-size: 15px;'>Kết quả phản hồi của ứng viên tại {offer.Application.Job.Company.Name}</p>
+                                </div>
+                                <div style='padding: 24px; color: #334155; line-height: 1.6; font-size: 15px;'>
+                                    <p>Xin chào <strong>{recruiter.FullName}</strong>,</p>
+                                    <p>Hệ thống SmartCV xin thông báo kết quả phản hồi của ứng viên cho vị trí <strong>{offer.Application.Job.Title}</strong>:</p>
+                                    
+                                    <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 18px 0;'>
+                                        <div style='margin-bottom: 8px;'><strong>Ứng viên:</strong> <span>{User.Identity.Name}</span></div>
+                                        <div style='margin-bottom: 8px;'><strong>Vị trí:</strong> <span>{offer.Application.Job.Title}</span></div>
+                                        <div style='margin-bottom: 8px;'><strong>Kết quả phản hồi:</strong> <span style='color: {(response == "Accepted" ? "#198754" : "#dc3545")}; font-weight: bold;'>{(response == "Accepted" ? "ĐỒNG Ý NHẬN VIỆC" : "TỪ CHỐI NHẬN VIỆC")}</span></div>
+                                    </div>
+                                    
+                                    <p>Vui lòng đăng nhập hệ thống để tiếp tục quy trình tuyển dụng và chuẩn bị các thủ tục Onboarding tiếp theo cho ứng viên nếu cần.</p>
+                                </div>
+                                <div style='background: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 12.5px; border-top: 1px solid #e2e8f0;'>
+                                    <p style='margin: 0;'>Đây là email tự động từ hệ thống SmartCV. Vui lòng không trả lời email này.</p>
+                                    <p style='margin: 4px 0 0 0;'>&copy; {DateTime.Now.Year} SmartCV. All rights reserved.</p>
+                                </div>
+                            </div>";
+
+                        await _emailService.SendEmailAsync(recruiter.Email, subject, body);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Lỗi gửi email phản hồi offer tới recruiter: " + ex.Message);
+                    }
+                });
+            }
+
+            return Json(new { success = true, message = "Phản hồi Offer thành công!" });
         }
 
         [HttpGet]
@@ -606,7 +906,7 @@ namespace DoAnCS.Controllers
                 await _context.SaveChangesAsync();
 
                 // Tạo thông báo cho ứng viên khi ứng tuyển thành công
-                _ = NotificationController.CreateNotification(
+                await NotificationController.CreateNotification(
                     _context, _hubContext, userId, "Application",
                     $"Ứng tuyển thành công",
                     $"Bạn đã nộp đơn ứng tuyển vị trí \"{job.Title}\". Hãy chờ nhà tuyển dụng phản hồi.",

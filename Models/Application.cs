@@ -13,5 +13,9 @@ namespace DoAnCS.Models
 
         public DateTime AppliedAt { get; set; } = DateTime.Now;
         public string Status { get; set; } = "Pending";
+
+        // Các thông tin bổ sung sau khi duyệt
+        public InterviewSchedule? InterviewSchedule { get; set; }
+        public JobOffer? JobOffer { get; set; }
     }
 }
