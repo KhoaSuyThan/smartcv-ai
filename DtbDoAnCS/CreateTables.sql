@@ -110,6 +110,8 @@ CREATE TABLE Users (
     ExpectedLocation NVARCHAR(MAX) NULL,
     ExpectedSalary INT NULL,
     LastLoginTime BIGINT NULL, -- Timestamp đăng nhập mới nhất (Ticks), dùng kiểm tra phiên đa thiết bị
+    LastLoginIP NVARCHAR(100) NULL, -- Địa chỉ IP của phiên đăng nhập gần nhất
+    LastLoginDevice NVARCHAR(255) NULL, -- Tên thiết bị/trình duyệt của phiên đăng nhập gần nhất
     CONSTRAINT FK_Users_Companies FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID) ON DELETE SET NULL
 );
 
