@@ -5,6 +5,14 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-12] - Cấu hình bộ lọc email tại localhost
+
+### Changed
+- Cập nhật dịch vụ gửi email (`Services/EmailService.cs`):
+  - Tích hợp kiểm tra môi trường Development để nhận diện khi chạy ở localhost.
+  - Thiết lập bộ lọc chỉ cho phép gửi đi các email thiết yếu: OTP/Xác thực tài khoản/Mật khẩu, Job Offer (Thư mời nhận việc gửi cho ứng viên) và Lịch phỏng vấn.
+  - Tự động chặn các email phụ khác (như Chào mừng đăng ký, Cảnh báo đăng nhập, Phản hồi thư mời nhận việc từ ứng viên gửi nhà tuyển dụng...) khi chạy ở localhost để tránh làm trôi hòm thư kiểm thử.
+
 ## [2026-07-12] - Tự động hóa quy trình tuyển dụng sau khi chấp nhận hồ sơ (Đặt lịch Phỏng vấn & Thư mời nhận việc)
 
 ### Added
