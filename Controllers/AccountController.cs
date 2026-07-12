@@ -362,43 +362,65 @@ namespace DoAnCS.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
-                    // GỬI EMAIL CẢNH BÁO BẢO MẬT NẾU PHÁT HIỆN CÓ PHIÊN ĐĂNG NHẬP CŨ ĐANG HOẠT ĐỘNG (BỎ QUA TÀI KHOẢN ADMIN)
-                    if (user.LastLoginTime.HasValue && user.LastLoginTime.Value > 0 && !string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase))
-                    {
-                        try
-                        {
-                            var prevLoginTime = new DateTime(user.LastLoginTime.Value, DateTimeKind.Utc).ToLocalTime();
-                            string subject = "Cảnh báo bảo mật: Phát hiện đăng nhập mới trên CVBuilder";
-                            string body = $@"
-                                <h3>Phát hiện đăng nhập mới</h3>
-                                <p>Chào <b>{user.FullName}</b>,</p>
-                                <p>Tài khoản của bạn vừa được đăng nhập thành công vào lúc {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.</p>
-                                <p>Phiên đăng nhập cũ trước đó (khởi tạo lúc {prevLoginTime.ToString("dd/MM/yyyy HH:mm:ss")}) trên thiết bị khác sẽ bị đăng xuất tự động.</p>
-                                <p><b>Nếu không phải bạn thực hiện:</b> Vui lòng đổi mật khẩu ngay lập tức tại trang cá nhân để bảo vệ tài khoản.</p>
-                                <br/>
-                                <p>Trân trọng,<br/>CVBuilder Team</p>";
+                    // Lấy thông tin IP và thiết bị hiện tại
+                    string currentIP = GetClientIPAddress();
+                    string currentDevice = ParseUserAgent(Request.Headers["User-Agent"]);
 
-                            // Chạy bất đồng bộ (Fire-and-forget) để không làm chậm luồng xử lý đăng nhập chính
-                            _ = Task.Run(() => _emailService.SendEmailAsync(user.Email, subject, body));
-                        }
-                        catch (Exception ex)
+                    // Kiểm tra xem đây có phải là thiết bị hoặc địa chỉ IP mới hay không
+                    bool isNewDeviceOrIP = string.IsNullOrEmpty(user.LastLoginIP) || 
+                                           string.IsNullOrEmpty(user.LastLoginDevice) || 
+                                           user.LastLoginIP != currentIP || 
+                                           user.LastLoginDevice != currentDevice;
+
+                    if (isNewDeviceOrIP)
+                    {
+                        // GỬI EMAIL CẢNH BÁO BẢO MẬT NẾU PHÁT HIỆN CÓ PHIÊN ĐĂNG NHẬP CŨ ĐANG HOẠT ĐỘNG (BỎ QUA TÀI KHOẢN ADMIN)
+                        if (user.LastLoginTime.HasValue && user.LastLoginTime.Value > 0 && !string.Equals(user.Role, "Admin", StringComparison.OrdinalIgnoreCase))
                         {
-                            // Ghi log lỗi nếu không gửi được email nhưng không làm gián đoạn đăng nhập của người dùng
-                            Console.WriteLine("Lỗi khi gửi email cảnh báo đăng nhập: " + ex.Message);
+                            try
+                            {
+                                var prevLoginTime = new DateTime(user.LastLoginTime.Value, DateTimeKind.Utc).ToLocalTime();
+                                string subject = "Cảnh báo bảo mật: Phát hiện thiết bị đăng nhập mới trên CVBuilder";
+                                string body = $@"
+                                    <h3>Phát hiện đăng nhập mới từ thiết bị hoặc địa chỉ IP lạ</h3>
+                                    <p>Chào <b>{user.FullName}</b>,</p>
+                                    <p>Tài khoản của bạn vừa được đăng nhập thành công từ một thiết bị hoặc địa điểm mới:</p>
+                                    <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 15px 0;'>
+                                        <p style='margin: 4px 0;'><b>Địa chỉ IP:</b> {currentIP}</p>
+                                        <p style='margin: 4px 0;'><b>Thiết bị/Trình duyệt:</b> {currentDevice}</p>
+                                        <p style='margin: 4px 0;'><b>Thời gian đăng nhập:</b> {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}</p>
+                                    </div>
+                                    <p>Phiên đăng nhập cũ trước đó (khởi tạo lúc {prevLoginTime.ToString("dd/MM/yyyy HH:mm:ss")}) trên thiết bị khác sẽ bị đăng xuất tự động.</p>
+                                    <p><b>Nếu không phải bạn thực hiện:</b> Vui lòng đổi mật khẩu ngay lập tức tại trang cá nhân để bảo vệ tài khoản.</p>
+                                    <br/>
+                                    <p>Trân trọng,<br/>CVBuilder Team</p>";
+
+                                // Chạy bất đồng bộ (Fire-and-forget) để không làm chậm luồng xử lý đăng nhập chính
+                                _ = Task.Run(() => _emailService.SendEmailAsync(user.Email, subject, body));
+                            }
+                            catch (Exception ex)
+                            {
+                                // Ghi log lỗi nếu không gửi được email nhưng không làm gián đoạn đăng nhập của người dùng
+                                Console.WriteLine("Lỗi khi gửi email cảnh báo đăng nhập mới: " + ex.Message);
+                            }
                         }
+
+                        // Tạo thông báo hệ thống về việc đăng nhập thiết bị mới
+                        await NotificationController.CreateNotification(
+                            _context, _hubContext, user.UserID, "Login",
+                            "Phát hiện đăng nhập mới",
+                            $"Tài khoản được đăng nhập từ IP {currentIP} ({currentDevice}) lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
+                            "/Account/Profile");
+
+                        // Cập nhật thông tin IP và thiết bị mới
+                        user.LastLoginIP = currentIP;
+                        user.LastLoginDevice = currentDevice;
                     }
 
                     // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
                     user.LastLoginTime = currentLoginTime;
                     await _context.SaveChangesAsync();
                     DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
-
-                    // Tạo thông báo đăng nhập thành công
-                    await NotificationController.CreateNotification(
-                        _context, _hubContext, user.UserID, "Login",
-                        "Đăng nhập thành công",
-                        $"Bạn đã đăng nhập vào lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
-                        "/Account/Profile");
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -503,18 +525,35 @@ namespace DoAnCS.Controllers
             // Xóa cookie tạm thời sau khi đã đăng nhập thành công
             await HttpContext.SignOutAsync("ExternalCookies");
 
+            // Lấy thông tin IP và thiết bị hiện tại cho đăng nhập mạng xã hội
+            string currentIP = GetClientIPAddress();
+            string currentDevice = ParseUserAgent(Request.Headers["User-Agent"]);
+
+            // Kiểm tra xem đây có phải là thiết bị hoặc địa chỉ IP mới hay không
+            bool isNewDeviceOrIP = string.IsNullOrEmpty(user.LastLoginIP) || 
+                                   string.IsNullOrEmpty(user.LastLoginDevice) || 
+                                   user.LastLoginIP != currentIP || 
+                                   user.LastLoginDevice != currentDevice;
+
+            if (isNewDeviceOrIP)
+            {
+                // Tạo thông báo hệ thống về việc đăng nhập mạng xã hội trên thiết bị mới
+                await NotificationController.CreateNotification(
+                    _context, _hubContext, user.UserID, "Login",
+                    "Phát hiện đăng nhập mới",
+                    $"Tài khoản được đăng nhập bằng mạng xã hội từ IP {currentIP} ({currentDevice}) lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
+                    "/Account/Profile");
+
+                // Cập nhật thông tin IP và thiết bị mới
+                user.LastLoginIP = currentIP;
+                user.LastLoginDevice = currentDevice;
+            }
+
             // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
             // Ghi vào DB để bảo toàn qua restart server
             user.LastLoginTime = currentLoginTime;
             await _context.SaveChangesAsync();
             DoAnCS.Services.SessionTracker.UpdateSession(user.UserID, currentLoginTime);
-
-            // Tạo thông báo đăng nhập thành công (Social Login)
-            await NotificationController.CreateNotification(
-                _context, _hubContext, user.UserID, "Login",
-                "Đăng nhập thành công",
-                $"Bạn đã đăng nhập bằng mạng xã hội vào lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
-                "/Account/Profile");
 
             return LocalRedirect(returnUrl);
         }
@@ -1360,6 +1399,46 @@ namespace DoAnCS.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        private string GetClientIPAddress()
+        {
+            string ip = HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            if (string.IsNullOrEmpty(ip))
+            {
+                ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            }
+            if (!string.IsNullOrEmpty(ip) && ip.Contains(","))
+            {
+                ip = ip.Split(',')[0].Trim();
+            }
+            if (ip == "::1")
+            {
+                ip = "127.0.0.1";
+            }
+            return string.IsNullOrEmpty(ip) ? "Không xác định" : ip;
+        }
+
+        private string ParseUserAgent(string userAgent)
+        {
+            if (string.IsNullOrEmpty(userAgent)) return "Thiết bị không xác định";
+
+            string ua = userAgent.ToLower();
+            string os = "HĐH khác";
+            if (ua.Contains("windows")) os = "Windows";
+            else if (ua.Contains("android")) os = "Android";
+            else if (ua.Contains("iphone") || ua.Contains("ipad")) os = "iOS";
+            else if (ua.Contains("macintosh") || ua.Contains("mac os")) os = "macOS";
+            else if (ua.Contains("linux")) os = "Linux";
+
+            string browser = "Trình duyệt khác";
+            if (ua.Contains("edg/")) browser = "Edge";
+            else if (ua.Contains("chrome") && !ua.Contains("edg") && !ua.Contains("opr")) browser = "Chrome";
+            else if (ua.Contains("safari") && !ua.Contains("chrome")) browser = "Safari";
+            else if (ua.Contains("firefox")) browser = "Firefox";
+            else if (ua.Contains("opr/") || ua.Contains("opera")) browser = "Opera";
+
+            return $"{browser} trên {os}";
         }
 
         private class LoginAttempt

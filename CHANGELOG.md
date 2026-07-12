@@ -5,6 +5,18 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-12] - Tối ưu hóa thông báo đăng nhập theo IP và Thiết bị mới
+
+### Added
+- Bổ sung các thuộc tính `LastLoginIP` và `LastLoginDevice` vào model `User` (`Models/User.cs`).
+- Thêm logic tự động Migration trong `Program.cs` để thêm 2 cột mới này vào bảng `Users`.
+- Cập nhật script cơ sở dữ liệu `DtbDoAnCS/CreateTables.sql` để đồng bộ cấu trúc bảng `Users`.
+
+### Changed
+- Cập nhật logic đăng nhập thường và đăng nhập qua MXH trong `AccountController.cs`:
+  - Trích xuất địa chỉ IP người dùng (hỗ trợ `X-Forwarded-For` thông qua proxy) và User-Agent thiết bị (đã rút gọn thành tên HĐH và trình duyệt dễ đọc).
+  - So sánh IP/Thiết bị hiện tại với lần đăng nhập trước đó: Chỉ tạo thông báo hệ thống và gửi email cảnh báo bảo mật nếu phát hiện IP mới hoặc thiết bị mới. Bỏ qua hoàn toàn thông báo nếu đăng nhập từ cùng một IP/thiết bị cũ để tránh gây phiền nhiễu.
+
 ## [2026-07-12] - Cấu hình bộ lọc email tại localhost
 
 ### Changed

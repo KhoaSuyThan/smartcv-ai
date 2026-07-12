@@ -40,6 +40,8 @@ namespace DoAnCS.Models {
         /// Cookie của thiết bị cũ sẽ bị từ chối nếu LoginTime nhỏ hơn giá trị này.
         /// </summary>
         public long? LastLoginTime { get; set; } = null;
+        public string? LastLoginIP { get; set; } = null;
+        public string? LastLoginDevice { get; set; } = null;
 
         public virtual ICollection<Resume> Resumes { get; set; }   
     }
