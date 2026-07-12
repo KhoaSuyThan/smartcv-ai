@@ -381,153 +381,51 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể tạo Database Indexes. Chi tiết: " + indexEx.Message);
         }
 
-        // Migration thủ công: Tạo bảng TestRuns và TestCaseDetails nếu chưa có phục vụ lưu lịch sử kiểm thử
+        // Migration thủ công: Tạo các bảng InterviewSchedules và JobOffers nếu chưa có phục vụ đặt lịch phỏng vấn và gửi offer
         try
         {
             context.Database.ExecuteSqlRaw(@"
-                IF OBJECT_ID('TestRuns', 'U') IS NULL
+                IF OBJECT_ID('InterviewSchedules', 'U') IS NULL
                 BEGIN
-                    CREATE TABLE TestRuns (
-                        TestRunID INT PRIMARY KEY IDENTITY(1,1),
-                        ExecutionTime DATETIME DEFAULT GETDATE(),
-                        SuiteName NVARCHAR(100) NOT NULL,
-                        TotalCases INT NOT NULL,
-                        PassedCases INT NOT NULL,
-                        FailedCases INT NOT NULL,
-                        AvgResponseTimeMs BIGINT NOT NULL
+                    CREATE TABLE InterviewSchedules (
+                        ScheduleID INT PRIMARY KEY IDENTITY(1,1),
+                        ApplicationID INT NOT NULL,
+                        InterviewTime DATETIME NOT NULL,
+                        LocationType NVARCHAR(50) NOT NULL,
+                        Location NVARCHAR(500) NOT NULL,
+                        Notes NVARCHAR(MAX) NULL,
+                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT FK_InterviewSchedules_Applications FOREIGN KEY (ApplicationID) REFERENCES Applications(ApplicationID) ON DELETE CASCADE
                     );
                 END
 
-                IF OBJECT_ID('TestCaseDetails', 'U') IS NULL
+                IF OBJECT_ID('JobOffers', 'U') IS NULL
                 BEGIN
-                    CREATE TABLE TestCaseDetails (
-                        TestCaseID INT PRIMARY KEY IDENTITY(1,1),
-                        TestRunID INT NOT NULL,
-                        Name NVARCHAR(255) NOT NULL,
-                        Method NVARCHAR(50) NOT NULL,
-                        Url NVARCHAR(500) NULL,
-                        Status NVARCHAR(50) NOT NULL,
-                        ResponseTimeMs BIGINT NOT NULL,
-                        ExpectedResult NVARCHAR(MAX) NULL,
-                        ActualResult NVARCHAR(MAX) NULL,
-                        ErrorMessage NVARCHAR(MAX) NULL,
-                        CONSTRAINT FK_TestCaseDetails_TestRuns FOREIGN KEY (TestRunID) REFERENCES TestRuns(TestRunID) ON DELETE CASCADE
+                    CREATE TABLE JobOffers (
+                        OfferID INT PRIMARY KEY IDENTITY(1,1),
+                        ApplicationID INT NOT NULL,
+                        Salary NVARCHAR(100) NOT NULL,
+                        StartDate DATETIME NOT NULL,
+                        Notes NVARCHAR(MAX) NULL,
+                        WorkLocation NVARCHAR(500) NULL,
+                        Status NVARCHAR(50) NOT NULL DEFAULT 'Pending',
+                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT FK_JobOffers_Applications FOREIGN KEY (ApplicationID) REFERENCES Applications(ApplicationID) ON DELETE CASCADE
                     );
+                END
+                ELSE
+                BEGIN
+                    IF COL_LENGTH('JobOffers', 'WorkLocation') IS NULL
+                    BEGIN
+                        ALTER TABLE JobOffers ADD WorkLocation NVARCHAR(500) NULL;
+                    END
                 END
             ");
-            Console.WriteLine("Migration Test History Tables: OK");
+            Console.WriteLine("Migration InterviewSchedules and JobOffers Tables: OK");
         }
-        catch (Exception dbEx)
+        catch (Exception newTablesEx)
         {
-            Console.WriteLine("Lưu ý: Không thể tự động tạo bảng lịch sử kiểm thử. Chi tiết: " + dbEx.Message);
-        }
-
-        // Migration thủ công: Tạo các bảng phục vụ tính năng Phỏng vấn thông minh AI
-        try
-        {
-            context.Database.ExecuteSqlRaw(@"
-                IF OBJECT_ID('InterviewSessions', 'U') IS NULL
-                BEGIN
-                    CREATE TABLE InterviewSessions (
-                        SessionID INT PRIMARY KEY IDENTITY(1,1),
-                        UserID INT NOT NULL,
-                        JobID INT NULL,
-                        ResumeID INT NOT NULL,
-                        Status INT NOT NULL DEFAULT 0,
-                        OverallScore INT NULL,
-                        AiEvaluation NVARCHAR(MAX) NULL,
-                        AssignedByRecruiterID INT NULL,
-                        InterviewType INT NOT NULL DEFAULT 0,
-                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
-                        CompletedAt DATETIME NULL,
-                        CONSTRAINT FK_InterviewSessions_Users FOREIGN KEY (UserID) REFERENCES Users(UserID),
-                        CONSTRAINT FK_InterviewSessions_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID),
-                        CONSTRAINT FK_InterviewSessions_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
-                        CONSTRAINT FK_InterviewSessions_Recruiters FOREIGN KEY (AssignedByRecruiterID) REFERENCES Users(UserID)
-                    );
-                END
-
-                IF OBJECT_ID('InterviewMessages', 'U') IS NULL
-                BEGIN
-                    CREATE TABLE InterviewMessages (
-                        MessageID INT PRIMARY KEY IDENTITY(1,1),
-                        SessionID INT NOT NULL,
-                        Role NVARCHAR(50) NOT NULL,
-                        Content NVARCHAR(MAX) NOT NULL,
-                        ChoicesJson NVARCHAR(MAX) NULL,
-                        SelectedAnswer NVARCHAR(MAX) NULL,
-                        Score INT NULL,
-                        Feedback NVARCHAR(MAX) NULL,
-                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
-                        CONSTRAINT FK_InterviewMessages_Sessions FOREIGN KEY (SessionID) REFERENCES InterviewSessions(SessionID) ON DELETE CASCADE
-                    );
-                END
-
-                IF OBJECT_ID('RecruiterInterviewPreps', 'U') IS NULL
-                BEGIN
-                    CREATE TABLE RecruiterInterviewPreps (
-                        PrepID INT PRIMARY KEY IDENTITY(1,1),
-                        RecruiterID INT NOT NULL,
-                        ResumeID INT NOT NULL,
-                        JobID INT NOT NULL,
-                        QuestionsJson NVARCHAR(MAX) NOT NULL,
-                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
-                        CONSTRAINT FK_RecruiterInterviewPreps_Recruiters FOREIGN KEY (RecruiterID) REFERENCES Users(UserID),
-                        CONSTRAINT FK_RecruiterInterviewPreps_Resumes FOREIGN KEY (ResumeID) REFERENCES Resumes(ResumeID),
-                        CONSTRAINT FK_RecruiterInterviewPreps_Jobs FOREIGN KEY (JobID) REFERENCES Jobs(JobID)
-                    );
-                END
-            ");
-            Console.WriteLine("Migration Interview Tables: OK");
-        }
-        catch (Exception interviewDbEx)
-        {
-            Console.WriteLine("Lưu ý: Không thể tự động tạo các bảng Phỏng vấn. Chi tiết: " + interviewDbEx.Message);
-        }
-
-        // Migration thủ công: Tạo bảng Notifications (Hệ thống thông báo) nếu chưa có
-        try
-        {
-            context.Database.ExecuteSqlRaw(@"
-                IF OBJECT_ID('Notifications', 'U') IS NULL
-                BEGIN
-                    CREATE TABLE Notifications (
-                        NotificationID INT PRIMARY KEY IDENTITY(1,1),
-                        UserID INT NOT NULL,
-                        Type NVARCHAR(50) NOT NULL DEFAULT 'System',
-                        Title NVARCHAR(200) NOT NULL,
-                        Message NVARCHAR(MAX) NOT NULL,
-                        Link NVARCHAR(500) NULL,
-                        IsRead BIT NOT NULL DEFAULT 0,
-                        CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
-                        CONSTRAINT FK_Notifications_Users FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
-                    );
-
-                    CREATE INDEX IX_Notifications_UserID_IsRead ON Notifications(UserID, IsRead);
-                END
-            ");
-            Console.WriteLine("Migration Notifications Table: OK");
-        }
-        catch (Exception notifEx)
-        {
-            Console.WriteLine("Lưu ý: Không thể tạo bảng Notifications. Chi tiết: " + notifEx.Message);
-        }
-
-        // Tự động dọn dẹp thông báo cũ quá 30 ngày để giữ DB gọn nhẹ
-        try
-        {
-            var cutoffDate = DateTime.Now.AddDays(-30);
-            var oldNotifications = context.Notifications.Where(n => n.CreatedAt < cutoffDate).ToList();
-            if (oldNotifications.Any())
-            {
-                context.Notifications.RemoveRange(oldNotifications);
-                context.SaveChanges();
-                Console.WriteLine($"Đã dọn dẹp {oldNotifications.Count} thông báo cũ quá 30 ngày.");
-            }
-        }
-        catch (Exception cleanEx)
-        {
-            Console.WriteLine("Lỗi dọn dẹp thông báo cũ: " + cleanEx.Message);
+            Console.WriteLine("Lưu ý: Không thể tự động tạo bảng InterviewSchedules và JobOffers. Chi tiết: " + newTablesEx.Message);
         }
 
         // Tự động seed tài khoản PRO test để phục vụ kiểm thử dịch thuật CV

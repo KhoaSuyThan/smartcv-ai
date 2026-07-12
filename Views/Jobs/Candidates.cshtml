@@ -80,13 +80,25 @@
                                         {
                                             <span class="badge bg-info text-dark px-3 py-2 rounded-pill"><i class="fas fa-eye me-1"></i>Đang xem xét</span>
                                         }
+                                        else if (app.Status == "Interviewing")
+                                        {
+                                            <span class="badge bg-purple text-white px-3 py-2 rounded-pill cursor-pointer" onclick="showInterviewDetail(@app.ApplicationID, '@(app.InterviewSchedule?.InterviewTime.ToString("yyyy-MM-ddTHH:mm") ?? "")', '@(app.InterviewSchedule?.LocationType ?? "")', '@(app.InterviewSchedule?.Location ?? "")', '@(app.InterviewSchedule?.Notes ?? "")')" title="Click để xem chi tiết lịch phỏng vấn"><i class="fas fa-calendar-alt me-1"></i>Lịch phỏng vấn</span>
+                                        }
+                                        else if (app.Status == "Offered")
+                                        {
+                                            <span class="badge bg-orange text-white px-3 py-2 rounded-pill cursor-pointer" style="background-color: #fd7e14 !important;" onclick="showOfferDetail(@app.ApplicationID, '@(app.JobOffer?.Salary ?? "")', '@(app.JobOffer?.StartDate.ToString("yyyy-MM-dd") ?? "")', '@(app.JobOffer?.Notes ?? "")', '@(app.JobOffer?.Status ?? "")', '@(app.JobOffer?.WorkLocation ?? "")')" title="Click để xem chi tiết Offer đã gửi"><i class="fas fa-envelope-open-text me-1"></i>Đã gửi Offer</span>
+                                        }
                                         else if (app.Status == "Accepted")
                                         {
-                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i>Chấp nhận</span>
+                                            <span class="badge bg-success px-3 py-2 rounded-pill"><i class="fas fa-check-circle me-1"></i>Đã nhận việc</span>
                                         }
                                         else if (app.Status == "Rejected" || app.Status == "Từ chối")
                                         {
                                             <span class="badge bg-danger px-3 py-2 rounded-pill"><i class="fas fa-times-circle me-1"></i>Từ chối</span>
+                                        }
+                                        else if (app.Status == "DeclinedOffer")
+                                        {
+                                            <span class="badge bg-dark text-white px-3 py-2 rounded-pill" title="Ứng viên từ chối thư mời nhận việc"><i class="fas fa-user-slash me-1"></i>Từ chối Offer</span>
                                         }
                                         else
                                         {
@@ -127,11 +139,17 @@
 
                                             @if (app.Status == "Pending" || app.Status == "Reviewing")
                                             {
-                                                <button onclick="quickUpdateStatus(@app.ApplicationID, 'Accepted')" class="btn btn-sm btn-success rounded-pill fw-bold" title="Duyệt ứng viên">
+                                                <button onclick="openApproveActionModal(@app.ApplicationID, '@(app.Resume?.User?.FullName ?? "Ứng viên")')" class="btn btn-sm btn-success rounded-pill fw-bold" title="Duyệt hồ sơ (Đặt lịch phỏng vấn hoặc Gửi Offer)">
                                                     <i class="fas fa-check me-1"></i> Duyệt
                                                 </button>
                                                 <button onclick="quickUpdateStatus(@app.ApplicationID, 'Rejected')" class="btn btn-sm btn-danger rounded-pill fw-bold" title="Từ chối">
                                                     <i class="fas fa-times me-1"></i> Từ chối
+                                                </button>
+                                            }
+                                            else if (app.Status == "Interviewing")
+                                            {
+                                                <button onclick="openSendOfferDirectModal(@app.ApplicationID, '@(app.Resume?.User?.FullName ?? "Ứng viên")')" class="btn btn-sm text-white rounded-pill fw-bold" style="background-color: #fd7e14; border-color: #fd7e14;" title="Mời nhận việc (Gửi Offer)">
+                                                    <i class="fas fa-paper-plane me-1"></i> Mời nhận việc
                                                 </button>
                                             }
                                             <a href="/Jobs/PreviewCV?applicationId=@app.ApplicationID" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill fw-bold hover-primary">
@@ -346,6 +364,175 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL LỰA CHỌN HÀNH ĐỘNG DUYỆT HỒ SƠ ================= -->
+<div class="modal fade" id="approveActionModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="approveActionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-success text-white py-3 rounded-top-4">
+                <h5 class="modal-title fw-bold" id="approveActionModalLabel"><i class="fas fa-check-circle me-2"></i>Quyết định duyệt hồ sơ</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-3">
+                    Chọn hành động tiếp theo cho hồ sơ ứng viên <strong class="text-dark" id="approveCandidateName"></strong>. Bạn có thể đặt lịch phỏng vấn (Offline/Online) hoặc mời nhận việc trực tiếp.
+                </p>
+
+                <!-- Tabs navigation -->
+                <ul class="nav nav-pills nav-justified mb-4 p-1 bg-light rounded-3" id="approveActionTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active rounded-3 fw-bold" id="interview-tab" data-bs-toggle="tab" data-bs-target="#interview-pane" type="button" role="tab" aria-controls="interview-pane" aria-selected="true">
+                            <i class="fas fa-calendar-alt me-2"></i>Đặt lịch phỏng vấn
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link rounded-3 fw-bold" id="offer-tab" data-bs-toggle="tab" data-bs-target="#offer-pane" type="button" role="tab" aria-controls="offer-pane" aria-selected="false">
+                            <i class="fas fa-paper-plane me-2"></i>Mời nhận việc (Gửi Offer)
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tabs content -->
+                <div class="tab-content" id="approveActionTabsContent">
+                    <!-- Tab 1: Đặt lịch phỏng vấn -->
+                    <div class="tab-pane fade show active" id="interview-pane" role="tabpanel" aria-labelledby="interview-tab" tabindex="0">
+                        <form id="scheduleInterviewForm">
+                            <input type="hidden" name="applicationId" id="interviewAppId" />
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary small">Thời gian phỏng vấn:</label>
+                                    <input type="datetime-local" name="interviewTime" id="interviewTime" class="form-control rounded-3 border-secondary-subtle" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary small">Hình thức:</label>
+                                    <select name="locationType" id="interviewLocationType" class="form-select rounded-3 border-secondary-subtle" onchange="toggleLocationPlaceholder(this.value)">
+                                        <option value="Online">Phỏng vấn trực tuyến (Online)</option>
+                                        <option value="Offline">Phỏng vấn trực tiếp (Offline)</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-secondary small" id="lblLocation">Link phòng họp (Google Meet/Zoom):</label>
+                                    <input type="text" name="location" id="interviewLocation" class="form-control rounded-3 border-secondary-subtle" placeholder="https://meet.google.com/..." required />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-secondary small">Lời nhắn / Chỉ dẫn gửi ứng viên:</label>
+                                    <textarea name="notes" id="interviewNotes" class="form-control rounded-3 border-secondary-subtle" rows="3" placeholder="Ví dụ: Vui lòng chuẩn bị CV bản in, trang phục lịch sự và có mặt trước 10 phút..."></textarea>
+                                </div>
+                            </div>
+                            <div class="text-end mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 me-2" data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-success text-white rounded-pill px-4 fw-bold">Xác nhận đặt lịch</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab 2: Thư mời nhận việc (Offer) -->
+                    <div class="tab-pane fade" id="offer-pane" role="tabpanel" aria-labelledby="offer-tab" tabindex="0">
+                        <form id="sendOfferForm">
+                            <input type="hidden" name="applicationId" id="offerAppId" />
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary small">Mức lương đề xuất (Gross/Net):</label>
+                                    <input type="text" name="salary" id="offerSalary" class="form-control rounded-3 border-secondary-subtle" placeholder="Ví dụ: 15,000,000 VND / tháng" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-secondary small">Ngày bắt đầu làm việc:</label>
+                                    <input type="date" name="startDate" id="offerStartDate" class="form-control rounded-3 border-secondary-subtle" required />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-secondary small">Địa điểm làm việc:</label>
+                                    <input type="text" name="workLocation" id="offerWorkLocation" class="form-control rounded-3 border-secondary-subtle" placeholder="Ví dụ: Tầng 5, Tòa nhà Keangnam, Mễ Trì, Hà Nội hoặc Làm việc từ xa (Remote)" required />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-secondary small">Lời nhắn / Điều khoản bổ sung:</label>
+                                    <textarea name="notes" id="offerNotes" class="form-control rounded-3 border-secondary-subtle" rows="4" placeholder="Ví dụ: Thời gian thử việc 2 tháng (hưởng 85% lương cơ bản). Đóng bảo hiểm đầy đủ sau thử việc..."></textarea>
+                                </div>
+                            </div>
+                            <div class="text-end mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-4 me-2" data-bs-dismiss="modal">Hủy</button>
+                                <button type="submit" class="btn btn-success text-white rounded-pill px-4 fw-bold">Gửi Offer nhận việc</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL XEM CHI TIẾT LỊCH HẸN PHỎNG VẤN ================= -->
+<div class="modal fade" id="interviewDetailModal" tabindex="-1" aria-labelledby="interviewDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header bg-purple text-white py-3 rounded-top-4">
+                <h5 class="modal-title fw-bold" id="interviewDetailModalLabel"><i class="fas fa-calendar-alt me-2"></i>Chi tiết lịch phỏng vấn</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex flex-column gap-3">
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">THỜI GIAN</div>
+                        <div class="fs-5 fw-bold text-purple" id="viewInterviewTime">--:-- - --/--/----</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">HÌNH THỨC</div>
+                        <div class="fw-bold text-dark" id="viewInterviewType">--</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">ĐỊA ĐIỂM / LINK PHÒNG HỌP</div>
+                        <div class="text-break" id="viewInterviewLocation">--</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">GHI CHÚ / CHỈ DẪN</div>
+                        <div class="text-muted small italic" id="viewInterviewNotes" style="white-space: pre-wrap;">--</div>
+                    </div>
+                </div>
+                <div class="text-end mt-4 pt-3 border-top">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= MODAL XEM CHI TIẾT OFFER ĐÃ GỬI ================= -->
+<div class="modal fade" id="offerDetailModal" tabindex="-1" aria-labelledby="offerDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header text-white py-3 rounded-top-4" style="background: linear-gradient(135deg, #fd7e14 0%, #f76707 100%); border-bottom: 0;">
+                <h5 class="modal-title fw-bold" id="offerDetailModalLabel"><i class="fas fa-file-signature me-2"></i>Chi tiết Offer đã gửi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex flex-column gap-3">
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">MỨC LƯƠNG ĐỀ NGHỊ</div>
+                        <div class="fs-5 fw-bold text-success" id="viewOfferSalary">--</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">NGÀY BẮT ĐẦU LÀM VIỆC</div>
+                        <div class="fw-bold text-dark" id="viewOfferStartDate">--</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">ĐỊA ĐIỂM LÀM VIỆC</div>
+                        <div class="fw-bold text-dark" id="viewOfferWorkLocation">--</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle">
+                        <div class="mb-2 text-secondary small fw-bold">ĐIỀU KHOẢN / GHI CHÚ</div>
+                        <div class="text-muted small" id="viewOfferNotes" style="white-space: pre-wrap;">--</div>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 border border-light-subtle d-flex justify-content-between align-items-center">
+                        <div class="text-secondary small fw-bold">TRẠNG THÁI PHẢN HỒI</div>
+                        <span class="badge px-3 py-2 rounded-pill fw-bold" id="viewOfferStatus">--</span>
+                    </div>
+                </div>
+                <div class="text-end mt-4 pt-3 border-top">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
                 </div>
             </div>
         </div>
@@ -886,6 +1073,174 @@
 
 
 <script>
+    // Mở modal quyết định duyệt (Đặt lịch hoặc Gửi Offer)
+    function openApproveActionModal(applicationId, candidateName) {
+        $('#approveCandidateName').text(candidateName);
+        $('#interviewAppId').val(applicationId);
+        $('#offerAppId').val(applicationId);
+        
+        // Reset form
+        document.getElementById('scheduleInterviewForm').reset();
+        document.getElementById('sendOfferForm').reset();
+        
+        // Hiển thị lại tab 1 (Lịch hẹn) và kích hoạt cả 2 tab
+        $('#interview-tab').show();
+        var triggerEl = document.querySelector('#approveActionTabs button[data-bs-target="#interview-pane"]');
+        if (triggerEl) {
+            bootstrap.Tab.getOrCreateInstance(triggerEl).show();
+        }
+        $('#offer-tab').show();
+        
+        // Cập nhật lại placeholder hình thức
+        toggleLocationPlaceholder('Online');
+
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('approveActionModal'));
+        modal.show();
+    }
+
+    // Mở trực tiếp tab Gửi Offer cho ứng viên đang phỏng vấn
+    function openSendOfferDirectModal(applicationId, candidateName) {
+        $('#approveCandidateName').text(candidateName);
+        $('#interviewAppId').val(applicationId);
+        $('#offerAppId').val(applicationId);
+        
+        // Reset form
+        document.getElementById('scheduleInterviewForm').reset();
+        document.getElementById('sendOfferForm').reset();
+        
+        // Ẩn tab Đặt lịch hẹn, chỉ hiện tab Offer
+        $('#interview-tab').hide();
+        var triggerEl = document.querySelector('#approveActionTabs button[data-bs-target="#offer-pane"]');
+        if (triggerEl) {
+            bootstrap.Tab.getOrCreateInstance(triggerEl).show();
+        }
+
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('approveActionModal'));
+        modal.show();
+    }
+
+    // Thay đổi placeholder theo hình thức phỏng vấn
+    function toggleLocationPlaceholder(value) {
+        const lbl = document.getElementById('lblLocation');
+        const input = document.getElementById('interviewLocation');
+        if (value === 'Online') {
+            lbl.innerText = 'Link phòng họp trực tuyến (Google Meet/Zoom):';
+            input.placeholder = 'https://meet.google.com/... hoặc link Zoom';
+        } else {
+            lbl.innerText = 'Địa điểm phỏng vấn trực tiếp:';
+            input.placeholder = 'Ví dụ: Tầng 5, Tòa nhà Keangnam, Mễ Trì, Nam Từ Liêm, Hà Nội';
+        }
+    }
+
+    // Hiển thị chi tiết lịch phỏng vấn
+    function showInterviewDetail(applicationId, time, type, location, notes) {
+        let formattedTime = time;
+        if (time) {
+            const dateObj = new Date(time);
+            if (!isNaN(dateObj.getTime())) {
+                formattedTime = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + dateObj.toLocaleDateString('vi-VN');
+            }
+        }
+        $('#viewInterviewTime').text(formattedTime || 'N/A');
+        $('#viewInterviewType').text(type === 'Online' ? 'Phỏng vấn trực tuyến (Online)' : 'Phỏng vấn trực tiếp (Offline)');
+        $('#viewInterviewLocation').html(type === 'Online' ? `<a href="${location}" target="_blank" class="text-primary text-decoration-underline">${location} <i class="fas fa-external-link-alt ms-1 small"></i></a>` : location);
+        $('#viewInterviewNotes').text(notes || 'Không có ghi chú nào.');
+
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('interviewDetailModal'));
+        modal.show();
+    }
+
+    // Hiển thị chi tiết Offer
+    function showOfferDetail(applicationId, salary, startDate, notes, status, workLocation) {
+        let formattedDate = startDate;
+        if (startDate) {
+            const dateObj = new Date(startDate);
+            if (!isNaN(dateObj.getTime())) {
+                formattedDate = dateObj.toLocaleDateString('vi-VN');
+            }
+        }
+        $('#viewOfferSalary').text(salary || 'N/A');
+        $('#viewOfferStartDate').text(formattedDate || 'N/A');
+        $('#viewOfferWorkLocation').text(workLocation || 'Không chỉ định (Thỏa thuận)');
+        $('#viewOfferNotes').text(notes || 'Không có ghi chú/điều khoản bổ sung nào.');
+
+        // Định dạng trạng thái badge
+        const badge = $('#viewOfferStatus');
+        badge.removeClass('bg-warning bg-success bg-danger text-dark text-white');
+        if (status === 'Pending') {
+            badge.addClass('bg-warning text-dark').text('Đang chờ phản hồi');
+        } else if (status === 'Accepted') {
+            badge.addClass('bg-success text-white').text('Đã đồng ý nhận việc');
+        } else {
+            badge.addClass('bg-danger text-white').text('Đã từ chối nhận việc');
+        }
+
+        var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('offerDetailModal'));
+        modal.show();
+    }
+
+    // Xử lý gửi form Đặt lịch phỏng vấn qua AJAX
+    $('#scheduleInterviewForm').on('submit', async function (e) {
+        e.preventDefault();
+        const btn = $(this).find('button[type="submit"]');
+        const oldText = btn.text();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...');
+
+        try {
+            const formData = new URLSearchParams(new FormData(this));
+            const response = await fetch('/Jobs/ScheduleInterview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                window.location.reload();
+            } else {
+                alert(result.message || 'Có lỗi xảy ra.');
+                btn.prop('disabled', false).text(oldText);
+            }
+        } catch (error) {
+            alert('Lỗi kết nối máy chủ.');
+            btn.prop('disabled', false).text(oldText);
+        }
+    });
+
+    // Xử lý gửi form Offer nhận việc qua AJAX
+    $('#sendOfferForm').on('submit', async function (e) {
+        e.preventDefault();
+        const btn = $(this).find('button[type="submit"]');
+        const oldText = btn.text();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...');
+
+        try {
+            const formData = new URLSearchParams(new FormData(this));
+            const response = await fetch('/Jobs/SendJobOffer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString()
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                window.location.reload();
+            } else {
+                alert(result.message || 'Có lỗi xảy ra.');
+                btn.prop('disabled', false).text(oldText);
+            }
+        } catch (error) {
+            alert('Lỗi kết nối máy chủ.');
+            btn.prop('disabled', false).text(oldText);
+        }
+    });
+
     async function quickUpdateStatus(applicationId, newStatus) {
         if (!confirm(`Bạn có chắc muốn ${newStatus === 'Accepted' ? 'DUYỆT' : 'TỪ CHỐI'} ứng viên này?`)) {
             return;
@@ -915,6 +1270,45 @@
 }
 
 <style>
+    /* Tối ưu hóa hiển thị tab trong Modal Quyết định duyệt hồ sơ */
+    #approveActionTabs {
+        background-color: #f1f5f9 !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    #approveActionTabs .nav-link {
+        color: #475569 !important;
+        background: transparent !important;
+        border: none !important;
+        transition: all 0.2s ease;
+    }
+    #approveActionTabs .nav-link:hover:not(.active) {
+        color: #0284c7 !important;
+        background-color: rgba(2, 132, 199, 0.06) !important;
+    }
+    #approveActionTabs .nav-link.active {
+        color: #ffffff !important;
+        background-color: #0284c7 !important;
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.2) !important;
+    }
+
+    /* Dark Mode cho tabs */
+    [data-bs-theme="dark"] #approveActionTabs {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] #approveActionTabs .nav-link {
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] #approveActionTabs .nav-link:hover:not(.active) {
+        color: #38bdf8 !important;
+        background-color: rgba(56, 189, 248, 0.08) !important;
+    }
+    [data-bs-theme="dark"] #approveActionTabs .nav-link.active {
+        color: #ffffff !important;
+        background-color: #0284c7 !important;
+        box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4) !important;
+    }
+
     .hover-primary:hover {
         background-color: #0d6efd !important;
         color: white !important;

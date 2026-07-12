@@ -404,3 +404,28 @@ CREATE TABLE Notifications (
 );
 
 CREATE INDEX IX_Notifications_UserID_IsRead ON Notifications(UserID, IsRead);
+
+-- 29. Bảng lịch phỏng vấn (InterviewSchedules)
+CREATE TABLE InterviewSchedules (
+    ScheduleID INT PRIMARY KEY IDENTITY(1,1),
+    ApplicationID INT NOT NULL,
+    InterviewTime DATETIME NOT NULL,
+    LocationType NVARCHAR(50) NOT NULL,
+    Location NVARCHAR(500) NOT NULL,
+    Notes NVARCHAR(MAX) NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_InterviewSchedules_Applications FOREIGN KEY (ApplicationID) REFERENCES Applications(ApplicationID) ON DELETE CASCADE
+);
+
+-- 30. Bảng thư mời nhận việc (JobOffers)
+CREATE TABLE JobOffers (
+    OfferID INT PRIMARY KEY IDENTITY(1,1),
+    ApplicationID INT NOT NULL,
+    Salary NVARCHAR(100) NOT NULL,
+    StartDate DATETIME NOT NULL,
+    Notes NVARCHAR(MAX) NULL,
+    WorkLocation NVARCHAR(500) NULL,
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Pending',
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    CONSTRAINT FK_JobOffers_Applications FOREIGN KEY (ApplicationID) REFERENCES Applications(ApplicationID) ON DELETE CASCADE
+);
