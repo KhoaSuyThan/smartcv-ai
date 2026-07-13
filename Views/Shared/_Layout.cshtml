@@ -334,9 +334,15 @@
             margin-bottom: 4px !important;
             line-height: 1.4 !important;
             display: -webkit-box;
-            -webkit-line-clamp: 2;
+            -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        .notif-item:hover .notif-msg {
+            display: block !important;
+            -webkit-line-clamp: unset !important;
+            overflow: visible !important;
         }
         .notif-time {
             font-size: 0.72rem !important;

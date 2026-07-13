@@ -355,7 +355,7 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể thêm cột LastLoginTime. Chi tiết: " + colEx.Message);
         }
 
-        // Migration thủ công: Thêm các cột LastLoginIP và LastLoginDevice vào Users nếu chưa có
+        // Migration thủ công: Thêm các cột LastLoginIP, LastLoginDevice và LastLoginLocation vào Users nếu chưa có
         try
         {
             context.Database.ExecuteSqlRaw(@"
@@ -370,12 +370,18 @@ using (var scope = app.Services.CreateScope())
                     ALTER TABLE [Users]
                     ADD [LastLoginDevice] NVARCHAR(255) NULL;
                 END
+
+                IF COL_LENGTH('Users', 'LastLoginLocation') IS NULL
+                BEGIN
+                    ALTER TABLE [Users]
+                    ADD [LastLoginLocation] NVARCHAR(255) NULL;
+                END
             ");
-            Console.WriteLine("Migration Users.LastLoginIP & LastLoginDevice: OK");
+            Console.WriteLine("Migration Users.LastLoginIP, LastLoginDevice & LastLoginLocation: OK");
         }
         catch (Exception colEx)
         {
-            Console.WriteLine("Lưu ý: Không thể thêm cột LastLoginIP/LastLoginDevice. Chi tiết: " + colEx.Message);
+            Console.WriteLine("Lưu ý: Không thể thêm cột LastLoginIP/LastLoginDevice/LastLoginLocation. Chi tiết: " + colEx.Message);
         }
 
         // Migration thủ công: Tạo Database Indexes để tăng tốc độ query (nếu chưa có)

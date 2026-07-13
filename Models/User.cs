@@ -42,6 +42,7 @@ namespace DoAnCS.Models {
         public long? LastLoginTime { get; set; } = null;
         public string? LastLoginIP { get; set; } = null;
         public string? LastLoginDevice { get; set; } = null;
+        public string? LastLoginLocation { get; set; } = null;
 
         public virtual ICollection<Resume> Resumes { get; set; }   
     }
