@@ -5,32 +5,34 @@
 }
 
 <div class="companies-wrapper min-vh-100" style="background-color: #f8fafc;">
-    <!-- Hero Section -->
-    <div class="company-hero py-4 mb-5 text-white position-relative overflow-hidden" style="background: linear-gradient(135deg, #157347 0%, #198754 100%);">
-        <div class="container position-relative z-1 py-3">
+    <div class="container py-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-success fw-medium" aria-current="page">Danh sách Công ty</li>
+            </ol>
+        </nav>
+
+        <!-- Header Card -->
+        <div class="card border-0 shadow-sm rounded-4 px-4 py-3 mb-4 header-card-companies">
             <div class="row align-items-center">
-                <div class="col-lg-8" data-aos="fade-right">
-                    <h2 class="fw-bold mb-2">Khám phá doanh nghiệp hàng đầu</h2>
-                    <p class="opacity-90 mb-3 small">Tìm hiểu môi trường làm việc và cơ hội nghề nghiệp tại các công ty uy tín.</p>
-                    <div class="d-flex gap-3">
-                        <div class="border border-white border-opacity-25 rounded-3 p-2 px-4 text-center">
-                            <h4 class="fw-bold mb-0 text-white">@Model.Count()</h4>
-                            <small class="opacity-75" style="font-size: 0.7rem;">Công ty</small>
-                        </div>
-                        <div class="border border-white border-opacity-25 rounded-3 p-2 px-4 text-center">
-                            <h4 class="fw-bold mb-0 text-white">@Model.Sum(c => c.Jobs?.Count(j => j.Status == 1) ?? 0)</h4>
-                            <small class="opacity-75" style="font-size: 0.7rem;">Việc làm</small>
-                        </div>
-                    </div>
+                <div class="col-md-8">
+                    <h1 class="header-title-companies mb-1 fs-3 fw-bold">Khám phá doanh nghiệp hàng đầu</h1>
+                    <p class="header-desc-companies mb-0 small">Tìm hiểu môi trường làm việc và cơ hội nghề nghiệp tại các công ty uy tín.</p>
                 </div>
-                <div class="col-lg-4 d-none d-lg-block text-end" data-aos="fade-left">
-                    <i class="fas fa-city fa-5x opacity-10"></i>
+                <div class="col-md-4 d-flex justify-content-md-end justify-content-start gap-2 mt-3 mt-md-0 align-items-center">
+                    <div class="stat-box px-3 py-1 rounded-3 d-flex flex-column align-items-center justify-content-center text-center">
+                        <span class="stat-num">@Model.Count()</span>
+                        <span class="stat-label">Công ty</span>
+                    </div>
+                    <div class="stat-box px-3 py-1 rounded-3 d-flex flex-column align-items-center justify-content-center text-center">
+                        <span class="stat-num">@Model.Sum(c => c.Jobs?.Count(j => j.Status == 1) ?? 0)</span>
+                        <span class="stat-label">Việc làm</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="container pb-5">
 
 
         <div class="row g-4">
@@ -49,7 +51,7 @@
                         
                         <!-- Logo Area -->
                         <div class="text-center position-relative" style="margin-top: -50px; z-index: 2;">
-                            <div class="company-logo-wrapper bg-white d-inline-block p-2 rounded-4 shadow-sm border border-success border-opacity-10">
+                            <div class="company-logo-wrapper d-inline-block p-2 rounded-4 shadow-sm border border-success border-opacity-10">
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center overflow-hidden rounded-3">
                                     @if (!string.IsNullOrEmpty(item.LogoUrl))
                                     {
@@ -120,6 +122,8 @@
         width: 100px;
         height: 100px;
         transition: all 0.3s ease;
+        background-color: #ffffff !important;
+        border: 1px solid rgba(25, 135, 84, 0.15) !important;
     }
     
     .company-card:hover .company-logo-wrapper {
@@ -154,7 +158,81 @@
     .opacity-90 { opacity: 0.9; }
     .z-1 { z-index: 1; }
 
-    .company-hero {
-        border-radius: 0 0 3rem 3rem;
+    /* Custom Header Card */
+    .header-card-companies {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
+        border: 1px solid rgba(25, 135, 84, 0.1) !important;
+    }
+    
+    [data-bs-theme="dark"] .header-card-companies {
+        background: rgba(25, 135, 84, 0.1) !important;
+        border: 1px solid rgba(25, 135, 84, 0.35) !important;
+        box-shadow: 0 8px 32px 0 rgba(25, 135, 84, 0.1) !important;
+    }
+    
+    .header-title-companies {
+        color: #14532d !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px;
+    }
+    
+    [data-bs-theme="dark"] .header-title-companies {
+        color: #f0fdf4 !important;
+    }
+    
+    .header-desc-companies {
+        color: #166534 !important;
+        opacity: 0.85;
+        font-weight: 500;
+    }
+    
+    [data-bs-theme="dark"] .header-desc-companies {
+        color: #dcfce7 !important;
+    }
+
+    .stat-box {
+        background: rgba(25, 135, 84, 0.06); 
+        border: 1px solid rgba(25, 135, 84, 0.15);
+        min-width: 95px;
+        transition: all 0.3s ease;
+    }
+
+    [data-bs-theme="dark"] .stat-box {
+        background: rgba(25, 135, 84, 0.2); 
+        border: 1px solid rgba(25, 135, 84, 0.4);
+    }
+
+    .stat-num {
+        color: #198754; 
+        font-weight: 800; 
+        font-size: 1.15rem;
+        line-height: 1.2;
+    }
+
+    [data-bs-theme="dark"] .stat-num {
+        color: #dcfce7;
+    }
+
+    .stat-label {
+        color: #157347; 
+        font-size: 0.72rem; 
+        font-weight: bold;
+    }
+
+    [data-bs-theme="dark"] .stat-label {
+        color: #a7f3d0;
+    }
+
+    [data-bs-theme="dark"] .companies-wrapper {
+        background-color: transparent !important;
+    }
+
+    [data-bs-theme="dark"] .company-card {
+        background-color: #1e293b !important;
+        border-bottom: 4px solid #198754 !important;
+    }
+
+    [data-bs-theme="dark"] .company-card .card-title {
+        color: #f8fafc !important;
     }
 </style>

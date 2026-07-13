@@ -5,25 +5,31 @@
     var history = ViewBag.History as IEnumerable<DoAnCS.Models.InterviewSession>;
 }
 
-<div class="container py-5" style="min-height: 85vh;">
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-2">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+            <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Luyện phỏng vấn AI</li>
+        </ol>
+    </nav>
+
     <!-- Tiêu đề lớn & Banner động -->
-    <div class="p-5 mb-5 rounded-4 shadow-sm border position-relative overflow-hidden" 
-         style="background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%); color: white;">
-        <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 15rem; transform: translate(20%, -20%);">
-            <i class="fas fa-robot"></i>
-        </div>
+    <div class="card border-0 shadow-sm rounded-4 px-4 py-3 mb-4 header-card-practice">
         <div class="row align-items-center">
-            <div class="col-lg-8">
-                <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill text-uppercase tracking-wider" style="font-size: 0.8rem;">
+            <div class="col-lg-10 col-md-9">
+                <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1 rounded-pill text-uppercase tracking-wider" style="font-size: 0.75rem;">
                     <i class="fas fa-magic me-1"></i> Trợ lý AI thế hệ mới
                 </span>
-                <h1 class="display-5 fw-extrabold mb-3">Phòng Luyện Phỏng Vấn Thông Minh AI</h1>
-                <p class="lead mb-0 text-white-50">
-                    Nâng tầm kỹ năng trả lời phỏng vấn cùng Trí Tuệ Nhân Tạo. Nhận phản hồi chuyên sâu theo mô hình STAR dựa trên CV và JD.
+                <h1 class="header-title-practice mb-1 fs-3">Phòng Luyện Phỏng Vấn Thông Minh AI</h1>
+                <p class="header-desc-practice mb-0 small">
+                    Nâng tầm kỹ năng trả lời phỏng vấn chuyên sâu cùng Trợ lý Trí Tuệ Nhân Tạo AI.
                 </p>
             </div>
-            <div class="col-lg-4 text-center d-none d-lg-block">
-                <i class="fas fa-comments-dollar text-warning" style="font-size: 8rem; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));"></i>
+            <div class="col-lg-2 col-md-3 text-end d-none d-md-block">
+                <div class="p-2 bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 55px; height: 55px; border: 1px solid rgba(13, 148, 136, 0.15);">
+                    <i class="fas fa-robot text-primary fs-4"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -345,6 +351,37 @@
     [data-bs-theme="dark"] .history-card {
         background-color: #1e293b !important;
         color: #f8fafc !important;
+    }
+
+    .header-card-practice {
+        background: linear-gradient(135deg, #e0f2fe 0%, #ccfbf1 100%) !important;
+        border: 1px solid rgba(13, 148, 136, 0.1) !important;
+    }
+    
+    [data-bs-theme="dark"] .header-card-practice {
+        background: rgba(20, 184, 166, 0.1) !important;
+        border: 1px solid rgba(20, 184, 166, 0.35) !important;
+        box-shadow: 0 8px 32px 0 rgba(20, 184, 166, 0.1) !important;
+    }
+    
+    .header-title-practice {
+        color: #0f766e !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px;
+    }
+    
+    [data-bs-theme="dark"] .header-title-practice {
+        color: #f0fdfa !important;
+    }
+    
+    .header-desc-practice {
+        color: #0d9488 !important;
+        opacity: 0.85;
+        font-weight: 500;
+    }
+    
+    [data-bs-theme="dark"] .header-desc-practice {
+        color: #ccfbf1 !important;
     }
 </style>
 

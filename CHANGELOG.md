@@ -5,21 +5,17 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-13] - Tích hợp định vị IP và địa chỉ đăng nhập tương đối khi phát hiện đăng nhập thiết bị lạ
+## [2026-07-13] - Nâng cấp định vị IP đăng nhập, tối ưu hóa giao diện Header và Sticky Footer
 
 ### Added
-- Thêm thuộc tính `LastLoginLocation` vào model `User` (`Models/User.cs`).
-- Bổ sung cột `LastLoginLocation NVARCHAR(255) NULL` vào file SQL khởi tạo `DtbDoAnCS/CreateTables.sql`.
-- Tích hợp migration tự động kiểm tra và thêm cột `LastLoginLocation` khi ứng dụng khởi chạy trong `Program.cs`.
-- Hiển thị thông tin phiên đăng nhập gần đây (gồm thiết bị, IP, vị trí tương đối và thời gian) tại phần "Lịch sử đăng nhập gần nhất" thuộc tab **Thông tin cá nhân / Thông tin doanh nghiệp** của trang hồ sơ (`Profile.cshtml`). Đối với nhà tuyển dụng, phần lịch sử này được bố trí nằm ngay phía trên khu vực cảnh báo nguy hiểm.
+- Tích hợp trường vị trí `LastLoginLocation` vào Model `User` và database schema (`CreateTables.sql` / `Program.cs` migration).
+- Bổ sung hiển thị thông tin Lịch sử đăng nhập chi tiết (thiết bị, IP, vị trí tương đối) tại trang cá nhân (`Profile.cshtml`).
 
 ### Changed
-- Cập nhật logic đăng nhập thông thường (`Login`) và đăng nhập mạng xã hội (`ExternalLoginCallback`) trong `AccountController.cs`:
-  - Thực hiện gọi API `ip-api.com` lấy vị trí tương đối (Quốc gia, Tỉnh/Thành phố) của IP đăng nhập với timeout 2 giây để tránh treo tiến trình đăng nhập chính.
-  - Tự động fallback lấy vị trí từ IP public của đường truyền internet (máy host/server) khi phát hiện người dùng test ở môi trường localhost (`127.0.0.1` hoặc `::1`).
-  - Lưu trữ địa điểm này vào cột `LastLoginLocation` của cơ sở dữ liệu.
-  - Cập nhật mẫu Email cảnh báo bảo mật, bổ sung thông tin **Vị trí tương đối**.
-  - Cập nhật thông báo hệ thống khi đăng nhập từ thiết bị lạ: bổ sung địa điểm đăng nhập tương đối và định tuyến link click thông báo tới trang cá nhân mặc định (`/Account/Profile`) giúp người dùng nhìn thấy ngay chi tiết Lịch sử đăng nhập tại tab đầu tiên.
+- Tích hợp dịch vụ định vị IP qua API `ip-api.com` khi đăng nhập thiết bị lạ để gửi cảnh báo chứa vị trí đăng nhập tương đối.
+- Tối giản hóa và thiết kế lại Header Card nhỏ gọn cho các trang: Mẫu CV Vue, Lời mời phỏng vấn, Luyện phỏng vấn AI và Danh sách công ty.
+- Nâng cấp giao diện Chế độ tối (Dark Mode) cho các Card tiêu đề trên bằng phong cách **Glassmorphism** (nền bán trong suốt 10%, viền sáng màu đặc trưng) giúp các khung nổi bật, hiện đại và không bị chìm. Đồng thời giữ nguyên nền trắng cho khung chứa logo công ty (`.company-logo-wrapper`) để tránh các logo dạng transparent bị chìm trong chế độ tối.
+- Sửa triệt để lỗi footer bị nhảy lơ lửng khi trang ít dữ liệu bằng cách bù trừ tỷ lệ zoom 80% (`min-height: 125vh` cho `html` và `body` trong `_Layout.cshtml`).
 
 ## [2026-07-12] - Tối ưu hóa thông báo đăng nhập theo IP và Thiết bị mới
 
