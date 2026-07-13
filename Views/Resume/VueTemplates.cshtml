@@ -9,37 +9,6 @@
         background-color: #f4f6f9 !important;
     }
     
-    .hero-section {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        border-radius: 1.5rem;
-        padding: 2rem 2rem;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 20px 40px -10px rgba(124, 58, 237, 0.3);
-        transition: background 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    [data-bs-theme="dark"] .hero-section {
-        background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%) !important;
-        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5) !important;
-    }
-    
-    .hero-pattern {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.1;
-        background-image: radial-gradient(white 2px, transparent 2px);
-        background-size: 30px 30px;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 1;
-    }
 
     /* Filters */
     .filter-container {
@@ -276,35 +245,81 @@
         color: white !important;
     }
     
-    .btn-pro-upgrade i {
-        color: #fef3c7 !important;
+    
+    .header-card {
+        background: linear-gradient(135deg, #e0e7ff 0%, #f5f3ff 100%) !important;
+        border: 1px solid rgba(79, 70, 229, 0.1) !important;
+    }
+    
+    [data-bs-theme="dark"] .header-card {
+        background: rgba(99, 102, 241, 0.1) !important;
+        border: 1px solid rgba(99, 102, 241, 0.35) !important;
+        box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.1) !important;
+    }
+    
+    .header-title {
+        color: #312e81 !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px;
+    }
+    
+    [data-bs-theme="dark"] .header-title {
+        color: #e0e7ff !important;
+    }
+    
+    .header-desc {
+        color: #4338ca !important;
+        opacity: 0.85;
+        font-weight: 500;
+        line-height: 1.6;
+    }
+    
+    [data-bs-theme="dark"] .header-desc {
+        color: #c7d2fe !important;
     }
 </style>
 
-<div class="container-fluid py-5" style="max-width: 1750px;">
-    <!-- Hero Section -->
-    <div class="hero-section mb-5 text-center">
-        <div class="hero-pattern"></div>
-        <div class="hero-content">
-            <h1 class="fw-bold mb-3 display-5"><i class="fas fa-magic me-3 text-warning"></i>Bộ Sưu Tập Mẫu CV Vue</h1>
-            <p class="mx-auto fs-5 opacity-75" style="max-width: 700px;">
-                Trải nghiệm những mẫu CV hiện đại, tương tác cao được xây dựng với khả năng tùy chỉnh trực quan, xem trước thời gian thực.
-            </p>
-        </div>
-    </div>
+<div class="container-fluid pt-3 pb-5" style="max-width: 1750px;">
 
-    <!-- Filter Section -->
-    <div class="d-flex justify-content-center mb-5 flex-wrap filter-container">
-        <button class="filter-btn active" data-filter="all"><i class="fas fa-layer-group"></i> Tất cả</button>
-        <button class="filter-btn" data-filter="IT"><i class="fas fa-laptop-code"></i> IT</button>
-        <button class="filter-btn" data-filter="Kinh doanh"><i class="fas fa-chart-line"></i> Kinh doanh</button>
-        <button class="filter-btn" data-filter="Marketing"><i class="fas fa-bullhorn"></i> Marketing</button>
-        <button class="filter-btn" data-filter="Tài chính"><i class="fas fa-coins"></i> Tài chính</button>
-        <button class="filter-btn" data-filter="Sáng tạo"><i class="fas fa-palette"></i> Sáng tạo</button>
-        <button class="filter-btn" data-filter="Y tế"><i class="fas fa-heartbeat"></i> Y tế</button>
-        <button class="filter-btn" data-filter="Thực tập"><i class="fas fa-user-graduate"></i> Thực tập</button>
-        <button class="filter-btn" data-filter="Chuyên nghiệp"><i class="fas fa-briefcase"></i> Chuyên nghiệp</button>
-        <button class="filter-btn" data-filter="Khác"><i class="fas fa-ellipsis-h"></i> Khác</button>
+    <!-- TopCV Style Header Section -->
+    <div class="card border-0 shadow-sm rounded-4 px-4 py-3 mb-3 header-card">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item active text-primary fw-medium" aria-current="page">Mẫu CV</li>
+            </ol>
+        </nav>
+
+        <div class="row align-items-center">
+            <div class="col-lg-10 col-md-9">
+                <h1 class="header-title mb-1 fs-3">Mẫu CV Vue chuyên nghiệp, tương tác cao</h1>
+                <p class="header-desc mb-0 small" style="max-width: 1000px;">
+                    Tạo CV tương tác cao, tùy chỉnh trực quan và xem trước thời gian thực.
+                </p>
+            </div>
+            <div class="col-lg-2 col-md-3 text-end d-none d-md-block">
+                <div class="p-2 bg-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 55px; height: 55px; border: 1px solid rgba(79, 70, 229, 0.1);">
+                    <i class="fas fa-magic text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-3 text-muted opacity-25">
+
+        <!-- Filter Section -->
+        <div class="d-flex flex-wrap gap-2 filter-container">
+            <button class="filter-btn active" data-filter="all"><i class="fas fa-layer-group"></i> Tất cả</button>
+            <button class="filter-btn" data-filter="IT"><i class="fas fa-laptop-code"></i> IT</button>
+            <button class="filter-btn" data-filter="Kinh doanh"><i class="fas fa-chart-line"></i> Kinh doanh</button>
+            <button class="filter-btn" data-filter="Marketing"><i class="fas fa-bullhorn"></i> Marketing</button>
+            <button class="filter-btn" data-filter="Tài chính"><i class="fas fa-coins"></i> Tài chính</button>
+            <button class="filter-btn" data-filter="Sáng tạo"><i class="fas fa-palette"></i> Sáng tạo</button>
+            <button class="filter-btn" data-filter="Y tế"><i class="fas fa-heartbeat"></i> Y tế</button>
+            <button class="filter-btn" data-filter="Thực tập"><i class="fas fa-user-graduate"></i> Thực tập</button>
+            <button class="filter-btn" data-filter="Chuyên nghiệp"><i class="fas fa-briefcase"></i> Chuyên nghiệp</button>
+            <button class="filter-btn" data-filter="Khác"><i class="fas fa-ellipsis-h"></i> Khác</button>
+        </div>
     </div>
 
     <!-- Pro Upgrade Modal (Luôn tồn tại trong DOM) -->
