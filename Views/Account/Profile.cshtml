@@ -582,6 +582,29 @@
                                 }
                             </div>
                         </form>
+
+                        @if (Model.LastLoginTime.HasValue && !string.IsNullOrEmpty(Model.LastLoginIP))
+                        {
+                            <div class="mt-4 pt-4 border-top">
+                                <h5 class="fw-bold mb-3 text-dark"><i class="bi bi-shield-check text-success me-2"></i>Lịch sử đăng nhập gần nhất</h5>
+                                <div class="p-3 bg-light rounded-4 border d-flex flex-wrap gap-4 align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 46px; height: 46px; min-width: 46px;">
+                                            <i class="bi bi-laptop text-primary fs-5"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">@Model.LastLoginDevice</div>
+                                            <div class="text-muted small">IP: @Model.LastLoginIP | @(string.IsNullOrEmpty(Model.LastLoginLocation) ? "Vị trí không xác định" : Model.LastLoginLocation)</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-md-end">
+                                        <div class="text-muted small">Thời gian đăng nhập</div>
+                                        <div class="fw-bold text-dark">@(new DateTime(Model.LastLoginTime.Value, DateTimeKind.Utc).ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss"))</div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
                         @if (isRecruiter)
                         {
                             <div class="mt-5 pt-4 border-top">

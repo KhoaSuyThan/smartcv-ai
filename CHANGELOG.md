@@ -5,6 +5,22 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-13] - Tích hợp định vị IP và địa chỉ đăng nhập tương đối khi phát hiện đăng nhập thiết bị lạ
+
+### Added
+- Thêm thuộc tính `LastLoginLocation` vào model `User` (`Models/User.cs`).
+- Bổ sung cột `LastLoginLocation NVARCHAR(255) NULL` vào file SQL khởi tạo `DtbDoAnCS/CreateTables.sql`.
+- Tích hợp migration tự động kiểm tra và thêm cột `LastLoginLocation` khi ứng dụng khởi chạy trong `Program.cs`.
+- Hiển thị thông tin phiên đăng nhập gần đây (gồm thiết bị, IP, vị trí tương đối và thời gian) tại phần "Lịch sử đăng nhập gần nhất" thuộc tab **Thông tin cá nhân / Thông tin doanh nghiệp** của trang hồ sơ (`Profile.cshtml`). Đối với nhà tuyển dụng, phần lịch sử này được bố trí nằm ngay phía trên khu vực cảnh báo nguy hiểm.
+
+### Changed
+- Cập nhật logic đăng nhập thông thường (`Login`) và đăng nhập mạng xã hội (`ExternalLoginCallback`) trong `AccountController.cs`:
+  - Thực hiện gọi API `ip-api.com` lấy vị trí tương đối (Quốc gia, Tỉnh/Thành phố) của IP đăng nhập với timeout 2 giây để tránh treo tiến trình đăng nhập chính.
+  - Tự động fallback lấy vị trí từ IP public của đường truyền internet (máy host/server) khi phát hiện người dùng test ở môi trường localhost (`127.0.0.1` hoặc `::1`).
+  - Lưu trữ địa điểm này vào cột `LastLoginLocation` của cơ sở dữ liệu.
+  - Cập nhật mẫu Email cảnh báo bảo mật, bổ sung thông tin **Vị trí tương đối**.
+  - Cập nhật thông báo hệ thống khi đăng nhập từ thiết bị lạ: bổ sung địa điểm đăng nhập tương đối và định tuyến link click thông báo tới trang cá nhân mặc định (`/Account/Profile`) giúp người dùng nhìn thấy ngay chi tiết Lịch sử đăng nhập tại tab đầu tiên.
+
 ## [2026-07-12] - Tối ưu hóa thông báo đăng nhập theo IP và Thiết bị mới
 
 ### Added

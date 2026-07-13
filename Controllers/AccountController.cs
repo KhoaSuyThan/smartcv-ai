@@ -365,6 +365,7 @@ namespace DoAnCS.Controllers
                     // Lấy thông tin IP và thiết bị hiện tại
                     string currentIP = GetClientIPAddress();
                     string currentDevice = ParseUserAgent(Request.Headers["User-Agent"]);
+                    string currentLocation = await GetLocationFromIPAsync(currentIP);
 
                     // Kiểm tra xem đây có phải là thiết bị hoặc địa chỉ IP mới hay không
                     bool isNewDeviceOrIP = string.IsNullOrEmpty(user.LastLoginIP) || 
@@ -388,10 +389,11 @@ namespace DoAnCS.Controllers
                                     <div style='background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 15px 0;'>
                                         <p style='margin: 4px 0;'><b>Địa chỉ IP:</b> {currentIP}</p>
                                         <p style='margin: 4px 0;'><b>Thiết bị/Trình duyệt:</b> {currentDevice}</p>
+                                        <p style='margin: 4px 0;'><b>Vị trí tương đối:</b> {currentLocation}</p>
                                         <p style='margin: 4px 0;'><b>Thời gian đăng nhập:</b> {DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}</p>
                                     </div>
                                     <p>Phiên đăng nhập cũ trước đó (khởi tạo lúc {prevLoginTime.ToString("dd/MM/yyyy HH:mm:ss")}) trên thiết bị khác sẽ bị đăng xuất tự động.</p>
-                                    <p><b>Nếu không phải bạn thực hiện:</b> Vui lòng đổi mật khẩu ngay lập tức tại trang cá nhân để bảo vệ tài khoản.</p>
+                                    <p style='color: red;'><b>Nếu không phải bạn thực hiện:</b> Vui lòng đổi mật khẩu ngay lập tức tại trang cá nhân để bảo vệ tài khoản.</p>
                                     <br/>
                                     <p>Trân trọng,<br/>CVBuilder Team</p>";
 
@@ -409,12 +411,13 @@ namespace DoAnCS.Controllers
                         await NotificationController.CreateNotification(
                             _context, _hubContext, user.UserID, "Login",
                             "Phát hiện đăng nhập mới",
-                            $"Tài khoản được đăng nhập từ IP {currentIP} ({currentDevice}) lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
+                            $"Tài khoản được đăng nhập từ IP {currentIP} ({currentDevice}) tại {currentLocation} lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
                             "/Account/Profile");
 
-                        // Cập nhật thông tin IP và thiết bị mới
+                        // Cập nhật thông tin IP, thiết bị và vị trí mới
                         user.LastLoginIP = currentIP;
                         user.LastLoginDevice = currentDevice;
+                        user.LastLoginLocation = currentLocation;
                     }
 
                     // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
@@ -528,6 +531,7 @@ namespace DoAnCS.Controllers
             // Lấy thông tin IP và thiết bị hiện tại cho đăng nhập mạng xã hội
             string currentIP = GetClientIPAddress();
             string currentDevice = ParseUserAgent(Request.Headers["User-Agent"]);
+            string currentLocation = await GetLocationFromIPAsync(currentIP);
 
             // Kiểm tra xem đây có phải là thiết bị hoặc địa chỉ IP mới hay không
             bool isNewDeviceOrIP = string.IsNullOrEmpty(user.LastLoginIP) || 
@@ -541,12 +545,13 @@ namespace DoAnCS.Controllers
                 await NotificationController.CreateNotification(
                     _context, _hubContext, user.UserID, "Login",
                     "Phát hiện đăng nhập mới",
-                    $"Tài khoản được đăng nhập bằng mạng xã hội từ IP {currentIP} ({currentDevice}) lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
+                    $"Tài khoản được đăng nhập bằng mạng xã hội từ IP {currentIP} ({currentDevice}) tại {currentLocation} lúc {DateTime.Now:HH:mm dd/MM/yyyy}.",
                     "/Account/Profile");
 
-                // Cập nhật thông tin IP và thiết bị mới
+                // Cập nhật thông tin IP, thiết bị và vị trí mới
                 user.LastLoginIP = currentIP;
                 user.LastLoginDevice = currentDevice;
+                user.LastLoginLocation = currentLocation;
             }
 
             // ĐĂNG KÝ PHIÊN ĐĂNG NHẬP MỚI NHẤT VÀO HỆ THỐNG
@@ -1439,6 +1444,55 @@ namespace DoAnCS.Controllers
             else if (ua.Contains("opr/") || ua.Contains("opera")) browser = "Opera";
 
             return $"{browser} trên {os}";
+        }
+
+        private async Task<string> GetLocationFromIPAsync(string ip)
+        {
+            try
+            {
+                using (var client = new System.Net.Http.HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(2); // Timeout 2s để không treo luồng chính
+                    
+                    // Nếu là IP local/loopback, gọi API không truyền IP để lấy vị trí của chính đường truyền internet hiện tại
+                    string url = $"http://ip-api.com/json/{ip}?lang=vi";
+                    if (string.IsNullOrEmpty(ip) || ip == "127.0.0.1" || ip == "::1" || ip.StartsWith("192.168.") || ip.StartsWith("10.") || ip.StartsWith("172."))
+                    {
+                        url = "http://ip-api.com/json/?lang=vi";
+                    }
+
+                    var response = await System.Net.Http.Json.HttpClientJsonExtensions.GetFromJsonAsync<IpApiResponse>(client, url);
+                    if (response != null && response.status == "success")
+                    {
+                        var parts = new List<string>();
+                        if (!string.IsNullOrEmpty(response.city)) parts.Add(response.city);
+                        if (!string.IsNullOrEmpty(response.regionName) && response.regionName != response.city) parts.Add(response.regionName);
+                        if (!string.IsNullOrEmpty(response.country)) parts.Add(response.country);
+                        
+                        string location = string.Join(", ", parts);
+                        
+                        // Chú thích thêm để người dùng biết vị trí được giải quyết qua mạng của host khi test ở local
+                        if (string.IsNullOrEmpty(ip) || ip == "127.0.0.1" || ip == "::1" || ip.StartsWith("192.168.") || ip.StartsWith("10.") || ip.StartsWith("172."))
+                        {
+                            location += " (Mạng nội bộ)";
+                        }
+                        return location;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[IP Geolocation] Lỗi định vị IP {ip}: {ex.Message}");
+            }
+            return "Không xác định";
+        }
+
+        private class IpApiResponse
+        {
+            public string status { get; set; }
+            public string country { get; set; }
+            public string regionName { get; set; }
+            public string city { get; set; }
         }
 
         private class LoginAttempt
