@@ -242,6 +242,153 @@
     input[type=number] {
         -moz-appearance: textfield; /* Firefox */
     }
+    /* Profile Key-Value Layout */
+    .profile-section-title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #0d6efd;
+        letter-spacing: 0.8px;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid rgba(13, 110, 253, 0.1);
+        padding-bottom: 0.5rem;
+    }
+    .profile-info-row {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0.5rem 0.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        font-size: 0.95rem;
+        width: 100%;
+        min-height: 56px;
+    }
+    .profile-info-label {
+        width: 250px;
+        flex-shrink: 0;
+        font-weight: 700;
+        color: #4a5568;
+    }
+    .profile-info-value {
+        flex-grow: 1;
+        font-weight: 500;
+        color: #1a202c;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        min-height: 38px;
+    }
+    .profile-info-row .form-control:not(.edit-locked),
+    .profile-info-row .form-select {
+        padding: 6px 12px !important;
+        font-size: 0.95rem;
+        height: 38px;
+        line-height: 1.5;
+        border-radius: 8px;
+    }
+    .profile-info-row textarea.form-control:not(.edit-locked) {
+        height: auto;
+        min-height: 80px;
+    }
+    
+    /* Skills styling */
+    .skill-badge {
+        background-color: #f1f5f9;
+        color: #334155;
+        border: 1.5px solid #e2e8f0;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .skill-badge:hover {
+        background-color: #e2e8f0;
+        color: #1e293b;
+        transform: translateY(-1px);
+    }
+    
+    /* Edit mode dynamic skill input */
+    .skill-edit-item {
+        display: inline-flex;
+        align-items: center;
+        background-color: #f1f5f9;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 9999px;
+        padding: 0.35rem 0.75rem;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    .skill-edit-input {
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+        min-width: 60px;
+        max-width: 200px;
+        padding: 0;
+    }
+    .skill-edit-input::placeholder {
+        color: #94a3b8;
+        font-weight: 400;
+    }
+    
+    /* Expected location dropdown styling in row */
+    .edit-mode-input select {
+        border-radius: 10px;
+    }
+    
+    /* Dark Mode styling */
+    [data-bs-theme="dark"] .glass-card {
+        background: #1e293b !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+    }
+    [data-bs-theme="dark"] .profile-info-row {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    [data-bs-theme="dark"] .profile-info-label {
+        color: #94a3b8;
+    }
+    [data-bs-theme="dark"] .profile-info-value {
+        color: #f1f5f9;
+    }
+    [data-bs-theme="dark"] .skill-badge {
+        background-color: #334155;
+        color: #cbd5e1;
+        border-color: #475569;
+    }
+    [data-bs-theme="dark"] .skill-badge:hover {
+        background-color: #475569;
+        color: #f8fafc;
+    }
+    [data-bs-theme="dark"] .skill-edit-item {
+        background-color: #334155;
+        border-color: #475569;
+    }
+    [data-bs-theme="dark"] .skill-edit-input {
+        color: #cbd5e1;
+    }
+    [data-bs-theme="dark"] .form-control:not(.edit-locked),
+    [data-bs-theme="dark"] .form-select {
+        background-color: #1e293b !important;
+        border-color: #475569 !important;
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .form-control:not(.edit-locked):focus,
+    [data-bs-theme="dark"] .form-select:focus {
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+    }
+    [data-bs-theme="dark"] .stat-badge {
+        background: #1e293b;
+        border: 1px solid #334155;
+    }
+    [data-bs-theme="dark"] .form-control.edit-locked {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] textarea.form-control.edit-locked {
+        color: #94a3b8 !important;
+    }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
 
@@ -402,181 +549,363 @@
                             <input type="file" name="avatarFile" id="avatarInput" class="d-none" accept="image/*" onchange="submitAvatar(this)">
                             <input type="hidden" name="isDeleteAvatar" id="isDeleteAvatar" value="false" />
 
-                            <div class="row g-4">
+                            <!-- ========================================== -->
+                            <!-- CHẾ ĐỘ XEM (VIEW MODE)                     -->
+                            <!-- ========================================== -->
+                            <div class="view-mode-data w-100">
                                 @if (isRecruiter)
                                 {
-                                    <div class="col-md-6">
-                                        <label class="custom-label"><i class="bi bi-building me-2"></i>Đơn vị tuyển dụng</label>
-                                        <input type="text" name="companyName" id="CompanyName" 
-                                            value="@(Model.Company?.Name)" 
-                                            class="form-control edit-locked" readonly 
-                                            placeholder="Nhập tên công ty" />
+                                    <div class="profile-section-title"><i class="bi bi-building me-2"></i>Thông tin đơn vị tuyển dụng</div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Đơn vị tuyển dụng</div>
+                                        <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Company?.Name) ? "Chưa cập nhật" : Model.Company.Name)</div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Lĩnh vực hoạt động</div>
+                                        <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Company?.Industry) ? "Chưa cập nhật" : Model.Company.Industry)</div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Mã số thuế</div>
+                                        <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Company?.TaxCode) ? "Chưa cập nhật" : Model.Company.TaxCode)</div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Địa chỉ văn phòng</div>
+                                        <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Company?.Address) ? "Chưa cập nhật" : Model.Company.Address)</div>
                                     </div>
 
-                                    <div class="col-md-6">
-                                        <label class="custom-label"><i class="bi bi-geo-alt me-2"></i>Địa chỉ văn phòng</label>
-                                        <input type="text" name="companyAddress" id="CompanyAddress" 
-                                            value="@(Model.Company?.Address)" 
-                                            class="form-control edit-locked" readonly 
-                                            placeholder="Nhập địa chỉ công ty" />
+                                    <div class="profile-section-title mt-4"><i class="bi bi-person-badge me-2"></i>Thông tin người đại diện</div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Họ và tên</div>
+                                        <div class="profile-info-value">@Model.FullName</div>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Người đại diện</label>
-                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly oninput="this.value = this.value.replace(/[0-9]/g, '')" />
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Số điện thoại liên hệ</div>
+                                        <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</div>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-receipt me-2"></i>Mã số thuế</label>
-                                        <input type="text" name="taxCode" id="TaxCode" 
-                                            value="@(Model.Company?.TaxCode)" 
-                                            class="form-control edit-locked" readonly 
-                                            placeholder="Nhập mã số thuế" />
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Email đăng nhập</div>
+                                        <div class="profile-info-value">@Model.Email</div>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-globe me-2"></i>Website công ty</label>
-                                        <input type="text" name="companyWebsite" id="CompanyWebsite" 
-                                            value="@(Model.Company?.Website)" 
-                                            class="form-control edit-locked" readonly 
-                                            placeholder="Nhập website công ty (VD: https://company.com)" />
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Website công ty</div>
+                                        <div class="profile-info-value">
+                                            @if (!string.IsNullOrEmpty(Model.Company?.Website))
+                                            {
+                                                <a href="@Model.Company.Website" target="_blank" class="text-decoration-none"><i class="bi bi-globe me-1"></i>@Model.Company.Website</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Chưa cập nhật</span>
+                                            }
+                                        </div>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-tags me-2"></i>Lĩnh vực hoạt động</label>
-                                        <input type="text" name="companyIndustry" id="CompanyIndustry" 
-                                            value="@(Model.Company?.Industry)" 
-                                            class="form-control edit-locked" readonly 
-                                            placeholder="Nhập lĩnh vực hoạt động (VD: Công nghệ thông tin)" />
+                                    <div class="profile-info-row" style="align-items: flex-start;">
+                                        <div class="profile-info-label pt-1">Giới thiệu công ty</div>
+                                        <div class="profile-info-value text-muted" style="line-height: 1.6; white-space: pre-line;">@(string.IsNullOrEmpty(Model.Summary) ? "Chưa cập nhật thông tin giới thiệu." : Model.Summary)</div>
                                     </div>
                                 }
                                 else
                                 {
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-person-fill me-2"></i>Họ và tên</label>
-                                        <input asp-for="FullName" id="FullName" class="form-control edit-locked" readonly oninput="this.value = this.value.replace(/[0-9]/g, '')" />
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại</label>
-                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                    <!-- Đối với Ứng viên / Quản trị viên -->
+                                    <div class="profile-section-title"><i class="bi bi-person-badge me-2"></i>Thông tin cá nhân & Liên hệ</div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Họ và tên</div>
+                                        <div class="profile-info-value">@Model.FullName</div>
                                     </div>
                                     @if (!isAdmin)
                                     {
-                                        <div class="col-md-6">
-                                            <label class="custom-label text-dark"><i class="bi bi-briefcase-fill me-2"></i>Chức danh chuyên môn</label>
-                                            <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control edit-locked" readonly placeholder="VD: Senior React Developer" />
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Chức danh chuyên môn</div>
+                                            <div class="profile-info-value">@(string.IsNullOrEmpty(Model.ProfessionalTitle) ? "Chưa cập nhật" : Model.ProfessionalTitle)</div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <label class="custom-label text-dark"><i class="bi bi-star-fill me-2"></i>Số năm kinh nghiệm</label>
-                                            <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-control edit-locked" disabled>
-                                                <option value="">Chọn số năm kinh nghiệm</option>
-                                                <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
-                                                <option value="Dưới 1 năm">Dưới 1 năm</option>
-                                                <option value="1-3 năm">1-3 năm</option>
-                                                <option value="3-5 năm">3-5 năm</option>
-                                                <option value="Trên 5 năm">Trên 5 năm</option>
-                                            </select>
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Số năm kinh nghiệm</div>
+                                            <div class="profile-info-value">@(string.IsNullOrEmpty(Model.YearsOfExperience) ? "Chưa cập nhật" : Model.YearsOfExperience)</div>
                                         </div>
                                     }
-                                }
-
-                                <div class="col-md-12">
-                                    <label class="custom-label text-dark">Email đăng nhập (không thể thay đổi)</label>
-                                    <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-4 border">
-                                        <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
-                                            <i class="bi bi-envelope-check-fill text-primary mt-1"></i>
-                                        </div>
-                                        <div class="fw-bold text-dark fs-5">@Model.Email</div>
-                                        @if (User.Identity.IsAuthenticated) {
-                                            <i class="bi bi-patch-check-fill text-success ms-auto fs-5" title="Đã xác minh"></i>
-                                        }
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Số điện thoại</div>
+                                        <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</div>
                                     </div>
-                                </div>
-
-                                @if (isRecruiter)
-                                {
-                                    <div class="col-md-6">
-                                        <label class="custom-label text-dark"><i class="bi bi-telephone-fill me-2"></i>Số điện thoại liên hệ</label>
-                                        <input asp-for="Phone" id="Phone" class="form-control edit-locked" readonly placeholder="Chưa cập nhật" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Email đăng nhập</div>
+                                        <div class="profile-info-value">@Model.Email</div>
                                     </div>
-                                }
-
-                                @if (!isAdmin)
-                                {
-                                    <div class="col-md-12">
-                                        <label class="custom-label text-dark">
-                                            <i class="bi bi-card-text me-2"></i>@(isRecruiter ? "Giới thiệu công ty" : "Giới thiệu bản thân")
-                                        </label>
-                                        <textarea asp-for="Summary" id="Summary" class="form-control edit-locked" readonly rows="1" placeholder="@(isRecruiter ? "Chia sẻ một chút về công ty..." : "Chia sẻ một chút về bản thân bạn...")" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" style="overflow-y: hidden;"></textarea>
-                                    </div>
-
-                                    @if (!isRecruiter)
+                                    @if (!isAdmin)
                                     {
-                                        <div class="col-md-12">
-                                            <label class="custom-label text-dark"><i class="bi bi-tools me-2"></i>Kỹ năng chính</label>
-                                            <input asp-for="Skills" id="Skills" class="form-control edit-locked" readonly placeholder="Ví dụ: C#, React, Project Management..." />
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Địa chỉ hiện tại</div>
+                                            <div class="profile-info-value">@(string.IsNullOrEmpty(Model.Address) ? "Chưa cập nhật" : Model.Address)</div>
+                                        </div>
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Khu vực làm việc</div>
+                                            <div class="profile-info-value">@(string.IsNullOrEmpty(Model.ExpectedLocation) ? "Chưa cập nhật" : Model.ExpectedLocation)</div>
+                                        </div>
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-1">Giới thiệu bản thân</div>
+                                            <div class="profile-info-value text-muted" style="line-height: 1.6; white-space: pre-line;">@(string.IsNullOrEmpty(Model.Summary) ? "Chưa cập nhật thông tin giới thiệu." : Model.Summary)</div>
                                         </div>
 
-                                        <div class="col-md-12">
-                                            <label class="custom-label text-dark"><i class="bi bi-link-45deg me-2"></i>Liên kết mạng xã hội / Portfolio</label>
-                                            <div id="portfolioContainer" class="d-flex flex-column gap-2">
-                                                @if (!string.IsNullOrEmpty(Model.PortfolioLinks))
+                                        <div class="profile-section-title mt-4"><i class="bi bi-tools me-2"></i>Kỹ năng & Liên kết liên quan</div>
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Mức lương mong muốn</div>
+                                            <div class="profile-info-value">
+                                                @if (Model.ExpectedSalary.HasValue && Model.ExpectedSalary.Value > 0)
                                                 {
-                                                    var links = Model.PortfolioLinks.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                                                    foreach (var link in links)
+                                                    <span>@Model.ExpectedSalary.Value Triệu VNĐ/Tháng</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Thỏa thuận</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-1">Kỹ năng chính</div>
+                                            <div class="profile-info-value gap-2">
+                                                @if (!string.IsNullOrEmpty(Model.Skills))
+                                                {
+                                                    var skillList = Model.Skills.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                                                    foreach (var skill in skillList)
                                                     {
-                                                        <div class="portfolio-item d-flex gap-2">
-                                                            <input type="text" class="form-control portfolio-input edit-locked" readonly value="@link" placeholder="Nhập đường dẫn..." />
-                                                            <button type="button" class="btn btn-outline-danger btn-remove-portfolio d-none" onclick="this.parentElement.remove()">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </div>
+                                                        <span class="badge skill-badge rounded-pill px-3 py-2">@skill.Trim()</span>
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    <div class="portfolio-item d-flex gap-2">
-                                                        <input type="text" class="form-control portfolio-input edit-locked" readonly value="" placeholder="Nhập đường dẫn (VD: https://linkedin.com/...)" />
-                                                        <button type="button" class="btn btn-outline-danger btn-remove-portfolio d-none" onclick="this.parentElement.remove()">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </div>
+                                                    <span class="text-muted">Chưa cập nhật</span>
                                                 }
                                             </div>
-                                            <button type="button" id="btnAddPortfolio" class="btn btn-sm btn-outline-primary mt-2 d-none" onclick="addPortfolioInput()">
-                                                <i class="bi bi-plus-circle me-1"></i>Thêm liên kết
-                                            </button>
-                                            <input type="hidden" asp-for="PortfolioLinks" id="PortfolioLinks" />
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <label class="custom-label text-dark"><i class="bi bi-geo-alt-fill me-2"></i>Địa chỉ hiện tại</label>
-                                            <input asp-for="Address" id="Address" class="form-control edit-locked" readonly placeholder="Ví dụ: 123 Đường Nguyễn Trãi, Quận 1, TP.HCM" />
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-1">Mạng xã hội / Portfolio</div>
+                                            <div class="profile-info-value gap-2">
+                                                @if (!string.IsNullOrEmpty(Model.PortfolioLinks))
+                                                {
+                                                    var links = Model.PortfolioLinks.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                                                    bool hasValidLink = false;
+                                                    foreach (var link in links)
+                                                    {
+                                                        if (string.IsNullOrEmpty(link.Trim())) continue;
+                                                        hasValidLink = true;
+                                                        var lowerLink = link.ToLower();
+                                                        var iconClass = "bi-link-45deg";
+                                                        var linkTitle = "Portfolio / Website";
+                                                        
+                                                        if (lowerLink.Contains("github.com"))
+                                                        {
+                                                            iconClass = "bi-github";
+                                                            linkTitle = "GitHub";
+                                                        }
+                                                        else if (lowerLink.Contains("linkedin.com"))
+                                                        {
+                                                            iconClass = "bi-linkedin";
+                                                            linkTitle = "LinkedIn";
+                                                        }
+                                                        else if (lowerLink.Contains("facebook.com") || lowerLink.Contains("fb.com"))
+                                                        {
+                                                            iconClass = "bi-facebook";
+                                                            linkTitle = "Facebook";
+                                                        }
+                                                        else if (lowerLink.Contains("youtube.com"))
+                                                        {
+                                                            iconClass = "bi-youtube";
+                                                            linkTitle = "YouTube";
+                                                        }
+                                                        
+                                                        <a href="@link" target="_blank" class="btn btn-xs btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm" title="@link">
+                                                            <i class="bi @iconClass"></i>@linkTitle
+                                                        </a>
+                                                    }
+                                                    if (!hasValidLink)
+                                                    {
+                                                        <span class="text-muted">Chưa cập nhật</span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Chưa cập nhật</span>
+                                                }
+                                            </div>
                                         </div>
+                                    }
+                                }
+                            </div>
 
-                                        <div class="col-md-6">
-                                            <label class="custom-label text-dark"><i class="bi bi-cash-stack me-2"></i>Mức lương mong muốn</label>
-                                            <div class="d-flex align-items-center gap-2">
-                                                <input asp-for="ExpectedSalary" type="number" id="ExpectedSalary" class="form-control edit-locked text-center" style="max-width: 120px;" readonly placeholder="VD: 15" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
-                                                <span class="text-muted fw-medium">Triệu VNĐ/Tháng</span>
+                            <!-- ========================================== -->
+                            <!-- CHẾ ĐỘ SỬA (EDIT MODE)                     -->
+                            <!-- ========================================== -->
+                            <div class="edit-mode-input d-none w-100">
+                                @if (isRecruiter)
+                                {
+                                    <div class="profile-section-title"><i class="bi bi-building me-2"></i>Thông tin đơn vị tuyển dụng</div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Đơn vị tuyển dụng</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" name="companyName" id="CompanyName" value="@(Model.Company?.Name)" class="form-control form-control-sm" placeholder="Nhập tên công ty" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Lĩnh vực hoạt động</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" name="companyIndustry" id="CompanyIndustry" value="@(Model.Company?.Industry)" class="form-control form-control-sm" placeholder="Nhập lĩnh vực hoạt động (VD: Công nghệ thông tin)" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Mã số thuế</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" name="taxCode" id="TaxCode" value="@(Model.Company?.TaxCode)" class="form-control form-control-sm" placeholder="Nhập mã số thuế" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Địa chỉ văn phòng</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" name="companyAddress" id="CompanyAddress" value="@(Model.Company?.Address)" class="form-control form-control-sm" placeholder="Nhập địa chỉ công ty" />
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-section-title mt-4"><i class="bi bi-person-badge me-2"></i>Thông tin người đại diện</div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Họ và tên</div>
+                                        <div class="profile-info-value">
+                                            <input asp-for="FullName" id="FullName" class="form-control form-control-sm" placeholder="Nhập họ và tên" oninput="this.value = this.value.replace(/[0-9]/g, '')" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Số điện thoại liên hệ</div>
+                                        <div class="profile-info-value">
+                                            <input asp-for="Phone" id="Phone" class="form-control form-control-sm" placeholder="Nhập số điện thoại" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Email đăng nhập</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" class="form-control form-control-sm bg-light" readonly value="@Model.Email" disabled />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Website công ty</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" name="companyWebsite" id="CompanyWebsite" value="@(Model.Company?.Website)" class="form-control form-control-sm" placeholder="Nhập website công ty (VD: https://company.com)" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row" style="align-items: flex-start;">
+                                        <div class="profile-info-label pt-2">Giới thiệu công ty</div>
+                                        <div class="profile-info-value">
+                                            <textarea asp-for="Summary" id="Summary" class="form-control form-control-sm" rows="4" placeholder="Giới thiệu về công ty..."></textarea>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Đối với Ứng viên / Quản trị viên -->
+                                    <div class="profile-section-title"><i class="bi bi-person-badge me-2"></i>Thông tin cá nhân & Liên hệ</div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Họ và tên</div>
+                                        <div class="profile-info-value">
+                                            <input asp-for="FullName" id="FullName" class="form-control form-control-sm" placeholder="Nhập họ và tên" oninput="this.value = this.value.replace(/[0-9]/g, '')" />
+                                        </div>
+                                    </div>
+                                    @if (!isAdmin)
+                                    {
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Chức danh chuyên môn</div>
+                                            <div class="profile-info-value">
+                                                <input asp-for="ProfessionalTitle" id="ProfessionalTitle" class="form-control form-control-sm" placeholder="VD: Senior React Developer" />
+                                            </div>
+                                        </div>
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Số năm kinh nghiệm</div>
+                                            <div class="profile-info-value">
+                                                <select asp-for="YearsOfExperience" id="YearsOfExperience" class="form-select form-select-sm">
+                                                    <option value="">Chọn số năm kinh nghiệm</option>
+                                                    <option value="Chưa có kinh nghiệm">Chưa có kinh nghiệm</option>
+                                                    <option value="Dưới 1 năm">Dưới 1 năm</option>
+                                                    <option value="1-3 năm">1-3 năm</option>
+                                                    <option value="3-5 năm">3-5 năm</option>
+                                                    <option value="Trên 5 năm">Trên 5 năm</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Số điện thoại</div>
+                                        <div class="profile-info-value">
+                                            <input asp-for="Phone" id="Phone" class="form-control form-control-sm" placeholder="Nhập số điện thoại" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                        </div>
+                                    </div>
+                                    <div class="profile-info-row">
+                                        <div class="profile-info-label">Email đăng nhập</div>
+                                        <div class="profile-info-value">
+                                            <input type="text" class="form-control form-control-sm bg-light" readonly value="@Model.Email" disabled />
+                                        </div>
+                                    </div>
+                                    @if (!isAdmin)
+                                    {
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Địa chỉ hiện tại</div>
+                                            <div class="profile-info-value">
+                                                <input asp-for="Address" id="Address" class="form-control form-control-sm" placeholder="Ví dụ: 123 Đường Nguyễn Trãi, Quận 1, TP.HCM" />
+                                            </div>
+                                        </div>
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-2">Khu vực làm việc</div>
+                                            <div class="profile-info-value">
+                                                <div class="row g-2 w-100 m-0">
+                                                    <div class="col-md-6 ps-0">
+                                                        <select id="ProvinceSelect" class="form-select form-select-sm">
+                                                            <option value="">Chọn tỉnh/thành phố</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-6 pe-0">
+                                                        <select id="DistrictSelect" class="form-select form-select-sm">
+                                                            <option value="">Chọn quận/huyện</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" asp-for="ExpectedLocation" id="ExpectedLocation" />
+                                            </div>
+                                        </div>
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-2">Giới thiệu bản thân</div>
+                                            <div class="profile-info-value">
+                                                <textarea asp-for="Summary" id="Summary" class="form-control form-control-sm" rows="4" placeholder="Chia sẻ một chút về bản thân bạn..."></textarea>
                                             </div>
                                         </div>
 
-                                        <div class="col-md-12">
-                                            <label class="custom-label text-dark"><i class="bi bi-pin-map-fill me-2"></i>Địa điểm làm việc</label>
-                                            <div class="row g-3">
-                                                <div class="col-md-6">
-                                                    <select id="ProvinceSelect" class="form-select form-control edit-locked" disabled>
-                                                        <option value="">Chọn tỉnh/thành phố</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <select id="DistrictSelect" class="form-select form-control edit-locked" disabled>
-                                                        <option value="">Chọn quận/huyện</option>
-                                                    </select>
+                                        <div class="profile-section-title mt-4"><i class="bi bi-tools me-2"></i>Kỹ năng & Liên kết liên quan</div>
+                                        <div class="profile-info-row">
+                                            <div class="profile-info-label">Mức lương mong muốn</div>
+                                            <div class="profile-info-value">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <input asp-for="ExpectedSalary" type="number" id="ExpectedSalary" class="form-control form-control-sm text-center" style="max-width: 100px;" placeholder="VD: 15" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+                                                    <span class="text-muted fw-medium small">Triệu VNĐ/Tháng</span>
                                                 </div>
                                             </div>
-                                            <input type="hidden" asp-for="ExpectedLocation" id="ExpectedLocation" />
+                                        </div>
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-2">Kỹ năng chính</div>
+                                            <div class="profile-info-value">
+                                                <div id="skillsEditWrapper" class="w-100">
+                                                    <div id="skillsContainer" class="d-flex flex-wrap gap-2 align-items-center"></div>
+                                                    <button type="button" id="btnAddSkill" class="btn btn-xs btn-outline-primary mt-2" onclick="addSkillInput('')">
+                                                        <i class="bi bi-plus-circle me-1"></i>Thêm kỹ năng
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" asp-for="Skills" id="Skills" />
+                                            </div>
+                                        </div>
+                                        <div class="profile-info-row" style="align-items: flex-start;">
+                                            <div class="profile-info-label pt-2">Mạng xã hội / Portfolio</div>
+                                            <div class="profile-info-value">
+                                                <div id="portfolioEditWrapper" class="w-100">
+                                                    <div id="portfolioContainer" class="d-flex flex-column gap-2"></div>
+                                                    <button type="button" id="btnAddPortfolio" class="btn btn-xs btn-outline-primary mt-2" onclick="addPortfolioInput()">
+                                                        <i class="bi bi-plus-circle me-1"></i>Thêm liên kết
+                                                    </button>
+                                                </div>
+                                                <input type="hidden" asp-for="PortfolioLinks" id="PortfolioLinks" />
+                                            </div>
                                         </div>
                                     }
                                 }
@@ -1031,6 +1360,8 @@
         let oldTaxCode = "@Html.Raw(Model.Company?.TaxCode)";
         let oldCompanyWebsite = "@Html.Raw(Model.Company?.Website)";
         let oldCompanyIndustry = "@Html.Raw(Model.Company?.Industry)";
+        let oldSummary = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
+        let oldSkills = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
         let isRecruiter = @(isRecruiter ? "true" : "false");
 
         let cropper;
@@ -1136,44 +1467,139 @@
             if (hiddenEl) hiddenEl.value = val;
         }
 
-        function addPortfolioInput() {
-            const container = document.getElementById('portfolioContainer');
-            const div = document.createElement('div');
-            div.className = 'portfolio-item d-flex gap-2';
-            div.innerHTML = `
-                <input type="text" class="form-control portfolio-input" value="" placeholder="Nhập đường dẫn (VD: https://linkedin.com/...)" />
-                <button type="button" class="btn btn-outline-danger btn-remove-portfolio" onclick="this.parentElement.remove()">
-                    <i class="bi bi-trash"></i>
-                </button>
-            `;
-            container.appendChild(div);
-            div.querySelector('input').focus();
+        // Logic Kỹ năng chính (Dynamic Skill Input)
+        function initSkills(skillsString) {
+            const container = document.getElementById('skillsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (skillsString) {
+                const skills = skillsString.split(',').map(s => s.trim()).filter(s => s !== '');
+                skills.forEach(skill => {
+                    addSkillTag(skill);
+                });
+            }
         }
 
-        function addPortfolioLinkReadOnly(value) {
+        function addSkillTag(value) {
+            const container = document.getElementById('skillsContainer');
+            if (!container) return;
+
+            const div = document.createElement('div');
+            div.className = 'skill-edit-item';
+            div.innerHTML = `
+                <input type="text" class="skill-edit-input" value="${value.replace(/"/g, '&quot;')}" placeholder="Kỹ năng..." onkeydown="handleSkillKeydown(event, this)" />
+                <button type="button" class="btn-close" style="font-size: 0.65rem; filter: invert(0.5);" onclick="this.parentElement.remove()"></button>
+            `;
+            container.appendChild(div);
+            
+            const input = div.querySelector('input');
+            input.addEventListener('input', function() {
+                resizeSkillInput(this);
+            });
+            resizeSkillInput(input);
+        }
+
+        function resizeSkillInput(input) {
+            input.style.width = ((input.value.length || 8) * 8 + 20) + 'px';
+        }
+
+        function handleSkillKeydown(event, input) {
+            if (event.key === 'Enter' || event.key === ',') {
+                event.preventDefault();
+                const val = input.value.trim().replace(/,/g, '');
+                if (val) {
+                    input.value = val;
+                    addSkillInput('');
+                }
+            } else if (event.key === 'Backspace' && input.value === '') {
+                event.preventDefault();
+                const parent = input.parentElement;
+                const prev = parent.previousElementSibling;
+                parent.remove();
+                if (prev && prev.classList.contains('skill-edit-item')) {
+                    prev.querySelector('input').focus();
+                }
+            }
+        }
+
+        function addSkillInput(value) {
+            addSkillTag(value);
+            const container = document.getElementById('skillsContainer');
+            if (container) {
+                const items = container.querySelectorAll('.skill-edit-item');
+                if (items.length > 0) {
+                    items[items.length - 1].querySelector('input').focus();
+                }
+            }
+        }
+
+        // Logic Mạng xã hội / Portfolio
+        function initPortfolio(portfolioString) {
             const container = document.getElementById('portfolioContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            if (portfolioString) {
+                const links = portfolioString.split(/\r?\n/).filter(l => l.trim() !== '');
+                if (links.length > 0) {
+                    links.forEach(link => addPortfolioInputEdit(link));
+                } else {
+                    addPortfolioInputEdit('');
+                }
+            } else {
+                addPortfolioInputEdit('');
+            }
+        }
+
+        function addPortfolioInputEdit(value) {
+            const container = document.getElementById('portfolioContainer');
+            if (!container) return;
             const div = document.createElement('div');
             div.className = 'portfolio-item d-flex gap-2';
-            // Escape quotes to prevent HTML injection
             const safeValue = value.replace(/"/g, '&quot;');
             div.innerHTML = `
-                <input type="text" class="form-control portfolio-input edit-locked" readonly value="${safeValue}" placeholder="Nhập đường dẫn..." />
-                <button type="button" class="btn btn-outline-danger btn-remove-portfolio d-none" onclick="this.parentElement.remove()">
+                <input type="text" class="form-control portfolio-input form-control-sm" value="${safeValue}" placeholder="Nhập đường dẫn (VD: https://linkedin.com/...)" />
+                <button type="button" class="btn btn-outline-danger btn-remove-portfolio btn-sm" onclick="this.parentElement.remove()">
                     <i class="bi bi-trash"></i>
                 </button>
             `;
             container.appendChild(div);
+        }
+
+        function addPortfolioInput() {
+            addPortfolioInputEdit('');
+            const container = document.getElementById('portfolioContainer');
+            if (container) {
+                const inputs = container.querySelectorAll('.portfolio-input');
+                if (inputs.length > 0) {
+                    inputs[inputs.length - 1].focus();
+                }
+            }
         }
 
         function prepareProfileSubmit() {
-            const inputs = document.querySelectorAll('.portfolio-input');
+            // Gộp các link portfolio
+            const portfolioInputs = document.querySelectorAll('.portfolio-input');
             const links = [];
-            inputs.forEach(input => {
+            portfolioInputs.forEach(input => {
                 if (input.value.trim()) links.push(input.value.trim());
             });
-            const hidden = document.getElementById('PortfolioLinks');
-            if (hidden) {
-                hidden.value = links.join('\n');
+            const hiddenPortfolio = document.getElementById('PortfolioLinks');
+            if (hiddenPortfolio) {
+                hiddenPortfolio.value = links.join('\n');
+            }
+
+            // Gộp các kỹ năng
+            const skillInputs = document.querySelectorAll('.skill-edit-input');
+            const skills = [];
+            skillInputs.forEach(input => {
+                const val = input.value.trim().replace(/,/g, '');
+                if (val) skills.push(val);
+            });
+            const hiddenSkills = document.getElementById('Skills');
+            if (hiddenSkills) {
+                hiddenSkills.value = skills.join(', ');
             }
         }
 
@@ -1211,8 +1637,13 @@
         }
 
         function enableEditing() {
+            // Chuyển khối giao diện từ xem sang sửa
+            document.querySelectorAll('.view-mode-data').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.edit-mode-input').forEach(el => el.classList.remove('d-none'));
+
             document.getElementById('editActions').style.setProperty('display', 'flex', 'important');
             document.getElementById('btnEdit').classList.add('d-none');
+            
             getEditableFields().forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -1221,19 +1652,22 @@
                     el.classList.remove('edit-locked');
                 }
             });
-            document.querySelectorAll('.portfolio-input').forEach(el => {
-                el.readOnly = false;
-                el.classList.remove('edit-locked');
-            });
-            const btnAdd = document.getElementById('btnAddPortfolio');
-            if (btnAdd) btnAdd.classList.remove('d-none');
-            document.querySelectorAll('.btn-remove-portfolio').forEach(btn => {
-                btn.classList.remove('d-none');
-            });
+
+            // Khởi tạo kỹ năng ở chế độ sửa
+            const skillsEl = document.getElementById('Skills');
+            initSkills(skillsEl ? skillsEl.value : oldSkills);
+
+            // Khởi tạo portfolio ở chế độ sửa
+            initPortfolio(oldPortfolioLinks);
+
             document.getElementById('FullName').focus();
         }
 
         function disableEditing() {
+            // Chuyển khối giao diện từ sửa sang xem
+            document.querySelectorAll('.view-mode-data').forEach(el => el.classList.remove('d-none'));
+            document.querySelectorAll('.edit-mode-input').forEach(el => el.classList.add('d-none'));
+
             document.getElementById('FullName').value = oldName;
             document.getElementById('Phone').value = oldPhone;
             const summaryEl = document.getElementById('Summary');
@@ -1243,28 +1677,12 @@
             const yearsEl = document.getElementById('YearsOfExperience');
             
             if (summaryEl) {
-                summaryEl.value = `@Html.Raw(Model.Summary?.Replace("`", "\\`"))`;
+                summaryEl.value = oldSummary;
                 summaryEl.style.height = 'auto';
                 summaryEl.style.height = summaryEl.scrollHeight + 'px';
             }
-            const portfolioContainer = document.getElementById('portfolioContainer');
-            if (portfolioContainer) {
-                portfolioContainer.innerHTML = '';
-                if (oldPortfolioLinks) {
-                    const links = oldPortfolioLinks.split(/\r?\n/).filter(l => l.trim() !== '');
-                    if (links.length > 0) {
-                        links.forEach(link => addPortfolioLinkReadOnly(link));
-                    } else {
-                        addPortfolioLinkReadOnly('');
-                    }
-                } else {
-                    addPortfolioLinkReadOnly('');
-                }
-                const btnAdd = document.getElementById('btnAddPortfolio');
-                if (btnAdd) btnAdd.classList.add('d-none');
-            }
             if (skillsEl) {
-                skillsEl.value = `@Html.Raw(Model.Skills?.Replace("`", "\\`"))`;
+                skillsEl.value = oldSkills;
             }
             if (addressEl) {
                 addressEl.value = oldAddress;
@@ -1289,6 +1707,7 @@
                 if (cw) cw.value = oldCompanyWebsite;
                 if (ci) ci.value = oldCompanyIndustry;
             }
+
             document.getElementById('editActions').style.setProperty('display', 'none', 'important');
             document.getElementById('btnEdit').classList.remove('d-none');
             getEditableFields().forEach(id => {

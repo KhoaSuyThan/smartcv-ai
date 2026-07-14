@@ -5,6 +5,17 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-14] - Cải tiến toàn diện giao diện trang cá nhân và nâng cấp ô nhập kỹ năng dạng tag
+
+### Added
+- Tích hợp ô nhập kỹ năng chính dạng tag động (`#skillsContainer`), hỗ trợ thêm nhanh bằng phím `Enter`/dấu phẩy `,` và xóa bằng phím `Backspace` hoặc nút đóng.
+- Bổ sung CSS tùy biến (`.profile-info-row`, `.profile-info-label`, `.profile-info-value`, `.skill-badge`) thiết lập bố cục Key-Value hàng ngang siêu gọn, đồng bộ cấu trúc giữa chế độ Xem và Sửa.
+
+### Changed
+- Khắc phục lỗi tương phản màu chữ trong Dark Mode cho nhãn, email và các ô nhập liệu bị khóa.
+- Tinh chỉnh chiều cao hàng (`min-height: 56px`) và chiều cao các input/select (`height: 38px`, padding `6px 12px`) giúp chuyển đổi Xem/Sửa mượt mà và loại bỏ hoàn toàn hiện tượng giật nhảy chiều cao (layout shift).
+- Cập nhật JavaScript để chuyển đổi trạng thái View/Edit mượt mà, đồng thời tự động gộp các tag kỹ năng và link portfolio trước khi submit form để tương thích 100% với database.
+
 ## [2026-07-13] - Nâng cấp định vị IP đăng nhập, tối ưu hóa giao diện Header và Sticky Footer
 
 ### Added
