@@ -1521,6 +1521,57 @@ footer {
   border-color: #c084fc !important;
 }
 
+/* ==========================================================
+   HỖ TRỢ DARK MODE CHO POPUP MODAL (PRO UPGRADE & SESSION CONFLICT)
+   ========================================================== */
+[data-bs-theme="dark"] .modal-pro-content {
+  background: #1e293b !important; /* Nền tối */
+  border: 1px solid #334155 !important; /* Viền tối */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .modal-pro-header {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important; /* Gradient tối */
+  border-bottom: 1px solid #334155 !important;
+}
+
+[data-bs-theme="dark"] .modal-pro-icon {
+  border: 5px solid #1e293b !important; /* Khớp viền vương miện với nền tối */
+}
+
+[data-bs-theme="dark"] .modal-pro-header h3 {
+  color: #fbbf24 !important; /* Chữ vàng hổ phách nổi bật */
+}
+
+[data-bs-theme="dark"] #proUpgradeModal .text-secondary {
+  color: #94a3b8 !important; /* Mô tả dễ đọc */
+}
+
+[data-bs-theme="dark"] #proUpgradeModal .btn-light {
+  background-color: #334155 !important;
+  color: #cbd5e1 !important;
+  border-color: #475569 !important;
+}
+
+[data-bs-theme="dark"] #proUpgradeModal .btn-light:hover {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+/* Modal báo trùng đăng nhập (Session Conflict) */
+[data-bs-theme="dark"] #session-conflict-modal > div {
+  background: #1e293b !important; /* Nền tối */
+  border: 1px solid #334155 !important;
+}
+
+[data-bs-theme="dark"] #session-conflict-modal h3 {
+  color: #f8fafc !important; /* Chữ trắng sáng */
+}
+
+[data-bs-theme="dark"] #session-conflict-modal p {
+  color: #94a3b8 !important; /* Mô tả dễ đọc */
+}
+
 
 
 

@@ -19,6 +19,7 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 - Cập nhật `site.css` loại trừ vùng in và hiển thị CV (`#cv-printable-area`, `.cv-preview-card`, `.cv-preview-wrapper`) khỏi các thuộc tính màu tối mặc định của Dark Mode, giúp giữ nguyên giao diện gốc của mẫu CV để dễ dàng preview trước khi in.
 - Khắc phục lỗi tương phản màu chữ trong ô nhập liệu (input, textarea) của panel soạn thảo CV trong chế độ tối bằng cách ép màu nền tối trung tính (`#1e293b`) và màu chữ trắng sáng (`#f8fafc`).
 - Khắc phục lỗi hiển thị nút đổi ngôn ngữ VI | EN trong toolbar ở chế độ tối bằng cách loại bỏ gradient nền sáng của Tailwind (`background-image: none !important;`), thay thế bằng màu nền tối trung tính (`#1e293b`) và màu chữ sáng để hiển thị rõ nét nhất.
+- Tối ưu hóa giao diện Dark Mode cho các popup modal gồm: Modal nâng cấp tài khoản Pro (`#proUpgradeModal`) và Modal cảnh báo trùng đăng nhập (`#session-conflict-modal`), chuyển đổi màu nền tối và màu chữ tương phản cao giúp giao diện hiển thị đồng bộ.
 
 ## [2026-07-13] - Nâng cấp định vị IP đăng nhập, tối ưu hóa giao diện Header và Sticky Footer
 
