@@ -173,7 +173,7 @@ footer {
 }
 
 [data-bs-theme="dark"] body,
-[data-bs-theme="dark"] .bg-light,
+[data-bs-theme="dark"] .bg-light:not(.cv-preview-card *):not(.cv-preview-wrapper *):not(#cv-printable-area *):not(#resume-preview *):not(.template-card *),
 [data-bs-theme="dark"] section,
 [data-bs-theme="dark"] .container-fluid,
 [data-bs-theme="dark"] .bg-mesh {
@@ -181,30 +181,30 @@ footer {
   background-image: none !important;
 }
 
-[data-bs-theme="dark"] .bg-white {
+[data-bs-theme="dark"] .bg-white:not(.cv-preview-card *):not(.cv-preview-wrapper *):not(#cv-printable-area *):not(#resume-preview *):not(.template-card *) {
   background-color: #1e293b !important; /* Xanh Slate vừa */
 }
 
-[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .card:not(.cv-preview-card):not(.cv-preview-wrapper):not(#resume-preview),
 [data-bs-theme="dark"] .admin-sidebar-container {
   background-color: #1e293b !important;
   border-color: #334155 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
-[data-bs-theme="dark"] .card-body h5:not(.force-light-card h5):not(.template-card h5):not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5),
-[data-bs-theme="dark"] .card-body p:not(.force-light-card p):not(.template-card p):not(.cv-preview-card p):not(.cv-preview-wrapper p):not(#resume-preview p),
-[data-bs-theme="dark"] h1:not(.force-light-card h1):not(.cv-preview-card h1):not(.cv-preview-wrapper h1):not(#resume-preview h1):not(.template-card h1),
-[data-bs-theme="dark"] h2:not(.force-light-card h2):not(.cv-preview-card h2):not(.cv-preview-wrapper h2):not(#resume-preview h2):not(.template-card h2),
-[data-bs-theme="dark"] h3:not(.force-light-card h3):not(.cv-preview-card h3):not(.cv-preview-wrapper h3):not(#resume-preview h3):not(.template-card h3), 
-[data-bs-theme="dark"] h4:not(.force-light-card h4):not(.cv-preview-card h4):not(.cv-preview-wrapper h4):not(#resume-preview h4):not(.template-card h4),
-[data-bs-theme="dark"] h5:not(.force-light-card h5):not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5):not(.template-card h5),
-[data-bs-theme="dark"] h6:not(.force-light-card h6):not(.cv-preview-card h6):not(.cv-preview-wrapper h6):not(#resume-preview h6):not(.template-card h6),
-[data-bs-theme="dark"] .text-dark:not(.force-light-card *):not(.cv-preview-card *):not(.cv-preview-wrapper *):not(#resume-preview *):not(.template-card *) {
+[data-bs-theme="dark"] .card-body h5:not(.force-light-card h5):not(.template-card h5):not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5):not(#cv-printable-area h5),
+[data-bs-theme="dark"] .card-body p:not(.force-light-card p):not(.template-card p):not(.cv-preview-card p):not(.cv-preview-wrapper p):not(#resume-preview p):not(#cv-printable-area p),
+[data-bs-theme="dark"] h1:not(.force-light-card h1):not(.cv-preview-card h1):not(.cv-preview-wrapper h1):not(#resume-preview h1):not(.template-card h1):not(#cv-printable-area h1),
+[data-bs-theme="dark"] h2:not(.force-light-card h2):not(.cv-preview-card h2):not(.cv-preview-wrapper h2):not(#resume-preview h2):not(.template-card h2):not(#cv-printable-area h2),
+[data-bs-theme="dark"] h3:not(.force-light-card h3):not(.cv-preview-card h3):not(.cv-preview-wrapper h3):not(#resume-preview h3):not(.template-card h3):not(#cv-printable-area h3), 
+[data-bs-theme="dark"] h4:not(.force-light-card h4):not(.cv-preview-card h4):not(.cv-preview-wrapper h4):not(#resume-preview h4):not(.template-card h4):not(#cv-printable-area h4),
+[data-bs-theme="dark"] h5:not(.force-light-card h5):not(.cv-preview-card h5):not(.cv-preview-wrapper h5):not(#resume-preview h5):not(.template-card h5):not(#cv-printable-area h5),
+[data-bs-theme="dark"] h6:not(.force-light-card h6):not(.cv-preview-card h6):not(.cv-preview-wrapper h6):not(#resume-preview h6):not(.template-card h6):not(#cv-printable-area h6),
+[data-bs-theme="dark"] .text-dark:not(.force-light-card *):not(.cv-preview-card *):not(.cv-preview-wrapper *):not(#resume-preview *):not(.template-card *):not(#cv-printable-area *) {
   color: #e9ecef !important;
 }
 
-[data-bs-theme="dark"] .text-muted:not(.force-light-card .text-muted):not(.cv-preview-card .text-muted):not(.cv-preview-wrapper .text-muted):not(#resume-preview .text-muted):not(.template-card .text-muted) {
+[data-bs-theme="dark"] .text-muted:not(.force-light-card .text-muted):not(.cv-preview-card .text-muted):not(.cv-preview-wrapper .text-muted):not(#resume-preview .text-muted):not(.template-card .text-muted):not(#cv-printable-area .text-muted) {
   color: #adb5bd !important;
 }
 
@@ -327,16 +327,22 @@ footer {
   color: #f8fafc !important; /* Chế độ tối: trắng sáng (slate-50) */
 }
 
-/* Ép màu chữ cho tất cả các thẻ input, textarea chuẩn bên trong cv-builder-editor-panel ở chế độ tối */
-[data-bs-theme="dark"] .cv-builder-editor-panel input,
-[data-bs-theme="dark"] .cv-builder-editor-panel textarea {
+/* Ép màu chữ và màu nền cho tất cả các thẻ input, textarea chuẩn ở chế độ tối trên trang Builder (loại trừ vùng in CV) */
+[data-bs-theme="dark"] input:not(#cv-printable-area *):not(.template-card *),
+[data-bs-theme="dark"] textarea:not(#cv-printable-area *):not(.template-card *),
+[data-bs-theme="dark"] select:not(#cv-printable-area *):not(.template-card *),
+[data-bs-theme="dark"] [contenteditable="true"]:not(#cv-printable-area *):not(.template-card *),
+[data-bs-theme="dark"] .rich-text-editor:not(#cv-printable-area *) {
   color: #f8fafc !important; /* Chữ trắng sáng rõ nét */
+  background-color: #1e293b !important; /* Nền tối vừa để tương phản tốt */
+  border-color: #334155 !important;
 }
 
 /* Tối ưu hóa hiển thị placeholder cho các input, textarea ở chế độ tối */
-[data-bs-theme="dark"] .cv-builder-editor-panel input::placeholder,
-[data-bs-theme="dark"] .cv-builder-editor-panel textarea::placeholder {
+[data-bs-theme="dark"] input:not(#cv-printable-area *):not(.template-card *)::placeholder,
+[data-bs-theme="dark"] textarea:not(#cv-printable-area *):not(.template-card *)::placeholder {
   color: #94a3b8 !important; /* Màu xám sáng dễ đọc */
+  opacity: 1 !important;
 }
 
 
@@ -376,12 +382,54 @@ footer {
   color: #f1f5f9 !important;
 }
 
-/* Các nút định dạng (Bold, Italic, Underline, Canh lề, List,...) */
-[data-bs-theme="dark"] .cv-builder-toolbar button {
+/* Các nút định dạng (Bold, Italic, Underline, Canh lề, List,...) và nút đổi ngôn ngữ VI | EN */
+[data-bs-theme="dark"] .cv-builder-toolbar button,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-white,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-slate-50,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-slate-100,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-gray-50,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-gray-100 {
   color: #cbd5e1 !important; /* Slate-300 */
+  background-color: #1e293b !important; /* Nền Slate-800 */
+  border-color: #334155 !important;
 }
-[data-bs-theme="dark"] .cv-builder-toolbar button:hover {
-  background-color: #1e293b !important; /* Nền Slate-800 khi hover */
+[data-bs-theme="dark"] .cv-builder-toolbar button:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-white:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-slate-50:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-slate-100:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-gray-50:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar .bg-gray-100:hover {
+  background-color: #334155 !important; /* Nền Slate-700 khi hover */
+  color: #ffffff !important;
+}
+
+/* Fix nút dịch ngôn ngữ AI (Vi | En) trong toolbar ở chế độ tối */
+[data-bs-theme="dark"] .cv-builder-toolbar button.from-blue-50,
+[data-bs-theme="dark"] .cv-builder-toolbar button[title*="Dịch CV"],
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="from-blue-50"] {
+  background-image: none !important; /* Loại bỏ gradient nền sáng của Tailwind */
+  background-color: #1e293b !important; /* Nền tối trung tính */
+  color: #cbd5e1 !important; /* Chữ xám sáng */
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .cv-builder-toolbar button.from-blue-50 *,
+[data-bs-theme="dark"] .cv-builder-toolbar button[title*="Dịch CV"] *,
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="from-blue-50"] * {
+  color: #cbd5e1 !important; /* Chữ và icon bên trong đều chuyển sáng */
+}
+
+[data-bs-theme="dark"] .cv-builder-toolbar button.from-blue-50:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar button[title*="Dịch CV"]:hover,
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="from-blue-50"]:hover {
+  background-image: none !important;
+  background-color: #334155 !important; /* Hover nền sáng hơn chút */
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .cv-builder-toolbar button.from-blue-50:hover *,
+[data-bs-theme="dark"] .cv-builder-toolbar button[title*="Dịch CV"]:hover *,
+[data-bs-theme="dark"] .cv-builder-toolbar button[class*="from-blue-50"]:hover * {
   color: #ffffff !important;
 }
 

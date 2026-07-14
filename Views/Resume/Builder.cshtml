@@ -87,6 +87,25 @@
                         inset 0 -8px 8px -6px rgba(0, 0, 0, 0.7) !important;
         }
 
+        /* ĐẢM BẢO vùng preview CV luôn giữ màu của Light Mode, chống đè màu của các framework */
+        [data-bs-theme="dark"] .cv-preview-card,
+        [data-bs-theme="dark"] #cv-printable-area {
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+        }
+
+        [data-bs-theme="dark"] #cv-printable-area .bg-white,
+        [data-bs-theme="dark"] #cv-printable-area [class*="bg-white"] {
+            background-color: #ffffff !important;
+        }
+
+        [data-bs-theme="dark"] #cv-printable-area .text-slate-900,
+        [data-bs-theme="dark"] #cv-printable-area .text-slate-800,
+        [data-bs-theme="dark"] #cv-printable-area .text-slate-700,
+        [data-bs-theme="dark"] #cv-printable-area .text-dark {
+            color: #1e293b !important;
+        }
+
         /* TỐI ƯU HÓA KHI IN / XUẤT PDF */
         @@page { size: A4; margin: 0; }
 
@@ -240,6 +259,22 @@
         setTimeout(syncHeight, 2000);
 
         document.body.classList.add('cv-builder-page');
+
+        // Tạo MutationObserver để liên tục theo dõi và áp dụng Light Mode cho vùng preview CV ngay khi Vue render xong
+        var previewObserver = new MutationObserver(function (mutations) {
+            var targets = document.querySelectorAll('#cv-printable-area, .cv-preview-card');
+            targets.forEach(function (el) {
+                if (el.getAttribute('data-bs-theme') !== 'light') {
+                    el.setAttribute('data-bs-theme', 'light');
+                    el.classList.add('light');
+                    el.classList.remove('dark');
+                }
+            });
+        });
+        previewObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
     });
 </script>
 
