@@ -1,9 +1,14 @@
 name: Deploy to AWS EC2
 
 on:
-  push:
-    branches:
-      - main  # Hoặc tên branch bạn đang dùng ab
+  # Kích hoạt THỦ CÔNG từ tab Actions trên GitHub
+  # Chỉ deploy khi bạn chủ động nhấn "Run workflow", không tự động chạy khi push
+  workflow_dispatch:
+
+  # --- GHI CHÚ: Bỏ comment 3 dòng dưới nếu muốn bật lại auto-deploy khi push vào main ---
+  # push:
+  #   branches:
+  #     - main
 
 jobs:
   deploy:
