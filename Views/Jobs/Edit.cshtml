@@ -66,6 +66,24 @@
                             </select>
                         </div>
 
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Địa điểm làm việc</label>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <select id="ProvinceSelect" class="form-select" required>
+                                        <option value="">Chọn tỉnh/thành phố</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select id="DistrictSelect" class="form-select" required>
+                                        <option value="">Chọn quận/huyện</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="hidden" asp-for="Location" id="Location" />
+                            <span asp-validation-for="Location" class="text-danger small"></span>
+                        </div>
+
                         <div class="col-12">
                             <label asp-for="Description" class="form-label fw-bold small text-uppercase text-muted">Mô tả công việc</label>
                             <textarea asp-for="Description" class="form-control" rows="6" placeholder="Mô tả các công việc chính..."></textarea>
@@ -139,6 +157,89 @@
             customSalary.addEventListener("input", function () {
                 updateHiddenValue();
             });
+
+            // --- ĐỒNG BỘ ĐỊA ĐIỂM TỈNH/THÀNH VÀ QUẬN/HUYỆN ---
+            var provincesData = [];
+            var provinceSelect = document.getElementById("ProvinceSelect");
+            var districtSelect = document.getElementById("DistrictSelect");
+            var locationHidden = document.getElementById("Location");
+
+            async function loadProvinces() {
+                try {
+                    const response = await fetch('/data/provinces.json');
+                    provincesData = await response.json();
+                    
+                    provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+                    provincesData.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.name;
+                        option.text = p.name;
+                        provinceSelect.add(option);
+                    });
+
+                    // Khởi tạo nếu đã có giá trị sẵn
+                    if (locationHidden && locationHidden.value) {
+                        setDropdownsFromLocation(locationHidden.value);
+                    }
+                } catch (e) {
+                    console.error("Error loading provinces:", e);
+                }
+            }
+
+            function populateDistricts(provinceName) {
+                districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                if (!provinceName) return;
+
+                const province = provincesData.find(p => p.name === provinceName);
+                if (province && province.districts) {
+                    province.districts.forEach(d => {
+                        const option = document.createElement('option');
+                        option.value = d.name;
+                        option.text = d.name;
+                        districtSelect.add(option);
+                    });
+                }
+            }
+
+            function setDropdownsFromLocation(locString) {
+                if (!locString) return;
+                const parts = locString.split(',').map(s => s.trim());
+                if (parts.length >= 2) {
+                    const dName = parts[0];
+                    const pName = parts[1];
+                    provinceSelect.value = pName;
+                    populateDistricts(pName);
+                    districtSelect.value = dName;
+                } else {
+                    const pName = parts[0];
+                    provinceSelect.value = pName;
+                    populateDistricts(pName);
+                    districtSelect.value = '';
+                }
+            }
+
+            function updateLocationHidden() {
+                const p = provinceSelect.value;
+                const d = districtSelect.value;
+                if (p && d) {
+                    locationHidden.value = d + ', ' + p;
+                } else if (p) {
+                    locationHidden.value = p;
+                } else {
+                    locationHidden.value = '';
+                }
+            }
+
+            provinceSelect.addEventListener('change', function() {
+                populateDistricts(this.value);
+                updateLocationHidden();
+            });
+
+            districtSelect.addEventListener('change', function() {
+                updateLocationHidden();
+            });
+
+            loadProvinces();
         });
     </script>
 }

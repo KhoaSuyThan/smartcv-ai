@@ -350,44 +350,212 @@
         color: #e9d5ff !important;
         border-color: #6b21a8 !important;
     }
+
+    /* Horizontal Filter Premium Styles */
+    .horizontal-filter-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 1.25rem !important;
+        box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.05) !important;
+        transition: all 0.3s ease;
+    }
+    
+    .horizontal-filter-card .form-select,
+    .horizontal-filter-card .form-control {
+        border: 1.5px solid #e5e7eb !important;
+        border-radius: 0.75rem !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+        font-weight: 600;
+        color: #4b5563;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .horizontal-filter-card .form-select:hover,
+    .horizontal-filter-card .form-control:hover {
+        border-color: #818cf8 !important;
+    }
+
+    .horizontal-filter-card .form-select:focus,
+    .horizontal-filter-card .form-control:focus {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+    }
+
+    /* Dark mode support */
+    [data-bs-theme="dark"] .horizontal-filter-card {
+        background: #1e1e1e !important;
+        border-color: #2d2d2d !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    [data-bs-theme="dark"] .horizontal-filter-card .form-select,
+    [data-bs-theme="dark"] .horizontal-filter-card .form-control {
+        background-color: #121212 !important;
+        border-color: #2d2d2d !important;
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .horizontal-filter-card .form-select:hover,
+    [data-bs-theme="dark"] .horizontal-filter-card .form-control:hover {
+        border-color: #4f46e5 !important;
+    }
+
+    [data-bs-theme="dark"] .horizontal-filter-card .form-select:focus,
+    [data-bs-theme="dark"] .horizontal-filter-card .form-control:focus {
+        border-color: #818cf8 !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+    }
+
+    [data-bs-theme="dark"] .horizontal-filter-card .text-secondary {
+        color: #94a3b8 !important;
+    }
+
+    /* Custom Combobox Premium Styles */
+    .custom-combobox .input-group .form-control {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-right: none !important;
+    }
+
+    .dropdown-toggle-custom {
+        transition: all 0.2s ease;
+        border: 1.5px solid #e5e7eb !important;
+        border-left: none !important;
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        border-top-right-radius: 0.75rem !important;
+        border-bottom-right-radius: 0.75rem !important;
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        background-color: #ffffff !important;
+        color: #6b7280 !important;
+    }
+
+    /* Group hover & focus sync effects */
+    .custom-combobox .input-group:hover .form-control {
+        border-color: #818cf8 !important;
+    }
+    .custom-combobox .input-group:hover .dropdown-toggle-custom {
+        border-color: #818cf8 !important;
+    }
+    .custom-combobox .input-group:focus-within .form-control,
+    .custom-combobox .input-group:focus-within .dropdown-toggle-custom {
+        border-color: #4f46e5 !important;
+        box-shadow: none !important;
+    }
+    .custom-combobox .input-group:focus-within {
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+        border-radius: 0.75rem;
+    }
+
+    .custom-combobox .dropdown-menu {
+        border-radius: 0.75rem !important;
+        border: 1.5px solid #e5e7eb !important;
+        background-color: #ffffff;
+        overflow-x: hidden;
+    }
+    
+    .custom-combobox .dropdown-item {
+        color: #4b5563;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        white-space: normal;
+        word-break: break-word;
+    }
+    
+    .custom-combobox .dropdown-item:hover {
+        background-color: #f3f4f6;
+        color: #4f46e5;
+    }
+
+    .custom-combobox .dropdown-item.active {
+        background-color: #4f46e5;
+        color: #ffffff;
+    }
+
+    /* Dark Mode support for Custom Combobox */
+    [data-bs-theme="dark"] .custom-combobox .dropdown-menu {
+        background-color: #1e1e1e !important;
+        border-color: #2d2d2d !important;
+    }
+
+    [data-bs-theme="dark"] .custom-combobox .dropdown-item {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .custom-combobox .dropdown-item:hover {
+        background-color: #2d2d2d !important;
+        color: #818cf8 !important;
+    }
+
+    [data-bs-theme="dark"] .custom-combobox .dropdown-item.active {
+        background-color: #4f46e5 !important;
+        color: #ffffff !important;
+    }
+
+    [data-bs-theme="dark"] .custom-combobox .input-group .form-control {
+        border-color: #2d2d2d !important;
+        border-right: none !important;
+    }
+
+    [data-bs-theme="dark"] .dropdown-toggle-custom {
+        background-color: #121212 !important;
+        border-color: #2d2d2d !important;
+        color: #94a3b8 !important;
+    }
+
+    [data-bs-theme="dark"] .custom-combobox .input-group:hover .form-control,
+    [data-bs-theme="dark"] .custom-combobox .input-group:hover .dropdown-toggle-custom {
+        border-color: #4f46e5 !important;
+    }
+
+    [data-bs-theme="dark"] .custom-combobox .input-group:focus-within .form-control,
+    [data-bs-theme="dark"] .custom-combobox .input-group:focus-within .dropdown-toggle-custom {
+        border-color: #818cf8 !important;
+    }
+    
+    [data-bs-theme="dark"] .custom-combobox .input-group:focus-within {
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+    }
 </style>
 
 <div class="container py-5">
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            <div class="job-filter-sidebar">
-                @* === DROPDOWN CHỌN CV ĐỂ SO KHỚP === *@
-                @if (User.Identity.IsAuthenticated && ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
-                {
-                    var userResumes = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
-                    var selectedId = ViewBag.SelectedResumeId ?? 0;
-                    <div class="cv-selector-card">
-                        <h6 class="mb-2">
-                            <i class='bx bx-brain me-1'></i> So khớp việc làm
-                        </h6>
-                        <p class="text-muted small mb-3" style="font-size: 0.8rem; font-weight: 500;">Chọn CV để phân tích mức độ phù hợp:</p>
-                        <select id="cvMatchSelector" class="form-select form-select-sm">
-                            @foreach (var resume in userResumes)
-                            {
-                                var isSelected = resume.ResumeID == (int)selectedId;
-                                if (isSelected)
+    <form id="jobFilterForm" asp-action="Jobs" method="get" class="mb-0">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <div class="job-filter-sidebar">
+                    @* === DROPDOWN CHỌN CV ĐỂ SO KHỚP === *@
+                    @if (User.Identity.IsAuthenticated && ViewBag.UserResumes != null && ((List<DoAnCS.Models.Resume>)ViewBag.UserResumes).Any())
+                    {
+                        var userResumes = (List<DoAnCS.Models.Resume>)ViewBag.UserResumes;
+                        var selectedId = ViewBag.SelectedResumeId ?? 0;
+                        <div class="cv-selector-card">
+                            <h6 class="mb-2">
+                                <i class='bx bx-brain me-1'></i> So khớp việc làm
+                            </h6>
+                            <p class="text-muted small mb-3" style="font-size: 0.8rem; font-weight: 500;">Chọn CV để phân tích mức độ phù hợp:</p>
+                            <select id="cvMatchSelector" class="form-select form-select-sm">
+                                @foreach (var resume in userResumes)
                                 {
-                                    <option value="@resume.ResumeID" selected="selected">
-                                        @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
-                                    </option>
+                                    var isSelected = resume.ResumeID == (int)selectedId;
+                                    if (isSelected)
+                                    {
+                                        <option value="@resume.ResumeID" selected="selected">
+                                            @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@resume.ResumeID">
+                                            @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
+                                        </option>
+                                    }
                                 }
-                                else
-                                {
-                                    <option value="@resume.ResumeID">
-                                        @(resume.Title ?? resume.JobTitle ?? $"CV #{resume.ResumeID}")
-                                    </option>
-                                }
-                            }
-                        </select>
-                    </div>
-                }
+                            </select>
+                        </div>
+                    }
 
-                <form id="jobFilterForm" asp-action="Jobs" method="get" class="mb-0">
                     <h5 class="fw-bold mb-4 text-dark"><i class='bx bx-filter-alt text-primary me-2'></i>Bộ lọc tìm kiếm</h5>
 
                     <div class="mb-4">
@@ -406,23 +574,6 @@
                             <i class='bx bx-search position-absolute text-muted' style="left: 1rem; top: 50%; transform: translateY(-50%);"></i>
                         </div>
                         <input type="hidden" name="sortBy" id="hiddenSortBy" value="@Model.SortBy">
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-uppercase text-secondary">Vị trí công việc</label>
-                        <input type="text" id="filterSearch" class="form-control form-control-sm mb-2" placeholder="Tìm vị trí nhanh...">
-                        
-                        <div class="filter-scroll-container p-3" style="max-height: 200px; overflow-y: auto;">
-                            @foreach (var spec in Model.AllSpecialties)
-                            {
-                                <div class="form-check mb-2 specialty-item">
-                                    <input class="form-check-input" type="checkbox" name="specialties" value="@spec" 
-                                        id="spec-@spec.GetHashCode()" 
-                                        @(Model.SelectedSpecialties.Contains(spec) ? "checked" : "")>
-                                    <label class="form-check-label small" for="spec-@spec.GetHashCode()">@spec</label>
-                                </div>
-                            }
-                        </div>
                     </div>
 
                     @if (Model.AllCompanies != null && Model.AllCompanies.Any())
@@ -448,9 +599,8 @@
                     <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm mt-2 py-2 fw-bold">
                         Áp dụng bộ lọc
                     </button>
-                </form>
+                </div>
             </div>
-        </div>
 
         <div class="col-lg-9">
             <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
@@ -462,9 +612,50 @@
                     <option value="salary" selected="@(Model.SortBy == "salary")">Lương cao nhất</option>
                 </select>
             </div>
-
-
-
+            <!-- Bộ lọc nằm ngang cho Vị trí công việc và Địa điểm -->
+            <div class="card border-0 mb-4 p-4 horizontal-filter-card">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-uppercase text-secondary mb-2 d-flex align-items-center">
+                            <i class='bx bx-briefcase text-primary me-2 fs-5'></i> Vị trí công việc
+                        </label>
+                        <div class="dropdown custom-combobox w-100">
+                            <div class="input-group">
+                                <input type="text" id="SpecialtyInput" name="specialties" class="form-control border-2 border-end-0" 
+                                       placeholder="Chọn hoặc nhập vị trí..." value="@(Model.SelectedSpecialties.FirstOrDefault())"
+                                       autocomplete="off">
+                                <button class="btn btn-outline-secondary border-2 border-start-0 dropdown-toggle-custom bg-white text-muted" 
+                                        type="button" id="comboboxToggle">
+                                    <i class='bx bx-chevron-down fs-5'></i>
+                                </button>
+                            </div>
+                            <ul class="dropdown-menu w-100 shadow-sm border-2 mt-1 py-1" id="comboboxMenu" style="max-height: 250px; overflow-y: auto; z-index: 1050;">
+                                <li><a class="dropdown-item py-2" href="#" data-value="">Tất cả vị trí</a></li>
+                                @foreach (var spec in Model.AllSpecialties)
+                                {
+                                    <li><a class="dropdown-item py-2" href="#" data-value="@spec">@spec</a></li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-uppercase text-secondary mb-2 d-flex align-items-center">
+                            <i class='bx bx-map-pin text-primary me-2 fs-5'></i> Tỉnh / Thành phố
+                        </label>
+                        <select id="ProvinceSelect" name="selectedProvince" class="form-select border-2">
+                            <option value="">Tất cả tỉnh/thành</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-uppercase text-secondary mb-2 d-flex align-items-center">
+                            <i class='bx bx-navigation text-primary me-2 fs-5'></i> Quận / Huyện
+                        </label>
+                        <select id="DistrictSelect" name="selectedDistrict" class="form-select border-2">
+                            <option value="">Tất cả quận/huyện</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div id="job-list">
                 @if (Model.RealJobs != null && Model.RealJobs.Any())
                 {
@@ -552,6 +743,8 @@
                     searchQuery = Model.SearchQuery, 
                     specialties = Model.SelectedSpecialties, 
                     selectedCompanies = Model.SelectedCompanies,
+                    selectedProvince = Model.SelectedProvince,
+                    selectedDistrict = Model.SelectedDistrict,
                     sortBy = Model.SortBy 
                 }), 
                     new PagedListRenderOptions {
@@ -576,17 +769,10 @@
             </div>
         </div>
     </div>
+    </form>
 </div>
 
 <script>
-    document.getElementById('filterSearch').addEventListener('keyup', function() {
-        let value = this.value.toLowerCase();
-        document.querySelectorAll('.specialty-item').forEach(function(item) {
-            let text = item.innerText.toLowerCase();
-            item.style.display = text.includes(value) ? 'block' : 'none';
-        });
-    });
-
     document.getElementById('companySearch').addEventListener('keyup', function() {
         let value = this.value.toLowerCase();
         document.querySelectorAll('.company-item').forEach(function(item) {
@@ -595,25 +781,160 @@
         });
     });
 
+    // --- ĐỒNG BỘ ĐỊA ĐIỂM BỘ LỌC TỈNH/THÀNH VÀ QUẬN/HUYỆN ---
+    var provincesData = [];
+    var provinceSelect = document.getElementById("ProvinceSelect");
+    var districtSelect = document.getElementById("DistrictSelect");
+
+    async function loadProvincesForFilter() {
+        try {
+            const response = await fetch('/data/provinces.json');
+            provincesData = await response.json();
+            
+            provinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+            provincesData.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.name;
+                option.text = p.name;
+                provinceSelect.add(option);
+            });
+
+            // Thiết lập giá trị cũ từ Model nếu có
+            const initialProvince = '@Model.SelectedProvince';
+            const initialDistrict = '@Model.SelectedDistrict';
+            
+            if (initialProvince) {
+                provinceSelect.value = initialProvince;
+                populateDistrictsForFilter(initialProvince);
+                if (initialDistrict) {
+                    districtSelect.value = initialDistrict;
+                }
+            }
+            toggleClearButton();
+        } catch (e) {
+            console.error("Error loading filter provinces:", e);
+        }
+    }
+
+    function populateDistrictsForFilter(provinceName) {
+        districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+        if (!provinceName) return;
+
+        const province = provincesData.find(p => p.name === provinceName);
+        if (province && province.districts) {
+            province.districts.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d.name;
+                option.text = d.name;
+                districtSelect.add(option);
+            });
+        }
+    }
+
+    provinceSelect.addEventListener('change', function() {
+        populateDistrictsForFilter(this.value);
+        toggleClearButton();
+        document.getElementById('jobFilterForm').submit();
+    });
+
+    districtSelect.addEventListener('change', function() {
+        toggleClearButton();
+        document.getElementById('jobFilterForm').submit();
+    });
+
     function toggleClearButton() {
         const btnClear = document.getElementById('btnClearFilters');
         const searchInput = document.querySelector('input[name="searchQuery"]');
-        // Lấy tất cả các checkbox có trong 2 bộ lọc
         const checkboxes = document.querySelectorAll('.form-check-input');
+        const specialtyInput = document.getElementById('SpecialtyInput');
         
         let isAnyChecked = Array.from(checkboxes).some(cb => cb.checked);
         let isSearchFilled = searchInput.value.trim() !== "";
+        let isLocationSelected = (provinceSelect && provinceSelect.value !== "") || (districtSelect && districtSelect.value !== "");
+        let isSpecialtySelected = specialtyInput && specialtyInput.value.trim() !== "";
 
-        if (isAnyChecked || isSearchFilled) {
+        if (isAnyChecked || isSearchFilled || isLocationSelected || isSpecialtySelected) {
             btnClear.classList.remove('d-none');
         } else {
             btnClear.classList.add('d-none');
         }
     }
 
+    // --- CUSTOM COMBOBOX CHO VỊ TRÍ CÔNG VIỆC ---
+    const comboboxToggle = document.getElementById('comboboxToggle');
+    const comboboxMenu = document.getElementById('comboboxMenu');
+    const specialtyInput = document.getElementById('SpecialtyInput');
+
+    if (comboboxToggle && comboboxMenu && specialtyInput) {
+        // Toggle menu khi click nút mũi tên
+        comboboxToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            comboboxMenu.classList.toggle('show');
+        });
+
+        // Hiện menu khi focus vào input để người dùng thấy gợi ý
+        specialtyInput.addEventListener('focus', function() {
+            comboboxMenu.classList.add('show');
+            filterComboboxItems(this.value);
+        });
+
+        // Ẩn menu khi click ra ngoài
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-combobox')) {
+                comboboxMenu.classList.remove('show');
+            }
+        });
+
+        // Chọn một phần tử từ dropdown
+        comboboxMenu.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const val = this.getAttribute('data-value');
+                specialtyInput.value = val;
+                comboboxMenu.classList.remove('show');
+                
+                // Submit form
+                toggleClearButton();
+                document.getElementById('jobFilterForm').submit();
+            });
+        });
+
+        // Lọc danh sách khi người dùng gõ
+        specialtyInput.addEventListener('input', function() {
+            comboboxMenu.classList.add('show');
+            filterComboboxItems(this.value);
+        });
+
+        // Submit khi nhấn Enter trong input
+        specialtyInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                comboboxMenu.classList.remove('show');
+                toggleClearButton();
+                document.getElementById('jobFilterForm').submit();
+            }
+        });
+
+        function filterComboboxItems(filterText) {
+            const val = filterText.toLowerCase().trim();
+            comboboxMenu.querySelectorAll('li').forEach(li => {
+                const a = li.querySelector('.dropdown-item');
+                if (!a) return;
+                const text = a.innerText.toLowerCase();
+                const itemVal = a.getAttribute('data-value');
+                
+                if (itemVal === "" || text.includes(val)) {
+                    li.style.display = 'block';
+                } else {
+                    li.style.display = 'none';
+                }
+            });
+        }
+    }
+
     // Gán sự kiện lắng nghe
     document.addEventListener('DOMContentLoaded', () => {
-        toggleClearButton();
+        loadProvincesForFilter();
         
         // Theo dõi ô search chính
         document.querySelector('input[name="searchQuery"]').addEventListener('input', toggleClearButton);
@@ -626,7 +947,7 @@
         // Xử lý khi thay đổi kiểu sắp xếp
         document.getElementById('sortBySelector').addEventListener('change', function() {
             document.getElementById('hiddenSortBy').value = this.value;
-            // Submit form filter ở bên trái
+            // Submit form filter
             document.getElementById('jobFilterForm').submit();
         });
 

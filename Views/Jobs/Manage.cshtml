@@ -241,7 +241,10 @@
                             <tr>
                                 <td class="ps-4">
                                     <div class="fw-bold text-dark">@item.Title</div>
-                                    <small class="text-muted d-block">ID: #@item.JobID</small>
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        <small class="text-muted"><i class="bi bi-hash"></i> ID: @item.JobID</small>
+                                        <small class="text-muted"><i class="bi bi-geo-alt-fill text-danger"></i> @(string.IsNullOrEmpty(item.Location) ? "Toàn quốc" : item.Location)</small>
+                                    </div>
                                 </td>
                                 <td><span class="fw-semibold">@(item.Company?.Name ?? "N/A")</span></td>
                                 <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
