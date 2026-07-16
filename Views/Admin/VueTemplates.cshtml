@@ -76,11 +76,9 @@
                                 
                                 <div class="d-flex gap-1 align-items-center">
                                     @* Nút Sửa *@
-                                    <a asp-action="EditVueCV" asp-route-id="@item.Id" 
-                                       asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
-                                       class="btn btn-sm text-warning p-1" title="Chỉnh sửa">
+                                    <button type="button" class="btn btn-sm text-warning p-1 btn-edit-vue" title="Chỉnh sửa" data-id="@item.Id" data-name="@item.TemplateName" data-component="@item.ComponentName" data-categories="@item.Category" data-thumbnail="@item.ThumbnailUrl" data-active="@item.IsActive.ToString().ToLower()" data-premium="@item.IsPremium.ToString().ToLower()">
                                         <i class='bx bxs-edit-alt fs-4'></i>
-                                    </a>
+                                    </button>
 
                                     @* Nút Xóa *@
                                     <form asp-action="DeleteVueTemplate" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa mẫu này?')" style="display:inline;">
@@ -226,6 +224,85 @@
     </div>
 </div>
 
+@* Modal Sửa mẫu Vue CV *@
+<div class="modal fade" id="editVueModal" tabindex="-1" aria-labelledby="editVueModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-warning text-dark py-3">
+                <h5 class="modal-title fw-bold" id="editVueModalLabel">
+                    <i class='bx bx-edit me-2'></i>Cập nhật mẫu Vue CV
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editVueForm" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="returnUrl" value="@($"{Context.Request.Path}{Context.Request.QueryString}")" />
+                
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên mẫu CV</label>
+                                <input name="TemplateName" id="editVueTemplateName" class="form-control border-2" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên Component (Vue)</label>
+                                <input name="ComponentName" id="editVueComponentName" class="form-control border-2" required />
+                                <small class="text-muted">Phải khớp với tên file .vue trong thư mục templates</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ngành nghề / Danh mục</label>
+                                <div class="d-flex flex-wrap gap-2 mt-1">
+                                    @foreach (var cat in new[] { "IT", "Kinh doanh", "Marketing", "Tài chính", "Sáng tạo", "Y tế", "Thực tập", "Chuyên nghiệp", "Khác" })
+                                    {
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input edit-vue-cat-check" type="checkbox" name="selectedCategories" value="@cat" id="edit_cat_@cat">
+                                            <label class="form-check-label small" for="edit_cat_@cat">@cat</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">URL Ảnh xem trước</label>
+                                <input name="ThumbnailUrl" id="editVueThumbnailUrl" class="form-control border-2" placeholder="Nhập URL hoặc chọn file bên dưới..." />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-primary">Hoặc tải lên ảnh mới</label>
+                                <input type="file" name="uploadImage" id="editVueFileInput" class="form-control border-2" accept="image/*" />
+                            </div>
+
+                            <div class="d-flex gap-4 mt-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="IsActive" value="true" id="editVueActiveSwitch">
+                                    <label class="form-check-label fw-bold small ms-1" for="editVueActiveSwitch">Kích hoạt</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="IsPremium" value="true" id="editVueProSwitch">
+                                    <label class="form-check-label fw-bold small ms-1 text-warning" for="editVueProSwitch">Mẫu PRO</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 text-center border-start">
+                            <p class="text-muted small fw-bold text-uppercase mb-2">Xem trước Thumbnail</p>
+                            <img src="https://via.placeholder.com/210x297?text=Preview" id="editVueImgPreview" class="img-fluid rounded shadow-sm border" 
+                                 style="max-height: 350px; aspect-ratio: 1/1.41; object-fit: cover;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
     .cv-preview-box { width: 100%; aspect-ratio: 1 / 1.414; overflow: hidden; background: #f0f0f0; }
     .cv-preview-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
@@ -254,6 +331,70 @@
             }
             reader.readAsDataURL(file);
         }
+    });
+
+    // Preview for Edit Modal
+    document.getElementById('editVueThumbnailUrl')?.addEventListener('input', function() {
+        document.getElementById('editVueImgPreview').src = this.value || 'https://via.placeholder.com/210x297?text=Preview';
+    });
+
+    document.getElementById('editVueFileInput')?.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('editVueImgPreview').src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Binding data to Edit Modal
+    const editVueButtons = document.querySelectorAll('.btn-edit-vue');
+    const editVueModalEl = document.getElementById('editVueModal');
+    const editVueForm = document.getElementById('editVueForm');
+
+    const editVueTemplateName = document.getElementById('editVueTemplateName');
+    const editVueComponentName = document.getElementById('editVueComponentName');
+    const editVueThumbnailUrl = document.getElementById('editVueThumbnailUrl');
+    const editVueActiveSwitch = document.getElementById('editVueActiveSwitch');
+    const editVueProSwitch = document.getElementById('editVueProSwitch');
+    const editVueImgPreview = document.getElementById('editVueImgPreview');
+    const editVueCatChecks = document.querySelectorAll('.edit-vue-cat-check');
+
+    editVueButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const component = this.getAttribute('data-component');
+            const categories = this.getAttribute('data-categories') || "";
+            const thumbnail = this.getAttribute('data-thumbnail') || "";
+            const active = this.getAttribute('data-active') === "true";
+            const premium = this.getAttribute('data-premium') === "true";
+
+            // Set Form action
+            editVueForm.action = '/Admin/EditVueCV/' + id;
+
+            // Fill basic info
+            editVueTemplateName.value = name;
+            editVueComponentName.value = component;
+            editVueThumbnailUrl.value = thumbnail;
+            editVueImgPreview.src = thumbnail || 'https://via.placeholder.com/210x297?text=Preview';
+
+            // Active & Premium status
+            editVueActiveSwitch.checked = active;
+            editVueProSwitch.checked = premium;
+
+            // Clear and select Category checkboxes
+            const selectedCats = categories.split(',').map(c => c.trim());
+            editVueCatChecks.forEach(cb => {
+                cb.checked = selectedCats.includes(cb.value);
+            });
+
+            // Show modal
+            const modal = new bootstrap.Modal(editVueModalEl);
+            modal.show();
+        });
     });
 
     function toggleVueStatus(id, checkbox) {

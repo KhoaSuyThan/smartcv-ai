@@ -5,6 +5,17 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-16] - Chuyển đổi giao diện Chỉnh sửa Tin tuyển dụng, Vue CV và React CV sang Modal Popup trong Admin
+
+### Added
+- Tích hợp Modal `#editJobModal` để chỉnh sửa Tin tuyển dụng tại `/Admin/Jobs`.
+- Tích hợp Modal `#editVueModal` để chỉnh sửa mẫu Vue CV tại `/Admin/VueTemplates`.
+- Tích hợp Modal `#editTemplateModal` để chỉnh sửa mẫu React CV tại `/Admin/Templates`.
+- Bổ sung script binding dữ liệu tự động từ các data-attribute của nút bấm sang Modal khi người dùng click vào nút Sửa của cả 3 trang.
+
+### Changed
+- Thay thế các liên kết chuyển trang sửa (Edit) bằng các nút kích hoạt Modal tương ứng trên các trang danh sách.
+
 ## [2026-07-16] - Chuyển đổi giao diện Đăng tin mới và Thêm mẫu CV mới sang Modal Popup trong trang quản trị Admin
 
 ### Added
