@@ -1522,63 +1522,129 @@
         const initLogs = [
             { text: "Đang khởi tạo Playwright E2E Runner trên máy chủ...", type: "info" },
             { text: "Mở phiên trình duyệt ẩn danh Chromium...", type: "info" },
-            { text: "Bắt đầu chạy luồng kiểm thử. Quá trình E2E có thể mất 15-30 giây để hoàn thành...", type: "warning" }
+            { text: "Bắt đầu chạy luồng kiểm thử. Kết quả từng kịch bản sẽ được cập nhật thời gian thực...", type: "warning" }
         ];
 
         printStaggeredLogs("consoleLogsE2E", initLogs, () => {
-            fetch("/Admin/RunE2ETestSuite", { method: "POST" })
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E`;
+            const scenarios = ["Auth E2E", "Jobs E2E", "Auth Validation E2E", "Jobs Validation E2E"];
+            const testCasesResult = [];
+            let currentIdx = 0;
+            let passedCount = 0;
+            let totalTime = 0;
+            let maxTime = 0;
 
-                if (data.success) {
-                    e2eTestResult = data.suite;
+            function runNextScenario() {
+                if (currentIdx < scenarios.length) {
+                    const scenario = scenarios[currentIdx];
+                    writeConsoleLog("consoleLogsE2E", `Đang kích hoạt kịch bản kiểm thử: ${scenario}...`, "info");
                     
-                    const logsToPrint = [];
-                    let totalTime = 0;
-                    let maxTime = 0;
-                    let passed = 0;
-
-                    e2eTestResult.testCases.forEach(tc => {
-                        totalTime += tc.responseTimeMs;
-                        if (tc.responseTimeMs > maxTime) maxTime = tc.responseTimeMs;
-                        if (tc.status === "Success") {
-                            passed++;
-                            logsToPrint.push({ text: `[PASS] ${tc.name} (${tc.responseTimeMs}ms)`, type: "success" });
-                            logsToPrint.push({ text: `   -> Kết quả: ${tc.actual}`, type: "muted" });
-                        } else {
-                            logsToPrint.push({ text: `[FAIL] ${tc.name} (${tc.responseTimeMs}ms)`, type: "error" });
-                            logsToPrint.push({ text: `   -> Chi tiết: ${tc.actual}`, type: "error" });
-                            if (tc.errorMessage) {
-                                logsToPrint.push({ text: `   -> Lỗi: ${tc.errorMessage.substring(0, 150)}...`, type: "error" });
+                    const formData = new FormData();
+                    formData.append("scenarioName", scenario);
+                    
+                    fetch("/Admin/RunSingleE2ETest", {
+                        method: "POST",
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success && data.testCase) {
+                            const tc = data.testCase;
+                            testCasesResult.push(tc);
+                            
+                            totalTime += tc.responseTimeMs;
+                            if (tc.responseTimeMs > maxTime) maxTime = tc.responseTimeMs;
+                            
+                            if (tc.status === "Success") {
+                                passedCount++;
+                                writeConsoleLog("consoleLogsE2E", `[PASS] ${tc.name} (${tc.responseTimeMs}ms)`, "success");
+                                writeConsoleLog("consoleLogsE2E", `   -> Kết quả: ${tc.actual}`, "muted");
+                            } else {
+                                writeConsoleLog("consoleLogsE2E", `[FAIL] ${tc.name} (${tc.responseTimeMs}ms)`, "error");
+                                writeConsoleLog("consoleLogsE2E", `   -> Chi tiết: ${tc.actual}`, "error");
+                                if (tc.errorMessage) {
+                                    writeConsoleLog("consoleLogsE2E", `   -> Lỗi: ${tc.errorMessage.substring(0, 150)}...`, "error");
+                                }
                             }
+                        } else {
+                            const failCase = {
+                                name: `Test Luồng ${scenario}`,
+                                method: "Playwright E2E",
+                                url: "",
+                                expected: "",
+                                actual: "Lỗi hệ thống: " + (data.message || "Không xác định"),
+                                responseTimeMs: 0,
+                                status: "Failed",
+                                errorMessage: data.message
+                            };
+                            testCasesResult.push(failCase);
+                            writeConsoleLog("consoleLogsE2E", `[FAIL] Kịch bản ${scenario} gặp lỗi hệ thống!`, "error");
                         }
+                        
+                        // Cập nhật danh sách test case lên giao diện tạm thời
+                        e2eTestResult = { suiteName: "E2E User Flow Testing", testCases: testCasesResult };
+                        renderTestCasesList("e2eTestCasesContainer", e2eTestResult, "all");
+                        
+                        currentIdx++;
+                        setTimeout(runNextScenario, 500);
+                    })
+                    .catch(err => {
+                        const failCase = {
+                            name: `Test Luồng ${scenario}`,
+                            method: "Playwright E2E",
+                            url: "",
+                            expected: "",
+                            actual: "Thất bại khi kết nối server: " + err.message,
+                            responseTimeMs: 0,
+                            status: "Failed",
+                            errorMessage: err.message
+                        };
+                        testCasesResult.push(failCase);
+                        writeConsoleLog("consoleLogsE2E", `[FAIL] Lỗi kết nối khi chạy kịch bản ${scenario}!`, "error");
+                        
+                        e2eTestResult = { suiteName: "E2E User Flow Testing", testCases: testCasesResult };
+                        renderTestCasesList("e2eTestCasesContainer", e2eTestResult, "all");
+                        
+                        currentIdx++;
+                        setTimeout(runNextScenario, 500);
                     });
-
-                    const total = e2eTestResult.testCases.length;
+                } else {
+                    const total = testCasesResult.length;
                     const avgTime = total > 0 ? Math.round(totalTime / total) : 0;
                     
-                    logsToPrint.push({ text: `Hoàn thành kiểm thử Playwright E2E! Tỷ lệ đạt: ${passed}/${total}.`, type: "warning" });
-
-                    printStaggeredLogs("consoleLogsE2E", logsToPrint, () => {
-                        updateProgressCircle("successProgressCircleE2E", "percentageTextE2E", "statPassRateE2E", "statPassDetailsE2E", passed, total);
+                    writeConsoleLog("consoleLogsE2E", `Hoàn thành kiểm thử Playwright E2E! Tỷ lệ đạt: ${passedCount}/${total}.`, "warning");
+                    writeConsoleLog("consoleLogsE2E", "Đang đồng bộ hóa kết quả vào cơ sở dữ liệu...", "info");
+                    
+                    fetch("/Admin/SaveE2ETestRun", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ suiteName: "E2E User Flow Testing", testCases: testCasesResult })
+                    })
+                    .then(res => res.json())
+                    .then(saveData => {
+                        btn.disabled = false;
+                        btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E`;
+                        
+                        if (saveData.success) {
+                            writeConsoleLog("consoleLogsE2E", "Đồng bộ database thành công.", "success");
+                        } else {
+                            writeConsoleLog("consoleLogsE2E", "Cảnh báo: Không thể lưu kết quả: " + saveData.message, "warning");
+                        }
+                        
+                        // Cập nhật biểu đồ tròn và thông số
+                        updateProgressCircle("successProgressCircleE2E", "percentageTextE2E", "statPassRateE2E", "statPassDetailsE2E", passedCount, total);
                         document.getElementById("statAvgTimeE2E").innerText = `${avgTime} ms`;
                         document.getElementById("statMaxTimeE2E").innerText = `Cao nhất: ${maxTime} ms`;
                         document.getElementById("timeTrendE2E").innerText = `Avg: ${avgTime}ms`;
-                        
-                        renderTestCasesList("e2eTestCasesContainer", e2eTestResult, "all");
+                    })
+                    .catch(err => {
+                        btn.disabled = false;
+                        btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E`;
+                        writeConsoleLog("consoleLogsE2E", "Lỗi kết nối khi đồng bộ database: " + err.message, "warning");
                     });
-                } else {
-                    writeConsoleLog("consoleLogsE2E", "Lỗi thực thi kiểm thử E2E: " + data.message, "error");
-                    alert("Lỗi thực thi E2E: " + data.message);
                 }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerHTML = `<i class='bx bx-play-circle me-2 fs-5'></i>Kích hoạt Kiểm Thử E2E`;
-                writeConsoleLog("consoleLogsE2E", "Thất bại khi kết nối server E2E.", "error");
-            });
+            }
+
+            runNextScenario();
         });
     }
 

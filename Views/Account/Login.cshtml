@@ -24,7 +24,7 @@
                     
                     @if (ViewBag.Error != null)
                     {
-                        <div style="color: #d9534f; background: rgba(242, 222, 222, 0.8); border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
+                        <div class="auth-error-alert" style="color: #d9534f; background: rgba(242, 222, 222, 0.8); border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
                             @ViewBag.Error
                         </div>
                     }
@@ -75,7 +75,7 @@
                         var registerErrors = ViewData.ModelState.Where(x => x.Key.StartsWith("Register.") && x.Value.Errors.Count > 0).SelectMany(x => x.Value.Errors).Select(x => x.ErrorMessage).ToList();
                         if (registerErrors.Any())
                         {
-                            <div style="color: #d9534f; background: rgba(242, 222, 222, 0.8); border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
+                            <div class="auth-error-alert" style="color: #d9534f; background: rgba(242, 222, 222, 0.8); border: 1px solid #ebccd1; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-weight: 500; font-size: 14px; text-align: center;">
                                 @Html.Raw(string.Join("<br />", registerErrors))
                             </div>
                         }

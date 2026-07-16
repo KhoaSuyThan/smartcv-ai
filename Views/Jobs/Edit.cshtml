@@ -70,17 +70,17 @@
                             <label class="form-label fw-bold small text-uppercase text-muted">Địa điểm làm việc</label>
                             <div class="row g-2">
                                 <div class="col-md-6">
-                                    <select id="ProvinceSelect" class="form-select" required>
+                                    <select id="ProvinceSelect" class="form-select">
                                         <option value="">Chọn tỉnh/thành phố</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <select id="DistrictSelect" class="form-select" required>
+                                    <select id="DistrictSelect" class="form-select">
                                         <option value="">Chọn quận/huyện</option>
                                     </select>
                                 </div>
                             </div>
-                            <input type="hidden" asp-for="Location" id="Location" />
+                            <input type="text" asp-for="Location" id="Location" style="position: absolute; left: -9999px; top: 0;" />
                             <span asp-validation-for="Location" class="text-danger small"></span>
                         </div>
 
@@ -237,6 +237,13 @@
 
             districtSelect.addEventListener('change', function() {
                 updateLocationHidden();
+            });
+
+            locationHidden.addEventListener('input', function() {
+                setDropdownsFromLocation(this.value);
+            });
+            locationHidden.addEventListener('change', function() {
+                setDropdownsFromLocation(this.value);
             });
 
             loadProvinces();

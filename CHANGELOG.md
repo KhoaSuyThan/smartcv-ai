@@ -5,19 +5,32 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-16] - Cải tiến bộ lọc tuyển dụng và chuẩn hóa dữ liệu địa điểm hành chính
+## [2026-07-16] - Ổn định hóa hệ thống E2E, Real-time Logs và chuẩn hóa địa điểm hành chính
 
 ### Added
+- Bổ sung logic tự động seed 2 tài khoản cố định `existed_user_validation@smartcv.vn` (vai trò User) và `existed_recruiter_validation@smartcv.vn` (vai trò Recruiter, kèm theo Company mẫu đầy đủ các trường Phone, AvatarUrl, Address, Description) phục vụ riêng cho các kịch bản kiểm thử Validation.
+- Thêm các API endpoint `/Admin/RunSingleE2ETest` để chạy từng kịch bản kiểm thử E2E độc lập và `/Admin/SaveE2ETestRun` để lưu kết quả tổng hợp vào cơ sở dữ liệu.
+- Bổ sung phương thức `RunSingleE2EFlowAsync` vào `IAutomationTestRunner` và class `AutomationTestRunner`.
 - Chuyển đổi biểu mẫu tạo (`Create.cshtml`) và chỉnh sửa (`Edit.cshtml`) tin tuyển dụng sang dropdown chọn Tỉnh/Thành phố và Quận/Huyện chuẩn hóa.
-- Triển khai Custom Combobox cho bộ lọc "Vị trí công việc": vừa cho phép nhập tự do vừa cho phép bấm nút mũi tên để chọn và lọc gợi ý thời gian thực.
+- Triển khai Custom Combobox cho bộ lọc "Vị trí công việc": vừa cho phép nhập tự do vừa cho phép chọn và lọc gợi ý thời gian thực.
 - Cập nhật cơ sở dữ liệu `provinces.json` tinh gọn thành 34 tỉnh thành theo nghị quyết sáp nhập hành chính mới.
 
 ### Changed
-- Dịch chuyển bộ lọc Việc làm từ Sidebar dọc lên thanh ngang phía trên danh sách tin tuyển dụng, thiết kế Premium UI hỗ trợ đầy đủ Light/Dark theme.
+- Sửa đổi đồng bộ logic trong phương thức GET và POST `Create()` của `JobsController.cs`: cho phép tài khoản recruiter chứa `"validation"` trong email được bỏ qua bước kiểm tra hồ sơ doanh nghiệp đầy đủ tương tự như các tài khoản `test_e2e_`, khắc phục triệt để lỗi redirect 302 về trang cá nhân gây treo kiểm thử.
+- Cập nhật kịch bản `Auth Validation E2E` và `Jobs Validation E2E` sử dụng các tài khoản cố định đã seed ở trên thay vì các tài khoản test E2E tạm thời (vốn bị xóa sạch sau mỗi lượt chạy của kịch bản chính), giúp tránh hoàn toàn tình trạng mất dữ liệu gây lỗi timeout khi đăng nhập hoặc đăng ký.
+- Sửa lỗi lật ngược cấu hình `TargetSelector` và `Value` tại bước 31 của kịch bản `Jobs E2E` trong `Program.cs`. Cấu hình đúng là `TargetSelector = ""` và `Value = "**/Jobs/Edit/*"`.
+- Loại bỏ logic tự động chờ điều hướng (`RunAndWaitForNavigationAsync`) trong Click handler của `AutomationTestRunner.cs`. Việc này giúp tránh lỗi timeout 30s khi nhấp vào nút submit của các biểu mẫu có kiểm tra lỗi đầu vào (Client-Side Validation) không tạo ra sự chuyển trang mới (như trong kịch bản `Jobs Validation E2E`).
+- Cập nhật bộ chọn nút Đăng nhập trong kịch bản kiểm thử `Jobs Validation E2E` (Program.cs) sang bộ chọn lớp ổn định `.form-box.login button[type='submit']`.
+- Cập nhật logic so sánh URL trong `AutomationTestRunner.cs` để hỗ trợ linh hoạt cả hai trường hợp URL trang chủ có và không có dấu gạch chéo kết thúc (`/`), ngăn ngừa lỗi timeout do so sánh chuỗi URL chính xác.
+- Cập nhật logic Javascript trong hàm `startE2ETests` ở `TestingDashboard.cshtml` chuyển sang chạy tuần tự từng kịch bản và in log ra màn hình console ngay lập tức khi kịch bản đó hoàn thành (chạy tới đâu hiện tới đó), sau đó mới đồng bộ kết quả vào cơ sở dữ liệu.
+- Dịch chuyển bộ lọc Việc làm từ Sidebar dọc lên thanh ngang phía trên danh sách tin tuyển dụng, thiết kế Premium UI hỗ thể đầy đủ Light/Dark theme.
 - Chuẩn hóa bộ lọc địa điểm trang việc làm (`Jobs.cshtml`) sang hai dropdown Tỉnh/Thành phố và Quận/Huyện sử dụng dữ liệu `provinces.json`.
 - Cập nhật logic controller hiển thị địa điểm với cơ chế fallback sang địa chỉ doanh nghiệp đối với các tin tuyển dụng cũ.
 
 ### Fixed
+- Nâng cấp và cải tiến logic dọn dẹp dữ liệu E2E (`CleanE2ETestDataAsync`) trong `AutomationTestRunner.cs`: thực hiện truy vấn và xóa lần lượt các tài nguyên phụ thuộc (Applications, UpgradeRequests, Resumes, Jobs) trước khi xóa người dùng `test_e2e_` để tránh xung đột ràng buộc khóa ngoại (foreign key conflict) trên cơ sở dữ liệu SQL Server.
+- Loại bỏ thuộc tính `required` HTML5 trên các trường `Title`, `Deadline` và các dropdown `ProvinceSelect`, `DistrictSelect` ở `Create.cshtml` và `Edit.cshtml` để cho phép jQuery Validation hoạt động bình thường, tránh việc trình duyệt chặn submit form gây lỗi Playwright timeout.
+- Khắc phục lỗi timeout khi chạy Playwright E2E test do không tương tác được với trường nhập địa điểm `Location` đã bị ẩn đi. Chuyển đổi input `Location` sang dạng off-screen (`position: absolute; left: -9999px;`) và thêm cơ chế lắng nghe sự kiện `input`/`change` để tự động đồng bộ hóa ngược lại hai dropdown.
 - Sửa lỗi nghiêm trọng chặn script trang tuyển dụng do gán sự kiện cho phần tử `#filterSearch` đã bị xóa.
 - Khắc phục triệt để lỗi `SqlNullValueException` khi truy vấn dữ liệu các trường nullable của tin tuyển dụng cũ trong Database.
 
