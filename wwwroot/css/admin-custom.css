@@ -72,3 +72,80 @@
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.15);
 }
+
+/* 6. Dark Mode Styles cho Modals trong Admin */
+[data-bs-theme="dark"] .modal-content {
+    background-color: #152033 !important;
+    color: #f8fafc !important;
+    border: 1px solid #2e3d54 !important;
+}
+
+[data-bs-theme="dark"] .modal-header {
+    border-bottom: 1px solid #2e3d54 !important;
+}
+
+[data-bs-theme="dark"] .modal-header.bg-warning {
+    background-color: #f59e0b !important; /* Đảm bảo màu cam/vàng của warning header đẹp hơn ở darkmode */
+    color: #0f172a !important;
+}
+
+[data-bs-theme="dark"] .modal-footer {
+    background-color: #0f172a !important;
+    border-top: 1px solid #2e3d54 !important;
+}
+
+[data-bs-theme="dark"] .modal-body {
+    background-color: #152033 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-label,
+[data-bs-theme="dark"] .modal-body label,
+[data-bs-theme="dark"] .modal-body .form-check-label {
+    color: #e2e8f0 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .text-muted,
+[data-bs-theme="dark"] .modal-body small {
+    color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control,
+[data-bs-theme="dark"] .modal-body .form-select {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control::placeholder {
+    color: #64748b !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control:focus,
+[data-bs-theme="dark"] .modal-body .form-select:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control[readonly] {
+    background-color: #1e293b !important;
+    color: #94a3b8 !important;
+    border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-check-input {
+    background-color: #0f172a !important;
+    border-color: #475569 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-check-input:checked {
+    background-color: #3b82f6 !important;
+    border-color: #3b82f6 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .bg-light.border,
+[data-bs-theme="dark"] .modal-body .bg-light {
+    background-color: #0f172a !important;
+    border-color: #2e3d54 !important;
+}
