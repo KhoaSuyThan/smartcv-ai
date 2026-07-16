@@ -87,6 +87,13 @@
                                 <span asp-validation-for="Deadline" class="text-danger small"></span>
                             </div>
                         </div>
+                        
+                        @* ĐỊA ĐIỂM LÀM VIỆC *@
+                        <div class="mb-4">
+                            <label asp-for="Location" class="form-label fw-bold text-dark">Địa điểm làm việc</label>
+                            <input asp-for="Location" type="text" class="form-control border-2 py-2 px-3 rounded-3" placeholder="Ví dụ: Hà Nội, TP. Hồ Chí Minh, Từ xa (Remote)..." required />
+                            <span asp-validation-for="Location" class="text-danger small"></span>
+                        </div>
 
                         @* MÔ TẢ *@
                         <div class="mb-4">

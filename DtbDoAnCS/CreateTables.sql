@@ -192,6 +192,7 @@ CREATE TABLE Jobs (
     Deadline DATETIME,
     CreatedAt DATETIME DEFAULT GETDATE(),
     CompanyID INT NOT NULL,
+    Location NVARCHAR(255) NULL,
 	Status INT NOT NULL DEFAULT 0,
     FOREIGN KEY (RecruiterID) REFERENCES Users(UserID),
 	FOREIGN KEY (CompanyID) REFERENCES Companies(CompanyID)

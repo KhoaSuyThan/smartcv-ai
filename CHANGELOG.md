@@ -5,6 +5,17 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-16] - Tích hợp Bộ lọc Địa điểm làm việc và Khắc phục lỗi SqlNullValueException
+
+### Added
+- Bổ sung trường `Location` vào DB, biểu mẫu đăng tin tuyển dụng (`Create`/`Edit`) và tích hợp bộ lọc địa điểm Sidebar dạng checkbox tại trang Việc làm (`Home/Jobs`).
+
+### Changed
+- Cập nhật logic `HomeController.cs` và `JobsController.cs` để hiển thị địa điểm với cơ chế fallback sang địa chỉ công ty (`Company.Address`) khi tin tuyển dụng chưa cấu hình địa điểm cụ thể.
+
+### Fixed
+- Khắc phục triệt để lỗi `SqlNullValueException` khi đọc các tin tuyển dụng cũ có trường `Location`, `Description`, `Requirements` hoặc `Salary` bằng `NULL` bằng cách cấu hình Fluent API `IsRequired(false)` trong `AppDbContext.cs`.
+
 ## [2026-07-14] - Cải tiến toàn diện giao diện trang cá nhân và khắc phục lỗi Dark Mode trang Builder CV
 
 ### Added

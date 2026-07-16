@@ -38,7 +38,7 @@ namespace DoAnCS.Controllers
                 job_title = j.Title,
                 employer_name = j.Company?.Name,
                 employer_logo = j.Company?.LogoUrl,
-                job_city = j.Company?.Address,
+                job_city = !string.IsNullOrEmpty(j.Location) ? j.Location : (j.Company != null ? j.Company.Address : "Toàn quốc"),
                 job_description = j.Description,
                 job_apply_link = j.Company?.Website ?? "#"
             }).ToList();
@@ -65,7 +65,7 @@ namespace DoAnCS.Controllers
         }
 
         // SỬA: Thêm tham số int? page
-        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies, string sortBy, int? selectedResumeId)
+        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies, List<string> locations, string sortBy, int? selectedResumeId)
         {
             // 1. Khởi tạo Query lấy từ Database
             IQueryable<Job> query = _context.Jobs.Include(j => j.Company)
@@ -87,6 +87,16 @@ namespace DoAnCS.Controllers
             if (selectedCompanies != null && selectedCompanies.Any())
             {
                 query = query.Where(j => selectedCompanies.Contains(j.Company.Name));
+            }
+
+            // 4.5. Bộ lọc theo Địa điểm (Checkboxes)
+            if (locations != null && locations.Any())
+            {
+                query = query.Where(j => 
+                    (!string.IsNullOrEmpty(j.Location) && locations.Contains(j.Location)) || 
+                    (string.IsNullOrEmpty(j.Location) && j.Company != null && locations.Contains(j.Company.Address)) ||
+                    (string.IsNullOrEmpty(j.Location) && (j.Company == null || string.IsNullOrEmpty(j.Company.Address)) && locations.Contains("Toàn quốc"))
+                );
             }
 
             // 4. Sắp xếp
@@ -192,7 +202,7 @@ namespace DoAnCS.Controllers
                 employer_name = j.Company != null ? j.Company.Name : "N/A",
                 employer_logo = j.Company != null ? j.Company.LogoUrl : null,
                 job_salary = j.Salary,
-                job_city = j.Company != null ? j.Company.Address : "Toàn quốc",
+                job_city = !string.IsNullOrEmpty(j.Location) ? j.Location : (j.Company != null ? j.Company.Address : "Toàn quốc"),
                 job_description = j.Description,
                 job_apply_link = j.Company != null ? j.Company.Website : "#"
             }).ToList();
@@ -278,6 +288,15 @@ namespace DoAnCS.Controllers
                 .OrderBy(n => n)
                 .ToListAsync();
 
+            var allLocations = await _context.Jobs
+                .Include(j => j.Company)
+                .Where(j => j.Status == 1)
+                .Select(j => !string.IsNullOrEmpty(j.Location) ? j.Location : (j.Company != null ? j.Company.Address : "Toàn quốc"))
+                .Where(l => !string.IsNullOrEmpty(l))
+                .Distinct()
+                .OrderBy(l => l)
+                .ToListAsync();
+
             var viewModel = new HomeViewModel
             {
                 RealJobs = pagedList,
@@ -286,6 +305,8 @@ namespace DoAnCS.Controllers
                 SelectedCompanies = selectedCompanies ?? new List<string>(),
                 AllSpecialties = allSpecs.OrderBy(s => s).ToList(),
                 AllCompanies = await _context.Companies.Select(c => c.Name).Distinct().ToListAsync(),
+                AllLocations = allLocations,
+                SelectedLocations = locations ?? new List<string>(),
                 SortBy = sortBy ?? "latest"
             };
 
@@ -310,7 +331,7 @@ namespace DoAnCS.Controllers
                 job_title = jobDb.Title,
                 employer_name = jobDb.Company?.Name,
                 employer_logo = jobDb.Company?.LogoUrl,
-                job_city = jobDb.Company?.Address,
+                job_city = !string.IsNullOrEmpty(jobDb.Location) ? jobDb.Location : (jobDb.Company != null ? jobDb.Company.Address : "Toàn quốc"),
                 job_description = jobDb.Description,
                 job_requirements = jobDb.Requirements,
                 job_salary = jobDb.Salary,

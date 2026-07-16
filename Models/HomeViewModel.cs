@@ -20,6 +20,8 @@ namespace DoAnCS.Models
         public IPagedList<JobDto> RealJobs { get; set; } 
         public List<string> AllCompanies { get; set; } = new List<string>();
         public List<string> SelectedCompanies { get; set; } = new List<string>();
+        public List<string> AllLocations { get; set; } = new List<string>();
+        public List<string> SelectedLocations { get; set; } = new List<string>();
         public string SortBy { get; set; }
         public List<Company> PartnerCompanies { get; set; } = new List<Company>();
     }

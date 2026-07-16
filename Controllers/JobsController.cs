@@ -365,6 +365,7 @@ namespace DoAnCS.Controllers
                     jobInDb.Requirements = job.Requirements;
                     jobInDb.Salary = job.Salary;
                     jobInDb.Deadline = job.Deadline;
+                    jobInDb.Location = job.Location;
 
                     // Xử lý trạng thái theo Role
                     if (User.IsInRole("Admin"))

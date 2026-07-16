@@ -66,6 +66,12 @@
                             </select>
                         </div>
 
+                        <div class="col-md-6">
+                            <label asp-for="Location" class="form-label fw-bold small text-uppercase text-muted">Địa điểm làm việc</label>
+                            <input asp-for="Location" class="form-control" placeholder="Ví dụ: Hà Nội, TP. HCM..." required />
+                            <span asp-validation-for="Location" class="text-danger small"></span>
+                        </div>
+
                         <div class="col-12">
                             <label asp-for="Description" class="form-label fw-bold small text-uppercase text-muted">Mô tả công việc</label>
                             <textarea asp-for="Description" class="form-control" rows="6" placeholder="Mô tả các công việc chính..."></textarea>

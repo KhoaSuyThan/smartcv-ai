@@ -145,6 +145,15 @@ namespace DoAnCS.Data
                 .WithOne(a => a.JobOffer)
                 .HasForeignKey<JobOffer>(o => o.ApplicationID)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Cấu hình các cột string trong Job thành nullable ở mức database để tránh lỗi SqlNullValueException với dữ liệu cũ
+            modelBuilder.Entity<Job>(entity =>
+            {
+                entity.Property(j => j.Location).IsRequired(false);
+                entity.Property(j => j.Description).IsRequired(false);
+                entity.Property(j => j.Requirements).IsRequired(false);
+                entity.Property(j => j.Salary).IsRequired(false);
+            });
         }
     }
 }
