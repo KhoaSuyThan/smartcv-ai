@@ -1572,6 +1572,107 @@ footer {
   color: #94a3b8 !important; /* Mô tả dễ đọc */
 }
 
+/* ==========================================================
+   TỐI ƯU HÓA CÁC POPUP MODAL (THÊM & SỬA) TRONG ADMIN DARK MODE
+   ========================================================== */
+[data-bs-theme="dark"] .modal-content {
+  background-color: #152033 !important;
+  color: #f8fafc !important;
+  border: 1px solid #2e3d54 !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-bs-theme="dark"] .modal-header {
+  border-bottom: 1px solid #2e3d54 !important;
+}
+
+[data-bs-theme="dark"] .modal-header.bg-warning {
+  background: linear-gradient(135deg, #854d0e 0%, #a16207 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #b45309 !important;
+}
+
+[data-bs-theme="dark"] .modal-header.bg-warning .modal-title,
+[data-bs-theme="dark"] .modal-header.bg-warning i {
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .modal-header.bg-primary {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #2563eb !important;
+}
+
+[data-bs-theme="dark"] .modal-header.bg-primary .modal-title,
+[data-bs-theme="dark"] .modal-header.bg-primary i {
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .modal-header .btn-close {
+  filter: invert(1) grayscale(1) brightness(2) !important;
+}
+
+[data-bs-theme="dark"] .modal-footer {
+  background-color: #0f172a !important;
+  border-top: 1px solid #2e3d54 !important;
+}
+
+[data-bs-theme="dark"] .modal-body {
+  background-color: #152033 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-label,
+[data-bs-theme="dark"] .modal-body label,
+[data-bs-theme="dark"] .modal-body .form-check-label {
+  color: #e2e8f0 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .text-muted,
+[data-bs-theme="dark"] .modal-body small {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control,
+[data-bs-theme="dark"] .modal-body .form-select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control::placeholder {
+  color: #64748b !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control:focus,
+[data-bs-theme="dark"] .modal-body .form-select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25) !important;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-control[readonly] {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+  border-color: #334155 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-check-input {
+  background-color: #0f172a !important;
+  border-color: #475569 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .form-check-input:checked {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-bs-theme="dark"] .modal-body .bg-light.border,
+[data-bs-theme="dark"] .modal-body .bg-light {
+  background-color: #0f172a !important;
+  border-color: #2e3d54 !important;
+}
+
 
 
 

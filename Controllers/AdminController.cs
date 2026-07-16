@@ -235,6 +235,7 @@ namespace DoAnCS.Controllers
         public async Task<IActionResult> Users()
         {
             var users = await _context.Users.Include(u => u.Company).ToListAsync();
+            ViewBag.Companies = await _context.Companies.ToListAsync(); // Nạp danh sách công ty phục vụ dropdown sửa User qua Modal
             return View(users);
         }
 

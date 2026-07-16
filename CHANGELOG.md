@@ -5,30 +5,22 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-16] - Chuyển đổi giao diện Chỉnh sửa Tin tuyển dụng, Vue CV và React CV sang Modal Popup trong Admin
+## [2026-07-16] - Hiện đại hóa giao diện quản trị Admin: Tích hợp Modal Popup và Tối ưu hóa Dark Mode
 
 ### Added
-- Tích hợp Modal `#editJobModal` để chỉnh sửa Tin tuyển dụng tại `/Admin/Jobs`.
-- Tích hợp Modal `#editVueModal` để chỉnh sửa mẫu Vue CV tại `/Admin/VueTemplates`.
-- Tích hợp Modal `#editTemplateModal` để chỉnh sửa mẫu React CV tại `/Admin/Templates`.
-- Bổ sung script binding dữ liệu tự động từ các data-attribute của nút bấm sang Modal khi người dùng click vào nút Sửa của cả 3 trang.
+- Tích hợp Modal `#editUserModal` để chỉnh sửa thông tin thành viên trực tiếp trên trang `/Admin/Users` thay vì chuyển hướng trang.
+- Bổ sung script binding dữ liệu tự động cho nút Sửa thành viên và quản lý logic bật/tắt dropdown chọn Công ty tương ứng với vai trò Recruiter.
+- Tích hợp các Modal chỉnh sửa (`#editJobModal`, `#editVueModal`, `#editTemplateModal`) cho Tin tuyển dụng, Vue CV và React CV tại các trang quản trị tương ứng.
+- Bổ sung script binding dữ liệu tự động từ các data-attribute của nút bấm sang Modal khi người dùng click vào nút Sửa trên cả 3 trang.
+- Tích hợp các Modal tạo mới (`#addJobModal`, `#createTemplateModal`) cho Tin tuyển dụng và React CV thiết kế trực tiếp tại trang quản trị danh sách.
+- Bổ sung các tính năng phụ trợ trong Modal: tải danh sách địa điểm hành chính từ `provinces.json`, đồng bộ mức lương tự động, xem trước hình ảnh mẫu thiết kế thời gian thực.
+- Bổ sung bộ quy tắc CSS tối ưu hóa giao diện Dark Mode (`[data-bs-theme="dark"]`) dùng chung cho toàn bộ các Modal trong trang Admin tại `/Admin/Templates`, `/Admin/VueTemplates`, `/Admin/Jobs`, `/Admin/Companies` và `/Admin/Users`.
 
 ### Changed
-- Thay thế các liên kết chuyển trang sửa (Edit) bằng các nút kích hoạt Modal tương ứng trên các trang danh sách.
-
-## [2026-07-16] - Chuyển đổi giao diện Đăng tin mới và Thêm mẫu CV mới sang Modal Popup trong trang quản trị Admin
-
-### Added
-- Tích hợp Modal `#addJobModal` cho chức năng "Đăng tin mới" trong trang quản trị Tin tuyển dụng (`/Admin/Jobs`).
-- Bổ sung script tự động tải danh sách Tỉnh/Thành phố & Quận/Huyện từ cơ sở dữ liệu `provinces.json` và đồng bộ mức lương tự động vào biểu mẫu trong Modal Đăng tin.
-- Tích hợp Modal `#createTemplateModal` để tạo mới mẫu thiết kế CV React (Beta) trực tiếp tại trang `/Admin/Templates`.
-- Bổ sung script hỗ trợ xem trước (preview) hình ảnh mẫu CV khi nhập URL hoặc tải file ảnh từ máy tính trong Modal Thêm mẫu mới.
-
-### Changed
-- Cập nhật nút "Đăng tin mới" trên trang `Views/Admin/Jobs.cshtml` từ thẻ liên kết chuyển hướng sang dạng button kích hoạt Modal trực tiếp.
-- Nạp danh sách Công ty (`ViewBag.Companies`) trong Action `Jobs` của `AdminController.cs` để hỗ trợ dropdown chọn đơn vị tuyển dụng cho Admin.
-- Cập nhật nút "Thêm mẫu mới" trên trang `Views/Admin/Templates.cshtml` để kích hoạt Modal thay vì chuyển hướng đến trang `/Admin/CreateTemplate` cũ.
-- Loại bỏ các trường nhập HTML/CSS thủ công trong giao diện tạo mới mẫu CV, chuyển sang cấu hình theo tên React component và đồng bộ trực tiếp thông qua React CV Builder.
+- Thay thế hoàn toàn các liên kết chuyển hướng trang cũ (tạo mới/chỉnh sửa) bằng các nút button kích hoạt Modal trực tiếp trên các trang danh sách của Admin.
+- Nạp bổ sung danh sách Công ty (`ViewBag.Companies`) trong các Action `Jobs` và `Users` của `AdminController.cs` để hỗ trợ hiển thị các dropdown chọn doanh nghiệp trong Modal.
+- Loại bỏ các trường nhập HTML/CSS thủ công trong giao diện tạo mới mẫu CV React, chuyển sang cấu hình theo component và đồng bộ trực tiếp thông qua React CV Builder.
+- Khắc phục triệt để lỗi chữ đen chìm trên nền tối, viền ô nhập liệu quá đậm, và thay thế các mảng màu nền tiêu đề (warning/primary) bằng các dải gradient trung tính có độ bão hòa thấp hơn (hổ phách sẫm và xanh dương hoàng gia) kết hợp chữ trắng có độ tương phản cao để tiêu đề Modal sắc nét và cực kỳ dễ đọc trong chế độ Dark Mode.
 
 ## [2026-07-16] - Ổn định hóa hệ thống E2E, Real-time Logs và chuẩn hóa địa điểm hành chính
 

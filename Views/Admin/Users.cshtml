@@ -83,9 +83,9 @@
                                 <td class="text-muted small">@user.CreatedAt.ToString("dd/MM/yyyy")</td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a asp-action="EditUser" asp-route-id="@user.UserID" class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm">
+                                        <button type="button" class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm btn-edit-user" data-id="@user.UserID" data-fullname="@user.FullName" data-email="@user.Email" data-role="@user.Role" data-ispro="@user.IsPro.ToString().ToLower()" data-companyid="@user.CompanyID">
                                             <i class='bx bxs-edit text-warning'></i> Sửa
-                                        </a>
+                                        </button>
                                         <button class="btn btn-sm btn-white border rounded-pill px-3 shadow-sm" onclick="confirmDelete(@user.UserID, '@user.FullName')">
                                             <i class='bx bxs-lock-alt text-danger'></i> Khóa
                                         </button>
@@ -111,6 +111,71 @@
     .bg-secondary-subtle { background-color: #f3f4f6 !important; }
 </style>
 
+@* ================================================================= *@
+@* MODAL CHỈNH SỬA THÀNH VIÊN *@
+@* ================================================================= *@
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-warning text-dark py-3">
+                <h5 class="modal-title fw-bold" id="editUserModalLabel">
+                    <i class='bx bx-user-pin me-2'></i>Chỉnh sửa thành viên
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editUserForm" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Họ và tên</label>
+                        <input type="text" name="FullName" id="editUserFullName" class="form-control border-2 py-2 rounded-3" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email (Không được sửa)</label>
+                        <input type="text" id="editUserEmail" class="form-control bg-light border-2 py-2 rounded-3" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Vai trò hệ thống</label>
+                        <select name="Role" id="editUserRole" class="form-select border-2 py-2 rounded-3">
+                            <option value="User">Ứng viên</option>
+                            <option value="Recruiter">Nhà tuyển dụng</option>
+                            <option value="Admin">Quản trị viên</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 form-check form-switch bg-light p-3 rounded-3 border">
+                        <input class="form-check-input ms-0" type="checkbox" name="IsPro" id="editUserIsPro" value="true">
+                        <label class="form-check-label fw-bold ms-2" for="editUserIsPro">
+                            <i class='bx bxs-crown text-warning'></i> Kích hoạt gói PRO
+                        </label>
+                        <div class="small text-muted mt-1 ms-2">Người dùng Pro được dùng mô hình AI cao cấp và không giới hạn mẫu CV.</div>
+                    </div>
+
+                    <div class="mb-3" id="editUserCompanySection" style="display: none;">
+                        <label class="form-label fw-bold">Thuộc Công ty</label>
+                        <select name="CompanyID" id="editUserCompanyID" class="form-select border-2 py-2 rounded-3">
+                            <option value="">-- Chọn công ty --</option>
+                            @if (ViewBag.Companies != null)
+                            {
+                                foreach (var comp in ViewBag.Companies)
+                                {
+                                    <option value="@comp.CompanyID">@comp.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     function confirmDelete(id, name) {
         if (confirm(`Bạn có chắc chắn muốn KHÓA tài khoản của [${name}] không?\nNgười dùng này sẽ không thể đăng nhập vào hệ thống.`)) {
@@ -118,4 +183,62 @@
             window.location.href = `/Admin/LockUser/${id}`;
         }
     }
+
+    // --- XỬ LÝ SỬA USER QUA MODAL ---
+    document.addEventListener("DOMContentLoaded", function () {
+        const editUserButtons = document.querySelectorAll('.btn-edit-user');
+        const editUserModalEl = document.getElementById('editUserModal');
+        const editUserForm = document.getElementById('editUserForm');
+
+        const editUserFullName = document.getElementById('editUserFullName');
+        const editUserEmail = document.getElementById('editUserEmail');
+        const editUserRole = document.getElementById('editUserRole');
+        const editUserIsPro = document.getElementById('editUserIsPro');
+        const editUserCompanySection = document.getElementById('editUserCompanySection');
+        const editUserCompanyID = document.getElementById('editUserCompanyID');
+
+        // Hàm kiểm tra và hiện ô chọn công ty
+        function toggleCompanySection(role) {
+            if (role === 'Recruiter') {
+                editUserCompanySection.style.display = 'block';
+            } else {
+                editUserCompanySection.style.display = 'none';
+                editUserCompanyID.value = ''; // Reset công ty nếu không là Recruiter
+            }
+        }
+
+        // Lắng nghe thay đổi của select Role
+        editUserRole.addEventListener('change', function() {
+            toggleCompanySection(this.value);
+        });
+
+        // Click sửa
+        editUserButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const fullName = this.getAttribute('data-fullname');
+                const email = this.getAttribute('data-email');
+                const role = this.getAttribute('data-role');
+                const isPro = this.getAttribute('data-ispro') === 'true';
+                const companyId = this.getAttribute('data-companyid') || '';
+
+                // Set form action động
+                editUserForm.action = '/Admin/EditUser/' + id;
+
+                // Gán dữ liệu
+                editUserFullName.value = fullName;
+                editUserEmail.value = email;
+                editUserRole.value = role;
+                editUserIsPro.checked = isPro;
+                editUserCompanyID.value = companyId;
+
+                // Cập nhật ẩn/hiển phần chọn công ty
+                toggleCompanySection(role);
+
+                // Show modal
+                const modal = new bootstrap.Modal(editUserModalEl);
+                modal.show();
+            });
+        });
+    });
 </script>
