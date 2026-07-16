@@ -65,7 +65,7 @@ namespace DoAnCS.Controllers
         }
 
         // SỬA: Thêm tham số int? page
-        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies, List<string> locations, string sortBy, int? selectedResumeId)
+        public async Task<IActionResult> Jobs(int? page, string searchQuery, List<string> specialties, List<string> selectedCompanies, string selectedProvince, string selectedDistrict, string sortBy, int? selectedResumeId)
         {
             // 1. Khởi tạo Query lấy từ Database
             IQueryable<Job> query = _context.Jobs.Include(j => j.Company)
@@ -89,14 +89,23 @@ namespace DoAnCS.Controllers
                 query = query.Where(j => selectedCompanies.Contains(j.Company.Name));
             }
 
-            // 4.5. Bộ lọc theo Địa điểm (Checkboxes)
-            if (locations != null && locations.Any())
+            // 4.5. Bộ lọc theo Địa điểm (Tỉnh/Thành phố và Quận/Huyện)
+            if (!string.IsNullOrEmpty(selectedProvince))
             {
-                query = query.Where(j => 
-                    (!string.IsNullOrEmpty(j.Location) && locations.Contains(j.Location)) || 
-                    (string.IsNullOrEmpty(j.Location) && j.Company != null && locations.Contains(j.Company.Address)) ||
-                    (string.IsNullOrEmpty(j.Location) && (j.Company == null || string.IsNullOrEmpty(j.Company.Address)) && locations.Contains("Toàn quốc"))
-                );
+                if (!string.IsNullOrEmpty(selectedDistrict))
+                {
+                    query = query.Where(j => 
+                        (!string.IsNullOrEmpty(j.Location) && j.Location.Contains(selectedDistrict) && j.Location.Contains(selectedProvince)) ||
+                        (string.IsNullOrEmpty(j.Location) && j.Company != null && !string.IsNullOrEmpty(j.Company.Address) && j.Company.Address.Contains(selectedDistrict) && j.Company.Address.Contains(selectedProvince))
+                    );
+                }
+                else
+                {
+                    query = query.Where(j => 
+                        (!string.IsNullOrEmpty(j.Location) && j.Location.Contains(selectedProvince)) ||
+                        (string.IsNullOrEmpty(j.Location) && j.Company != null && !string.IsNullOrEmpty(j.Company.Address) && j.Company.Address.Contains(selectedProvince))
+                    );
+                }
             }
 
             // 4. Sắp xếp
@@ -288,15 +297,6 @@ namespace DoAnCS.Controllers
                 .OrderBy(n => n)
                 .ToListAsync();
 
-            var allLocations = await _context.Jobs
-                .Include(j => j.Company)
-                .Where(j => j.Status == 1)
-                .Select(j => !string.IsNullOrEmpty(j.Location) ? j.Location : (j.Company != null ? j.Company.Address : "Toàn quốc"))
-                .Where(l => !string.IsNullOrEmpty(l))
-                .Distinct()
-                .OrderBy(l => l)
-                .ToListAsync();
-
             var viewModel = new HomeViewModel
             {
                 RealJobs = pagedList,
@@ -305,8 +305,10 @@ namespace DoAnCS.Controllers
                 SelectedCompanies = selectedCompanies ?? new List<string>(),
                 AllSpecialties = allSpecs.OrderBy(s => s).ToList(),
                 AllCompanies = await _context.Companies.Select(c => c.Name).Distinct().ToListAsync(),
-                AllLocations = allLocations,
-                SelectedLocations = locations ?? new List<string>(),
+                AllLocations = new List<string>(),
+                SelectedLocations = new List<string>(),
+                SelectedProvince = selectedProvince,
+                SelectedDistrict = selectedDistrict,
                 SortBy = sortBy ?? "latest"
             };
 

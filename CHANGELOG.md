@@ -5,16 +5,21 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-16] - Tích hợp Bộ lọc Địa điểm làm việc và Khắc phục lỗi SqlNullValueException
+## [2026-07-16] - Cải tiến bộ lọc tuyển dụng và chuẩn hóa dữ liệu địa điểm hành chính
 
 ### Added
-- Bổ sung trường `Location` vào DB, biểu mẫu đăng tin tuyển dụng (`Create`/`Edit`) và tích hợp bộ lọc địa điểm Sidebar dạng checkbox tại trang Việc làm (`Home/Jobs`).
+- Chuyển đổi biểu mẫu tạo (`Create.cshtml`) và chỉnh sửa (`Edit.cshtml`) tin tuyển dụng sang dropdown chọn Tỉnh/Thành phố và Quận/Huyện chuẩn hóa.
+- Triển khai Custom Combobox cho bộ lọc "Vị trí công việc": vừa cho phép nhập tự do vừa cho phép bấm nút mũi tên để chọn và lọc gợi ý thời gian thực.
+- Cập nhật cơ sở dữ liệu `provinces.json` tinh gọn thành 34 tỉnh thành theo nghị quyết sáp nhập hành chính mới.
 
 ### Changed
-- Cập nhật logic `HomeController.cs` và `JobsController.cs` để hiển thị địa điểm với cơ chế fallback sang địa chỉ công ty (`Company.Address`) khi tin tuyển dụng chưa cấu hình địa điểm cụ thể.
+- Dịch chuyển bộ lọc Việc làm từ Sidebar dọc lên thanh ngang phía trên danh sách tin tuyển dụng, thiết kế Premium UI hỗ trợ đầy đủ Light/Dark theme.
+- Chuẩn hóa bộ lọc địa điểm trang việc làm (`Jobs.cshtml`) sang hai dropdown Tỉnh/Thành phố và Quận/Huyện sử dụng dữ liệu `provinces.json`.
+- Cập nhật logic controller hiển thị địa điểm với cơ chế fallback sang địa chỉ doanh nghiệp đối với các tin tuyển dụng cũ.
 
 ### Fixed
-- Khắc phục triệt để lỗi `SqlNullValueException` khi đọc các tin tuyển dụng cũ có trường `Location`, `Description`, `Requirements` hoặc `Salary` bằng `NULL` bằng cách cấu hình Fluent API `IsRequired(false)` trong `AppDbContext.cs`.
+- Sửa lỗi nghiêm trọng chặn script trang tuyển dụng do gán sự kiện cho phần tử `#filterSearch` đã bị xóa.
+- Khắc phục triệt để lỗi `SqlNullValueException` khi truy vấn dữ liệu các trường nullable của tin tuyển dụng cũ trong Database.
 
 ## [2026-07-14] - Cải tiến toàn diện giao diện trang cá nhân và khắc phục lỗi Dark Mode trang Builder CV
 
