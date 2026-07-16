@@ -41,6 +41,7 @@ namespace DoAnCS.Services
         Task<TestSuiteResult> RunApiVerificationSuiteAsync(string localBaseUrl);
         Task<TestSuiteResult> RunPerformanceSuiteAsync(string localBaseUrl);
         Task<TestSuiteResult> RunE2EFlowSuiteAsync(string localBaseUrl);
+        Task<TestCaseResult> RunSingleE2EFlowAsync(string scenarioName, string localBaseUrl);
         Task SaveTestRunToDbAsync(TestSuiteResult suiteResult);
         Task<List<TestRun>> GetTestHistoryAsync();
         Task<bool> DeleteTestRunAsync(int testRunId);
@@ -395,6 +396,7 @@ namespace DoAnCS.Services
                         
                         // Chờ selector hiển thị trước khi click
                         await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
+                        
                         await page.ClickAsync(step.TargetSelector);
                         
                         if (int.TryParse(step.Value, out int timeoutClickMs))
@@ -427,8 +429,19 @@ namespace DoAnCS.Services
                             {
                                 fillValue = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
                             }
-                            await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
-                            await page.FillAsync(step.TargetSelector, fillValue);
+                            // Chờ element xuất hiện trong DOM (attached), sau đó thử fill
+                            try
+                            {
+                                await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible, Timeout = 5000 });
+                                await page.FillAsync(step.TargetSelector, fillValue);
+                            }
+                            catch (TimeoutException)
+                            {
+                                // Fallback: element tồn tại nhưng bị ẩn (off-screen/hidden input) → fill bằng JS
+                                Console.WriteLine($"[Playwright E2E] Selector '{step.TargetSelector}' không visible, thử fill bằng JavaScript...");
+                                await page.WaitForSelectorAsync(step.TargetSelector, new PageWaitForSelectorOptions { State = WaitForSelectorState.Attached, Timeout = 10000 });
+                                await page.EvalOnSelectorAsync(step.TargetSelector, $"(el, val) => {{ el.value = val; el.dispatchEvent(new Event('input', {{bubbles: true}})); el.dispatchEvent(new Event('change', {{bubbles: true}})); }}", fillValue);
+                            }
                         }
                         break;
 
@@ -450,14 +463,18 @@ namespace DoAnCS.Services
                         else
                         {
                             string fullExpected = expectedUrl.StartsWith("/") ? (localBaseUrl + expectedUrl) : expectedUrl;
-                            if (fullExpected.EndsWith("*"))
+                            if (expectedUrl == "/" || expectedUrl == "")
+                            {
+                                await page.WaitForURLAsync(url => url == localBaseUrl || url == localBaseUrl + "/");
+                            }
+                            else if (fullExpected.EndsWith("*"))
                             {
                                 string prefix = fullExpected.TrimEnd('*');
                                 await page.WaitForURLAsync(url => url.StartsWith(prefix));
                             }
                             else
                             {
-                                await page.WaitForURLAsync(fullExpected);
+                                await page.WaitForURLAsync(url => url == fullExpected || url + "/" == fullExpected || fullExpected + "/" == url);
                             }
                         }
                         break;
@@ -681,14 +698,54 @@ namespace DoAnCS.Services
         {
             try
             {
-                // Xóa Users test_e2e_
+                // 1. Tìm tất cả các users của E2E (bắt đầu bằng test_e2e_)
                 var testUsers = await _context.Users.Where(u => u.Email.StartsWith("test_e2e_")).ToListAsync();
                 if (testUsers.Any())
                 {
+                    var testUserIds = testUsers.Select(u => u.UserID).ToList();
+
+                    // 2. Tìm tất cả resumes liên quan đến test users này
+                    var testResumes = await _context.Resumes.Where(r => testUserIds.Contains(r.UserID)).ToListAsync();
+                    var testResumeIds = testResumes.Select(r => r.ResumeID).ToList();
+
+                    // 3. Tìm tất cả jobs liên quan đến test users này (vai trò recruiter)
+                    var testJobs = await _context.Jobs.Where(j => testUserIds.Contains(j.RecruiterID)).ToListAsync();
+                    var testJobIds = testJobs.Select(j => j.JobID).ToList();
+
+                    // 4. Tìm tất cả applications liên quan đến test resumes hoặc test jobs
+                    var testApps = await _context.Applications
+                        .Where(a => testResumeIds.Contains(a.ResumeID) || testJobIds.Contains(a.JobID))
+                        .ToListAsync();
+                    
+                    if (testApps.Any())
+                    {
+                        _context.Applications.RemoveRange(testApps);
+                    }
+
+                    // 5. Tìm các UpgradeRequests liên quan đến test users
+                    var testUpgrades = await _context.UpgradeRequests.Where(ur => testUserIds.Contains(ur.UserID)).ToListAsync();
+                    if (testUpgrades.Any())
+                    {
+                        _context.UpgradeRequests.RemoveRange(testUpgrades);
+                    }
+
+                    // 6. Xóa resumes trước
+                    if (testResumes.Any())
+                    {
+                        _context.Resumes.RemoveRange(testResumes);
+                    }
+
+                    // 7. Xóa jobs trước
+                    if (testJobs.Any())
+                    {
+                        _context.Jobs.RemoveRange(testJobs);
+                    }
+
+                    // 8. Xóa users sau cùng
                     _context.Users.RemoveRange(testUsers);
                 }
 
-                // Xóa Companies E2E Test Company
+                // 9. Xóa các Companies của E2E (E2E Test Company)
                 var testCompanies = await _context.Companies.Where(c => c.Name.StartsWith("E2E Test Company")).ToListAsync();
                 if (testCompanies.Any())
                 {
@@ -745,6 +802,88 @@ namespace DoAnCS.Services
                 .Include(tr => tr.Details)
                 .OrderByDescending(tr => tr.ExecutionTime)
                 .ToListAsync();
+        }
+
+        // Chạy một kịch bản E2E đơn lẻ
+        public async Task<TestCaseResult> RunSingleE2EFlowAsync(string scenarioName, string localBaseUrl)
+        {
+            // Tự động kiểm tra/cài đặt Chromium trước khi chạy bộ E2E
+            try
+            {
+                Console.WriteLine($"[Playwright E2E] Đang kiểm tra và tải trình duyệt Chromium cho {scenarioName}...");
+                Microsoft.Playwright.Program.Main(new[] { "install", "chromium" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[Playwright E2E] Lỗi tự động cài đặt Chromium: " + ex.Message);
+            }
+
+            // Khởi tạo các bản ghi dọn dẹp dữ liệu kiểm thử trùng lặp trước khi bắt đầu
+            await CleanE2ETestDataAsync();
+
+            var steps = await _context.TestSteps
+                .Where(s => s.ScenarioName == scenarioName)
+                .OrderBy(s => s.StepOrder)
+                .ToListAsync();
+
+            var testCase = new TestCaseResult
+            {
+                Name = scenarioName switch {
+                    "Auth E2E" => "Test Luồng Đăng nhập/Đăng ký (Auth E2E)",
+                    "Jobs E2E" => "Test Luồng Tin tuyển dụng (Jobs E2E)",
+                    "Auth Validation E2E" => "Kiểm thử nhập liệu & Validation Auth (Auth Validation E2E)",
+                    "Jobs Validation E2E" => "Kiểm thử nghiệp vụ & Validation Đăng tin (Jobs Validation E2E)",
+                    _ => scenarioName
+                },
+                Method = "Playwright E2E",
+                Url = scenarioName switch {
+                    "Auth E2E" => localBaseUrl + "/Account/Login",
+                    "Jobs E2E" => localBaseUrl + "/Jobs/Create",
+                    "Auth Validation E2E" => localBaseUrl + "/Account/Login",
+                    "Jobs Validation E2E" => localBaseUrl + "/Jobs/Create",
+                    _ => localBaseUrl
+                },
+                Expected = scenarioName switch {
+                    "Auth E2E" => "Người dùng đăng ký mới với OTP 123456 -> Đăng nhập thành công -> Điều hướng về Trang chủ -> Đăng xuất (thực thi động từ DB).",
+                    "Jobs E2E" => "Đăng ký Recruiter -> Đăng nhập -> Tạo tin tuyển dụng -> Chỉnh sửa bài -> Xóa bài đăng (thực thi động từ DB).",
+                    "Auth Validation E2E" => "Kiểm tra chặn form trống, lỗi email/mật khẩu yếu, và thông báo lỗi nhập liệu đăng ký/đăng nhập.",
+                    "Jobs Validation E2E" => "Kiểm tra chặn form trống và thông báo lỗi khi nhập hạn nộp hồ sơ trong quá khứ.",
+                    _ => ""
+                }
+            };
+
+            var sw = Stopwatch.StartNew();
+            try
+            {
+                using var playwright = await Playwright.CreateAsync();
+                await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+                var context = await browser.NewContextAsync(new BrowserNewContextOptions { IgnoreHTTPSErrors = true });
+                var page = await context.NewPageAsync();
+
+                if (!steps.Any())
+                {
+                    throw new Exception($"Không tìm thấy các bước cấu hình kiểm thử {scenarioName} trong database.");
+                }
+
+                await ExecuteDynamicStepsAsync(page, steps, localBaseUrl);
+
+                testCase.Status = "Success";
+                testCase.Actual = scenarioName.Contains("Validation") 
+                    ? $"Hoàn tất thành công {steps.Count} bước kiểm thử validation."
+                    : $"Hoàn tất thành công {steps.Count} bước kiểm thử động.";
+            }
+            catch (Exception ex)
+            {
+                testCase.Status = "Failed";
+                testCase.Actual = $"Gặp lỗi trong quá trình thực thi E2E {scenarioName} động.";
+                testCase.ErrorMessage = ex.Message + "\n" + ex.StackTrace;
+            }
+            testCase.ResponseTimeMs = sw.ElapsedMilliseconds;
+
+            // Dọn dẹp dữ liệu kiểm thử sau khi hoàn thành
+            await CleanE2ETestDataAsync();
+
+            return testCase;
         }
 
         // Xóa một lịch sử kiểm thử

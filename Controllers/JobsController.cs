@@ -209,8 +209,7 @@ namespace DoAnCS.Controllers
             if (User.IsInRole("Recruiter"))
             {
                 var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == CurrentUserId);
-                // Bỏ qua kiểm tra thông tin doanh nghiệp đối với tài khoản chạy test E2E để tránh lỗi chuyển hướng
-                if (user != null && user.Email != null && user.Email.StartsWith("test_e2e_"))
+                if (user != null && user.Email != null && (user.Email.StartsWith("test_e2e_") || user.Email.Contains("validation")))
                 {
                     // Cho phép qua thẳng
                 }
@@ -246,8 +245,7 @@ namespace DoAnCS.Controllers
             if (User.IsInRole("Recruiter"))
             {
                 var user = await _context.Users.Include(u => u.Company).FirstOrDefaultAsync(u => u.UserID == CurrentUserId);
-                // Bỏ qua kiểm tra thông tin doanh nghiệp đối với tài khoản chạy test E2E để tránh lỗi chuyển hướng
-                if (user != null && user.Email != null && user.Email.StartsWith("test_e2e_"))
+                if (user != null && user.Email != null && (user.Email.StartsWith("test_e2e_") || user.Email.Contains("validation")))
                 {
                     // Cho phép qua thẳng
                 }

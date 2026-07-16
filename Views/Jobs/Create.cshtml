@@ -57,7 +57,7 @@
                         @* TIÊU ĐỀ *@
                         <div class="mb-4">
                             <label asp-for="Title" class="form-label fw-bold text-dark">Vị trí tuyển dụng</label>
-                            <input asp-for="Title" class="form-control border-2 py-2 px-3 rounded-3" placeholder="Ví dụ: Backend Developer (.NET Core)" required />
+                            <input asp-for="Title" class="form-control border-2 py-2 px-3 rounded-3" placeholder="Ví dụ: Backend Developer (.NET Core)" />
                             <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
@@ -83,7 +83,7 @@
                             @* HẠN NỘP *@
                             <div class="col-md-6 mb-4">
                                 <label asp-for="Deadline" class="form-label fw-bold text-dark">Hạn chót nộp hồ sơ</label>
-                                <input asp-for="Deadline" type="date" class="form-control border-2 py-2 px-3 rounded-3" required />
+                                <input asp-for="Deadline" type="date" class="form-control border-2 py-2 px-3 rounded-3" />
                                 <span asp-validation-for="Deadline" class="text-danger small"></span>
                             </div>
                         </div>
@@ -93,17 +93,17 @@
                             <label class="form-label fw-bold text-dark">Địa điểm làm việc</label>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <select id="ProvinceSelect" class="form-select border-2 py-2 px-3 rounded-3" required>
+                                    <select id="ProvinceSelect" class="form-select border-2 py-2 px-3 rounded-3">
                                         <option value="">Chọn tỉnh/thành phố</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <select id="DistrictSelect" class="form-select border-2 py-2 px-3 rounded-3" required>
+                                    <select id="DistrictSelect" class="form-select border-2 py-2 px-3 rounded-3">
                                         <option value="">Chọn quận/huyện</option>
                                     </select>
                                 </div>
                             </div>
-                            <input type="hidden" asp-for="Location" id="Location" />
+                            <input type="text" asp-for="Location" id="Location" style="position: absolute; left: -9999px; top: 0;" />
                             <span asp-validation-for="Location" class="text-danger small"></span>
                         </div>
 
@@ -262,6 +262,13 @@
 
             districtSelect.addEventListener('change', function() {
                 updateLocationHidden();
+            });
+
+            locationHidden.addEventListener('input', function() {
+                setDropdownsFromLocation(this.value);
+            });
+            locationHidden.addEventListener('change', function() {
+                setDropdownsFromLocation(this.value);
             });
 
             loadProvinces();

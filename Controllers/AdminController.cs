@@ -1157,6 +1157,42 @@ namespace DoAnCS.Controllers
             }
         }
 
+        // API Endpoint chạy một kịch bản E2E đơn lẻ
+        [HttpPost]
+        public async Task<IActionResult> RunSingleE2ETest(string scenarioName)
+        {
+            try
+            {
+                string localBaseUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+                var result = await _testRunner.RunSingleE2EFlowAsync(scenarioName, localBaseUrl);
+                return Json(new { success = true, testCase = result });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        // API Endpoint lưu kết quả toàn bộ lượt chạy E2E vào database
+        [HttpPost]
+        public async Task<IActionResult> SaveE2ETestRun([FromBody] TestSuiteResult suiteResult)
+        {
+            try
+            {
+                if (suiteResult == null || suiteResult.TestCases.Count == 0)
+                {
+                    return Json(new { success = false, message = "Dữ liệu kết quả trống." });
+                }
+                
+                await _testRunner.SaveTestRunToDbAsync(suiteResult);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
         // API Endpoint lấy lịch sử kiểm thử từ database
         [HttpGet]
         public async Task<IActionResult> GetTestHistory()
