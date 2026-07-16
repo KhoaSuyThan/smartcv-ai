@@ -516,6 +516,8 @@ namespace DoAnCS.Controllers
                 TotalResumes = await _context.Resumes.CountAsync()
             };
 
+            ViewBag.Companies = await _context.Companies.ToListAsync();
+
             return View(vm);
         }
 
