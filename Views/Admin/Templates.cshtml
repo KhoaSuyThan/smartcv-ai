@@ -21,9 +21,9 @@
                 <a href="/Admin" class="btn btn-white border shadow-sm rounded-pill px-4 fw-bold text-secondary">
                     <i class='bx bx-left-arrow-alt'></i> Quay về Dashboard
                 </a>
-                <a asp-action="CreateTemplate" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold">
+                <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" data-bs-toggle="modal" data-bs-target="#createTemplateModal">
                     <i class='bx bx-plus-circle'></i> Thêm mẫu mới
-                </a>
+                </button>
             </div>
         </div>
 
@@ -220,4 +220,111 @@
             checkbox.disabled = false;
         });
     }
+</script>
+
+@* ================================================================= *@
+@* MODAL THÊM MẪU CV REACT *@
+@* ================================================================= *@
+<div class="modal fade" id="createTemplateModal" tabindex="-1" aria-labelledby="createTemplateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title fw-bold" id="createTemplateModalLabel">
+                    <i class='bx bx-plus-circle me-2'></i>Thêm mẫu React CV mới
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="CreateTemplate" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                
+                @* Gán rỗng cho HTML/CSS vì dùng JSX của React *@
+                <input type="hidden" name="HtmlContent" value="" />
+                <input type="hidden" name="CssContent" value="" />
+
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-7">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tên mẫu CV (React)</label>
+                                <input name="Name" class="form-control border-2" placeholder="Ví dụ: Đặng Ngọc Linh" required />
+                                <small class="text-muted">Phải trùng khớp chính xác với Key đã khai báo trong TemplateRegistry.jsx</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ngành nghề / Danh mục</label>
+                                <div class="d-flex flex-wrap gap-2 mt-1">
+                                    @foreach (var cat in new[] { "Lập trình viên", "Kinh tế", "Marketing", "Sáng tạo", "Khác" })
+                                    {
+                                        <div class="form-check me-2">
+                                            <input class="form-check-input" type="checkbox" name="selectedCategories" value="@cat" id="cat_@cat">
+                                            <label class="form-check-label small" for="cat_@cat">@cat</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">URL Ảnh xem trước</label>
+                                <input name="PreviewImageUrl" id="createTemplatePreviewUrl" class="form-control border-2" placeholder="Nhập URL hoặc chọn file bên dưới..." />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-primary">Hoặc tải lên ảnh từ máy tính</label>
+                                <input type="file" name="uploadImage" id="createTemplateFileInput" class="form-control border-2" accept="image/*" />
+                            </div>
+
+                            <div class="d-flex gap-4 mt-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="IsActive" value="true" checked id="createTemplateActiveSwitch">
+                                    <label class="form-check-label fw-bold small ms-1" for="createTemplateActiveSwitch">Kích hoạt ngay</label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="IsProOnly" value="true" id="createTemplateProSwitch">
+                                    <label class="form-check-label fw-bold small ms-1 text-warning" for="createTemplateProSwitch">Mẫu PRO (Chỉ Pro)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 text-center border-start">
+                            <p class="text-muted small fw-bold text-uppercase mb-2">Xem trước Thumbnail</p>
+                            <img src="https://via.placeholder.com/210x297?text=Preview" id="createTemplateImgPreview" class="img-fluid rounded shadow-sm border" 
+                                 style="max-height: 350px; aspect-ratio: 1/1.41; object-fit: cover;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 py-3">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 shadow fw-bold">Tạo mẫu mới</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Script preview for Template Modal
+        const urlInput = document.getElementById('createTemplatePreviewUrl');
+        const fileInput = document.getElementById('createTemplateFileInput');
+        const imgPreview = document.getElementById('createTemplateImgPreview');
+
+        if (urlInput && imgPreview) {
+            urlInput.addEventListener('input', function() {
+                imgPreview.src = this.value || 'https://via.placeholder.com/210x297?text=Preview';
+            });
+        }
+
+        if (fileInput && imgPreview) {
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imgPreview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
 </script>

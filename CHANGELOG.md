@@ -5,6 +5,20 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-16] - Chuyển đổi giao diện Đăng tin mới và Thêm mẫu CV mới sang Modal Popup trong trang quản trị Admin
+
+### Added
+- Tích hợp Modal `#addJobModal` cho chức năng "Đăng tin mới" trong trang quản trị Tin tuyển dụng (`/Admin/Jobs`).
+- Bổ sung script tự động tải danh sách Tỉnh/Thành phố & Quận/Huyện từ cơ sở dữ liệu `provinces.json` và đồng bộ mức lương tự động vào biểu mẫu trong Modal Đăng tin.
+- Tích hợp Modal `#createTemplateModal` để tạo mới mẫu thiết kế CV React (Beta) trực tiếp tại trang `/Admin/Templates`.
+- Bổ sung script hỗ trợ xem trước (preview) hình ảnh mẫu CV khi nhập URL hoặc tải file ảnh từ máy tính trong Modal Thêm mẫu mới.
+
+### Changed
+- Cập nhật nút "Đăng tin mới" trên trang `Views/Admin/Jobs.cshtml` từ thẻ liên kết chuyển hướng sang dạng button kích hoạt Modal trực tiếp.
+- Nạp danh sách Công ty (`ViewBag.Companies`) trong Action `Jobs` của `AdminController.cs` để hỗ trợ dropdown chọn đơn vị tuyển dụng cho Admin.
+- Cập nhật nút "Thêm mẫu mới" trên trang `Views/Admin/Templates.cshtml` để kích hoạt Modal thay vì chuyển hướng đến trang `/Admin/CreateTemplate` cũ.
+- Loại bỏ các trường nhập HTML/CSS thủ công trong giao diện tạo mới mẫu CV, chuyển sang cấu hình theo tên React component và đồng bộ trực tiếp thông qua React CV Builder.
+
 ## [2026-07-16] - Ổn định hóa hệ thống E2E, Real-time Logs và chuẩn hóa địa điểm hành chính
 
 ### Added
