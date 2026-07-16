@@ -125,11 +125,9 @@
                                         }
                                         
                                         @* Nút Sửa *@
-                                        <a asp-controller="Jobs" asp-action="Edit" asp-route-id="@job.JobID" 
-                                           asp-route-returnUrl="@($"{Context.Request.Path}{Context.Request.QueryString}")"
-                                           class="btn btn-sm btn-light border rounded-circle" style="width: 32px; height: 32px;" title="Sửa">
+                                        <button type="button" class="btn btn-sm btn-light border rounded-circle btn-edit-job" style="width: 32px; height: 32px;" title="Sửa" data-id="@job.JobID" data-title="@job.Title" data-company="@job.CompanyID" data-location="@job.Location" data-salary="@job.Salary" data-deadline="@(job.Deadline?.ToString("yyyy-MM-dd"))" data-description="@job.Description" data-requirements="@job.Requirements" data-status="@job.Status">
                                             <i class='bx bxs-edit-alt text-primary'></i>
-                                        </a>
+                                        </button>
 
                                         @* Nút Xóa (Dùng form để bảo mật) *@
                                         <form asp-controller="Jobs" asp-action="Delete" asp-route-id="@job.JobID" method="post" 
@@ -326,6 +324,104 @@
     </div>
 </div>
 
+@* ================================================================= *@
+@* MODAL CHỈNH SỬA TIN TUYỂN DỤNG *@
+@* ================================================================= *@
+<div class="modal fade" id="editJobModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <form asp-controller="Jobs" asp-action="Edit" method="post" id="editJobForm">
+                @Html.AntiForgeryToken()
+                
+                <input type="hidden" name="JobID" id="editJobId" />
+                <input type="hidden" name="CompanyID" id="editJobCompanyId" />
+                <input type="hidden" name="returnUrl" value="@($"{Context.Request.Path}{Context.Request.QueryString}")" />
+
+                <div class="modal-header bg-warning text-dark border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class='bx bx-edit me-2'></i>Cập nhật tin tuyển dụng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        @* Vị trí tuyển dụng *@
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Vị trí tuyển dụng</label>
+                            <input type="text" name="Title" id="editJobTitle" class="form-control border-2 py-2 px-3 rounded-3" required placeholder="Ví dụ: Backend Developer (.NET Core)">
+                        </div>
+
+                        @* Mức lương *@
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Mức lương</label>
+                            <select id="editJobSalaryType" class="form-select border-2 py-2 px-3 rounded-3 mb-2">
+                                <option value="Thỏa thuận">Thỏa thuận</option>
+                                <option value="Cạnh tranh">Cạnh tranh</option>
+                                <option value="Nhập liệu">Nhập liệu cụ thể</option>
+                            </select>
+
+                            <div class="input-group" id="editJobSalaryInputGroup" style="display: none;">
+                                <span class="input-group-text border-2 bg-light"><i class='bx bx-money'></i></span>
+                                <input type="text" id="editJobCustomSalary" class="form-control border-2 py-2 px-3" placeholder="Ví dụ: 20-30" oninput="this.value = this.value.replace(/[^0-9\-\s]/g, '')">
+                                <span class="input-group-text border-2 bg-light">triệu VNĐ/Tháng</span>
+                            </div>
+                            <input type="hidden" name="Salary" id="editJobSalaryHidden" />
+                        </div>
+
+                        @* Hạn chót *@
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Hạn chót nộp hồ sơ</label>
+                            <input type="date" name="Deadline" id="editJobDeadline" class="form-control border-2 py-2 px-3 rounded-3" required>
+                        </div>
+
+                        @* Địa điểm làm việc *@
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Địa điểm làm việc</label>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <select id="editJobProvinceSelect" class="form-select border-2 py-2 px-3 rounded-3" required>
+                                        <option value="">Chọn tỉnh/thành phố</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <select id="editJobDistrictSelect" class="form-select border-2 py-2 px-3 rounded-3" required>
+                                        <option value="">Chọn quận/huyện</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="text" name="Location" id="editJobLocationHidden" style="position: absolute; left: -9999px; top: 0;" required />
+                        </div>
+
+                        @* Trạng thái *@
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-uppercase">Trạng thái tin tuyển dụng</label>
+                            <select name="Status" id="editJobStatus" class="form-select border-2 py-2 px-3 rounded-3" required>
+                                <option value="0">Chờ duyệt</option>
+                                <option value="1">Đã duyệt (Đang tuyển)</option>
+                                <option value="2">Bị từ chối (Tạm ẩn)</option>
+                            </select>
+                        </div>
+
+                        @* Mô tả *@
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Mô tả chi tiết công việc</label>
+                            <textarea name="Description" id="editJobDescription" class="form-control border-2 rounded-3" rows="4" required placeholder="Nêu rõ các đầu việc hàng ngày..."></textarea>
+                        </div>
+
+                        @* Yêu cầu *@
+                        <div class="col-12">
+                            <label class="form-label fw-bold small text-uppercase">Yêu cầu đối với ứng viên</label>
+                            <textarea name="Requirements" id="editJobRequirements" class="form-control border-2 rounded-3" rows="4" required placeholder="Kỹ năng chuyên môn, kinh nghiệm, ngoại ngữ..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
@@ -426,6 +522,166 @@
             });
 
             loadProvinces();
+
+            // --- XỬ LÝ SỬA JOB QUA MODAL ---
+            const editJobButtons = document.querySelectorAll('.btn-edit-job');
+            const editJobModalEl = document.getElementById('editJobModal');
+            const editJobForm = document.getElementById('editJobForm');
+            
+            const editJobId = document.getElementById('editJobId');
+            const editJobCompanyId = document.getElementById('editJobCompanyId');
+            const editJobTitle = document.getElementById('editJobTitle');
+            const editJobSalaryType = document.getElementById('editJobSalaryType');
+            const editJobCustomSalary = document.getElementById('editJobCustomSalary');
+            const editJobSalaryInputGroup = document.getElementById('editJobSalaryInputGroup');
+            const editJobSalaryHidden = document.getElementById('editJobSalaryHidden');
+            const editJobDeadline = document.getElementById('editJobDeadline');
+            const editJobProvinceSelect = document.getElementById('editJobProvinceSelect');
+            const editJobDistrictSelect = document.getElementById('editJobDistrictSelect');
+            const editJobLocationHidden = document.getElementById('editJobLocationHidden');
+            const editJobDescription = document.getElementById('editJobDescription');
+            const editJobRequirements = document.getElementById('editJobRequirements');
+            const editJobStatus = document.getElementById('editJobStatus');
+
+            function updateEditHiddenValue() {
+                if (editJobSalaryType.value === "Nhập liệu") {
+                    if (editJobCustomSalary.value.trim() !== "") {
+                        editJobSalaryHidden.value = editJobCustomSalary.value.trim() + " triệu VNĐ/Tháng";
+                    } else {
+                        editJobSalaryHidden.value = "";
+                    }
+                } else {
+                    editJobSalaryHidden.value = editJobSalaryType.value;
+                }
+            }
+
+            editJobSalaryType.addEventListener("change", function () {
+                if (this.value === "Nhập liệu") {
+                    editJobSalaryInputGroup.style.display = "flex";
+                } else {
+                    editJobSalaryInputGroup.style.display = "none";
+                }
+                updateEditHiddenValue();
+            });
+
+            editJobCustomSalary.addEventListener("input", function () {
+                updateEditHiddenValue();
+            });
+
+            // Đồng bộ địa điểm cho editJob
+            var editProvincesData = [];
+            async function loadEditProvinces() {
+                try {
+                    const response = await fetch('/data/provinces.json');
+                    editProvincesData = await response.json();
+                    
+                    editJobProvinceSelect.innerHTML = '<option value="">Chọn tỉnh/thành phố</option>';
+                    editProvincesData.forEach(p => {
+                        const option = document.createElement('option');
+                        option.value = p.name;
+                        option.text = p.name;
+                        editJobProvinceSelect.add(option);
+                    });
+                } catch (e) {
+                    console.error("Error loading edit provinces:", e);
+                }
+            }
+
+            function populateEditDistricts(provinceName) {
+                editJobDistrictSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
+                if (!provinceName) return;
+
+                const province = editProvincesData.find(p => p.name === provinceName);
+                if (province && province.districts) {
+                    province.districts.forEach(d => {
+                        const option = document.createElement('option');
+                        option.value = d.name;
+                        option.text = d.name;
+                        editJobDistrictSelect.add(option);
+                    });
+                }
+            }
+
+            function updateEditLocationHidden() {
+                const p = editJobProvinceSelect.value;
+                const d = editJobDistrictSelect.value;
+                if (p && d) {
+                    editJobLocationHidden.value = d + ', ' + p;
+                } else if (p) {
+                    editJobLocationHidden.value = p;
+                } else {
+                    editJobLocationHidden.value = '';
+                }
+            }
+
+            editJobProvinceSelect.addEventListener('change', function() {
+                populateEditDistricts(this.value);
+                updateEditLocationHidden();
+            });
+
+            editJobDistrictSelect.addEventListener('change', function() {
+                updateEditLocationHidden();
+            });
+
+            // Khi click nút sửa job
+            editJobButtons.forEach(button => {
+                button.addEventListener('click', async function () {
+                    const id = this.getAttribute('data-id');
+                    const title = this.getAttribute('data-title');
+                    const company = this.getAttribute('data-company');
+                    const location = this.getAttribute('data-location');
+                    const salary = this.getAttribute('data-salary');
+                    const deadline = this.getAttribute('data-deadline');
+                    const desc = this.getAttribute('data-description');
+                    const req = this.getAttribute('data-requirements');
+                    const status = this.getAttribute('data-status');
+
+                    // Gán action form
+                    editJobForm.action = '/Jobs/Edit/' + id;
+
+                    // Điền data basic
+                    editJobId.value = id;
+                    editJobCompanyId.value = company;
+                    editJobTitle.value = title;
+                    editJobDeadline.value = deadline;
+                    editJobDescription.value = desc;
+                    editJobRequirements.value = req;
+                    editJobStatus.value = status;
+
+                    // Điền Lương
+                    if (salary === "Thỏa thuận" || salary === "Cạnh tranh") {
+                        editJobSalaryType.value = salary;
+                        editJobSalaryInputGroup.style.display = "none";
+                        editJobCustomSalary.value = "";
+                    } else {
+                        editJobSalaryType.value = "Nhập liệu";
+                        editJobSalaryInputGroup.style.display = "flex";
+                        editJobCustomSalary.value = salary.replace(" triệu VNĐ/Tháng", "");
+                    }
+                    editJobSalaryHidden.value = salary;
+
+                    // Điền Địa điểm
+                    await loadEditProvinces();
+                    if (location) {
+                        const parts = location.split(', ');
+                        if (parts.length >= 2) {
+                            const districtName = parts[0].trim();
+                            const provinceName = parts[1].trim();
+
+                            editJobProvinceSelect.value = provinceName;
+                            populateEditDistricts(provinceName);
+                            editJobDistrictSelect.value = districtName;
+                        } else {
+                            editJobProvinceSelect.value = location.trim();
+                        }
+                    }
+                    editJobLocationHidden.value = location;
+
+                    // Show modal
+                    const modal = new bootstrap.Modal(editJobModalEl);
+                    modal.show();
+                });
+            });
         });
     </script>
 }
