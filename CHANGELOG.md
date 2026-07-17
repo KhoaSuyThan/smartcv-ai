@@ -5,6 +5,24 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-07-17] - Sửa lỗi giao diện chế độ tối (Dark Mode) và đồng bộ ô nhập liệu cho các trang Hỗ trợ (Contact & Terms)
+
+### Changed
+- Khắc phục lỗi tương phản màu chữ và nhãn trong Dark Mode cho trang Liên hệ (`Views/Support/Contact.cshtml`): Chuyển màu nền sang CSS class có override `#0f172a`, định nghĩa lại các biến màu `--p-blue` thành màu sáng `#6ea8fe` khi ở chế độ tối, nâng cấp và đồng bộ ô nhập liệu từ kiểu gạch dưới sang dạng hộp bo tròn 4 cạnh (`16px`), di chuyển nhãn lên phía trên độc lập và tạo giao diện đồng bộ tuyệt đối với textarea ở cả hai chế độ sáng/tối.
+- Khắc phục lỗi màu chữ tối/tàng hình và nền icon chói mắt trong Dark Mode cho trang Điều khoản (`Views/Support/Terms.cshtml`): Chuyển màu nền trang sang CSS class có override `#0f172a`, sửa lỗi chữ tàng hình của mục bảo mật dữ liệu bằng cách ép màu nền `#0f172a` và màu chữ sáng `#e2e8f0` cho các thẻ div con, làm mờ nền icon (`.icon-shape`) với độ mờ `rgba` và làm sáng màu chữ icon tương ứng, tối ưu hóa danh sách menu mục lục bên trái khi ở chế độ active (`color: #6ea8fe`) và inactive (`color: #94a3b8`).
+
+## [2026-07-17] - Nâng cấp giao diện trang Chi tiết công việc: Cấu trúc 2 cột, Thiết kế Premium và Tối ưu hóa Dark Mode
+
+### Added
+- Thêm thuộc tính `ViewBag.CompanyID` trong Action `Details` của `HomeController.cs` để hỗ trợ liên kết động sang trang chi tiết công ty.
+
+### Changed
+- Cải thiện giao diện trang Chi tiết việc làm (`Home/Details.cshtml`) sang cấu trúc 2 cột hiện đại (Cột chính 70% chứa JD/Yêu cầu và Cột bên 30% chứa Sidebar cố định thông tin chung và thao tác Ứng tuyển nhanh).
+- Tích hợp font chữ sang trọng `Plus Jakarta Sans` cùng phong cách thiết kế Glassmorphism chuyên nghiệp, bo góc mềm mại (`1.5rem`), và hiệu ứng đổ bóng mượt mà.
+- Thiết kế lại các thẻ badge hiển thị thông tin lương, ngày đăng, hạn nộp bằng các tông màu pastel dịu mắt hỗ trợ hoàn hảo cho cả Light Mode và Dark Mode.
+- Đồng bộ giao diện chế độ tối (Dark Mode) cao cấp cho cả phần chi tiết việc làm lẫn Modal ứng tuyển nhanh chọn CV, khắc phục triệt để các lỗi chữ tối bị chìm trên nền đen.
+- Sửa lỗi biên dịch Razor bằng cách escape ký tự `@@` cho các lệnh CSS import font chữ từ Google Fonts.
+
 ## [2026-07-16] - Hiện đại hóa giao diện quản trị Admin: Tích hợp Modal Popup và Tối ưu hóa Dark Mode
 
 ### Added

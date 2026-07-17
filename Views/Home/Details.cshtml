@@ -1,117 +1,270 @@
 @model DoAnCS.Models.JobDto
 
 <style>
-    body {
-        background-color: #f8f9fa;
+    /* ==========================================
+       IMPORT FONT CHỮ SANG TRỌNG & THIẾT LẬP CHUNG
+       ========================================== */
+    @@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    .job-details-container {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
-    .job-detail-card {
+    body {
+        background-color: #f4f6f9;
+        transition: background-color 0.3s;
+    }
+
+    /* Nút quay lại danh sách việc làm */
+    .btn-back-to-jobs {
+        transition: all 0.2s ease-in-out;
+        font-weight: 600;
+        color: #64748b;
+    }
+    .btn-back-to-jobs:hover {
+        color: #4f46e5 !important;
+        transform: translateX(-4px);
+    }
+
+    /* ==========================================
+       HERO CARD CHỨA THÔNG TIN ĐẦU TIÊU ĐỀ
+       ========================================== */
+    .job-hero-card {
         background: #ffffff;
         border-radius: 1.5rem;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-        border: none;
+        position: relative;
+        border: 1px solid rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.03);
     }
 
-    .company-logo-img {
-        width: 80px;
-        height: 80px;
-        object-fit: contain;
-        border-radius: 1rem;
-        border: 1px solid #f3f4f6;
+    .company-logo-wrapper {
         background: #ffffff;
-        padding: 0.5rem;
+        border: 1px solid #f1f5f9;
+        border-radius: 1.25rem;
+        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
+        transition: transform 0.3s;
+    }
+    .job-hero-card:hover .company-logo-wrapper {
+        transform: scale(1.03);
+    }
+
+    .company-logo-img-large {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .job-title-text {
+        font-size: 1.8rem;
+        letter-spacing: -0.02em;
+        line-height: 1.3;
+    }
+
+    .company-link-hover {
+        transition: color 0.2s;
+    }
+    .company-link-hover:hover {
+        color: #4f46e5 !important;
+        text-decoration: underline !important;
+    }
+
+    .bullet-dot {
+        width: 5px;
+        height: 5px;
+        background-color: #cbd5e1;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    /* Badges tóm tắt chất lượng cao */
+    .badge-premium-success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #d1fae5;
+        font-weight: 600;
+    }
+    .badge-premium-primary {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #e0e7ff;
+        font-weight: 600;
+    }
+    .badge-premium-danger {
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #ffe4e6;
+        font-weight: 600;
+    }
+
+    /* ==========================================
+       CỘT CHÍNH: CHI TIẾT MÔ TẢ & YÊU CẦU
+       ========================================== */
+    .job-main-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.03);
+    }
+
+    .section-title {
+        position: relative;
+        padding-left: 14px;
+        letter-spacing: -0.01em;
+    }
+
+    .title-strip {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        bottom: 4px;
+        width: 4px;
+        background-color: #4f46e5;
+        border-radius: 2px;
     }
 
     .job-description {
         color: #4b5563;
-        line-height: 1.8;
+        line-height: 1.85;
         font-size: 1.05rem;
+        text-align: justify;
     }
 
-    /* Buttons */
-    .btn-apply-1click {
+    /* Định dạng danh sách nếu có */
+    .job-description ul, .job-description ol {
+        padding-left: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .job-description li {
+        margin-bottom: 0.5rem;
+    }
+
+    /* ==========================================
+       CỘT BÊN: STICKY SIDEBAR & BUTTONS
+       ========================================== */
+    .job-sidebar-sticky {
+        position: sticky;
+        top: 90px;
+    }
+
+    .job-sidebar-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.04) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.03);
+    }
+
+    /* Ô thông tin tóm tắt nhanh */
+    .info-item {
+        background-color: #f8fafc;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    .info-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    }
+
+    .info-item-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .bg-success-light { background: #d1fae5; }
+    .bg-primary-light { background: #e0f2fe; }
+    .bg-danger-light { background: #ffe4e6; }
+    .bg-indigo-light { background: #e0e7ff; }
+
+    /* Nút ứng tuyển sang trọng */
+    .btn-apply-premium {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        color: white;
+        color: white !important;
         border: none;
         transition: all 0.3s ease;
     }
-    .btn-apply-1click:hover {
+    .btn-apply-premium:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
-        color: white;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
     }
-    .btn-outline-primary {
-        color: #4f46e5;
-        border-color: #4f46e5;
+
+    .btn-login-premium {
+        background: #eef2ff;
+        color: #4f46e5 !important;
+        border: none;
         transition: all 0.3s ease;
     }
-    .btn-outline-primary:hover {
-        background: #4f46e5;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
-    }
-    .btn-login {
+    .btn-login-premium:hover {
         background: #e0e7ff;
-        color: #4338ca;
-        border: none;
-        transition: all 0.3s ease;
-    }
-    .btn-login:hover {
-        background: #c7d2fe;
-        color: #3730a3;
         transform: translateY(-2px);
     }
 
-    /* Modal Styles */
+    .btn-outline-premium {
+        color: #4f46e5 !important;
+        border: 1.5px solid #4f46e5;
+        background: transparent;
+        transition: all 0.3s ease;
+    }
+    .btn-outline-premium:hover {
+        background: #4f46e5;
+        color: white !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(79, 70, 229, 0.15);
+    }
+
+    /* ==========================================
+       MODAL POPUP ỨNG TUYỂN DỄ DÀNG
+       ========================================== */
     .modal-content {
         border-radius: 1.5rem;
         border: none;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
     }
     .modal-header-gradient {
         background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         color: white;
         border-bottom: none;
         padding: 1.5rem;
-        border-top-left-radius: 1.5rem;
-        border-top-right-radius: 1.5rem;
     }
     
     .cursor-pointer { cursor: pointer; }
     .transition-all { transition: all 0.2s ease-in-out; }
     
     .cv-card-inner {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
         border-radius: 1rem !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+        background: #ffffff;
     }
-
     .cv-card-inner:hover {
         border-color: #a5b4fc !important;
-        background-color: #e0e7ff;
+        background-color: #f8fafc;
         transform: translateY(-2px);
     }
-    
     .cv-card-inner.selected {
         border-color: #4f46e5 !important;
         border-width: 2px !important;
-        background-color: #e0e7ff;
+        background-color: #f5f3ff;
     }
     
-    /* Custom Radio Styling */
+    /* Thiết kế nút Radio tùy chọn */
     .custom-radio {
         width: 22px;
         height: 22px;
-        border: 2px solid #d1d5db;
+        border: 2px solid #cbd5e1;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s;
     }
-    
     .cv-card-inner.selected .custom-radio {
         border-color: #4f46e5;
     }
@@ -125,7 +278,6 @@
         transform: scale(0.5);
         transition: all 0.2s;
     }
-    
     .cv-card-inner.selected .radio-dot {
         opacity: 1;
         transform: scale(1);
@@ -145,150 +297,266 @@
     /* ==========================================
        ĐỒNG BỘ DARK MODE CAO CẤP (PREMIUM LOOK)
        ========================================== */
-    [data-bs-theme="dark"] .job-detail-card {
-        background: #111827 !important; /* Nền Slate-900 sang trọng */
-        border: 1px solid #1e293b !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
-    }
-
-    [data-bs-theme="dark"] .job-description {
-        color: #cbd5e1 !important; /* Chữ mô tả màu Slate-300 dễ đọc, tương phản xuất sắc */
-    }
-
-    [data-bs-theme="dark"] .company-logo-img {
-        background: #ffffff !important;
-        border-color: #e5e7eb !important;
-    }
-
-    [data-bs-theme="dark"] .text-secondary {
-        color: #9ca3af !important; /* Slate-400 */
-    }
-
-    [data-bs-theme="dark"] .text-dark {
-        color: #f3f4f6 !important; /* Slate-100 */
-    }
-
-    [data-bs-theme="dark"] hr {
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        opacity: 0.15;
-    }
-
-    /* Modal & CV Selection trong Dark Mode */
-    [data-bs-theme="dark"] .modal-content {
-        background-color: #0f172a !important; /* Nền Slate-900 */
-        border: 1px solid #1e293b !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-    }
-
-    [data-bs-theme="dark"] .modal-body,
-    [data-bs-theme="dark"] .modal-footer {
+    [data-bs-theme="dark"] body {
         background-color: #0f172a !important;
     }
 
-    [data-bs-theme="dark"] .modal-body .bg-white {
-        background-color: #1e293b !important; /* Slate-800 */
+    [data-bs-theme="dark"] .job-hero-card,
+    [data-bs-theme="dark"] .job-main-card,
+    [data-bs-theme="dark"] .job-sidebar-card {
+        background: #1e293b !important;
+        border-color: rgba(255, 255, 255, 0.05) !important;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3) !important;
     }
 
-    [data-bs-theme="dark"] .modal-body .text-dark {
-        color: #f1f5f9 !important;
+    [data-bs-theme="dark"] .text-dark {
+        color: #f8fafc !important;
     }
 
-    [data-bs-theme="dark"] .modal-body .text-muted {
+    [data-bs-theme="dark"] .text-secondary {
         color: #94a3b8 !important;
     }
 
-    [data-bs-theme="dark"] .cv-card-inner {
-        background: #1e293b !important; /* Slate-800 */
+    [data-bs-theme="dark"] .company-logo-wrapper {
+        background: #ffffff !important;
         border-color: #334155 !important;
     }
 
+    [data-bs-theme="dark"] .info-item {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .info-item-value {
+        color: #f1f5f9 !important;
+    }
+    [data-bs-theme="dark"] .info-item-value.text-success {
+        color: #34d399 !important;
+    }
+    [data-bs-theme="dark"] .info-item-value.text-danger {
+        color: #f87171 !important;
+    }
+
+    [data-bs-theme="dark"] .badge-premium-success {
+        background: rgba(16, 185, 129, 0.1) !important;
+        color: #34d399 !important;
+        border-color: rgba(16, 185, 129, 0.2) !important;
+    }
+    [data-bs-theme="dark"] .badge-premium-primary {
+        background: rgba(79, 70, 229, 0.1) !important;
+        color: #818cf8 !important;
+        border-color: rgba(79, 70, 229, 0.2) !important;
+    }
+    [data-bs-theme="dark"] .badge-premium-danger {
+        background: rgba(244, 63, 94, 0.1) !important;
+        color: #fb7185 !important;
+        border-color: rgba(244, 63, 94, 0.2) !important;
+    }
+
+    [data-bs-theme="dark"] .job-description {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .modal-content,
+    [data-bs-theme="dark"] .modal-body,
+    [data-bs-theme="dark"] .modal-footer {
+        background-color: #1e293b !important;
+    }
+
+    [data-bs-theme="dark"] .modal-body .bg-white,
+    [data-bs-theme="dark"] .modal-body .bg-light {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] .cv-card-inner {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
     [data-bs-theme="dark"] .cv-card-inner:hover {
         border-color: #6366f1 !important;
-        background-color: #25235c !important; /* Dark Indigo-950 */
+        background-color: #1e293b !important;
     }
-
     [data-bs-theme="dark"] .cv-card-inner.selected {
         border-color: #6366f1 !important;
-        background-color: #25235c !important;
+        background-color: #1e1b4b !important;
     }
-
     [data-bs-theme="dark"] .cv-card-inner .text-dark {
         color: #f1f5f9 !important;
     }
 
-    [data-bs-theme="dark"] .cv-card-inner .text-muted {
-        color: #94a3b8 !important;
-    }
-
     [data-bs-theme="dark"] .btn-close {
-        filter: invert(1) grayscale(1) brightness(2); /* Làm sáng nút close của modal */
+        filter: invert(1) grayscale(1) brightness(2);
     }
 </style>
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card job-detail-card p-4 p-md-5">
-                <div class="d-flex align-items-center mb-3 flex-wrap">
-                    <img src="@Model.employer_logo" class="company-logo-img me-4 mb-3 mb-md-0" onerror="this.src='https://ui-avatars.com/api/?name=@(Model.employer_name)&background=e0e7ff&color=4338ca&size=80'">
-                    <div>
-                        <h2 class="fw-bold mb-2 text-dark">@Model.job_title</h2>
-                        <p class="mb-2 text-secondary fs-5">
-                            <i class='bx bx-building-house text-primary me-1'></i><span class="text-dark fw-bold me-3">@Model.employer_name</span>
-                            <i class='bx bx-map text-primary me-1'></i>@Model.job_city
-                        </p>
-                        <div class="d-flex flex-wrap gap-2 mt-2">
-                            @if (!string.IsNullOrEmpty(Model.job_salary))
-                            {
-                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
-                                    <i class="fas fa-money-bill-wave me-1"></i> @Model.job_salary
-                                </span>
-                            }
-                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
-                                <i class="far fa-clock me-1"></i> Ngày đăng: @Model.job_created_at.ToString("dd/MM/yyyy")
-                            </span>
-                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-2 fs-6 rounded-pill shadow-sm">
-                                <i class="far fa-calendar-times me-1"></i> Hạn nộp: @(Model.job_deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")
-                            </span>
-                        </div>
+<div class="container py-4 job-details-container">
+    <!-- Nút quay lại tiện lợi -->
+    <div class="mb-4">
+        <a href="/Home/Jobs" class="btn-back-to-jobs text-decoration-none d-inline-flex align-items-center gap-2">
+            <i class='bx bx-left-arrow-alt fs-4'></i> Quay lại danh sách việc làm
+        </a>
+    </div>
+
+    <!-- Khung tiêu đề chính Hero Card -->
+    <div class="card job-hero-card border-0 shadow-sm overflow-hidden mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center g-4">
+                <div class="col-auto">
+                    <div class="company-logo-wrapper shadow-sm">
+                        <img src="@Model.employer_logo" class="company-logo-img-large" onerror="this.src='https://ui-avatars.com/api/?name=@(Model.employer_name)&background=e0e7ff&color=4338ca&size=96'">
                     </div>
                 </div>
+                <div class="col">
+                    <h1 class="job-title-text fw-bold text-dark mb-2">@Model.job_title</h1>
+                    <div class="d-flex flex-wrap align-items-center gap-3 text-secondary mb-3">
+                        <span class="d-flex align-items-center gap-1">
+                            <i class='bx bx-building-house text-indigo fs-5'></i>
+                            @if (ViewBag.CompanyID != null)
+                            {
+                                <a href="/Companies/Details/@ViewBag.CompanyID" class="text-dark fw-bold text-decoration-none company-link-hover">@Model.employer_name</a>
+                            }
+                            else
+                            {
+                                <span class="text-dark fw-bold">@Model.employer_name</span>
+                            }
+                        </span>
+                        <span class="bullet-dot"></span>
+                        <span class="d-flex align-items-center gap-1">
+                            <i class='bx bx-map text-indigo fs-5'></i> @Model.job_city
+                        </span>
+                    </div>
+                    
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (!string.IsNullOrEmpty(Model.job_salary))
+                        {
+                            <span class="badge badge-premium-success px-3 py-2 rounded-pill shadow-sm">
+                                <i class="fas fa-money-bill-wave me-1"></i> @Model.job_salary
+                            </span>
+                        }
+                        <span class="badge badge-premium-primary px-3 py-2 rounded-pill shadow-sm">
+                            <i class="far fa-clock me-1"></i> Đăng ngày: @Model.job_created_at.ToString("dd/MM/yyyy")
+                        </span>
+                        <span class="badge badge-premium-danger px-3 py-2 rounded-pill shadow-sm">
+                            <i class="far fa-calendar-times me-1"></i> Hạn nộp: @(Model.job_deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <hr class="text-muted opacity-25 my-4">
-
-                <h5 class="fw-bold mb-3 text-dark"><i class='bx bx-detail text-primary me-2'></i>Mô tả công việc</h5>
-                <div class="job-description mb-4 text-break" style="text-align: justify;">
-                    @Html.Raw(Model.job_description?.Replace("\n", "<br/>") ?? "Đang cập nhật")
+    <!-- Bố cục lưới thông tin chính -->
+    <div class="row g-4">
+        <!-- Cột Trái (Chi tiết công việc / 70% width) -->
+        <div class="col-lg-8">
+            <div class="card job-main-card border-0 shadow-sm p-4 p-md-5 mb-4">
+                <div class="job-section mb-5">
+                    <h4 class="fw-bold mb-4 text-dark d-flex align-items-center gap-2 section-title">
+                        <span class="title-strip"></span>
+                        <i class='bx bx-detail text-indigo fs-4'></i> Mô tả công việc
+                    </h4>
+                    <div class="job-description text-break">
+                        @Html.Raw(Model.job_description?.Replace("\n", "<br/>") ?? "Đang cập nhật")
+                    </div>
                 </div>
 
                 @if (!string.IsNullOrEmpty(Model.job_requirements))
                 {
-                    <h5 class="fw-bold mb-3 text-dark mt-4"><i class='bx bx-check-shield text-success me-2'></i>Yêu cầu ứng viên</h5>
-                    <div class="job-description text-break" style="text-align: justify;">
-                        @Html.Raw(Model.job_requirements.Replace("\n", "<br/>"))
+                    <div class="job-section">
+                        <h4 class="fw-bold mb-4 text-dark d-flex align-items-center gap-2 section-title">
+                            <span class="title-strip bg-success"></span>
+                            <i class='bx bx-check-shield text-success fs-4'></i> Yêu cầu ứng viên
+                        </h4>
+                        <div class="job-description text-break">
+                            @Html.Raw(Model.job_requirements.Replace("\n", "<br/>"))
+                        </div>
                     </div>
                 }
+            </div>
+        </div>
 
-                <div class="mt-5 d-flex gap-3 flex-wrap">
-                    @if (!string.IsNullOrEmpty(Model.job_apply_link) && Model.job_apply_link != "#")
-                    {
-                        <a href="@Model.job_apply_link" target="_blank" class="btn btn-outline-primary btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 30%;">
-                            Website Công ty <i class="fas fa-external-link-alt ms-2"></i>
-                        </a>
-                    }
+        <!-- Cột Phải (Sidebar Hành động / 30% width) -->
+        <div class="col-lg-4">
+            <div class="job-sidebar-sticky">
+                <!-- Hộp thao tác nộp đơn -->
+                <div class="card job-sidebar-card border-0 shadow-sm p-4 mb-4 text-center">
+                    <h5 class="fw-bold mb-3 text-dark">Hồ sơ ứng tuyển</h5>
+                    <p class="text-secondary small mb-4">Nhấp vào nút bên dưới để gửi hồ sơ trực tuyến trực tiếp đến nhà tuyển dụng.</p>
+                    
+                    <div class="d-grid gap-3">
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("User"))
+                        {
+                            <button type="button" class="btn btn-apply-premium py-3 rounded-4 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#applyModal">
+                                <i class="fas fa-paper-plane"></i> Ứng tuyển nhanh 1-Click
+                            </button>
+                        }
+                        else if (!User.Identity.IsAuthenticated)
+                        {
+                            <a href="/Account/Login?returnUrl=/Home/Details/@Model.job_id" class="btn btn-login-premium py-3 rounded-4 fw-bold d-flex align-items-center justify-content-center gap-2">
+                                <i class="fas fa-sign-in-alt"></i> Đăng nhập để ứng tuyển
+                            </a>
+                        }
 
-                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("User"))
-                    {
-                        <button type="button" class="btn btn-apply-1click btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 60%;" data-bs-toggle="modal" data-bs-target="#applyModal">
-                            Ứng tuyển nhanh 1-Click <i class="fas fa-paper-plane ms-2"></i>
-                        </button>
-                    }
-                    else if (!User.Identity.IsAuthenticated)
-                    {
-                        <a href="/Account/Login?returnUrl=/Home/Details/@Model.job_id" class="btn btn-login btn-lg rounded-pill fw-bold flex-grow-1" style="flex-basis: 60%;">
-                            Đăng nhập để Ứng tuyển <i class="fas fa-sign-in-alt ms-2"></i>
-                        </a>
-                    }
+                        @if (!string.IsNullOrEmpty(Model.job_apply_link) && Model.job_apply_link != "#")
+                        {
+                            <a href="@Model.job_apply_link" target="_blank" class="btn btn-outline-premium py-3 rounded-4 fw-bold d-flex align-items-center justify-content-center gap-2">
+                                Website Công ty <i class="fas fa-external-link-alt small"></i>
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Bảng tổng hợp thông tin nhanh -->
+                <div class="card job-sidebar-card border-0 shadow-sm p-4 mb-4">
+                    <h5 class="fw-bold mb-4 text-dark d-flex align-items-center gap-2">
+                        <i class='bx bx-info-circle text-indigo fs-5'></i> Thông tin chung
+                    </h5>
+                    
+                    <div class="info-items-list d-flex flex-column gap-3">
+                        <!-- Mức lương -->
+                        <div class="info-item d-flex align-items-center gap-3 p-3 rounded-4">
+                            <div class="info-item-icon bg-success-light text-success">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div>
+                                <span class="info-item-label text-secondary d-block">Mức lương</span>
+                                <span class="info-item-value fw-bold text-success">@(string.IsNullOrEmpty(Model.job_salary) ? "Thỏa thuận" : Model.job_salary)</span>
+                            </div>
+                        </div>
+
+                        <!-- Địa điểm -->
+                        <div class="info-item d-flex align-items-center gap-3 p-3 rounded-4">
+                            <div class="info-item-icon bg-primary-light text-primary">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <span class="info-item-label text-secondary d-block">Khu vực</span>
+                                <span class="info-item-value fw-bold text-dark text-truncate" style="max-width: 180px;">@Model.job_city</span>
+                            </div>
+                        </div>
+
+                        <!-- Hạn nộp -->
+                        <div class="info-item d-flex align-items-center gap-3 p-3 rounded-4">
+                            <div class="info-item-icon bg-danger-light text-danger">
+                                <i class="far fa-calendar-alt"></i>
+                            </div>
+                            <div>
+                                <span class="info-item-label text-secondary d-block">Hạn nộp hồ sơ</span>
+                                <span class="info-item-value fw-bold text-danger">@(Model.job_deadline?.ToString("dd/MM/yyyy") ?? "Liên tục")</span>
+                            </div>
+                        </div>
+
+                        <!-- Ngày đăng -->
+                        <div class="info-item d-flex align-items-center gap-3 p-3 rounded-4">
+                            <div class="info-item-icon bg-indigo-light text-indigo">
+                                <i class="far fa-clock"></i>
+                            </div>
+                            <div>
+                                <span class="info-item-label text-secondary d-block">Ngày đăng</span>
+                                <span class="info-item-value fw-bold text-dark">@Model.job_created_at.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -299,7 +567,7 @@
 <div class="modal fade" id="applyModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content overflow-hidden">
-            <!-- Modal Header -->
+            <!-- Header Modal -->
             <div class="modal-header modal-header-gradient">
                 <h5 class="modal-title fw-bold d-flex align-items-center">
                     <i class="fas fa-paper-plane me-2"></i> Xác nhận ứng tuyển
@@ -308,7 +576,7 @@
             </div>
 
             <div class="modal-body p-4 bg-light">
-                <!-- Job Selection Card (Read only) -->
+                <!-- Vị trí đang ứng tuyển (Chỉ xem) -->
                 <div class="mb-4">
                     <label class="form-label small fw-bold text-secondary text-uppercase mb-2">Vị trí ứng tuyển</label>
                     <div class="card border-0 shadow-sm p-3 bg-white" style="border-radius: 1rem;">
@@ -324,7 +592,7 @@
                     </div>
                 </div>
 
-                <!-- CV Selection -->
+                <!-- Danh sách CV của người dùng -->
                 <div class="mb-3">
                     <div class="d-flex align-items-center mb-3">
                         <i class="fas fa-file-alt text-primary me-2"></i>
@@ -390,10 +658,10 @@
                 </div>
             </div>
             
-            <!-- Modal Footer -->
+            <!-- Footer Modal -->
             <div class="modal-footer border-top-0 bg-white p-4 d-flex gap-3">
                 <button type="button" class="btn btn-light rounded-pill px-4 flex-grow-1 fw-bold border-0 text-secondary" style="background: #f1f5f9;" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-apply-1click rounded-pill px-4 flex-grow-1 fw-bold d-flex align-items-center justify-content-center" id="btnSubmitApply">
+                <button type="button" class="btn btn-apply-premium rounded-pill px-4 flex-grow-1 fw-bold d-flex align-items-center justify-content-center" id="btnSubmitApply">
                     <i class="fas fa-paper-plane me-2"></i> Gửi Ứng tuyển
                 </button>
             </div>
@@ -401,32 +669,38 @@
     </div>
 </div>
 
+<!-- ==========================================
+     LOGIC XỬ LÝ JS: CHỌN CV & GỬI FORM ỨNG TUYỂN
+     ========================================== -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const applyForm = document.getElementById('applyForm');
         
-        // Xử lý hiệu ứng chọn CV Card
+        // Xử lý hiệu ứng click chọn CV Card linh hoạt
         const cvWrappers = document.querySelectorAll('.cv-item-wrapper');
         cvWrappers.forEach(wrapper => {
             const radio = wrapper.querySelector('input[name="selectedResumeId"]');
             const innerCard = wrapper.querySelector('.cv-card-inner');
             
             wrapper.addEventListener('click', () => {
-                // Reset all
-                cvWrappers.forEach(w => w.querySelector('.cv-card-inner').classList.remove('border-primary', 'bg-primary', 'bg-opacity-10', 'selected'));
+                // Xóa trạng thái chọn của tất cả các thẻ khác
+                cvWrappers.forEach(w => {
+                    const card = w.querySelector('.cv-card-inner');
+                    card.classList.remove('selected');
+                });
                 
-                // Set selected
+                // Kích hoạt radio và thêm class selected cho thẻ hiện tại
                 radio.checked = true;
-                innerCard.classList.add('border-primary', 'selected');
+                innerCard.classList.add('selected');
             });
 
-            // Chọn cái đầu tiên mặc định nếu có
+            // Nếu radio đã được check sẵn thì hiển thị active luôn
             if (radio && radio.checked) {
-                innerCard.classList.add('border-primary', 'selected');
+                innerCard.classList.add('selected');
             }
         });
 
-        // Submit form
+        // Xử lý gửi đơn ứng tuyển nhanh qua AJAX
         const btnSubmit = document.getElementById('btnSubmitApply');
         if (btnSubmit) {
             btnSubmit.addEventListener('click', async function () {
@@ -446,6 +720,7 @@
                 btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi...';
 
                 try {
+                    // Gửi request POST bất đồng bộ tới API ứng tuyển
                     const response = await fetch('/Jobs/ApplyOneClick', {
                         method: 'POST',
                         headers: {
@@ -460,7 +735,7 @@
                     const result = await response.json();
                     
                     if (result.success) {
-                        // Nếu trang chủ có dùng SweetAlert2 thì dùng, không thì alert
+                        // Hiển thị thông báo thành công bằng SweetAlert2 hoặc alert mặc định
                         if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 icon: 'success',
@@ -492,4 +767,3 @@
         }
     });
 </script>
-</div>

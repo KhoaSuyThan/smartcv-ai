@@ -2,7 +2,7 @@
     ViewData["Title"] = "Điều khoản sử dụng";
 }
 
-<div class="terms-page-wrapper py-5" style="background-color: #f8fbff; min-height: 100vh;">
+<div class="terms-page-wrapper py-5" style="min-height: 100vh;">
     <div class="container">
         @* --- BREADCRUMB --- *@
         <nav aria-label="breadcrumb" class="mb-4">
@@ -154,8 +154,12 @@
 
 <style>
     /* TYPOGRAPHY NÂNG CAO */
-    .terms-page-wrapper { font-family: 'Inter', sans-serif; }
-    p, .list-group-item { line-height: 1.8; color: #4b5563; text-align: justify; }
+    .terms-page-wrapper {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fbff;
+        transition: background-color 0.3s;
+    }
+    .terms-page-wrapper p, .terms-page-wrapper .list-group-item { line-height: 1.8; color: #4b5563; text-align: justify; }
     
     /* MỤC LỤC NAVBAR */
     .nav-link-terms {
@@ -174,6 +178,33 @@
         color: #0d6efd !important; 
         font-weight: 700; 
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Dark Mode Overrides */
+    [data-bs-theme="dark"] .terms-page-wrapper {
+        background-color: #0f172a !important;
+    }
+    [data-bs-theme="dark"] .terms-page-wrapper p,
+    [data-bs-theme="dark"] .terms-page-wrapper .list-group-item {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .nav-link-terms {
+        color: #94a3b8;
+    }
+    [data-bs-theme="dark"] .nav-link-terms:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #6ea8fe !important;
+    }
+    [data-bs-theme="dark"] .nav-link-terms.active {
+        background: rgba(13, 110, 253, 0.25) !important;
+        color: #6ea8fe !important;
+    }
+    [data-bs-theme="dark"] .terms-content .border {
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .terms-content .bg-white {
+        background-color: #0f172a !important;
+        color: #e2e8f0 !important;
     }
 
     /* 2. CẢI THIỆN BLOCK ĐIỀU KHOẢN THEO PHẢN HỒI (Phỏng theo image_4.png) */
@@ -202,6 +233,22 @@
     .icon-shape-dark { color: #ffffff; }
     .icon-shape-dark .icon-shape { background-color: #1f2937; } /* Nền tối cho mục dark */
 
+    /* Dark Mode Icon Overrides */
+    [data-bs-theme="dark"] .icon-shape-primary { color: #60a5fa !important; }
+    [data-bs-theme="dark"] .icon-shape-primary .icon-shape { background-color: rgba(96, 165, 250, 0.2) !important; }
+
+    [data-bs-theme="dark"] .icon-shape-success { color: #34d399 !important; }
+    [data-bs-theme="dark"] .icon-shape-success .icon-shape { background-color: rgba(52, 211, 153, 0.2) !important; }
+
+    [data-bs-theme="dark"] .icon-shape-warning { color: #fbbf24 !important; }
+    [data-bs-theme="dark"] .icon-shape-warning .icon-shape { background-color: rgba(251, 191, 36, 0.2) !important; }
+
+    [data-bs-theme="dark"] .icon-shape-danger { color: #f87171 !important; }
+    [data-bs-theme="dark"] .icon-shape-danger .icon-shape { background-color: rgba(248, 113, 113, 0.2) !important; }
+
+    [data-bs-theme="dark"] .icon-shape-dark { color: #e2e8f0 !important; }
+    [data-bs-theme="dark"] .icon-shape-dark .icon-shape { background-color: rgba(226, 232, 240, 0.1) !important; }
+
     .icon-shape { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
     .terms-block:hover .icon-shape { transform: rotate(10deg); }
 
@@ -214,6 +261,9 @@
         display: inline-block; 
         width: 1em;
         margin-left: -1em;
+    }
+    [data-bs-theme="dark"] .custom-list .list-group-item::before {
+        color: #6ea8fe !important;
     }
 
     .btn-white { background: white; color: #0d6efd; border: none; transition: 0.3s; }
