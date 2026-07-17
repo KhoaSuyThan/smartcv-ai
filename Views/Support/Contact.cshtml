@@ -2,7 +2,7 @@
     ViewData["Title"] = "Liên hệ với chúng tôi";
 }
 
-<div class="contact-page-wrapper py-5 position-relative" style="min-height: 90vh; overflow: hidden; background: #f8fbff;">
+<div class="contact-page-wrapper py-5 position-relative" style="min-height: 90vh; overflow: hidden;">
     <!-- Animated Background Elements -->
     <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style="z-index: 0; pointer-events: none;">
         <div class="blob-bg position-absolute" style="width: 600px; height: 600px; background: radial-gradient(circle, rgba(13, 110, 253, 0.15) 0%, rgba(255,255,255,0) 70%); top: -200px; left: -200px; filter: blur(60px); animation: move 20s infinite alternate;"></div>
@@ -89,26 +89,29 @@
                         }
 
                         <div class="col-md-6">
-                            <div class="input-group-premium">
-                                <input type="text" name="Name" required placeholder=" ">
-                                <label>Họ và tên</label>
-                                <div class="bar"></div>
+                            <div class="textarea-group-premium">
+                                <label class="fw-bold small text-secondary mb-2">Họ và tên</label>
+                                <div class="input-group-premium">
+                                    <input type="text" name="Name" required placeholder="Nhập họ và tên...">
+                                </div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
-                            <div class="input-group-premium">
-                                <input type="email" name="Email" required placeholder=" ">
-                                <label>Địa chỉ Email</label>
-                                <div class="bar"></div>
+                            <div class="textarea-group-premium">
+                                <label class="fw-bold small text-secondary mb-2">Địa chỉ Email</label>
+                                <div class="input-group-premium">
+                                    <input type="email" name="Email" required placeholder="name@example.com">
+                                </div>
                             </div>
                         </div>
 
                         <div class="col-12">
-                            <div class="input-group-premium">
-                                <input type="text" name="Subject" required placeholder=" ">
-                                <label>Tiêu đề</label>
-                                <div class="bar"></div>
+                            <div class="textarea-group-premium">
+                                <label class="fw-bold small text-secondary mb-2">Tiêu đề</label>
+                                <div class="input-group-premium">
+                                    <input type="text" name="Subject" required placeholder="Nhập tiêu đề tin nhắn...">
+                                </div>
                             </div>
                         </div>
 
@@ -150,6 +153,45 @@
         --glass-white: rgba(255, 255, 255, 0.75);
     }
 
+    .contact-page-wrapper {
+        background: #f8fbff;
+        transition: background 0.3s;
+    }
+
+    /* Dark Mode Overrides */
+    [data-bs-theme="dark"] {
+        --p-blue: #6ea8fe;
+        --p-purple: #a370f7;
+        --glass-white: rgba(30, 30, 30, 0.7);
+    }
+    [data-bs-theme="dark"] .contact-page-wrapper {
+        background: #0f172a !important;
+    }
+    [data-bs-theme="dark"] .input-group-premium input {
+        background: rgba(0, 0, 0, 0.2) !important;
+        border-color: #334155 !important;
+        color: #e9ecef !important;
+    }
+    [data-bs-theme="dark"] .input-group-premium input:focus {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border-color: var(--p-blue) !important;
+    }
+    [data-bs-theme="dark"] .textarea-group-premium textarea {
+        background: rgba(0, 0, 0, 0.2) !important;
+        border-color: #334155 !important;
+        color: #e9ecef !important;
+    }
+    [data-bs-theme="dark"] .textarea-group-premium textarea:focus {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border-color: var(--p-blue) !important;
+    }
+    [data-bs-theme="dark"] .info-card:hover {
+        background: rgba(255, 255, 255, 0.05) !important;
+    }
+    [data-bs-theme="dark"] .illustration-wrapper {
+        background: rgba(30, 30, 30, 0.5) !important;
+    }
+
     .fw-black { font-weight: 900; }
     
     .premium-glass-card {
@@ -178,54 +220,28 @@
         box-shadow: 0 10px 20px rgba(0,0,0,0.03);
     }
 
-    /* Floating Label Inputs */
+    /* Premium Inputs */
     .input-group-premium {
         position: relative;
-        margin-top: 10px;
+        width: 100%;
     }
 
     .input-group-premium input {
         width: 100%;
-        padding: 12px 0;
-        font-size: 1rem;
-        color: #333;
-        border: none;
-        border-bottom: 2px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 15px 20px;
+        border: 2px solid #eef2f7;
+        background: rgba(255, 255, 255, 0.5);
         outline: none;
-        background: transparent;
-        transition: 0.3s;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        color: #333;
     }
 
-    .input-group-premium label {
-        position: absolute;
-        top: 12px;
-        left: 0;
-        color: #999;
-        font-size: 1rem;
-        pointer-events: none;
-        transition: 0.3s;
-    }
-
-    .input-group-premium input:focus ~ label,
-    .input-group-premium input:not(:placeholder-shown) ~ label {
-        top: -18px;
-        font-size: 0.85rem;
-        color: var(--p-blue);
-        font-weight: 700;
-    }
-
-    .input-group-premium .bar {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        height: 2px;
-        width: 0;
-        background: var(--p-blue);
-        transition: 0.4s;
-    }
-
-    .input-group-premium input:focus ~ .bar {
-        width: 100%;
+    .input-group-premium input:focus {
+        border-color: var(--p-blue);
+        background: white;
+        box-shadow: 0 8px 20px rgba(13, 110, 253, 0.05);
     }
 
     /* Textarea */

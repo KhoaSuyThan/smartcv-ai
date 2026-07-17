@@ -355,7 +355,10 @@ namespace DoAnCS.Controllers
                 }
             }
 
-            // 4. Trả về View với Model là đối tượng JobDto
+            // 4. Lưu CompanyID vào ViewBag để liên kết sang trang chi tiết công ty
+            ViewBag.CompanyID = jobDb.CompanyID;
+
+            // 5. Trả về View với Model là đối tượng JobDto
             return View(jobDto);
         }
 
