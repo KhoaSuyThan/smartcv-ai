@@ -18,6 +18,18 @@
 }
 
 <style>
+    /* SCROLL REVEAL (Tự động xuất hiện từ từ chậm rãi mượt mờ khi cuộn tới) */
+    .reveal-on-scroll {
+        opacity: 0;
+        transform: translateY(60px);
+        transition: opacity 2.2s ease-out, transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, transform;
+    }
+    .reveal-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     /* TYPING CURSOR */
     .typing-text::after {
         content: "|";
@@ -952,7 +964,7 @@
             }
 
 <!-- TEMPLATES SECTION -->
-<section id="templates-section" class="section-padding bg-mesh" data-aos="fade-up" style="overflow: hidden;">
+<section id="templates-section" class="section-padding bg-mesh reveal-on-scroll" style="overflow: hidden;">
     <div class="container">
         <!-- Section Header Premium -->
         <div class="text-center mb-2">
@@ -1071,7 +1083,7 @@
 @if (Model.PartnerCompanies != null && Model.PartnerCompanies.Any())
 {
     <!-- PARTNERS SECTION -->
-    <section class="partners-section" data-aos="fade-up">
+    <section class="partners-section reveal-on-scroll">
         <div class="container">
             <div class="text-center mb-5">
                 <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3">ĐỐI TÁC TIN CẬY</span>
@@ -1096,10 +1108,10 @@
 }
 
 <!-- BLOG SECTION -->
-<section id="blog-section" class="py-5 bg-light">
+<section id="blog-section" class="py-5 bg-light reveal-on-scroll">
     <div class="container position-relative">
         <!-- Section Header -->
-        <div class="text-center mb-5" data-aos="fade-up" data-aos-anchor="#blog-section">
+        <div class="text-center mb-5">
             <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3" style="background: rgba(13,110,253,0.1); border: 1px solid rgba(13,110,253,0.2);">
                 <i class="fas fa-graduation-cap me-1"></i> KIẾN THỨC CHUYÊN GIA
             </span>
@@ -1108,7 +1120,7 @@
         </div>
 
         <!-- Carousel Container with Flanking Navigation Buttons -->
-        <div class="blog-carousel-container position-relative" data-aos="fade-up" data-aos-anchor="#blog-section" data-aos-delay="100">
+        <div class="blog-carousel-container position-relative">
             <!-- Left Side Arrow -->
             <button type="button" class="btn-blog-nav nav-side-prev" id="btnBlogPrev" aria-label="Bài trước" title="Bài trước">
                 <i class="fas fa-chevron-left"></i>
@@ -1474,6 +1486,27 @@
                 startAutoPlay();
             }
 
+            // HIỆU ỨNG TỰ ĐỘNG HIỂN THỊ TỪ TỪ KHI CUỘN TỚI 50% (SCROLL REVEAL)
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            if ('IntersectionObserver' in window && revealElements.length > 0) {
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            revealObserver.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    root: null,
+                    rootMargin: '0px 0px -35% 0px',
+                    threshold: 0.35
+                });
+
+                revealElements.forEach(el => revealObserver.observe(el));
+            } else {
+                revealElements.forEach(el => el.classList.add('is-visible'));
+            }
+
             // BLOG MODAL LOGIC (Tải từ JSON bên ngoài kèm chống Cache)
             let blogData = {};
 
@@ -1488,6 +1521,13 @@
                     console.error('Error loading blog data:', error);
                 }
             }
+
+            // Tải lại tọa độ AOS sau khi toàn bộ hình ảnh và giao diện tải xong
+            window.addEventListener('load', function () {
+                if (typeof AOS !== 'undefined') {
+                    AOS.refresh();
+                }
+            });
 
             // Gọi hàm tải dữ liệu khi trang web sẵn sàng
             loadBlogData();

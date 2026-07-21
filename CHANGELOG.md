@@ -5,7 +5,44 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-21] - Tối ưu logic tính toán Trang cuộn & Số chấm phân trang linh hoạt theo Responsive
+## [2026-07-21] - Thắt chặt ngưỡng kích hoạt Scroll Reveal (Đúng 50% chiều cao section)
+
+### Fixed & Enhanced
+- Cập nhật cấu hình `IntersectionObserver` với `rootMargin: '0px 0px -35% 0px'` và `threshold: 0.35` trong `Views/Home/Index.cshtml`.
+- Đảm bảo người dùng phải cuộn chớm sâu đến **đúng 50% kích thước section/màn hình** thì hiệu ứng hiển thị từ từ 2.2s mới bắt đầu được kích hoạt, tránh tình trạng kích hoạt sớm khi vừa chạm viền section.
+
+
+
+### Enhanced
+- Đã nâng thời gian chuyển động mượt mờ (`reveal-on-scroll`) lên **`2.2 giây`** kết hợp đường cong `ease-out` và khoảng nâng `60px`.
+- Khi người dùng cuộn đến 50% mục trước đó, khối nội dung tiếp theo sẽ từ từ trượt lên và hiện dịu mắt rất chậm rãi, đáp ứng hoàn hảo tiêu chuẩn trải nghiệm.
+
+
+
+### Enhanced
+- Đã điều chỉnh hiệu ứng hiển thị từ từ (`reveal-on-scroll`) từ 0.75s lên `1.3s` kèm đường cong thời gian `cubic-bezier(0.22, 1, 0.36, 1)`.
+- Khi người dùng cuộn đến 50% mục trước, section tiếp theo sẽ trượt từ nhẹ `50px` lên `0px` và nổi mượt mờ rất chậm rãi, êm dịu đúng theo mong muốn.
+
+
+
+### Enhanced & Fixed
+- Triển khai `IntersectionObserver` tự động kích hoạt hiệu ứng hiển thị từ từ (`reveal-on-scroll`) với `cubic-bezier(0.16, 1, 0.3, 1)` độ dài `0.75s`.
+- Khi người dùng cuộn tầm 50% kích thước màn hình/mục trước đó đến các phần (`Kho mẫu CV`, `Đối tác công ty lớn`, `Cẩm nang nghề nghiệp`), section mục tiêu sẽ tự động trượt lên và hiện mượt mờ sang trọng, vừa khớp với mong muốn trải nghiệm của người dùng.
+
+
+
+### Fixed
+- Gỡ bỏ thuộc tính `data-aos="fade-up"` tại `templates-section`, `partners-section`, và `blog-section` trong `Views/Home/Index.cshtml`.
+- Đảm bảo khi người dùng cuộn đến 1/2 của mục trước đó, các phần tiếp theo sẽ xuất hiện ngay lập tức sắc nét và mượt mà, loại bỏ triệt để hiện tượng kẹt khoảng trắng/khuất màn hình.
+
+
+
+### Fixed
+- Sửa lỗi trễ xuất hiện của 3 section cuối (`Views/Home/Index.cshtml`): Gỡ bỏ thuộc tính `data-aos-anchor="#blog-section"` gây bắt buộc cuộn chạm kịch đáy màn hình mới hiển thị.
+- Bổ sung `AOS.refresh()` tự động kích hoạt khi toàn bộ hình ảnh và giao diện tải xong (`window.addEventListener('load')`), giúp cập nhật chính xác tọa độ cuộn của các khối nội dung.
+- Tối ưu cấu hình AOS (`Views/Shared/_Layout.cshtml`): Chuyển `offset: 80` và `duration: 700` để các phần tử hiển thị mượt mờ tự nhiên ngay khi chớm cuộn tới.
+
+
 
 ### Fixed & Enhanced
 - Tối ưu tính toán phân trang Carousel (`Views/Home/Index.cshtml`): Xác định chính xác số bài viết hiển thị đồng thời theo kích thước màn hình (`Desktop: 3 bài`, `Tablet: 2 bài`, `Mobile: 1 bài`) để tính số nấc cuộn tối đa (`maxIndex`).
