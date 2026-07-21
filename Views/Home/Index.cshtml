@@ -104,73 +104,251 @@
 
     /* PREMIUM BLOG CARD */
     .blog-card-premium {
-        border: none;
+        border: 1px solid rgba(0,0,0,0.06);
         border-radius: 24px;
         background: #ffffff;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         cursor: pointer;
         height: 100%;
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
     }
     .blog-card-premium:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(13, 110, 253, 0.12);
+        border-color: rgba(13, 110, 253, 0.25);
+    }
+    [data-bs-theme="dark"] .blog-card-premium {
+        background: #1e1e24 !important;
+        border-color: rgba(255,255,255,0.08) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+    }
+    [data-bs-theme="dark"] .blog-card-premium:hover {
+        border-color: rgba(13, 110, 253, 0.5) !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5) !important;
     }
     .blog-card-premium .card-img-wrapper {
         position: relative;
         overflow: hidden;
         height: 220px;
+        flex-shrink: 0;
     }
     .blog-card-premium .card-img-top {
-        transition: transform 0.6s ease;
+        transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
         object-fit: cover;
         height: 100%;
         width: 100%;
     }
     .blog-card-premium:hover .card-img-top {
-        transform: scale(1.1);
+        transform: scale(1.08);
     }
     .blog-card-premium .badge-category {
         position: absolute;
-        top: 20px;
-        left: 20px;
-        padding: 8px 16px;
+        top: 16px;
+        left: 16px;
+        padding: 6px 14px;
         border-radius: 50px;
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
         z-index: 2;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        background: rgba(15, 23, 42, 0.7) !important;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    }
+    .blog-card-premium .badge-category.badge-blue {
+        border-left: 3px solid #0d6efd;
+    }
+    .blog-card-premium .badge-category.badge-green {
+        border-left: 3px solid #10b981;
+    }
+    .blog-card-premium .badge-category.badge-amber {
+        border-left: 3px solid #f59e0b;
+    }
+    .blog-card-premium .badge-category.badge-purple {
+        border-left: 3px solid #8b5cf6;
+    }
+    .blog-card-premium .badge-category.badge-teal {
+        border-left: 3px solid #06b6d4;
+    }
+    .blog-card-premium .badge-category.badge-rose {
+        border-left: 3px solid #f43f5e;
+    }
+
+    /* BLOG CAROUSEL NAVIGATION */
+    .blog-carousel-container {
+        position: relative;
+    }
+    .blog-carousel-track {
+        display: flex;
+        gap: 24px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        padding: 12px 56px 24px 56px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .blog-carousel-track::-webkit-scrollbar {
+        display: none;
+    }
+    .blog-carousel-item {
+        flex: 0 0 calc(33.333% - 16px);
+        min-width: 300px;
+    }
+    @@media (max-width: 991px) {
+        .blog-carousel-item {
+            flex: 0 0 calc(50% - 12px);
+        }
+    }
+    @@media (max-width: 575px) {
+        .blog-carousel-item {
+            flex: 0 0 100%;
+        }
+    }
+    .btn-blog-nav {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,0.12);
+        background: #ffffff;
+        color: #1a202c;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.16);
+        cursor: pointer;
+        font-size: 1.1rem;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 30;
+    }
+    .btn-blog-nav.nav-side-prev {
+        left: 0px;
+    }
+    .btn-blog-nav.nav-side-next {
+        right: 0px;
+    }
+    @@media (min-width: 768px) {
+        .btn-blog-nav.nav-side-prev {
+            left: 2px;
+        }
+        .btn-blog-nav.nav-side-next {
+            right: 2px;
+        }
+    }
+    .btn-blog-nav:hover {
+        background: #0d6efd;
+        color: #ffffff;
+        border-color: #0d6efd;
+        transform: translateY(-50%) scale(1.15);
+        box-shadow: 0 10px 28px rgba(13,110,253,0.38);
+    }
+    .btn-blog-nav:active {
+        transform: translateY(-50%) scale(0.95);
+    }
+    [data-bs-theme="dark"] .btn-blog-nav {
+        background: #1e1e24;
+        border-color: rgba(255,255,255,0.2);
+        color: #f1f5f9;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    }
+    [data-bs-theme="dark"] .btn-blog-nav:hover {
+        background: #0d6efd;
+        color: #ffffff;
+        border-color: #0d6efd;
+    }
+
+    /* BLOG CAROUSEL DOTS INDICATOR */
+    .blog-carousel-dots {
+        margin-top: 18px;
+    }
+    .blog-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: none;
+        padding: 0;
+        background: rgba(0, 0, 0, 0.18);
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .blog-dot.active {
+        width: 28px;
+        border-radius: 12px;
+        background: #0d6efd;
+        box-shadow: 0 4px 12px rgba(13,110,253,0.35);
+    }
+    .blog-dot:hover:not(.active) {
+        background: rgba(13, 110, 253, 0.5);
+    }
+    [data-bs-theme="dark"] .blog-dot {
+        background: rgba(255, 255, 255, 0.22);
+    }
+    [data-bs-theme="dark"] .blog-dot.active {
+        background: #0d6efd;
     }
     .blog-card-premium .card-body {
-        padding: 30px;
+        padding: 24px 28px 28px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
     }
     .blog-card-premium .card-title {
         font-weight: 800;
-        font-size: 1.25rem;
-        margin-bottom: 15px;
+        font-size: 1.2rem;
+        margin-bottom: 12px;
         line-height: 1.4;
         color: #1a202c;
         transition: color 0.3s ease;
+    }
+    [data-bs-theme="dark"] .blog-card-premium .card-title {
+        color: #f1f5f9;
     }
     .blog-card-premium:hover .card-title {
         color: #0d6efd;
     }
     .blog-card-premium .card-text {
-        color: #718096;
-        font-size: 0.95rem;
+        color: #64748b;
+        font-size: 0.92rem;
         line-height: 1.6;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    [data-bs-theme="dark"] .blog-card-premium .card-text {
+        color: #94a3b8;
     }
     .blog-card-premium .read-more-link {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 8px;
         font-weight: 700;
         color: #0d6efd;
         font-size: 0.9rem;
-        margin-top: 20px;
+        margin-top: auto;
+        padding-top: 12px;
+        border-top: 1px solid rgba(0,0,0,0.05);
+        transition: gap 0.3s ease;
+    }
+    [data-bs-theme="dark"] .blog-card-premium .read-more-link {
+        border-top-color: rgba(255,255,255,0.06);
+    }
+    .blog-card-premium .read-more-link i {
+        transition: transform 0.3s ease;
+    }
+    .blog-card-premium:hover .read-more-link i {
+        transform: translateX(6px);
     }
 
     /* BLOG MODAL TYPOGRAPHY */
@@ -919,67 +1097,153 @@
 
 <!-- BLOG SECTION -->
 <section id="blog-section" class="py-5 bg-light">
-    <div class="container text-center mb-5" data-aos="fade-up" data-aos-anchor="#blog-section">
-        <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3">KIẾN THỨC CHUYÊN GIA</span>
-        <h2 class="display-5 fw-bold mb-0">Cẩm nang nghề nghiệp</h2>
-        <p class="text-muted mt-2">Nâng tầm bản thân với những bí quyết từ các chuyên gia nhân sự hàng đầu.</p>
-    </div>
+    <div class="container position-relative">
+        <!-- Section Header -->
+        <div class="text-center mb-5" data-aos="fade-up" data-aos-anchor="#blog-section">
+            <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3" style="background: rgba(13,110,253,0.1); border: 1px solid rgba(13,110,253,0.2);">
+                <i class="fas fa-graduation-cap me-1"></i> KIẾN THỨC CHUYÊN GIA
+            </span>
+            <h2 class="display-5 fw-bold mb-0">Cẩm nang nghề nghiệp</h2>
+            <p class="text-muted mt-2">Nâng tầm bản thân với những bí quyết từ các chuyên gia nhân sự hàng đầu.</p>
+        </div>
 
-    <div class="container">
-        <div class="row g-4 justify-content-center">
-            <!-- Blog Item 1 -->
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-anchor="#blog-section" data-aos-delay="0">
-                <div class="blog-card-premium" onclick="openBlogModal('intro')">
-                    <div class="card-img-wrapper">
-                        <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips">
-                        <span class="badge-category bg-primary text-white">Mẹo Phỏng Vấn</span>
+        <!-- Carousel Container with Flanking Navigation Buttons -->
+        <div class="blog-carousel-container position-relative" data-aos="fade-up" data-aos-anchor="#blog-section" data-aos-delay="100">
+            <!-- Left Side Arrow -->
+            <button type="button" class="btn-blog-nav nav-side-prev" id="btnBlogPrev" aria-label="Bài trước" title="Bài trước">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <!-- Carousel Track -->
+            <div class="blog-carousel-track" id="blogTrack">
+                <!-- Blog Item 1 -->
+                <div class="blog-carousel-item">
+                    <div class="blog-card-premium" onclick="openBlogModal('intro')">
+                        <div class="card-img-wrapper">
+                            <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips">
+                            <span class="badge-category badge-blue"><i class="fas fa-comments me-1"></i> Mẹo Phỏng Vấn</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <div class="reading-time mb-2"><i class="far fa-clock text-primary"></i> 5 phút đọc</div>
+                                <h5 class="card-title">Trả lời "Giới thiệu bản thân" chuyên nghiệp</h5>
+                                <p class="card-text">Khám phá cách kể một câu chuyện sự nghiệp đầy cảm hứng, tập trung vào những giá trị thực tế bạn mang lại để chinh phục nhà tuyển dụng ngay lập tức.</p>
+                            </div>
+                            <div class="read-more-link">
+                                Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="reading-time mb-2"><i class="far fa-clock"></i> 5 phút đọc</div>
-                        <h5 class="card-title">Trả lời "Giới thiệu bản thân" chuyên nghiệp</h5>
-                        <p class="card-text">Khám phá cách kể một câu chuyện sự nghiệp đầy cảm hứng, tập trung vào những giá trị thực tế bạn mang lại để chinh phục nhà tuyển dụng ngay lập tức.</p>
-                        <div class="read-more-link">
-                            Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                </div>
+
+                <!-- Blog Item 2 -->
+                <div class="blog-carousel-item">
+                    <div class="blog-card-premium" onclick="openBlogModal('errors')">
+                        <div class="card-img-wrapper">
+                            <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing">
+                            <span class="badge-category badge-green"><i class="fas fa-file-alt me-1"></i> Hồ Sơ Chuyên Nghiệp</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <div class="reading-time mb-2"><i class="far fa-clock text-success"></i> 7 phút đọc</div>
+                                <h5 class="card-title">Top 5 sai lầm khi viết CV cho Dev IT</h5>
+                                <p class="card-text">Hướng dẫn chi tiết cách tránh những lỗi sơ đẳng về trình bày và thuật toán ATS, giúp bản hồ sơ của bạn luôn lọt vào mắt xanh của HR giữa hàng nghìn ứng viên.</p>
+                            </div>
+                            <div class="read-more-link">
+                                Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Item 3 -->
+                <div class="blog-carousel-item">
+                    <div class="blog-card-premium" onclick="openBlogModal('salary')">
+                        <div class="card-img-wrapper">
+                            <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth">
+                            <span class="badge-category badge-amber"><i class="fas fa-chart-line me-1"></i> Lộ Trình Sự Nghiệp</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <div class="reading-time mb-2"><i class="far fa-clock text-warning"></i> 10 phút đọc</div>
+                                <h5 class="card-title">Lộ trình đạt mức lương 1000$ cho Junior</h5>
+                                <p class="card-text">Lộ trình rõ ràng cho người mới bắt đầu: Từ việc tham gia dự án thực tế đến cách kết nối với các chuyên gia trong ngành để đạt được thu nhập kỳ vọng.</p>
+                            </div>
+                            <div class="read-more-link">
+                                Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Item 4 -->
+                <div class="blog-carousel-item">
+                    <div class="blog-card-premium" onclick="openBlogModal('negotiate')">
+                        <div class="card-img-wrapper">
+                            <img src="/images/blog/salary_negotiation.png" class="card-img-top" alt="Salary Negotiation">
+                            <span class="badge-category badge-purple"><i class="fas fa-hand-holding-usd me-1"></i> Đàm Phán Lương</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <div class="reading-time mb-2"><i class="far fa-clock" style="color: #8b5cf6;"></i> 6 phút đọc</div>
+                                <h5 class="card-title">Bí quyết đàm phán lương vượt 30% khi phỏng vấn IT</h5>
+                                <p class="card-text">Tối đa hóa mức thu nhập mong muốn: Nhận diện khoảng ngân sách của doanh nghiệp, làm chủ con số thị trường và nghệ thuật đàm phán phúc lợi.</p>
+                            </div>
+                            <div class="read-more-link">
+                                Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Item 5 -->
+                <div class="blog-carousel-item">
+                    <div class="blog-card-premium" onclick="openBlogModal('ats')">
+                        <div class="card-img-wrapper">
+                            <img src="/images/blog/ats_tech.png" class="card-img-top" alt="ATS Technology">
+                            <span class="badge-category badge-teal"><i class="fas fa-robot me-1"></i> Công Nghệ ATS</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <div class="reading-time mb-2"><i class="far fa-clock" style="color: #06b6d4;"></i> 8 phút đọc</div>
+                                <h5 class="card-title">Bí thuật vượt bộ lọc ATS của các tập đoàn công nghệ</h5>
+                                <p class="card-text">Tối ưu hóa hồ sơ chuẩn thuật toán 2026: Cách trích xuất từ khóa chuẩn JD, chọn định dạng font chuẩn và đo lường thành tựu theo công thức Google XYZ.</p>
+                            </div>
+                            <div class="read-more-link">
+                                Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Item 6 -->
+                <div class="blog-carousel-item">
+                    <div class="blog-card-premium" onclick="openBlogModal('coding')">
+                        <div class="card-img-wrapper">
+                            <img src="/images/blog/code_interview.png" class="card-img-top" alt="Coding Interview">
+                            <span class="badge-category badge-rose"><i class="fas fa-code me-1"></i> Phỏng Vấn Kỹ Thuật</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <div class="reading-time mb-2"><i class="far fa-clock" style="color: #f43f5e;"></i> 9 phút đọc</div>
+                                <h5 class="card-title">Chiến lược chinh phục vòng Live Coding & System Design</h5>
+                                <p class="card-text">Vượt qua thử thách thuật toán trực tiếp: Phương pháp suy nghĩ thành tiếng (Think Out Loud), xử lý Edge cases và tối ưu độ phức tạp Big O.</p>
+                            </div>
+                            <div class="read-more-link">
+                                Đọc chi tiết <i class="fas fa-arrow-right"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Blog Item 2 -->
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-anchor="#blog-section" data-aos-delay="100">
-                <div class="blog-card-premium" onclick="openBlogModal('errors')">
-                    <div class="card-img-wrapper">
-                        <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing">
-                        <span class="badge-category bg-success text-white">Hồ Sơ Chuyên Nghiệp</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="reading-time mb-2"><i class="far fa-clock"></i> 7 phút đọc</div>
-                        <h5 class="card-title">Top 5 sai lầm khi viết CV cho Dev IT</h5>
-                        <p class="card-text">Hướng dẫn chi tiết cách tránh những lỗi sơ đẳng về trình bày và thuật toán ATS, giúp bản hồ sơ của bạn luôn lọt vào mắt xanh của HR giữa hàng nghìn ứng viên.</p>
-                        <div class="read-more-link">
-                            Đọc chi tiết <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Right Side Arrow -->
+            <button type="button" class="btn-blog-nav nav-side-next" id="btnBlogNext" aria-label="Bài tiếp theo" title="Bài tiếp theo">
+                <i class="fas fa-chevron-right"></i>
+            </button>
 
-            <!-- Blog Item 3 -->
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-anchor="#blog-section" data-aos-delay="200">
-                <div class="blog-card-premium" onclick="openBlogModal('salary')">
-                    <div class="card-img-wrapper">
-                        <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth">
-                        <span class="badge-category bg-warning text-dark">Lộ Trình Sự Nghiệp</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="reading-time mb-2"><i class="far fa-clock"></i> 10 phút đọc</div>
-                        <h5 class="card-title">Lộ trình đạt mức lương 1000$ cho Junior</h5>
-                        <p class="card-text">Lộ trình rõ ràng cho người mới bắt đầu: Từ việc tham gia dự án thực tế đến cách kết nối với các chuyên gia trong ngành để đạt được thu nhập kỳ vọng.</p>
-                        <div class="read-more-link">
-                            Đọc chi tiết <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Dots Indicator -->
+            <div class="blog-carousel-dots d-flex justify-content-center align-items-center gap-2" id="blogDots"></div>
         </div>
     </div>
 </section>
@@ -1063,13 +1327,160 @@
 
             type();
 
-            // BLOG MODAL LOGIC (Tải từ JSON bên ngoài)
+            // BLOG CAROUSEL NAVIGATION LOGIC (Tự động cuộn + Chấm chỉ số thích ứng màn hình)
+            const blogTrack = document.getElementById('blogTrack');
+            const btnBlogPrev = document.getElementById('btnBlogPrev');
+            const btnBlogNext = document.getElementById('btnBlogNext');
+            const blogDotsContainer = document.getElementById('blogDots');
+
+            if (blogTrack) {
+                const items = blogTrack.querySelectorAll('.blog-carousel-item');
+                const totalItems = items.length;
+                let autoPlayTimer = null;
+                const AUTO_PLAY_INTERVAL = 4000; // 4 giây
+
+                function getVisibleItems() {
+                    const width = window.innerWidth;
+                    if (width <= 575) return 1;
+                    if (width <= 991) return 2;
+                    return 3;
+                }
+
+                function getMaxIndex() {
+                    const visible = getVisibleItems();
+                    return Math.max(0, totalItems - visible);
+                }
+
+                function getScrollAmount() {
+                    const firstItem = blogTrack.querySelector('.blog-carousel-item');
+                    return firstItem ? firstItem.offsetWidth + 24 : 340;
+                }
+
+                function buildDots() {
+                    if (!blogDotsContainer || totalItems === 0) return;
+                    const maxIndex = getMaxIndex();
+                    blogDotsContainer.innerHTML = '';
+                    for (let i = 0; i <= maxIndex; i++) {
+                        const dot = document.createElement('button');
+                        dot.className = 'blog-dot' + (i === 0 ? ' active' : '');
+                        dot.setAttribute('aria-label', `Trang bài viết ${i + 1}`);
+                        dot.addEventListener('click', () => {
+                            scrollToIndex(i);
+                            resetAutoPlay();
+                        });
+                        blogDotsContainer.appendChild(dot);
+                    }
+                }
+
+                function scrollToIndex(index) {
+                    const maxIndex = getMaxIndex();
+                    const targetIndex = Math.max(0, Math.min(index, maxIndex));
+                    const scrollAmount = getScrollAmount();
+                    blogTrack.scrollTo({
+                        left: targetIndex * scrollAmount,
+                        behavior: 'smooth'
+                    });
+                    updateActiveDot(targetIndex);
+                }
+
+                function updateActiveDot(index) {
+                    if (!blogDotsContainer) return;
+                    const dots = blogDotsContainer.querySelectorAll('.blog-dot');
+                    dots.forEach((dot, idx) => {
+                        if (idx === index) {
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.remove('active');
+                        }
+                    });
+                }
+
+                function getCurrentIndex() {
+                    const scrollAmount = getScrollAmount();
+                    const maxIndex = getMaxIndex();
+                    const index = Math.round(blogTrack.scrollLeft / scrollAmount);
+                    return Math.max(0, Math.min(index, maxIndex));
+                }
+
+                // Cập nhật chấm phân trang khi vuốt/cuộn tay
+                let isScrolling;
+                blogTrack.addEventListener('scroll', () => {
+                    window.clearTimeout(isScrolling);
+                    isScrolling = setTimeout(() => {
+                        const index = getCurrentIndex();
+                        updateActiveDot(index);
+                    }, 50);
+                });
+
+                // Xử lý nút Trái / Phải
+                if (btnBlogPrev) {
+                    btnBlogPrev.addEventListener('click', () => {
+                        const maxIndex = getMaxIndex();
+                        const currentIndex = getCurrentIndex();
+                        const nextIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
+                        scrollToIndex(nextIndex);
+                        resetAutoPlay();
+                    });
+                }
+
+                if (btnBlogNext) {
+                    btnBlogNext.addEventListener('click', () => {
+                        const maxIndex = getMaxIndex();
+                        const currentIndex = getCurrentIndex();
+                        const nextIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
+                        scrollToIndex(nextIndex);
+                        resetAutoPlay();
+                    });
+                }
+
+                // Logic tự động trượt Carousel
+                function startAutoPlay() {
+                    if (autoPlayTimer) clearInterval(autoPlayTimer);
+                    autoPlayTimer = setInterval(() => {
+                        const maxIndex = getMaxIndex();
+                        const currentIndex = getCurrentIndex();
+                        const nextIndex = currentIndex >= maxIndex ? 0 : currentIndex + 1;
+                        scrollToIndex(nextIndex);
+                    }, AUTO_PLAY_INTERVAL);
+                }
+
+                function stopAutoPlay() {
+                    if (autoPlayTimer) {
+                        clearInterval(autoPlayTimer);
+                        autoPlayTimer = null;
+                    }
+                }
+
+                function resetAutoPlay() {
+                    stopAutoPlay();
+                    startAutoPlay();
+                }
+
+                // Tạm dừng khi rê chuột vào bài viết / carousel
+                const carouselContainer = document.querySelector('.blog-carousel-container');
+                if (carouselContainer) {
+                    carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+                    carouselContainer.addEventListener('mouseleave', startAutoPlay);
+                }
+
+                // Khởi tạo chấm phân trang & theo dõi thay đổi kích thước màn hình
+                buildDots();
+                window.addEventListener('resize', () => {
+                    buildDots();
+                    updateActiveDot(getCurrentIndex());
+                });
+
+                // Kích hoạt tự động cuộn khi mở trang
+                startAutoPlay();
+            }
+
+            // BLOG MODAL LOGIC (Tải từ JSON bên ngoài kèm chống Cache)
             let blogData = {};
 
-            // Hàm tải dữ liệu từ file JSON
+            // Hàm tải dữ liệu từ file JSON (Thêm query timestamp để chống cache trình duyệt)
             async function loadBlogData() {
                 try {
-                    const response = await fetch('/data/blogs.json');
+                    const response = await fetch('/data/blogs.json?v=' + new Date().getTime());
                     if (!response.ok) throw new Error('Không thể tải dữ liệu blog');
                     blogData = await response.json();
                     console.log('Blog data loaded successfully');
@@ -1081,7 +1492,10 @@
             // Gọi hàm tải dữ liệu khi trang web sẵn sàng
             loadBlogData();
 
-            window.openBlogModal = function(id) {
+            window.openBlogModal = async function(id) {
+                if (!blogData || !blogData[id]) {
+                    await loadBlogData();
+                }
                 const data = blogData[id];
                 if (data) {
                     document.getElementById('blogContentArea').innerHTML = data.content;
@@ -1089,7 +1503,6 @@
                     blogModal.show();
                 } else {
                     console.error('Không tìm thấy dữ liệu cho blog ID:', id);
-                    // Có thể hiển thị thông báo lỗi nhẹ nhàng cho người dùng
                 }
             };
         });

@@ -5,13 +5,14 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-17] - Sửa lỗi giao diện chế độ tối (Dark Mode) và đồng bộ ô nhập liệu cho các trang Hỗ trợ (Contact & Terms)
+## [2026-07-21] - Tối ưu logic tính toán Trang cuộn & Số chấm phân trang linh hoạt theo Responsive
 
-### Changed
-- Khắc phục lỗi tương phản màu chữ và nhãn trong Dark Mode cho trang Liên hệ (`Views/Support/Contact.cshtml`): Chuyển màu nền sang CSS class có override `#0f172a`, định nghĩa lại các biến màu `--p-blue` thành màu sáng `#6ea8fe` khi ở chế độ tối, nâng cấp và đồng bộ ô nhập liệu từ kiểu gạch dưới sang dạng hộp bo tròn 4 cạnh (`16px`), di chuyển nhãn lên phía trên độc lập và tạo giao diện đồng bộ tuyệt đối với textarea ở cả hai chế độ sáng/tối.
-- Khắc phục lỗi màu chữ tối/tàng hình và nền icon chói mắt trong Dark Mode cho trang Điều khoản (`Views/Support/Terms.cshtml`): Chuyển màu nền trang sang CSS class có override `#0f172a`, sửa lỗi chữ tàng hình của mục bảo mật dữ liệu bằng cách ép màu nền `#0f172a` và màu chữ sáng `#e2e8f0` cho các thẻ div con, làm mờ nền icon (`.icon-shape`) với độ mờ `rgba` và làm sáng màu chữ icon tương ứng, tối ưu hóa danh sách menu mục lục bên trái khi ở chế độ active (`color: #6ea8fe`) và inactive (`color: #94a3b8`).
+### Fixed & Enhanced
+- Tối ưu tính toán phân trang Carousel (`Views/Home/Index.cshtml`): Xác định chính xác số bài viết hiển thị đồng thời theo kích thước màn hình (`Desktop: 3 bài`, `Tablet: 2 bài`, `Mobile: 1 bài`) để tính số nấc cuộn tối đa (`maxIndex`).
+- Sửa lỗi đứng yên ở chấm số 4: Giờ đây dải chấm sẽ tạo đúng 4 nấc trang trên Desktop (`0, 1, 2, 3`), khi tự động cuộn đến hết trang cuối (`bài 4-5-6`) hệ thống sẽ tự động quay trở lại trang đầu tiên (`bài 1-2-3`) mượt mờ và chính xác tuyệt đối.
 
-## [2026-07-17] - Nâng cấp giao diện trang Chi tiết công việc: Cấu trúc 2 cột, Thiết kế Premium và Tối ưu hóa Dark Mode
+
+## [2026-07-17] - Nâng cấp giao diện trang Chi tiết công việc và tối ưu hóa chế độ tối các trang Hỗ trợ
 
 ### Added
 - Thêm thuộc tính `ViewBag.CompanyID` trong Action `Details` của `HomeController.cs` để hỗ trợ liên kết động sang trang chi tiết công ty.
@@ -22,6 +23,8 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 - Thiết kế lại các thẻ badge hiển thị thông tin lương, ngày đăng, hạn nộp bằng các tông màu pastel dịu mắt hỗ trợ hoàn hảo cho cả Light Mode và Dark Mode.
 - Đồng bộ giao diện chế độ tối (Dark Mode) cao cấp cho cả phần chi tiết việc làm lẫn Modal ứng tuyển nhanh chọn CV, khắc phục triệt để các lỗi chữ tối bị chìm trên nền đen.
 - Sửa lỗi biên dịch Razor bằng cách escape ký tự `@@` cho các lệnh CSS import font chữ từ Google Fonts.
+- Khắc phục lỗi tương phản màu chữ và nhãn trong Dark Mode cho trang Liên hệ (`Views/Support/Contact.cshtml`): Chuyển màu nền sang CSS class có override `#0f172a`, định nghĩa lại các biến màu `--p-blue` thành màu sáng `#6ea8fe` khi ở chế độ tối, nâng cấp và đồng bộ ô nhập liệu từ kiểu gạch dưới sang dạng hộp bo tròn 4 cạnh (`16px`), di chuyển nhãn lên phía trên độc lập và tạo giao diện đồng bộ tuyệt đối với textarea ở cả hai chế độ sáng/tối.
+- Khắc phục lỗi màu chữ tối/tàng hình và nền icon chói mắt trong Dark Mode cho trang Điều khoản (`Views/Support/Terms.cshtml`): Chuyển màu nền trang sang CSS class có override `#0f172a`, sửa lỗi chữ tàng hình của mục bảo mật dữ liệu bằng cách ép màu nền `#0f172a` và màu chữ sáng `#e2e8f0` cho các thẻ div con, làm mờ nền icon (`.icon-shape`) với độ mờ `rgba` và làm sáng màu chữ icon tương ứng, tối ưu hóa danh sách menu mục lục bên trái khi ở chế độ active (`color: #6ea8fe`) và inactive (`color: #94a3b8`).
 
 ## [2026-07-16] - Hiện đại hóa giao diện quản trị Admin: Tích hợp Modal Popup và Tối ưu hóa Dark Mode
 
