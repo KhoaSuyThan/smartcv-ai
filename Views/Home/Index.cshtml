@@ -1509,19 +1509,30 @@
                 revealElements.forEach(el => el.classList.add('is-visible'));
             }
 
-            // BLOG MODAL LOGIC (Tải từ JSON bên ngoài kèm chống Cache)
-            let blogData = {};
+            // BLOG MODAL LOGIC (Tải lười từ JSON bên ngoài theo nhu cầu - Lazy Fetch)
+            let blogData = null;
+            let isFetchingBlog = false;
 
-            // Hàm tải dữ liệu từ file JSON (Thêm query timestamp để chống cache trình duyệt)
+            // Hàm tải dữ liệu từ file JSON (chỉ tải khi người dùng cuộn đến hoặc click xem)
             async function loadBlogData() {
+                if (blogData || isFetchingBlog) return;
+                isFetchingBlog = true;
                 try {
                     const response = await fetch('/data/blogs.json?v=' + new Date().getTime());
                     if (!response.ok) throw new Error('Không thể tải dữ liệu blog');
                     blogData = await response.json();
-                    console.log('Blog data loaded successfully');
                 } catch (error) {
                     console.error('Error loading blog data:', error);
+                } finally {
+                    isFetchingBlog = false;
                 }
+            }
+
+            // Tải trước dữ liệu khi người dùng rê chuột hoặc chạm vào vùng Blog
+            const blogSec = document.getElementById('blog-section');
+            if (blogSec) {
+                blogSec.addEventListener('mouseenter', loadBlogData, { once: true, passive: true });
+                blogSec.addEventListener('touchstart', loadBlogData, { once: true, passive: true });
             }
 
             // Tải lại tọa độ AOS sau khi toàn bộ hình ảnh và giao diện tải xong
@@ -1531,14 +1542,11 @@
                 }
             });
 
-            // Gọi hàm tải dữ liệu khi trang web sẵn sàng
-            loadBlogData();
-
             window.openBlogModal = async function(id) {
-                if (!blogData || !blogData[id]) {
+                if (!blogData) {
                     await loadBlogData();
                 }
-                const data = blogData[id];
+                const data = blogData ? blogData[id] : null;
                 if (data) {
                     document.getElementById('blogContentArea').innerHTML = data.content;
                     const blogModal = new bootstrap.Modal(document.getElementById('blogDetailModal'));

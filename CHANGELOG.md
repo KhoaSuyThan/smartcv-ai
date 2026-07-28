@@ -5,7 +5,11 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 3): Tối ưu hóa phân phối Hình ảnh & Phông chữ (Fonts & Lazy Loading)
+## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 4): Tối ưu Main-Thread & Tải dữ liệu theo nhu cầu (Lazy Fetching)
+
+### Added & Enhanced
+- **Tải dữ liệu bài viết theo nhu cầu (Lazy Fetching JSON):** Loại bỏ việc gọi `fetch('/data/blogs.json')` vô điều kiện khi vừa nạp trang trong `Views/Home/Index.cshtml`. Chuyển sang cơ chế tự động nạp khi người dùng rê chuột/chạm vào khu vực Blog hoặc bấm mở bài viết.
+- **Tối ưu hóa sự kiện tương tác cuộn/chạm (`passive: true` listeners):** Bổ sung trình lắng nghe sự kiện thụ động (`passive: true`) cho các sự kiện cuộn và vuốt chạm (`scroll`, `touchstart`) trong `wwwroot/js/site.js`, giúp giải phóng luồng xử lý chính (Main-Thread) và tối ưu chỉ số TBT/INP trên trình duyệt di động.
 
 ### Added & Enhanced
 - **Tải lười bất đồng bộ hình ảnh (Native Lazy Loading & Async Decoding):** Bổ sung thuộc tính `loading="lazy"` và `decoding="async"` cho toàn bộ các hình ảnh logo nhà tuyển dụng, thẻ mẫu CV Vue, logo đối tác và hình ảnh cẩm nang nghề nghiệp tại `Views/Home/Index.cshtml`.
