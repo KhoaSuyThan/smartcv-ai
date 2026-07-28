@@ -1673,6 +1673,30 @@ footer {
   border-color: #2e3d54 !important;
 }
 
+/* ==========================================================
+   PAGE SPEED OPTIMIZATION (GIAI ĐOẠN 3: FONT & IMAGE RENDERING)
+   ========================================================== */
+@font-face {
+  font-family: 'Font Awesome 6 Free';
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Font Awesome 6 Brands';
+  font-display: swap;
+}
+@font-face {
+  font-family: 'bootstrap-icons';
+  font-display: swap;
+}
+@font-face {
+  font-family: 'boxicons';
+  font-display: swap;
+}
+
+/* Tối ưu hóa rendering ảnh giúp hiển thị tức thì không gây trễ */
+
+
+
 
 
 

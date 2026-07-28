@@ -18,11 +18,11 @@
 }
 
 <style>
-    /* SCROLL REVEAL (Tự động xuất hiện từ từ chậm rãi mượt mờ khi cuộn tới) */
+    /* SCROLL REVEAL (Xuất hiện mượt mà và nhanh nhạy khi cuộn tới) */
     .reveal-on-scroll {
         opacity: 0;
-        transform: translateY(60px);
-        transition: opacity 2.2s ease-out, transform 2.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(40px);
+        transition: opacity 1s ease-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1);
         will-change: opacity, transform;
     }
     .reveal-on-scroll.is-visible {
@@ -929,6 +929,7 @@
                                                 @if (!string.IsNullOrEmpty(job.employer_logo))
                                                 {
                                                     <img src="@job.employer_logo" alt="Employer logo" class="w-100 h-100" style="object-fit: contain;"
+                                                         loading="lazy" decoding="async" width="50" height="50"
                                                          onerror="this.onerror=null; this.src='https://icons.getbootstrap.com/assets/icons/building.svg';">
                                                 }
                                                 else
@@ -1006,7 +1007,7 @@
                             <div class="card border-0 h-100 template-card">
                                 <div class="card-img-wrapper">
                                     <img src="@template.ThumbnailUrl" alt="@template.TemplateName"
-                                         loading="lazy"
+                                         loading="lazy" decoding="async" width="240" height="340"
                                          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
                                     @if (isPopular)
                                     {
@@ -1038,7 +1039,7 @@
                             <div class="card border-0 h-100 template-card">
                                 <div class="card-img-wrapper">
                                     <img src="@template.ThumbnailUrl" alt="@template.TemplateName"
-                                         loading="lazy"
+                                         loading="lazy" decoding="async" width="240" height="340"
                                          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?q=80&w=400'">
                                     @if (isPopular)
                                     {
@@ -1097,6 +1098,7 @@
                         <a href="/Companies/Details/@company.CompanyID" title="Xem chi tiết @company.Name" class="text-decoration-none">
                             <div class="partner-logo-item">
                                 <img src="@company.LogoUrl" class="partner-logo-img" alt="@company.Name" 
+                                     loading="lazy" decoding="async" width="160" height="60"
                                      onerror="this.onerror=null; this.src='https://placehold.co/150x50/f8f9fa/6c757d?text=Logo';">
                             </div>
                         </a>
@@ -1132,7 +1134,7 @@
                 <div class="blog-carousel-item">
                     <div class="blog-card-premium" onclick="openBlogModal('intro')">
                         <div class="card-img-wrapper">
-                            <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips">
+                            <img src="/images/blog/interview_tips.png" class="card-img-top" alt="Interview Tips" loading="lazy" decoding="async" width="380" height="220">
                             <span class="badge-category badge-blue"><i class="fas fa-comments me-1"></i> Mẹo Phỏng Vấn</span>
                         </div>
                         <div class="card-body">
@@ -1152,7 +1154,7 @@
                 <div class="blog-carousel-item">
                     <div class="blog-card-premium" onclick="openBlogModal('errors')">
                         <div class="card-img-wrapper">
-                            <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing">
+                            <img src="/images/blog/cv_design.png" class="card-img-top" alt="CV Writing" loading="lazy" decoding="async" width="380" height="220">
                             <span class="badge-category badge-green"><i class="fas fa-file-alt me-1"></i> Hồ Sơ Chuyên Nghiệp</span>
                         </div>
                         <div class="card-body">
@@ -1172,7 +1174,7 @@
                 <div class="blog-carousel-item">
                     <div class="blog-card-premium" onclick="openBlogModal('salary')">
                         <div class="card-img-wrapper">
-                            <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth">
+                            <img src="/images/blog/career_growth.png" class="card-img-top" alt="Career Growth" loading="lazy" decoding="async" width="380" height="220">
                             <span class="badge-category badge-amber"><i class="fas fa-chart-line me-1"></i> Lộ Trình Sự Nghiệp</span>
                         </div>
                         <div class="card-body">
@@ -1192,7 +1194,7 @@
                 <div class="blog-carousel-item">
                     <div class="blog-card-premium" onclick="openBlogModal('negotiate')">
                         <div class="card-img-wrapper">
-                            <img src="/images/blog/salary_negotiation.png" class="card-img-top" alt="Salary Negotiation">
+                            <img src="/images/blog/salary_negotiation.png" class="card-img-top" alt="Salary Negotiation" loading="lazy" decoding="async" width="380" height="220">
                             <span class="badge-category badge-purple"><i class="fas fa-hand-holding-usd me-1"></i> Đàm Phán Lương</span>
                         </div>
                         <div class="card-body">
@@ -1212,7 +1214,7 @@
                 <div class="blog-carousel-item">
                     <div class="blog-card-premium" onclick="openBlogModal('ats')">
                         <div class="card-img-wrapper">
-                            <img src="/images/blog/ats_tech.png" class="card-img-top" alt="ATS Technology">
+                            <img src="/images/blog/ats_tech.png" class="card-img-top" alt="ATS Technology" loading="lazy" decoding="async" width="380" height="220">
                             <span class="badge-category badge-teal"><i class="fas fa-robot me-1"></i> Công Nghệ ATS</span>
                         </div>
                         <div class="card-body">
@@ -1232,7 +1234,7 @@
                 <div class="blog-carousel-item">
                     <div class="blog-card-premium" onclick="openBlogModal('coding')">
                         <div class="card-img-wrapper">
-                            <img src="/images/blog/code_interview.png" class="card-img-top" alt="Coding Interview">
+                            <img src="/images/blog/code_interview.png" class="card-img-top" alt="Coding Interview" loading="lazy" decoding="async" width="380" height="220">
                             <span class="badge-category badge-rose"><i class="fas fa-code me-1"></i> Phỏng Vấn Kỹ Thuật</span>
                         </div>
                         <div class="card-body">
