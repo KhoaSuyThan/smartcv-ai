@@ -5,7 +5,11 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-21] - Thắt chặt ngưỡng kích hoạt Scroll Reveal (Đúng 50% chiều cao section)
+## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 1): Bộ nhớ đệm & Nén phản hồi Server-side
+
+### Added & Enhanced
+- **Tối ưu Browser Caching (Bộ nhớ đệm trình duyệt):** Cấu hình `StaticFileOptions` trong `Program.cs` tự động chèn header `Cache-Control: public, max-age=31536000, immutable` (365 ngày) cho tất cả tài nguyên tĩnh (`.css`, `.js`, `.png`, `.jpg`, `.webp`, `.woff2`, `.svg`) phục vụ tại các đường dẫn tĩnh gốc, `/avt` và `/images/templates`.
+- **Mở rộng Response Compression (Nén dữ liệu phản hồi):** Bổ sung danh sách `MimeTypes` mở rộng (`image/svg+xml`, `font/woff2`, `font/woff`, `application/json`, `text/css`, `application/javascript`) cho dịch vụ nén `Brotli` & `Gzip` trong `Program.cs`, giúp giảm dung lượng phản hồi tệp văn bản/biểu tượng qua mạng.
 
 ### Fixed & Enhanced
 - Cập nhật cấu hình `IntersectionObserver` với `rootMargin: '0px 0px -35% 0px'` và `threshold: 0.35` trong `Views/Home/Index.cshtml`.

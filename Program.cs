@@ -252,12 +252,21 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-// Cấu hình dịch vụ nén phản hồi (Response Compression) dùng Brotli & Gzip
+// Cấu hình dịch vụ nén phản hồi (Response Compression) dùng Brotli & Gzip với MimeTypes mở rộng
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
     options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
     options.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+    options.MimeTypes = Microsoft.AspNetCore.ResponseCompression.ResponseCompressionDefaults.MimeTypes.Concat(new[]
+    {
+        "image/svg+xml",
+        "font/woff2",
+        "font/woff",
+        "application/json",
+        "text/css",
+        "application/javascript"
+    });
 });
 
 builder.Services.Configure<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProviderOptions>(options =>
@@ -826,7 +835,19 @@ if (!app.Environment.IsDevelopment())
 
 app.UseResponseCompression();
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
+// Cấu hình Header Cache-Control (365 ngày) cho các tệp tĩnh giúp tăng tối đa điểm Bộ nhớ đệm (Browser Caching) trên Google PageSpeed Insights
+Action<Microsoft.AspNetCore.StaticFiles.StaticFileResponseContext> setStaticCacheHeaders = ctx =>
+{
+    const int durationInSeconds = 31536000; // 1 năm (365 ngày)
+    ctx.Context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.CacheControl] = 
+        "public, max-age=" + durationInSeconds + ", immutable";
+};
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = setStaticCacheHeaders
+});
 
 // --- BẮT ĐẦU: CẤU HÌNH THƯ MỤC LƯU TRỮ NGOÀI CHO FILE UPLOAD ---
 var uploadsFolder = builder.Configuration["StorageSettings:UploadsFolder"] 
@@ -840,7 +861,8 @@ if (!Directory.Exists(avtFolder)) Directory.CreateDirectory(avtFolder);
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(avtFolder),
-    RequestPath = "/avt"
+    RequestPath = "/avt",
+    OnPrepareResponse = setStaticCacheHeaders
 });
 
 // Cấu hình thư mục uploads chứa file mật (sẽ được kiểm soát qua FileController)
@@ -854,7 +876,8 @@ if (!Directory.Exists(imagesTemplatesFolder)) Directory.CreateDirectory(imagesTe
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(imagesTemplatesFolder),
-    RequestPath = "/images/templates"
+    RequestPath = "/images/templates",
+    OnPrepareResponse = setStaticCacheHeaders
 });
 // --- KẾT THÚC: CẤU HÌNH THƯ MỤC LƯU TRỮ NGOÀI ---
 
