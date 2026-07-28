@@ -5,7 +5,12 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 1): Bộ nhớ đệm & Nén phản hồi Server-side
+## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 2): Triệt tiêu tài nguyên chặn hiển thị (Render-Blocking Resources)
+
+### Added & Enhanced
+- **Tối ưu hóa nạp CDN (Preconnect & DNS Prefetch):** Thêm thẻ `<link rel="preconnect">` và `<link rel="dns-prefetch">` tới các máy chủ CDN (`cdn.jsdelivr.net`, `cdnjs.cloudflare.com`, `unpkg.com`) trong `Views/Shared/_Layout.cshtml` giúp trình duyệt thiết lập kết nối sớm trước khi tải dữ liệu.
+- **Tải bất đồng bộ CSS Biểu tượng & Animation (Asynchronous CSS):** Chuyển đổi các tệp CSS biểu tượng (`bootstrap-icons`, `font-awesome`, `boxicons`) và hiệu ứng `aos.css` sang cơ chế nạp bất đồng bộ không chặn dựng hình (`rel="preload" as="style" onload="..."`), kèm thẻ `<noscript>` dự phòng.
+- **Trì hoãn JS & Giải phóng Main Thread:** Bổ sung thuộc tính `defer` cho toàn bộ thẻ `<script>` (`jquery`, `bootstrap.bundle`, `site.js`, `signalr.js`, `aos.js`) và trì hoãn khởi tạo `AOS.init()`, SignalR `connection.start()` vào sự kiện `window load` giúp giải phóng chuỗi xử lý chính trong quá trình dựng HTML ban đầu.
 
 ### Added & Enhanced
 - **Tối ưu Browser Caching (Bộ nhớ đệm trình duyệt):** Cấu hình `StaticFileOptions` trong `Program.cs` tự động chèn header `Cache-Control: public, max-age=31536000, immutable` (365 ngày) cho tất cả tài nguyên tĩnh (`.css`, `.js`, `.png`, `.jpg`, `.webp`, `.woff2`, `.svg`) phục vụ tại các đường dẫn tĩnh gốc, `/avt` và `/images/templates`.
