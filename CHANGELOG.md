@@ -5,7 +5,12 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 2): Triệt tiêu tài nguyên chặn hiển thị (Render-Blocking Resources)
+## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 3): Tối ưu hóa phân phối Hình ảnh & Phông chữ (Fonts & Lazy Loading)
+
+### Added & Enhanced
+- **Tải lười bất đồng bộ hình ảnh (Native Lazy Loading & Async Decoding):** Bổ sung thuộc tính `loading="lazy"` và `decoding="async"` cho toàn bộ các hình ảnh logo nhà tuyển dụng, thẻ mẫu CV Vue, logo đối tác và hình ảnh cẩm nang nghề nghiệp tại `Views/Home/Index.cshtml`.
+- **Cố định kích thước & Phòng chống giật khung hình (CLS - Cumulative Layout Shift):** Khai báo trực tiếp chiều rộng/chiều cao (`width`, `height`) trên tất cả các thẻ `<img>` tại `Index.cshtml`, giúp trình duyệt đặt trước khoảng trống chính xác khi dựng bố cục trang.
+- **Tối ưu hiển thị phông chữ (font-display: swap & content-visibility):** Cấu hình `font-display: swap;` cho các bộ font biểu tượng (`Font Awesome`, `Bootstrap Icons`, `Boxicons`) và bật `content-visibility: auto;` cho hình ảnh trong `wwwroot/css/site.css` giúp tránh hiện tượng giật phông ẩn (FOUT) và cải thiện tốc độ vẽ trang (Paint Time).
 
 ### Added & Enhanced
 - **Tối ưu hóa nạp CDN (Preconnect & DNS Prefetch):** Thêm thẻ `<link rel="preconnect">` và `<link rel="dns-prefetch">` tới các máy chủ CDN (`cdn.jsdelivr.net`, `cdnjs.cloudflare.com`, `unpkg.com`) trong `Views/Shared/_Layout.cshtml` giúp trình duyệt thiết lập kết nối sớm trước khi tải dữ liệu.
