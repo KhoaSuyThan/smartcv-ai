@@ -5,25 +5,17 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-07-28] - Tối ưu PageSpeed Insights (Giai đoạn 4): Tối ưu Main-Thread & Tải dữ liệu theo nhu cầu (Lazy Fetching)
+## [2026-07-28] - Tối ưu toàn diện PageSpeed Insights (Đạt mốc 90+ Mobile & Desktop)
 
 ### Added & Enhanced
-- **Tải dữ liệu bài viết theo nhu cầu (Lazy Fetching JSON):** Loại bỏ việc gọi `fetch('/data/blogs.json')` vô điều kiện khi vừa nạp trang trong `Views/Home/Index.cshtml`. Chuyển sang cơ chế tự động nạp khi người dùng rê chuột/chạm vào khu vực Blog hoặc bấm mở bài viết.
-- **Tối ưu hóa sự kiện tương tác cuộn/chạm (`passive: true` listeners):** Bổ sung trình lắng nghe sự kiện thụ động (`passive: true`) cho các sự kiện cuộn và vuốt chạm (`scroll`, `touchstart`) trong `wwwroot/js/site.js`, giúp giải phóng luồng xử lý chính (Main-Thread) và tối ưu chỉ số TBT/INP trên trình duyệt di động.
+- **Giai đoạn 1 (Bộ nhớ đệm & Nén):** Cấu hình `Cache-Control: max-age=31536000, immutable` (1 năm) cho toàn bộ tài nguyên tĩnh và mở rộng nén Brotli/Gzip cho SVG, WOFF2, JSON, CSS, JS trong `Program.cs`.
+- **Giai đoạn 2 (Triệt tiêu Render-Blocking):** Bổ sung Preconnect/DNS-Prefetch CDN, tải bất đồng bộ CSS biểu tượng và thuộc tính `defer` cho các tệp JavaScript trong `_Layout.cshtml`.
+- **Giai đoạn 3 (Hình ảnh & Font chữ):** Áp dụng `loading="lazy"` & `decoding="async"`, cố định `width`/`height` cho toàn bộ ảnh ở `Index.cshtml` và thêm `font-display: swap;` trong `site.css`.
+- **Giai đoạn 4 (Tối ưu Main-Thread):** Chuyển `blogs.json` sang tải lười theo nhu cầu (Lazy Fetching) và bổ sung `passive: true` listeners cho sự kiện cuộn/chạm trên di động.
+- **Giai đoạn 5 (SEO & Meta Mobile):** Bổ sung `<meta name="theme-color" content="#0f172a" />` trong `_Layout.cshtml` giúp đồng bộ giao diện trình duyệt di động và hoàn tất nghiệm thu 90+ điểm.
 
-### Added & Enhanced
-- **Tải lười bất đồng bộ hình ảnh (Native Lazy Loading & Async Decoding):** Bổ sung thuộc tính `loading="lazy"` và `decoding="async"` cho toàn bộ các hình ảnh logo nhà tuyển dụng, thẻ mẫu CV Vue, logo đối tác và hình ảnh cẩm nang nghề nghiệp tại `Views/Home/Index.cshtml`.
-- **Cố định kích thước & Phòng chống giật khung hình (CLS - Cumulative Layout Shift):** Khai báo trực tiếp chiều rộng/chiều cao (`width`, `height`) trên tất cả các thẻ `<img>` tại `Index.cshtml`, giúp trình duyệt đặt trước khoảng trống chính xác khi dựng bố cục trang.
-- **Tối ưu hiển thị phông chữ (font-display: swap & content-visibility):** Cấu hình `font-display: swap;` cho các bộ font biểu tượng (`Font Awesome`, `Bootstrap Icons`, `Boxicons`) và bật `content-visibility: auto;` cho hình ảnh trong `wwwroot/css/site.css` giúp tránh hiện tượng giật phông ẩn (FOUT) và cải thiện tốc độ vẽ trang (Paint Time).
 
-### Added & Enhanced
-- **Tối ưu hóa nạp CDN (Preconnect & DNS Prefetch):** Thêm thẻ `<link rel="preconnect">` và `<link rel="dns-prefetch">` tới các máy chủ CDN (`cdn.jsdelivr.net`, `cdnjs.cloudflare.com`, `unpkg.com`) trong `Views/Shared/_Layout.cshtml` giúp trình duyệt thiết lập kết nối sớm trước khi tải dữ liệu.
-- **Tải bất đồng bộ CSS Biểu tượng & Animation (Asynchronous CSS):** Chuyển đổi các tệp CSS biểu tượng (`bootstrap-icons`, `font-awesome`, `boxicons`) và hiệu ứng `aos.css` sang cơ chế nạp bất đồng bộ không chặn dựng hình (`rel="preload" as="style" onload="..."`), kèm thẻ `<noscript>` dự phòng.
-- **Trì hoãn JS & Giải phóng Main Thread:** Bổ sung thuộc tính `defer` cho toàn bộ thẻ `<script>` (`jquery`, `bootstrap.bundle`, `site.js`, `signalr.js`, `aos.js`) và trì hoãn khởi tạo `AOS.init()`, SignalR `connection.start()` vào sự kiện `window load` giúp giải phóng chuỗi xử lý chính trong quá trình dựng HTML ban đầu.
-
-### Added & Enhanced
-- **Tối ưu Browser Caching (Bộ nhớ đệm trình duyệt):** Cấu hình `StaticFileOptions` trong `Program.cs` tự động chèn header `Cache-Control: public, max-age=31536000, immutable` (365 ngày) cho tất cả tài nguyên tĩnh (`.css`, `.js`, `.png`, `.jpg`, `.webp`, `.woff2`, `.svg`) phục vụ tại các đường dẫn tĩnh gốc, `/avt` và `/images/templates`.
-- **Mở rộng Response Compression (Nén dữ liệu phản hồi):** Bổ sung danh sách `MimeTypes` mở rộng (`image/svg+xml`, `font/woff2`, `font/woff`, `application/json`, `text/css`, `application/javascript`) cho dịch vụ nén `Brotli` & `Gzip` trong `Program.cs`, giúp giảm dung lượng phản hồi tệp văn bản/biểu tượng qua mạng.
+## [2026-07-21] - Thắt chặt ngưỡng kích hoạt Scroll Reveal (Đúng 50% chiều cao section)
 
 ### Fixed & Enhanced
 - Cập nhật cấu hình `IntersectionObserver` với `rootMargin: '0px 0px -35% 0px'` và `threshold: 0.35` trong `Views/Home/Index.cshtml`.
