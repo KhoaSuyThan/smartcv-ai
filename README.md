@@ -23,6 +23,18 @@ Dự án là sự kết hợp tối ưu giữa mô hình **Monolith** mạnh m�
 
 ---
 
+## 🗺️ Lộ Trình Phát Triển Hệ Thống (Development Roadmap)
+
+Hệ thống đang được nâng cấp toàn diện theo kiến trúc **Khung AI đa mô hình chạy cục bộ (Local Multi-Model AI Framework)** trong 12 tuần tới. Chi tiết lộ trình xem tại: 📄 **[ROADMAP.md](ROADMAP.md)**.
+
+* **Trọng tâm 1:** Chuẩn hóa & ẩn danh hóa thông tin cá nhân (PII De-identification) trên tập dữ liệu Resume - JD song ngữ.
+* **Trọng tâm 2:** Tối ưu hóa động cơ lọc CV ngữ nghĩa siêu tốc với Sentence-Transformers và Vector Cache hiệu năng cao.
+* **Trọng tâm 3:** Tinh chỉnh mô hình cục bộ (Local SLM/LLM) chấm điểm và phân tích năng lực chuẩn ATS.
+* **Trọng tâm 4:** Phòng phỏng vấn ảo mô phỏng tình huống STAR và tích hợp trợ lý sửa lỗi tiếng Anh chuyên sâu.
+* **Trọng tâm 5:** Đóng gói toàn bộ cụm microservices AI chạy độc lập 100% offline bằng Docker Compose.
+
+---
+
 ## 📂 Cấu Trúc Dự Án (Tóm Tắt)
 
 *   `DoAnCS/` (Root): Mã nguồn chính ASP.NET Core MVC (Backend).
@@ -116,6 +128,7 @@ Dịch vụ gợi ý việc làm sẽ hoạt động tại địa chỉ: `http:/
 
 Dự án được nghiên cứu và phát triển bởi:
 *   **Nguyễn Võ Lê Khoa**
+*   **Trần Thanh Hiệp**
 *   **Nguyễn Thành Nhất Nam**
 *   **Trần Đức Huy**
 
