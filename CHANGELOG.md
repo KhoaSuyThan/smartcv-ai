@@ -5,6 +5,12 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-10-08] - Khởi tạo Lộ trình Phát triển Hệ thống (ROADMAP 12 Tuần) & Khung AI Cục Bộ
+
+### Added & Documented
+- **Khởi tạo tệp `ROADMAP.md`:** Xây dựng lộ trình kỹ thuật chi tiết 12 tuần (3 tháng) cho hệ thống theo kiến trúc Khung AI đa mô hình chạy cục bộ (Local Multi-Model AI Framework). Bao gồm 5 trụ cột kỹ thuật: Chuẩn hóa & ẩn danh hóa PII, Động cơ lọc CV ngữ nghĩa siêu tốc với Vector Cache, Động cơ phân tích năng lực chuẩn ATS chạy mô hình cục bộ, Phòng phỏng vấn ảo tình huống STAR tích hợp trợ lý sửa lỗi Tiếng Anh, và Đóng gói toàn bộ cụm microservices chạy 100% offline bằng Docker Compose.
+- **Cập nhật `README.md`:** Bổ sung mục Lộ trình phát triển hệ thống (Development Roadmap) với liên kết trực tiếp tới `ROADMAP.md`, đồng thời đồng bộ danh sách 4 kỹ sư phát triển cốt lõi của dự án.
+
 ## [2026-07-28] - Tối ưu toàn diện PageSpeed Insights (Đạt mốc 90+ Mobile & Desktop)
 
 ### Added & Enhanced

@@ -483,96 +483,28 @@ using (var scope = app.Services.CreateScope())
             Console.WriteLine("Lưu ý: Không thể tự động tạo bảng InterviewSchedules và JobOffers. Chi tiết: " + newTablesEx.Message);
         }
 
-        // Tự động seed tài khoản PRO test để phục vụ kiểm thử dịch thuật CV
+        // Tự động dọn dẹp các tài khoản kiểm thử cũ khỏi Database
         try
         {
-            var testUser = context.Users.FirstOrDefault(u => u.Email == "test_e2e_translation@smartcv.vn");
-            if (testUser == null)
+            var testEmails = new[] { "test_e2e_translation@smartcv.vn", "existed_user_validation@smartcv.vn", "existed_recruiter_validation@smartcv.vn" };
+            var usersToRemove = context.Users.Where(u => testEmails.Contains(u.Email)).ToList();
+            if (usersToRemove.Any())
             {
-                testUser = new User
-                {
-                    FullName = "Test CV Translation",
-                    Email = "test_e2e_translation@smartcv.vn",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
-                    Role = "User",
-                    IsPro = true,
-                    ProExpirationDate = DateTime.Now.AddYears(5),
-                    CreatedAt = DateTime.Now
-                };
-                context.Users.Add(testUser);
+                context.Users.RemoveRange(usersToRemove);
                 context.SaveChanges();
-                Console.WriteLine("Seed PRO Test User for translation: OK");
-            }
-            else if (!testUser.IsPro)
-            {
-                testUser.IsPro = true;
-                testUser.ProExpirationDate = DateTime.Now.AddYears(5);
-                context.SaveChanges();
-                Console.WriteLine("Update PRO status for test user: OK");
-            }
-        }
-        catch (Exception userEx)
-        {
-            Console.WriteLine("Lỗi seed PRO user: " + userEx.Message);
-        }
-
-        // Tự động seed tài khoản cố định để phục vụ kiểm thử Validation
-        try
-        {
-            var existedValidationUser = context.Users.FirstOrDefault(u => u.Email == "existed_user_validation@smartcv.vn");
-            if (existedValidationUser == null)
-            {
-                existedValidationUser = new User
-                {
-                    FullName = "Existed Validation User",
-                    Email = "existed_user_validation@smartcv.vn",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
-                    Role = "User",
-                    CreatedAt = DateTime.Now
-                };
-                context.Users.Add(existedValidationUser);
-                context.SaveChanges();
-                Console.WriteLine("Seed Existed Validation User: OK");
+                Console.WriteLine("Đã dọn dẹp sạch sẽ các tài khoản test khỏi Database.");
             }
 
-            var existedRecruiter = context.Users.FirstOrDefault(u => u.Email == "existed_recruiter_validation@smartcv.vn");
-            if (existedRecruiter == null)
+            var testCompany = context.Companies.FirstOrDefault(c => c.Name == "Validation Test Company");
+            if (testCompany != null)
             {
-                var testCompany = context.Companies.FirstOrDefault(c => c.Name == "Validation Test Company");
-                if (testCompany == null)
-                {
-                    testCompany = new Company
-                    {
-                        Name = "Validation Test Company",
-                        TaxCode = "987654321",
-                        Website = "https://validationcompany.com",
-                        Address = "Hà Nội",
-                        Description = "Công ty kiểm thử tự động validation.",
-                        CreatedAt = DateTime.Now
-                    };
-                    context.Companies.Add(testCompany);
-                    context.SaveChanges();
-                }
-
-                existedRecruiter = new User
-                {
-                    FullName = "Existed Recruiter User",
-                    Email = "existed_recruiter_validation@smartcv.vn",
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password123!"),
-                    Role = "Recruiter",
-                    Phone = "0123456789",
-                    AvatarUrl = "/uploads/avatars/default.png",
-                    CompanyID = testCompany.CompanyID,
-                    CreatedAt = DateTime.Now
-                };
-                context.Users.Add(existedRecruiter);
+                context.Companies.Remove(testCompany);
                 context.SaveChanges();
-                Console.WriteLine("Seed Existed Recruiter User: OK");
             }
         }
-        catch (Exception validationUserEx)
+        catch (Exception cleanEx)
         {
-            Console.WriteLine("Lỗi seed validation users: " + validationUserEx.Message);
+            Console.WriteLine("Lỗi dọn dẹp tài khoản test: " + cleanEx.Message);
         }
 
         // Migration thủ công: Tạo bảng TestSteps và seed dữ liệu kịch bản mặc định nếu chưa có
