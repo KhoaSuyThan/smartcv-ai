@@ -5,7 +5,14 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-10-08] - Khởi tạo Lộ trình Phát triển Hệ thống (ROADMAP 12 Tuần) & Khung AI Cục Bộ
+## [2026-10-10] - Tích Hợp Sơ Đồ Kiến Trúc Hệ Thống & Quy Trình NCKH vào ROADMAP.md
+
+### Added & Documented
+- **Nhúng Sơ đồ Kiến trúc vào `ROADMAP.md`:** Tích hợp sơ đồ Mermaid trực quan hóa 5 khối cốt lõi (Hệ thống ứng dụng, Dữ liệu & AI hỗ trợ, Huấn luyện cục bộ LLaMA/Sentence-Transformers, Đánh giá Benchmark NCKH > 80%, và Dịch vụ suy luận nội bộ AiMatchService) kèm bảng giải trình chi tiết kỹ thuật.
+- **Dọn dẹp tệp đồ họa phụ:** Đã hoàn tất việc trích xuất và lưu giữ sơ đồ vào `ROADMAP.md`, loại bỏ tệp tạm `SmartCV_Architecture_Diagram.drawio` theo yêu cầu nhằm tinh gọn thư mục gốc.
+
+
+
 
 ### Added & Documented
 - **Khởi tạo tệp `ROADMAP.md`:** Xây dựng lộ trình kỹ thuật chi tiết 12 tuần (3 tháng) cho hệ thống theo kiến trúc Khung AI đa mô hình chạy cục bộ (Local Multi-Model AI Framework). Bao gồm 5 trụ cột kỹ thuật: Chuẩn hóa & ẩn danh hóa PII, Động cơ lọc CV ngữ nghĩa siêu tốc với Vector Cache, Động cơ phân tích năng lực chuẩn ATS chạy mô hình cục bộ, Phòng phỏng vấn ảo tình huống STAR tích hợp trợ lý sửa lỗi Tiếng Anh, và Đóng gói toàn bộ cụm microservices chạy 100% offline bằng Docker Compose.

@@ -29,6 +29,90 @@
 
 ---
 
+## 🏗️ Sơ Đồ Kiến Trúc Hệ Thống & Quy Trình NCKH
+
+Dưới đây là sơ đồ kiến trúc tổng thể kết hợp giữa **Hệ thống ứng dụng nghiệp vụ** và **Quy trình nghiên cứu khoa học (Huấn luyện & Thực nghiệm mô hình AI cục bộ)**:
+
+```mermaid
+flowchart TB
+    %% ==========================================
+    %% KHỐI 1: GIAO DIỆN & BACKEND ỨNG DỤNG
+    %% ==========================================
+    subgraph KHOI_1 ["1. HỆ THỐNG ỨNG DỤNG NGHIỆP VỤ (SMARTCV PLATFORM)"]
+        direction LR
+        UI["🖥️ GIAO DIỆN NGƯỜI DÙNG<br/>(Vue 3 CV Builder / Views)"] 
+        BE["⚙️ BACKEND XỬ LÝ CHÍNH<br/>(ASP.NET Core Web API)"]
+        DB[("🗄️ CƠ SỞ DỮ LIỆU<br/>(SQL Server)")]
+        
+        UI <-->|"HTTP / REST API"| BE
+        BE <-->|"EF Core"| DB
+    end
+
+    %% ==========================================
+    %% KHỐI 2: DỮ LIỆU & AI HỖ TRỢ
+    %% ==========================================
+    subgraph KHOI_2 ["2. DỮ LIỆU & CÔNG CỤ HỖ TRỢ NGHIÊN CỨU"]
+        CloudLLM["☁️ CLOUD LLM (Gemini / Codex)<br/>• Sinh dữ liệu mẫu đối chứng (Data Synthesis)<br/>• Hỗ trợ sinh script tiền xử lý Python"]
+        RawData["📁 KHO DỮ LIỆU ĐẶC THÙ (DATA)<br/>• Cấu trúc JSON/DB cụ thể, đa ngành nghề<br/>• Pattern: Title, Skill, Experience"]
+        Preprocess["🧹 TIỀN XỬ LÝ & LÀM SẠCH (Python Pipeline)<br/>• Ẩn danh hóa thông tin cá nhân (PII De-id)<br/>• Chuẩn hóa cặp đối sánh: (Resume, JD)"]
+        
+        CloudLLM -->|"Hỗ trợ script/code"| Preprocess
+        RawData --> Preprocess
+    end
+
+    %% ==========================================
+    %% KHỐI 3: HUẤN LUYỆN LOCAL
+    %% ==========================================
+    subgraph KHOI_3 ["3. HUẤN LUYỆN & TINH CHỈNH CỤC BỘ (LOCAL TRAINING)"]
+        BaseModels["📦 BASE MODELS CỤC BỘ (Open-source)<br/>• LLaMA 3 / Qwen (Local SLM ~ vài GB)<br/>• Sentence-Transformers (paraphrase-multilingual)"]
+        TrainStep["⚡ HUẤN LUYỆN / TINH CHỈNH (Fine-Tuning)<br/>• Contrastive Learning / Multiple Negatives Ranking<br/>• QLoRA / Instruction Tuning (Chấm điểm ATS)"]
+        ResultModel["🎯 MÔ HÌNH KẾT QUẢ (Result Model)<br/>• Thích ứng sâu với bộ dữ liệu CV-JD<br/>• Vận hành hoàn toàn Offline trên máy trạm"]
+        
+        BaseModels --> TrainStep
+        TrainStep --> ResultModel
+    end
+
+    %% ==========================================
+    %% KHỐI 4: ĐÁNH GIÁ THỰC NGHIỆM
+    %% ==========================================
+    subgraph KHOI_4 ["4. ĐÁNH GIÁ THỰC NGHIỆM KHOA HỌC (NCKH)"]
+        TestData["🧪 TẬP KIỂM THỬ ĐỘC LẬP (Data Mới)<br/>(100 - 200 cặp CV-JD có nhãn chuẩn)"]
+        OutputPred["📤 ĐẦU RA DỰ ĐOÁN (Output Suggestion)<br/>• % Điểm tương đồng ngữ nghĩa (Match Score)<br/>• Phân tích khoảng trống kỹ năng (Skill Gaps)"]
+        Metrics["📊 CHỈ SỐ ĐO ĐẠC (Metric Benchmark)<br/>• Accuracy, Precision, Recall > 80%<br/>• Latency < 1.5s / 100 CVs"]
+        
+        TestData --> OutputPred
+        OutputPred --> Metrics
+    end
+
+    %% ==========================================
+    %% KHỐI 5: DỊCH VỤ SUY LUẬN NỘI BỘ
+    %% ==========================================
+    subgraph KHOI_5 ["5. DỊCH VỤ SUY LUẬN NỘI BỘ (LOCAL INFERENCE SERVICE)"]
+        LocalAPI["🚀 AI MICROSERVICE (AiMatchService)<br/>(Python FastAPI / Ollama Service)<br/>• Vận hành độc lập offline, bảo mật 100%<br/>• 0đ chi phí Token API"]
+    end
+
+    %% ==========================================
+    %% KẾT NỐI LIÊN KHỐI
+    %% ==========================================
+    Preprocess ==>|"Dữ liệu chuẩn hóa"| TrainStep
+    ResultModel ==>|"Đánh giá mô hình"| OutputPred
+    ResultModel ==>|"Đóng gói Model"| LocalAPI
+    
+    Metrics -.->|"Nếu < 80%: Tinh chỉnh lại"| TrainStep
+    Metrics ==>|"Đạt chuẩn NCKH (> 80%)"| LocalAPI
+    
+    BE <===>|"REST API 2 chiều (JSON)"| LocalAPI
+```
+
+### Bảng Mô Tả Chức Năng Các Khối Kiến Trúc:
+* **Khối 1 (Hệ Thống Ứng Dụng):** Nền tảng Web ASP.NET Core & Vue 3 CV Builder phụ trách tương tác người dùng và quản lý hồ sơ tuyển dụng.
+* **Khối 2 (Dữ Liệu & Hỗ Trợ Nghiên Cứu):** Chuẩn hóa kho dữ liệu Resume-JD, lọc thông tin định danh (PII); Cloud LLM chỉ đóng vai trò sinh dữ liệu đối chứng và sinh script.
+* **Khối 3 (Huấn Luyện Cục Bộ):** Thực hiện Fine-tuning (QLoRA / Contrastive Learning) trên các mô hình mã nguồn mở (LLaMA 3, Qwen, Sentence-Transformers) với kích thước vài GB.
+* **Khối 4 (Đánh Giá Thực Nghiệm):** Đánh giá khách quan trên tập dữ liệu kiểm thử mới, đo lường các chỉ số khoa học: Accuracy, Precision, Recall (> 80%) và độ trễ (Latency).
+* **Khối 5 (Dịch Vụ Suy Luận Nội Bộ):** Đóng gói mô hình đạt chuẩn thành Microservice (Python FastAPI / Ollama), cung cấp API nội bộ cho Backend với độ trễ thấp, 0đ chi phí và bảo mật tuyệt đối.
+
+---
+
 ## 📅 Lộ Trình 12 Tuần Chi Tiết
 
 ### Giai đoạn 1: Chuẩn Hóa Dữ Liệu & Hạ Tầng Mô Hình Cục Bộ (Tuần 1 - Tuần 4)
