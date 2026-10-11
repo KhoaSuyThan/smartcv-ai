@@ -29,3 +29,7 @@ __pycache__/
 
 # Temporary publish folder
 publish_temp/
+
+# Dữ liệu CV PDF thô (dung lượng lớn & bảo mật thông tin)
+Data/Raw_PDFs/
+Data/Raw_PDFs/*

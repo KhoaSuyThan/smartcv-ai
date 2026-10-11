@@ -13,7 +13,7 @@ Bảng này được lập nhằm tuân thủ quy định học thuật và hư�
 
 | Thời gian | AI | Nội dung yêu cầu | AI tạo ra | Sinh viên xử lý |
 | :---: | :---: | :---| :---| :---|
-| 11/10/2026 | Antigravity (Gemini) | Thiết lập hệ thống quy chuẩn luật Agent, chuẩn Git và phân quyền kiểm thử tự động | Cấu trúc file `.agents/rules/`, `AGENTS.md`, quy chuẩn nhánh/commit và quyền tự test | Kiểm tra, phân loại các nhóm quy tắc, cấp quyền test chủ động và duyệt đưa vào dự án |
+| 11/10/2026 | Antigravity (Gemini) | Bóc tách toàn bộ 3.320 CV sang JSON, tối ưu phân 2 cột, che PII và dọn dẹp file tạm | File `Clean_Anonymized_CVs.json` (18.45 MB), thuật toán phân cột ngang và kịch bản bóc tách batch | Kiểm tra chất lượng trích xuất (96.2%), xác thực khử lỗi ngắt dòng email, phê duyệt xóa các file test tạm thời |
 | 11/10/2026 | Antigravity (Gemini) | Sửa lỗi terminal `dotnet run` không hiện link localhost sau khi chạy `npm run build` | Giải thích cơ chế dev server vs build tĩnh; đoạn cấu hình `Microsoft.Hosting.Lifetime` trong Serilog | Đọc hiểu cơ chế Serilog Override, chạy test `npm run dev` và khởi động lại Back-end |
 | 10/10/2026 | Antigravity (Gemini) | Trực quan hóa sơ đồ khối kiến trúc hệ thống và quy trình NCKH cho đề tài | Sơ đồ Mermaid 5 khối xử lý và bảng thuyết minh kỹ thuật | Review tính phù hợp với cấu trúc microservice thực tế, nhúng vào `ROADMAP.md` |
 | 09/10/2026 | Antigravity (Gemini) | Tự động hóa kiểm thử E2E kịch bản Validation đăng ký/đăng nhập và đăng tuyển | Dữ liệu TestSteps và kịch bản Playwright cho validation form | Chạy thử nghiệm runner trên giao diện web, kiểm tra độ chính xác của các assert |
