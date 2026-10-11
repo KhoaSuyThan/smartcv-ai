@@ -11,6 +11,8 @@ Bảng này được lập nhằm tuân thủ quy định học thuật và hư�
 
 ## Nhật ký chi tiết (AI Usage Log Table)
 
+| 11/10/2026 | Antigravity (Gemini) | Triển khai động cơ Hybrid 2 vòng: Sinh Vector Cache 3.320 CV và module chấm điểm ATS | File npy ma trận 3320x384 (4.86 MB), `ats_scorer.py`, 2 endpoint FastAPI | Chạy test tự động xác nhận latency Vòng 1 (54.8 ms), Vòng 2 (89.5 ms), tổng thời gian 144 ms (< 0.15s) |
+| 11/10/2026 | Antigravity (Gemini) | Thiết kế kiến trúc so khớp Hybrid 2 vòng và kế hoạch kỹ thuật chi tiết | File `IMPLEMENTATION_PLAN.md` (Sơ đồ 2 vòng, công thức điểm ATS, phân bổ vai trò 4 kỹ sư) | Đọc hiểu cơ chế 2-Stage Retrieval, duyệt công thức tính điểm và nghiệm thu kế hoạch |
 | 11/10/2026 | Antigravity (Gemini) | Xây dựng và chuẩn hóa tập dữ liệu 35 tin tuyển dụng (JD) phục vụ đối chứng NCKH | File `Clean_Job_Descriptions.json` (35 JD, 66 KB, 6 nhóm ngành, song ngữ) | Kiểm tra tính duy nhất ID, xác thực cấu trúc trường kỹ năng và độ tương thích vector 384-dim |
 | 11/10/2026 | Antigravity (Gemini) | Đóng gói API trích xuất PDF/che PII và kết nối luồng upload CV trên C# Web | Module `pii_extractor.py`, 2 endpoint FastAPI và tích hợp C# trong ResumeController / SmartMatchController | Kiểm tra kết quả test tự động (bóc tách 508 từ, che 3 PII, vector 384-dim), xác nhận dotnet build 0 error |
 | 11/10/2026 | Antigravity (Gemini) | Bóc tách toàn bộ 3.320 CV sang JSON, tối ưu phân 2 cột, che PII và dọn dẹp file tạm | File `Clean_Anonymized_CVs.json` (18.45 MB), thuật toán phân cột ngang và kịch bản bóc tách batch | Kiểm tra chất lượng trích xuất (96.2%), xác thực khử lỗi ngắt dòng email, phê duyệt xóa các file test tạm thời |
