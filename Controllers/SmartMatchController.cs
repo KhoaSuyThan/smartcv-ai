@@ -448,7 +448,16 @@ namespace DoAnCS.Controllers
                     dynamic json = JsonConvert.DeserializeObject(resume.JsonContent);
                     if (json != null)
                     {
-                        // Trích xuất sections từ JSON
+                        // 1. Kiểm tra nếu là CV tải lên từ file PDF đã được bóc tách và che PII
+                        if (json.is_pdf_upload == true && json.clean_text != null)
+                        {
+                            string cleanText = json.clean_text.ToString();
+                            sb.AppendLine("\n[Nội dung hồ sơ PDF]");
+                            sb.AppendLine(cleanText);
+                            return sb.ToString().Trim();
+                        }
+
+                        // 2. Trích xuất sections từ JSON (dành cho CV tạo bằng Vue Builder)
                         if (json.sections != null)
                         {
                             foreach (var section in json.sections)

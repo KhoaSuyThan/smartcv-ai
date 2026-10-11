@@ -16,6 +16,7 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 - **Kế hoạch triển khai kỹ thuật (`IMPLEMENTATION_PLAN.md`):** Xây dựng kế hoạch 12 tuần chi tiết về công nghệ, thuật toán (PII, Semantic Search, ATS, STAR) và phân bổ vai trò nhóm 4 kỹ sư.
 - **Gom dữ liệu PDF (`Data/Raw_PDFs/`):** Sao chép thành công 3.320 file PDF từ 1.909 thư mục con vào dự án, cấu hình .gitignore bảo vệ không đẩy lên Git.
 - **Bóc tách & Ẩn danh hóa 3.320 CV (`Data/Clean_Anonymized_CVs.json`):** Hoàn tất trích xuất toàn bộ 3.320 file PDF (đạt 96.2% thành công, 18.45 MB), phân loại ngôn ngữ (1.344 Việt, 1.660 Anh, 190 Song ngữ) và che PII sẵn sàng đưa lên Git.
+- **Đóng gói Endpoint PII & Tích hợp Upload CV (`AiMatchService` & `ResumeController`):** Xây dựng module `pii_extractor.py` (bóc tách 2 cột thích ứng, che PII), mở 2 endpoint FastAPI (`/api/pii/extract-and-anonymize-pdf` & `/api/pii/anonymize-text`), cập nhật C# Web tự động làm sạch text và lưu vector cache 384 chiều khi upload PDF.
 - **Dọn dẹp tệp tạm thời:** Xóa tệp test [Data/Sample_10_CVs.json](file:///Data/Sample_10_CVs.json) và bản nháp [IMPLEMENTATION_PLAN.md](file:///IMPLEMENTATION_PLAN.md) sau khi người dùng phê duyệt để giữ kho mã nguồn tinh gọn.
 
 ## [2026-10-10] - Tích Hợp Sơ Đồ Kiến Trúc Hệ Thống & Quy Trình NCKH vào ROADMAP.md
