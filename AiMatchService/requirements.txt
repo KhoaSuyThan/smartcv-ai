@@ -3,3 +3,5 @@ uvicorn
 pydantic
 sentence-transformers
 torch
+pymupdf
+python-multipart

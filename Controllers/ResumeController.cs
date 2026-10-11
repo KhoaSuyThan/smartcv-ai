@@ -7,6 +7,8 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using DoAnCS.Models.ViewModels;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 
 namespace DoAnCS.Controllers
 {
@@ -153,13 +155,62 @@ namespace DoAnCS.Controllers
             int userId = GetCurrentUserId();
             var user = await _context.Users.FindAsync(userId);
 
-            // Tạo bản record Resume đánh dấu là file upload
+            // Gửi PDF sang Python AI Service để trích xuất text (2 cột adaptive), che PII và sinh vector
+            string extractedCleanText = "";
+            string detectedLang = "unknown";
+            int wordCount = 0;
+            List<float>? embeddingVector = null;
+
+            try
+            {
+                var pythonBaseUrl = _config["PythonAI:BaseUrl"] ?? "http://localhost:8000";
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromSeconds(30);
+                    using var formData = new MultipartFormDataContent();
+                    using var pdfStreamForAi = pdfFile.OpenReadStream();
+                    using var streamContent = new StreamContent(pdfStreamForAi);
+                    streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+                    formData.Add(streamContent, "file", pdfFile.FileName);
+
+                    var response = await client.PostAsync($"{pythonBaseUrl}/api/pii/extract-and-anonymize-pdf?include_vector=true", formData);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var pyResult = await response.Content.ReadFromJsonAsync<PyExtractPdfResponse>();
+                        if (pyResult != null && pyResult.success)
+                        {
+                            extractedCleanText = pyResult.clean_text ?? "";
+                            detectedLang = pyResult.language ?? "unknown";
+                            wordCount = pyResult.word_count;
+                            embeddingVector = pyResult.vector;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Fallback an toàn: Nếu Python AI service chưa khởi động, vẫn lưu CV bình thường
+                Console.WriteLine($"[ResumeController Warning] Không thể kết nối AiMatchService: {ex.Message}");
+            }
+
+            // Đóng gói metadata và nội dung text sạch vào JsonContent
+            var jsonPayload = new
+            {
+                is_pdf_upload = true,
+                clean_text = extractedCleanText,
+                language = detectedLang,
+                word_count = wordCount,
+                original_file_name = pdfFile.FileName
+            };
+
+            // Tạo bản ghi Resume đánh dấu là file upload
             var resume = new Resume
             {
                 UserID = userId,
                 Title = Path.GetFileNameWithoutExtension(pdfFile.FileName),
                 IsDraft = false, // Là file hoàn chỉnh
                 FileUploadUrl = "/uploads/cvs/" + uniqueFileName,
+                JsonContent = System.Text.Json.JsonSerializer.Serialize(jsonPayload),
                 CreatedAt = DateTime.Now,
                 UpdatedAt = DateTime.Now,
                 FullName = user?.FullName,
@@ -170,7 +221,26 @@ namespace DoAnCS.Controllers
             _context.Resumes.Add(resume);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Đã tải lên CV PDF thành công!";
+            // Lưu Vector Embedding vào cache nếu sinh thành công phục vụ SmartMatch
+            if (embeddingVector != null && embeddingVector.Any())
+            {
+                try
+                {
+                    _context.CVEmbeddings.Add(new CVEmbedding
+                    {
+                        ResumeID = resume.ResumeID,
+                        VectorJson = System.Text.Json.JsonSerializer.Serialize(embeddingVector),
+                        UpdatedAt = DateTime.Now
+                    });
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception embEx)
+                {
+                    Console.WriteLine($"[ResumeController Warning] Lỗi lưu CVEmbedding cache: {embEx.Message}");
+                }
+            }
+
+            TempData["SuccessMessage"] = "Đã tải lên CV PDF thành công và đồng bộ AI!";
             return RedirectToAction("Profile", "Account", new { t = "cv" });
         }
 
@@ -798,5 +868,16 @@ namespace DoAnCS.Controllers
     public class TogglePublicRequest {
         public int ResumeId { get; set; }
         public bool IsPublic { get; set; }
+    }
+
+    /// <summary>DTO nhận kết quả trích xuất và che PII từ AiMatchService</summary>
+    public class PyExtractPdfResponse
+    {
+        public bool success { get; set; }
+        public string? filename { get; set; }
+        public string? clean_text { get; set; }
+        public string? language { get; set; }
+        public int word_count { get; set; }
+        public List<float>? vector { get; set; }
     }
 }
