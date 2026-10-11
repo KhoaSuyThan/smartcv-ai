@@ -13,6 +13,7 @@ using Serilog;
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning) // Bỏ bớt log hệ thống thừa
+    .MinimumLevel.Override("Microsoft.Hosting.Lifetime", Serilog.Events.LogEventLevel.Information) // Hiển thị thông tin cổng lắng nghe (Now listening on / Application started)
     .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
