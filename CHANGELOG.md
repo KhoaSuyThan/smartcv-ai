@@ -17,7 +17,9 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 - **Gom dữ liệu PDF (`Data/Raw_PDFs/`):** Sao chép thành công 3.320 file PDF từ 1.909 thư mục con vào dự án, cấu hình .gitignore bảo vệ không đẩy lên Git.
 - **Bóc tách & Ẩn danh hóa 3.320 CV (`Data/Clean_Anonymized_CVs.json`):** Hoàn tất trích xuất toàn bộ 3.320 file PDF (đạt 96.2% thành công, 18.45 MB), phân loại ngôn ngữ (1.344 Việt, 1.660 Anh, 190 Song ngữ) và che PII sẵn sàng đưa lên Git.
 - **Đóng gói Endpoint PII & Tích hợp Upload CV (`AiMatchService` & `ResumeController`):** Xây dựng module `pii_extractor.py` (bóc tách 2 cột thích ứng, che PII), mở 2 endpoint FastAPI (`/api/pii/extract-and-anonymize-pdf` & `/api/pii/anonymize-text`), cập nhật C# Web tự động làm sạch text và lưu vector cache 384 chiều khi upload PDF.
-- **Dọn dẹp tệp tạm thời:** Xóa tệp test [Data/Sample_10_CVs.json](file:///Data/Sample_10_CVs.json) và bản nháp [IMPLEMENTATION_PLAN.md](file:///IMPLEMENTATION_PLAN.md) sau khi người dùng phê duyệt để giữ kho mã nguồn tinh gọn.
+- **Chuẩn hóa Bộ dữ liệu Tin tuyển dụng (`Data/Clean_Job_Descriptions.json`):** Xây dựng bộ 35 JD thực tế (20 Việt, 15 Anh) thuộc 6 nhóm ngành, chuẩn hóa kỹ năng cứng/mềm và cấu trúc text phục vụ đối chứng NCKH và SmartMatch.
+- **Thiết lập Kế hoạch So khớp Hybrid 2 vòng v3.0 (`IMPLEMENTATION_PLAN.md`):** Nâng cấp kiến trúc Vòng 1 (Vector Cache < 0.05s) và Vòng 2 (ATS thế hệ mới tích hợp 5 cơ chế: chống nhồi từ khóa Proven Skills, quy tắc Knockout Must-have, so khớp Zero-shot, độ mới kỹ năng và độ phù hợp cấp bậc).
+- **Triển khai Động cơ So khớp Hybrid 2 vòng (`AiMatchService` & `Data/`):** Hoàn tất sinh Vector Cache `CV_Vector_Cache_384d.npy` (4.86 MB) cho 3.320 CV (Vòng 1 phản hồi 54.8 ms); xây dựng module `ats_scorer.py` chấm điểm ATS chuyên sâu chống gian lận (Vòng 2 phản hồi 89.5 ms); tổng thời gian quét và chấm điểm Top ứng viên chỉ 144.3 ms (< 0.15s).
 
 ## [2026-10-10] - Tích Hợp Sơ Đồ Kiến Trúc Hệ Thống & Quy Trình NCKH vào ROADMAP.md
 

@@ -1,0 +1,1053 @@
+[
+  {
+    "id": "JD_IT_001",
+    "title": "Senior .NET Backend Developer",
+    "company_alias": "VTI Cloud Solutions",
+    "industry": "Information Technology",
+    "level": "Senior",
+    "language": "vi",
+    "salary_range": "30.000.000 - 45.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 4,
+    "hard_skills": [
+      "C#",
+      ".NET Core",
+      "ASP.NET Core",
+      "Entity Framework Core",
+      "SQL Server",
+      "RESTful API",
+      "Microservices",
+      "Docker",
+      "Redis"
+    ],
+    "soft_skills": [
+      "Tư duy kiến trúc hệ thống",
+      "Lãnh đạo đội ngũ kỹ thuật",
+      "Giải quyết vấn đề phức tạp",
+      "Giao tiếp"
+    ],
+    "education_required": "Cử nhân Công nghệ thông tin, Khoa học máy tính hoặc tương đương",
+    "description": "Chịu trách nhiệm thiết kế kiến trúc hệ thống backend microservices chịu tải cao, phát triển các API phục vụ hàng triệu người dùng, tối ưu hóa truy vấn CSDL và bảo mật hệ thống thanh toán điện tử.",
+    "requirements": "Tối thiểu 4 năm kinh nghiệm lập trình C# và .NET Core. Thành thạo SQL Server, tối ưu Index, Stored Procedure. Có kinh nghiệm triển khai Microservices, Docker, Message Queue (RabbitMQ hoặc Kafka). Hiểu biết sâu về Clean Architecture và Design Patterns.",
+    "benefits": "Lương tháng 13 + thưởng hiệu quả kinh doanh (2-4 tháng lương), bảo hiểm sức khỏe Bảo Việt 24/7, xét tăng lương 2 lần/năm, tài trợ thi chứng chỉ Microsoft Azure/AWS.",
+    "full_jd_text": "Vị trí: Senior .NET Backend Developer\nCông ty: VTI Cloud Solutions\nMô tả: Chịu trách nhiệm thiết kế kiến trúc hệ thống backend microservices chịu tải cao, phát triển các API phục vụ hàng triệu người dùng, tối ưu hóa truy vấn CSDL và bảo mật hệ thống thanh toán điện tử.\nYêu cầu: Tối thiểu 4 năm kinh nghiệm lập trình C# và .NET Core. Thành thạo SQL Server, tối ưu Index, Stored Procedure. Có kinh nghiệm triển khai Microservices, Docker, Message Queue (RabbitMQ hoặc Kafka). Hiểu biết sâu về Clean Architecture và Design Patterns.\nMức lương: 30.000.000 - 45.000.000 VND"
+  },
+  {
+    "id": "JD_IT_002",
+    "title": "Junior / Middle .NET Developer",
+    "company_alias": "FPT Digital Transformation",
+    "industry": "Information Technology",
+    "level": "Junior / Middle",
+    "language": "vi",
+    "salary_range": "14.000.000 - 22.000.000 VND",
+    "location": "Đà Nẵng (On-site)",
+    "experience_years_required": 1,
+    "hard_skills": [
+      "C#",
+      ".NET Core",
+      "ASP.NET Core MVC",
+      "Entity Framework",
+      "SQL Server",
+      "HTML/CSS/JavaScript",
+      "Git"
+    ],
+    "soft_skills": [
+      "Ham học hỏi",
+      "Làm việc nhóm",
+      "Chủ động trong công việc"
+    ],
+    "education_required": "Tốt nghiệp Đại học/Cao đẳng chuyên ngành CNTT hoặc Phần mềm",
+    "description": "Tham gia phát triển các phân hệ nghiệp vụ web ứng dụng quản lý doanh nghiệp (ERP, CRM) trên nền tảng ASP.NET Core, viết unit test và phối hợp với đội kiểm thử.",
+    "requirements": "Từ 1 - 2 năm kinh nghiệm làm việc với C# và ASP.NET Core. Nắm vững OOP, cơ sở dữ liệu quan hệ SQL Server. Biết sử dụng Git, hiểu cơ bản về RESTful API.",
+    "benefits": "Môi trường đào tạo bài bản, được mentor trực tiếp bởi Senior Architect, phụ cấp ăn trưa và gửi xe, bảo hiểm đầy đủ theo luật.",
+    "full_jd_text": "Vị trí: Junior / Middle .NET Developer\nCông ty: FPT Digital Transformation\nMô tả: Tham gia phát triển các phân hệ nghiệp vụ web ứng dụng quản lý doanh nghiệp (ERP, CRM) trên nền tảng ASP.NET Core, viết unit test và phối hợp với đội kiểm thử.\nYêu cầu: Từ 1 - 2 năm kinh nghiệm làm việc với C# và ASP.NET Core. Nắm vững OOP, cơ sở dữ liệu quan hệ SQL Server. Biết sử dụng Git, hiểu cơ bản về RESTful API.\nMức lương: 14.000.000 - 22.000.000 VND"
+  },
+  {
+    "id": "JD_IT_003",
+    "title": "Senior Java Backend Engineer (Spring Boot)",
+    "company_alias": "KMS Technology Vietnam",
+    "industry": "Information Technology",
+    "level": "Senior",
+    "language": "en",
+    "salary_range": "$1,800 - $2,800 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 4,
+    "hard_skills": [
+      "Java",
+      "Spring Boot",
+      "Spring Cloud",
+      "PostgreSQL",
+      "Kafka",
+      "Microservices",
+      "Docker",
+      "Kubernetes",
+      "AWS"
+    ],
+    "soft_skills": [
+      "System design",
+      "Agile/Scrum mindset",
+      "English communication",
+      "Problem-solving"
+    ],
+    "education_required": "Bachelor's degree in Computer Science, Software Engineering or related field",
+    "description": "Build high-throughput microservices for US fintech partners. Collaborate with US product managers to architect scalable cloud-native architectures.",
+    "requirements": "4+ years of hands-on Java development. Deep expertise in Spring Boot, Spring Data JPA, and PostgreSQL. Proven experience with Apache Kafka, Docker, and AWS cloud services. Fluent English (written & spoken).",
+    "benefits": "Competitive net salary in USD, premium healthcare insurance for employee & family, 18 annual leave days, hybrid working policy.",
+    "full_jd_text": "Vị trí: Senior Java Backend Engineer (Spring Boot)\nCông ty: KMS Technology Vietnam\nMô tả: Build high-throughput microservices for US fintech partners. Collaborate with US product managers to architect scalable cloud-native architectures.\nYêu cầu: 4+ years of hands-on Java development. Deep expertise in Spring Boot, Spring Data JPA, and PostgreSQL. Proven experience with Apache Kafka, Docker, and AWS cloud services. Fluent English (written & spoken).\nMức lương: $1,800 - $2,800 USD"
+  },
+  {
+    "id": "JD_IT_004",
+    "title": "Python Backend Developer (FastAPI / Django)",
+    "company_alias": "VinAI Research Ecosystem",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "20.000.000 - 32.000.000 VND",
+    "location": "Hà Nội (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Python",
+      "FastAPI",
+      "Django",
+      "PostgreSQL",
+      "Celery",
+      "Redis",
+      "Docker",
+      "RESTful API"
+    ],
+    "soft_skills": [
+      "Tư duy logic tốt",
+      "Khả năng đọc hiểu tài liệu tiếng Anh",
+      "Làm việc nhóm"
+    ],
+    "education_required": "Đại học chuyên ngành CNTT, Toán tin hoặc Điện tử viễn thông",
+    "description": "Phát triển các dịch vụ backend phục vụ mô hình AI suy luận, đóng gói API hiệu năng cao với FastAPI, quản lý hàng đợi tác vụ nền với Celery và Redis.",
+    "requirements": "Tối thiểu 2 năm kinh nghiệm lập trình backend với Python (FastAPI hoặc Django). Thành thạo kiến trúc bất đồng bộ (asyncio), Docker containerization và tích hợp API mô hình AI.",
+    "benefits": "Làm việc trong môi trường công nghệ tiên phong, cơ hội tiếp cận hạ tầng tính toán GPU hiện đại, chế độ đãi ngộ cạnh tranh.",
+    "full_jd_text": "Vị trí: Python Backend Developer (FastAPI / Django)\nCông ty: VinAI Research Ecosystem\nMô tả: Phát triển các dịch vụ backend phục vụ mô hình AI suy luận, đóng gói API hiệu năng cao với FastAPI, quản lý hàng đợi tác vụ nền với Celery và Redis.\nYêu cầu: Tối thiểu 2 năm kinh nghiệm lập trình backend với Python (FastAPI hoặc Django). Thành thạo kiến trúc bất đồng bộ (asyncio), Docker containerization và tích hợp API mô hình AI.\nMức lương: 20.000.000 - 32.000.000 VND"
+  },
+  {
+    "id": "JD_IT_005",
+    "title": "Node.js / TypeScript Backend Developer",
+    "company_alias": "Grab Tech Hub Vietnam",
+    "industry": "Information Technology",
+    "level": "Middle / Senior",
+    "language": "en",
+    "salary_range": "$1,500 - $2,500 USD",
+    "location": "Ho Chi Minh City (On-site)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Node.js",
+      "TypeScript",
+      "NestJS",
+      "Express.js",
+      "MongoDB",
+      "Redis",
+      "GraphQL",
+      "Docker"
+    ],
+    "soft_skills": [
+      "Analytical thinking",
+      "Team collaboration",
+      "Code review & mentorship"
+    ],
+    "education_required": "Bachelor's degree in IT, Computer Science, or equivalent practical experience",
+    "description": "Design and implement scalable microservices handling ride-hailing and food delivery requests with sub-second latencies.",
+    "requirements": "3+ years working with Node.js and TypeScript. Solid understanding of event-driven architecture, NestJS framework, MongoDB and Redis caching. Experience with CI/CD and Docker.",
+    "benefits": "Grab benefits package, annual wellness allowance, MacBook Pro provided, international team environment.",
+    "full_jd_text": "Vị trí: Node.js / TypeScript Backend Developer\nCông ty: Grab Tech Hub Vietnam\nMô tả: Design and implement scalable microservices handling ride-hailing and food delivery requests with sub-second latencies.\nYêu cầu: 3+ years working with Node.js and TypeScript. Solid understanding of event-driven architecture, NestJS framework, MongoDB and Redis caching. Experience with CI/CD and Docker.\nMức lương: $1,500 - $2,500 USD"
+  },
+  {
+    "id": "JD_IT_006",
+    "title": "Fullstack Web Developer (.NET Core & Vue.js / React)",
+    "company_alias": "NashTech Global",
+    "industry": "Information Technology",
+    "level": "Middle / Senior",
+    "language": "vi",
+    "salary_range": "25.000.000 - 38.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "C#",
+      ".NET Core",
+      "Vue.js",
+      "React",
+      "TypeScript",
+      "SQL Server",
+      "Tailwind CSS",
+      "RESTful API",
+      "Git"
+    ],
+    "soft_skills": [
+      "Giao tiếp đa chức năng",
+      "Quản lý thời gian",
+      "Trách nhiệm cao"
+    ],
+    "education_required": "Tốt nghiệp Đại học chuyên ngành liên quan Công nghệ thông tin",
+    "description": "Phát triển toàn diện ứng dụng web từ giao diện người dùng (Vue 3 / React) đến hệ thống xử lý phía máy chủ (.NET Core API) và cơ sở dữ liệu SQL Server.",
+    "requirements": "Từ 3 năm kinh nghiệm lập trình Fullstack Web. Frontend thành thạo Vue 3 (Composition API) hoặc React. Backend vững chắc C# .NET Core và EF Core. Có kinh nghiệm tối ưu hiệu năng web.",
+    "benefits": "Chế độ làm việc linh hoạt (2 ngày WFH/tuần), bảo hiểm sức khỏe quốc tế, tài trợ học tiếng Anh và các khóa học nâng cao kỹ năng.",
+    "full_jd_text": "Vị trí: Fullstack Web Developer (.NET Core & Vue.js / React)\nCông ty: NashTech Global\nMô tả: Phát triển toàn diện ứng dụng web từ giao diện người dùng (Vue 3 / React) đến hệ thống xử lý phía máy chủ (.NET Core API) và cơ sở dữ liệu SQL Server.\nYêu cầu: Từ 3 năm kinh nghiệm lập trình Fullstack Web. Frontend thành thạo Vue 3 (Composition API) hoặc React. Backend vững chắc C# .NET Core và EF Core. Có kinh nghiệm tối ưu hiệu năng web.\nMức lương: 25.000.000 - 38.000.000 VND"
+  },
+  {
+    "id": "JD_IT_007",
+    "title": "Fullstack JavaScript Developer (MERN Stack)",
+    "company_alias": "Sendo E-commerce Platform",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "18.000.000 - 28.000.000 VND",
+    "location": "Hồ Chí Minh (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "MongoDB",
+      "Express.js",
+      "React",
+      "Node.js",
+      "Redux",
+      "JavaScript (ES6+)",
+      "HTML5/CSS3"
+    ],
+    "soft_skills": [
+      "Chủ động",
+      "Tư duy sản phẩm",
+      "Hợp tác nhóm"
+    ],
+    "education_required": "Cao đẳng/Đại học chuyên ngành CNTT hoặc các trung tâm đào tạo lập trình uy tín",
+    "description": "Xây dựng các tính năng thương mại điện tử: giỏ hàng, cổng thanh toán, hệ thống gợi ý sản phẩm và trang quản trị người bán hàng.",
+    "requirements": "2+ năm kinh nghiệm phát triển web với MERN Stack. Thành thạo React Hooks, Redux Toolkit và Express.js. Hiểu biết về SEO web và tối ưu trải nghiệm người dùng.",
+    "benefits": "Thưởng tháng 13, phụ cấp dự án, voucher mua sắm nội bộ, hoạt động teambuilding định kỳ hàng quý.",
+    "full_jd_text": "Vị trí: Fullstack JavaScript Developer (MERN Stack)\nCông ty: Sendo E-commerce Platform\nMô tả: Xây dựng các tính năng thương mại điện tử: giỏ hàng, cổng thanh toán, hệ thống gợi ý sản phẩm và trang quản trị người bán hàng.\nYêu cầu: 2+ năm kinh nghiệm phát triển web với MERN Stack. Thành thạo React Hooks, Redux Toolkit và Express.js. Hiểu biết về SEO web và tối ưu trải nghiệm người dùng.\nMức lương: 18.000.000 - 28.000.000 VND"
+  },
+  {
+    "id": "JD_IT_008",
+    "title": "Golang Backend Engineer (High Concurrency)",
+    "company_alias": "VNG Corporation (ZaloPay)",
+    "industry": "Information Technology",
+    "level": "Senior",
+    "language": "en",
+    "salary_range": "$2,000 - $3,200 USD",
+    "location": "Ho Chi Minh City (Zalo Campus)",
+    "experience_years_required": 4,
+    "hard_skills": [
+      "Go (Golang)",
+      "gRPC",
+      "Kafka",
+      "MySQL",
+      "Redis",
+      "Distributed Systems",
+      "Docker",
+      "Prometheus"
+    ],
+    "soft_skills": [
+      "High concurrency problem-solving",
+      "Collaboration",
+      "Critical thinking"
+    ],
+    "education_required": "Bachelor's degree in Software Engineering or Computer Science",
+    "description": "Architect mission-critical payment gateway services handling tens of thousands of TPS (transactions per second) with 99.999% uptime.",
+    "requirements": "3+ years of intensive Golang engineering. Strong foundations in data structures, goroutines, channels, and memory profiling. Deep knowledge in distributed caching and microservice resiliency patterns.",
+    "benefits": "Top-tier compensation package, Zalo Campus facilities (gym, cafeteria, swimming pool), annual company trip, stock options (ESOP).",
+    "full_jd_text": "Vị trí: Golang Backend Engineer (High Concurrency)\nCông ty: VNG Corporation (ZaloPay)\nMô tả: Architect mission-critical payment gateway services handling tens of thousands of TPS (transactions per second) with 99.999% uptime.\nYêu cầu: 3+ years of intensive Golang engineering. Strong foundations in data structures, goroutines, channels, and memory profiling. Deep knowledge in distributed caching and microservice resiliency patterns.\nMức lương: $2,000 - $3,200 USD"
+  },
+  {
+    "id": "JD_IT_009",
+    "title": "Senior Vue.js Frontend Engineer (Vue 3 & Vite)",
+    "company_alias": "Tiki E-commerce Platform",
+    "industry": "Information Technology",
+    "level": "Senior",
+    "language": "vi",
+    "salary_range": "26.000.000 - 40.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Vue.js",
+      "Vue 3",
+      "Vite",
+      "Pinia",
+      "TypeScript",
+      "Tailwind CSS",
+      "Web Performance",
+      "Jest"
+    ],
+    "soft_skills": [
+      "Tư duy thẩm mỹ UI/UX",
+      "Tối ưu hiệu năng ứng dụng",
+      "Kèm cặp lập trình viên trẻ"
+    ],
+    "education_required": "Đại học chuyên ngành CNTT hoặc liên quan",
+    "description": "Chịu trách nhiệm kiến trúc mã nguồn Frontend cho hệ thống sàn thương mại điện tử, xây dựng Design System dùng chung, tối ưu hóa điểm Google Lighthouse và thời gian render.",
+    "requirements": "Từ 3 năm chuyên sâu về Vue.js (đặc biệt là Vue 3 Composition API, Pinia, Vite). Thành thạo TypeScript, CSS kiến trúc cao cấp (Tailwind/Sass). Có kinh nghiệm SSR (Nuxt.js) là điểm cộng lớn.",
+    "benefits": "Thu nhập hấp dẫn, môi trường năng động, trang thiết bị làm việc hiện đại (MacBook M3), teambuilding 2 lần/năm.",
+    "full_jd_text": "Vị trí: Senior Vue.js Frontend Engineer (Vue 3 & Vite)\nCông ty: Tiki E-commerce Platform\nMô tả: Chịu trách nhiệm kiến trúc mã nguồn Frontend cho hệ thống sàn thương mại điện tử, xây dựng Design System dùng chung, tối ưu hóa điểm Google Lighthouse và thời gian render.\nYêu cầu: Từ 3 năm chuyên sâu về Vue.js (đặc biệt là Vue 3 Composition API, Pinia, Vite). Thành thạo TypeScript, CSS kiến trúc cao cấp (Tailwind/Sass). Có kinh nghiệm SSR (Nuxt.js) là điểm cộng lớn.\nMức lương: 26.000.000 - 40.000.000 VND"
+  },
+  {
+    "id": "JD_IT_010",
+    "title": "React Frontend Developer (Next.js & TypeScript)",
+    "company_alias": "LINE Technology Vietnam",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "en",
+    "salary_range": "$1,200 - $2,000 USD",
+    "location": "Hanoi (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "Redux Toolkit",
+      "Tailwind CSS",
+      "HTML5/CSS3",
+      "RESTful API"
+    ],
+    "soft_skills": [
+      "English communication",
+      "Attention to detail",
+      "Team player"
+    ],
+    "education_required": "Bachelor's degree in Computer Science or equivalent",
+    "description": "Develop high-performance customer-facing web applications serving millions of users across Southeast Asia and Japan.",
+    "requirements": "2+ years of React development experience. Proficiency in Next.js (App Router, Server Components), TypeScript, and responsive design. Good understanding of web accessibility and cross-browser compatibility.",
+    "benefits": "100% full salary during probation, foreign language allowances (English/Japanese), premium private medical insurance.",
+    "full_jd_text": "Vị trí: React Frontend Developer (Next.js & TypeScript)\nCông ty: LINE Technology Vietnam\nMô tả: Develop high-performance customer-facing web applications serving millions of users across Southeast Asia and Japan.\nYêu cầu: 2+ years of React development experience. Proficiency in Next.js (App Router, Server Components), TypeScript, and responsive design. Good understanding of web accessibility and cross-browser compatibility.\nMức lương: $1,200 - $2,000 USD"
+  },
+  {
+    "id": "JD_IT_011",
+    "title": "Junior Frontend Developer (HTML/CSS/JavaScript/Vue)",
+    "company_alias": "SmartWeb Digital Studio",
+    "industry": "Information Technology",
+    "level": "Junior",
+    "language": "vi",
+    "salary_range": "10.000.000 - 16.000.000 VND",
+    "location": "Hồ Chí Minh (On-site)",
+    "experience_years_required": 1,
+    "hard_skills": [
+      "HTML5",
+      "CSS3",
+      "JavaScript",
+      "Bootstrap",
+      "Vue.js",
+      "Git",
+      "Responsive Design"
+    ],
+    "soft_skills": [
+      "Chăm chỉ",
+      "Cầu tiến",
+      "Tiếp thu nhanh"
+    ],
+    "education_required": "Tốt nghiệp Cao đẳng/Đại học chuyên ngành CNTT",
+    "description": "Cắt giao diện web từ bản thiết kế Figma, lập trình tương tác JavaScript, kết nối API backend và khắc phục các lỗi hiển thị trên thiết bị di động.",
+    "requirements": "Ít nhất 1 năm kinh nghiệm hoặc dự án thực tế về Frontend. Cắt HTML/CSS chuẩn pixel-perfect, hiểu rõ Flexbox, Grid. Biết cơ bản về Vue.js hoặc React là lợi thế.",
+    "benefits": "Cơ hội thăng tiến lên Middle sau 6 tháng, được đào tạo bài bản về chuẩn clean code và UI/UX hiện đại.",
+    "full_jd_text": "Vị trí: Junior Frontend Developer (HTML/CSS/JavaScript/Vue)\nCông ty: SmartWeb Digital Studio\nMô tả: Cắt giao diện web từ bản thiết kế Figma, lập trình tương tác JavaScript, kết nối API backend và khắc phục các lỗi hiển thị trên thiết bị di động.\nYêu cầu: Ít nhất 1 năm kinh nghiệm hoặc dự án thực tế về Frontend. Cắt HTML/CSS chuẩn pixel-perfect, hiểu rõ Flexbox, Grid. Biết cơ bản về Vue.js hoặc React là lợi thế.\nMức lương: 10.000.000 - 16.000.000 VND"
+  },
+  {
+    "id": "JD_IT_012",
+    "title": "Mobile App Developer (Flutter / Dart)",
+    "company_alias": "MoMo Financial Services",
+    "industry": "Information Technology",
+    "level": "Middle / Senior",
+    "language": "vi",
+    "salary_range": "22.000.000 - 35.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Flutter",
+      "Dart",
+      "BLoC",
+      "Provider",
+      "RESTful API",
+      "Firebase",
+      "Git",
+      "CI/CD Mobile"
+    ],
+    "soft_skills": [
+      "Tối ưu trải nghiệm di động",
+      "Khả năng làm việc độc lập",
+      "Kỹ năng phân tích"
+    ],
+    "education_required": "Đại học chuyên ngành Công nghệ phần mềm hoặc Khoa học máy tính",
+    "description": "Phát triển các module tính năng tài chính, thanh toán và ví điện tử trên ứng dụng di động đa nền tảng iOS & Android bằng Flutter.",
+    "requirements": "Tối thiểu 2 năm kinh nghiệm lập trình Flutter. Quản lý trạng thái thành thạo với BLoC hoặc Riverpod. Có ứng dụng đã publish trên App Store hoặc Google Play.",
+    "benefits": "Gói đãi ngộ hấp dẫn của Fintech kỳ lân, bảo hiểm sức khỏe cho bản thân và người thân, thưởng Tết từ 2-5 tháng lương.",
+    "full_jd_text": "Vị trí: Mobile App Developer (Flutter / Dart)\nCông ty: MoMo Financial Services\nMô tả: Phát triển các module tính năng tài chính, thanh toán và ví điện tử trên ứng dụng di động đa nền tảng iOS & Android bằng Flutter.\nYêu cầu: Tối thiểu 2 năm kinh nghiệm lập trình Flutter. Quản lý trạng thái thành thạo với BLoC hoặc Riverpod. Có ứng dụng đã publish trên App Store hoặc Google Play.\nMức lương: 22.000.000 - 35.000.000 VND"
+  },
+  {
+    "id": "JD_IT_013",
+    "title": "React Native Mobile Developer",
+    "company_alias": "Shopee Vietnam Tech Center",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "en",
+    "salary_range": "$1,300 - $2,200 USD",
+    "location": "Ho Chi Minh City (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "React Native",
+      "TypeScript",
+      "Redux",
+      "Native Modules (iOS/Android)",
+      "GraphQL",
+      "Performance Profiling"
+    ],
+    "soft_skills": [
+      "English proficiency",
+      "Problem solving",
+      "Cross-cultural teamwork"
+    ],
+    "education_required": "Bachelor's degree in Software Engineering, IT, or Computer Science",
+    "description": "Build seamless cross-platform shopping and live-streaming experiences on mobile apps for millions of daily active users.",
+    "requirements": "2+ years of React Native engineering. Deep understanding of mobile performance tuning (frame rate, memory leaks, bridge communication). Experience releasing apps on App Store and Google Play.",
+    "benefits": "Dynamic multinational tech environment, high-end Apple hardware, pantry with unlimited snacks, quarterly team activities.",
+    "full_jd_text": "Vị trí: React Native Mobile Developer\nCông ty: Shopee Vietnam Tech Center\nMô tả: Build seamless cross-platform shopping and live-streaming experiences on mobile apps for millions of daily active users.\nYêu cầu: 2+ years of React Native engineering. Deep understanding of mobile performance tuning (frame rate, memory leaks, bridge communication). Experience releasing apps on App Store and Google Play.\nMức lương: $1,300 - $2,200 USD"
+  },
+  {
+    "id": "JD_IT_014",
+    "title": "iOS Native Developer (Swift & SwiftUI)",
+    "company_alias": "Amanotes Music Games",
+    "industry": "Information Technology",
+    "level": "Senior",
+    "language": "en",
+    "salary_range": "$1,800 - $2,800 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Swift",
+      "SwiftUI",
+      "Combine",
+      "UIKit",
+      "Core Animation",
+      "Audio Processing",
+      "Instruments Profiling"
+    ],
+    "soft_skills": [
+      "Creative thinking",
+      "Music passion",
+      "English communication"
+    ],
+    "education_required": "Bachelor's degree in Computer Science or related degree",
+    "description": "Craft responsive, interactive music games downloaded by hundreds of millions of global players. Optimize 60 FPS graphics and low-latency audio pipelines.",
+    "requirements": "3+ years of native iOS development with Swift. Strong grasp of SwiftUI, Combine, and memory optimization with Instruments. Experience with audio frameworks (AVFoundation) is a great bonus.",
+    "benefits": "Unlimited paid time off (Unlimited PTO), hybrid working, modern creative office with music studio and boardgame lounge.",
+    "full_jd_text": "Vị trí: iOS Native Developer (Swift & SwiftUI)\nCông ty: Amanotes Music Games\nMô tả: Craft responsive, interactive music games downloaded by hundreds of millions of global players. Optimize 60 FPS graphics and low-latency audio pipelines.\nYêu cầu: 3+ years of native iOS development with Swift. Strong grasp of SwiftUI, Combine, and memory optimization with Instruments. Experience with audio frameworks (AVFoundation) is a great bonus.\nMức lương: $1,800 - $2,800 USD"
+  },
+  {
+    "id": "JD_IT_015",
+    "title": "AI / LLM Engineer (Generative AI & RAG)",
+    "company_alias": "FPT Software AI Center",
+    "industry": "Information Technology",
+    "level": "Middle / Senior",
+    "language": "vi",
+    "salary_range": "28.000.000 - 45.000.000 VND",
+    "location": "Hà Nội / TP.HCM (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Python",
+      "PyTorch",
+      "Hugging Face",
+      "LangChain",
+      "LlamaIndex",
+      "Sentence-Transformers",
+      "Vector Databases (Milvus/Qdrant/FAISS)",
+      "FastAPI",
+      "Docker"
+    ],
+    "soft_skills": [
+      "Tư duy nghiên cứu & ứng dụng",
+      "Giải quyết vấn đề học máy",
+      "Đọc hiểu bài báo NCKH"
+    ],
+    "education_required": "Cử nhân hoặc Thạc sĩ chuyên ngành Khoa học máy tính, Trí tuệ nhân tạo, Toán tin",
+    "description": "Nghiên cứu và triển khai các giải pháp Generative AI chạy cục bộ, xây dựng pipeline RAG (Retrieval-Augmented Generation), fine-tune các mô hình mã nguồn mở (Llama 3, Qwen, PhoBERT) và đóng gói API suy luận tối ưu tốc độ.",
+    "requirements": "Tối thiểu 2 năm kinh nghiệm trong lĩnh vực NLP/AI. Thành thạo Python, PyTorch, Hugging Face Transformers. Có kinh nghiệm thực tế về mô hình nhúng (Embeddings), Semantic Search và kỹ thuật lượng tử hóa (Quantization GGUF/AWQ).",
+    "benefits": "Cơ hội công bố bài báo khoa học quốc tế, tài trợ tham gia các hội nghị AI toàn cầu, đãi ngộ chuyên gia cấp tập đoàn.",
+    "full_jd_text": "Vị trí: AI / LLM Engineer (Generative AI & RAG)\nCông ty: FPT Software AI Center\nMô tả: Nghiên cứu và triển khai các giải pháp Generative AI chạy cục bộ, xây dựng pipeline RAG (Retrieval-Augmented Generation), fine-tune các mô hình mã nguồn mở (Llama 3, Qwen, PhoBERT) và đóng gói API suy luận tối ưu tốc độ.\nYêu cầu: Tối thiểu 2 năm kinh nghiệm trong lĩnh vực NLP/AI. Thành thạo Python, PyTorch, Hugging Face Transformers. Có kinh nghiệm thực tế về mô hình nhúng (Embeddings), Semantic Search và kỹ thuật lượng tử hóa (Quantization GGUF/AWQ).\nMức lương: 28.000.000 - 45.000.000 VND"
+  },
+  {
+    "id": "JD_IT_016",
+    "title": "Data Analyst (SQL, Python & Power BI)",
+    "company_alias": "VNPAY Payment Gateway",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "18.000.000 - 28.000.000 VND",
+    "location": "Hà Nội (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "SQL",
+      "Python (Pandas, NumPy)",
+      "Power BI",
+      "Tableau",
+      "Data Modeling",
+      "Excel Advanced",
+      "Statistics"
+    ],
+    "soft_skills": [
+      "Kể chuyện bằng dữ liệu (Data Storytelling)",
+      "Tư duy kinh doanh",
+      "Thuyết trình"
+    ],
+    "education_required": "Tốt nghiệp Đại học chuyên ngành Hệ thống thông tin, Thống kê, Kinh tế hoặc Phân tích dữ liệu",
+    "description": "Phân tích hành vi thanh toán của hàng triệu người dùng, xây dựng Dashboard báo cáo tài chính và hiệu quả chiến dịch kinh doanh theo thời gian thực.",
+    "requirements": "2+ năm kinh nghiệm phân tích dữ liệu. Viết câu lệnh SQL phức tạp thành thạo (Window Functions, CTE). Sử dụng thành thạo Power BI và Python xử lý dữ liệu.",
+    "benefits": "Chế độ thưởng theo doanh thu kinh doanh quý, môi trường fintech chuyên nghiệp, bảo hiểm sức khỏe PVI cao cấp.",
+    "full_jd_text": "Vị trí: Data Analyst (SQL, Python & Power BI)\nCông ty: VNPAY Payment Gateway\nMô tả: Phân tích hành vi thanh toán của hàng triệu người dùng, xây dựng Dashboard báo cáo tài chính và hiệu quả chiến dịch kinh doanh theo thời gian thực.\nYêu cầu: 2+ năm kinh nghiệm phân tích dữ liệu. Viết câu lệnh SQL phức tạp thành thạo (Window Functions, CTE). Sử dụng thành thạo Power BI và Python xử lý dữ liệu.\nMức lương: 18.000.000 - 28.000.000 VND"
+  },
+  {
+    "id": "JD_IT_017",
+    "title": "Data Engineer (Spark, Airflow & Data Lakehouse)",
+    "company_alias": "Techcombank Digital Banking",
+    "industry": "Information Technology",
+    "level": "Senior",
+    "language": "en",
+    "salary_range": "$2,000 - $3,000 USD",
+    "location": "Hanoi (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Apache Spark",
+      "Apache Airflow",
+      "Python",
+      "SQL",
+      "Kafka",
+      "PostgreSQL",
+      "AWS / Azure Cloud",
+      "Data Warehousing"
+    ],
+    "soft_skills": [
+      "Data integrity governance",
+      "Analytical mindset",
+      "English communication"
+    ],
+    "education_required": "Bachelor's degree in Computer Science, Information Systems, or Data Engineering",
+    "description": "Design and maintain automated ETL/ELT pipelines ingesting billions of financial transaction events into a modern cloud data lakehouse.",
+    "requirements": "3+ years working as a Data Engineer in banking or fintech. Deep expertise in distributed data processing with PySpark/Spark SQL, orchestration with Airflow, and streaming with Kafka.",
+    "benefits": "Competitive compensation with performance bonuses up to 4-5 months of salary, premium healthcare, soft loans for bank employees.",
+    "full_jd_text": "Vị trí: Data Engineer (Spark, Airflow & Data Lakehouse)\nCông ty: Techcombank Digital Banking\nMô tả: Design and maintain automated ETL/ELT pipelines ingesting billions of financial transaction events into a modern cloud data lakehouse.\nYêu cầu: 3+ years working as a Data Engineer in banking or fintech. Deep expertise in distributed data processing with PySpark/Spark SQL, orchestration with Airflow, and streaming with Kafka.\nMức lương: $2,000 - $3,000 USD"
+  },
+  {
+    "id": "JD_IT_018",
+    "title": "DevOps Engineer (Docker, Kubernetes & CI/CD)",
+    "company_alias": "Zalo Group (VNG)",
+    "industry": "Information Technology",
+    "level": "Middle / Senior",
+    "language": "vi",
+    "salary_range": "25.000.000 - 42.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Linux",
+      "Docker",
+      "Kubernetes (K8s)",
+      "CI/CD (GitLab / GitHub Actions)",
+      "Terraform",
+      "Prometheus",
+      "Grafana",
+      "Bash/Python"
+    ],
+    "soft_skills": [
+      "Phản ứng nhanh với sự cố hệ thống",
+      "Tư duy tự động hóa",
+      "Trách nhiệm cao"
+    ],
+    "education_required": "Đại học chuyên ngành CNTT, Mạng máy tính hoặc An toàn thông tin",
+    "description": "Xây dựng hạ tầng container hóa với Kubernetes, tự động hóa quy trình triển khai CI/CD, thiết lập hệ thống giám sát cảnh báo và đảm bảo tính sẵn sàng 99.99%.",
+    "requirements": "Tối thiểu 3 năm kinh nghiệm DevOps/SRE. Làm chủ Linux, Docker, K8s cụm lớn. Thành thạo cấu hình CI/CD tự động và công cụ hạ tầng dưới dạng mã (Terraform/Ansible).",
+    "benefits": "Môi trường công nghệ hàng đầu Việt Nam, hỗ trợ chi phí thi chứng chỉ CKA/CKS/AWS, khuôn viên làm việc chuẩn quốc tế.",
+    "full_jd_text": "Vị trí: DevOps Engineer (Docker, Kubernetes & CI/CD)\nCông ty: Zalo Group (VNG)\nMô tả: Xây dựng hạ tầng container hóa với Kubernetes, tự động hóa quy trình triển khai CI/CD, thiết lập hệ thống giám sát cảnh báo và đảm bảo tính sẵn sàng 99.99%.\nYêu cầu: Tối thiểu 3 năm kinh nghiệm DevOps/SRE. Làm chủ Linux, Docker, K8s cụm lớn. Thành thạo cấu hình CI/CD tự động và công cụ hạ tầng dưới dạng mã (Terraform/Ansible).\nMức lương: 25.000.000 - 42.000.000 VND"
+  },
+  {
+    "id": "JD_IT_019",
+    "title": "Cloud Solutions Architect (AWS / Azure)",
+    "company_alias": "CMC Telecom Global",
+    "industry": "Information Technology",
+    "level": "Senior / Lead",
+    "language": "en",
+    "salary_range": "$2,500 - $3,800 USD",
+    "location": "Hanoi (Hybrid)",
+    "experience_years_required": 5,
+    "hard_skills": [
+      "AWS",
+      "Azure",
+      "Cloud Architecture",
+      "Terraform",
+      "Security & Compliance",
+      "Microservices",
+      "Networking",
+      "FinOps"
+    ],
+    "soft_skills": [
+      "Technical leadership",
+      "Client consulting",
+      "Strategic planning",
+      "Fluent English"
+    ],
+    "education_required": "Bachelor's or Master's degree in Information Technology; AWS Solutions Architect Professional certified",
+    "description": "Lead enterprise cloud migration projects, consult high-level architectural blueprints for Fortune 500 clients, and optimize cloud infrastructure costs (FinOps).",
+    "requirements": "5+ years in cloud consulting and architecture. Hold AWS or Azure Professional architecture certifications. Deep knowledge of hybrid cloud, cloud security standards, and disaster recovery.",
+    "benefits": "Executive-level package, global travel allowances, executive health screening, stock incentives.",
+    "full_jd_text": "Vị trí: Cloud Solutions Architect (AWS / Azure)\nCông ty: CMC Telecom Global\nMô tả: Lead enterprise cloud migration projects, consult high-level architectural blueprints for Fortune 500 clients, and optimize cloud infrastructure costs (FinOps).\nYêu cầu: 5+ years in cloud consulting and architecture. Hold AWS or Azure Professional architecture certifications. Deep knowledge of hybrid cloud, cloud security standards, and disaster recovery.\nMức lương: $2,500 - $3,800 USD"
+  },
+  {
+    "id": "JD_IT_020",
+    "title": "Machine Learning Engineer (Computer Vision & Edge AI)",
+    "company_alias": "VinBigdata Technology",
+    "industry": "Information Technology",
+    "level": "Middle / Senior",
+    "language": "en",
+    "salary_range": "$1,600 - $2,600 USD",
+    "location": "Hanoi (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Python",
+      "PyTorch",
+      "TensorRT",
+      "OpenCV",
+      "ONNX",
+      "Edge AI (Jetson/NPU)",
+      "C++",
+      "Docker"
+    ],
+    "soft_skills": [
+      "Scientific rigor",
+      "Problem-solving",
+      "Collaboration with hardware engineers"
+    ],
+    "education_required": "Degree in Computer Science, Robotics, or Electrical Engineering",
+    "description": "Train and deploy deep learning models for smart camera vision, face recognition, and autonomous driving assistance on edge devices.",
+    "requirements": "2+ years developing computer vision models. Proficiency in model optimization (Pruning, Quantization, TensorRT compilation). Solid C++ and Python foundation.",
+    "benefits": "Competitive compensation, state-of-the-art AI labs, shuttle bus service across Hanoi, comprehensive medical coverage.",
+    "full_jd_text": "Vị trí: Machine Learning Engineer (Computer Vision & Edge AI)\nCông ty: VinBigdata Technology\nMô tả: Train and deploy deep learning models for smart camera vision, face recognition, and autonomous driving assistance on edge devices.\nYêu cầu: 2+ years developing computer vision models. Proficiency in model optimization (Pruning, Quantization, TensorRT compilation). Solid C++ and Python foundation.\nMức lương: $1,600 - $2,600 USD"
+  },
+  {
+    "id": "JD_IT_021",
+    "title": "Automation Test Engineer (.NET & Selenium / Playwright)",
+    "company_alias": "LogiGear Corporation",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "16.000.000 - 26.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "C#",
+      "Selenium WebDriver",
+      "Playwright",
+      "NUnit / xUnit",
+      "Postman",
+      "CI/CD Integration",
+      "SQL"
+    ],
+    "soft_skills": [
+      "Tỉ mỉ",
+      "Tư duy kiểm thử hệ thống",
+      "Giao tiếp rõ ràng"
+    ],
+    "education_required": "Đại học hoặc Cao đẳng chuyên ngành Công nghệ thông tin",
+    "description": "Xây dựng và phát triển khung kiểm thử tự động hóa (Automation Testing Framework) cho ứng dụng Web và API, tích hợp chạy tự động trong luồng CI/CD.",
+    "requirements": "Tối thiểu 2 năm kinh nghiệm lập trình test tự động bằng C# (.NET) hoặc Java. Thành thạo Selenium WebDriver hoặc Playwright, kiểm thử API với Postman/RestSharp.",
+    "benefits": "Khóa đào tạo chuyên sâu về bảo mật và kiểm thử hiệu năng, bảo hiểm 24/7, du lịch hằng năm cùng công ty.",
+    "full_jd_text": "Vị trí: Automation Test Engineer (.NET & Selenium / Playwright)\nCông ty: LogiGear Corporation\nMô tả: Xây dựng và phát triển khung kiểm thử tự động hóa (Automation Testing Framework) cho ứng dụng Web và API, tích hợp chạy tự động trong luồng CI/CD.\nYêu cầu: Tối thiểu 2 năm kinh nghiệm lập trình test tự động bằng C# (.NET) hoặc Java. Thành thạo Selenium WebDriver hoặc Playwright, kiểm thử API với Postman/RestSharp.\nMức lương: 16.000.000 - 26.000.000 VND"
+  },
+  {
+    "id": "JD_IT_022",
+    "title": "Manual QA / QC Specialist (Web & Mobile)",
+    "company_alias": "VNG Games Studio",
+    "industry": "Information Technology",
+    "level": "Junior / Middle",
+    "language": "vi",
+    "salary_range": "11.000.000 - 18.000.000 VND",
+    "location": "Hồ Chí Minh (On-site)",
+    "experience_years_required": 1,
+    "hard_skills": [
+      "Test Case Design",
+      "Bug Tracking (Jira)",
+      "Postman",
+      "SQL cơ bản",
+      "Web & Mobile Testing"
+    ],
+    "soft_skills": [
+      "Cẩn thận",
+      "Tập trung chi tiết",
+      "Kỹ năng viết báo cáo lỗi súc tích"
+    ],
+    "education_required": "Tốt nghiệp Cao đẳng/Đại học hoặc chứng chỉ ISTQB Foundation",
+    "description": "Phân tích tài liệu yêu cầu, thiết kế kịch bản kiểm thử (Test Cases), thực hiện kiểm thử chức năng trên các nền tảng Web và thiết bị di động, theo dõi vòng đời của lỗi.",
+    "requirements": "Ít nhất 1 năm kinh nghiệm Manual Testing. Nắm chắc quy trình phần mềm (Agile/Scrum), biết sử dụng Jira, Postman để test API cơ bản. Ưu tiên có chứng chỉ ISTQB.",
+    "benefits": "Môi trường làm việc trẻ trung, thưởng theo từng giai đoạn phát hành game, phụ cấp cơm trưa và thiết bị test đa dạng.",
+    "full_jd_text": "Vị trí: Manual QA / QC Specialist (Web & Mobile)\nCông ty: VNG Games Studio\nMô tả: Phân tích tài liệu yêu cầu, thiết kế kịch bản kiểm thử (Test Cases), thực hiện kiểm thử chức năng trên các nền tảng Web và thiết bị di động, theo dõi vòng đời của lỗi.\nYêu cầu: Ít nhất 1 năm kinh nghiệm Manual Testing. Nắm chắc quy trình phần mềm (Agile/Scrum), biết sử dụng Jira, Postman để test API cơ bản. Ưu tiên có chứng chỉ ISTQB.\nMức lương: 11.000.000 - 18.000.000 VND"
+  },
+  {
+    "id": "JD_IT_023",
+    "title": "Senior Quality Assurance Lead",
+    "company_alias": "Avaloq Vietnam Financial Tech",
+    "industry": "Information Technology",
+    "level": "Lead",
+    "language": "en",
+    "salary_range": "$2,200 - $3,200 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 5,
+    "hard_skills": [
+      "QA Strategy",
+      "Test Automation Architecture",
+      "Performance Testing (JMeter)",
+      "Security Testing Basics",
+      "CI/CD",
+      "ISTQB Advanced"
+    ],
+    "soft_skills": [
+      "Team leadership",
+      "Stakeholder communication",
+      "Quality mindset",
+      "Conflict resolution"
+    ],
+    "education_required": "Bachelor's degree in Computer Science, Software Engineering, or equivalent",
+    "description": "Define end-to-end quality assurance vision for enterprise Swiss core-banking platforms. Manage a squad of 10+ QA engineers across automation and functional tracks.",
+    "requirements": "5+ years QA experience with at least 2 years in a team leadership role. Master automation framework engineering and performance benchmarking. Fluent business English.",
+    "benefits": "Swiss corporate working culture, generous bonus schemes, premium healthcare insurance covering spouse and children.",
+    "full_jd_text": "Vị trí: Senior Quality Assurance Lead\nCông ty: Avaloq Vietnam Financial Tech\nMô tả: Define end-to-end quality assurance vision for enterprise Swiss core-banking platforms. Manage a squad of 10+ QA engineers across automation and functional tracks.\nYêu cầu: 5+ years QA experience with at least 2 years in a team leadership role. Master automation framework engineering and performance benchmarking. Fluent business English.\nMức lương: $2,200 - $3,200 USD"
+  },
+  {
+    "id": "JD_IT_024",
+    "title": "Mobile Automation Tester (Appium & Python)",
+    "company_alias": "DEK Technologies Vietnam",
+    "industry": "Information Technology",
+    "level": "Middle",
+    "language": "en",
+    "salary_range": "$1,100 - $1,800 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Appium",
+      "Python",
+      "pytest",
+      "Android/iOS ADB",
+      "Mobile Test Farm",
+      "GitLab CI"
+    ],
+    "soft_skills": [
+      "Analytical troubleshooting",
+      "Good English communication",
+      "Self-motivation"
+    ],
+    "education_required": "Bachelor's degree in Information Technology or Computer Engineering",
+    "description": "Develop and maintain automated regression test suites for native iOS and Android telecommunication apps using Appium and Python.",
+    "requirements": "2+ years mobile testing experience. Proficient in Python scripting, Appium framework, and device emulation. Familiar with running tests on cloud device farms.",
+    "benefits": "Australian working style with great work-life balance, 15 days annual leave, company outings, overseas training opportunities.",
+    "full_jd_text": "Vị trí: Mobile Automation Tester (Appium & Python)\nCông ty: DEK Technologies Vietnam\nMô tả: Develop and maintain automated regression test suites for native iOS and Android telecommunication apps using Appium and Python.\nYêu cầu: 2+ years mobile testing experience. Proficient in Python scripting, Appium framework, and device emulation. Familiar with running tests on cloud device farms.\nMức lương: $1,100 - $1,800 USD"
+  },
+  {
+    "id": "JD_DS_025",
+    "title": "Senior UI/UX Designer (Design System & Figma)",
+    "company_alias": "Be Group Transportation",
+    "industry": "Design & Creative",
+    "level": "Senior",
+    "language": "vi",
+    "salary_range": "24.000.000 - 36.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Figma",
+      "Design System",
+      "User Research",
+      "Wireframing",
+      "Prototyping",
+      "Usability Testing",
+      "UI Component Libraries"
+    ],
+    "soft_skills": [
+      "Thấu cảm người dùng (Empathy)",
+      "Giao tiếp với lập trình viên",
+      "Tư duy sản phẩm"
+    ],
+    "education_required": "Tốt nghiệp Đại học chuyên ngành Thiết kế đồ họa, Mỹ thuật ứng dụng hoặc tương đương",
+    "description": "Nghiên cứu hành vi người dùng ứng dụng gọi xe & giao đồ ăn, thiết kế trải nghiệm người dùng liền mạch (UX flows), duy trì và mở rộng Design System trên Figma.",
+    "requirements": "Tối thiểu 3 năm kinh nghiệm thiết kế UI/UX sản phẩm số (Bắt buộc có Portfolio các sản phẩm thực tế). Thành thạo Figma chuyên sâu (Auto-layout, Components, Variables).",
+    "benefits": "Môi trường công nghệ siêu ứng dụng, mã giảm giá di chuyển be hằng tháng, gói chăm sóc sức khỏe toàn diện.",
+    "full_jd_text": "Vị trí: Senior UI/UX Designer (Design System & Figma)\nCông ty: Be Group Transportation\nMô tả: Nghiên cứu hành vi người dùng ứng dụng gọi xe & giao đồ ăn, thiết kế trải nghiệm người dùng liền mạch (UX flows), duy trì và mở rộng Design System trên Figma.\nYêu cầu: Tối thiểu 3 năm kinh nghiệm thiết kế UI/UX sản phẩm số (Bắt buộc có Portfolio các sản phẩm thực tế). Thành thạo Figma chuyên sâu (Auto-layout, Components, Variables).\nMức lương: 24.000.000 - 36.000.000 VND"
+  },
+  {
+    "id": "JD_DS_026",
+    "title": "Product Designer (Web & Mobile)",
+    "company_alias": "Zendesk Product Studio",
+    "industry": "Design & Creative",
+    "level": "Middle / Senior",
+    "language": "en",
+    "salary_range": "$1,500 - $2,400 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Figma",
+      "User Journey Mapping",
+      "Information Architecture",
+      "Interactive Prototyping",
+      "Design Metrics"
+    ],
+    "soft_skills": [
+      "Fluent English",
+      "Strategic product thinking",
+      "Cross-functional collaboration"
+    ],
+    "education_required": "Bachelor's degree in Interaction Design, HCI, or related field",
+    "description": "Own product design end-to-end for customer service SaaS products used globally. Translate complex workflows into clean, intuitive web interfaces.",
+    "requirements": "3+ years designing complex SaaS or B2B platforms. Outstanding portfolio demonstrating user-centric process from problem discovery to final UI polish. Fluent English speaking skills.",
+    "benefits": "Generous education budget, home office setup stipend, flexible working arrangements, international exposure.",
+    "full_jd_text": "Vị trí: Product Designer (Web & Mobile)\nCông ty: Zendesk Product Studio\nMô tả: Own product design end-to-end for customer service SaaS products used globally. Translate complex workflows into clean, intuitive web interfaces.\nYêu cầu: 3+ years designing complex SaaS or B2B platforms. Outstanding portfolio demonstrating user-centric process from problem discovery to final UI polish. Fluent English speaking skills.\nMức lương: $1,500 - $2,400 USD"
+  },
+  {
+    "id": "JD_DS_027",
+    "title": "Chuyên viên Thiết kế Đồ họa (Graphic Designer)",
+    "company_alias": "Golden Gate Restaurant Group",
+    "industry": "Design & Creative",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "12.000.000 - 18.000.000 VND",
+    "location": "Hà Nội (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Adobe Photoshop",
+      "Adobe Illustrator",
+      "InDesign",
+      "Branding Identity",
+      "Social Media Creatives",
+      "In ấn POSM"
+    ],
+    "soft_skills": [
+      "Sáng tạo",
+      "Quản lý tiến độ",
+      "Chịu áp lực thời hạn"
+    ],
+    "education_required": "Tốt nghiệp Cao đẳng/Đại học chuyên ngành Thiết kế đồ họa hoặc Mỹ thuật",
+    "description": "Thiết kế các ấn phẩm truyền thông online (banner, poster mạng xã hội) và ấn phẩm in ấn offline (menu, standee, voucher) cho chuỗi nhà hàng ẩm thực lớn.",
+    "requirements": "2 năm kinh nghiệm thiết kế đồ họa F&B hoặc bán lẻ. Sử dụng thuần thục Photoshop, Illustrator. Có gu thẩm mỹ tốt về màu sắc và bố cục.",
+    "benefits": "Giảm giá ẩm thực 30% tại toàn bộ chuỗi nhà hàng, thưởng lễ Tết, môi trường làm việc thân thiện và năng động.",
+    "full_jd_text": "Vị trí: Chuyên viên Thiết kế Đồ họa (Graphic Designer)\nCông ty: Golden Gate Restaurant Group\nMô tả: Thiết kế các ấn phẩm truyền thông online (banner, poster mạng xã hội) và ấn phẩm in ấn offline (menu, standee, voucher) cho chuỗi nhà hàng ẩm thực lớn.\nYêu cầu: 2 năm kinh nghiệm thiết kế đồ họa F&B hoặc bán lẻ. Sử dụng thuần thục Photoshop, Illustrator. Có gu thẩm mỹ tốt về màu sắc và bố cục.\nMức lương: 12.000.000 - 18.000.000 VND"
+  },
+  {
+    "id": "JD_BIZ_028",
+    "title": "Chuyên viên Digital Marketing (Performance & SEO)",
+    "company_alias": "CellphoneS Retail Chain",
+    "industry": "Marketing & Communications",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "14.000.000 - 22.000.000 VND",
+    "location": "Hồ Chí Minh (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Google Ads",
+      "Facebook Ads",
+      "SEO Onpage/Offpage",
+      "Google Analytics 4",
+      "Kinh doanh bán lẻ",
+      "Tối ưu hóa chuyển đổi (CRO)"
+    ],
+    "soft_skills": [
+      "Phân tích số liệu nhạy bén",
+      "Linh hoạt thích ứng",
+      "Làm việc theo mục tiêu KPI"
+    ],
+    "education_required": "Cử nhân Marketing, Quản trị kinh doanh hoặc Thương mại điện tử",
+    "description": "Lập kế hoạch và triển khai các chiến dịch quảng cáo trả phí (Google/Meta), tối ưu thứ hạng từ khóa trên công cụ tìm kiếm, theo dõi và tối ưu chỉ số ROI/ROAS.",
+    "requirements": "Tối thiểu 2 năm kinh nghiệm chạy quảng cáo số ngân sách lớn. Am hiểu sâu về thuật toán Google Ads và Meta Ads. Thành thạo Google Analytics và công cụ phân tích từ khóa.",
+    "benefits": "Thưởng doanh số không giới hạn theo KPI, ưu đãi mua thiết bị công nghệ giá gốc, xét tăng lương 6 tháng/lần.",
+    "full_jd_text": "Vị trí: Chuyên viên Digital Marketing (Performance & SEO)\nCông ty: CellphoneS Retail Chain\nMô tả: Lập kế hoạch và triển khai các chiến dịch quảng cáo trả phí (Google/Meta), tối ưu thứ hạng từ khóa trên công cụ tìm kiếm, theo dõi và tối ưu chỉ số ROI/ROAS.\nYêu cầu: Tối thiểu 2 năm kinh nghiệm chạy quảng cáo số ngân sách lớn. Am hiểu sâu về thuật toán Google Ads và Meta Ads. Thành thạo Google Analytics và công cụ phân tích từ khóa.\nMức lương: 14.000.000 - 22.000.000 VND"
+  },
+  {
+    "id": "JD_BIZ_029",
+    "title": "Content Marketing Specialist (Social Media & Copywriting)",
+    "company_alias": "Vũ trụ Mỹ phẩm Hasaki",
+    "industry": "Marketing & Communications",
+    "level": "Junior / Middle",
+    "language": "vi",
+    "salary_range": "10.000.000 - 15.000.000 VND",
+    "location": "Hồ Chí Minh (On-site)",
+    "experience_years_required": 1,
+    "hard_skills": [
+      "Content Creation",
+      "Copywriting",
+      "Kịch bản TikTok/Reels",
+      "Quản trị Fanpage",
+      "Bắt trend mạng xã hội"
+    ],
+    "soft_skills": [
+      "Kỹ năng viết lách lôi cuốn",
+      "Sáng tạo nội dung",
+      "Nhạy bén xu hướng"
+    ],
+    "education_required": "Tốt nghiệp Đại học chuyên ngành Báo chí, Ngôn ngữ, Marketing hoặc Nhân văn",
+    "description": "Sáng tạo bài viết, kịch bản video ngắn cho kênh TikTok và Facebook, biên soạn nội dung quảng cáo sản phẩm mỹ phẩm thu hút khách hàng trẻ.",
+    "requirements": "1-2 năm kinh nghiệm sáng tạo nội dung ngành bán lẻ hoặc làm đẹp. Có khả năng viết linh hoạt, nắm bắt tâm lý khách hàng Gen Z và bắt trend mạng xã hội nhanh nhạy.",
+    "benefits": "Môi trường trẻ trung năng động, trợ cấp làm đẹp mỹ phẩm hàng tháng, thưởng theo tương tác nội dung viral.",
+    "full_jd_text": "Vị trí: Content Marketing Specialist (Social Media & Copywriting)\nCông ty: Vũ trụ Mỹ phẩm Hasaki\nMô tả: Sáng tạo bài viết, kịch bản video ngắn cho kênh TikTok và Facebook, biên soạn nội dung quảng cáo sản phẩm mỹ phẩm thu hút khách hàng trẻ.\nYêu cầu: 1-2 năm kinh nghiệm sáng tạo nội dung ngành bán lẻ hoặc làm đẹp. Có khả năng viết linh hoạt, nắm bắt tâm lý khách hàng Gen Z và bắt trend mạng xã hội nhanh nhạy.\nMức lương: 10.000.000 - 15.000.000 VND"
+  },
+  {
+    "id": "JD_BIZ_030",
+    "title": "Chuyên viên Tuyển dụng Nhân sự (IT Talent Acquisition)",
+    "company_alias": "Navigos Group (VietnamWorks)",
+    "industry": "Human Resources",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "15.000.000 - 25.000.000 VND",
+    "location": "Hồ Chí Minh (Hybrid)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Headhunting",
+      "LinkedIn Recruiter",
+      "Kỹ thuật phỏng vấn",
+      "Sàng lọc CV (ATS)",
+      "Hiểu biết thuật ngữ CNTT",
+      "Đàm phán lương"
+    ],
+    "soft_skills": [
+      "Giao tiếp thuyết phục",
+      "Xây dựng mối quan hệ",
+      "Khả năng đánh giá con người"
+    ],
+    "education_required": "Đại học chuyên ngành Quản trị nhân lực, Ngoại ngữ, Kinh tế hoặc Tâm lý học",
+    "description": "Tìm kiếm, kết nối và tuyển dụng các vị trí kỹ sư phần mềm cấp cao cho các tập đoàn công nghệ; tổ chức phỏng vấn, đánh giá văn hóa và thương lượng chế độ đãi ngộ.",
+    "requirements": "Tối thiểu 2 năm kinh nghiệm tuyển dụng ngành CNTT (IT Recruiter). Hiểu biết tốt về các công nghệ lập trình (.NET, Java, Frontend, AI). Kỹ năng tiếng Anh giao tiếp tốt.",
+    "benefits": "Hoa hồng tuyển dụng hấp dẫn không giới hạn theo từng ứng viên onboard, chế độ nghỉ phép 16 ngày/năm, làm việc hybrid linh hoạt.",
+    "full_jd_text": "Vị trí: Chuyên viên Tuyển dụng Nhân sự (IT Talent Acquisition)\nCông ty: Navigos Group (VietnamWorks)\nMô tả: Tìm kiếm, kết nối và tuyển dụng các vị trí kỹ sư phần mềm cấp cao cho các tập đoàn công nghệ; tổ chức phỏng vấn, đánh giá văn hóa và thương lượng chế độ đãi ngộ.\nYêu cầu: Tối thiểu 2 năm kinh nghiệm tuyển dụng ngành CNTT (IT Recruiter). Hiểu biết tốt về các công nghệ lập trình (.NET, Java, Frontend, AI). Kỹ năng tiếng Anh giao tiếp tốt.\nMức lương: 15.000.000 - 25.000.000 VND"
+  },
+  {
+    "id": "JD_BIZ_031",
+    "title": "HR Generalist (C&B & Employee Relations)",
+    "company_alias": "Unilever Vietnam Corporation",
+    "industry": "Human Resources",
+    "level": "Middle / Senior",
+    "language": "en",
+    "salary_range": "$1,200 - $1,900 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Compensation & Benefits (C&B)",
+      "Labor Law Vietnam",
+      "Payroll Administration",
+      "HRIS Software",
+      "Performance Management"
+    ],
+    "soft_skills": [
+      "Conflict management",
+      "Discretion & confidentiality",
+      "Fluent English communication"
+    ],
+    "education_required": "Bachelor's degree in Human Resources, Business Administration, or Law",
+    "description": "Administer monthly payroll and benefits, ensure compliance with Vietnamese labor laws, drive company culture initiatives, and manage employee onboarding programs.",
+    "requirements": "3+ years of HR experience with in-depth knowledge of Labor Code and Social Insurance policies. Experience in multinational FMCG or tech companies. Excellent English proficiency.",
+    "benefits": "Top employer benefits, monthly product gifts, comprehensive health insurance for family, overseas rotation opportunities.",
+    "full_jd_text": "Vị trí: HR Generalist (C&B & Employee Relations)\nCông ty: Unilever Vietnam Corporation\nMô tả: Administer monthly payroll and benefits, ensure compliance with Vietnamese labor laws, drive company culture initiatives, and manage employee onboarding programs.\nYêu cầu: 3+ years of HR experience with in-depth knowledge of Labor Code and Social Insurance policies. Experience in multinational FMCG or tech companies. Excellent English proficiency.\nMức lương: $1,200 - $1,900 USD"
+  },
+  {
+    "id": "JD_BIZ_032",
+    "title": "Kế toán tổng hợp (General Accountant)",
+    "company_alias": "MISA Joint Stock Company",
+    "industry": "Finance & Accounting",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "13.000.000 - 20.000.000 VND",
+    "location": "Hà Nội (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "Kế toán tài chính",
+      "Báo cáo thuế",
+      "Phần mềm MISA/SAP",
+      "Quy chuẩn kế toán VAS",
+      "Hóa đơn điện tử",
+      "Excel kế toán nâng cao"
+    ],
+    "soft_skills": [
+      "Trung thực",
+      "Cẩn thận tỉ mỉ",
+      "Chính xác tuyệt đối về số liệu"
+    ],
+    "education_required": "Cử nhân chuyên ngành Kế toán, Kiểm toán hoặc Tài chính ngân hàng",
+    "description": "Thực hiện hạch toán nghiệp vụ kinh tế phát sinh, lập báo cáo tài chính nội bộ, kê khai các loại thuế (VAT, TNCN, TNDN) và làm việc trực tiếp với cơ quan thuế khi có yêu cầu.",
+    "requirements": "Tối thiểu 2 năm làm kế toán tổng hợp. Nắm vững luật thuế và chế độ kế toán doanh nghiệp hiện hành. Thành thạo phần mềm kế toán MISA và hàm tính Excel nâng cao.",
+    "benefits": "Lương tháng 13 + thưởng hoàn thành niên độ tài chính, du lịch hàng năm, phụ cấp gửi xe và ăn trưa đầy đủ.",
+    "full_jd_text": "Vị trí: Kế toán tổng hợp (General Accountant)\nCông ty: MISA Joint Stock Company\nMô tả: Thực hiện hạch toán nghiệp vụ kinh tế phát sinh, lập báo cáo tài chính nội bộ, kê khai các loại thuế (VAT, TNCN, TNDN) và làm việc trực tiếp với cơ quan thuế khi có yêu cầu.\nYêu cầu: Tối thiểu 2 năm làm kế toán tổng hợp. Nắm vững luật thuế và chế độ kế toán doanh nghiệp hiện hành. Thành thạo phần mềm kế toán MISA và hàm tính Excel nâng cao.\nMức lương: 13.000.000 - 20.000.000 VND"
+  },
+  {
+    "id": "JD_BIZ_033",
+    "title": "Senior Financial Auditor",
+    "company_alias": "PwC Vietnam (Big 4)",
+    "industry": "Finance & Accounting",
+    "level": "Senior",
+    "language": "en",
+    "salary_range": "$1,400 - $2,200 USD",
+    "location": "Ho Chi Minh City (Hybrid)",
+    "experience_years_required": 3,
+    "hard_skills": [
+      "Financial Audit",
+      "IFRS & VAS",
+      "Risk Assessment",
+      "Internal Controls",
+      "ACCA / CPA partially completed"
+    ],
+    "soft_skills": [
+      "Critical thinking",
+      "Professional skepticism",
+      "Client relationship management",
+      "Fluent English"
+    ],
+    "education_required": "Bachelor's degree in Auditing, Accounting, or Finance; ACCA/CPA qualification preferred",
+    "description": "Lead statutory financial audit engagements for multinational corporations. Evaluate internal accounting controls and identify financial reporting risks.",
+    "requirements": "3+ years of financial audit experience in Big 4 or major accounting firms. Solid knowledge of IFRS and VAS standards. Fluent in spoken and written English.",
+    "benefits": "Global career development path, ACCA study support and exam leave, international health insurance, hybrid working policy.",
+    "full_jd_text": "Vị trí: Senior Financial Auditor\nCông ty: PwC Vietnam (Big 4)\nMô tả: Lead statutory financial audit engagements for multinational corporations. Evaluate internal accounting controls and identify financial reporting risks.\nYêu cầu: 3+ years of financial audit experience in Big 4 or major accounting firms. Solid knowledge of IFRS and VAS standards. Fluent in spoken and written English.\nMức lương: $1,400 - $2,200 USD"
+  },
+  {
+    "id": "JD_BIZ_034",
+    "title": "Chuyên viên Phát triển Kinh doanh B2B (B2B Sales Executive)",
+    "company_alias": "Base.vn Enterprise Platform",
+    "industry": "Sales & Business Development",
+    "level": "Middle",
+    "language": "vi",
+    "salary_range": "15.000.000 - 35.000.000 VND (Lương cứng + Hoa hồng)",
+    "location": "Hà Nội / TP.HCM (On-site)",
+    "experience_years_required": 2,
+    "hard_skills": [
+      "B2B Sales",
+      "Bán phần mềm SaaS",
+      "Tư vấn giải pháp quản trị",
+      "Đàm phán hợp đồng",
+      "CRM Pipeline"
+    ],
+    "soft_skills": [
+      "Kỹ năng thuyết phục khách hàng",
+      "Giao tiếp tự tin",
+      "Kiên trì theo đuổi mục tiêu"
+    ],
+    "education_required": "Tốt nghiệp Đại học chuyên ngành Quản trị kinh doanh, Kinh tế hoặc liên quan",
+    "description": "Tiếp cận các chủ doanh nghiệp và giám đốc khối điều hành, tư vấn giải pháp chuyển đổi số quản trị công việc Base.vn, đàm phán và chốt hợp đồng bản quyền phần mềm.",
+    "requirements": "Từ 1 - 2 năm kinh nghiệm sales B2B (Ưu tiên đã bán phần mềm, dịch vụ số hoặc giải pháp công nghệ). Tinh thần chủ động cao, tư duy nhạy bén về nghiệp vụ doanh nghiệp.",
+    "benefits": "Mức hoa hồng lũy tiến không giới hạn (thu nhập thực tế 30-50tr/tháng), môi trường chuyển đổi số hàng đầu, cơ hội mở rộng quan hệ với các CEO/C-Level.",
+    "full_jd_text": "Vị trí: Chuyên viên Phát triển Kinh doanh B2B (B2B Sales Executive)\nCông ty: Base.vn Enterprise Platform\nMô tả: Tiếp cận các chủ doanh nghiệp và giám đốc khối điều hành, tư vấn giải pháp chuyển đổi số quản trị công việc Base.vn, đàm phán và chốt hợp đồng bản quyền phần mềm.\nYêu cầu: Từ 1 - 2 năm kinh nghiệm sales B2B (Ưu tiên đã bán phần mềm, dịch vụ số hoặc giải pháp công nghệ). Tinh thần chủ động cao, tư duy nhạy bén về nghiệp vụ doanh nghiệp.\nMức lương: 15.000.000 - 35.000.000 VND (Lương cứng + Hoa hồng)"
+  },
+  {
+    "id": "JD_BIZ_035",
+    "title": "International Business Development Manager",
+    "company_alias": "FPT Software Global Business",
+    "industry": "Sales & Business Development",
+    "level": "Senior / Manager",
+    "language": "en",
+    "salary_range": "$2,000 - $3,500 USD + Incentive",
+    "location": "Hanoi / Da Nang (Hybrid / Travel)",
+    "experience_years_required": 4,
+    "hard_skills": [
+      "IT Outsourcing Sales",
+      "Strategic Partnerships",
+      "Account Management",
+      "Global Market Expansion",
+      "Contract Negotiation"
+    ],
+    "soft_skills": [
+      "Executive presence",
+      "Cross-cultural negotiation",
+      "Fluent English & Japanese/German is a plus"
+    ],
+    "education_required": "Bachelor's degree in International Business, Foreign Trade, or IT Management",
+    "description": "Drive multi-million dollar software engineering outsourcing deals with enterprise accounts in North America and Europe.",
+    "requirements": "4+ years in IT outsourcing sales or enterprise account management. Proven track record of hitting aggressive sales targets. Fluency in business English is mandatory.",
+    "benefits": "Highly attractive commission structure, frequent business trips to the US/Europe/APAC, full private medical coverage.",
+    "full_jd_text": "Vị trí: International Business Development Manager\nCông ty: FPT Software Global Business\nMô tả: Drive multi-million dollar software engineering outsourcing deals with enterprise accounts in North America and Europe.\nYêu cầu: 4+ years in IT outsourcing sales or enterprise account management. Proven track record of hitting aggressive sales targets. Fluency in business English is mandatory.\nMức lương: $2,000 - $3,500 USD + Incentive"
+  }
+]
