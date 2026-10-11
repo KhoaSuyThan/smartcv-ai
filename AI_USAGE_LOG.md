@@ -11,7 +11,7 @@ Bảng này được lập nhằm tuân thủ quy định học thuật và hư�
 
 ## Nhật ký chi tiết (AI Usage Log Table)
 
-| Thời gian | AI | Nội dung yêu cầu | AI tạo ra | Sinh viên xử lý |
+| 11/10/2026 | Antigravity (Gemini) | Xây dựng và chuẩn hóa tập dữ liệu 35 tin tuyển dụng (JD) phục vụ đối chứng NCKH | File `Clean_Job_Descriptions.json` (35 JD, 66 KB, 6 nhóm ngành, song ngữ) | Kiểm tra tính duy nhất ID, xác thực cấu trúc trường kỹ năng và độ tương thích vector 384-dim |
 | 11/10/2026 | Antigravity (Gemini) | Đóng gói API trích xuất PDF/che PII và kết nối luồng upload CV trên C# Web | Module `pii_extractor.py`, 2 endpoint FastAPI và tích hợp C# trong ResumeController / SmartMatchController | Kiểm tra kết quả test tự động (bóc tách 508 từ, che 3 PII, vector 384-dim), xác nhận dotnet build 0 error |
 | 11/10/2026 | Antigravity (Gemini) | Bóc tách toàn bộ 3.320 CV sang JSON, tối ưu phân 2 cột, che PII và dọn dẹp file tạm | File `Clean_Anonymized_CVs.json` (18.45 MB), thuật toán phân cột ngang và kịch bản bóc tách batch | Kiểm tra chất lượng trích xuất (96.2%), xác thực khử lỗi ngắt dòng email, phê duyệt xóa các file test tạm thời |
 | 11/10/2026 | Antigravity (Gemini) | Sửa lỗi terminal `dotnet run` không hiện link localhost sau khi chạy `npm run build` | Giải thích cơ chế dev server vs build tĩnh; đoạn cấu hình `Microsoft.Hosting.Lifetime` trong Serilog | Đọc hiểu cơ chế Serilog Override, chạy test `npm run dev` và khởi động lại Back-end |
