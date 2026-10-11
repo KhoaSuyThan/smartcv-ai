@@ -1,0 +1,23 @@
+# BẢNG THEO DÕI SỬ DỤNG TRÍ TUỆ NHÂN TẠO (AI USAGE LOG)
+
+Bảng này được lập nhằm tuân thủ quy định học thuật và hướng dẫn của giảng viên hướng dẫn về việc minh bạch sử dụng các công cụ Trí tuệ Nhân tạo (Generative AI) trong quá trình nghiên cứu và phát triển đề tài tốt nghiệp SmartCV.
+
+> **Quy định học thuật:**
+> 1. Được phép sử dụng AI hỗ trợ: tìm hiểu khái niệm, brainstorm ý tưởng, hỗ trợ viết/sửa code, debug, sinh dữ liệu mẫu/test case, viết tài liệu.
+> 2. Không được “copy AI rồi nộp”: Sinh viên phải hiểu rõ bản chất code, luồng input/output, kiến trúc hệ thống và chịu trách nhiệm 100% về mã nguồn.
+> 3. Bắt buộc ghi chép đầy đủ vào bảng nhật ký bên dưới mỗi khi sử dụng AI.
+
+---
+
+## Nhật ký chi tiết (AI Usage Log Table)
+
+| Thời gian | AI | Nội dung yêu cầu | AI tạo ra | Sinh viên xử lý |
+| :---: | :---: | :---| :---| :---|
+| 11/10/2026 | Antigravity (Gemini) | Thiết lập hệ thống quy chuẩn luật Agent, chuẩn Git và phân quyền kiểm thử tự động | Cấu trúc file `.agents/rules/`, `AGENTS.md`, quy chuẩn nhánh/commit và quyền tự test | Kiểm tra, phân loại các nhóm quy tắc, cấp quyền test chủ động và duyệt đưa vào dự án |
+| 11/10/2026 | Antigravity (Gemini) | Sửa lỗi terminal `dotnet run` không hiện link localhost sau khi chạy `npm run build` | Giải thích cơ chế dev server vs build tĩnh; đoạn cấu hình `Microsoft.Hosting.Lifetime` trong Serilog | Đọc hiểu cơ chế Serilog Override, chạy test `npm run dev` và khởi động lại Back-end |
+| 10/10/2026 | Antigravity (Gemini) | Trực quan hóa sơ đồ khối kiến trúc hệ thống và quy trình NCKH cho đề tài | Sơ đồ Mermaid 5 khối xử lý và bảng thuyết minh kỹ thuật | Review tính phù hợp với cấu trúc microservice thực tế, nhúng vào `ROADMAP.md` |
+| 09/10/2026 | Antigravity (Gemini) | Tự động hóa kiểm thử E2E kịch bản Validation đăng ký/đăng nhập và đăng tuyển | Dữ liệu TestSteps và kịch bản Playwright cho validation form | Chạy thử nghiệm runner trên giao diện web, kiểm tra độ chính xác của các assert |
+| 28/07/2026 | Antigravity (Gemini) | Tối ưu điểm hiệu năng Google PageSpeed Insights cho trang chủ và viewer CV | Cấu hình Static File Cache-Control, nén Brotli/Gzip và tối ưu render-blocking assets | Kiểm tra điểm số trên Google PageSpeed (đạt 90+ Mobile/Desktop), test lại hiển thị giao diện |
+| 15/07/2026 | ChatGPT | Hỗ trợ thiết kế thuật toán so khớp ngữ nghĩa CV và Job Description | Đề xuất mô hình Sentence-Transformers (phép đo Cosine Similarity trên embedding) | Xây dựng microservice Python FastAPI `AiMatchService`, tích hợp cache vector vào database |
+| 20/06/2026 | ChatGPT | Tích hợp cổng thanh toán PayOS webhook cho gói nâng cấp Pro | Code mẫu xử lý checksum và webhook controller ASP.NET Core | Viết lại logic xác thực IPN, kiểm tra chữ ký HMAC SHA256 và cập nhật hạn dùng Pro vào DB |
+| 10/06/2026 | ChatGPT | Thiết kế cơ chế SignalR theo dõi phiên đăng nhập của người dùng đa thiết bị | Mã nguồn `UserSessionHub` và cấu hình session tracking | Tích hợp vào middleware ASP.NET Core, bổ sung lưu vết IP/Device vào bảng Users |

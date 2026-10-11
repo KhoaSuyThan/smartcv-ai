@@ -5,6 +5,15 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-10-11] - Cấu hình cổng Kestrel, hệ thống luật Agent và biểu mẫu AI Usage Log
+
+### Enhanced & Documented
+- **Hiển thị Port Kestrel (`Program.cs`):** Cấu hình Serilog hiển thị URL localhost khi chạy `dotnet run`.
+- **Hệ thống luật Agent (`.agents/` & `AGENTS.md`):** Thiết lập bộ quy chuẩn phát triển, an toàn hệ thống và vận hành cho Agent.
+- **Biểu mẫu nhật ký AI (`AI_USAGE_LOG.md`):** Tạo bảng theo dõi sử dụng AI 5 cột minh bạch theo chuẩn của giảng viên hướng dẫn.
+- **Quy chuẩn Git:** Thống nhất đặt tên nhánh bằng Tiếng Anh ngắn gọn, nội dung commit bằng Tiếng Việt có dấu súc tích.
+- **Tự động kiểm thử:** Bổ sung quy tắc trao quyền cho AI chủ động chạy test (build, API, runner) sau khi sửa đổi mã nguồn.
+
 ## [2026-10-10] - Tích Hợp Sơ Đồ Kiến Trúc Hệ Thống & Quy Trình NCKH vào ROADMAP.md
 
 ### Added & Documented
