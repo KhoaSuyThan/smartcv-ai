@@ -154,6 +154,14 @@
     }
     .sm-skill-match { background: #dcfce7; color: #166534; }
     .sm-skill-miss { background: #fee2e2; color: #991b1b; }
+    .sm-skill-proven { background: #ecfdf5; color: #047857; border: 1px solid #10b981; font-weight: 700; }
+    .sm-skill-unverified { background: #fffbeb; color: #b45309; border: 1px dashed #f59e0b; }
+    .sm-latency-badge {
+        background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25);
+        color: var(--sm-primary); border-radius: 2rem;
+        padding: 0.4rem 1rem; font-size: 0.8rem; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 0.5rem;
+    }
     .sm-rec-badge {
         padding: 0.35rem 0.85rem; border-radius: 2rem;
         font-size: 0.75rem; font-weight: 700;
@@ -329,9 +337,8 @@
         document.getElementById('resultsSection').innerHTML = '';
         document.getElementById('statsSection').style.display = 'none';
 
-        // Timeout 5 phút (300.000ms) để AI xử lý song song hoàn tất
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 300000);
+        const timeout = setTimeout(() => controller.abort(), 60000);
 
         fetch('/SmartMatch/AnalyzeJob', {
             method: 'POST',
@@ -344,18 +351,20 @@
             clearTimeout(timeout);
             showLoading(false);
             btnAnalyze.disabled = false;
-            // Luôn load kết quả từ DB bất kể thành công hay thất bại
-            loadExistingResults(jobId);
-            if (!data.success) alert(data.message || 'Có lỗi xảy ra');
+            if (data.success && data.candidates && data.candidates.length > 0) {
+                renderResults(data);
+            } else {
+                loadExistingResults(jobId);
+                if (!data.success) alert(data.message || 'Có lỗi xảy ra');
+            }
         })
         .catch(err => {
             clearTimeout(timeout);
             showLoading(false);
             btnAnalyze.disabled = false;
-            // Dù timeout, server vẫn có thể đã lưu được 1 phần kết quả → load lên
             loadExistingResults(jobId);
             if (err.name === 'AbortError') {
-                alert('Phân tích mất hơn 3 phút. Kết quả đã lưu được sẽ hiển thị bên dưới.');
+                alert('Thời gian xử lý quá lâu. Hệ thống đang tải lại kết quả đã lưu.');
             }
         });
     }
@@ -381,14 +390,15 @@
         if (show) {
             overlay.classList.add('show');
             let w = 0, seconds = 0;
+            loadingText.textContent = 'Đang quét 3.320 CV qua Vector Cache và chấm điểm ATS Scorer...';
             const interval = setInterval(() => {
-                w += Math.random() * 5;
-                if (w > 92) w = 92;
+                w += Math.random() * 15;
+                if (w > 90) w = 90;
                 progress.style.width = w + '%';
-            }, 800);
+            }, 200);
             const timer = setInterval(() => {
                 seconds++;
-                loadingText.textContent = `Đang xử lý... ${seconds}s (tối đa 10 CV, mỗi CV ~10-15 giây)`;
+                loadingText.textContent = `Đang so khớp Hybrid 2 vòng... (${seconds}s)`;
             }, 1000);
             overlay._interval = interval;
             overlay._timer = timer;
@@ -397,7 +407,7 @@
             if (overlay._timer) clearInterval(overlay._timer);
             progress.style.width = '100%';
             loadingText.textContent = 'Hoàn tất!';
-            setTimeout(() => overlay.classList.remove('show'), 400);
+            setTimeout(() => overlay.classList.remove('show'), 300);
         }
     }
 
@@ -411,12 +421,22 @@
         document.getElementById('statStrong').textContent = strong;
         document.getElementById('statPartial').textContent = partial;
 
+        // Latency Badge
+        let latencyBadge = '';
+        if (data.latency) {
+            latencyBadge = `<div class="sm-latency-badge ms-auto">
+                <i class="fas fa-bolt text-warning"></i>
+                <span>Vòng 1 (Vector 3.320 CVs): <strong>${data.latency.v1_vector_cache_ms}ms</strong> | Vòng 2 (ATS Scorer): <strong>${data.latency.v2_ats_scoring_ms}ms</strong> | Tổng: <strong>${data.latency.total_latency_ms}ms</strong></span>
+            </div>`;
+        }
+
         // Header
-        let html = `<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+        let html = `<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 mt-4 gap-2">
             <div>
                 <h4 class="fw-bold mb-1" style="color: var(--sm-text);"><i class="fas fa-trophy text-warning me-2"></i>Bảng Xếp Hạng Ứng Viên</h4>
                 <span class="text-muted small">${data.jobTitle} — ${data.companyName || ''}</span>
             </div>
+            ${latencyBadge}
         </div>`;
 
         data.candidates.forEach((c, i) => {
@@ -425,7 +445,7 @@
             let recClass, recText, scoreColor;
             if (c.matchScore >= 80) {
                 recClass = 'sm-rec-strong';
-                recText = 'Phù hợp';
+                recText = 'Rất phù hợp';
                 scoreColor = '#10b981';
             } else if (c.matchScore >= 50) {
                 recClass = 'sm-rec-partial';
@@ -444,6 +464,11 @@
             const circumference = 2 * Math.PI * 24;
             const offset = circumference - (c.matchScore / 100) * circumference;
 
+            // Nút xem PDF gốc nếu là hồ sơ benchmark
+            const pdfBtn = c.hasPdf 
+                ? `<a href="/SmartMatch/ViewCandidatePdf?id=${c.resumeId}" target="_blank" class="btn btn-sm btn-outline-danger rounded-pill ms-2" title="Mở file PDF gốc trong tab mới"><i class="fas fa-file-pdf me-1"></i>Xem PDF</a>`
+                : '';
+
             html += `<div class="sm-candidate-row" id="row-${c.resumeId}">
                 <div class="sm-rank-badge ${rankClass}">${medal}</div>
                 <img src="${avatarUrl}" class="sm-avatar-sm" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(c.fullName)}&background=random'">
@@ -459,6 +484,7 @@
                     <div class="score-text">${c.matchScore}</div>
                 </div>
                 <span class="sm-rec-badge ${recClass}">${recText}</span>
+                ${pdfBtn}
                 <button class="btn btn-sm btn-outline-primary rounded-pill ms-2" onclick="toggleDetail(${c.resumeId})">
                     <i class="fas fa-chevron-down"></i> Chi tiết
                 </button>
@@ -469,25 +495,49 @@
             <div class="sm-detail-panel" id="detail-${c.resumeId}">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <h6 class="fw-bold text-success mb-2"><i class="fas fa-check-circle me-1"></i>Kỹ năng phù hợp</h6>
-                        <div>${c.matchedSkills.map(s => `<span class="sm-skill-tag sm-skill-match">${s}</span>`).join('')}</div>
+                        <h6 class="fw-bold text-success mb-2"><i class="fas fa-shield-alt me-1"></i>Kỹ năng đã kiểm chứng qua dự án (Proven Skills)</h6>
+                        <div>
+                            ${c.provenSkills && c.provenSkills.length > 0 
+                                ? c.provenSkills.map(s => `<span class="sm-skill-tag sm-skill-proven"><i class="fas fa-check-circle me-1"></i>${s}</span>`).join('') 
+                                : '<span class="text-muted small fst-italic">Chưa phát hiện kỹ năng có bằng chứng dự án cụ thể</span>'}
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold text-danger mb-2"><i class="fas fa-times-circle me-1"></i>Kỹ năng còn thiếu</h6>
-                        <div>${c.missingSkills.map(s => `<span class="sm-skill-tag sm-skill-miss">${s}</span>`).join('')}</div>
+                        <h6 class="fw-bold text-danger mb-2"><i class="fas fa-times-circle me-1"></i>Kỹ năng còn thiếu theo yêu cầu JD</h6>
+                        <div>
+                            ${c.missingSkills && c.missingSkills.length > 0 
+                                ? c.missingSkills.map(s => `<span class="sm-skill-tag sm-skill-miss">${s}</span>`).join('') 
+                                : '<span class="text-muted small fst-italic">Đáp ứng đầy đủ các kỹ năng cốt lõi</span>'}
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-star me-1"></i>Điểm mạnh</h6>
-                        <ul class="mb-0 small">${c.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+                        <h6 class="fw-bold text-warning mb-2"><i class="fas fa-exclamation-triangle me-1"></i>Kỹ năng chỉ liệt kê chay (Chưa xác minh dự án)</h6>
+                        <div>
+                            ${c.unverifiedSkills && c.unverifiedSkills.length > 0 
+                                ? c.unverifiedSkills.map(s => `<span class="sm-skill-tag sm-skill-unverified">${s}</span>`).join('') 
+                                : '<span class="text-muted small fst-italic">Không có kỹ năng nghi vấn nhồi nhét</span>'}
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="fw-bold text-warning mb-2"><i class="fas fa-lightbulb me-1"></i>Gợi ý cải thiện</h6>
-                        <ul class="mb-0 small">${c.suggestions.map(s => `<li>${s}</li>`).join('')}</ul>
+                        <h6 class="fw-bold text-info mb-2"><i class="fas fa-user-clock me-1"></i>Kinh nghiệm & Cấp bậc thực chiến</h6>
+                        <div class="small text-muted">
+                            Kinh nghiệm phát hiện: <strong class="text-dark">${c.experienceYearsDetected || 0} năm</strong> | 
+                            Độ phù hợp: <span class="badge bg-primary text-white">${c.seniorityFit || 'Phù hợp'}</span>
+                            ${c.knockoutPassed !== undefined ? (c.knockoutPassed ? ' | <span class="text-success fw-bold"><i class="fas fa-check"></i> Đạt Knockout</span>' : ' | <span class="text-danger fw-bold"><i class="fas fa-times"></i> Knockout (-35%)</span>') : ''}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary mb-2"><i class="fas fa-star me-1"></i>Điểm mạnh nổi bật</h6>
+                        <ul class="mb-0 small">${(c.strengths || []).map(s => `<li>${s}</li>`).join('')}</ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-lightbulb me-1"></i>Gợi ý cải thiện hồ sơ</h6>
+                        <ul class="mb-0 small">${(c.suggestions || []).map(s => `<li>${s}</li>`).join('')}</ul>
                     </div>
                     <div class="col-12">
                         <div class="p-3 rounded-3 border mt-2" style="background: var(--sm-bg); border-color: var(--sm-border) !important;">
-                            <h6 class="fw-bold mb-1" style="color: var(--sm-text);"><i class="fas fa-comment-dots me-1 text-info"></i>Nhận xét AI</h6>
-                            <p class="mb-0 text-muted small">${c.summary}</p>
+                            <h6 class="fw-bold mb-1" style="color: var(--sm-text);"><i class="fas fa-comment-dots me-1 text-info"></i>Nhận xét tổng quan AI ATS Scorer</h6>
+                            <p class="mb-0 text-muted small">${c.summary || ''}</p>
                         </div>
                     </div>
                 </div>

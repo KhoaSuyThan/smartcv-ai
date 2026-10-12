@@ -33,3 +33,7 @@ publish_temp/
 # Dữ liệu CV PDF thô (dung lượng lớn & bảo mật thông tin)
 Data/Raw_PDFs/
 Data/Raw_PDFs/*
+
+# Dữ liệu cache kết quả khớp Job tạm thời
+Data/JobMatchResults/
+Data/JobMatchResults/*
