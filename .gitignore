@@ -37,3 +37,7 @@ Data/Raw_PDFs/*
 # Dữ liệu cache kết quả khớp Job tạm thời
 Data/JobMatchResults/
 Data/JobMatchResults/*
+
+# Dữ liệu ứng viên Benchmark đã lưu theo Recruiter
+Data/SavedBenchmark/
+Data/SavedBenchmark/*

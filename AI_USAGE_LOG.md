@@ -13,6 +13,7 @@ Bảng này được lập nhằm tuân thủ quy định học thuật và hư�
 
 | Thời gian | AI | Nội dung yêu cầu | AI tạo ra | Sinh viên xử lý |
 | :--- | :--- | :--- | :--- | :--- |
+| 12/10/2026 | Antigravity (Gemini) | Xử lý nút "Lưu ứng viên" cho hồ sơ Benchmark AI không can thiệp Database SQL Server | Module lưu trữ JSON độc lập `Data/SavedBenchmark/`, action `ToggleSaveCandidate`, đồng bộ `isSaved` trên SmartMatch và hiển thị trên `/Talent` | Kiểm tra biên dịch C# thành công (0 Warning, 0 Error), xác nhận an toàn tuyệt đối khóa ngoại Foreign Key và kiểm thử luồng ghi/xóa JSON |
 | 12/10/2026 | Antigravity (Gemini) | Nối động cơ Hybrid Matcher vào C# Web, hỗ trợ xem PDF ứng viên benchmark không cần tài khoản DB | Code C# `SmartMatchController.cs` (AnalyzeJob, ViewCandidatePdf), giao diện `Index.cshtml` | Kiểm tra biên dịch C# (0 Warning, 0 Error), chạy script test so khớp thực tế Top 5 ứng viên (474 ms) và xác nhận 100% tệp PDF tồn tại |
 | 11/10/2026 | Antigravity (Gemini) | Triển khai động cơ Hybrid 2 vòng: Sinh Vector Cache 3.320 CV và module chấm điểm ATS | File npy ma trận 3320x384 (4.86 MB), `ats_scorer.py`, 2 endpoint FastAPI | Chạy test tự động xác nhận latency Vòng 1 (54.8 ms), Vòng 2 (89.5 ms), tổng thời gian 144 ms (< 0.15s) |
 | 11/10/2026 | Antigravity (Gemini) | Thiết kế kiến trúc so khớp Hybrid 2 vòng và kế hoạch kỹ thuật chi tiết | File `IMPLEMENTATION_PLAN.md` (Sơ đồ 2 vòng, công thức điểm ATS, phân bổ vai trò 4 kỹ sư) | Đọc hiểu cơ chế 2-Stage Retrieval, duyệt công thức tính điểm và nghiệm thu kế hoạch |
