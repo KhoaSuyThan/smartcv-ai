@@ -5,9 +5,10 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-10-12] - Tích hợp Động cơ Hybrid Matching & Xem PDF Ứng viên Benchmark
+## [2026-10-12] - Tích hợp Động cơ Hybrid Matching, Xem PDF & Lưu Ứng viên Benchmark
 
 ### Added & Integrated
+- **Lưu ứng viên Benchmark không can thiệp Database (`SmartMatchController.cs`, `TalentController.cs`):** Xây dựng cơ chế lưu ứng viên Benchmark theo từng nhà tuyển dụng vào `Data/SavedBenchmark/{recruiterId}.json`, tránh hoàn toàn xung đột khóa ngoại SQL Server; đồng bộ trạng thái "Đã lưu" trên SmartMatch và hiển thị an toàn trên sidebar trang Quản lý tài năng (`/Talent`) kèm nút mở file PDF gốc.
 - **Tích hợp Hybrid Matcher vào Backend (`SmartMatchController.cs`):** Kết nối endpoint `POST /api/match/hybrid-match` của Python FastAPI; hỗ trợ quét tự động 3.320 CV qua Vector Cache và đánh giá ATS 4 trụ cột chuyên sâu (< 0.5s); lưu bộ nhớ đệm kết quả theo JobID vào `Data/JobMatchResults/`.
 - **Xem file PDF gốc chuẩn Blind Hiring (`SmartMatchController.ViewCandidatePdf`):** Xây dựng action stream trực tiếp tệp PDF gốc từ kho `Data/Raw_PDFs/` dựa trên ID ứng viên benchmark mà không cần tạo tài khoản người dùng giả lập trong cơ sở dữ liệu.
 - **Nâng cấp Giao diện Smart Match (`Views/SmartMatch/Index.cshtml`):** Bổ sung thanh hiển thị hiệu năng thời gian thực (Latency Vòng 1 Vector + Vòng 2 ATS Scorer), huy hiệu Kỹ năng đã kiểm chứng dự án (`Proven Skills`), kỹ năng liệt kê chay (`Unverified`), quy tắc Knockout, và nút xem PDF trực tiếp trong tab mới.

@@ -103,7 +103,12 @@ namespace DoAnCS.Controllers
                 .ToListAsync();
 
             ViewBag.SavedCandidates = savedCandidates;
-            ViewBag.SavedResumeIds = savedCandidates.Select(s => s.ResumeId).ToList();
+            
+            // Lấy danh sách ứng viên AI Benchmark đã lưu
+            var savedBenchmarkCandidates = SmartMatchController.GetSavedBenchmarkCandidates(recruiterId);
+            ViewBag.SavedBenchmarkCandidates = savedBenchmarkCandidates;
+            var allSavedIds = savedCandidates.Select(s => s.ResumeId).Concat(savedBenchmarkCandidates.Select(b => b.ResumeId)).ToList();
+            ViewBag.SavedResumeIds = allSavedIds;
             ViewBag.SearchTerm = searchTerm;
             ViewBag.JobTitleFilter = jobTitle;
             ViewBag.LocationFilter = location;
@@ -161,6 +166,19 @@ namespace DoAnCS.Controllers
         {
             int recruiterId = CurrentUserId;
             if (recruiterId == 0) return Json(new { success = false, message = "Bạn cần đăng nhập." });
+
+            // Kiểm tra an toàn: nếu là ứng viên Benchmark ngoài DB thì không ghi vào SQL Server để tránh lỗi Foreign Key
+            bool isDbResume = await _context.Resumes.AnyAsync(r => r.ResumeID == resumeId);
+            if (!isDbResume)
+            {
+                SmartMatchController.ToggleBenchmarkCandidate(recruiterId, resumeId, null, null, null, out bool isBmSaved);
+                return Json(new
+                {
+                    success = true,
+                    saved = isBmSaved,
+                    message = isBmSaved ? "Đã lưu ứng viên vào danh sách tiềm năng." : "Đã bỏ lưu ứng viên."
+                });
+            }
 
             var existing = await _context.SavedCandidates
                 .FirstOrDefaultAsync(s => s.RecruiterId == recruiterId && s.ResumeId == resumeId);

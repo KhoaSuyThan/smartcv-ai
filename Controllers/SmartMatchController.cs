@@ -170,6 +170,10 @@ namespace DoAnCS.Controllers
                         .Select(s => s.ResumeId)
                         .ToListAsync();
 
+                    var savedBenchmarkIds = GetSavedBenchmarkIds(recruiterId);
+                    var allSavedIds = new HashSet<int>(savedResumeIds);
+                    allSavedIds.UnionWith(savedBenchmarkIds);
+
                     // Chuẩn hóa danh sách kết quả gửi về UI
                     var candidates = matchResponse.top_candidates.Select((c, idx) =>
                     {
@@ -217,7 +221,7 @@ namespace DoAnCS.Controllers
                             suggestions = suggestionList,
                             summary = c.summary ?? "Hồ sơ ứng viên được đánh giá qua công nghệ lọc ATS và mô hình ngôn ngữ ngữ nghĩa.",
                             recommendation = c.recommendation ?? "good_match",
-                            isSaved = savedResumeIds.Contains(c.id)
+                            isSaved = allSavedIds.Contains(c.id)
                         };
                     }).ToList();
 
@@ -285,6 +289,10 @@ namespace DoAnCS.Controllers
                 .Select(s => s.ResumeId)
                 .ToListAsync();
 
+            var savedBenchmarkIds = GetSavedBenchmarkIds(recruiterId);
+            var allSavedIds = new HashSet<int>(savedResumeIds);
+            allSavedIds.UnionWith(savedBenchmarkIds);
+
             // 1. Kiểm tra cache kết quả từ tệp JSON đệm theo JobID
             string cachePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "JobMatchResults", $"{jobId}.json");
             if (System.IO.File.Exists(cachePath))
@@ -299,7 +307,7 @@ namespace DoAnCS.Controllers
                         foreach (var c in cachedData.candidates)
                         {
                             int resId = (int)(c.resumeId ?? 0);
-                            c.isSaved = savedResumeIds.Contains(resId);
+                            c.isSaved = allSavedIds.Contains(resId);
                         }
                         cachedData.success = true;
 
@@ -363,6 +371,51 @@ namespace DoAnCS.Controllers
                 avgScore = Math.Round(results.Average(r => r.MatchScore), 1),
                 candidates = data
             });
+        }
+
+        /// <summary>Lưu hoặc bỏ lưu ứng viên (Hỗ trợ cả ứng viên trong DB lẫn ứng viên Benchmark 3.320 CV)</summary>
+        [HttpPost]
+        public async Task<IActionResult> ToggleSaveCandidate(int resumeId, string? fullName, string? jobTitle, int? matchScore)
+        {
+            int recruiterId = CurrentUserId;
+            if (recruiterId <= 0)
+            {
+                return Json(new { success = false, message = "Bạn cần đăng nhập để lưu ứng viên." });
+            }
+
+            // 1. Kiểm tra xem ứng viên có thuộc bảng Resumes trong SQL Server hay không
+            bool isDbResume = await _context.Resumes.AnyAsync(r => r.ResumeID == resumeId);
+            if (isDbResume)
+            {
+                var existing = await _context.SavedCandidates
+                    .FirstOrDefaultAsync(s => s.RecruiterId == recruiterId && s.ResumeId == resumeId);
+
+                if (existing != null)
+                {
+                    _context.SavedCandidates.Remove(existing);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, saved = false, message = "Đã bỏ lưu ứng viên." });
+                }
+                else
+                {
+                    var saved = new SavedCandidate
+                    {
+                        RecruiterId = recruiterId,
+                        ResumeId = resumeId,
+                        SavedAt = DateTime.Now
+                    };
+                    _context.SavedCandidates.Add(saved);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, saved = true, message = "Đã lưu ứng viên vào danh sách tiềm năng." });
+                }
+            }
+            else
+            {
+                // 2. Ứng viên thuộc bộ Benchmark ngoài DB -> Lưu vào file JSON an toàn
+                ToggleBenchmarkCandidate(recruiterId, resumeId, fullName, jobTitle, matchScore, out bool isSaved);
+                string msg = isSaved ? "Đã lưu ứng viên vào danh sách tiềm năng." : "Đã bỏ lưu ứng viên.";
+                return Json(new { success = true, saved = isSaved, message = msg });
+            }
         }
 
         // ===========================
@@ -805,6 +858,85 @@ Output JSON thuần (KHÔNG markdown, KHÔNG text phụ):
         public class EmbedCVResponse
         {
             public List<float> vector { get; set; }
+        }
+
+        // ===========================
+        // BENCHMARK SAVED CANDIDATE MODELS & HELPERS
+        // ===========================
+
+        public class SavedBenchmarkCandidate
+        {
+            public int ResumeId { get; set; }
+            public string FullName { get; set; } = string.Empty;
+            public string JobTitle { get; set; } = string.Empty;
+            public int MatchScore { get; set; }
+            public DateTime SavedAt { get; set; } = DateTime.Now;
+        }
+
+        private static readonly object _benchmarkLock = new object();
+
+        private static string GetBenchmarkSavedFilePath(int recruiterId)
+        {
+            string dir = Path.Combine(Directory.GetCurrentDirectory(), "Data", "SavedBenchmark");
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+            return Path.Combine(dir, $"{recruiterId}.json");
+        }
+
+        public static List<SavedBenchmarkCandidate> GetSavedBenchmarkCandidates(int recruiterId)
+        {
+            if (recruiterId <= 0) return new List<SavedBenchmarkCandidate>();
+            string path = GetBenchmarkSavedFilePath(recruiterId);
+            if (!System.IO.File.Exists(path)) return new List<SavedBenchmarkCandidate>();
+            lock (_benchmarkLock)
+            {
+                try
+                {
+                    string content = System.IO.File.ReadAllText(path);
+                    return JsonConvert.DeserializeObject<List<SavedBenchmarkCandidate>>(content) ?? new List<SavedBenchmarkCandidate>();
+                }
+                catch
+                {
+                    return new List<SavedBenchmarkCandidate>();
+                }
+            }
+        }
+
+        public static HashSet<int> GetSavedBenchmarkIds(int recruiterId)
+        {
+            return GetSavedBenchmarkCandidates(recruiterId).Select(c => c.ResumeId).ToHashSet();
+        }
+
+        public static bool ToggleBenchmarkCandidate(int recruiterId, int resumeId, string? fullName, string? jobTitle, int? matchScore, out bool isSaved)
+        {
+            lock (_benchmarkLock)
+            {
+                var list = GetSavedBenchmarkCandidates(recruiterId);
+                var existing = list.FirstOrDefault(c => c.ResumeId == resumeId);
+                if (existing != null)
+                {
+                    list.Remove(existing);
+                    isSaved = false;
+                }
+                else
+                {
+                    list.Add(new SavedBenchmarkCandidate
+                    {
+                        ResumeId = resumeId,
+                        FullName = string.IsNullOrWhiteSpace(fullName) ? $"Ứng viên #{resumeId}" : fullName,
+                        JobTitle = string.IsNullOrWhiteSpace(jobTitle) ? "Ứng viên" : jobTitle,
+                        MatchScore = matchScore ?? 0,
+                        SavedAt = DateTime.Now
+                    });
+                    isSaved = true;
+                }
+                string path = GetBenchmarkSavedFilePath(recruiterId);
+                string json = JsonConvert.SerializeObject(list, Formatting.Indented);
+                System.IO.File.WriteAllText(path, json);
+                return true;
+            }
         }
     }
 }

@@ -551,16 +551,18 @@
                             <h5 class="fw-bold mb-0 text-dark">Đã lưu</h5>
                             <span class="text-muted small">Ứng viên theo dõi</span>
                         </div>
+                        @{
+                            var savedCandidates = ViewBag.SavedCandidates as List<DoAnCS.Models.SavedCandidate>;
+                            var savedBenchmark = ViewBag.SavedBenchmarkCandidates as List<DoAnCS.Controllers.SmartMatchController.SavedBenchmarkCandidate>;
+                            int totalSavedCount = (savedCandidates?.Count ?? 0) + (savedBenchmark?.Count ?? 0);
+                        }
                         <div class="badge rounded-pill bg-primary px-3 py-2">
-                            @(ViewBag.SavedCandidates?.Count ?? 0)
+                            @totalSavedCount
                         </div>
                     </div>
                     
                     <div class="scrollbar-thin" style="max-height: 500px; overflow-y: auto; overflow-x: hidden;">
-                        @{
-                            var savedCandidates = ViewBag.SavedCandidates as List<DoAnCS.Models.SavedCandidate>;
-                        }
-                        @if (savedCandidates == null || !savedCandidates.Any())
+                        @if (totalSavedCount == 0)
                         {
                             <div class="empty-sidebar">
                                 <div class="empty-icon">
@@ -570,6 +572,8 @@
                             </div>
                         }
                         else
+                        {
+                            @if (savedCandidates != null && savedCandidates.Any())
                         {
                             @foreach (var saved in savedCandidates)
                             {
@@ -586,6 +590,36 @@
                                         <i class="bi bi-trash3"></i>
                                     </button>
                                 </div>
+                            }
+                            }
+
+                            @if (savedBenchmark != null && savedBenchmark.Any())
+                            {
+                                <div class="px-3 py-2 bg-light text-primary small fw-bold d-flex justify-content-between align-items-center border-top border-bottom">
+                                    <span><i class="bi bi-cpu me-1"></i>Ứng viên Benchmark AI (@savedBenchmark.Count)</span>
+                                </div>
+                                @foreach (var bm in savedBenchmark)
+                                {
+                                    <div class="saved-item" onclick="window.open('/SmartMatch/ViewCandidatePdf?id=@bm.ResumeId', '_blank')" style="cursor: pointer;">
+                                        <img src="https://ui-avatars.com/api/?name=@(Uri.EscapeDataString(bm.FullName))&background=random" 
+                                             class="saved-avatar border">
+                                        <div class="overflow-hidden flex-grow-1" style="min-width: 0;">
+                                            <h6 class="fw-bold mb-0 text-dark text-truncate small">@bm.FullName</h6>
+                                            <p class="text-muted mb-0 text-truncate" style="font-size: 0.75rem;">
+                                                @(bm.JobTitle ?? "Ứng viên") 
+                                                <span class="badge bg-success-subtle text-success ms-1">@bm.MatchScore đ</span>
+                                            </p>
+                                        </div>
+                                        <a href="/SmartMatch/ViewCandidatePdf?id=@bm.ResumeId" target="_blank" class="btn btn-link text-danger p-1" title="Mở file PDF gốc" onclick="event.stopPropagation()">
+                                            <i class="bi bi-file-earmark-pdf"></i>
+                                        </a>
+                                        <button class="btn btn-link text-danger p-1 ms-1 opacity-50 hover-opacity-100" 
+                                                onclick="event.stopPropagation(); if(confirm('Bạn có chắc chắn muốn bỏ lưu ứng viên này khỏi danh sách đã lưu?')) toggleSaveCandidate(@bm.ResumeId, this)"
+                                                title="Bỏ lưu">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                }
                             }
                         }
                     </div>
