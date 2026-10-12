@@ -17,11 +17,124 @@ namespace DoAnCS.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAIService _aiService;
+        private readonly IOllamaService _ollamaService;
 
-        public InterviewController(AppDbContext context, IAIService aiService)
+        public InterviewController(AppDbContext context, IAIService aiService, IOllamaService ollamaService)
         {
             _context = context;
             _aiService = aiService;
+            _ollamaService = ollamaService;
+        }
+
+        /// <summary>
+        /// Trích xuất chẩn đoán kỹ năng từ SmartMatch Cache (Data/JobMatchResults/{jobId}.json)
+        /// hoặc từ chính nội dung CV nếu chưa từng quét qua Job cụ thể.
+        /// </summary>
+        private async Task<(List<string> unverifiedSkills, List<string> missingSkills, string seniority, string jobTitle)> ExtractSkillDiagnosticsAsync(Resume resume, int? jobId)
+        {
+            var unverifiedSkills = new List<string>();
+            var missingSkills = new List<string>();
+            string seniority = "Mid-level";
+            string jobTitle = resume.JobTitle ?? "Kỹ sư phần mềm";
+
+            // 1. Thử lấy từ cache SmartMatch nếu có JobID
+            if (jobId.HasValue && jobId.Value > 0)
+            {
+                try
+                {
+                    string cachePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "JobMatchResults", $"{jobId.Value}.json");
+                    if (System.IO.File.Exists(cachePath))
+                    {
+                        string jsonContent = await System.IO.File.ReadAllTextAsync(cachePath);
+                        using (JsonDocument doc = JsonDocument.Parse(jsonContent))
+                        {
+                            var root = doc.RootElement;
+                            if (root.TryGetProperty("jobTitle", out var jtProp) && !string.IsNullOrWhiteSpace(jtProp.GetString()))
+                            {
+                                jobTitle = jtProp.GetString()!;
+                            }
+
+                            if (root.TryGetProperty("candidates", out var candsProp) && candsProp.ValueKind == JsonValueKind.Array)
+                            {
+                                foreach (var cand in candsProp.EnumerateArray())
+                                {
+                                    int cResumeId = 0;
+                                    if (cand.TryGetProperty("resumeId", out var rIdProp))
+                                    {
+                                        cResumeId = rIdProp.ValueKind == JsonValueKind.Number ? rIdProp.GetInt32() : (int.TryParse(rIdProp.GetString(), out int p) ? p : 0);
+                                    }
+
+                                    if (cResumeId == resume.ResumeID)
+                                    {
+                                        if (cand.TryGetProperty("unverifiedSkills", out var unvProp) && unvProp.ValueKind == JsonValueKind.Array)
+                                        {
+                                            unverifiedSkills = unvProp.EnumerateArray().Select(x => x.GetString()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList()!;
+                                        }
+                                        if (cand.TryGetProperty("missingSkills", out var misProp) && misProp.ValueKind == JsonValueKind.Array)
+                                        {
+                                            missingSkills = misProp.EnumerateArray().Select(x => x.GetString()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList()!;
+                                        }
+                                        if (cand.TryGetProperty("seniorityFit", out var senProp) && !string.IsNullOrWhiteSpace(senProp.GetString()))
+                                        {
+                                            seniority = senProp.GetString()!;
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Interview ExtractSkillDiagnostics Cache Error] {ex.Message}");
+                }
+            }
+
+            // 2. Nếu chưa có unverifiedSkills từ cache, tự động trích xuất từ CV JsonContent
+            if (!unverifiedSkills.Any())
+            {
+                var cvSkills = new List<string>();
+                if (!string.IsNullOrEmpty(resume.JsonContent))
+                {
+                    try
+                    {
+                        using (JsonDocument doc = JsonDocument.Parse(resume.JsonContent))
+                        {
+                            var root = doc.RootElement;
+                            if (root.TryGetProperty("skills", out var skillsProp) && skillsProp.ValueKind == JsonValueKind.Array)
+                            {
+                                foreach (var s in skillsProp.EnumerateArray())
+                                {
+                                    if (s.TryGetProperty("name", out var sName) && !string.IsNullOrWhiteSpace(sName.GetString()))
+                                    {
+                                        cvSkills.Add(sName.GetString()!.Trim());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+
+                if (cvSkills.Any())
+                {
+                    // Các kỹ năng có trong CV cần được phỏng vấn chuyên sâu để kiểm chứng thực tế
+                    unverifiedSkills = cvSkills.Take(4).ToList();
+                    if (cvSkills.Count > 4)
+                    {
+                        missingSkills = cvSkills.Skip(4).Take(2).ToList();
+                    }
+                }
+                else
+                {
+                    // Dự phòng các kỹ năng cốt lõi theo chuyên môn
+                    unverifiedSkills = new List<string> { "Xử lý hiệu năng hệ thống", "Kiến trúc ứng dụng", "Giải quyết sự cố kỹ thuật" };
+                    missingSkills = new List<string> { "Tối ưu hóa cơ sở dữ liệu", "CI/CD & DevOps" };
+                }
+            }
+
+            return (unverifiedSkills, missingSkills, seniority, jobTitle);
         }
 
         #region 1. CHỨC NĂNG LUYỆN TẬP TỰ DO (ỨNG VIÊN)
@@ -56,11 +169,21 @@ namespace DoAnCS.Controllers
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
 
+            // Lấy danh sách các tin tuyển dụng đang mở để ứng viên có thể chọn phỏng vấn theo Job mục tiêu
+            var targetJobs = await _context.Jobs
+                .Include(j => j.Company)
+                .Where(j => j.Status == 1)
+                .OrderByDescending(j => j.CreatedAt)
+                .Take(20)
+                .Select(j => new { j.JobID, j.Title, CompanyName = j.Company != null ? j.Company.Name : "Doanh nghiệp tuyển dụng" })
+                .ToListAsync();
+
             ViewBag.Resumes = resumes;
             ViewBag.History = history;
             ViewBag.TodaySessionsCount = todaySessionsCount;
             ViewBag.MaxDailySessions = maxDailySessions;
             ViewBag.IsPro = isPro;
+            ViewBag.TargetJobs = targetJobs;
             return View();
         }
 
@@ -70,7 +193,7 @@ namespace DoAnCS.Controllers
         [HttpPost]
         [Authorize(Roles = "User")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> StartPracticeSession(int resumeId, int interviewType, int questionCount)
+        public async Task<IActionResult> StartPracticeSession(int resumeId, int interviewType, int questionCount, int? jobId = null)
         {
             int userId = CurrentUserId;
 
@@ -99,7 +222,43 @@ namespace DoAnCS.Controllers
                 return RedirectToAction(nameof(Practice));
             }
 
-            // 3. Giới hạn số câu hỏi hợp lệ (phòng ngừa Client gửi sai lệch)
+            // 3. Tự động liên kết JobID nếu chưa truyền trực tiếp (tìm trong đơn ứng tuyển hoặc cache SmartMatch)
+            if (!jobId.HasValue || jobId.Value <= 0)
+            {
+                jobId = await _context.Applications
+                    .Where(a => a.ResumeID == resumeId)
+                    .OrderByDescending(a => a.AppliedAt)
+                    .Select(a => (int?)a.JobID)
+                    .FirstOrDefaultAsync();
+
+                if (!jobId.HasValue)
+                {
+                    try
+                    {
+                        string cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "Data", "JobMatchResults");
+                        if (Directory.Exists(cacheDir))
+                        {
+                            var files = Directory.GetFiles(cacheDir, "*.json");
+                            foreach (var file in files)
+                            {
+                                string text = await System.IO.File.ReadAllTextAsync(file);
+                                if (text.Contains($"\"resumeId\": {resumeId}") || text.Contains($"\"resumeId\":{resumeId}"))
+                                {
+                                    string fName = Path.GetFileNameWithoutExtension(file);
+                                    if (int.TryParse(fName, out int parsedJobId))
+                                    {
+                                        jobId = parsedJobId;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            // 4. Giới hạn số câu hỏi hợp lệ (phòng ngừa Client gửi sai lệch)
             if (interviewType == 0) // STAR
             {
                 int minQ = 3;
@@ -124,6 +283,7 @@ namespace DoAnCS.Controllers
             var session = new InterviewSession
             {
                 UserID = userId,
+                JobID = jobId,
                 ResumeID = resumeId,
                 InterviewType = interviewType, // 0: Tự luận chat 1-1, 1: Trắc nghiệm
                 Status = 0, // Đang diễn ra
@@ -324,22 +484,76 @@ Thông tin CV ứng viên:
             }
             else
             {
-                // CHẾ ĐỘ CHAT TỰ LUẬN 1-1: Sinh câu hỏi đầu tiên
-                string prompt = $@"Bạn là nhà phỏng vấn tuyển dụng AI chuyên nghiệp. Dựa trên thông tin CV của ứng viên dưới đây, hãy đặt câu hỏi phỏng vấn tự luận đầu tiên để kiểm tra kinh nghiệm hoặc kỹ năng nổi bật của ứng viên.
-Câu hỏi cần ngắn gọn, trực diện và tạo cơ hội để ứng viên kể về kinh nghiệm thực tế. Chỉ trả về duy nhất nội dung câu hỏi phỏng vấn.
+                // CHẾ ĐỘ CHAT TỰ LUẬN 1-1: Phỏng vấn chuyên sâu chuẩn STAR với Local AI (Qwen 2.5 3B)
+                var (unverifiedSkills, missingSkills, seniority, matchedJobTitle) = await ExtractSkillDiagnosticsAsync(resume, jobId);
 
-Thông tin CV ứng viên:
-{cvSummary}";
+                // Tổng hợp danh sách kỹ năng mục tiêu (ưu tiên unverified -> missing -> technical skills)
+                var targetSkillsList = new List<string>();
+                targetSkillsList.AddRange(unverifiedSkills);
+                targetSkillsList.AddRange(missingSkills);
+                if (!targetSkillsList.Any())
+                {
+                    targetSkillsList.Add("Kiến trúc ứng dụng và giải quyết bài toán kỹ thuật");
+                }
+
+                // Cập nhật cấu hình phiên vào AiEvaluation: MaxQuestions:X|Job:Title|Skills:Skill1,Skill2,...
+                session.AiEvaluation = $"MaxQuestions:{questionCount}|Job:{matchedJobTitle}|Skills:{string.Join(",", targetSkillsList)}";
+                await _context.SaveChangesAsync();
+
+                string primaryTarget = targetSkillsList.First();
+
+                string leadTechPrompt = $@"Bạn là Tech Lead kiêm Trưởng ban phỏng vấn kỹ thuật cấp cao cho vị trí {matchedJobTitle} (Cấp bậc: {seniority}).
+Hồ sơ chẩn đoán kỹ năng của ứng viên:
+- Kỹ năng cần kiểm chứng thực tế: {(unverifiedSkills.Any() ? string.Join(", ", unverifiedSkills) : "Chưa có bằng chứng dự án rõ ràng")}
+- Lỗ hổng kỹ năng so với yêu cầu: {(missingSkills.Any() ? string.Join(", ", missingSkills) : "Cần hoàn thiện thêm")}
+
+Nhiệm vụ: Hãy đặt câu hỏi phỏng vấn số 1/{questionCount} tập trung kiểm chứng kỹ năng [{primaryTarget}].
+Yêu cầu bắt buộc:
+1. Đặt câu hỏi theo phương pháp STAR (Situation - Task - Action - Result): Đưa ra một tình huống hoặc bài toán kỹ thuật thực tế hóc búa liên quan đến [{primaryTarget}], yêu cầu ứng viên giải thích rõ: Dự án/Bối cảnh (Situation), Trách nhiệm/Mục tiêu (Task), Giải pháp & Hành động kỹ thuật cụ thể đã làm (Action), và Kết quả đo lường (Result).
+2. Giọng điệu chuyên nghiệp, khắt khe, đi thẳng vào bản chất kỹ thuật, không vòng vo.
+3. CHỈ TRẢ VỀ DUY NHẤT nội dung câu hỏi phỏng vấn bằng tiếng Việt (không thêm bất kỳ lời chào, lời dẫn hay ký tự phụ bên ngoài).";
+
+                string firstQuestion = "";
+                string aiProvider = "local_qwen_3b";
 
                 try
                 {
-                    string firstQuestion = await _aiService.GenerateContent(prompt);
-                    await LogAiUsage("interview_chat_start", prompt, firstQuestion);
+                    // 1. Thử gọi Local AI (Ollama Qwen 2.5 3B)
+                    firstQuestion = await _ollamaService.GenerateTextAsync(leadTechPrompt);
+                    if (string.IsNullOrWhiteSpace(firstQuestion))
+                    {
+                        throw new Exception("Local AI trả về rỗng.");
+                    }
+                    firstQuestion = firstQuestion.Trim();
+                }
+                catch (Exception ollamaEx)
+                {
+                    // 2. Fallback sang Cloud Gemini AI nếu Ollama offline hoặc timeout
+                    Console.WriteLine($"[Interview Local AI Fallback to Cloud] {ollamaEx.Message}");
+                    try
+                    {
+                        firstQuestion = await _aiService.GenerateContent(leadTechPrompt);
+                        firstQuestion = firstQuestion.Trim();
+                        aiProvider = "cloud_gemini";
+                    }
+                    catch (Exception)
+                    {
+                        firstQuestion = $"Dựa trên hồ sơ của bạn với vị trí {matchedJobTitle}, bạn có thể chia sẻ một tình huống thực tế khó khăn nhất khi làm việc với {primaryTarget} mà bạn đã trực tiếp giải quyết không? Hãy nêu rõ bối cảnh, nhiệm vụ, giải pháp kỹ thuật cụ thể và kết quả đo lường đạt được.";
+                        aiProvider = "system_template";
+                    }
+                }
+
+                string skillType = unverifiedSkills.Contains(primaryTarget) ? "unverified" : (missingSkills.Contains(primaryTarget) ? "missing" : "technical");
+                string formattedFirstQuestion = $"[TARGET_SKILL:{primaryTarget}|TYPE:{skillType}]\n{firstQuestion}\n\n💡 Gợi ý trả lời theo STAR: Nêu rõ Bối cảnh (S), Nhiệm vụ (T), Hành động kỹ thuật đã làm (A), và Kết quả đo lường (R).";
+
+                try
+                {
                     var msg = new InterviewMessage
                     {
                         SessionID = session.SessionID,
                         Role = "interviewer",
-                        Content = firstQuestion.Trim(),
+                        Content = formattedFirstQuestion,
+                        AiProvider = aiProvider,
                         CreatedAt = DateTime.Now
                     };
                     _context.InterviewMessages.Add(msg);
@@ -349,7 +563,7 @@ Thông tin CV ứng viên:
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "AI không thể đặt câu hỏi phỏng vấn lúc này. Chi tiết: " + ex.Message;
+                    TempData["ErrorMessage"] = "AI không thể lưu câu hỏi phỏng vấn lúc này. Chi tiết: " + ex.Message;
                     _context.InterviewSessions.Remove(session);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Practice));
@@ -457,7 +671,8 @@ Câu trả lời của ứng viên: ""{answer}""";
             int maxQuestions = 3; // Mặc định là 3
             if (!string.IsNullOrEmpty(session.AiEvaluation) && session.AiEvaluation.StartsWith("MaxQuestions:"))
             {
-                if (int.TryParse(session.AiEvaluation.Substring("MaxQuestions:".Length), out int parsedMax))
+                string maxPart = session.AiEvaluation.Split('|')[0];
+                if (int.TryParse(maxPart.Substring("MaxQuestions:".Length), out int parsedMax))
                 {
                     maxQuestions = parsedMax;
                 }
@@ -500,34 +715,162 @@ Câu hỏi & Trả lời phỏng vấn:
             }
             else
             {
-                // Sinh câu hỏi tiếp theo
-                string cvSummary = $"Họ tên: {session.Resume.FullName}, Vị trí: {session.Resume.JobTitle}.";
-                string nextQuestionPrompt = $@"Dựa trên thông tin CV ứng viên và lịch sử hội thoại phỏng vấn dưới đây, hãy đặt câu hỏi phỏng vấn tự luận tiếp theo (câu hỏi số {answerCount + 1}/3).
-Câu hỏi nên nối tiếp tự nhiên từ ý của câu trả lời trước đó hoặc hỏi sang một mảng kinh nghiệm khác trong CV. Chỉ trả về duy nhất nội dung câu hỏi mới.
+                // Sinh câu hỏi tiếp theo dựa trên danh sách lỗ hổng kỹ năng (SmartMatch Diagnostics)
+                string jobTitle = session.Resume?.JobTitle ?? "Kỹ sư phần mềm";
+                var targetSkillsList = new List<string>();
 
-CV ứng viên:
-{cvSummary}
-
-Lịch sử phỏng vấn:
-" + string.Join("\n", session.Messages.OrderBy(m => m.CreatedAt).Select(m => $"{(m.Role == "interviewer" ? "Người phỏng vấn" : "Ứng viên")}: {m.Content}")) + "\nĐặt câu hỏi tiếp theo:";
-
-                try
+                // Phân tích cấu hình từ AiEvaluation: MaxQuestions:X|Job:Title|Skills:Skill1,Skill2,...
+                if (!string.IsNullOrEmpty(session.AiEvaluation))
                 {
-                    string nextQuestion = await _aiService.GenerateContent(nextQuestionPrompt);
-                    var nextMsg = new InterviewMessage
+                    var parts = session.AiEvaluation.Split('|');
+                    foreach (var part in parts)
+                    {
+                        if (part.StartsWith("Job:"))
+                        {
+                            jobTitle = part.Substring("Job:".Length);
+                        }
+                        else if (part.StartsWith("Skills:"))
+                        {
+                            targetSkillsList = part.Substring("Skills:".Length).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+                    }
+                }
+
+                // Nhận diện kỹ năng hiện tại từ câu hỏi trước đó
+                string currentTargetSkill = "Kỹ năng chuyên môn";
+                if (lastQuestionMsg != null && lastQuestionMsg.Content.Contains("[TARGET_SKILL:"))
+                {
+                    int sIdx = lastQuestionMsg.Content.IndexOf("[TARGET_SKILL:") + "[TARGET_SKILL:".Length;
+                    int eIdx = lastQuestionMsg.Content.IndexOf("|", sIdx);
+                    if (eIdx > sIdx)
+                    {
+                        currentTargetSkill = lastQuestionMsg.Content.Substring(sIdx, eIdx - sIdx).Trim();
+                    }
+                }
+
+                int wordCount = answer.Trim().Split(new[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
+                bool isLastQuestionDrillDown = lastQuestionMsg != null && lastQuestionMsg.Content.Contains("[IS_DRILLDOWN]");
+
+                // Cơ chế Hỏi dồn (Drill-down Follow-up) nếu ứng viên trả lời quá ngắn (< 20 từ) và chưa từng hỏi dồn câu trước
+                if (wordCount < 20 && !isLastQuestionDrillDown && answerCount < maxQuestions)
+                {
+                    string drillDownPrompt = $@"Bạn là Tech Lead kiêm Trưởng ban phỏng vấn kỹ thuật cấp cao cho vị trí {jobTitle}.
+Ứng viên vừa trả lời rất ngắn gọn ({wordCount} từ) cho câu hỏi về [{currentTargetSkill}].
+Câu hỏi trước: ""{lastQuestion}""
+Câu trả lời của ứng viên: ""{answer}""
+
+Nhiệm vụ: Hãy đặt một câu hỏi đào sâu kỹ thuật (Follow-up drill-down) để xoáy tiếp vào kỹ năng [{currentTargetSkill}].
+Yêu cầu:
+1. Nhận xét ngắn gọn rằng câu trả lời chưa làm rõ chi tiết kỹ thuật thực tế (Action) và kết quả (Result).
+2. Yêu cầu ứng viên đi thẳng vào giải pháp kỹ thuật cụ thể: đã cấu hình/viết code ra sao, giải quyết bài toán/lỗi nào và kết quả đo lường được là gì.
+3. Giọng điệu Tech Lead nghiêm khắc, đi thẳng vào bản chất, không vòng vo.
+4. CHỈ TRẢ VỀ DUY NHẤT nội dung câu hỏi đào sâu bằng tiếng Việt.";
+
+                    string drillDownQuestion = "";
+                    string drillDownProvider = "local_qwen_3b";
+
+                    try
+                    {
+                        drillDownQuestion = await _ollamaService.GenerateTextAsync(drillDownPrompt);
+                        if (string.IsNullOrWhiteSpace(drillDownQuestion)) throw new Exception("Rỗng");
+                        drillDownQuestion = drillDownQuestion.Trim();
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            drillDownQuestion = await _aiService.GenerateContent(drillDownPrompt);
+                            drillDownQuestion = drillDownQuestion.Trim();
+                            drillDownProvider = "cloud_gemini";
+                        }
+                        catch
+                        {
+                            drillDownQuestion = $"Câu trả lời của bạn về {currentTargetSkill} còn khá ngắn và chưa cụ thể. Bạn có thể giải thích chi tiết hơn về các bước kỹ thuật (Action) bạn đã thực hiện và kết quả (Result) cụ thể đạt được không?";
+                            drillDownProvider = "system_template";
+                        }
+                    }
+
+                    string formattedDrillDown = $"[TARGET_SKILL:{currentTargetSkill}|TYPE:drilldown][IS_DRILLDOWN]\n{drillDownQuestion}\n\n💡 Nhắc nhở: Câu trả lời trước khá ngắn. Hãy trình bày rõ Hành động kỹ thuật (Action) và Kết quả (Result) đo lường được theo chuẩn STAR.";
+
+                    var drillDownMsg = new InterviewMessage
                     {
                         SessionID = sessionId,
                         Role = "interviewer",
-                        Content = nextQuestion.Trim(),
+                        Content = formattedDrillDown,
+                        AiProvider = drillDownProvider,
                         CreatedAt = DateTime.Now
                     };
-                    _context.InterviewMessages.Add(nextMsg);
+                    _context.InterviewMessages.Add(drillDownMsg);
                     await _context.SaveChangesAsync();
+
+                    return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
                 }
-                catch (Exception ex)
+
+                // Chọn kỹ năng tiếp theo theo vòng xoay vòng
+                string nextTargetSkill = "Xử lý bài toán kỹ thuật chuyên sâu";
+                if (targetSkillsList.Any())
                 {
-                    TempData["ErrorMessage"] = "Không thể sinh câu hỏi tiếp theo: " + ex.Message;
+                    int skillIndex = answerCount % targetSkillsList.Count;
+                    nextTargetSkill = targetSkillsList[skillIndex];
                 }
+
+                string nextQuestionPrompt = $@"Bạn là Tech Lead kiêm Trưởng ban phỏng vấn kỹ thuật cấp cao cho vị trí {jobTitle}.
+Ứng viên vừa trả lời câu hỏi trước đó trong phiên phỏng vấn.
+Hiện tại là câu hỏi phỏng vấn số {answerCount + 1}/{maxQuestions}.
+Mục tiêu tiếp theo là kiểm chứng chuyên sâu kỹ năng [{nextTargetSkill}] theo phương pháp STAR.
+
+Ngữ cảnh trước đó:
+- Câu hỏi vừa hỏi: ""{lastQuestion}""
+- Câu trả lời của ứng viên: ""{answer}""
+
+Yêu cầu câu hỏi mới:
+1. Tiếp nối tự nhiên từ câu trả lời trước hoặc chuyển hướng kiểm chứng kỹ năng [{nextTargetSkill}].
+2. Đặt câu hỏi tình huống thực tế theo chuẩn STAR (Situation, Task, Action, Result), yêu cầu ứng viên giải thích rõ các thách thức kỹ thuật, hành động cụ thể đã làm và kết quả đo lường đạt được.
+3. Giọng điệu chuyên nghiệp, khắt khe, đi thẳng vào bản chất kỹ thuật, không vòng vo.
+4. CHỈ TRẢ VỀ DUY NHẤT nội dung câu hỏi phỏng vấn bằng tiếng Việt (không thêm bất kỳ lời chào, lời dẫn hay ký tự phụ bên ngoài).";
+
+                string nextQuestion = "";
+                string aiProvider = "local_qwen_3b";
+
+                try
+                {
+                    // 1. Thử gọi Local AI (Ollama Qwen 2.5 3B)
+                    nextQuestion = await _ollamaService.GenerateTextAsync(nextQuestionPrompt);
+                    if (string.IsNullOrWhiteSpace(nextQuestion))
+                    {
+                        throw new Exception("Local AI trả về rỗng.");
+                    }
+                    nextQuestion = nextQuestion.Trim();
+                }
+                catch (Exception ollamaEx)
+                {
+                    // 2. Fallback sang Cloud Gemini AI
+                    Console.WriteLine($"[Interview Next Question Local AI Fallback] {ollamaEx.Message}");
+                    try
+                    {
+                        nextQuestion = await _aiService.GenerateContent(nextQuestionPrompt);
+                        nextQuestion = nextQuestion.Trim();
+                        aiProvider = "cloud_gemini";
+                    }
+                    catch
+                    {
+                        nextQuestion = $"Hãy chia sẻ một tình huống thực tế khác liên quan đến [{nextTargetSkill}] mà bạn đã từng gặp phải, và cách bạn giải quyết nó?";
+                        aiProvider = "system_template";
+                    }
+                }
+
+                string formattedNextQuestion = $"[TARGET_SKILL:{nextTargetSkill}|TYPE:target]\n{nextQuestion}\n\n💡 Gợi ý trả lời theo STAR: Nêu rõ Bối cảnh (S), Nhiệm vụ (T), Hành động kỹ thuật đã làm (A), và Kết quả đo lường (R).";
+
+                var nextMsg = new InterviewMessage
+                {
+                    SessionID = sessionId,
+                    Role = "interviewer",
+                    Content = formattedNextQuestion,
+                    AiProvider = aiProvider,
+                    CreatedAt = DateTime.Now
+                };
+                _context.InterviewMessages.Add(nextMsg);
+                await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
             }
