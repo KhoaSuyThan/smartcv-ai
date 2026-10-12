@@ -34,8 +34,19 @@ namespace DoAnCS.Models
         // Điểm đánh giá riêng cho câu trả lời tự luận này (0-100)
         public int? Score { get; set; }
 
-        // Phản hồi nhận xét chi tiết (mô hình STAR) cho câu trả lời này
+        // Phản hồi nhận xét chi tiết cho câu trả lời này
         public string? Feedback { get; set; }
+
+        // ==========================================
+        // CÁC CỘT STAR & TIẾNG ANH ĐỊNH LƯỢNG MỚI
+        // ==========================================
+        public int? StarSituationScore { get; set; } // Điểm Situation (0-20)
+        public int? StarTaskScore { get; set; }      // Điểm Task (0-20)
+        public int? StarActionScore { get; set; }    // Điểm Action (0-40)
+        public int? StarResultScore { get; set; }    // Điểm Result (0-20)
+
+        public string? EnglishFeedback { get; set; } // Nhận xét ngữ pháp & bản viết lại tiếng Anh
+        public string? AiProvider { get; set; }      // 'local_qwen_3b' hoặc 'cloud_gemini'
 
         // Thời gian gửi tin nhắn
         public DateTime CreatedAt { get; set; } = DateTime.Now;

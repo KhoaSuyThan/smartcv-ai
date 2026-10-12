@@ -375,8 +375,14 @@ CREATE TABLE InterviewMessages (
     Content NVARCHAR(MAX) NOT NULL,
     ChoicesJson NVARCHAR(MAX) NULL, -- Lưu các tùy chọn trắc nghiệm A, B, C, D dưới dạng JSON nếu là câu trắc nghiệm
     SelectedAnswer NVARCHAR(MAX) NULL, -- Lưu đáp án ứng viên chọn
-    Score INT NULL, -- Điểm của câu trả lời tự luận
-    Feedback NVARCHAR(MAX) NULL, -- Nhận xét STAR của AI hoặc Nhà tuyển dụng cho câu trả lời này
+    Score INT NULL, -- Điểm tổng quát của câu trả lời tự luận
+    Feedback NVARCHAR(MAX) NULL, -- Nhận xét tổng quan của AI hoặc Nhà tuyển dụng
+    StarSituationScore INT NULL, -- Điểm tiêu chí Situation (0-20)
+    StarTaskScore INT NULL, -- Điểm tiêu chí Task (0-20)
+    StarActionScore INT NULL, -- Điểm tiêu chí Action (0-40)
+    StarResultScore INT NULL, -- Điểm tiêu chí Result (0-20)
+    EnglishFeedback NVARCHAR(MAX) NULL, -- Nhận xét ngữ pháp và gợi ý viết lại tiếng Anh
+    AiProvider VARCHAR(50) NULL DEFAULT 'local_qwen', -- 'local_qwen_3b' hoặc 'cloud_gemini'
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_InterviewMessages_Sessions FOREIGN KEY (SessionID) REFERENCES InterviewSessions(SessionID) ON DELETE CASCADE
 );

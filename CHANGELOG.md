@@ -5,9 +5,11 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
-## [2026-10-12] - Tích hợp Động cơ Hybrid Matching, Xem PDF & Lưu Ứng viên Benchmark
+## [2026-10-12] - Tích hợp Động cơ Hybrid Matching, Xem PDF, Lưu Benchmark & Local AI STAR (Giai đoạn 1)
 
 ### Added & Integrated
+- **Khởi tạo dịch vụ Local AI Ollama (`IOllamaService`, `OllamaService.cs`):** Tích hợp client kết nối REST API `http://localhost:11434`, tự động phát hiện và ưu tiên nạp mô hình Qwen 2.5 (`qwen2.5:3b` / `qwen2.5:1.5b`), ép xuất JSON chuẩn xác với nhiệt độ thấp (0.15), đo đạc thực tế đạt 35.3 tokens/s trên GPU RTX 3050.
+- **Nâng cấp CSDL chuẩn hóa STAR & Auto-Migration (`Program.cs`, `InterviewMessage.cs`, `CreateTables.sql`):** Bổ sung 6 cột định lượng độc lập (`StarSituationScore`, `StarTaskScore`, `StarActionScore`, `StarResultScore`, `EnglishFeedback`, `AiProvider`) vào bảng `InterviewMessages`; nhúng logic tự động kiểm tra `IF NOT EXISTS` và chạy migration an toàn trong `Program.cs` khi khởi động.
 - **Lưu ứng viên Benchmark không can thiệp Database (`SmartMatchController.cs`, `TalentController.cs`):** Xây dựng cơ chế lưu ứng viên Benchmark theo từng nhà tuyển dụng vào `Data/SavedBenchmark/{recruiterId}.json`, tránh hoàn toàn xung đột khóa ngoại SQL Server; đồng bộ trạng thái "Đã lưu" trên SmartMatch và hiển thị an toàn trên sidebar trang Quản lý tài năng (`/Talent`) kèm nút mở file PDF gốc.
 - **Tích hợp Hybrid Matcher vào Backend (`SmartMatchController.cs`):** Kết nối endpoint `POST /api/match/hybrid-match` của Python FastAPI; hỗ trợ quét tự động 3.320 CV qua Vector Cache và đánh giá ATS 4 trụ cột chuyên sâu (< 0.5s); lưu bộ nhớ đệm kết quả theo JobID vào `Data/JobMatchResults/`.
 - **Xem file PDF gốc chuẩn Blind Hiring (`SmartMatchController.ViewCandidatePdf`):** Xây dựng action stream trực tiếp tệp PDF gốc từ kho `Data/Raw_PDFs/` dựa trên ID ứng viên benchmark mà không cần tạo tài khoản người dùng giả lập trong cơ sở dữ liệu.
