@@ -57,8 +57,44 @@ namespace DoAnCS.Controllers
             return View();
         }
 
+        // Cache bộ nhớ cho danh sách file PDF trong CV_Vector_Index.json để truy xuất cực nhanh
+        private static Dictionary<int, string>? _pdfFilenameCache = null;
+        private static readonly object _pdfCacheLock = new object();
+
         /// <summary>
-        /// API: Phân tích RAG (Level 3 AI Maturity) - Lọc nhanh qua Vector DB và phân tích chuyên sâu bằng LLM
+        /// API: Xem tệp hồ sơ PDF gốc của ứng viên từ bộ dữ liệu benchmark (Blind Hiring)
+        /// </summary>
+        [HttpGet]
+        public IActionResult ViewCandidatePdf(int id)
+        {
+            var isProClaim = User.FindFirst("IsPro")?.Value;
+            bool isPro = (isProClaim == "True") || User.IsInRole("Admin");
+            if (!isPro)
+            {
+                return Forbid();
+            }
+
+            string filename = GetCandidatePdfFilename(id);
+            if (string.IsNullOrEmpty(filename))
+            {
+                return NotFound($"Không tìm thấy tệp hồ sơ ứng viên #{id} trong chỉ mục hệ thống.");
+            }
+
+            string pdfPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Raw_PDFs", filename);
+            if (!System.IO.File.Exists(pdfPath))
+            {
+                return NotFound($"Tệp PDF gốc không tồn tại trên hệ thống lưu trữ: {filename}");
+            }
+
+            // Mở file PDF trực tiếp trên trình duyệt (inline preview)
+            Response.Headers.Append("Content-Disposition", $"inline; filename=\"Candidate_{id}.pdf\"");
+            return PhysicalFile(pdfPath, "application/pdf");
+        }
+
+        /// <summary>
+        /// API: Phân tích 2-Stage Hybrid Matching Engine (Level 3 AI Maturity):
+        /// Vòng 1: Quét 3.320 CV qua Vector Cache chuẩn hóa (< 0.05s).
+        /// Vòng 2: Chấm điểm ATS Scorer chuyên sâu 4 trụ cột & chống nhồi kỹ năng.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> AnalyzeJob(int jobId)
@@ -81,291 +117,157 @@ namespace DoAnCS.Controllers
                     return Json(new { success = false, message = "Bạn không có quyền phân tích tin này." });
             }
 
-            // Lấy toàn bộ CV công khai có nội dung
-            var publicResumes = await _context.Resumes
-                .Include(r => r.User)
-                .Where(r => r.IsPublic && !string.IsNullOrEmpty(r.JsonContent))
-                .ToListAsync();
+            // Chuẩn bị thông tin JD
+            string cleanDesc = StripHTML(job.Description ?? "");
+            string cleanReq = StripHTML(job.Requirements ?? "");
+            string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {cleanDesc}\nYêu cầu: {cleanReq}\nMức lương: {job.Salary ?? "Thỏa thuận"}";
 
-            if (!publicResumes.Any())
-                return Json(new { success = false, message = "Chưa có ứng viên nào công khai CV." });
+            // Trích xuất tự động kỹ năng, cấp bậc và số năm kinh nghiệm từ JD
+            var (hardSkills, expYears, level) = ExtractJobMetadata(job.Title, cleanDesc, cleanReq);
 
-            Console.WriteLine("[SmartMatch RAG] Gửi dữ liệu sang Python AI Service để so khớp...");
-
-            // Chuẩn bị JD
-            string jdText = $"Vị trí: {job.Title}\nCông ty: {job.Company?.Name ?? "N/A"}\nMô tả: {StripHTML(job.Description)}\nYêu cầu: {StripHTML(job.Requirements)}\nMức lương: {job.Salary}";
-
-            // Gọi sang Python (Cổng 8000)
-            var topCandidates = new List<Resume>();
-
-            // Tải cấu hình sớm để dùng được TopCandidatesCount và thông tin model
             var configData = await _context.GeminiConfigs.AsNoTracking().FirstOrDefaultAsync();
             var pythonBaseUrl = _config["PythonAI:BaseUrl"] ?? "http://localhost:8000";
-            var cacheExpireDays = 7; // Vector cache hợp lệ trong 7 ngày
+            int finalTopK = (configData?.TopCandidatesCount >= 10) ? configData.TopCandidatesCount : 10;
+
+            Console.WriteLine($"[SmartMatch Hybrid] Bắt đầu phân tích Job #{jobId} ({job.Title}) với 3.320 CVs...");
 
             try
             {
                 using (var client = new HttpClient())
                 {
-                    client.Timeout = TimeSpan.FromSeconds(30); // Tăng timeout vì có thể encode nhiều CV
+                    client.Timeout = TimeSpan.FromSeconds(30);
 
-                    // === BƯỚC 1: Phân loại CV có cache và CV cần encode mới ===
-                    var resumeIds = publicResumes.Select(r => r.ResumeID).ToList();
-                    var cutoffDate = DateTime.Now.AddDays(-cacheExpireDays);
-
-                    // Đọc tất cả cache còn hợp lệ từ DB một lần duy nhất
-                    var cachedEmbeddings = await _context.CVEmbeddings
-                        .Where(e => resumeIds.Contains(e.ResumeID) && e.UpdatedAt >= cutoffDate)
-                        .ToDictionaryAsync(e => e.ResumeID);
-
-                    // Tách thành 2 nhóm: có cache và chưa có cache
-                    var resumesNeedEncoding = publicResumes
-                        .Where(r => !cachedEmbeddings.ContainsKey(r.ResumeID))
-                        .ToList();
-                    var resumesWithCache = publicResumes
-                        .Where(r => cachedEmbeddings.ContainsKey(r.ResumeID))
-                        .ToList();
-
-                    Console.WriteLine($"[SmartMatch Cache] Có cache: {resumesWithCache.Count} CV | Cần encode mới: {resumesNeedEncoding.Count} CV");
-
-                    // === BƯỚC 2: Encode các CV chưa có cache → lưu vào DB ===
-                    foreach (var resume in resumesNeedEncoding)
+                    // Payload gửi sang Python FastAPI Hybrid Matcher
+                    var hybridPayload = new
                     {
-                        try
-                        {
-                            var cvText = ExtractCVText(resume);
-                            var embedResponse = await client.PostAsJsonAsync(
-                                $"{pythonBaseUrl}/api/embed-cv",
-                                new { text = cvText }
-                            );
+                        jd_text = jdText,
+                        hard_skills = hardSkills,
+                        experience_years_required = expYears,
+                        level = level,
+                        title = job.Title,
+                        filter_top_k = 25,
+                        final_top_k = finalTopK
+                    };
 
-                            if (embedResponse.IsSuccessStatusCode)
-                            {
-                                var embedResult = await embedResponse.Content
-                                    .ReadFromJsonAsync<EmbedCVResponse>();
-
-                                if (embedResult?.vector != null)
-                                {
-                                    // Upsert vào CVEmbeddings (cập nhật nếu đã có, thêm mới nếu chưa có)
-                                    var existing = await _context.CVEmbeddings
-                                        .FirstOrDefaultAsync(e => e.ResumeID == resume.ResumeID);
-
-                                    string vectorJson = System.Text.Json.JsonSerializer.Serialize(embedResult.vector);
-
-                                    if (existing != null)
-                                    {
-                                        existing.VectorJson = vectorJson;
-                                        existing.UpdatedAt = DateTime.Now;
-                                    }
-                                    else
-                                    {
-                                        _context.CVEmbeddings.Add(new CVEmbedding
-                                        {
-                                            ResumeID = resume.ResumeID,
-                                            VectorJson = vectorJson,
-                                            UpdatedAt = DateTime.Now
-                                        });
-                                    }
-
-                                    // Thêm vào dictionary để dùng ngay trong lần này
-                                    cachedEmbeddings[resume.ResumeID] = new CVEmbedding
-                                    {
-                                        ResumeID = resume.ResumeID,
-                                        VectorJson = vectorJson
-                                    };
-                                }
-                            }
-                        }
-                        catch (Exception embedEx)
-                        {
-                            Console.WriteLine($"[SmartMatch Cache] Lỗi encode CV {resume.ResumeID}: {embedEx.Message}");
-                        }
+                    var response = await client.PostAsJsonAsync($"{pythonBaseUrl}/api/match/hybrid-match", hybridPayload);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        string errText = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"[SmartMatch Error] Python AI trả về mã lỗi {response.StatusCode}: {errText}");
+                        return Json(new { success = false, message = "Dịch vụ Python AI phản hồi không thành công. Kiểm tra lại server Python cổng 8000." });
                     }
 
-                    // Lưu tất cả embedding mới vào DB một lần
-                    if (resumesNeedEncoding.Any())
+                    string rawJson = await response.Content.ReadAsStringAsync();
+                    var matchResponse = JsonConvert.DeserializeObject<HybridMatchResponse>(rawJson);
+                    if (matchResponse == null || matchResponse.top_candidates == null || !matchResponse.top_candidates.Any())
+                    {
+                        return Json(new { success = false, message = "Không tìm thấy ứng viên phù hợp trong cơ sở dữ liệu." });
+                    }
+
+                    int recruiterId = CurrentUserId;
+                    var savedResumeIds = await _context.SavedCandidates
+                        .Where(s => s.RecruiterId == recruiterId)
+                        .Select(s => s.ResumeId)
+                        .ToListAsync();
+
+                    // Chuẩn hóa danh sách kết quả gửi về UI
+                    var candidates = matchResponse.top_candidates.Select((c, idx) =>
+                    {
+                        // Parse số năm kinh nghiệm từ chuỗi experience_eval
+                        float detectedYears = 0;
+                        if (!string.IsNullOrEmpty(c.experience_eval))
+                        {
+                            var m = Regex.Match(c.experience_eval, @"(\d+(?:\.\d+)?)");
+                            if (m.Success) float.TryParse(m.Groups[1].Value, out detectedYears);
+                        }
+
+                        // Parse strengths thành list
+                        var strengthList = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(c.strengths))
+                        {
+                            strengthList = c.strengths.Split(new[] { "; ", ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+
+                        // Parse suggestions thành list
+                        var suggestionList = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(c.suggestions))
+                        {
+                            suggestionList = c.suggestions.Split(new[] { "; ", ";" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                        }
+
+                        return new
+                        {
+                            rank = idx + 1,
+                            resumeId = c.id,
+                            fullName = $"Ứng viên #{c.id}",
+                            jobTitle = job.Title,
+                            avatarUrl = (string?)null,
+                            hasPdf = true,
+                            matchScore = (int)Math.Round(c.ats_score),
+                            semanticScore = Math.Round(c.semantic_score * 100, 1),
+                            matchedSkills = c.matched_skills ?? new List<string>(),
+                            missingSkills = c.missing_skills ?? new List<string>(),
+                            provenSkills = c.proven_skills ?? new List<string>(),
+                            unverifiedSkills = c.unverified_skills ?? new List<string>(),
+                            knockoutPassed = c.knockout_passed,
+                            seniorityFit = c.seniority_fit ?? "Phù hợp",
+                            experienceYearsDetected = detectedYears,
+                            experienceEval = c.experience_eval ?? "Phù hợp yêu cầu",
+                            strengths = strengthList,
+                            suggestions = suggestionList,
+                            summary = c.summary ?? "Hồ sơ ứng viên được đánh giá qua công nghệ lọc ATS và mô hình ngôn ngữ ngữ nghĩa.",
+                            recommendation = c.recommendation ?? "good_match",
+                            isSaved = savedResumeIds.Contains(c.id)
+                        };
+                    }).ToList();
+
+                    // Ghi nhận AILog phục vụ thống kê & kiểm toán
+                    try
+                    {
+                        var log = new AILog
+                        {
+                            UserID = CurrentUserId,
+                            RequestType = "hybrid_smart_match",
+                            InputText = $"Job #{jobId} ({job.Title}) | Exp: {expYears}y | Level: {level}",
+                            OutputText = $"Quét: {matchResponse.total_scanned} CVs | Top: {candidates.Count} | Total Latency: {matchResponse.latency?.total_latency_ms}ms",
+                            UsedTokens = 1500,
+                            ApiProvider = "Local MiniLM + ATS Scorer",
+                            CreatedAt = DateTime.Now
+                        };
+                        _context.AILogs.Add(log);
                         await _context.SaveChangesAsync();
-
-                    // === BƯỚC 3: Gọi Python tính similarity từ vector đã có sẵn ===
-                    var cachedCVList = publicResumes
-                        .Where(r => cachedEmbeddings.ContainsKey(r.ResumeID))
-                        .Select(r => new
-                        {
-                            id = r.ResumeID,
-                            vector = System.Text.Json.JsonSerializer.Deserialize<List<float>>(
-                                cachedEmbeddings[r.ResumeID].VectorJson)
-                        })
-                        .Where(x => x.vector != null && x.vector.Count > 0)
-                        .ToList();
-
-                    if (!cachedCVList.Any())
+                    }
+                    catch (Exception logEx)
                     {
-                        return Json(new { success = false, message = "Không thể tạo vector cho bất kỳ CV nào. Kiểm tra Python service." });
+                        Console.WriteLine($"[SmartMatch Log Error] {logEx.Message}");
                     }
 
-                    // Gọi endpoint mới: chỉ tính similarity, không encode lại
-                    var simResponse = await client.PostAsJsonAsync(
-                        $"{pythonBaseUrl}/api/similarity-from-vectors",
-                        new { jd_text = jdText, cached_cvs = cachedCVList }
-                    );
+                    // Lưu cache kết quả vào tệp JSON đệm theo JobID
+                    SaveJobMatchResultsCache(jobId, job.Title, job.Company?.Name ?? "N/A", candidates, matchResponse.latency, matchResponse.total_scanned);
 
-                    if (!simResponse.IsSuccessStatusCode)
+                    return Json(new
                     {
-                        return Json(new { success = false, message = "Dịch vụ Python AI phản hồi lỗi. Vui lòng kiểm tra lại server Python." });
-                    }
-
-                    var pythonResult = await simResponse.Content.ReadFromJsonAsync<PythonFilterResponse>();
-                    if (pythonResult != null && pythonResult.top_cvs != null)
-                    {
-                        // Lấy số ứng viên tối đa từ cấu hình Admin (mặc định 6 nếu chưa cài đặt)
-                        int topN = (configData?.TopCandidatesCount > 0) ? configData.TopCandidatesCount : 6;
-                        var topResumeIds = pythonResult.top_cvs.Select(x => x.resume_id).Take(topN).ToList();
-
-                        // Lấy đúng các CV đã lọt Top
-                        topCandidates = publicResumes.Where(r => topResumeIds.Contains(r.ResumeID)).ToList();
-
-                        // Sắp xếp lại đúng thứ tự Python trả về (cao xuống thấp)
-                        topCandidates = topCandidates.OrderBy(r => topResumeIds.IndexOf(r.ResumeID)).ToList();
-                    }
+                        success = true,
+                        message = $"Phân tích Hybrid AI hoàn tất: Đã quét {matchResponse.total_scanned:N0} CV trong kho dữ liệu và chọn lọc Top {candidates.Count} ứng viên sáng giá nhất.",
+                        jobTitle = job.Title,
+                        companyName = job.Company?.Name,
+                        totalCandidates = candidates.Count,
+                        totalScanned = matchResponse.total_scanned,
+                        latency = matchResponse.latency,
+                        avgScore = candidates.Any() ? Math.Round(candidates.Average(x => x.matchScore), 1) : 0,
+                        candidates = candidates
+                    });
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[SmartMatch Error] Lỗi kết nối Python: {ex.Message}");
-                return Json(new { success = false, message = "Không thể kết nối đến Dịch vụ Python AI (FastAPI tại cổng 8000). Vui lòng khởi chạy server Python trước!" });
+                Console.WriteLine($"[SmartMatch Exception] Lỗi kết nối dịch vụ Python AI: {ex.Message}");
+                return Json(new { success = false, message = $"Không thể kết nối đến Dịch vụ Python AI (FastAPI tại cổng 8000): {ex.Message}" });
             }
-
-            Console.WriteLine($"[SmartMatch RAG] Đã lọc ra Top {topCandidates.Count} ứng viên. Bắt đầu gọi LLM chấm điểm song song...");
-
-            var newMatchResults = new List<CVMatchResult>();
-            int userId = CurrentUserId;
-            var userInfo = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserID == userId);
-            isPro = userInfo?.IsPro ?? false || User.IsInRole("Admin");
-
-            string selectedModel = isPro ? (configData?.ProModelName ?? "") : (configData?.ModelName ?? "");
-            string apiProvider = selectedModel.Contains("llama") || selectedModel.Contains("mixtral") ? "Groq" : "Gemini";
-
-            var semaphore = new SemaphoreSlim(isPro ? 2 : 1); // Giới hạn luồng chạy đồng thời để tránh Rate Limit
-            var scoringTasks = topCandidates.Select(async (resume, index) =>
-            {
-                await semaphore.WaitAsync();
-                try
-                {
-                    // Đặt Delay thông minh theo nhà cung cấp API
-                    if (index > 0)
-                    {
-                        int delayMs = isPro ? 500 : (apiProvider == "Groq" ? 1000 : 4000);
-                        await Task.Delay(delayMs);
-                    }
-
-                    Console.WriteLine($"[SmartMatch RAG] AI đang đánh giá: {resume.FullName ?? "N/A"} (ID={resume.ResumeID})");
-
-                    string cvText = ExtractCVText(resume);
-                    if (string.IsNullOrWhiteSpace(cvText)) return null;
-
-                    string prompt = BuildMatchPrompt(cvText, jdText);
-                    var aiResult = await _aiService.GenerateContent(prompt, isPro);
-                    var matchData = ParseMatchResult(aiResult);
-
-                    if (matchData != null)
-                    {
-                        var result = new CVMatchResult
-                        {
-                            JobID = jobId,
-                            ResumeID = resume.ResumeID,
-                            MatchScore = matchData.MatchScore,
-                            MatchedSkills = matchData.MatchedSkills,
-                            MissingSkills = matchData.MissingSkills,
-                            Suggestions = matchData.Suggestions,
-                            Strengths = matchData.Strengths,
-                            Summary = matchData.Summary,
-                            Recommendation = matchData.Recommendation,
-                            AnalyzedAt = DateTime.Now
-                        };
-
-                        // Đếm token chính xác bằng TiktokenSharp (cl100k_base, tương thích Gemini/GPT)
-                        int estimatedTokens;
-                        try {
-                            var tikToken = TikToken.EncodingForModel("gpt-4");
-                            estimatedTokens = tikToken.Encode(prompt).Count + tikToken.Encode(aiResult ?? "").Count;
-                        } catch {
-                            estimatedTokens = (prompt.Length / 4) + ((aiResult?.Length ?? 0) / 4);
-                        }
-                        lock (newMatchResults) // Lock list vì add từ nhiều thread
-                        {
-                            newMatchResults.Add(result);
-                        }
-
-                        // Thêm log cho Admin
-                        var log = new AILog
-                        {
-                            UserID = userId,
-                            RequestType = "smart_match_rag",
-                            InputText = $"Job #{jobId} vs Resume #{resume.ResumeID}",
-                            OutputText = aiResult.Length > 500 ? aiResult.Substring(0, 500) + "..." : aiResult,
-                            UsedTokens = estimatedTokens,
-                            ApiProvider = apiProvider,
-                            CreatedAt = DateTime.Now
-                        };
-                        lock (_context) // DBContext không thread-safe
-                        {
-                            _context.AILogs.Add(log);
-                        }
-                        
-                        return result;
-                    }
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[SmartMatch RAG] Error LLM analyzing Resume #{resume.ResumeID}: {ex.Message}");
-                    return null;
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            });
-
-            // Chờ tất cả các task hoàn tất
-            await Task.WhenAll(scoringTasks);
-
-
-            // BƯỚC CUỐI CÙNG: CHỈ XÓA DỮ LIỆU CŨ KHI ĐÃ CÓ DỮ LIỆU MỚI THÀNH CÔNG
-            if (newMatchResults.Any())
-            {
-                var oldResults = await _context.CVMatchResults.Where(r => r.JobID == jobId).ToListAsync();
-                if (oldResults.Any())
-                {
-                    _context.CVMatchResults.RemoveRange(oldResults);
-                }
-                _context.CVMatchResults.AddRange(newMatchResults);
-
-                // Cập nhật tổng Token đã dùng
-                if (configData != null)
-                {
-                    var trackedConfig = await _context.GeminiConfigs.FirstOrDefaultAsync(c => c.Id == configData.Id);
-                    if (trackedConfig != null)
-                    {
-                        long totalBatchTokens = newMatchResults.Count * 2000; // Ước tính trung bình 2k tokens mỗi lần match (Prompt + Result)
-                        trackedConfig.TotalTokensUsed += totalBatchTokens;
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-            }
-
-            return Json(new
-            {
-                success = true,
-                message = $"RAG Pipeline hoàn tất: Đã chấm điểm chuyên sâu {newMatchResults.Count}/{topCandidates.Count} ứng viên hàng đầu.",
-                analyzed = newMatchResults.Count,
-                total = publicResumes.Count
-            });
         }
 
         /// <summary>
-        /// API: Lấy kết quả xếp hạng cho 1 Job
+        /// API: Lấy kết quả xếp hạng cho 1 Job (Ưu tiên đọc cache tệp JSON nhanh, fallback DB)
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetResults(int jobId)
@@ -377,6 +279,42 @@ namespace DoAnCS.Controllers
                 return Json(new { success = false, message = "Vui lòng nâng cấp tài khoản Pro để sử dụng tính năng Smart Match." });
             }
 
+            int recruiterId = CurrentUserId;
+            var savedResumeIds = await _context.SavedCandidates
+                .Where(s => s.RecruiterId == recruiterId)
+                .Select(s => s.ResumeId)
+                .ToListAsync();
+
+            // 1. Kiểm tra cache kết quả từ tệp JSON đệm theo JobID
+            string cachePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "JobMatchResults", $"{jobId}.json");
+            if (System.IO.File.Exists(cachePath))
+            {
+                try
+                {
+                    string jsonStr = await System.IO.File.ReadAllTextAsync(cachePath);
+                    var cachedData = JsonConvert.DeserializeObject<dynamic>(jsonStr);
+                    if (cachedData != null && cachedData.candidates != null)
+                    {
+                        // Cập nhật trạng thái isSaved cho recruiter hiện tại
+                        foreach (var c in cachedData.candidates)
+                        {
+                            int resId = (int)(c.resumeId ?? 0);
+                            c.isSaved = savedResumeIds.Contains(resId);
+                        }
+                        cachedData.success = true;
+
+                        // Dùng Newtonsoft.Json serialize chuỗi JSON chuẩn và trả thẳng cho client
+                        string cleanJson = JsonConvert.SerializeObject(cachedData);
+                        return Content(cleanJson, "application/json");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[SmartMatch Cache Read Error] {ex.Message}");
+                }
+            }
+
+            // 2. Fallback: Đọc từ bảng CVMatchResults trong SQL Server (nếu có dữ liệu cũ)
             var results = await _context.CVMatchResults
                 .Include(r => r.Resume)
                     .ThenInclude(r => r.User)
@@ -389,24 +327,22 @@ namespace DoAnCS.Controllers
             if (!results.Any())
                 return Json(new { success = false, message = "Chưa có kết quả phân tích cho tin tuyển dụng này." });
 
-            int recruiterId = CurrentUserId;
-            var savedResumeIds = await _context.SavedCandidates
-                .Where(s => s.RecruiterId == recruiterId)
-                .Select(s => s.ResumeId)
-                .ToListAsync();
-
             var data = results.Select((r, index) => new
             {
                 rank = index + 1,
                 resumeId = r.ResumeID,
                 userId = r.Resume?.UserID,
-                fullName = r.Resume?.User?.FullName ?? r.Resume?.FullName ?? "Ẩn danh",
+                fullName = r.Resume?.User?.FullName ?? r.Resume?.FullName ?? $"Ứng viên #{r.ResumeID}",
                 jobTitle = r.Resume?.JobTitle ?? "Chưa rõ",
                 avatarUrl = !string.IsNullOrWhiteSpace(r.Resume?.AvatarUrl) ? r.Resume.AvatarUrl
                            : (!string.IsNullOrWhiteSpace(r.Resume?.User?.AvatarUrl) ? r.Resume.User.AvatarUrl : null),
+                hasPdf = false,
                 matchScore = r.MatchScore,
                 matchedSkills = SafeParseJsonArray(r.MatchedSkills),
                 missingSkills = SafeParseJsonArray(r.MissingSkills),
+                provenSkills = new List<string>(),
+                unverifiedSkills = new List<string>(),
+                seniorityFit = "Phù hợp",
                 suggestions = SafeParseJsonArray(r.Suggestions),
                 strengths = SafeParseJsonArray(r.Strengths),
                 summary = r.Summary,
@@ -423,6 +359,7 @@ namespace DoAnCS.Controllers
                 jobTitle = job.Title,
                 companyName = job.Company?.Name,
                 totalCandidates = results.Count,
+                totalScanned = results.Count,
                 avgScore = Math.Round(results.Average(r => r.MatchScore), 1),
                 candidates = data
             });
@@ -659,6 +596,186 @@ Output JSON thuần (KHÔNG markdown, KHÔNG text phụ):
 
             if (normA == 0 || normB == 0) return 0;
             return dotProduct / (Math.Sqrt(normA) * Math.Sqrt(normB));
+        }
+
+        /// <summary>Lưu bộ nhớ đệm kết quả phân tích theo JobID vào tệp JSON</summary>
+        private void SaveJobMatchResultsCache(int jobId, string jobTitle, string companyName, object candidates, LatencyDto? latency, int totalScanned)
+        {
+            try
+            {
+                string cacheDir = Path.Combine(Directory.GetCurrentDirectory(), "Data", "JobMatchResults");
+                if (!Directory.Exists(cacheDir))
+                {
+                    Directory.CreateDirectory(cacheDir);
+                }
+
+                string cachePath = Path.Combine(cacheDir, $"{jobId}.json");
+                var cachePayload = new
+                {
+                    success = true,
+                    jobId = jobId,
+                    jobTitle = jobTitle,
+                    companyName = companyName,
+                    totalScanned = totalScanned,
+                    totalCandidates = ((System.Collections.IList)candidates).Count,
+                    avgScore = ((System.Collections.IEnumerable)candidates).Cast<dynamic>().Any() 
+                        ? Math.Round(((System.Collections.IEnumerable)candidates).Cast<dynamic>().Average(x => (double)x.matchScore), 1) : 0,
+                    latency = latency,
+                    analyzedAt = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    candidates = candidates
+                };
+
+                string jsonStr = JsonConvert.SerializeObject(cachePayload, Formatting.Indented);
+                System.IO.File.WriteAllText(cachePath, jsonStr, Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SmartMatch Cache Save Error] {ex.Message}");
+            }
+        }
+
+        /// <summary>Ánh xạ ID ứng viên sang tên file PDF vật lý từ bộ chỉ mục CV_Vector_Index.json</summary>
+        private string GetCandidatePdfFilename(int candidateId)
+        {
+            lock (_pdfCacheLock)
+            {
+                if (_pdfFilenameCache == null)
+                {
+                    _pdfFilenameCache = new Dictionary<int, string>();
+                    try
+                    {
+                        string indexPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "CV_Vector_Index.json");
+                        if (System.IO.File.Exists(indexPath))
+                        {
+                            string json = System.IO.File.ReadAllText(indexPath);
+                            var indexList = JsonConvert.DeserializeObject<List<IndexEntryDto>>(json);
+                            if (indexList != null)
+                            {
+                                foreach (var entry in indexList)
+                                {
+                                    if (!string.IsNullOrEmpty(entry.filename))
+                                    {
+                                        _pdfFilenameCache[entry.id] = entry.filename;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[SmartMatch PDF Cache Error] {ex.Message}");
+                    }
+                }
+
+                if (_pdfFilenameCache.TryGetValue(candidateId, out var filename))
+                {
+                    return filename;
+                }
+                return string.Empty;
+            }
+        }
+
+        /// <summary>Trích xuất kỹ năng, số năm kinh nghiệm và cấp bậc từ JD</summary>
+        private (List<string> hardSkills, float expYears, string level) ExtractJobMetadata(string title, string desc, string req)
+        {
+            string fullText = $"{title} {desc} {req}".ToLower();
+            
+            // 1. Phân loại Cấp bậc (Level)
+            string level = "Middle";
+            if (fullText.Contains("senior") || fullText.Contains("chuyên viên cao cấp") || fullText.Contains("chính"))
+                level = "Senior";
+            else if (fullText.Contains("lead") || fullText.Contains("trưởng nhóm") || fullText.Contains("manager") || fullText.Contains("quản lý"))
+                level = "Lead";
+            else if (fullText.Contains("junior") || fullText.Contains("fresher") || fullText.Contains("thực tập") || fullText.Contains("intern"))
+                level = "Junior";
+
+            // 2. Trích xuất Số năm kinh nghiệm (Experience Years)
+            float expYears = level == "Senior" ? 4.0f : (level == "Lead" ? 6.0f : (level == "Junior" ? 1.0f : 2.5f));
+            var expMatch = Regex.Match(fullText, @"(\d+)(?:-\d+)?\s*(?:\+)?\s*(?:năm|nam|years|year)\s*(?:kinh nghiệm|kinh nghiem|exp)?");
+            if (expMatch.Success && float.TryParse(expMatch.Groups[1].Value, out float parsedYears))
+            {
+                expYears = parsedYears;
+            }
+
+            // 3. Trích xuất Kỹ năng cứng (Hard Skills)
+            var commonSkills = new[]
+            {
+                "C#", ".NET", "ASP.NET", ".NET Core", "Entity Framework", "SQL Server", "MySQL", "PostgreSQL", "MongoDB",
+                "Java", "Spring Boot", "Python", "Django", "FastAPI", "Flask", "React", "ReactJS", "Vue", "VueJS", "Angular",
+                "NodeJS", "TypeScript", "JavaScript", "Docker", "Kubernetes", "AWS", "Azure", "GCP", "CI/CD", "Git",
+                "Microservices", "RESTful API", "GraphQL", "Redis", "Kafka", "RabbitMQ", "HTML", "CSS", "Tailwind",
+                "Figma", "UI/UX", "Machine Learning", "Deep Learning", "NLP", "Pandas", "Scikit-Learn", "PyTorch", "TensorFlow",
+                "Data Analysis", "Power BI", "Excel", "Tableau", "Kế toán", "Thuế", "Marketing", "SEO", "Content", "HR"
+            };
+
+            var detectedSkills = new List<string>();
+            foreach (var skill in commonSkills)
+            {
+                string pattern = $@"\b{Regex.Escape(skill.ToLower())}\b";
+                if (Regex.IsMatch(fullText, pattern))
+                {
+                    detectedSkills.Add(skill);
+                }
+            }
+
+            // Nếu không quét được kỹ năng nào, bổ sung mặc định dựa vào title
+            if (!detectedSkills.Any())
+            {
+                if (fullText.Contains(".net") || fullText.Contains("c#"))
+                    detectedSkills.AddRange(new[] { "C#", ".NET Core", "SQL Server" });
+                else if (fullText.Contains("react") || fullText.Contains("frontend"))
+                    detectedSkills.AddRange(new[] { "React", "JavaScript", "HTML/CSS" });
+                else if (fullText.Contains("python"))
+                    detectedSkills.AddRange(new[] { "Python", "FastAPI", "SQL" });
+                else
+                    detectedSkills.AddRange(new[] { "Communication", "Problem Solving", "Git" });
+            }
+
+            return (detectedSkills.Distinct().Take(8).ToList(), expYears, level);
+        }
+
+        private class IndexEntryDto
+        {
+            public int id { get; set; }
+            public string filename { get; set; } = string.Empty;
+        }
+
+        public class HybridMatchResponse
+        {
+            public bool success { get; set; }
+            public int total_scanned { get; set; }
+            public int v1_passed_count { get; set; }
+            public int final_count { get; set; }
+            public LatencyDto? latency { get; set; }
+            public List<HybridCandidateDto>? top_candidates { get; set; }
+        }
+
+        public class LatencyDto
+        {
+            public double v1_vector_cache_ms { get; set; }
+            public double v2_ats_scoring_ms { get; set; }
+            public double total_latency_ms { get; set; }
+        }
+
+        public class HybridCandidateDto
+        {
+            public int matrix_row { get; set; }
+            public int id { get; set; }
+            public string filename { get; set; } = string.Empty;
+            public string language { get; set; } = string.Empty;
+            public double semantic_score { get; set; }
+            public double ats_score { get; set; }
+            public List<string>? matched_skills { get; set; }
+            public List<string>? missing_skills { get; set; }
+            public List<string>? proven_skills { get; set; }
+            public List<string>? unverified_skills { get; set; }
+            public bool knockout_passed { get; set; }
+            public string? experience_eval { get; set; }
+            public string? seniority_fit { get; set; }
+            public string? strengths { get; set; }
+            public string? suggestions { get; set; }
+            public string? summary { get; set; }
+            public string? recommendation { get; set; }
         }
 
         /// <summary>DTO tạm cho việc parse kết quả AI</summary>

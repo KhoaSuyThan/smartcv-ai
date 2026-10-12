@@ -33,7 +33,7 @@ namespace DoAnCS.Models
         public long TotalTokensUsed { get; set; } = 0; // Cộng dồn để tính tiền
 
         // 4. Smart Match Settings
-        /// <summary>Số ứng viên tối đa đưa vào phân tích LLM sau bước lọc Vector (mặc định: 6)</summary>
-        public int TopCandidatesCount { get; set; } = 6;
+        /// <summary>Số ứng viên tối đa đưa vào phân tích ATS sau bước lọc Vector (mặc định: 10)</summary>
+        public int TopCandidatesCount { get; set; } = 10;
     }
 }

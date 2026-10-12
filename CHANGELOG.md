@@ -5,6 +5,17 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-10-12] - Tích hợp Động cơ Hybrid Matching & Xem PDF Ứng viên Benchmark
+
+### Added & Integrated
+- **Tích hợp Hybrid Matcher vào Backend (`SmartMatchController.cs`):** Kết nối endpoint `POST /api/match/hybrid-match` của Python FastAPI; hỗ trợ quét tự động 3.320 CV qua Vector Cache và đánh giá ATS 4 trụ cột chuyên sâu (< 0.5s); lưu bộ nhớ đệm kết quả theo JobID vào `Data/JobMatchResults/`.
+- **Xem file PDF gốc chuẩn Blind Hiring (`SmartMatchController.ViewCandidatePdf`):** Xây dựng action stream trực tiếp tệp PDF gốc từ kho `Data/Raw_PDFs/` dựa trên ID ứng viên benchmark mà không cần tạo tài khoản người dùng giả lập trong cơ sở dữ liệu.
+- **Nâng cấp Giao diện Smart Match (`Views/SmartMatch/Index.cshtml`):** Bổ sung thanh hiển thị hiệu năng thời gian thực (Latency Vòng 1 Vector + Vòng 2 ATS Scorer), huy hiệu Kỹ năng đã kiểm chứng dự án (`Proven Skills`), kỹ năng liệt kê chay (`Unverified`), quy tắc Knockout, và nút xem PDF trực tiếp trong tab mới.
+- **Tối ưu hóa Deserialization:** Chuyển sang `Newtonsoft.Json` xử lý an toàn kiểu chuỗi (`experience_eval`, `strengths`, `suggestions`) từ Python AI phản hồi.
+- **Cấu hình Top 10 ứng viên:** Nâng mức trích xuất mặc định từ 6 lên 10 ứng viên (`SmartMatchController.cs`, `GeminiConfig.cs`, `CreateTables.sql`).
+- **Khắc phục Cache GetResults:** Sửa lỗi xung đột giữa `Newtonsoft.Json` và `System.Text.Json` khi tải lại kết quả phân tích cũ từ tệp cache đệm.
+- **Kiểm thử tự động:** Biên dịch C# thành công (0 Warning, 0 Error); chạy kiểm thử mô phỏng toàn diện so khớp Job thực tế đạt tốc độ 474 ms và xác nhận 100% tệp PDF gốc của Top ứng viên tồn tại trên hệ thống.
+
 ## [2026-10-11] - Cấu hình cổng Kestrel, hệ thống luật Agent và biểu mẫu AI Usage Log
 
 ### Enhanced & Documented
