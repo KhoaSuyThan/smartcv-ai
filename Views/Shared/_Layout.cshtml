@@ -1145,7 +1145,7 @@
             font-family: 'Segoe UI', sans-serif;
         }
 
-        /* ===== Toggle Button ===== */
+        /* ===== Toggle Button (Hỗ trợ kéo thả di chuyển vị trí dọc) ===== */
         #chatbox-toggle {
             width: 58px;
             height: 58px;
@@ -1153,7 +1153,7 @@
             background: linear-gradient(135deg, #0d6efd, #6610f2);
             border: none;
             box-shadow: 0 4px 18px rgba(13, 110, 253, 0.45);
-            cursor: pointer;
+            cursor: grab;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1161,6 +1161,14 @@
             font-size: 1.5rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             margin-left: auto;
+            touch-action: none;
+            user-select: none;
+        }
+        #chatbox-toggle:active, #chatbox-toggle.is-dragging {
+            cursor: grabbing !important;
+        }
+        #ai-chatbox.is-dragging {
+            transition: none !important;
         }
         #chatbox-toggle:hover {
             transform: scale(1.1);
@@ -1443,13 +1451,114 @@
 
     <script>
     (function () {
+        let isChatboxDragging = false;
+        let hasChatboxMoved = false;
+
+        // Khôi phục vị trí bottom đã lưu từ localStorage
+        function restoreChatboxPosition() {
+            const box = document.getElementById('ai-chatbox');
+            if (!box) return;
+            try {
+                const savedBottom = localStorage.getItem('aiChatboxBottom');
+                if (savedBottom !== null) {
+                    const bVal = parseInt(savedBottom, 10);
+                    if (!isNaN(bVal) && bVal >= 15 && bVal <= window.innerHeight - 80) {
+                        box.style.bottom = bVal + 'px';
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // Khởi tạo kéo thả di chuyển vị trí dọc cho nút Chatbot
+        function initChatboxDraggable() {
+            const toggleBtn = document.getElementById('chatbox-toggle');
+            const box = document.getElementById('ai-chatbox');
+            if (!toggleBtn || !box) return;
+
+            let startY = 0;
+            let startBottom = 75;
+
+            function onPointerDown(e) {
+                // Chỉ nhận chuột trái
+                if (e.button && e.button !== 0) return;
+                const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+                startY = clientY;
+                const computed = window.getComputedStyle(box);
+                startBottom = parseInt(computed.bottom, 10) || 75;
+                isChatboxDragging = true;
+                hasChatboxMoved = false;
+
+                function onPointerMove(moveEvent) {
+                    if (!isChatboxDragging) return;
+                    const curY = moveEvent.clientY !== undefined ? moveEvent.clientY : (moveEvent.touches && moveEvent.touches[0] ? moveEvent.touches[0].clientY : 0);
+                    const deltaY = startY - curY; // Di chuyển lên trên -> deltaY dương -> bottom tăng
+
+                    if (Math.abs(deltaY) > 4) {
+                        hasChatboxMoved = true;
+                        box.classList.add('is-dragging');
+                        toggleBtn.classList.add('is-dragging');
+                    }
+
+                    if (hasChatboxMoved) {
+                        const newBottom = Math.max(15, Math.min(window.innerHeight - 80, startBottom + deltaY));
+                        box.style.bottom = newBottom + 'px';
+                    }
+                }
+
+                function onPointerUp() {
+                    if (!isChatboxDragging) return;
+                    isChatboxDragging = false;
+                    box.classList.remove('is-dragging');
+                    toggleBtn.classList.remove('is-dragging');
+
+                    window.removeEventListener('mousemove', onPointerMove);
+                    window.removeEventListener('mouseup', onPointerUp);
+                    window.removeEventListener('touchmove', onPointerMove);
+                    window.removeEventListener('touchend', onPointerUp);
+
+                    if (hasChatboxMoved) {
+                        const finalBottom = parseInt(box.style.bottom, 10);
+                        if (!isNaN(finalBottom)) {
+                            try {
+                                localStorage.setItem('aiChatboxBottom', finalBottom);
+                            } catch (err) {}
+                        }
+                        // Chặn click toggle trong 150ms sau khi kéo
+                        setTimeout(function () {
+                            hasChatboxMoved = false;
+                        }, 150);
+                    }
+                }
+
+                window.addEventListener('mousemove', onPointerMove, { passive: true });
+                window.addEventListener('mouseup', onPointerUp);
+                window.addEventListener('touchmove', onPointerMove, { passive: true });
+                window.addEventListener('touchend', onPointerUp);
+            }
+
+            toggleBtn.addEventListener('mousedown', onPointerDown);
+            toggleBtn.addEventListener('touchstart', onPointerDown, { passive: true });
+        }
+
         window.chatboxToggle = function () {
+            if (hasChatboxMoved) return; // Nếu vừa kéo thả thì không mở/đóng hộp thoại
             const box = document.getElementById('ai-chatbox');
             box.classList.toggle('open');
             if (box.classList.contains('open')) {
                 document.getElementById('chat-badge').style.display = 'none';
             }
         };
+
+        // Kích hoạt khôi phục vị trí và kéo thả khi tải trang
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                restoreChatboxPosition();
+                initChatboxDraggable();
+            });
+        } else {
+            restoreChatboxPosition();
+            initChatboxDraggable();
+        }
 
         window.chatboxOpen = function (msg = "") {
             const box = document.getElementById('ai-chatbox');
@@ -1867,4 +1976,5 @@
         }
     </script>
 </body>
+
 </html>

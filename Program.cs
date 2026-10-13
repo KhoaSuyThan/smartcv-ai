@@ -35,6 +35,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<JobApiService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAIService, GeminiService>(); 
+builder.Services.AddScoped<IOllamaService, OllamaService>(); // Đăng ký dịch vụ Local AI Ollama
 builder.Services.AddScoped<IEmailService, EmailService>(); 
 builder.Services.AddScoped<IAutomationTestRunner, AutomationTestRunner>();
 builder.Services.AddSingleton<IEncryptionService, EncryptionService>(); // Đăng ký dịch vụ mã hóa API Key
@@ -867,5 +868,33 @@ _ = Task.Run(() =>
         Console.WriteLine($"[Playwright Startup] Lỗi tải Chromium trong nền: {ex.Message}");
     }
 });
+
+// --- TỰ ĐỘNG CẬP NHẬT SCHEMA DATABASE (AUTO-MIGRATION CỘT STAR) ---
+using (var migrationScope = app.Services.CreateScope())
+{
+    try
+    {
+        var dbContext = migrationScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('InterviewMessages') AND name = 'StarSituationScore')
+                ALTER TABLE InterviewMessages ADD StarSituationScore INT NULL;
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('InterviewMessages') AND name = 'StarTaskScore')
+                ALTER TABLE InterviewMessages ADD StarTaskScore INT NULL;
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('InterviewMessages') AND name = 'StarActionScore')
+                ALTER TABLE InterviewMessages ADD StarActionScore INT NULL;
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('InterviewMessages') AND name = 'StarResultScore')
+                ALTER TABLE InterviewMessages ADD StarResultScore INT NULL;
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('InterviewMessages') AND name = 'EnglishFeedback')
+                ALTER TABLE InterviewMessages ADD EnglishFeedback NVARCHAR(MAX) NULL;
+            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('InterviewMessages') AND name = 'AiProvider')
+                ALTER TABLE InterviewMessages ADD AiProvider VARCHAR(50) NULL;
+        ");
+        Console.WriteLine("[Database Auto-Migration] Xác thực các cột điểm STAR trong InterviewMessages thành công.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Database Auto-Migration Warning] Lỗi kiểm tra migration cột STAR: {ex.Message}");
+    }
+}
 
 app.Run();

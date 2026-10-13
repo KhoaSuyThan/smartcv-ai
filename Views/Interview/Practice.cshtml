@@ -70,7 +70,7 @@
                 }
                 else
                 {
-                    <form asp-controller="Interview" asp-action="StartPracticeSession" method="post">
+                    <form asp-controller="Interview" asp-action="StartPracticeSession" method="post" id="startPracticeForm">
                         @Html.AntiForgeryToken()
 
                         <!-- Thống kê lượt phỏng vấn hôm nay -->
@@ -101,30 +101,66 @@
                             }
                         </div>
 
-                        <!-- Chọn CV -->
+                        <!-- 1. Chọn nguồn phỏng vấn: 2 ô Theo CV & Theo JD -->
                         <div class="mb-4">
-                            <label class="form-label fw-bold text-secondary mb-2"><i class="fas fa-id-card me-1"></i> 1. Chọn bản CV làm nguồn phỏng vấn:</label>
+                            <label class="form-label fw-bold text-secondary mb-2">
+                                <i class="fas fa-bullseye me-1 text-danger"></i> 1. Chọn nguồn phỏng vấn:
+                            </label>
                             <div class="row g-3">
-                                @foreach (var cv in resumes)
-                                {
-                                    <div class="col-md-6">
-                                        <label class="w-100 m-0">
-                                            <input type="radio" name="resumeId" value="@cv.ResumeID" class="card-radio-input" required @(cv == resumes.First() ? "checked" : "") />
-                                            <div class="card-radio-box p-3 border rounded-3 h-100 transition-hover">
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <i class="fas fa-file-alt text-primary me-2 fs-5"></i>
-                                                    <strong class="text-truncate d-block" style="max-width: 180px;">@cv.Title</strong>
-                                                </div>
-                                                <small class="text-muted d-block text-truncate">Vị trí: @(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa cập nhật" : cv.JobTitle)</small>
-                                                <small class="text-muted d-block" style="font-size: 0.75rem;">Cập nhật: @cv.UpdatedAt.ToString("dd/MM/yyyy")</small>
-                                            </div>
-                                        </label>
+                                <!-- Ô 1: Theo CV -->
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 h-100 transition-hover border-primary bg-light" id="cardModeCv" style="cursor: pointer;" onclick="selectTargetMode('cv')">
+                                        <div class="form-check d-flex align-items-center mb-2">
+                                            <input class="form-check-input me-2" type="radio" name="targetMode" id="modeCv" value="cv" checked onchange="toggleTargetMode()">
+                                            <label class="form-check-label fw-bold text-dark mb-0" for="modeCv" style="cursor: pointer;">
+                                                <i class="fas fa-file-alt text-primary me-1"></i> Theo CV
+                                            </label>
+                                        </div>
+                                        <div class="ps-4">
+                                            <select name="resumeId" id="resumeSelect" class="form-select form-select-sm rounded-3 border-2" onfocus="selectTargetMode('cv')" required>
+                                                @foreach (var cv in resumes)
+                                                {
+                                                    if (cv == resumes.First())
+                                                    {
+                                                        <option value="@cv.ResumeID" selected>@cv.Title (@(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa có vị trí" : cv.JobTitle))</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@cv.ResumeID">@cv.Title (@(string.IsNullOrEmpty(cv.JobTitle) ? "Chưa có vị trí" : cv.JobTitle))</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
                                     </div>
-                                }
+                                </div>
+
+                                <!-- Ô 2: Theo JD -->
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-3 h-100 transition-hover" id="cardModeJd" style="cursor: pointer;" onclick="selectTargetMode('jd')">
+                                        <div class="form-check d-flex align-items-center mb-2">
+                                            <input class="form-check-input me-2" type="radio" name="targetMode" id="modeJd" value="jd" onchange="toggleTargetMode()">
+                                            <label class="form-check-label fw-bold text-dark mb-0" for="modeJd" style="cursor: pointer;">
+                                                <i class="fas fa-briefcase text-success me-1"></i> Theo JD
+                                            </label>
+                                        </div>
+                                        <div class="ps-4">
+                                            <select name="jobId" id="jobSelect" class="form-select form-select-sm rounded-3 border-2" onfocus="selectTargetMode('jd')" onchange="onJobSelectChanged()">
+                                                <option value="">Chọn JD ứng tuyển</option>
+                                                @if (ViewBag.TargetJobs != null)
+                                                {
+                                                    foreach (var j in ViewBag.TargetJobs)
+                                                    {
+                                                        <option value="@j.JobID">🎯 @j.Title - @j.CompanyName</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Chọn Hình thức -->
+                        <!-- 2. Chọn Hình thức phỏng vấn -->
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary mb-2"><i class="fas fa-sliders-h me-1"></i> 2. Chọn hình thức phỏng vấn:</label>
                             <div class="row g-3">
@@ -154,7 +190,7 @@
                             </div>
                         </div>
 
-                        <!-- Chọn Số câu hỏi -->
+                        <!-- 3. Chọn Số câu hỏi -->
                         <div class="mb-4">
                             <label class="form-label fw-bold text-secondary mb-2">
                                 <i class="fas fa-question-circle me-1"></i> 3. Chọn số lượng câu hỏi:
@@ -173,7 +209,7 @@
                         </div>
 
                         <!-- Nút Bắt đầu -->
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
+                        <button type="submit" id="btnStartPractice" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
                             <i class="fas fa-rocket me-2 animate-bounce"></i> Bắt đầu Phòng phỏng vấn AI
                         </button>
                     </form>
@@ -188,7 +224,7 @@
                     <i class="fas fa-history text-secondary me-2"></i> Lịch sử phỏng vấn gần đây
                 </h4>
 
-                <div class="overflow-auto pe-1" style="max-height: 450px;">
+                <div class="overflow-auto pe-1 pt-1 history-scroll-area" style="max-height: 480px;">
                     @if (history == null || !history.Any())
                     {
                         <div class="text-center py-5 text-muted">
@@ -353,6 +389,58 @@
         color: #f8fafc !important;
     }
 
+    /* 2 Thẻ nguồn phỏng vấn (Theo CV & Theo JD) trong Dark Mode */
+    [data-bs-theme="dark"] #cardModeCv,
+    [data-bs-theme="dark"] #cardModeJd {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] #cardModeCv.border-primary,
+    [data-bs-theme="dark"] #cardModeJd.border-primary {
+        background-color: rgba(59, 130, 246, 0.12) !important;
+        border-color: #3b82f6 !important;
+    }
+    [data-bs-theme="dark"] #cardModeCv:hover,
+    [data-bs-theme="dark"] #cardModeJd:hover {
+        border-color: #60a5fa !important;
+    }
+    [data-bs-theme="dark"] .form-check-label {
+        color: #f8fafc !important;
+    }
+
+    /* Select box trong Dark Mode */
+    [data-bs-theme="dark"] #resumeSelect,
+    [data-bs-theme="dark"] #jobSelect {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] #resumeSelect option,
+    [data-bs-theme="dark"] #jobSelect option {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+    }
+
+    /* Khối thống kê và các thẻ lịch sử bên cột phải */
+    [data-bs-theme="dark"] .border.bg-light {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .border.bg-white {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .btn-outline-primary {
+        color: #38bdf8 !important;
+        border-color: #38bdf8 !important;
+    }
+    [data-bs-theme="dark"] .btn-outline-primary:hover {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+    }
+
     .header-card-practice {
         background: linear-gradient(135deg, #e0f2fe 0%, #ccfbf1 100%) !important;
         border: 1px solid rgba(13, 148, 136, 0.1) !important;
@@ -458,6 +546,46 @@
             });
 
             updateQuestionCountOptions();
+
+            // Quản lý chuyển đổi 2 ô chọn mục tiêu phỏng vấn (CV vs JD)
+            window.selectTargetMode = function(mode) {
+                const modeCv = document.getElementById('modeCv');
+                const modeJd = document.getElementById('modeJd');
+                const cardCv = document.getElementById('cardModeCv');
+                const cardJd = document.getElementById('cardModeJd');
+                const jobSelect = document.getElementById('jobSelect');
+
+                if (mode === 'cv') {
+                    if (modeCv) modeCv.checked = true;
+                    if (cardCv) { cardCv.classList.add('border-primary', 'bg-light'); }
+                    if (cardJd) { cardJd.classList.remove('border-primary', 'bg-light'); }
+                    if (jobSelect) { jobSelect.value = ''; }
+                } else {
+                    if (modeJd) modeJd.checked = true;
+                    if (cardJd) { cardJd.classList.add('border-primary', 'bg-light'); }
+                    if (cardCv) { cardCv.classList.remove('border-primary', 'bg-light'); }
+                }
+            };
+
+            window.toggleTargetMode = function() {
+                const isCv = document.getElementById('modeCv')?.checked;
+                window.selectTargetMode(isCv ? 'cv' : 'jd');
+            };
+
+            window.onJobSelectChanged = function() {
+                const jobSelect = document.getElementById('jobSelect');
+                if (jobSelect && jobSelect.value) {
+                    window.selectTargetMode('jd');
+                }
+            };
+
+            // Hiệu ứng loading khi bấm bắt đầu phỏng vấn: chuyển sang màu xám và hiện spinner
+            $('#startPracticeForm').on('submit', function () {
+                const btn = $('#btnStartPractice');
+                btn.prop('disabled', true);
+                btn.removeClass('btn-primary').addClass('btn-secondary');
+                btn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang tạo câu hỏi phỏng vấn...');
+            });
         });
     </script>
 }

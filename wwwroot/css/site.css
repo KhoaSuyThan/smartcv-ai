@@ -878,9 +878,10 @@ footer {
 }
 
 /* Fix My Resumes & Live CV Preview in dark mode (keep white background for CV to blend) */
-[data-bs-theme="dark"] .transition-hover,
-[data-bs-theme="dark"] .transition-hover .bg-white,
-[data-bs-theme="dark"] .transition-hover .bg-light {
+[data-bs-theme="dark"] .force-light-card.transition-hover,
+[data-bs-theme="dark"] .force-light-card .transition-hover,
+[data-bs-theme="dark"] .cv-preview-card.transition-hover,
+[data-bs-theme="dark"] .cv-preview-card .transition-hover {
   background-color: #ffffff !important;
   border-color: #eee !important;
 }
@@ -899,16 +900,20 @@ footer {
   border-color: transparent !important; /* Xóa viền thừa do bị override */
 }
 
-[data-bs-theme="dark"] .transition-hover h6,
-[data-bs-theme="dark"] .transition-hover .text-dark {
+[data-bs-theme="dark"] .force-light-card.transition-hover h6,
+[data-bs-theme="dark"] .force-light-card.transition-hover .text-dark,
+[data-bs-theme="dark"] .cv-preview-card.transition-hover h6,
+[data-bs-theme="dark"] .cv-preview-card.transition-hover .text-dark {
   color: #212529 !important;
 }
 
-[data-bs-theme="dark"] .transition-hover .text-muted {
+[data-bs-theme="dark"] .force-light-card.transition-hover .text-muted,
+[data-bs-theme="dark"] .cv-preview-card.transition-hover .text-muted {
   color: #6c757d !important;
 }
 
-[data-bs-theme="dark"] .transition-hover:hover {
+[data-bs-theme="dark"] .force-light-card.transition-hover:hover,
+[data-bs-theme="dark"] .cv-preview-card.transition-hover:hover {
   border-color: #0d6efd !important;
 }
 
