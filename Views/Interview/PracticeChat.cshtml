@@ -1,132 +1,436 @@
 @model DoAnCS.Models.InterviewSession
+@using System.Text.Json
+@using System.Text.RegularExpressions
+@functions {
+    // Helper parse English feedback an toàn tuyệt đối, không làm crash HTML
+    public static (string improved, List<(string phrase, string meaning)> phrases) ParseEnglishData(string? json)
+    {
+        var phrases = new List<(string, string)>();
+        string improved = "";
+        if (string.IsNullOrWhiteSpace(json)) return (improved, phrases);
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("englishPolish", out var ep))
+            {
+                if (ep.TryGetProperty("improvedResponse", out var imp) && imp.ValueKind == JsonValueKind.String)
+                {
+                    improved = imp.GetString() ?? "";
+                }
+                if (ep.TryGetProperty("powerPhrases", out var pp) && pp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in pp.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.String)
+                        {
+                            string s = item.GetString() ?? "";
+                            if (!string.IsNullOrWhiteSpace(s)) phrases.Add((s, ""));
+                        }
+                        else if (item.ValueKind == JsonValueKind.Object)
+                        {
+                            string p = item.TryGetProperty("phrase", out var pP) && pP.ValueKind == JsonValueKind.String ? pP.GetString() ?? "" : "";
+                            string m = item.TryGetProperty("meaning", out var pM) && pM.ValueKind == JsonValueKind.String ? pM.GetString() ?? "" : "";
+                            if (!string.IsNullOrWhiteSpace(p)) phrases.Add((p, m));
+                        }
+                    }
+                }
+            }
+        }
+        catch { }
+        return (improved, phrases);
+    }
+
+    // Helper làm sạch câu hỏi phỏng vấn, loại bỏ tiền tố thô và chia đoạn văn chuẩn
+    public static List<string> ParseCleanQuestionParagraphs(string? content)
+    {
+        var list = new List<string>();
+        if (string.IsNullOrWhiteSpace(content)) return list;
+        string text = content;
+        text = Regex.Replace(text, @"(?i)\b(SITUATION|SITTING|TASK|ACTION|RESULT)\s*:\s*", "");
+        // Chuẩn hóa ngắt dòng: gộp các enter liên tiếp
+        text = Regex.Replace(text, @"(\r?\n\s*){2,}", "\n\n");
+        var rawParagraphs = text.Split(new[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+        foreach (var p in rawParagraphs)
+        {
+            // Bỏ dấu xuống dòng đơn lẻ trong đoạn để chữ tự wrap mềm mại không bị cụt dòng
+            string cleaned = Regex.Replace(p.Trim(), @"\r?\n", " ");
+            if (!string.IsNullOrWhiteSpace(cleaned))
+            {
+                list.Add(cleaned);
+            }
+        }
+        return list;
+    }
+}
 @{
     ViewData["Title"] = "Hội thoại phỏng vấn AI";
     var interviewMsgs = Model.Messages.OrderBy(m => m.CreatedAt).ToList();
     int currentAnswerCount = interviewMsgs.Count(m => m.Role == "candidate");
+
+    // Tính điểm trung bình các trụ cột STAR cho cột Đánh giá chung cuộc
+    var candidateMsgs = interviewMsgs.Where(m => m.Role == "candidate").ToList();
+    int? latestCandidateMsgId = candidateMsgs.LastOrDefault()?.MessageID;
+    double avgS = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarSituationScore ?? 0) : 0;
+    double avgT = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarTaskScore ?? 0) : 0;
+    double avgA = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarActionScore ?? 0) : 0;
+    double avgR = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarResultScore ?? 0) : 0;
 }
 
-<div class="container py-4" style="min-height: 88vh;">
-    <!-- Nút quay lại & Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <a asp-action="Practice" class="btn btn-outline-secondary px-4 rounded-pill shadow-sm bg-white">
-            <i class="fas fa-arrow-left me-2"></i> Quay lại
-        </a>
-        <div class="text-end">
-            <h5 class="fw-bold text-dark mb-0">Hồ sơ: <span class="text-primary">@Model.Resume?.Title</span></h5>
-            <small class="text-muted">Chế độ: Tự luận Tương tác 1-1</small>
-        </div>
-    </div>
-
-    <div class="row g-4">
+<div class="container-fluid px-lg-4 py-2">
+    <div class="row g-3 position-relative" id="splitChatRow">
         <!-- Khung chính: Chatbox -->
-        <div class="@(Model.Status == 1 ? "col-lg-8" : "col-lg-12") transition-all">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white" style="height: 680px; display: flex; flex-direction: column;">
-                <!-- Header của Chatbox -->
-                <div class="p-3 bg-light border-bottom d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; font-size: 1.25rem;">
+        <div class="@(Model.Status == 1 ? "col-lg-7" : "col-lg-12") transition-all" id="chatMainCol">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white w-100 practice-chat-card" style="height: calc(125vh - 105px); display: flex; flex-direction: column;">
+                <!-- Header của Chatbox: Tích hợp nút Quay lại và Thông tin Hồ sơ vào một thanh duy nhất -->
+                <div class="p-2 p-md-3 bg-light border-bottom d-flex align-items-center justify-content-between flex-shrink-0 w-100">
+                    <div class="d-flex align-items-center gap-2 gap-md-3">
+                        <!-- Nút Quay lại tích hợp gọn gàng -->
+                        <a asp-action="Practice" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 shadow-2xs bg-white text-nowrap" title="Quay lại danh sách">
+                            <i class="fas fa-arrow-left me-1"></i> <span class="d-none d-sm-inline">Quay lại</span>
+                        </a>
+
+                        <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.15rem;">
                             <i class="fas fa-robot animate-pulse"></i>
                         </div>
                         <div>
-                            <h6 class="fw-bold text-dark mb-0">Nhà phỏng vấn AI (Gemini Assistant)</h6>
-                            <small class="text-success"><span class="spinner-grow spinner-grow-sm me-1" style="width: 8px; height: 8px;"></span> Đang hoạt động</small>
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <h6 class="fw-bold text-dark mb-0">Phòng Phỏng Vấn AI (Tech Lead Trực Tuyến)</h6>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-2 py-0" style="font-size: 0.72rem;">
+                                    <i class="fas fa-file-alt me-1"></i>Hồ sơ: <strong>@Model.Resume?.Title</strong>
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 text-muted" style="font-size: 0.73rem;">
+                                <span class="text-success d-inline-flex align-items-center gap-1">
+                                    <span class="spinner-grow spinner-grow-sm" style="width: 6px; height: 6px;"></span>
+                                    <span>Local AI (Qwen 2.5 3B)</span>
+                                </span>
+                                <span>&bull;</span>
+                                <span>Chế độ: Phỏng vấn Tự luận STAR</span>
+                            </div>
                         </div>
                     </div>
-                    <div>
+                    <div class="text-end flex-shrink-0 ms-2">
                         @if (Model.Status == 0)
                         {
-                            <span class="badge bg-secondary px-3 py-2 rounded-pill fw-bold">
+                            <span class="badge bg-secondary px-3 py-2 rounded-pill fw-bold shadow-2xs">
                                 Lượt trả lời: @currentAnswerCount / 3
                             </span>
                         }
                         else
                         {
-                            <span class="badge bg-success px-3 py-2 rounded-pill fw-bold">
-                                Đã hoàn thành
+                            <span class="badge bg-success px-3 py-2 rounded-pill fw-bold shadow-2xs">
+                                <i class="fas fa-check-circle me-1"></i> Đã hoàn thành
                             </span>
                         }
                     </div>
                 </div>
 
                 <!-- Vùng nội dung tin nhắn (Scrollable) -->
-                <div class="card-body p-4 scroll-chat" style="flex: 1; overflow-y: auto; background-color: #f8fafc;" id="chatBody">
-                    <div class="d-flex flex-column gap-4">
+                <div class="card-body p-4 scroll-chat w-100 chat-scroll-area" id="chatBody" style="flex: 1 1 auto; overflow-y: auto !important;">
+                    <div class="d-flex flex-column gap-3 w-100" id="chatMessagesList">
                         <!-- Tin nhắn chào mừng mặc định -->
-                        <div class="d-flex align-items-start gap-2 max-w-75">
-                            <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                        <div class="d-flex align-items-start gap-2 max-w-85">
+                            <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.85rem;">
                                 <i class="fas fa-robot"></i>
                             </div>
                             <div class="p-3 rounded-4 bg-white shadow-sm border border-light" style="border-top-left-radius: 0 !important;">
-                                <p class="mb-0 text-dark small">Chào bạn! Tôi là nhà phỏng vấn AI. Tôi sẽ hỏi bạn 3 câu hỏi tự luận dựa trên CV để thử sức khả năng trả lời phỏng vấn của bạn. Chúng ta bắt đầu nhé!</p>
+                                <p class="mb-0 text-dark small">
+                                    Chào bạn! Tôi là Tech Lead phỏng vấn AI. Tôi sẽ đặt các câu hỏi tình huống thực tế bám sát hồ sơ và yêu cầu kỹ năng của bạn theo phương pháp STAR. Hãy chia sẻ cụ thể giải pháp kỹ thuật và kết quả đo lường để được đánh giá chính xác nhất!
+                                </p>
                             </div>
                         </div>
 
                         <!-- Danh sách hội thoại thực tế -->
+                        @{
+                            int interviewerCount = 0;
+                        }
                         @foreach (var m in interviewMsgs)
                         {
                             if (m.Role == "interviewer")
                             {
+                                interviewerCount++;
+                                string rawContent = m.Content ?? "";
+                                string skillBadgeHtml = "";
+                                if (rawContent.StartsWith("[TARGET_SKILL:"))
+                                {
+                                    int closeIdx = rawContent.IndexOf(']');
+                                    if (closeIdx > 0)
+                                    {
+                                        string tag = rawContent.Substring(1, closeIdx - 1);
+                                        rawContent = rawContent.Substring(closeIdx + 1).TrimStart('\r', '\n', ' ');
+                                        var parts = tag.Split('|');
+                                        string skillName = parts[0].Replace("TARGET_SKILL:", "").Trim();
+                                        string skillType = parts.Length > 1 ? parts[1].Replace("TYPE:", "").Trim() : "target";
+                                        string badgeClass = skillType == "unverified" ? "bg-warning text-dark" : (skillType == "missing" ? "bg-danger text-white" : "bg-info text-white");
+                                        string typeLabel = skillType == "unverified" ? "Kiểm chứng kỹ năng" : (skillType == "missing" ? "Lỗ hổng kỹ năng" : (skillType == "drilldown" ? "Hỏi dồn đào sâu" : "Kỹ năng mục tiêu"));
+                                        skillBadgeHtml = $"<span class=\"badge {badgeClass} px-3 py-1 rounded-pill\"><i class=\"fas fa-crosshairs me-1\"></i> {typeLabel}: <strong>{skillName}</strong></span>";
+                                    }
+                                }
+
+                                var questionParagraphs = ParseCleanQuestionParagraphs(rawContent);
+
                                 <!-- Câu hỏi AI -->
-                                <div class="d-flex align-items-start gap-2 max-w-75">
-                                    <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                <div class="d-flex align-items-start gap-2 max-w-85 animate-fade-in">
+                                    <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.85rem;">
                                         <i class="fas fa-robot"></i>
                                     </div>
                                     <div class="p-3 rounded-4 bg-white shadow-sm border border-light" style="border-top-left-radius: 0 !important;">
-                                        <p class="mb-0 text-dark font-medium small">@m.Content</p>
-                                        <span class="text-muted d-block text-end mt-1" style="font-size: 0.65rem;">@m.CreatedAt.ToString("HH:mm")</span>
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                            <span class="badge bg-primary px-3 py-1 rounded-pill fw-bold">
+                                                <i class="fas fa-question-circle me-1"></i> Câu hỏi số @interviewerCount
+                                            </span>
+                                            @if (!string.IsNullOrEmpty(skillBadgeHtml))
+                                            {
+                                                @Html.Raw(skillBadgeHtml)
+                                            }
+                                        </div>
+                                        <div class="text-dark font-medium small" style="line-height: 1.65;">
+                                            @for (int pIdx = 0; pIdx < questionParagraphs.Count; pIdx++)
+                                            {
+                                                var pText = questionParagraphs[pIdx];
+                                                bool isHint = pText.StartsWith("💡");
+                                                <p class="@(pIdx == questionParagraphs.Count - 1 ? "mb-0" : "mb-2") @(isHint ? "text-muted fst-italic mt-2 pt-1 border-top border-light" : "")" style="line-height: 1.65;">
+                                                    @pText
+                                                </p>
+                                            }
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2 pt-1 border-top border-light">
+                                            <span class="badge bg-light text-secondary border" style="font-size: 0.65rem;">
+                                                <i class="fas fa-microchip me-1"></i>@(m.AiProvider == "local_qwen_3b" ? "Local AI (Qwen 2.5 3B)" : (m.AiProvider == "cloud_gemini" ? "Cloud AI (Gemini)" : "System AI"))
+                                            </span>
+                                            <span class="text-muted" style="font-size: 0.65rem;">@m.CreatedAt.ToString("HH:mm")</span>
+                                        </div>
                                     </div>
                                 </div>
                             }
                             else
                             {
-                                <!-- Câu trả lời ứng viên -->
-                                <div class="d-flex align-items-start gap-2 max-w-75 ms-auto justify-content-end">
-                                    <div class="w-100">
+                                <!-- 1. Bong bóng câu trả lời của ứng viên (Bên phải) -->
+                                <div class="w-100 d-flex flex-column align-items-end mb-2">
+                                    <div class="d-flex align-items-start gap-2 max-w-85 justify-content-end">
                                         <div class="p-3 rounded-4 text-white shadow-sm bg-primary" style="border-top-right-radius: 0 !important;">
-                                            <p class="mb-0 small">@m.Content</p>
+                                            <p class="mb-0 small" style="line-height: 1.6; white-space: pre-line;">@m.Content</p>
                                             <span class="text-white-50 d-block text-end mt-1" style="font-size: 0.65rem;">@m.CreatedAt.ToString("HH:mm")</span>
                                         </div>
+                                        <div class="bg-secondary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.85rem; background-color: #64748b !important;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                        <!-- Đánh giá câu trả lời này (Nếu có) -->
-                                        @if (m.Score.HasValue)
-                                        {
-                                            <div class="mt-2 p-3 rounded-3 bg-white border shadow-sm">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span class="fw-bold text-dark small"><i class="fas fa-star text-warning me-1"></i> AI chấm điểm:</span>
-                                                    <span class="badge @(m.Score >= 80 ? "bg-success" : m.Score >= 50 ? "bg-warning text-dark" : "bg-danger") fw-bold rounded-pill">
-                                                        @m.Score / 100
+                                <!-- 2. Bong bóng Phản hồi & Đánh giá của Tech Lead AI (Bên trái - Kết hợp Phương án 3 & 1) -->
+                                @if (m.Score.HasValue)
+                                {
+                                    var parsedEng = ParseEnglishData(m.EnglishFeedback);
+
+                                    <div class="d-flex align-items-start gap-2 max-w-85 mb-3 animate-fade-in">
+                                        <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.85rem;">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="p-3 rounded-4 bg-white shadow-sm border border-primary border-opacity-25" style="border-top-left-radius: 0 !important; max-width: 90%;">
+                                            <div class="d-flex align-items-center justify-content-between mb-1.5 pb-1 border-bottom border-light">
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-2.5 py-0.5 fw-bold" style="font-size: 0.72rem;">
+                                                    <i class="fas fa-comment-dots me-1"></i>Nhận xét từ Tech Lead
+                                                </span>
+                                                <span class="text-muted" style="font-size: 0.65rem;">@m.CreatedAt.ToString("HH:mm")</span>
+                                            </div>
+
+                                            <!-- Lời nhận xét ngắn gọn của Tech Lead -->
+                                            <p class="text-dark small mb-2" style="line-height: 1.6;">
+                                                @m.Feedback
+                                            </p>
+
+                                            <!-- Micro-Badge STAR Bar: Siêu gọn gàng, hiển thị điểm số & nút mở Drawer -->
+                                            <div class="pt-2 border-top border-light d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                                <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                                    <span class="badge @(m.Score >= 80 ? "bg-success" : m.Score >= 60 ? "bg-primary" : "bg-warning text-dark") rounded-pill px-2.5 py-1 fw-bold shadow-2xs" style="font-size: 0.75rem;">
+                                                        <i class="fas @(m.Score >= 80 ? "fa-star" : "fa-check-circle") me-1"></i>@m.Score/100đ
                                                     </span>
+                                                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">S: @(m.StarSituationScore ?? 0)/20</span>
+                                                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">T: @(m.StarTaskScore ?? 0)/20</span>
+                                                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">A: @(m.StarActionScore ?? 0)/40</span>
+                                                    <span class="badge bg-light text-secondary border rounded-pill px-2 py-0.5" style="font-size: 0.7rem;">R: @(m.StarResultScore ?? 0)/20</span>
                                                 </div>
-                                                <button class="btn btn-link btn-sm p-0 text-primary fw-bold text-decoration-none d-inline-flex align-items-center" 
-                                                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseStar-@m.MessageID" aria-expanded="false">
-                                                    Xem nhận xét STAR <i class="fas fa-chevron-down ms-1" style="font-size: 0.7rem;"></i>
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill py-0.5 px-2.5 shadow-2xs d-inline-flex align-items-center gap-1 text-nowrap" style="font-size: 0.72rem;" onclick="showStarDetailDrawer(@m.MessageID)">
+                                                    <i class="fas fa-sparkles text-warning"></i>
+                                                    <span class="fw-bold">Chi tiết STAR & English</span>
+                                                    <i class="fas fa-arrow-right ms-0.5" style="font-size: 0.65rem;"></i>
                                                 </button>
-                                                <div class="collapse mt-2" id="collapseStar-@m.MessageID">
-                                                    <div class="card card-body bg-light border-0 p-3 small text-secondary" style="line-height: 1.5;">
-                                                        @Html.Raw(m.Feedback?.Replace("\n", "<br/>"))
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- TEMPLATE ẨN CHỨA CHI TIẾT ĐÁNH GIÁ (Nạp vào Side Panel / Split View khi người dùng bấm) -->
+                                    <div id="starDetailTpl-@m.MessageID" class="d-none">
+                                        <div class="star-panel-container">
+                                            <!-- 1. Header điểm số lớn -->
+                                            <div class="star-score-card">
+                                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle text-white mb-2 shadow-sm" 
+                                                     style="width: 78px; height: 78px; background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); font-size: 1.85rem; font-weight: 800;">
+                                                    <span class="animated-score-counter" data-target-score="@m.Score">@m.Score</span>
+                                                </div>
+                                                <h6 class="fw-bold text-dark mb-2">Điểm đánh giá câu trả lời</h6>
+                                                <span class="badge @(m.Score >= 80 ? "bg-success" : m.Score >= 60 ? "bg-primary" : "bg-warning text-dark") px-3 py-2 rounded-pill fw-bold" style="font-size: 0.8rem; letter-spacing: 0.3px;">
+                                                    @(m.Score >= 80 ? "XUẤT SẮC - ĐÁP ỨNG TỐT" : m.Score >= 60 ? "ĐẠT YÊU CẦU - CẦN THÊM SỐ LIỆU" : "CẦN CẢI THIỆN CẤU TRÚC")
+                                                </span>
+
+                                                <!-- Nút sao chép toàn bộ phân tích STAR phục vụ ghi chú học tập -->
+                                                <div class="mt-2.5 pt-2 border-top border-light d-flex justify-content-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 shadow-2xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.78rem;" onclick="copyFullStarAnalysis(@m.MessageID, this)">
+                                                        <i class="far fa-clipboard text-primary"></i>
+                                                        <span>Sao chép toàn bộ phân tích STAR</span>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Dữ liệu thô định dạng Markdown chuẩn phục vụ việc sao chép -->
+                                                <textarea id="starAnalysisRaw-@m.MessageID" style="display:none;">🎯 BÁO CÁO PHÂN TÍCH NĂNG LỰC TRẢ LỜI PHỎNG VẤN (STAR METHOD)
+--------------------------------------------------
+📊 TỔNG ĐIỂM: @m.Score/100đ (@(m.Score >= 80 ? "XUẤT SẮC" : m.Score >= 60 ? "ĐẠT YÊU CẦU" : "CẦN CẢI THIỆN"))
+
+📈 4 TRỤ CỘT STAR:
+- S (Situation - Bối cảnh): @(m.StarSituationScore ?? 0)/20đ
+- T (Task - Nhiệm vụ): @(m.StarTaskScore ?? 0)/20đ
+- A (Action - Hành động kỹ thuật): @(m.StarActionScore ?? 0)/40đ
+- R (Result - Kết quả đo lường): @(m.StarResultScore ?? 0)/20đ
+
+💡 NHẬN XÉT CHI TIẾT TỪ TECH LEAD:
+@m.Feedback
+@if (!string.IsNullOrEmpty(parsedEng.improved)) {
+<text>
+🇬🇧 ENGLISH POLISHING (SENIOR LEVEL):
+"@parsedEng.improved"
+</text>
+}
+@if (parsedEng.phrases.Any()) {
+<text>
+⚡ POWER PHRASES (CỤM TỪ KỸ THUẬT ĐẮT GIÁ):
+@foreach (var pItem in parsedEng.phrases) {
+<text>- @pItem.phrase @(!string.IsNullOrEmpty(pItem.meaning) ? $"({pItem.meaning})" : "")
+</text>
+}
+</text>
+}
+--------------------------------------------------
+(Được đánh giá tự động bởi SmartCV Local AI - Qwen 2.5 3B)</textarea>
+                                            </div>
+
+                                            <!-- 2. 4 Thẻ Trụ Cột STAR Đầy Đủ (Giãn cách rõ ràng, không đè thanh tiến trình) -->
+                                            <div>
+                                                <h6 class="fw-bold text-dark mb-3" style="font-size: 0.92rem;"><i class="fas fa-chart-bar text-primary me-2"></i>4 Trụ cột STAR định lượng:</h6>
+                                                <div class="row g-3">
+                                                    <div class="col-6">
+                                                        <div class="star-pillar-card pillar-s">
+                                                            <div class="star-pillar-header">
+                                                                <span class="fw-bold text-info small"><i class="fas fa-map-marker-alt me-1.5"></i>S - Bối cảnh</span>
+                                                                <strong class="text-dark">@(m.StarSituationScore ?? 0)/20</strong>
+                                                            </div>
+                                                            <div class="progress star-pillar-progress">
+                                                                <div class="progress-bar bg-info" style="width: @(((m.StarSituationScore ?? 0) / 20.0) * 100)%"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="star-pillar-card pillar-t">
+                                                            <div class="star-pillar-header">
+                                                                <span class="fw-bold text-primary small"><i class="fas fa-tasks me-1.5"></i>T - Nhiệm vụ</span>
+                                                                <strong class="text-dark">@(m.StarTaskScore ?? 0)/20</strong>
+                                                            </div>
+                                                            <div class="progress star-pillar-progress">
+                                                                <div class="progress-bar bg-primary" style="width: @(((m.StarTaskScore ?? 0) / 20.0) * 100)%"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="star-pillar-card pillar-a">
+                                                            <div class="star-pillar-header">
+                                                                <span class="fw-bold text-success small"><i class="fas fa-bolt me-1.5"></i>A - Hành động</span>
+                                                                <strong class="text-dark">@(m.StarActionScore ?? 0)/40</strong>
+                                                            </div>
+                                                            <div class="progress star-pillar-progress">
+                                                                <div class="progress-bar bg-success" style="width: @(((m.StarActionScore ?? 0) / 40.0) * 100)%"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <div class="star-pillar-card pillar-r">
+                                                            <div class="star-pillar-header">
+                                                                <span class="fw-bold text-warning small"><i class="fas fa-chart-line me-1.5"></i>R - Kết quả</span>
+                                                                <strong class="text-dark">@(m.StarResultScore ?? 0)/20</strong>
+                                                            </div>
+                                                            <div class="progress star-pillar-progress">
+                                                                <div class="progress-bar bg-warning" style="width: @(((m.StarResultScore ?? 0) / 20.0) * 100)%"></div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        }
+
+                                            <!-- 3. Nhận xét chi tiết từ Tech Lead -->
+                                            <div class="star-feedback-card">
+                                                <strong class="text-dark d-block mb-2" style="font-size: 0.92rem;">
+                                                    <i class="fas fa-user-tie text-primary me-2"></i>Nhận xét từ Tech Lead:
+                                                </strong>
+                                                <p class="mb-0 text-dark" style="line-height: 1.75; font-size: 0.9rem; letter-spacing: 0.1px;">@m.Feedback</p>
+                                            </div>
+
+                                            <!-- 4. English Polishing: Card xanh mở rộng, chữ tiếng Anh cách xa viền -->
+                                            @if (!string.IsNullOrEmpty(parsedEng.improved))
+                                            {
+                                                <div class="star-english-card">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="fw-bold text-success" style="font-size: 0.9rem;">
+                                                            <i class="fas fa-graduation-cap me-1.5"></i> English Polishing (Senior Level):
+                                                        </span>
+                                                        <button type="button" class="btn btn-sm btn-success text-white py-1 px-3 rounded-pill shadow-sm" style="font-size: 0.78rem;" onclick="copyToClipboard('@parsedEng.improved.Replace("'", "\\'").Replace("\r", "").Replace("\n", " ")')">
+                                                            <i class="far fa-copy me-1.5"></i> Copy English
+                                                        </button>
+                                                    </div>
+                                                    <div class="star-english-quote">
+                                                        <p class="mb-0 text-dark fw-medium" style="line-height: 1.8; font-size: 0.92rem;">
+                                                            <i class="fas fa-quote-left text-success me-2 opacity-50"></i>@parsedEng.improved<i class="fas fa-quote-right text-success ms-2 opacity-50"></i>
+                                                        </p>
+                                                    </div>
+
+                                                    @if (parsedEng.phrases.Any())
+                                                    {
+                                                        <div class="star-phrases-box">
+                                                            <small class="fw-bold text-dark d-block mb-2" style="font-size: 0.82rem;">
+                                                                <i class="fas fa-bolt text-warning me-1.5"></i>Cụm từ kỹ thuật đắt giá (Power Phrases):
+                                                            </small>
+                                                            <div class="d-flex flex-wrap gap-2">
+                                                                @foreach (var phraseItem in parsedEng.phrases)
+                                                                {
+                                                                    <div class="star-phrase-badge">
+                                                                        <strong class="text-primary"><i class="fas fa-check-circle text-success me-1" style="font-size: 0.72rem;"></i>@phraseItem.phrase</strong>
+                                                                        @if (!string.IsNullOrEmpty(phraseItem.meaning))
+                                                                        {
+                                                                            <span class="text-secondary">(@phraseItem.meaning)</span>
+                                                                        }
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
                                     </div>
-                                    <div class="bg-secondary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem; background-color: #64748b !important;">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                </div>
+                                }
                             }
                         }
                     </div>
                 </div>
 
-                <!-- Khung nhập tin nhắn hoặc Trạng thái Hoàn thành -->
-                <div class="p-3 bg-light border-top">
+                <!-- Khung nhập tin nhắn: Cố định 100% bề ngang chân card, không bao giờ bị co lại -->
+                <div class="p-3 bg-light border-top flex-shrink-0 w-100" style="z-index: 10;">
                     @if (Model.Status == 0)
                     {
-                        <form asp-controller="Interview" asp-action="SubmitChatAnswer" asp-route-sessionId="@Model.SessionID" method="post" id="chatForm">
+                        <form asp-controller="Interview" asp-action="SubmitChatAnswer" asp-route-sessionId="@Model.SessionID" method="post" id="chatForm" class="w-100 m-0">
                             @Html.AntiForgeryToken()
-                            <div class="input-group rounded-pill overflow-hidden border shadow-sm bg-white p-1">
-                                <textarea name="answer" class="form-control border-0 px-4 py-2 text-dark" placeholder="Gõ câu trả lời tự luận của bạn tại đây (sử dụng phương pháp STAR)..." rows="2" style="resize: none; font-size: 0.9rem;" required></textarea>
-                                <button type="submit" class="btn btn-primary px-4 rounded-pill d-flex align-items-center justify-content-center m-1 shadow-sm" id="sendBtn" style="width: 50px; height: 50px;">
+                            <div class="input-group w-100 rounded-4 overflow-hidden border shadow-sm bg-white p-2 align-items-end">
+                                <textarea name="answer" id="answerInput" class="form-control border-0 px-3 py-2 text-dark custom-chat-input" placeholder="Gõ câu trả lời tự luận của bạn tại đây theo phương pháp STAR (Bối cảnh, Nhiệm vụ, Hành động kỹ thuật, Kết quả đo lường)... Nhấn Enter để gửi" required></textarea>
+                                <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center m-1 shadow-sm flex-shrink-0" id="sendBtn" style="width: 46px; height: 46px;" title="Gửi câu trả lời (Enter)">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
@@ -134,61 +438,177 @@
                     }
                     else
                     {
-                        <div class="text-center py-3">
-                            <h5 class="fw-bold text-success mb-2"><i class="fas fa-check-double"></i> Buổi phỏng vấn đã hoàn thành!</h5>
-                            <p class="text-muted small mb-0">Cảm ơn bạn đã tham gia phỏng vấn luyện tập cùng trợ lý AI.</p>
+                        <div class="text-center py-2 w-100">
+                            <h6 class="fw-bold text-success mb-1"><i class="fas fa-check-double"></i> Buổi phỏng vấn đã hoàn thành!</h6>
+                            <p class="text-muted small mb-0" style="font-size: 0.8rem;">Xem toàn bộ nhận xét chuyên sâu và tổng kết năng lực ở bảng bên phải.</p>
                         </div>
                     }
                 </div>
             </div>
         </div>
 
-        <!-- Cột Bên Phải: Hiển thị kết quả tổng quan (Chỉ hiện khi hoàn thành) -->
+        <!-- Thanh Phân Cách Kéo Thả Điều Chỉnh Độ Rộng (Resizable Splitter) -->
+        <div class="chat-splitter-bar @(Model.Status == 1 ? "" : "d-none")" id="chatSplitterBar" title="Nhấn và kéo sang trái/phải để điều chỉnh kích thước">
+            <div class="splitter-line"></div>
+        </div>
+
+        @if (Model.Status == 0)
+        {
+            <!-- Cột Bên Phải khi đang phỏng vấn: Panel Chi tiết Đánh giá STAR (Chia đôi không gian, không che ô nhập liệu) -->
+            <div class="col-lg-5 animate-fade-in d-none" id="starSidePanelCol">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white w-100 practice-chat-card" style="height: calc(125vh - 105px); display: flex; flex-direction: column;">
+                    <!-- Header Panel -->
+                    <div class="p-3 px-4 bg-light border-bottom d-flex align-items-center justify-content-between flex-shrink-0 w-100">
+                        <div class="d-flex align-items-center gap-2.5">
+                            <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width: 36px; height: 36px;">
+                                <i class="fas fa-award fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-0">Chi tiết Đánh giá STAR</h6>
+                                <small class="text-muted" style="font-size: 0.72rem;">Phân tích định lượng 4 trụ cột & Trợ lý Tiếng Anh Senior</small>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-light border rounded-circle shadow-2xs d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="closeStarSidePanel()" title="Thu gọn bảng đánh giá (Trở lại 100% màn hình)">
+                            <i class="fas fa-times text-secondary"></i>
+                        </button>
+                    </div>
+                    <!-- Thân Panel (Scrollable với padding p-4 rộng rãi) -->
+                    <div class="card-body p-4 scroll-chat w-100 chat-scroll-area" id="starSidePanelBody" style="flex: 1 1 auto; overflow-y: auto !important;">
+                        <!-- Nội dung sẽ nạp động từ template khi ứng viên bấm nút -->
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Cột Bên Phải: Hiển thị Đánh giá chung cuộc (col-lg-5) -->
         @if (Model.Status == 1)
         {
-            <div class="col-lg-4 animate-fade-in">
-                <div class="card border-0 shadow-lg rounded-4 p-4 bg-white h-100 text-center position-relative overflow-hidden">
-                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-light opacity-30" style="z-index: 0;"></div>
-                    
-                    <div class="position-relative" style="z-index: 1;">
-                        <h4 class="fw-bold text-dark mb-4"><i class="fas fa-poll-h text-primary"></i> Đánh giá chung cuộc</h4>
+            <div class="col-lg-5 animate-fade-in" id="overallReportCol">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-white w-100 practice-chat-card" style="height: calc(125vh - 105px); display: flex; flex-direction: column;">
+                    <!-- Chế độ 1: Đánh giá chung cuộc -->
+                    <div id="overallEvaluationView" class="p-4 position-relative" style="display: flex; flex-direction: column; height: 100%; flex: 1 1 auto;">
+                        <div class="text-center mb-2 flex-shrink-0">
+                            <h5 class="fw-bold text-dark mb-2"><i class="fas fa-poll-h text-primary me-2"></i> Đánh giá chung cuộc</h5>
 
-                        <!-- Điểm số lớn -->
-                        <div class="d-inline-block rounded-circle p-4 mb-4" 
-                             style="background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%); width: 140px; height: 140px; line-height: 92px; box-shadow: 0 10px 20px rgba(13,110,253,0.25);">
-                            <span class="display-4 fw-extrabold text-white">@Model.OverallScore</span>
+                            <!-- Điểm số lớn (Căn giữa tuyệt đối bằng Flexbox) -->
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-2 shadow-lg" 
+                                 style="width: 110px; height: 110px; background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%); box-shadow: 0 8px 16px rgba(13,110,253,0.25);">
+                                <span class="display-5 fw-extrabold text-white animated-score-counter m-0 p-0" style="line-height: 1;" id="overallScoreNumber" data-target-score="@Model.OverallScore">@Model.OverallScore</span>
+                            </div>
+
+                            <!-- Xếp hạng sao -->
+                            <div class="mb-2 text-warning" style="font-size: 1.1rem;">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    if (Model.OverallScore >= i * 20)
+                                    {
+                                        <i class="fas fa-star"></i>
+                                    }
+                                    else if (Model.OverallScore >= (i * 20) - 10)
+                                    {
+                                        <i class="fas fa-star-half-alt"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="far fa-star text-muted"></i>
+                                    }
+                                }
+                            </div>
+                            <span class="badge @(Model.OverallScore >= 80 ? "bg-success" : Model.OverallScore >= 60 ? "bg-primary" : "bg-warning text-dark") px-3 py-2 rounded-pill fw-bold">
+                                @(Model.OverallScore >= 80 ? "XUẤT SẮC - SẴN SÀNG PHỎNG VẤN" : Model.OverallScore >= 60 ? "ĐẠT YÊU CẦU - CẦN TRAU DỒI THÊM" : "CẦN CẢI THIỆN KỸ NĂNG TRẢ LỜI")
+                            </span>
                         </div>
 
-                        <!-- Xếp hạng sao -->
-                        <div class="mb-4 text-warning" style="font-size: 1.25rem;">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                if (Model.OverallScore >= i * 20)
-                                {
-                                    <i class="fas fa-star"></i>
-                                }
-                                else if (Model.OverallScore >= (i * 20) - 10)
-                                {
-                                    <i class="fas fa-star-half-alt"></i>
-                                }
-                                else
-                                {
-                                    <i class="far fa-star"></i>
-                                }
-                            }
+                        <!-- Điểm trung bình 4 trụ cột STAR -->
+                        <div class="bg-white rounded-4 p-3 mb-3 border shadow-sm flex-shrink-0">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-muted" style="font-size: 0.72rem;">Situation (Bối cảnh):</span>
+                                        <strong class="text-dark">@avgS.ToString("F1")/20</strong>
+                                    </div>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-info" style="width: @((avgS / 20.0) * 100)%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-muted" style="font-size: 0.72rem;">Task (Nhiệm vụ):</span>
+                                        <strong class="text-dark">@avgT.ToString("F1")/20</strong>
+                                    </div>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-primary" style="width: @((avgT / 20.0) * 100)%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-muted" style="font-size: 0.72rem;">Action (Hành động):</span>
+                                        <strong class="text-dark">@avgA.ToString("F1")/40</strong>
+                                    </div>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-success" style="width: @((avgA / 40.0) * 100)%"></div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex justify-content-between small mb-1">
+                                        <span class="text-muted" style="font-size: 0.72rem;">Result (Kết quả):</span>
+                                        <strong class="text-dark">@avgR.ToString("F1")/20</strong>
+                                    </div>
+                                    <div class="progress" style="height: 5px;">
+                                        <div class="progress-bar bg-warning" style="width: @((avgR / 20.0) * 100)%"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Nhận xét chi tiết của AI -->
-                        <div class="text-start bg-light rounded-4 p-3 mb-4 shadow-inner border border-light" style="max-height: 250px; overflow-y: auto;">
-                            <h6 class="fw-bold text-secondary mb-2"><i class="fas fa-clipboard-list"></i> Nhận xét chi tiết từ AI:</h6>
-                            <p class="text-muted small mb-0 font-medium" style="line-height: 1.6; text-align: justify;">
+                        <!-- Nhận xét chi tiết của AI (Cuộn bên trong nội dung) -->
+                        <div class="text-start bg-light rounded-4 p-3 mb-3 shadow-inner border border-light flex-grow-1" style="overflow-y: auto;">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <h6 class="fw-bold text-secondary mb-0 d-flex align-items-center">
+                                    <i class="fas fa-clipboard-list text-primary me-2"></i> Nhận xét chi tiết từ Tech Lead:
+                                </h6>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 shadow-2xs d-inline-flex align-items-center gap-1.5" style="font-size: 0.75rem;" onclick="copyOverallReport(this)">
+                                    <i class="far fa-clipboard text-primary"></i>
+                                    <span>Sao chép toàn bộ đánh giá</span>
+                                </button>
+                            </div>
+                            <div id="aiEvaluationContent" class="markdown-preview small text-dark" style="line-height: 1.6;">
                                 @Html.Raw(Model.AiEvaluation?.Replace("\n", "<br/>"))
-                            </p>
+                            </div>
+                            <textarea id="rawAiEvaluation" style="display:none;">@Model.AiEvaluation</textarea>
+                            <textarea id="overallReportRaw" style="display:none;">🎯 BÁO CÁO TỔNG KẾT PHỎNG VẤN (SMARTCV AI INTERVIEW)
+--------------------------------------------------
+🏆 ĐIỂM CHUNG CUỘC: @Model.OverallScore/100đ (@(Model.OverallScore >= 80 ? "XUẤT SẮC - SẴN SÀNG PHỎNG VẤN" : Model.OverallScore >= 60 ? "ĐẠT YÊU CẦU - CẦN TRAU DỒI THÊM" : "CẦN CẢI THIỆN KỸ NĂNG"))
+
+📊 ĐIỂM TRUNG BÌNH 4 TRỤ CỘT STAR:
+- Situation (Bối cảnh): @avgS.ToString("F1")/20đ
+- Task (Nhiệm vụ): @avgT.ToString("F1")/20đ
+- Action (Hành động kỹ thuật): @avgA.ToString("F1")/40đ
+- Result (Kết quả đo lường): @avgR.ToString("F1")/20đ
+
+💡 NHẬN XÉT TỔNG THỂ TỪ TECH LEAD:
+@Model.AiEvaluation
+--------------------------------------------------
+(Được đánh giá tự động bởi SmartCV Local AI - Qwen 2.5 3B)</textarea>
                         </div>
 
-                        <a asp-action="Practice" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm fw-bold">
-                            Luyện tập phiên mới
+                        <a asp-action="Practice" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm fw-bold mt-auto flex-shrink-0">
+                            <i class="fas fa-redo me-1"></i> Luyện tập phiên mới
                         </a>
+                    </div>
+
+                    <!-- Chế độ 2: Chi tiết câu trả lời đơn lẻ (Khi người dùng bấm xem lại trong phiên đã hoàn thành) -->
+                    <div id="starDetailSpecificView" class="d-none" style="display: flex; flex-direction: column; height: 100%; flex: 1 1 auto;">
+                        <div class="p-3 px-4 bg-light border-bottom d-flex align-items-center justify-content-between flex-shrink-0 w-100">
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-0.5" onclick="backToOverallEvaluation()">
+                                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                                </button>
+                                <h6 class="fw-bold text-dark mb-0 small">Chi tiết câu trả lời</h6>
+                            </div>
+                        </div>
+                        <div class="card-body p-4 scroll-chat w-100 chat-scroll-area" id="starDetailSpecificBody" style="flex: 1 1 auto; overflow-y: auto !important;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -197,24 +617,178 @@
 </div>
 
 <style>
+    /* 1. ẨN HOÀN TOÀN FOOTER Ở TRANG NÀY VÀ KHÓA SCROLL NGOÀI TRANG */
+    footer, .footer-section, #footer {
+        display: none !important;
+    }
+
+    /* Khóa thanh cuộn thừa của toàn trang, chỉ cuộn bên trong nội dung chat */
+    body {
+        overflow-y: hidden !important;
+    }
+
+    /* Đảm bảo card chatbox fit 100% viewport thực tế dưới tỷ lệ zoom 80% (100vh / 0.8 = 125vh) */
+    .practice-chat-card {
+        height: calc(125vh - 105px) !important;
+        min-height: calc(125vh - 105px) !important;
+        max-height: calc(125vh - 105px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Star Detail Panel Styling: Giãn đều các khối, không đè chữ */
+    .star-panel-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.4rem; /* Giãn cách 22px giữa TẤT CẢ các khối lớn, không bao giờ bị dính sát nhau */
+        padding: 0.25rem 0.1rem;
+    }
+
+    .star-score-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.35rem 1.25rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .star-pillar-card {
+        border-radius: 0.85rem;
+        padding: 1rem 1.15rem;
+        border-width: 1px;
+        border-style: solid;
+        transition: transform 0.2s ease;
+    }
+
+    .star-pillar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem; /* Tách biệt rõ ràng chữ với thanh progress bar */
+    }
+
+    .star-pillar-progress {
+        height: 8px !important;
+        border-radius: 10px;
+        background-color: rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+    }
+
+    .star-feedback-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-left: 5px solid #0d6efd !important;
+        border-radius: 0.85rem;
+        padding: 1.25rem 1.4rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    }
+
+    .star-english-card {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        border-radius: 1rem;
+        padding: 1.35rem 1.4rem;
+        box-shadow: 0 2px 8px rgba(34, 197, 94, 0.06);
+    }
+
+    .star-english-quote {
+        background: #ffffff;
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        border-radius: 0.75rem;
+        padding: 1.15rem 1.35rem;
+        margin-top: 0.85rem;
+        margin-bottom: 1.1rem;
+        line-height: 1.8;
+        font-size: 0.92rem;
+        color: #1e293b;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .star-phrases-box {
+        padding-top: 1rem;
+        border-top: 1px dashed rgba(34, 197, 94, 0.35);
+    }
+
+    .star-phrase-badge {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 50rem;
+        padding: 0.45rem 0.85rem;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        margin: 0.25rem 0;
+    }
+
+    /* Thanh kéo chỉnh độ rộng hai bên (Resizable Splitter) */
+    .chat-splitter-bar {
+        width: 14px;
+        margin: 0 -7px;
+        z-index: 30;
+        cursor: col-resize;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        user-select: none;
+        flex-shrink: 0;
+        padding: 0;
+    }
+    .chat-splitter-bar .splitter-line {
+        width: 4px;
+        height: 52px;
+        border-radius: 4px;
+        background-color: #cbd5e1;
+        transition: background-color 0.2s, height 0.2s, transform 0.2s;
+    }
+    .chat-splitter-bar:hover .splitter-line,
+    .chat-splitter-bar.is-dragging .splitter-line {
+        background-color: #0d6efd;
+        height: 90px;
+        transform: scaleX(1.3);
+    }
+    body.is-resizing {
+        user-select: none !important;
+        cursor: col-resize !important;
+    }
+
     /* Chatbox max width */
-    .max-w-75 {
-        max-width: 75%;
+    .max-w-85 {
+        max-width: 85%;
+    }
+
+    /* Ô Textarea: Cao 90px (3-4 dòng), có thanh cuộn tự nhiên khi paste dài, không bị trôi mất chữ */
+    .custom-chat-input {
+        height: 90px !important;
+        min-height: 80px !important;
+        max-height: 160px !important;
+        overflow-y: auto !important;
+        resize: vertical !important;
+        line-height: 1.6 !important;
+        font-size: 0.95rem !important;
     }
     
-    /* Smooth Scrollbar for chat body */
+    /* Thanh cuộn mượt cho chat body */
+    .scroll-chat {
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
     .scroll-chat::-webkit-scrollbar {
-        width: 6px;
+        width: 7px;
     }
     .scroll-chat::-webkit-scrollbar-track {
-        background: transparent;
+        background: #f1f5f9;
+        border-radius: 10px;
     }
     .scroll-chat::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
+        background: #94a3b8;
         border-radius: 10px;
     }
     .scroll-chat::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+        background: #64748b;
     }
 
     /* Pulse effect */
@@ -229,22 +803,759 @@
             opacity: 0.6;
         }
     }
+
+    /* Markdown preview styling */
+    .markdown-preview h5 {
+        font-size: 0.95rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.4rem;
+    }
+    .markdown-preview h6 {
+        font-size: 0.88rem;
+        margin-top: 0.6rem;
+        margin-bottom: 0.2rem;
+    }
+    .markdown-preview ul, .markdown-preview ol {
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    .markdown-preview li {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Vùng cuộn tin nhắn & Side panel */
+    .chat-scroll-area {
+        background-color: #f8fafc;
+    }
+
+    .star-pillar-card.pillar-s {
+        background-color: #f0f9ff;
+        border-color: #bae6fd;
+    }
+    .star-pillar-card.pillar-t {
+        background-color: #eff6ff;
+        border-color: #bfdbfe;
+    }
+    .star-pillar-card.pillar-a {
+        background-color: #f0fdf4;
+        border-color: #bbf7d0;
+    }
+    .star-pillar-card.pillar-r {
+        background-color: #fefce8;
+        border-color: #fef08a;
+    }
+
+    /* ==========================================================================
+       HỖ TRỢ CHẾ ĐỘ TỐI TOÀN DIỆN (DARK MODE - THEME: [data-bs-theme="dark"])
+       ========================================================================== */
+
+    [data-bs-theme="dark"] .chat-scroll-area {
+        background-color: #0b1329 !important;
+    }
+
+    [data-bs-theme="dark"] .practice-chat-card {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .practice-chat-card .bg-light {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] .practice-chat-card .border-bottom,
+    [data-bs-theme="dark"] .practice-chat-card .border-top {
+        border-color: #334155 !important;
+    }
+
+    /* Bong bóng tin nhắn AI và Nhận xét Tech Lead trong Chat */
+    [data-bs-theme="dark"] #chatMessagesList .bg-white {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] #chatMessagesList .text-dark {
+        color: #f1f5f9 !important;
+    }
+
+    [data-bs-theme="dark"] #chatMessagesList .border-light {
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] #chatMessagesList .border-primary.border-opacity-25 {
+        border-color: rgba(56, 189, 248, 0.35) !important;
+    }
+
+    /* Khung nhập tin nhắn */
+    [data-bs-theme="dark"] .input-group.bg-white {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] #answerInput {
+        background-color: #1e293b !important;
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] #answerInput::placeholder {
+        color: #64748b !important;
+    }
+
+    /* Panel Chi tiết STAR bên phải */
+    [data-bs-theme="dark"] .star-score-card {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    [data-bs-theme="dark"] .star-score-card h6 {
+        color: #f8fafc !important;
+    }
+
+    /* 4 Thẻ trụ cột STAR trong Dark Mode */
+    [data-bs-theme="dark"] .star-pillar-card.pillar-s {
+        background-color: rgba(6, 182, 212, 0.14) !important;
+        border-color: rgba(6, 182, 212, 0.4) !important;
+    }
+
+    [data-bs-theme="dark"] .star-pillar-card.pillar-t {
+        background-color: rgba(59, 130, 246, 0.14) !important;
+        border-color: rgba(59, 130, 246, 0.4) !important;
+    }
+
+    [data-bs-theme="dark"] .star-pillar-card.pillar-a {
+        background-color: rgba(34, 197, 94, 0.14) !important;
+        border-color: rgba(34, 197, 94, 0.4) !important;
+    }
+
+    [data-bs-theme="dark"] .star-pillar-card.pillar-r {
+        background-color: rgba(234, 179, 8, 0.14) !important;
+        border-color: rgba(234, 179, 8, 0.4) !important;
+    }
+
+    [data-bs-theme="dark"] .star-pillar-card strong {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .star-pillar-progress {
+        background-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    /* Khối nhận xét Tech Lead trong Panel */
+    [data-bs-theme="dark"] .star-feedback-card {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        border-left-color: #38bdf8 !important;
+    }
+
+    [data-bs-theme="dark"] .star-feedback-card strong {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .star-feedback-card p {
+        color: #cbd5e1 !important;
+    }
+
+    /* Khối English Polishing */
+    [data-bs-theme="dark"] .star-english-card {
+        background-color: rgba(34, 197, 94, 0.08) !important;
+        border-color: rgba(34, 197, 94, 0.35) !important;
+    }
+
+    [data-bs-theme="dark"] .star-english-card span.text-success {
+        color: #4ade80 !important;
+    }
+
+    [data-bs-theme="dark"] .star-english-quote {
+        background-color: #0f172a !important;
+        border-color: rgba(34, 197, 94, 0.35) !important;
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .star-english-quote p {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .star-phrases-box {
+        border-top-color: rgba(34, 197, 94, 0.3) !important;
+    }
+
+    [data-bs-theme="dark"] .star-phrases-box small {
+        color: #f8fafc !important;
+    }
+
+    [data-bs-theme="dark"] .star-phrase-badge {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] .star-phrase-badge strong {
+        color: #38bdf8 !important;
+    }
+
+    [data-bs-theme="dark"] .star-phrase-badge span {
+        color: #94a3b8 !important;
+    }
+
+    /* Thanh kéo chỉnh độ rộng */
+    [data-bs-theme="dark"] .chat-splitter-bar .splitter-line {
+        background-color: #475569 !important;
+    }
+
+    [data-bs-theme="dark"] .chat-splitter-bar:hover .splitter-line,
+    [data-bs-theme="dark"] .chat-splitter-bar.is-dragging .splitter-line {
+        background-color: #38bdf8 !important;
+    }
+
+    /* Bảng đánh giá chung cuộc khi kết thúc buổi phỏng vấn (Model.Status == 1) */
+    [data-bs-theme="dark"] #overallEvaluationView .bg-white {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] #overallEvaluationView .bg-light {
+        background-color: #0b1329 !important;
+        border-color: #334155 !important;
+    }
+
+    [data-bs-theme="dark"] #aiWaitingBubble .bg-white {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+    }
+
+    /* Tối ưu các nút bấm và badge trong Dark Mode */
+    [data-bs-theme="dark"] .badge.bg-light.text-secondary {
+        background-color: #334155 !important;
+        color: #cbd5e1 !important;
+        border-color: #475569 !important;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-secondary,
+    [data-bs-theme="dark"] .btn-outline-secondary.bg-white {
+        background-color: #1e293b !important;
+        color: #cbd5e1 !important;
+        border-color: #475569 !important;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-secondary:hover,
+    [data-bs-theme="dark"] .btn-outline-secondary.bg-white:hover {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+    }
+
+    [data-bs-theme="dark"] .btn-light {
+        background-color: #334155 !important;
+        color: #cbd5e1 !important;
+        border-color: #475569 !important;
+    }
+
+    [data-bs-theme="dark"] .btn-light:hover {
+        background-color: #475569 !important;
+        color: #ffffff !important;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-primary {
+        color: #38bdf8 !important;
+        border-color: #38bdf8 !important;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-primary:hover {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+    }
+
+    /* Hiển thị văn bản Markdown nhận xét trong Dark Mode */
+    [data-bs-theme="dark"] .markdown-preview,
+    [data-bs-theme="dark"] .markdown-preview * {
+        color: #cbd5e1 !important;
+    }
+
+    [data-bs-theme="dark"] .markdown-preview h5,
+    [data-bs-theme="dark"] .markdown-preview h6,
+    [data-bs-theme="dark"] .markdown-preview strong {
+        color: #f8fafc !important;
+    }
+
+    /* Thanh cuộn tối sang trọng bên trong vùng chat và panel */
+    [data-bs-theme="dark"] .scroll-chat::-webkit-scrollbar-track {
+        background: #0b1329 !important;
+    }
+
+    [data-bs-theme="dark"] .scroll-chat::-webkit-scrollbar-thumb {
+        background: #334155 !important;
+        border-radius: 4px;
+    }
+
+    [data-bs-theme="dark"] .scroll-chat::-webkit-scrollbar-thumb:hover {
+        background: #475569 !important;
+    }
 </style>
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
-            // Auto scroll chatbox to bottom
+        // Cờ khóa chống gửi đúp (Double Submission)
+        var isSubmitting = false;
+
+        // Hàm sao chép câu tiếng Anh vào clipboard
+        function copyToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    alert("Đã sao chép câu tiếng Anh vào bộ nhớ tạm!");
+                }).catch(function() {
+                    prompt("Sao chép thủ công:", text);
+                });
+            } else {
+                prompt("Sao chép thủ công:", text);
+            }
+        }
+
+        // Hiệu ứng nhảy số điểm mượt mà (Animated Count-Up) trong 500ms
+        function animateCountUp(element, target, duration) {
+            if (!element) return;
+            var num = parseInt(target, 10);
+            if (isNaN(num)) return;
+            if (num <= 0) {
+                element.textContent = '0';
+                return;
+            }
+            duration = duration || 500;
+            var start = 0;
+            var startTime = null;
+            function step(timestamp) {
+                if (!startTime) startTime = timestamp;
+                var progress = Math.min((timestamp - startTime) / duration, 1);
+                // Hiệu ứng giảm tốc easeOutQuad mượt mà
+                var ease = 1 - (1 - progress) * (1 - progress);
+                var current = Math.floor(ease * num);
+                element.textContent = current;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    element.textContent = num;
+                }
+            }
+            window.requestAnimationFrame(step);
+        }
+
+        // Kích hoạt nhảy số cho tất cả counter trong một container
+        function triggerAnimatedCounters(container) {
+            if (!container) return;
+            var counters = container.querySelectorAll('.animated-score-counter');
+            counters.forEach(function (el) {
+                var target = el.getAttribute('data-target-score');
+                if (target !== null && target !== '') {
+                    animateCountUp(el, target, 500);
+                }
+            });
+        }
+
+        // Sao chép toàn bộ phân tích STAR & English vào clipboard phục vụ học tập
+        function copyFullStarAnalysis(msgId, btn) {
+            var rawArea = document.getElementById('starAnalysisRaw-' + msgId);
+            if (!rawArea) return;
+            var text = rawArea.value;
+
+            function onCopySuccess() {
+                if (btn) {
+                    var originalHtml = btn.innerHTML;
+                    btn.classList.remove('btn-outline-secondary');
+                    btn.classList.add('btn-success', 'text-white');
+                    btn.innerHTML = '<i class="fas fa-check me-1"></i><span>Đã sao chép phân tích!</span>';
+                    setTimeout(function () {
+                        btn.classList.remove('btn-success', 'text-white');
+                        btn.classList.add('btn-outline-secondary');
+                        btn.innerHTML = originalHtml;
+                    }, 2000);
+                } else {
+                    alert('Đã sao chép toàn bộ phân tích STAR vào bộ nhớ tạm!');
+                }
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(onCopySuccess).catch(function () {
+                    prompt("Sao chép thủ công phân tích STAR:", text);
+                });
+            } else {
+                prompt("Sao chép thủ công phân tích STAR:", text);
+            }
+        }
+
+        // Sao chép toàn bộ báo cáo đánh giá chung cuộc vào clipboard
+        function copyOverallReport(btn) {
+            var rawArea = document.getElementById('overallReportRaw');
+            if (!rawArea) return;
+            var text = rawArea.value;
+
+            function onCopySuccess() {
+                if (btn) {
+                    var originalHtml = btn.innerHTML;
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-success', 'text-white');
+                    btn.innerHTML = '<i class="fas fa-check me-1"></i><span>Đã sao chép đánh giá!</span>';
+                    setTimeout(function () {
+                        btn.classList.remove('btn-success', 'text-white');
+                        btn.classList.add('btn-outline-primary');
+                        btn.innerHTML = originalHtml;
+                    }, 2000);
+                } else {
+                    alert('Đã sao chép toàn bộ đánh giá tổng thể vào bộ nhớ tạm!');
+                }
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(onCopySuccess).catch(function () {
+                    prompt("Sao chép thủ công báo cáo đánh giá:", text);
+                });
+            } else {
+                prompt("Sao chép thủ công báo cáo đánh giá:", text);
+            }
+        }
+
+        // Chuyển đổi Markdown đơn giản sang HTML hiển thị đẹp
+        function parseMarkdownToHtml(md) {
+            if (!md) return '';
+            var html = md
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/^### (.*$)/gim, '<h5 class="fw-bold text-primary mt-2 mb-1 border-bottom pb-1"><i class="fas fa-check-circle text-success me-1"></i> $1</h5>')
+                .replace(/^#### (.*$)/gim, '<h6 class="fw-bold text-dark mt-2 mb-1">$1</h6>')
+                .replace(/\*\*(.*?)\*\*/gim, '<strong class="text-dark">$1</strong>')
+                .replace(/^\s*-\s+(.*$)/gim, '<li class="text-secondary">$1</li>')
+                .replace(/^\s*\d+\.\s+(.*$)/gim, '<li class="text-secondary">$1</li>')
+                .replace(/\n\n+/gim, '<br/>')
+                .replace(/\n/gim, '<br/>');
+            return html;
+        }
+
+        // Hàm cuộn chatbox xuống sát đáy
+        function scrollToBottom() {
             var chatBody = document.getElementById("chatBody");
             if (chatBody) {
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
+        }
 
-            // Disable submit button during submit to avoid double post
-            $('#chatForm').on('submit', function () {
-                var btn = $('#sendBtn');
-                btn.prop('disabled', true);
-                btn.html('<span class="spinner-border spinner-border-sm"></span>');
+        // Gửi câu trả lời: Hiển thị câu trả lời & loading AI ngay lập tức
+        function doSubmitChatMessage() {
+            if (isSubmitting) return;
+
+            var answerInput = document.getElementById('answerInput');
+            if (!answerInput) return;
+
+            var text = answerInput.value.trim();
+            if (!text) return;
+
+            isSubmitting = true;
+
+            var btn = document.getElementById('sendBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm text-white"></span>';
+                btn.title = 'AI đang xử lý câu trả lời... Vui lòng đợi';
+            }
+
+            // Xóa sạch dữ liệu đã gửi khỏi ô nhập và cho phép nhập nội dung mới
+            answerInput.value = '';
+            answerInput.readOnly = false;
+            answerInput.placeholder = 'Đang đợi AI phản hồi... Bạn có thể soạn trước câu trả lời tiếp theo tại đây (Không cho gửi trước khi AI hoàn tất)';
+
+            var messagesList = document.getElementById('chatMessagesList');
+            var userTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Escape HTML để hiển thị an toàn
+            var divEsc = document.createElement('div');
+            divEsc.textContent = text;
+            var escapedText = divEsc.innerHTML.replace(/\n/g, '<br/>');
+
+            // 1. CHÈN NGAY LẬP TỨC BONG BÓNG CÂU TRẢ LỜI CỦA ỨNG VIÊN
+            var userBubble = document.createElement('div');
+            userBubble.className = "w-100 d-flex flex-column align-items-end mb-2";
+            userBubble.innerHTML = `
+                <div class="d-flex align-items-start gap-2 max-w-85 justify-content-end">
+                    <div class="p-3 rounded-4 text-white shadow-sm bg-primary" style="border-top-right-radius: 0 !important;">
+                        <p class="mb-0 small" style="line-height: 1.6; white-space: pre-line;">${escapedText}</p>
+                        <span class="text-white-50 d-block text-end mt-1" style="font-size: 0.65rem;">${userTime} (Vừa gửi)</span>
+                    </div>
+                    <div class="bg-secondary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.85rem; background-color: #64748b !important;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            `;
+            if (messagesList) messagesList.appendChild(userBubble);
+
+            // 2. CHÈN NGAY LẬP TỨC BONG BÓNG CHỜ CỦA AI PHỎNG VẤN
+            var aiBubble = document.createElement('div');
+            aiBubble.className = "d-flex align-items-start gap-2 max-w-85";
+            aiBubble.id = "aiWaitingBubble";
+            aiBubble.innerHTML = `
+                <div class="bg-primary text-white rounded-circle p-1 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 34px; height: 34px; font-size: 0.85rem;">
+                    <i class="fas fa-robot animate-pulse"></i>
+                </div>
+                <div class="p-3 rounded-4 bg-white shadow-sm border border-primary border-opacity-25" style="border-top-left-radius: 0 !important;">
+                    <div class="d-flex align-items-center gap-2 text-dark fw-medium small">
+                        <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                        <span class="text-primary fw-bold">Đang kiểm tra câu trả lời...</span>
+                        <span class="badge bg-danger text-white rounded-pill px-2 py-1 ms-1" id="timerBadge">0s</span>
+                    </div>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">
+                        Local AI (Qwen 2.5 3B) đang phân tích 4 trụ cột STAR và tra cứu English Polishing.
+                    </small>
+                </div>
+            `;
+            if (messagesList) messagesList.appendChild(aiBubble);
+
+            // Cuộn xuống dưới cùng ngay tức thì
+            scrollToBottom();
+
+            // 3. ĐỒNG HỒ ĐẾM GIÂY TĂNG DẦN
+            var elapsedSeconds = 0;
+            var timerInterval = setInterval(function () {
+                elapsedSeconds++;
+                var badge = document.getElementById('timerBadge');
+                if (badge) {
+                    badge.textContent = elapsedSeconds + 's';
+                }
+            }, 1000);
+
+            // 4. GỬI AJAX REQUEST NGẦM LÊN SERVER
+            var formElement = document.getElementById('chatForm');
+            if (formElement) {
+                var formData = new FormData(formElement);
+                formData.set('answer', text);
+
+                fetch(formElement.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function (res) {
+                    clearInterval(timerInterval);
+                    window.location.reload();
+                })
+                .catch(function (err) {
+                    clearInterval(timerInterval);
+                    window.location.reload();
+                });
+            }
+        }
+
+        // Quản lý trạng thái và tỷ lệ kéo chỉnh độ rộng của 2 cột (Resizable Splitter)
+        var isSplitDragging = false;
+        var currentChatRatio = 58; // Tỷ lệ phần trăm cột Chatbox mặc định
+
+        function applySplitRatio(leftPercent) {
+            var splitRow = document.getElementById('splitChatRow');
+            var chatCol = document.getElementById('chatMainCol');
+            var sideCol = document.getElementById('starSidePanelCol');
+            var overallCol = document.getElementById('overallReportCol');
+            var rightCol = (sideCol && !sideCol.classList.contains('d-none')) ? sideCol : (overallCol && !overallCol.classList.contains('d-none') ? overallCol : null);
+
+            if (!splitRow || !chatCol || !rightCol) return;
+
+            // Clamping an toàn: Cột trái từ 35% đến 75%
+            if (leftPercent < 35) leftPercent = 35;
+            if (leftPercent > 75) leftPercent = 75;
+
+            var rightPercent = 100 - leftPercent;
+            currentChatRatio = leftPercent;
+
+            // Xóa các class col-lg-X để inline flex-basis chiếm quyền ưu tiên
+            chatCol.classList.remove('col-lg-12', 'col-lg-7', 'col-lg-8');
+            rightCol.classList.remove('col-lg-5', 'col-lg-4');
+
+            chatCol.style.flex = '0 0 calc(' + leftPercent + '% - 7px)';
+            chatCol.style.maxWidth = 'calc(' + leftPercent + '% - 7px)';
+            chatCol.style.width = 'calc(' + leftPercent + '% - 7px)';
+
+            rightCol.style.flex = '0 0 calc(' + rightPercent + '% - 7px)';
+            rightCol.style.maxWidth = 'calc(' + rightPercent + '% - 7px)';
+            rightCol.style.width = 'calc(' + rightPercent + '% - 7px)';
+        }
+
+        function initResizableSplitter() {
+            var splitter = document.getElementById('chatSplitterBar');
+            var splitRow = document.getElementById('splitChatRow');
+            if (!splitter || !splitRow) return;
+
+            splitter.addEventListener('mousedown', function (e) {
+                e.preventDefault();
+                isSplitDragging = true;
+                splitter.classList.add('is-dragging');
+                document.body.classList.add('is-resizing');
+
+                function onMouseMove(moveEvent) {
+                    if (!isSplitDragging) return;
+                    var rect = splitRow.getBoundingClientRect();
+                    var mouseX = moveEvent.clientX - rect.left;
+                    var newRatio = (mouseX / rect.width) * 100;
+                    applySplitRatio(newRatio);
+                }
+
+                function onMouseUp() {
+                    if (!isSplitDragging) return;
+                    isSplitDragging = false;
+                    splitter.classList.remove('is-dragging');
+                    document.body.classList.remove('is-resizing');
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+
+                    // Lưu tỷ lệ vào localStorage để duy trì trạng thái
+                    try {
+                        localStorage.setItem('interviewChatSplitRatio', currentChatRatio.toFixed(1));
+                    } catch (err) {}
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        }
+
+        // Hiển thị chi tiết Đánh giá STAR & English Polishing chia đôi không gian (Split view Side Panel)
+        function showStarDetailDrawer(msgId) {
+            var tpl = document.getElementById('starDetailTpl-' + msgId);
+            if (!tpl) return;
+
+            var isFinished = @(Model.Status == 1 ? "true" : "false");
+
+            if (!isFinished) {
+                var chatCol = document.getElementById('chatMainCol');
+                var sideCol = document.getElementById('starSidePanelCol');
+                var sideBody = document.getElementById('starSidePanelBody');
+                var splitter = document.getElementById('chatSplitterBar');
+
+                if (chatCol && sideCol && sideBody) {
+                    sideBody.innerHTML = tpl.innerHTML;
+                    sideCol.classList.remove('d-none');
+                    if (splitter) splitter.classList.remove('d-none');
+
+                    // Kích hoạt hiệu ứng nhảy số điểm sinh động (Animated Count-up)
+                    triggerAnimatedCounters(sideBody);
+
+                    // Lấy tỷ lệ đã lưu hoặc mặc định 58%
+                    var savedRatio = 58;
+                    try {
+                        var stored = localStorage.getItem('interviewChatSplitRatio');
+                        if (stored) savedRatio = parseFloat(stored);
+                    } catch (e) {}
+
+                    applySplitRatio(savedRatio);
+                    setTimeout(scrollToBottom, 60);
+                }
+            } else {
+                // Nếu buổi phỏng vấn đã kết thúc, hiển thị chi tiết trong cột bên phải thay thế tạm cho tổng kết
+                var overallView = document.getElementById('overallEvaluationView');
+                var specificView = document.getElementById('starDetailSpecificView');
+                var specificBody = document.getElementById('starDetailSpecificBody');
+
+                if (overallView && specificView && specificBody) {
+                    specificBody.innerHTML = tpl.innerHTML;
+                    overallView.classList.add('d-none');
+                    specificView.classList.remove('d-none');
+
+                    // Kích hoạt hiệu ứng nhảy số điểm khi xem chi tiết câu đã hoàn thành
+                    triggerAnimatedCounters(specificBody);
+                }
+            }
+        }
+
+        // Đóng Panel Chi tiết STAR và trả lại 100% không gian cho Chatbox
+        function closeStarSidePanel() {
+            var chatCol = document.getElementById('chatMainCol');
+            var sideCol = document.getElementById('starSidePanelCol');
+            var splitter = document.getElementById('chatSplitterBar');
+            if (chatCol && sideCol) {
+                sideCol.classList.add('d-none');
+                if (splitter) splitter.classList.add('d-none');
+
+                // Reset inline styles để chatCol chiếm lại 100%
+                chatCol.style.flex = '';
+                chatCol.style.maxWidth = '';
+                chatCol.style.width = '';
+                chatCol.classList.remove('col-lg-7');
+                chatCol.classList.add('col-lg-12');
+                setTimeout(scrollToBottom, 60);
+            }
+        }
+
+        // Quay lại màn hình Đánh giá chung cuộc khi đang ở Model.Status == 1
+        function backToOverallEvaluation() {
+            var overallView = document.getElementById('overallEvaluationView');
+            var specificView = document.getElementById('starDetailSpecificView');
+            if (overallView && specificView) {
+                specificView.classList.add('d-none');
+                overallView.classList.remove('d-none');
+            }
+        }
+
+        // Khởi tạo sự kiện DOM khi trang sẵn sàng
+        document.addEventListener("DOMContentLoaded", function () {
+            // Tự động cuộn xuống dưới cùng khi load trang
+            setTimeout(scrollToBottom, 120);
+
+            // Hiển thị nội dung nhận xét tổng quan bằng Markdown
+            var rawEvaluation = document.getElementById("rawAiEvaluation");
+            var evaluationContent = document.getElementById("aiEvaluationContent");
+            if (rawEvaluation && evaluationContent && rawEvaluation.value && rawEvaluation.value.trim() !== '') {
+                evaluationContent.innerHTML = parseMarkdownToHtml(rawEvaluation.value);
+            }
+
+            // Bắt sự kiện submit của form
+            var form = document.getElementById('chatForm');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    doSubmitChatMessage();
+                });
+            }
+
+            // Bắt sự kiện phím Enter trong ô textarea (Enter = gửi, Shift+Enter = xuống dòng)
+            var input = document.getElementById('answerInput');
+            if (input) {
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        doSubmitChatMessage();
+                    }
+                });
+            }
+
+            // Khởi tạo bộ kéo chỉnh độ rộng hai bên (Resizable Splitter)
+            initResizableSplitter();
+
+            // Nếu buổi phỏng vấn đã hoàn tất (Model.Status == 1), tự động khôi phục tỷ lệ kích thước đã lưu & nhảy số điểm tổng kết
+            var isFinished = @(Model.Status == 1 ? "true" : "false");
+            if (isFinished) {
+                var savedRatio = 58;
+                try {
+                    var stored = localStorage.getItem('interviewChatSplitRatio');
+                    if (stored) savedRatio = parseFloat(stored);
+                } catch (e) {}
+                applySplitRatio(savedRatio);
+
+                // Hiệu ứng nhảy số điểm tổng kết
+                var overallCard = document.getElementById('overallEvaluationView');
+                if (overallCard) {
+                    setTimeout(function () {
+                        triggerAnimatedCounters(overallCard);
+                    }, 100);
+                }
+            }
+
+            // Bắt phím Escape để đóng nhanh Panel chi tiết STAR
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeStarSidePanel();
+                }
+            });
+
+            // Giải phóng GPU VRAM khi người dùng đóng tab hoặc chuyển trang rời khỏi phòng phỏng vấn
+            window.addEventListener('pagehide', function (e) {
+                if (!isSubmitting && navigator.sendBeacon) {
+                    navigator.sendBeacon('/Interview/ReleaseInterviewAi');
+                }
             });
         });
     </script>

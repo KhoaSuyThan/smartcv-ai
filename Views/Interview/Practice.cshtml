@@ -70,7 +70,7 @@
                 }
                 else
                 {
-                    <form asp-controller="Interview" asp-action="StartPracticeSession" method="post">
+                    <form asp-controller="Interview" asp-action="StartPracticeSession" method="post" id="startPracticeForm">
                         @Html.AntiForgeryToken()
 
                         <!-- Thống kê lượt phỏng vấn hôm nay -->
@@ -209,7 +209,7 @@
                         </div>
 
                         <!-- Nút Bắt đầu -->
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
+                        <button type="submit" id="btnStartPractice" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
                             <i class="fas fa-rocket me-2 animate-bounce"></i> Bắt đầu Phòng phỏng vấn AI
                         </button>
                     </form>
@@ -224,7 +224,7 @@
                     <i class="fas fa-history text-secondary me-2"></i> Lịch sử phỏng vấn gần đây
                 </h4>
 
-                <div class="overflow-auto pe-1" style="max-height: 450px;">
+                <div class="overflow-auto pe-1 pt-1 history-scroll-area" style="max-height: 480px;">
                     @if (history == null || !history.Any())
                     {
                         <div class="text-center py-5 text-muted">
@@ -389,6 +389,58 @@
         color: #f8fafc !important;
     }
 
+    /* 2 Thẻ nguồn phỏng vấn (Theo CV & Theo JD) trong Dark Mode */
+    [data-bs-theme="dark"] #cardModeCv,
+    [data-bs-theme="dark"] #cardModeJd {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] #cardModeCv.border-primary,
+    [data-bs-theme="dark"] #cardModeJd.border-primary {
+        background-color: rgba(59, 130, 246, 0.12) !important;
+        border-color: #3b82f6 !important;
+    }
+    [data-bs-theme="dark"] #cardModeCv:hover,
+    [data-bs-theme="dark"] #cardModeJd:hover {
+        border-color: #60a5fa !important;
+    }
+    [data-bs-theme="dark"] .form-check-label {
+        color: #f8fafc !important;
+    }
+
+    /* Select box trong Dark Mode */
+    [data-bs-theme="dark"] #resumeSelect,
+    [data-bs-theme="dark"] #jobSelect {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] #resumeSelect option,
+    [data-bs-theme="dark"] #jobSelect option {
+        background-color: #0f172a !important;
+        color: #f8fafc !important;
+    }
+
+    /* Khối thống kê và các thẻ lịch sử bên cột phải */
+    [data-bs-theme="dark"] .border.bg-light {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .border.bg-white {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .btn-outline-primary {
+        color: #38bdf8 !important;
+        border-color: #38bdf8 !important;
+    }
+    [data-bs-theme="dark"] .btn-outline-primary:hover {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+    }
+
     .header-card-practice {
         background: linear-gradient(135deg, #e0f2fe 0%, #ccfbf1 100%) !important;
         border: 1px solid rgba(13, 148, 136, 0.1) !important;
@@ -526,6 +578,14 @@
                     window.selectTargetMode('jd');
                 }
             };
+
+            // Hiệu ứng loading khi bấm bắt đầu phỏng vấn: chuyển sang màu xám và hiện spinner
+            $('#startPracticeForm').on('submit', function () {
+                const btn = $('#btnStartPractice');
+                btn.prop('disabled', true);
+                btn.removeClass('btn-primary').addClass('btn-secondary');
+                btn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Đang tạo câu hỏi phỏng vấn...');
+            });
         });
     </script>
 }

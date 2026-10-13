@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -502,16 +503,17 @@ Thông tin CV ứng viên:
 
                 string primaryTarget = targetSkillsList.First();
 
-                string leadTechPrompt = $@"Bạn là Tech Lead kiêm Trưởng ban phỏng vấn kỹ thuật cấp cao cho vị trí {matchedJobTitle} (Cấp bậc: {seniority}).
+                string leadTechPrompt = $@"Bạn là Tech Lead phỏng vấn ứng viên cho vị trí {matchedJobTitle} (Cấp bậc: {seniority}).
 Hồ sơ chẩn đoán kỹ năng của ứng viên:
 - Kỹ năng cần kiểm chứng thực tế: {(unverifiedSkills.Any() ? string.Join(", ", unverifiedSkills) : "Chưa có bằng chứng dự án rõ ràng")}
 - Lỗ hổng kỹ năng so với yêu cầu: {(missingSkills.Any() ? string.Join(", ", missingSkills) : "Cần hoàn thiện thêm")}
 
-Nhiệm vụ: Hãy đặt câu hỏi phỏng vấn số 1/{questionCount} tập trung kiểm chứng kỹ năng [{primaryTarget}].
+Nhiệm vụ: Hãy đặt MỘT câu hỏi tình huống kỹ thuật thực tế số 1/{questionCount} tập trung kiểm tra kỹ năng [{primaryTarget}].
 Yêu cầu bắt buộc:
-1. Đặt câu hỏi theo phương pháp STAR (Situation - Task - Action - Result): Đưa ra một tình huống hoặc bài toán kỹ thuật thực tế hóc búa liên quan đến [{primaryTarget}], yêu cầu ứng viên giải thích rõ: Dự án/Bối cảnh (Situation), Trách nhiệm/Mục tiêu (Task), Giải pháp & Hành động kỹ thuật cụ thể đã làm (Action), và Kết quả đo lường (Result).
-2. Giọng điệu chuyên nghiệp, khắt khe, đi thẳng vào bản chất kỹ thuật, không vòng vo.
-3. CHỈ TRẢ VỀ DUY NHẤT nội dung câu hỏi phỏng vấn bằng tiếng Việt (không thêm bất kỳ lời chào, lời dẫn hay ký tự phụ bên ngoài).";
+1. Đặt một câu hỏi tình huống thực tế mà kỹ sư thường gặp khi làm việc với [{primaryTarget}] và hỏi cách ứng viên giải quyết.
+2. Bạn là người phỏng vấn. Tuyệt đối KHÔNG tự trả lời, KHÔNG viết bài luận mẫu, KHÔNG dùng các từ 'SITUATION', 'SITTING', 'TASK', 'ACTION', 'RESULT'.
+3. Giọng điệu chuyên nghiệp, khắt khe, đi thẳng vào bản chất kỹ thuật, không vòng vo.
+4. CHỈ TRẢ VỀ DUY NHẤT nội dung câu hỏi phỏng vấn bằng tiếng Việt (không thêm bất kỳ lời chào, lời dẫn hay ký tự phụ bên ngoài).";
 
                 string firstQuestion = "";
                 string aiProvider = "local_qwen_3b";
@@ -524,7 +526,7 @@ Yêu cầu bắt buộc:
                     {
                         throw new Exception("Local AI trả về rỗng.");
                     }
-                    firstQuestion = firstQuestion.Trim();
+                    firstQuestion = CleanAiQuestionContent(firstQuestion);
                 }
                 catch (Exception ollamaEx)
                 {
@@ -533,7 +535,7 @@ Yêu cầu bắt buộc:
                     try
                     {
                         firstQuestion = await _aiService.GenerateContent(leadTechPrompt);
-                        firstQuestion = firstQuestion.Trim();
+                        firstQuestion = CleanAiQuestionContent(firstQuestion);
                         aiProvider = "cloud_gemini";
                     }
                     catch (Exception)
@@ -589,7 +591,30 @@ Yêu cầu bắt buộc:
             // Sắp xếp các tin nhắn theo thời gian gửi tăng dần
             session.Messages = session.Messages.OrderBy(m => m.CreatedAt).ToList();
 
+            // Cơ chế Pre-warm / Pre-load Model:
+            // Ngay khi người dùng truy cập vào phòng phỏng vấn, nạp trước model Qwen 2.5 vào GPU VRAM (nền ngầm)
+            // Giữ model trong 5 phút để khi người dùng nhấn Gửi, AI phản hồi ngay lập tức không bị trễ nạp model
+            if (session.Status == 0)
+            {
+                _ = Task.Run(async () => await _ollamaService.PreloadModelAsync("5m"));
+            }
+            else
+            {
+                // Nếu phiên đã hoàn thành, giải phóng model khỏi GPU VRAM để tiết kiệm tài nguyên
+                _ = Task.Run(async () => await _ollamaService.UnloadModelAsync());
+            }
+
             return View(session);
+        }
+
+        // Endpoint giải phóng AI khi người dùng thoát ra khỏi link phòng phỏng vấn
+        [HttpPost]
+        [Authorize(Roles = "User")]
+        [IgnoreAntiforgeryToken]
+        public async Task<IActionResult> ReleaseInterviewAi()
+        {
+            _ = Task.Run(async () => await _ollamaService.UnloadModelAsync());
+            return Json(new { success = true });
         }
 
         // Gửi câu trả lời trong chat tự luận 1-1
@@ -615,6 +640,23 @@ Yêu cầu bắt buộc:
                 return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
             }
 
+            // Chống gửi lặp đúp (Double Submission) trong vòng 5 giây
+            var recentCandidateMsg = session.Messages
+                .Where(m => m.Role == "candidate")
+                .OrderByDescending(m => m.CreatedAt)
+                .FirstOrDefault();
+
+            if (recentCandidateMsg != null && 
+                recentCandidateMsg.Content == answer.Trim() && 
+                (DateTime.Now - recentCandidateMsg.CreatedAt).TotalSeconds < 5)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = true, isCompleted = session.Status == 1, duplicate = true });
+                }
+                return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
+            }
+
             // 1. Lưu câu trả lời của ứng viên
             var candidateMsg = new InterviewMessage
             {
@@ -632,39 +674,204 @@ Yêu cầu bắt buộc:
                 .OrderByDescending(m => m.CreatedAt)
                 .FirstOrDefault();
 
-            string lastQuestion = lastQuestionMsg != null ? lastQuestionMsg.Content : "Hãy tự giới thiệu bản thân.";
-
-            // 2. Chấm điểm câu trả lời vừa gửi bằng AI theo mô hình STAR
-            string evaluationPrompt = $@"Bạn là nhà phỏng vấn AI chuyên nghiệp. Hãy đánh giá câu trả lời của ứng viên cho câu hỏi phỏng vấn dưới đây theo phương pháp STAR (S - Situation, T - Task, A - Action, R - Result).
-Cho điểm câu trả lời trên thang điểm từ 0 đến 100.
-Yêu cầu trả về duy nhất một chuỗi JSON hợp lệ theo định dạng dưới đây (không chứa văn bản phụ):
-{{
-  ""score"": 85,
-  ""feedback"": ""Nhận xét chi tiết theo cấu trúc STAR: Tình huống, Nhiệm vụ, Hành động, Kết quả. Nêu ưu điểm và điểm cần cải thiện.""
-}}
-
-Câu hỏi của bạn: ""{lastQuestion}""
-Câu trả lời của ứng viên: ""{answer}""";
-
-            int itemScore = 70; // Điểm mặc định nếu AI lỗi
-            string itemFeedback = "Đã ghi nhận câu trả lời.";
-            try
+            string lastQuestion = lastQuestionMsg != null ? lastQuestionMsg.Content : "Hãy chia sẻ kinh nghiệm dự án của bạn.";
+            string cleanQuestion = lastQuestion;
+            if (cleanQuestion.Contains("]\n"))
             {
-                string evalResponse = await _aiService.GenerateContent(evaluationPrompt, responseJson: true);
-                evalResponse = CleanJson(evalResponse);
-                await LogAiUsage("interview_chat_eval", evaluationPrompt, evalResponse);
+                int endTagIdx = cleanQuestion.LastIndexOf("]\n");
+                cleanQuestion = cleanQuestion.Substring(endTagIdx + 2).Trim();
+            }
+            if (cleanQuestion.Contains("\n\n💡"))
+            {
+                int hintIdx = cleanQuestion.IndexOf("\n\n💡");
+                cleanQuestion = cleanQuestion.Substring(0, hintIdx).Trim();
+            }
 
-                using (JsonDocument doc = JsonDocument.Parse(evalResponse))
+            string evalJobTitle = session.Resume?.JobTitle ?? "Kỹ sư phần mềm";
+            if (!string.IsNullOrEmpty(session.AiEvaluation))
+            {
+                var parts = session.AiEvaluation.Split('|');
+                foreach (var part in parts)
                 {
-                    var root = doc.RootElement;
-                    itemScore = root.GetProperty("score").GetInt32();
-                    itemFeedback = root.GetProperty("feedback").GetString();
+                    if (part.StartsWith("Job:"))
+                    {
+                        evalJobTitle = part.Substring("Job:".Length);
+                        break;
+                    }
                 }
             }
-            catch { }
 
-            candidateMsg.Score = itemScore;
-            candidateMsg.Feedback = itemFeedback;
+            // 2. Chấm điểm định lượng STAR 4 trụ cột và English Polishing qua Local AI (Qwen 2.5 3B) JSON Mode
+            string evaluationPrompt = $@"Bạn là Giám khảo Phỏng vấn Kỹ thuật Cấp cao (Principal Tech Lead) chuyên chấm điểm theo phương pháp STAR.
+Hãy đánh giá câu trả lời của ứng viên cho câu hỏi kỹ thuật dưới đây.
+
+Ngữ cảnh:
+- Vị trí: {evalJobTitle}
+- Câu hỏi của bạn: ""{cleanQuestion}""
+- Câu trả lời của ứng viên: ""{answer}""
+
+TIÊU CHÍ CHẤM ĐIỂM ĐỊNH LƯỢNG STAR (Tổng 100 điểm):
+1. Situation (Tình huống / Bối cảnh dự án) [0 - 20 điểm]: Bối cảnh bài toán, quy mô hoặc khó khăn kỹ thuật gặp phải.
+2. Task (Nhiệm vụ / Trách nhiệm) [0 - 20 điểm]: Mục tiêu kỹ thuật cần đạt và vai trò của ứng viên.
+3. Action (Hành động kỹ thuật thực chiến) [0 - 40 điểm]: Kiến trúc, thuật toán, cách viết code/cấu hình cụ thể và xử lý lỗi (TRỌNG SỐ QUAN TRỌNG NHẤT).
+4. Result (Kết quả & Đo lường) [0 - 20 điểm]: Hiệu năng đạt được, số liệu đo lường cụ thể (ms, %, RPS, dung lượng) và bài học kinh nghiệm.
+
+YÊU CẦU KIỂM TRA SỐ LIỆU (Metric Verification):
+- Kiểm tra xem câu trả lời có chứa con số đo lường định lượng thực tế hay không (ví dụ: giảm 40% latency, tăng 2x RPS, giảm 30% RAM). Nếu có số liệu cụ thể đặt hasQuantifiedMetrics = true, nếu chỉ nói chung chung đặt hasQuantifiedMetrics = false.
+
+YÊU CẦU ENGLISH POLISHING:
+- Dù ứng viên trả lời bằng Tiếng Việt hay Tiếng Anh, hãy viết lại câu trả lời thành 2 - 3 câu TIẾNG ANH KỸ THUẬT CHUYÊN NGHIỆP CẤP ĐỘ SENIOR cô đọng, súc tích (khoảng 60 - 90 từ).
+- Trích xuất 2 - 4 cụm từ tiếng Anh kỹ thuật đắt giá (powerPhrases) kèm giải nghĩa tiếng Việt.
+
+QUY TẮC BẮT BUỘC:
+- TUYỆT ĐỐI KHÔNG sao chép số 84 hay các văn bản mẫu trong schema dưới đây.
+- Bắt buộc phải đọc kỹ câu trả lời của ứng viên, tự tính toán điểm số chính xác theo từng trụ cột và viết nhận xét phân tích mới 100% dựa trên câu trả lời thực tế.
+- Mỗi mục nhận xét trong breakdownFeedback viết ngắn gọn 1 - 2 câu súc tích đi thẳng vào bản chất kỹ thuật.
+
+BẮT BUỘC TRẢ VỀ DUY NHẤT 1 CHUỖI JSON HỢP LỆ THEO ĐÚNG SCHEMA CẤU TRÚC SAU:
+{{
+  ""situationScore"": 0,
+  ""taskScore"": 0,
+  ""actionScore"": 0,
+  ""resultScore"": 0,
+  ""totalScore"": 0,
+  ""hasQuantifiedMetrics"": false,
+  ""breakdownFeedback"": {{
+    ""situation"": ""Đánh giá ngắn gọn bối cảnh..."",
+    ""task"": ""Đánh giá ngắn gọn nhiệm vụ..."",
+    ""action"": ""Đánh giá ngắn gọn hành động kỹ thuật..."",
+    ""result"": ""Đánh giá ngắn gọn kết quả đo lường...""
+  }},
+  ""generalFeedback"": ""Nhận xét tổng quan ưu điểm và điểm cần cải thiện của câu trả lời này..."",
+  ""englishPolish"": {{
+    ""detectedLanguage"": ""vi"",
+    ""improvedResponse"": ""Câu trả lời viết lại bằng tiếng Anh chuyên ngành Senior (60 - 90 từ)..."",
+    ""powerPhrases"": [
+      {{ ""phrase"": ""cụm từ tiếng Anh chuyên ngành"", ""meaning"": ""nghĩa tiếng Việt"" }}
+    ]
+  }}
+}}";
+
+            int situationScore = 15;
+            int taskScore = 15;
+            int actionScore = 28;
+            int resultScore = 12;
+            int totalScore = 70;
+            string generalFeedback = "Đã ghi nhận câu trả lời kỹ thuật của bạn.";
+            string englishFeedbackJson = "{}";
+            string aiEvalProvider = "local_qwen_3b";
+
+            try
+            {
+                // 1. Thử gọi Local AI (Ollama Qwen 2.5 3B) JSON Mode
+                string evalResponse = await _ollamaService.GenerateJsonAsync(evaluationPrompt);
+                if (string.IsNullOrWhiteSpace(evalResponse)) throw new Exception("Local AI JSON rỗng");
+
+                bool parsedSuccess = false;
+
+                // Thử parse qua JsonDocument thông thường
+                try
+                {
+                    using (JsonDocument doc = JsonDocument.Parse(evalResponse))
+                    {
+                        var root = doc.RootElement;
+                        situationScore = root.TryGetProperty("situationScore", out var sProp) ? sProp.GetInt32() : 15;
+                        taskScore = root.TryGetProperty("taskScore", out var tProp) ? tProp.GetInt32() : 15;
+                        actionScore = root.TryGetProperty("actionScore", out var aProp) ? aProp.GetInt32() : 28;
+                        resultScore = root.TryGetProperty("resultScore", out var rProp) ? rProp.GetInt32() : 12;
+
+                        if (root.TryGetProperty("generalFeedback", out var fbProp) && !string.IsNullOrWhiteSpace(fbProp.GetString()))
+                        {
+                            generalFeedback = fbProp.GetString()!;
+                        }
+                        else if (root.TryGetProperty("feedback", out var fbProp2) && !string.IsNullOrWhiteSpace(fbProp2.GetString()))
+                        {
+                            generalFeedback = fbProp2.GetString()!;
+                        }
+
+                        englishFeedbackJson = evalResponse;
+                        parsedSuccess = true;
+                    }
+                }
+                catch (Exception jsonEx)
+                {
+                    Console.WriteLine($"[JSON Parse Soft Fail - Trích xuất cứu hộ Regex] {jsonEx.Message}");
+                }
+
+                // Nếu JsonDocument bị cắt cụt do chạm trần token, dùng Regex trích xuất cứu hộ trực tiếp từ text
+                if (!parsedSuccess)
+                {
+                    var sMatch = Regex.Match(evalResponse, @"\""situationScore\""\s*:\s*(\d+)");
+                    if (sMatch.Success) int.TryParse(sMatch.Groups[1].Value, out situationScore);
+
+                    var tMatch = Regex.Match(evalResponse, @"\""taskScore\""\s*:\s*(\d+)");
+                    if (tMatch.Success) int.TryParse(tMatch.Groups[1].Value, out taskScore);
+
+                    var aMatch = Regex.Match(evalResponse, @"\""actionScore\""\s*:\s*(\d+)");
+                    if (aMatch.Success) int.TryParse(aMatch.Groups[1].Value, out actionScore);
+
+                    var rMatch = Regex.Match(evalResponse, @"\""resultScore\""\s*:\s*(\d+)");
+                    if (rMatch.Success) int.TryParse(rMatch.Groups[1].Value, out resultScore);
+
+                    var fbMatch = Regex.Match(evalResponse, @"\""generalFeedback\""\s*:\s*\""([^\""]+)\""");
+                    if (fbMatch.Success) generalFeedback = fbMatch.Groups[1].Value;
+
+                    englishFeedbackJson = evalResponse;
+                }
+
+                // Chuẩn hóa và cộng dồn điểm số
+                situationScore = Math.Clamp(situationScore, 0, 20);
+                taskScore = Math.Clamp(taskScore, 0, 20);
+                actionScore = Math.Clamp(actionScore, 0, 40);
+                resultScore = Math.Clamp(resultScore, 0, 20);
+                totalScore = situationScore + taskScore + actionScore + resultScore;
+            }
+            catch (Exception localEx)
+            {
+                Console.WriteLine($"[Interview Evaluation Local AI Fallback] {localEx.Message}");
+                try
+                {
+                    // 2. Fallback sang Cloud Gemini AI nếu Ollama gặp sự cố
+                    string cloudEval = await _aiService.GenerateContent(evaluationPrompt, responseJson: true);
+                    cloudEval = CleanJson(cloudEval);
+                    aiEvalProvider = "cloud_gemini";
+
+                    using (JsonDocument doc = JsonDocument.Parse(cloudEval))
+                    {
+                        var root = doc.RootElement;
+                        situationScore = root.TryGetProperty("situationScore", out var sProp) ? sProp.GetInt32() : 15;
+                        taskScore = root.TryGetProperty("taskScore", out var tProp) ? tProp.GetInt32() : 15;
+                        actionScore = root.TryGetProperty("actionScore", out var aProp) ? aProp.GetInt32() : 28;
+                        resultScore = root.TryGetProperty("resultScore", out var rProp) ? rProp.GetInt32() : 12;
+
+                        situationScore = Math.Clamp(situationScore, 0, 20);
+                        taskScore = Math.Clamp(taskScore, 0, 20);
+                        actionScore = Math.Clamp(actionScore, 0, 40);
+                        resultScore = Math.Clamp(resultScore, 0, 20);
+                        totalScore = situationScore + taskScore + actionScore + resultScore;
+
+                        if (root.TryGetProperty("generalFeedback", out var fbProp) && !string.IsNullOrWhiteSpace(fbProp.GetString()))
+                        {
+                            generalFeedback = fbProp.GetString()!;
+                        }
+                        englishFeedbackJson = cloudEval;
+                    }
+                }
+                catch
+                {
+                    aiEvalProvider = "system_template";
+                    totalScore = 70;
+                }
+            }
+
+            candidateMsg.StarSituationScore = situationScore;
+            candidateMsg.StarTaskScore = taskScore;
+            candidateMsg.StarActionScore = actionScore;
+            candidateMsg.StarResultScore = resultScore;
+            candidateMsg.Score = totalScore;
+            candidateMsg.Feedback = generalFeedback;
+            candidateMsg.EnglishFeedback = englishFeedbackJson;
+            candidateMsg.AiProvider = aiEvalProvider;
             await _context.SaveChangesAsync();
 
             // Đọc số câu hỏi cấu hình từ trường AiEvaluation tạm thời
@@ -686,29 +893,68 @@ Câu trả lời của ứng viên: ""{answer}""";
                 session.Status = 1; // Đã hoàn thành
                 session.CompletedAt = DateTime.Now;
 
-                // Tính điểm trung bình cộng các câu trả lời
+                // Tính điểm trung bình cộng 4 trụ cột STAR
                 var candidateMsgs = await _context.InterviewMessages
                     .Where(m => m.SessionID == sessionId && m.Role == "candidate")
                     .ToListAsync();
                 
-                double avgScore = candidateMsgs.Any() ? candidateMsgs.Average(m => m.Score ?? 0) : 0;
-                session.OverallScore = (int)Math.Round(avgScore);
+                double avgOverall = candidateMsgs.Any() ? candidateMsgs.Average(m => m.Score ?? 0) : 0;
+                double avgS = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarSituationScore ?? 0) : 0;
+                double avgT = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarTaskScore ?? 0) : 0;
+                double avgA = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarActionScore ?? 0) : 0;
+                double avgR = candidateMsgs.Any() ? candidateMsgs.Average(m => m.StarResultScore ?? 0) : 0;
 
-                // Tạo nhận xét tổng quan từ AI
-                string summaryPrompt = $@"Hãy tổng hợp buổi phỏng vấn dưới đây của ứng viên. Đưa ra nhận xét tổng quan về thế mạnh chuyên môn, kỹ năng giao tiếp xử lý tình huống và chấm điểm chung cuộc.
-Câu hỏi & Trả lời phỏng vấn:
-" + string.Join("\n", candidateMsgs.Select((m, i) => $"Câu {i+1} (Điểm: {m.Score}): {m.Content}"));
+                session.OverallScore = (int)Math.Round(avgOverall);
+
+                // Tạo nhận xét tổng quan toàn diện từ AI
+                string summaryPrompt = $@"Bạn là Giám khảo Phỏng vấn Cấp cao. Hãy tổng kết toàn diện buổi phỏng vấn vị trí {evalJobTitle} của ứng viên.
+Dữ liệu điểm STAR trung bình đạt được:
+- Situation (Bối cảnh): {avgS:F1}/20 điểm
+- Task (Nhiệm vụ): {avgT:F1}/20 điểm
+- Action (Hành động kỹ thuật): {avgA:F1}/40 điểm
+- Result (Kết quả & Đo lường): {avgR:F1}/20 điểm
+- Tổng điểm chung cuộc: {avgOverall:F1}/100 điểm
+
+Nội dung các câu hỏi & trả lời:
+" + string.Join("\n", candidateMsgs.Select((m, i) => $"Câu {i+1} (S:{m.StarSituationScore}, T:{m.StarTaskScore}, A:{m.StarActionScore}, R:{m.StarResultScore} | Tổng: {m.Score}đ): {m.Content}")) + @"
+
+Yêu cầu nhận xét:
+1. Đánh giá thế mạnh kỹ thuật cốt lõi (Core Strengths).
+2. Chỉ rõ điểm yếu trong cấu trúc trả lời hoặc lỗ hổng chuyên môn cần cải thiện.
+3. Nhận xét về độ thâm niên thực tế (Junior / Middle / Senior fit).
+4. Lời khuyên cụ thể để ứng viên chuẩn bị cho các đợt phỏng vấn thật.
+QUY TẮC: Viết nhận xét cô đọng, súc tích trong khoảng 150 - 200 từ, đi thẳng vào bản chất kỹ thuật, không viết dài dòng.";
 
                 string finalEvaluation = "Hoàn thành buổi phỏng vấn.";
                 try
                 {
-                    finalEvaluation = await _aiService.GenerateContent(summaryPrompt);
-                    await LogAiUsage("interview_chat_summary", summaryPrompt, finalEvaluation);
+                    finalEvaluation = await _ollamaService.GenerateTextAsync(summaryPrompt);
+                    if (string.IsNullOrWhiteSpace(finalEvaluation)) throw new Exception("Rỗng");
+                    finalEvaluation = finalEvaluation.Trim();
                 }
-                catch { }
+                catch
+                {
+                    try
+                    {
+                        finalEvaluation = await _aiService.GenerateContent(summaryPrompt);
+                        finalEvaluation = finalEvaluation.Trim();
+                    }
+                    catch
+                    {
+                        finalEvaluation = $"Ứng viên hoàn thành {candidateMsgs.Count} câu hỏi phỏng vấn với điểm trung bình {session.OverallScore}/100. Điểm thành phần STAR: S: {avgS:F1}/20, T: {avgT:F1}/20, A: {avgA:F1}/40, R: {avgR:F1}/20.";
+                    }
+                }
 
                 session.AiEvaluation = finalEvaluation;
                 await _context.SaveChangesAsync();
+
+                // Giải phóng GPU VRAM ngay lập tức vì buổi phỏng vấn đã hoàn tất
+                _ = Task.Run(async () => await _ollamaService.UnloadModelAsync());
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = true, isCompleted = true });
+                }
 
                 TempData["SuccessMessage"] = "Bạn đã hoàn thành buổi phỏng vấn luyện tập!";
                 return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
@@ -803,6 +1049,11 @@ Yêu cầu:
                     _context.InterviewMessages.Add(drillDownMsg);
                     await _context.SaveChangesAsync();
 
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new { success = true, isCompleted = false });
+                    }
+
                     return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
                 }
 
@@ -814,18 +1065,27 @@ Yêu cầu:
                     nextTargetSkill = targetSkillsList[skillIndex];
                 }
 
-                string nextQuestionPrompt = $@"Bạn là Tech Lead kiêm Trưởng ban phỏng vấn kỹ thuật cấp cao cho vị trí {jobTitle}.
-Ứng viên vừa trả lời câu hỏi trước đó trong phiên phỏng vấn.
-Hiện tại là câu hỏi phỏng vấn số {answerCount + 1}/{maxQuestions}.
-Mục tiêu tiếp theo là kiểm chứng chuyên sâu kỹ năng [{nextTargetSkill}] theo phương pháp STAR.
+                string cleanLastQuestion = lastQuestion;
+                if (cleanLastQuestion.Contains("]\n"))
+                {
+                    int endTagIdx = cleanLastQuestion.LastIndexOf("]\n");
+                    cleanLastQuestion = cleanLastQuestion.Substring(endTagIdx + 2).Trim();
+                }
+                if (cleanLastQuestion.Contains("\n\n💡"))
+                {
+                    int hintIdx = cleanLastQuestion.IndexOf("\n\n💡");
+                    cleanLastQuestion = cleanLastQuestion.Substring(0, hintIdx).Trim();
+                }
+                if (cleanLastQuestion.Length > 250)
+                {
+                    cleanLastQuestion = cleanLastQuestion.Substring(0, 250) + "...";
+                }
 
-Ngữ cảnh trước đó:
-- Câu hỏi vừa hỏi: ""{lastQuestion}""
-- Câu trả lời của ứng viên: ""{answer}""
-
-Yêu cầu câu hỏi mới:
-1. Tiếp nối tự nhiên từ câu trả lời trước hoặc chuyển hướng kiểm chứng kỹ năng [{nextTargetSkill}].
-2. Đặt câu hỏi tình huống thực tế theo chuẩn STAR (Situation, Task, Action, Result), yêu cầu ứng viên giải thích rõ các thách thức kỹ thuật, hành động cụ thể đã làm và kết quả đo lường đạt được.
+                string nextQuestionPrompt = $@"Bạn là Tech Lead phỏng vấn ứng viên cho vị trí {jobTitle}.
+Nhiệm vụ: Hãy đặt MỘT câu hỏi tình huống kỹ thuật thực tế số {answerCount + 1}/{maxQuestions} để kiểm tra kỹ năng [{nextTargetSkill}].
+Yêu cầu bắt buộc:
+1. Đặt một câu hỏi tình huống thực tế mà kỹ sư thường gặp khi làm việc với [{nextTargetSkill}] và hỏi cách ứng viên giải quyết.
+2. Bạn là người phỏng vấn. Tuyệt đối KHÔNG tự trả lời, KHÔNG viết bài luận mẫu, KHÔNG dùng các từ 'SITUATION', 'SITTING', 'TASK', 'ACTION', 'RESULT', KHÔNG lặp lại câu hỏi trước.
 3. Giọng điệu chuyên nghiệp, khắt khe, đi thẳng vào bản chất kỹ thuật, không vòng vo.
 4. CHỈ TRẢ VỀ DUY NHẤT nội dung câu hỏi phỏng vấn bằng tiếng Việt (không thêm bất kỳ lời chào, lời dẫn hay ký tự phụ bên ngoài).";
 
@@ -840,7 +1100,7 @@ Yêu cầu câu hỏi mới:
                     {
                         throw new Exception("Local AI trả về rỗng.");
                     }
-                    nextQuestion = nextQuestion.Trim();
+                    nextQuestion = CleanAiQuestionContent(nextQuestion);
                 }
                 catch (Exception ollamaEx)
                 {
@@ -849,7 +1109,7 @@ Yêu cầu câu hỏi mới:
                     try
                     {
                         nextQuestion = await _aiService.GenerateContent(nextQuestionPrompt);
-                        nextQuestion = nextQuestion.Trim();
+                        nextQuestion = CleanAiQuestionContent(nextQuestion);
                         aiProvider = "cloud_gemini";
                     }
                     catch
@@ -871,6 +1131,11 @@ Yêu cầu câu hỏi mới:
                 };
                 _context.InterviewMessages.Add(nextMsg);
                 await _context.SaveChangesAsync();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new { success = true, isCompleted = false });
+                }
 
                 return RedirectToAction(nameof(PracticeChat), new { sessionId = sessionId });
             }
@@ -1441,6 +1706,19 @@ Câu trả lời của Ứng viên: ""{candidateMsg.Content}""";
                 await _context.SaveChangesAsync();
             }
             catch { }
+        }
+
+        private static string CleanAiQuestionContent(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return "";
+            string text = raw.Trim();
+            text = System.Text.RegularExpressions.Regex.Replace(text, @"(?i)\b(SITUATION|SITTING|TASK|ACTION|RESULT)\s*:\s*", "");
+            if (text.Contains("💡 Gợi ý trả lời"))
+            {
+                int hintIdx = text.IndexOf("💡 Gợi ý trả lời");
+                text = text.Substring(0, hintIdx).Trim();
+            }
+            return text.Trim();
         }
 
         #endregion

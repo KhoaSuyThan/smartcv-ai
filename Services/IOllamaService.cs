@@ -18,5 +18,11 @@ namespace DoAnCS.Services
 
         /// <summary>Sinh văn bản tự do thông thường</summary>
         Task<string> GenerateTextAsync(string prompt, string? systemInstruction = null, double temperature = 0.7, int timeoutSeconds = 45);
+
+        /// <summary>Preload trước mô hình vào GPU VRAM ngay khi người dùng vào phòng phỏng vấn</summary>
+        Task PreloadModelAsync(string keepAlive = "5m");
+
+        /// <summary>Giải phóng mô hình khỏi GPU VRAM ngay lập tức khi hoàn thành hoặc thoát phòng</summary>
+        Task UnloadModelAsync();
     }
 }
