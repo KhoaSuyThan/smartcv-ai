@@ -13,6 +13,7 @@ Bảng này được lập nhằm tuân thủ quy định học thuật và hư�
 
 | Thời gian | AI | Nội dung yêu cầu | AI tạo ra | Sinh viên xử lý |
 | :--- | :--- | :--- | :--- | :--- |
+| 17/10/2026 | Antigravity (Gemini) | Hoàn thiện Giai đoạn 0–1 Trắc nghiệm AI: Khử JD Description & nâng cấp ẩn danh hóa đa tầng (tên công ty, trường học, người liên hệ), vô hiệu hóa chấm điểm/bảo mật đáp án bài quá hạn, map nhãn A-D, Cross-Consistency check, Domain Matching template & tùy chọn Cloud Fallback | Code `InterviewController.cs`, `Practice.cshtml`, `PracticeQuiz.cshtml`, `QuizModels.cs` | Kiểm tra biên dịch qua `dotnet build -t:Compile` (0 Error), xác thực bảo mật PII đa tầng, xác minh logic vô hiệu hóa bài thi quá hạn và thuật toán Domain Scoring |
 | 13/10/2026 | Antigravity (Gemini) | Nghiệm thu Giai đoạn 5: Đo đạc Benchmark Local AI, xác thực CSDL và test Failover | Kịch bản kiểm thử 5 Test Case, script đo tốc độ suy luận Ollama và kiểm tra dữ liệu 6 cột STAR SQL Server | Thực thi kiểm thử tự động, xác nhận GPU RTX 3050 đạt 79.2 t/s, CSDL lưu trữ chuẩn xác và cơ chế Failover 3 tầng an toàn tuyệt đối |
 | 13/10/2026 | Antigravity (Gemini) | Sửa lỗi Dark Mode chói nền trắng "Theo JD" trang Luyện phỏng vấn | Thu hẹp rule .transition-hover trong site.css về đúng force-light-card; viết bộ CSS Dark Mode cho #cardModeCv, #cardModeJd, select và lịch sử Practice.cshtml | Kiểm tra biên dịch C# (0 Error), thử nghiệm hiển thị đồng nhất màu nền tối trên /Interview/Practice |
 | 13/10/2026 | Antigravity (Gemini) | Căn giữa vòng tròn điểm 70, thêm nút sao chép đánh giá tổng thể & kéo thả nút chatbot | Flexbox căn giữa điểm số lớn, nút "Sao chép toàn bộ đánh giá" kèm Markdown thô, cơ chế kéo thả dọc Drag & Drop + localStorage cho widget chatbot | Kiểm tra biên dịch C# (0 Error), thử nghiệm kéo thả nút chatbot lên xuống không che nút chức năng, kiểm tra sao chép báo cáo |
@@ -39,3 +40,5 @@ Bảng này được lập nhằm tuân thủ quy định học thuật và hư�
 
 
 | 17/10/2026 | ChatGPT (Codex) | Rà soát plan Gemini nâng cấp phần Trắc nghiệm với mã nguồn SmartCV và tạo plan triển khai | Tài liệu DOCX phân tích hiện trạng, kiến trúc, các giai đoạn, rủi ro và tiêu chí nghiệm thu | Sinh viên cần xác nhận chính sách Cloud fallback, thời lượng bài, nguồn trường JD và yêu cầu lưu timer; đọc hiểu các điểm bảo mật đáp án và kiểm thử thực tế trước khi triển khai |
+| 17/10/2026 | Antigravity (Gemini) | Triển khai Giai đoạn 0-1: Động cơ sinh đề Failover 3 tầng, bảo mật đáp án và hiển thị giải thích | Code DTO QuizModels.cs, logic Failover (Ollama/Gemini/Template), PracticeQuizViewModel và UI Explanation | Kiểm tra biên dịch C#, chạy kiểm thử bóc tách JSON và xác thực bảo vệ đáp án client-side |
+

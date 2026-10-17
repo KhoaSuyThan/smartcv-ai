@@ -206,10 +206,21 @@
                                     <!-- Ghi chú giới hạn tài khoản -->
                                 </div>
                             </div>
+                        <!-- 4. Tùy chọn nâng cao: Dự phòng Cloud AI -->
+                        <div class="mb-4 p-3 rounded-3 border bg-light">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" name="enableCloudFallback" id="enableCloudFallback" value="true" role="switch">
+                                <label class="form-check-label small fw-semibold text-secondary" for="enableCloudFallback" style="cursor: pointer;">
+                                    <i class="fas fa-shield-alt text-primary me-1"></i> Cho phép dự phòng Cloud AI (Gemini) nếu Local AI bận
+                                    <span class="d-block text-muted fw-normal" style="font-size: 0.75rem;">
+                                        Hệ thống tự động lọc 100% dữ liệu định danh (Email, SĐT, Tên) trước khi gửi. Mặc định: Tắt (Ưu tiên 100% Offline).
+                                    </span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Nút Bắt đầu -->
-                        <button type="submit" id="btnStartPractice" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-3 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
+                        <button type="submit" id="btnStartPractice" class="btn btn-primary btn-lg w-100 rounded-pill shadow-sm mt-2 fw-bold btn-start-interview" @(ViewBag.TodaySessionsCount >= ViewBag.MaxDailySessions ? "disabled" : "")>
                             <i class="fas fa-rocket me-2 animate-bounce"></i> Bắt đầu Phòng phỏng vấn AI
                         </button>
                     </form>
