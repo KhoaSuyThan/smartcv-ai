@@ -206,6 +206,8 @@
                                     <!-- Ghi chú giới hạn tài khoản -->
                                 </div>
                             </div>
+                        </div>
+
                         <!-- 4. Tùy chọn nâng cao: Dự phòng Cloud AI -->
                         <div class="mb-4 p-3 rounded-3 border bg-light">
                             <div class="form-check form-switch mb-0">
@@ -230,12 +232,12 @@
 
         <!-- Cột Bên phải: Lịch sử luyện tập -->
         <div class="col-lg-5">
-            <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                <h4 class="fw-bold text-dark mb-4 d-flex align-items-center">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 d-flex flex-column">
+                <h4 class="fw-bold text-dark mb-3 d-flex align-items-center flex-shrink-0">
                     <i class="fas fa-history text-secondary me-2"></i> Lịch sử phỏng vấn gần đây
                 </h4>
 
-                <div class="overflow-auto pe-1 pt-1 history-scroll-area" style="max-height: 480px;">
+                <div class="overflow-auto pe-1 pt-1 history-scroll-area flex-grow-1">
                     @if (history == null || !history.Any())
                     {
                         <div class="text-center py-5 text-muted">
@@ -334,6 +336,44 @@
     }
     .btn-start-interview:hover {
         transform: scale(1.02);
+    }
+
+    /* Tối ưu chiều cao vùng cuộn lịch sử tự động kéo dãn lấp đầy 100% card */
+    .history-scroll-area {
+        flex: 1 1 0px !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: none !important;
+    }
+    @@media (max-width: 991.98px) {
+        .history-scroll-area {
+            flex: 1 1 auto !important;
+            height: auto !important;
+            min-height: 480px !important;
+            max-height: 620px !important;
+        }
+    }
+
+    /* Tùy chỉnh thanh cuộn lịch sử mượt mà */
+    .history-scroll-area::-webkit-scrollbar {
+        width: 6px;
+    }
+    .history-scroll-area::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    .history-scroll-area::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .history-scroll-area::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    [data-bs-theme="dark"] .history-scroll-area::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+    [data-bs-theme="dark"] .history-scroll-area::-webkit-scrollbar-thumb {
+        background: #475569;
     }
 
     /* Keyframe Animations */

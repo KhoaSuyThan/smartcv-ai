@@ -43,8 +43,42 @@ namespace DoAnCS.Models
         public DateTime? CompletedAt { get; set; }
         public DateTime? Deadline { get; set; } // Hạn chót nộp bài từ server
         public int TotalTimeSeconds { get; set; } // Đề xuất: 90s/câu
+        public int RemainingSeconds { get; set; } // Số giây còn lại thực tế tính từ server
         public SkillDiagnosticDto? SkillDiagnostic { get; set; } // Chẩn đoán kỹ năng CV vs JD
+        public QuizResultSummaryDto? ResultSummary { get; set; } // Thống kê chi tiết & tư vấn nhóm lỗi Giai đoạn 4
         public List<PracticeQuizItemViewModel> Questions { get; set; } = new List<PracticeQuizItemViewModel>();
+    }
+
+    /// <summary>
+    /// GIAI ĐOẠN 4: DTO Thống kê toàn diện và tư vấn ôn tập cá nhân hóa sau khi nộp bài
+    /// </summary>
+    public class QuizResultSummaryDto
+    {
+        public int TotalQuestions { get; set; }
+        public int AnsweredCount { get; set; }
+        public int SkippedCount { get; set; }
+        public int CorrectCount { get; set; }
+        public int WrongCount { get; set; }
+        public int ScorePercentage { get; set; }
+        public int DurationSeconds { get; set; }
+        public string DurationFormatted { get; set; } = "00:00";
+        public bool IsOverdue { get; set; }
+        public List<QuizTopicStatDto> TopicStats { get; set; } = new List<QuizTopicStatDto>();
+        public List<string> Strengths { get; set; } = new List<string>();
+        public List<string> Weaknesses { get; set; } = new List<string>();
+        public List<string> Recommendations { get; set; } = new List<string>();
+    }
+
+    /// <summary>
+    /// Thống kê tỷ lệ chính xác cho từng chủ đề / chuyên ngành kỹ thuật
+    /// </summary>
+    public class QuizTopicStatDto
+    {
+        public string Topic { get; set; } = string.Empty;
+        public int Total { get; set; }
+        public int Correct { get; set; }
+        public int Percentage => Total > 0 ? (int)Math.Round((double)Correct / Total * 100) : 0;
+        public bool IsMastered => Percentage >= 75;
     }
 
     /// <summary>

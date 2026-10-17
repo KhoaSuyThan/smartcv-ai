@@ -360,7 +360,7 @@ namespace DoAnCS.Controllers
                     diagnostic = DiagnoseSkillGaps(extractedSkills, targetMode == "jd" ? jobInfo : null);
                 }
 
-                int timeLimitSec = questionCount * 90; // 90 giây/câu
+                int timeLimitSec = questionCount * 60; // Chuẩn 1 phút/câu theo yêu cầu (5 câu = 5 phút, 7 câu = 7 phút,...)
                 string diagJson = diagnostic != null ? JsonSerializer.Serialize(diagnostic) : "";
                 var session = new InterviewSession
                 {
@@ -1147,9 +1147,15 @@ Yêu cầu bắt buộc:
                 CreatedAt = session.CreatedAt,
                 CompletedAt = session.CompletedAt,
                 Deadline = parsedDeadline,
-                TotalTimeSeconds = interviewerMsgs.Count * 90, // 90 giây/câu theo chuẩn kế hoạch
+                TotalTimeSeconds = interviewerMsgs.Count * 60, // 1 phút/câu theo chuẩn mới (5 câu = 5 phút, 7 câu = 7 phút,...)
+                RemainingSeconds = parsedDeadline.HasValue 
+                    ? Math.Max(0, (int)(parsedDeadline.Value - DateTime.Now).TotalSeconds)
+                    : interviewerMsgs.Count * 60,
                 SkillDiagnostic = skillDiagnostic
             };
+
+            // Kiểm tra xem phiên thi có bản ghi nào chứa mã định danh QID hay không
+            bool hasAnyQid = candidateMsgs.Any(m => m.Feedback != null && m.Feedback.StartsWith("QID:"));
 
             int qIndex = 1;
             foreach (var q in interviewerMsgs)
@@ -1164,11 +1170,23 @@ Yêu cầu bắt buộc:
                     catch { }
                 }
 
-                // Tìm câu trả lời tương ứng của ứng viên
+                // Tìm câu trả lời tương ứng của ứng viên:
+                // 1. Với phiên mới (hasAnyQid == true): CHỈ tìm theo QID:{q.MessageID}|; tuyệt đối không fallback theo thứ tự mảng tránh ghép nhầm khi thiếu bản ghi
+                // 2. Với phiên cũ lịch sử (hasAnyQid == false): Chỉ fallback theo index nếu hoàn toàn không có bản ghi QID nào
                 string candidateAns = "";
-                if (candidateMsgs.Count >= qIndex)
+                InterviewMessage? matchedCandidateMsg = null;
+                if (hasAnyQid)
                 {
-                    candidateAns = candidateMsgs[qIndex - 1].SelectedAnswer ?? "";
+                    matchedCandidateMsg = candidateMsgs.FirstOrDefault(m => m.Feedback != null && m.Feedback.StartsWith($"QID:{q.MessageID}|"));
+                }
+                else
+                {
+                    matchedCandidateMsg = candidateMsgs.ElementAtOrDefault(qIndex - 1);
+                }
+
+                if (matchedCandidateMsg != null)
+                {
+                    candidateAns = matchedCandidateMsg.SelectedAnswer ?? "";
                 }
 
                 var itemVm = new PracticeQuizItemViewModel
@@ -1183,35 +1201,24 @@ Yêu cầu bắt buộc:
                 // BẢO MẬT ĐÁP ÁN: Chỉ khi phiên ĐÃ NỘP BÀI (Status == 1) mới chuyển đáp án đúng và lời giải xuống Client
                 if (session.Status == 1)
                 {
-                    bool isDisqualified = !string.IsNullOrEmpty(session.AiEvaluation) && session.AiEvaluation.Contains("quá hạn");
-                    if (isDisqualified)
-                    {
-                        // Khi bài thi bị vô hiệu hóa do quá hạn: Không công nhận IsCorrect và không để lộ đáp án đúng
-                        itemVm.IsCorrect = null;
-                        itemVm.CorrectAnswer = null;
-                        itemVm.Explanation = "Bài thi nộp quá thời gian quy định nên không được chấm điểm và không hiển thị đáp án.";
-                    }
-                    else
-                    {
-                        itemVm.CorrectAnswer = q.SelectedAnswer;
-                        itemVm.IsCorrect = (!string.IsNullOrEmpty(candidateAns) && candidateAns.Equals(q.SelectedAnswer, StringComparison.OrdinalIgnoreCase));
+                    itemVm.CorrectAnswer = q.SelectedAnswer;
+                    itemVm.IsCorrect = (!string.IsNullOrEmpty(candidateAns) && candidateAns.Equals(q.SelectedAnswer, StringComparison.OrdinalIgnoreCase));
 
-                        // Giải mã Feedback JSON có version
-                        if (!string.IsNullOrEmpty(q.Feedback))
+                    // Giải mã Feedback JSON có version
+                    if (!string.IsNullOrEmpty(q.Feedback))
+                    {
+                        try
                         {
-                            try
+                            var meta = JsonSerializer.Deserialize<QuizFeedbackMetadata>(q.Feedback);
+                            if (meta != null)
                             {
-                                var meta = JsonSerializer.Deserialize<QuizFeedbackMetadata>(q.Feedback);
-                                if (meta != null)
-                                {
-                                    itemVm.Topic = meta.Topic;
-                                    itemVm.Explanation = meta.Explanation;
-                                }
+                                itemVm.Topic = meta.Topic;
+                                itemVm.Explanation = meta.Explanation;
                             }
-                            catch
-                            {
-                                itemVm.Explanation = q.Feedback;
-                            }
+                        }
+                        catch
+                        {
+                            itemVm.Explanation = q.Feedback;
                         }
                     }
                 }
@@ -1228,6 +1235,53 @@ Yêu cầu bắt buộc:
                 qIndex++;
             }
 
+            // GIAI ĐOẠN 4: Thống kê chi tiết & Phân tích chuyên môn theo nhóm lỗi sau khi nộp bài
+            if (session.Status == 1)
+            {
+                bool isAutoSubmittedOverdue = !string.IsNullOrEmpty(session.AiEvaluation) && session.AiEvaluation.Contains("hết giờ");
+                int durationSec = 0;
+                if (session.CompletedAt.HasValue && session.CompletedAt > session.CreatedAt)
+                {
+                    durationSec = (int)(session.CompletedAt.Value - session.CreatedAt).TotalSeconds;
+                }
+                int mins = durationSec / 60;
+                int secs = durationSec % 60;
+                string formattedDuration = $"{(mins < 10 ? "0" + mins : mins.ToString())}:{(secs < 10 ? "0" + secs : secs.ToString())}";
+
+                var topicStats = vm.Questions
+                    .Where(q => !string.IsNullOrEmpty(q.Topic))
+                    .GroupBy(q => q.Topic)
+                    .Select(g => new QuizTopicStatDto
+                    {
+                        Topic = g.Key!,
+                        Total = g.Count(),
+                        Correct = g.Count(x => x.IsCorrect == true)
+                    })
+                    .OrderBy(t => t.Percentage)
+                    .ToList();
+
+                var strengths = topicStats.Where(t => t.IsMastered).Select(t => t.Topic).ToList();
+                var weaknesses = topicStats.Where(t => !t.IsMastered).Select(t => t.Topic).ToList();
+                var recommendations = GenerateQuizRecommendations(weaknesses);
+
+                vm.ResultSummary = new QuizResultSummaryDto
+                {
+                    TotalQuestions = vm.Questions.Count,
+                    AnsweredCount = vm.Questions.Count(x => !string.IsNullOrEmpty(x.CandidateAnswer)),
+                    SkippedCount = vm.Questions.Count(x => string.IsNullOrEmpty(x.CandidateAnswer)),
+                    CorrectCount = vm.Questions.Count(x => x.IsCorrect == true),
+                    WrongCount = vm.Questions.Count(x => !string.IsNullOrEmpty(x.CandidateAnswer) && x.IsCorrect == false),
+                    ScorePercentage = session.OverallScore ?? 0,
+                    DurationSeconds = durationSec,
+                    DurationFormatted = formattedDuration,
+                    IsOverdue = isAutoSubmittedOverdue,
+                    TopicStats = topicStats,
+                    Strengths = strengths,
+                    Weaknesses = weaknesses,
+                    Recommendations = recommendations
+                };
+            }
+
             return View(vm);
         }
 
@@ -1242,9 +1296,15 @@ Yêu cầu bắt buộc:
                 .Include(s => s.Messages)
                 .FirstOrDefaultAsync(s => s.SessionID == sessionId && s.UserID == userId);
 
-            if (session == null || session.Status == 1)
+            if (session == null)
             {
-                return BadRequest("Phiên làm bài không hợp lệ hoặc đã kết thúc.");
+                return BadRequest("Phiên làm bài không tồn tại.");
+            }
+
+            // GIAI ĐOẠN 4: Idempotent - Nếu phiên đã hoàn tất (do double click hoặc reload), chuyển thẳng về xem kết quả
+            if (session.Status == 1)
+            {
+                return RedirectToAction(nameof(PracticeQuiz), new { sessionId = sessionId });
             }
 
             var interviewerQuestions = session.Messages.Where(m => m.Role == "interviewer").OrderBy(m => m.CreatedAt).ToList();
@@ -1278,87 +1338,70 @@ Yêu cầu bắt buộc:
                 catch { }
             }
 
+            var validLabels = new HashSet<string> { "A", "B", "C", "D" };
+
+            // YÊU CẦU: Chỉ được nộp bài khi đã chọn đủ toàn bộ câu trả lời (nếu nộp thủ công trước khi hết giờ)
+            int answeredCount = answers != null ? answers.Count(a => !string.IsNullOrWhiteSpace(a.Value) && validLabels.Contains(a.Value.Trim().ToUpper())) : 0;
+            if (!isOverdue && answeredCount < totalQuestions)
+            {
+                TempData["WarningMessage"] = $"Bạn chưa hoàn thành bài thi! Vui lòng chọn đáp án cho tất cả {totalQuestions}/{totalQuestions} câu hỏi trước khi nộp bài.";
+                return RedirectToAction(nameof(PracticeQuiz), new { sessionId = sessionId });
+            }
+
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var validLabels = new HashSet<string> { "A", "B", "C", "D" };
+                int correctCount = 0;
+                foreach (var qMsg in interviewerQuestions)
+                {
+                    string chosenAnswer = "";
+                    if (answers != null && answers.TryGetValue(qMsg.MessageID, out var rawChosen) && !string.IsNullOrWhiteSpace(rawChosen))
+                    {
+                        string upperChosen = rawChosen.Trim().ToUpper();
+                        if (validLabels.Contains(upperChosen))
+                        {
+                            chosenAnswer = upperChosen;
+                        }
+                    }
+
+                    string correctAnswer = (qMsg.SelectedAnswer ?? "").Trim().ToUpper();
+                    bool isAnswered = !string.IsNullOrEmpty(chosenAnswer);
+                    bool isCorrect = (isAnswered && chosenAnswer == correctAnswer);
+                    if (isCorrect)
+                    {
+                        correctCount++;
+                    }
+
+                    string feedbackText = isAnswered 
+                        ? (isCorrect ? "Đúng" : $"Sai (Đáp án đúng: {correctAnswer})")
+                        : "Chưa làm (0 điểm do hết thời gian)";
+
+                    var candidateAnsMsg = new InterviewMessage
+                    {
+                        SessionID = sessionId,
+                        Role = "candidate",
+                        Content = isAnswered ? chosenAnswer : "Chưa chọn",
+                        SelectedAnswer = chosenAnswer,
+                        Feedback = $"QID:{qMsg.MessageID}|" + feedbackText,
+                        Score = isCorrect ? 100 : 0,
+                        CreatedAt = DateTime.Now
+                    };
+                    _context.InterviewMessages.Add(candidateAnsMsg);
+                }
+
+                session.Status = 1; // Hoàn thành
+                session.CompletedAt = DateTime.Now;
+                session.OverallScore = (int)Math.Round((double)correctCount / totalQuestions * 100);
 
                 if (isOverdue)
                 {
-                    // QUÁ HẠN NỘP BÀI: Vô hiệu hóa toàn bộ kết quả bài thi
-                    // Lưu các lựa chọn đã chọn để làm bằng chứng lưu vết nhưng KHÔNG chấm điểm và KHÔNG lưu vết Đúng/Sai
-                    foreach (var qMsg in interviewerQuestions)
-                    {
-                        string chosenAnswer = "";
-                        if (answers != null && answers.TryGetValue(qMsg.MessageID, out var rawChosen) && !string.IsNullOrWhiteSpace(rawChosen))
-                        {
-                            string upperChosen = rawChosen.Trim().ToUpper();
-                            if (validLabels.Contains(upperChosen))
-                            {
-                                chosenAnswer = upperChosen;
-                            }
-                        }
-
-                        var candidateAnsMsg = new InterviewMessage
-                        {
-                            SessionID = sessionId,
-                            Role = "candidate",
-                            Content = !string.IsNullOrEmpty(chosenAnswer) ? chosenAnswer : "Chưa chọn",
-                            SelectedAnswer = chosenAnswer,
-                            Feedback = "Không chấm điểm (Bài thi nộp quá thời gian quy định)",
-                            Score = 0,
-                            CreatedAt = DateTime.Now
-                        };
-                        _context.InterviewMessages.Add(candidateAnsMsg);
-                    }
-
-                    session.Status = 1; // Hoàn thành (Đóng bài thi)
-                    session.CompletedAt = DateTime.Now;
-                    session.OverallScore = 0;
-                    session.AiEvaluation = "Bài thi không được công nhận điểm do nộp quá hạn thời gian quy định.";
-                    TempData["WarningMessage"] = "Bài thi đã quá thời gian quy định! Hệ thống ghi nhận kết quả không hợp lệ (0 điểm) do nộp trễ.";
+                    session.AiEvaluation = $"Kết quả bài thi trắc nghiệm (Tự động nộp khi hết giờ): Đạt {correctCount}/{totalQuestions} câu chính xác ({session.OverallScore}%).";
+                    TempData["WarningMessage"] = $"Thời gian làm bài đã kết thúc! Hệ thống đã tự động lưu và chấm điểm bài thi của bạn ({correctCount}/{totalQuestions} câu đúng - {session.OverallScore}%). Những câu chưa làm được tính 0 điểm.";
                 }
                 else
                 {
-                    // NỘP BÀI HỢP LỆ: Chấm điểm từng câu theo đáp án chuẩn
-                    int correctCount = 0;
-                    foreach (var qMsg in interviewerQuestions)
-                    {
-                        string chosenAnswer = "";
-                        if (answers != null && answers.TryGetValue(qMsg.MessageID, out var rawChosen) && !string.IsNullOrWhiteSpace(rawChosen))
-                        {
-                            string upperChosen = rawChosen.Trim().ToUpper();
-                            if (validLabels.Contains(upperChosen))
-                            {
-                                chosenAnswer = upperChosen;
-                            }
-                        }
-
-                        string correctAnswer = (qMsg.SelectedAnswer ?? "").Trim().ToUpper();
-                        bool isCorrect = (!string.IsNullOrEmpty(chosenAnswer) && chosenAnswer == correctAnswer);
-                        if (isCorrect)
-                        {
-                            correctCount++;
-                        }
-
-                        var candidateAnsMsg = new InterviewMessage
-                        {
-                            SessionID = sessionId,
-                            Role = "candidate",
-                            Content = !string.IsNullOrEmpty(chosenAnswer) ? chosenAnswer : "Chưa chọn",
-                            SelectedAnswer = chosenAnswer,
-                            Feedback = isCorrect ? "Đúng" : $"Sai (Đáp án đúng: {correctAnswer})",
-                            Score = isCorrect ? 100 : 0,
-                            CreatedAt = DateTime.Now
-                        };
-                        _context.InterviewMessages.Add(candidateAnsMsg);
-                    }
-
-                    session.Status = 1; // Hoàn thành
-                    session.CompletedAt = DateTime.Now;
-                    session.OverallScore = (int)Math.Round((double)correctCount / totalQuestions * 100);
                     session.AiEvaluation = $"Kết quả bài thi trắc nghiệm: Đạt {correctCount}/{totalQuestions} câu chính xác ({session.OverallScore}%).";
-                    TempData["SuccessMessage"] = "Đã nộp bài trắc nghiệm thành công!";
+                    TempData["SuccessMessage"] = $"Đã nộp bài trắc nghiệm thành công! Bạn đạt {correctCount}/{totalQuestions} câu ({session.OverallScore}%).";
                 }
 
                 await _context.SaveChangesAsync();
@@ -2920,6 +2963,63 @@ THÔNG TIN ỨNG VIÊN:
             if (normSkill == "git") return text.Contains("git");
 
             return text.Contains(normSkill);
+        }
+
+        /// <summary>
+        /// GIAI ĐOẠN 4: Sinh các khuyến nghị ôn tập và lộ trình khắc phục chuyên môn theo nhóm lỗi (Weaknesses)
+        /// Sử dụng phân tích rule-based chuyên gia offline, bảo đảm 0ms latency và không phụ thuộc mạng
+        /// </summary>
+        private static List<string> GenerateQuizRecommendations(List<string> weaknesses)
+        {
+            var recs = new List<string>();
+            if (weaknesses == null || weaknesses.Count == 0)
+            {
+                recs.Add("Năng lực chuyên môn của bạn rất đồng đều và toàn diện! Hãy tiếp tục duy trì và thử sức với các bài thi trắc nghiệm nâng cao theo từng vị trí tuyển dụng cụ thể.");
+                return recs;
+            }
+
+            foreach (var w in weaknesses)
+            {
+                string topic = w.ToLowerInvariant();
+                if (topic.Contains("react"))
+                {
+                    recs.Add("React: Ôn lại cơ chế Virtual DOM, Memoization (useMemo, useCallback) và các quy tắc tối ưu vòng đời re-render của Component.");
+                }
+                else if (topic.Contains("vue"))
+                {
+                    recs.Add("Vue.js: Nắm vững hệ thống phản ứng (Reactivity) với ref()/reactive() và phân biệt chi phí chuyển đổi giữa v-if và v-show.");
+                }
+                else if (topic.Contains("asp.net") || topic.Contains("middleware"))
+                {
+                    recs.Add("ASP.NET Core: Củng cố 3 vòng đời Dependency Injection (Transient, Scoped, Singleton) và thứ tự pipeline middleware chuẩn xác.");
+                }
+                else if (topic.Contains("c#") || topic.Contains("concurrency") || topic.Contains("memory"))
+                {
+                    recs.Add("C# & .NET: Ôn lại nguyên lý giải phóng Thread của async/await và mẫu thiết kế IDisposable để thu hồi unmanaged resources.");
+                }
+                else if (topic.Contains("sql") || topic.Contains("database"))
+                {
+                    recs.Add("Database & SQL: Tìm hiểu sâu về Clustered vs Non-Clustered Index, phân tích Execution Plan và 4 tính chất ACID trong giao dịch.");
+                }
+                else if (topic.Contains("entity framework"))
+                {
+                    recs.Add("Entity Framework Core: Áp dụng .AsNoTracking() cho truy vấn chỉ đọc và tối ưu hóa Eager Loading (.Include) để tránh lỗi N+1.");
+                }
+                else if (topic.Contains("solid") || topic.Contains("architecture"))
+                {
+                    recs.Add("Kiến trúc phần mềm: Nắm vững nguyên tắc Đảo ngược phụ thuộc (DIP) trong SOLID và quy tắc Dependency Rule trong Clean Architecture.");
+                }
+                else if (topic.Contains("devops") || topic.Contains("docker") || topic.Contains("git"))
+                {
+                    recs.Add("DevOps & Git: Thực hành quản lý commit an toàn (rebase vs merge) và các lệnh quản lý Container/Volume trong Docker.");
+                }
+                else
+                {
+                    recs.Add($"Chuyên đề {w}: Dành thời gian xem lại lý thuyết cốt lõi và các câu hỏi phỏng vấn thực tế thuộc chủ đề này.");
+                }
+            }
+
+            return recs.Distinct().ToList();
         }
 
         #endregion
