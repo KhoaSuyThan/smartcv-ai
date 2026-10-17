@@ -5,6 +5,12 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-10-17] - Chuẩn bị trình bày đề tài SmartCV AI
+
+- Tạo bản trình bày 7 slide, bổ sung ghi chú thuyết trình và kế hoạch 12 tuần.
+- Tạo plan nâng cấp Trắc nghiệm dựa trên mã nguồn hiện tại, gồm Local AI/JD, bảo vệ đáp án, timer, giải thích và tiêu chí nghiệm thu.
+- Bổ sung tính năng Phỏng vấn STAR và hướng dẫn chạy Local AI (Ollama) vào `README.md`; dọn dẹp mục trùng lặp trong `AI_USAGE_LOG.md`.
+
 ## [2026-10-13] - Tinh gọn Thanh Header Phòng Chat & Chuẩn hóa Giãn Đoạn Câu hỏi AI
 
 ### Enhanced & Optimized
@@ -69,9 +75,6 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 ### Added & Documented
 - **Nhúng Sơ đồ Kiến trúc vào `ROADMAP.md`:** Tích hợp sơ đồ Mermaid trực quan hóa 5 khối cốt lõi (Hệ thống ứng dụng, Dữ liệu & AI hỗ trợ, Huấn luyện cục bộ LLaMA/Sentence-Transformers, Đánh giá Benchmark NCKH > 80%, và Dịch vụ suy luận nội bộ AiMatchService) kèm bảng giải trình chi tiết kỹ thuật.
 - **Dọn dẹp tệp đồ họa phụ:** Đã hoàn tất việc trích xuất và lưu giữ sơ đồ vào `ROADMAP.md`, loại bỏ tệp tạm `SmartCV_Architecture_Diagram.drawio` theo yêu cầu nhằm tinh gọn thư mục gốc.
-
-
-
 
 ### Added & Documented
 - **Khởi tạo tệp `ROADMAP.md`:** Xây dựng lộ trình kỹ thuật chi tiết 12 tuần (3 tháng) cho hệ thống theo kiến trúc Khung AI đa mô hình chạy cục bộ (Local Multi-Model AI Framework). Bao gồm 5 trụ cột kỹ thuật: Chuẩn hóa & ẩn danh hóa PII, Động cơ lọc CV ngữ nghĩa siêu tốc với Vector Cache, Động cơ phân tích năng lực chuẩn ATS chạy mô hình cục bộ, Phòng phỏng vấn ảo tình huống STAR tích hợp trợ lý sửa lỗi Tiếng Anh, và Đóng gói toàn bộ cụm microservices chạy 100% offline bằng Docker Compose.
@@ -323,3 +326,6 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ### Security
 - Tắt tính năng tự động gửi email cảnh báo bảo mật khi đăng nhập đối với tài khoản vai trò `Admin` để tránh spam hộp thư khi test và chuyển đổi tài khoản liên tục.
+
+
+
