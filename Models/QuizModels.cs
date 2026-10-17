@@ -43,7 +43,19 @@ namespace DoAnCS.Models
         public DateTime? CompletedAt { get; set; }
         public DateTime? Deadline { get; set; } // Hạn chót nộp bài từ server
         public int TotalTimeSeconds { get; set; } // Đề xuất: 90s/câu
+        public SkillDiagnosticDto? SkillDiagnostic { get; set; } // Chẩn đoán kỹ năng CV vs JD
         public List<PracticeQuizItemViewModel> Questions { get; set; } = new List<PracticeQuizItemViewModel>();
+    }
+
+    /// <summary>
+    /// DTO chứa thông tin chẩn đoán kỹ năng giữa hồ sơ ứng viên và tin tuyển dụng
+    /// </summary>
+    public class SkillDiagnosticDto
+    {
+        public string TargetMode { get; set; } = "cv"; // "cv" hoặc "jd"
+        public List<string> MatchedSkills { get; set; } = new List<string>();
+        public List<string> GapSkills { get; set; } = new List<string>(); // Kỹ năng JD yêu cầu nhưng chưa thấy trong CV
+        public string Summary { get; set; } = string.Empty;
     }
 
     /// <summary>
