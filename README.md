@@ -21,6 +21,11 @@ Dự án là sự kết hợp tối ưu giữa mô hình **Monolith** mạnh m�
 *   **Phân quyền chi tiết (Roles):** Quản lý luồng nghiệp vụ riêng biệt cho Ứng viên (Candidate), Nhà tuyển dụng (Recruiter), và Quản trị viên (Admin).
 *   **Gói hội viên Pro (Premium Services):** Tích hợp dịch vụ nâng cấp tài khoản Pro để mở khóa các mẫu CV cao cấp và tăng giới hạn tính năng.
 
+### 4. Mô Phỏng Phỏng Vấn STAR & Cố Vấn Tiếng Anh (Local AI Interview)
+*   **Phỏng vấn tình huống thích ứng:** Tự động phát hiện lỗ hổng kỹ năng (Skill Gaps) từ CV và Job tuyển dụng, đóng vai Tech Lead đặt câu hỏi đào sâu kỹ thuật bám sát cấu trúc STAR (*Situation, Task, Action, Result*).
+*   **Chấm điểm định lượng & English Polishing:** Đánh giá độc lập 4 trụ cột STAR (thang điểm 100), nhận diện số liệu định lượng và hỗ trợ viết lại câu trả lời sang Tiếng Anh chuyên nghiệp (kèm trích xuất Power Phrases).
+*   **Vận hành cục bộ bảo mật:** Sử dụng mô hình ngôn ngữ lớn chạy cục bộ (Qwen 2.5 qua Ollama) với tốc độ đạt ~80 tokens/s trên GPU cá nhân, tích hợp cơ chế dự phòng 3 tầng (Failover) an toàn tuyệt đối.
+
 ---
 
 ## 🗺️ Lộ Trình Phát Triển Hệ Thống (Development Roadmap)
@@ -121,6 +126,16 @@ pip install -r requirements.txt
 python main.py
 ```
 Dịch vụ gợi ý việc làm sẽ hoạt động tại địa chỉ: `http://127.0.0.1:8000` hoặc `http://localhost:8000`
+
+---
+
+### Bước 5: Chạy Mô Hình Local AI Phỏng Vấn (Ollama)
+Cài đặt [Ollama](https://ollama.com/) và tải mô hình ngôn ngữ lớn để kích hoạt tính năng phỏng vấn ảo STAR và English Polishing cục bộ:
+```bash
+# Tải và chạy mô hình Qwen 2.5 3B (hoặc 1.5B/7B tùy cấu hình VRAM)
+ollama run qwen2.5:3b
+```
+Dịch vụ Ollama sẽ chạy nền tại cổng: `http://localhost:11434`
 
 ---
 

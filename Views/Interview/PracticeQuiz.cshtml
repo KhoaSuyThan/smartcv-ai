@@ -1,20 +1,28 @@
-@model DoAnCS.Models.InterviewSession
+@model DoAnCS.Models.PracticeQuizViewModel
 @{
     ViewData["Title"] = "Trắc nghiệm chuyên môn AI";
-    var questions = Model.Messages.Where(m => m.Role == "interviewer").OrderBy(m => m.CreatedAt).ToList();
-    var candidateAnswers = Model.Messages.Where(m => m.Role == "candidate").OrderBy(m => m.CreatedAt).ToList();
     bool isCompleted = Model.Status == 1;
 }
 
 <div class="container py-4" style="min-height: 85vh;">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <a asp-action="Practice" class="btn btn-outline-secondary px-4 rounded-pill shadow-sm bg-white">
             <i class="fas fa-arrow-left me-2"></i> Quay lại
         </a>
         <div class="text-end">
-            <h5 class="fw-bold text-dark mb-0">Hồ sơ: <span class="text-primary">@Model.Resume?.Title</span></h5>
-            <small class="text-muted">Chế độ: Trắc nghiệm Chuyên môn</small>
+            <h5 class="fw-bold text-dark mb-0">Hồ sơ: <span class="text-primary">@Model.ResumeTitle</span></h5>
+            <div class="d-flex align-items-center justify-content-end gap-2 mt-1">
+                @if (!string.IsNullOrEmpty(Model.JobTitle))
+                {
+                    <span class="badge bg-secondary-subtle text-secondary border px-2 py-1 rounded-pill small">
+                        <i class="fas fa-briefcase me-1"></i> @Model.JobTitle
+                    </span>
+                }
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 rounded-pill small">
+                    <i class="fas fa-robot me-1"></i> @Model.AiProvider
+                </span>
+            </div>
         </div>
     </div>
 
@@ -40,85 +48,93 @@
     <div class="row g-4 justify-content-center">
         <div class="col-lg-10">
             <div class="card border-0 shadow-lg rounded-4 p-4 bg-white">
-                <h4 class="fw-bold text-dark mb-4 border-bottom pb-3">
-                    <i class="fas fa-file-signature text-primary me-2"></i> Đề thi trắc nghiệm (@questions.Count Câu hỏi)
-                </h4>
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
+                    <h4 class="fw-bold text-dark mb-0">
+                        <i class="fas fa-file-signature text-primary me-2"></i> Đề thi trắc nghiệm (@Model.Questions.Count Câu hỏi)
+                    </h4>
+                    @if (!isCompleted)
+                    {
+                        <div class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6 fw-normal d-flex align-items-center shadow-sm" id="quizTimerBadge">
+                            <i class="fas fa-stopwatch text-warning me-2" id="timerIcon"></i>
+                            <span>Thời gian còn lại: <strong id="countdownDisplay" class="text-primary font-monospace fs-5 ms-1">--:--</strong></span>
+                        </div>
+                    }
+                </div>
 
                 <form asp-controller="Interview" asp-action="SubmitQuizAnswer" asp-route-sessionId="@Model.SessionID" method="post" id="quizForm">
                     @Html.AntiForgeryToken()
 
-                    @{
-                        int qIndex = 1;
-                    }
-                    @foreach (var q in questions)
+                    @foreach (var q in Model.Questions)
                     {
-                        var options = new List<string>();
-                        if (!string.IsNullOrEmpty(q.ChoicesJson))
-                        {
-                            try
-                            {
-                                options = System.Text.Json.JsonSerializer.Deserialize<List<string>>(q.ChoicesJson);
-                            }
-                            catch { }
-                        }
-
-                        // Đáp án đúng của câu này
-                        string correctAns = q.SelectedAnswer;
-
-                        // Tìm câu trả lời tương ứng của ứng viên cho câu hỏi này
-                        // (Dựa trên thứ tự: câu trả lời thứ X ứng với câu hỏi thứ X)
-                        string candidateAns = "";
-                        string feedbackText = "";
-                        if (isCompleted && candidateAnswers.Count >= qIndex)
-                        {
-                            var matchedAnsMsg = candidateAnswers[qIndex - 1];
-                            candidateAns = matchedAnsMsg.SelectedAnswer;
-                            feedbackText = matchedAnsMsg.Feedback;
-                        }
-
                         <div class="mb-5 p-4 rounded-4 bg-light border border-light question-block">
+                            <!-- Tiêu đề câu hỏi & Badge chủ đề -->
                             <div class="d-flex align-items-start gap-2 mb-3">
                                 <span class="badge bg-primary rounded-circle px-3 py-2 fw-bold text-white fs-6">
-                                    @qIndex
+                                    @q.QuestionIndex
                                 </span>
-                                <h5 class="fw-bold text-dark mb-0 pt-1">@q.Content</h5>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h5 class="fw-bold text-dark mb-0 pt-1">@q.Question</h5>
+                                    </div>
+                                    @if (isCompleted && !string.IsNullOrEmpty(q.Topic))
+                                    {
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle px-2 py-0.5 rounded-pill small mt-1">
+                                            <i class="fas fa-tag me-1"></i> @q.Topic
+                                        </span>
+                                    }
+                                </div>
                             </div>
 
+                            <!-- 4 lựa chọn A, B, C, D -->
                             <div class="row g-3 mt-1">
-                                @foreach (var opt in options)
+                                @foreach (var opt in q.Options)
                                 {
-                                    // Trích xuất chữ cái đầu tiên (A, B, C, D)
                                     string optLetter = opt.Trim().Substring(0, 1).ToUpper();
 
-                                    // Xác định class CSS cho các đáp án nếu đã nộp bài
                                     string boxClass = "quiz-option-box border bg-white p-3 rounded-3 transition-hover";
                                     string iconHtml = "";
 
                                     if (isCompleted)
                                     {
-                                        if (optLetter == correctAns)
+                                        if (q.IsCorrect.HasValue)
                                         {
-                                            boxClass += " border-success bg-success-light text-success fw-bold";
-                                            iconHtml = "<i class=\"fas fa-check-circle ms-auto text-success fs-5\"></i>";
-                                        }
-                                        else if (optLetter == candidateAns)
-                                        {
-                                            boxClass += " border-danger bg-danger-light text-danger fw-bold";
-                                            iconHtml = "<i class=\"fas fa-times-circle ms-auto text-danger fs-5\"></i>";
+                                            if (optLetter == q.CorrectAnswer)
+                                            {
+                                                boxClass += " border-success bg-success-light text-success fw-bold";
+                                                iconHtml = "<i class=\"fas fa-check-circle ms-auto text-success fs-5\"></i>";
+                                            }
+                                            else if (optLetter == q.CandidateAnswer)
+                                            {
+                                                boxClass += " border-danger bg-danger-light text-danger fw-bold";
+                                                iconHtml = "<i class=\"fas fa-times-circle ms-auto text-danger fs-5\"></i>";
+                                            }
+                                            else
+                                            {
+                                                boxClass += " opacity-60";
+                                            }
                                         }
                                         else
                                         {
-                                            boxClass += " opacity-60";
+                                            // Bài thi quá hạn không công nhận kết quả: Chỉ hiển thị lựa chọn của ứng viên, không để lộ đáp án đúng
+                                            if (optLetter == q.CandidateAnswer)
+                                            {
+                                                boxClass += " border-secondary bg-light text-dark fw-bold";
+                                                iconHtml = "<span class=\"badge bg-secondary ms-auto\">Lựa chọn của bạn</span>";
+                                            }
+                                            else
+                                            {
+                                                boxClass += " opacity-60";
+                                            }
                                         }
                                     }
 
                                     <div class="col-md-6">
                                         <label class="w-100 m-0">
                                             <input type="radio" name="answers[@q.MessageID]" value="@optLetter" class="quiz-option-input" 
-                                                   required @(isCompleted ? "disabled" : "") @(isCompleted && candidateAns == optLetter ? "checked" : "") />
+                                                   required @(isCompleted ? "disabled" : "") @(isCompleted && q.CandidateAnswer == optLetter ? "checked" : "") />
                                             <div class="@boxClass d-flex align-items-center">
                                                 <span class="option-indicator me-2 fw-bold bg-light rounded-circle text-center">@optLetter</span>
-                                                <span class="small">@opt.Substring(opt.IndexOf('.') + 1).Trim()</span>
+                                                <span class="small">@(opt.Contains('.') ? opt.Substring(opt.IndexOf('.') + 1).Trim() : opt)</span>
                                                 @Html.Raw(iconHtml)
                                             </div>
                                         </label>
@@ -126,16 +142,53 @@
                                 }
                             </div>
 
-                            @if (isCompleted && !string.IsNullOrEmpty(feedbackText))
+                            <!-- Nhận xét đúng/sai & Lời giải thích chuyên sâu sau khi nộp bài -->
+                            @if (isCompleted)
                             {
-                                <div class="mt-3 p-3 rounded-3 @(candidateAns == correctAns ? "bg-success-light text-success" : "bg-danger-light text-danger") small fw-medium">
-                                    <i class="@(candidateAns == correctAns ? "fas fa-check-circle" : "fas fa-times-circle") me-1"></i>
-                                    Kết quả của bạn: @feedbackText
-                                </div>
+                                @if (q.IsCorrect.HasValue)
+                                {
+                                    <div class="mt-3 p-3 rounded-3 @(q.IsCorrect == true ? "bg-success-light text-success border border-success-subtle" : "bg-danger-light text-danger border border-danger-subtle") small fw-medium">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="@(q.IsCorrect == true ? "fas fa-check-circle fs-5" : "fas fa-times-circle fs-5")"></i>
+                                            <div>
+                                                @if (q.IsCorrect == true)
+                                                {
+                                                    <span><strong>Chính xác!</strong> Bạn đã chọn đáp án @q.CandidateAnswer.</span>
+                                                }
+                                                else
+                                                {
+                                                    <span><strong>Chưa chính xác.</strong> Lựa chọn của bạn: <strong>@(string.IsNullOrEmpty(q.CandidateAnswer) ? "Bỏ trống" : q.CandidateAnswer)</strong>. Đáp án chuẩn xác là: <strong>@q.CorrectAnswer</strong>.</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="mt-3 p-3 rounded-3 bg-secondary-subtle text-secondary border border-secondary-subtle small fw-medium">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-ban fs-5"></i>
+                                            <div>
+                                                <span><strong>Không chấm điểm:</strong> Câu trả lời không được công nhận do bài thi nộp quá thời gian quy định.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrEmpty(q.Explanation))
+                                {
+                                    <div class="mt-2 p-3 rounded-3 explanation-box">
+                                        <div class="d-flex align-items-start gap-2">
+                                            <i class="fas fa-lightbulb text-warning mt-1"></i>
+                                            <div class="small">
+                                                <strong class="text-primary d-block mb-1">💡 Giải thích từ Tech Lead:</strong>
+                                                <span class="text-secondary">@q.Explanation</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             }
                         </div>
-
-                        qIndex++;
                     }
 
                     @if (!isCompleted)
@@ -206,10 +259,16 @@
         box-shadow: 0 4px 6px rgba(15, 23, 42, 0.015);
     }
 
+    .explanation-box {
+        background-color: #f8fafc;
+        border-left: 3px solid #0d6efd;
+    }
+
     /* Hỗ trợ Dark Mode cho các tùy chọn trắc nghiệm */
     [data-bs-theme="dark"] .quiz-option-box {
         border-color: #334155 !important;
         color: #cbd5e1 !important;
+        background-color: #1e293b !important;
     }
     [data-bs-theme="dark"] .option-indicator {
         background-color: #334155 !important;
@@ -238,12 +297,80 @@
     [data-bs-theme="dark"] .text-danger {
         color: #f87171 !important;
     }
+    [data-bs-theme="dark"] .question-block {
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .explanation-box {
+        background-color: #1e293b !important;
+        border-left-color: #38bdf8;
+    }
+    [data-bs-theme="dark"] .explanation-box .text-secondary {
+        color: #cbd5e1 !important;
+    }
+    [data-bs-theme="dark"] .card.bg-white {
+        background-color: #0f172a !important;
+    }
+    [data-bs-theme="dark"] .text-dark {
+        color: #f8fafc !important;
+    }
 </style>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Confirm when submit quiz
+            var isCompleted = @(isCompleted ? "true" : "false");
+
+            if (!isCompleted) {
+                // Khởi tạo thời gian đếm ngược từ Server Deadline hoặc TotalTimeSeconds
+                var deadlineRaw = "@(Model.Deadline.HasValue ? Model.Deadline.Value.ToString("o") : "")";
+                var totalSeconds = @Model.TotalTimeSeconds;
+                var targetEndTime = null;
+
+                if (deadlineRaw) {
+                    targetEndTime = new Date(deadlineRaw).getTime();
+                } else {
+                    targetEndTime = Date.now() + (totalSeconds * 1000);
+                }
+
+                function updateCountdown() {
+                    var now = Date.now();
+                    var diffMs = targetEndTime - now;
+                    var remainingSeconds = Math.max(0, Math.floor(diffMs / 1000));
+
+                    var mins = Math.floor(remainingSeconds / 60);
+                    var secs = remainingSeconds % 60;
+                    var formatted = (mins < 10 ? "0" + mins : mins) + ":" + (secs < 10 ? "0" + secs : secs);
+
+                    var displayEl = $('#countdownDisplay');
+                    displayEl.text(formatted);
+
+                    if (remainingSeconds <= 60) {
+                        displayEl.removeClass('text-primary').addClass('text-danger fw-bold');
+                        $('#timerIcon').removeClass('text-warning').addClass('text-danger');
+                    }
+
+                    if (remainingSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        displayEl.text("00:00");
+                        
+                        // Tự động nộp bài khi hết thời gian quy định
+                        var btn = $('.btn-submit-quiz');
+                        btn.prop('disabled', true);
+                        btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Hết giờ! Đang tự động nộp bài...');
+                        
+                        // Hủy event confirmation và trực tiếp submit form
+                        $('#quizForm').off('submit');
+                        $('#quizForm')[0].submit();
+                    }
+                }
+
+                // Cập nhật ngay lập tức và đặt interval 1 giây
+                updateCountdown();
+                var timerInterval = setInterval(updateCountdown, 1000);
+            }
+
+            // Xác nhận khi nộp bài thủ công
             $('#quizForm').on('submit', function (e) {
                 if (!confirm("Bạn có chắc chắn muốn nộp bài thi trắc nghiệm này?")) {
                     e.preventDefault();
@@ -252,7 +379,7 @@
                 
                 var btn = $('.btn-submit-quiz');
                 btn.prop('disabled', true);
-                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Đang nộp bài...');
+                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Đang nộp bài & chấm điểm...');
             });
         });
     </script>

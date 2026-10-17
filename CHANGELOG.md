@@ -5,6 +5,19 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ---
 
+## [2026-10-17] - Hoàn thiện Tính năng Trắc nghiệm Chuyên môn AI & Sửa Lỗi Nghiệp vụ
+
+- **Kiểm soát Quyền Truy cập JD Tuyển dụng (`InterviewController.cs`):** Chỉ cho phép nạp dữ liệu JD khi tin tuyển dụng đang mở công khai (`Status == 1`) hoặc ứng viên đã nộp đơn ứng tuyển trước đó; từ chối và triệt tiêu các Job ID nháp, ẩn hoặc không thuộc quyền xem.
+- **Khắc phục Triệt để Lỗi Lệch Đáp án & Kiểm tra Nhất quán Ngữ nghĩa Chéo (`InterviewController.cs`):** Bóc tách chính xác nhãn gốc A, B, C, D từ từng phần tử và sắp xếp lại mảng đúng thứ tự nhãn; tích hợp cơ chế Cross-Consistency Check đối soát trực tiếp nhãn đáp án trong `explanation` với `correctAnswer` (tự động loại bỏ câu hỏi nếu phát hiện mâu thuẫn), ngăn chặn triệt để hiện tượng chấm sai.
+- **Nâng cấp Thuật toán Phân loại Chuyên ngành Domain-Aware Cho Ngân hàng Đề (`InterviewController.cs`):** Phân tích và chấm điểm tương quan cho 4 khối chuyên môn lớn (Frontend, Backend, Database, DevOps/Security); ưu tiên câu hỏi thuộc chuyên ngành trọng tâm bám sát hồ sơ ứng viên kết hợp câu hỏi nền tảng chung và xáo trộn ngẫu nhiên.
+- **Tách Biệt Xử Lý Quá Hạn & Bảo Mật Đáp Án (`InterviewController.cs`, `PracticeQuiz.cshtml`):** Nếu bài thi nộp quá hạn, hệ thống chỉ lưu vết lựa chọn nhưng tuyệt đối không chấm điểm từng câu (`Score = 0`, Feedback trung tính), không đối chiếu Đúng/Sai trong DB, và ẩn toàn bộ đáp án đúng trên giao diện kết quả.
+- **Nâng Cấp Ẩn Danh Hóa Đa Tầng & Khử Description Khỏi JD (`InterviewController.cs`):** Loại bỏ hoàn toàn trường Description khỏi JD khi tạo đề trắc nghiệm; nâng cấp hàm `MinimizeCvAndJobContext` với bộ lọc đa tầng khử tên công ty/tập đoàn, tên trường đại học, họ tên người Việt, danh xưng nhân sự, địa chỉ, mức lương, URL, email và SĐT.
+- **Chuẩn hóa Validator Trắc nghiệm AI (`InterviewController.cs`):** Loại bỏ hoàn toàn lỗi tự gán đáp án sai thành "A"; kiểm tra nghiêm ngặt `correctAnswer` thuộc ['A', 'B', 'C', 'D'] (reject câu lỗi nếu sai); xác thực đủ 4 options phân biệt không trùng lặp và chuẩn hóa nhãn theo đúng thứ tự.
+- **Tách biệt Triệt để Nguồn Phỏng vấn "Theo CV" & "Theo JD" (`InterviewController.cs`, `Practice.cshtml`):** Ngăn chặn hoàn toàn việc tự ý gán `JobID` khi người dùng chọn "Theo CV", đảm bảo đề thi 100% bám sát chuyên môn trong hồ sơ ứng viên.
+- **Bảo toàn Toàn vẹn Dữ liệu Bằng Database Transaction (`InterviewController.cs`):** Bọc toàn bộ quy trình khởi tạo phiên thi, sinh câu hỏi và nộp bài trong `BeginTransactionAsync` / `CommitAsync` / `RollbackAsync`, không để lại session dở dang nếu có lỗi.
+- Tạo bản trình bày 7 slide, bổ sung ghi chú thuyết trình và kế hoạch 12 tuần.
+- Bổ sung tính năng Phỏng vấn STAR và hướng dẫn chạy Local AI (Ollama) vào `README.md`.
+
 ## [2026-10-13] - Tinh gọn Thanh Header Phòng Chat & Chuẩn hóa Giãn Đoạn Câu hỏi AI
 
 ### Enhanced & Optimized
@@ -69,9 +82,6 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 ### Added & Documented
 - **Nhúng Sơ đồ Kiến trúc vào `ROADMAP.md`:** Tích hợp sơ đồ Mermaid trực quan hóa 5 khối cốt lõi (Hệ thống ứng dụng, Dữ liệu & AI hỗ trợ, Huấn luyện cục bộ LLaMA/Sentence-Transformers, Đánh giá Benchmark NCKH > 80%, và Dịch vụ suy luận nội bộ AiMatchService) kèm bảng giải trình chi tiết kỹ thuật.
 - **Dọn dẹp tệp đồ họa phụ:** Đã hoàn tất việc trích xuất và lưu giữ sơ đồ vào `ROADMAP.md`, loại bỏ tệp tạm `SmartCV_Architecture_Diagram.drawio` theo yêu cầu nhằm tinh gọn thư mục gốc.
-
-
-
 
 ### Added & Documented
 - **Khởi tạo tệp `ROADMAP.md`:** Xây dựng lộ trình kỹ thuật chi tiết 12 tuần (3 tháng) cho hệ thống theo kiến trúc Khung AI đa mô hình chạy cục bộ (Local Multi-Model AI Framework). Bao gồm 5 trụ cột kỹ thuật: Chuẩn hóa & ẩn danh hóa PII, Động cơ lọc CV ngữ nghĩa siêu tốc với Vector Cache, Động cơ phân tích năng lực chuẩn ATS chạy mô hình cục bộ, Phòng phỏng vấn ảo tình huống STAR tích hợp trợ lý sửa lỗi Tiếng Anh, và Đóng gói toàn bộ cụm microservices chạy 100% offline bằng Docker Compose.
@@ -323,3 +333,6 @@ Các thay đổi mới nhất sẽ luôn được đưa lên đầu file.
 
 ### Security
 - Tắt tính năng tự động gửi email cảnh báo bảo mật khi đăng nhập đối với tài khoản vai trò `Admin` để tránh spam hộp thư khi test và chuyển đổi tài khoản liên tục.
+
+
+
