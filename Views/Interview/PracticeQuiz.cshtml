@@ -4,7 +4,7 @@
     bool isCompleted = Model.Status == 1;
 }
 
-<div class="container py-4" style="min-height: 85vh;">
+<div class="container-fluid px-lg-5 py-4" style="min-height: 85vh;">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <a asp-action="Practice" class="btn btn-outline-secondary px-4 rounded-pill shadow-sm bg-white">
@@ -26,28 +26,222 @@
         </div>
     </div>
 
+    <!-- GIAI ĐOẠN 2: Banner Chẩn đoán Kỹ năng (Skill Gap Diagnostic) nếu có -->
+    @if (Model.SkillDiagnostic != null && Model.SkillDiagnostic.TargetMode == "jd")
+    {
+        <div class="card border-0 shadow-sm rounded-4 mb-4 p-4 diagnostic-card" 
+             style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.05) 0%, rgba(20, 184, 166, 0.07) 100%); border-left: 4px solid #0d6efd !important;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                <span class="badge bg-primary text-white px-3 py-1.5 rounded-pill small fw-bold">
+                    <i class="fas fa-microscope me-1"></i> Chẩn đoán Kỹ năng Theo JD (AI Diagnostic)
+                </span>
+                <span class="text-secondary small">
+                    <i class="fas fa-bullseye me-1 text-primary"></i> Đề thi tối ưu hóa theo yêu cầu tuyển dụng
+                </span>
+            </div>
+            <p class="mb-3 text-secondary small">@Model.SkillDiagnostic.Summary</p>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                @if (Model.SkillDiagnostic.MatchedSkills.Any())
+                {
+                    <span class="small fw-bold text-dark me-1">Khớp hồ sơ:</span>
+                    @foreach (var s in Model.SkillDiagnostic.MatchedSkills)
+                    {
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill small">
+                            <i class="fas fa-check-circle me-1"></i> @s
+                        </span>
+                    }
+                }
+                @if (Model.SkillDiagnostic.GapSkills.Any())
+                {
+                    <span class="small fw-bold text-dark ms-2 me-1">Trọng tâm kiểm chứng:</span>
+                    @foreach (var s in Model.SkillDiagnostic.GapSkills)
+                    {
+                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-2.5 py-1 rounded-pill small" title="Chưa thấy đề cập trong CV - Đề thi tập trung đánh giá">
+                            <i class="fas fa-search me-1 text-warning"></i> @s (JD Focus)
+                        </span>
+                    }
+                }
+            </div>
+        </div>
+    }
+
     @if (isCompleted)
     {
-        <!-- Banner Kết Quả khi đã Hoàn thành -->
-        <div class="card border-0 shadow-lg rounded-4 p-4 mb-5 text-center position-relative overflow-hidden text-white" 
+        <!-- GIAI ĐOẠN 4: Dashboard Phân Tích Kết Quả & Tư Vấn Chuyên Môn Toàn Diện -->
+        <div class="card border-0 shadow-lg rounded-4 p-4 mb-4 text-center position-relative overflow-hidden text-white" 
              style="background: linear-gradient(135deg, #1e3a8a 0%, #0d9488 100%);">
             <div class="position-absolute top-0 end-0 opacity-10" style="font-size: 10rem; transform: translate(10%, -10%);">
                 <i class="fas fa-medal"></i>
             </div>
             <div class="position-relative" style="z-index: 1;">
-                <span class="badge bg-warning text-dark fw-bold mb-3 px-3 py-2 rounded-pill text-uppercase" style="font-size: 0.8rem;">
-                    Kết quả làm bài
+                <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1.5 rounded-pill text-uppercase" style="font-size: 0.8rem;">
+                    Báo cáo kết quả bài thi
                 </span>
-                <h1 class="display-3 fw-extrabold mb-1">@Model.OverallScore<span style="font-size: 1.5rem;">/100</span></h1>
-                <p class="lead mb-3">@Model.AiEvaluation</p>
-                <a asp-action="Practice" class="btn btn-warning rounded-pill px-4 fw-bold">Luyện phiên mới</a>
+                <h1 class="display-3 fw-extrabold mb-1">
+                    @(Model.OverallScore ?? 0)<span style="font-size: 1.5rem;">/100</span>
+                </h1>
+                <p class="lead mb-3 text-light opacity-90 mx-auto" style="max-width: 720px;">
+                    @Model.AiEvaluation
+                </p>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a asp-action="Practice" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+                        <i class="fas fa-redo me-1"></i> Luyện phiên mới
+                    </a>
+                    <a href="#questionsContainer" class="btn btn-outline-light rounded-pill px-4 fw-bold">
+                        <i class="fas fa-list-check me-1"></i> Xem lại chi tiết từng câu
+                    </a>
+                </div>
             </div>
         </div>
+
+        @if (Model.ResultSummary != null)
+        {
+            <!-- 4 Thẻ Chỉ Số Đo Lường Nhanh (KPI Scorecards) -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center h-100">
+                        <div class="text-success mb-1" style="font-size: 1.8rem;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0">@Model.ResultSummary.CorrectCount/@Model.ResultSummary.TotalQuestions</h4>
+                        <span class="small text-secondary">Câu trả lời đúng</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center h-100">
+                        <div class="text-danger mb-1" style="font-size: 1.8rem;">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0">@Model.ResultSummary.WrongCount</h4>
+                        <span class="small text-secondary">Câu chưa chính xác</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center h-100">
+                        <div class="text-secondary mb-1" style="font-size: 1.8rem;">
+                            <i class="fas fa-minus-circle"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0">@Model.ResultSummary.SkippedCount</h4>
+                        <span class="small text-secondary">Câu bỏ trống</span>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center h-100">
+                        <div class="text-primary mb-1" style="font-size: 1.8rem;">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-0">@Model.ResultSummary.DurationFormatted</h4>
+                        <span class="small text-secondary">Thời gian làm bài</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (Model.ResultSummary.IsOverdue)
+            {
+                <div class="alert alert-warning border-0 shadow-sm rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
+                    <i class="fas fa-hourglass-half text-warning fs-3"></i>
+                    <div>
+                        <strong class="d-block text-dark">Bài thi được tự động nộp khi hết thời gian:</strong>
+                        <span class="small text-secondary">Hệ thống đã lưu lại kết quả những câu bạn đã làm và tính 0 điểm cho những câu chưa kịp chọn.</span>
+                    </div>
+                </div>
+            }
+
+            <!-- Dashboard Tư Vấn Chuyên Môn & Phân Tích Lỗ Hổng Kiến Thức -->
+            <div class="row g-4 mb-5">
+                    <!-- Cột Trái: Phân tích Năng lực theo Chủ đề (Topic Breakdown) -->
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-chart-pie text-primary me-2"></i> Đánh giá theo Chuyên đề
+                            </h5>
+                            @if (Model.ResultSummary.TopicStats.Any())
+                            {
+                                <div class="d-flex flex-column gap-3">
+                                    @foreach (var t in Model.ResultSummary.TopicStats)
+                                    {
+                                        string barColor = t.Percentage >= 75 ? "bg-success" : (t.Percentage >= 50 ? "bg-warning" : "bg-danger");
+                                        <div>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="small fw-bold text-dark">@t.Topic</span>
+                                                <span class="badge @(t.Percentage >= 75 ? "bg-success-subtle text-success border border-success-subtle" : "bg-danger-subtle text-danger border border-danger-subtle") rounded-pill">
+                                                    @t.Correct/@t.Total câu (@t.Percentage%)
+                                                </span>
+                                            </div>
+                                            <div class="progress" style="height: 8px; border-radius: 4px; background-color: #f1f5f9;">
+                                                <div class="progress-bar @barColor rounded-pill" role="progressbar" style="width: @t.Percentage%;" aria-valuenow="@t.Percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="text-secondary small mb-0">Không có dữ liệu phân loại chủ đề cho phiên này.</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Cột Phải: Lộ Trình & Khuyến Nghị Ôn Tập (Learning Roadmap) -->
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                            <h5 class="fw-bold text-dark mb-3">
+                                <i class="fas fa-lightbulb text-warning me-2"></i> Lộ trình Ôn tập Cá nhân hóa
+                            </h5>
+
+                            @if (Model.ResultSummary.Strengths.Any())
+                            {
+                                <div class="mb-3">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1 rounded-pill small mb-2">
+                                        <i class="fas fa-shield-alt me-1"></i> Kỹ năng vững vàng
+                                    </span>
+                                    <div class="d-flex flex-wrap gap-1.5 mt-1">
+                                        @foreach (var str in Model.ResultSummary.Strengths)
+                                        {
+                                            <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill small">@str</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            @if (Model.ResultSummary.Weaknesses.Any())
+                            {
+                                <div class="mb-3">
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1 rounded-pill small mb-2">
+                                        <i class="fas fa-exclamation-circle me-1"></i> Kiến thức cần củng cố
+                                    </span>
+                                    <div class="d-flex flex-wrap gap-1.5 mt-1">
+                                        @foreach (var w in Model.ResultSummary.Weaknesses)
+                                        {
+                                            <span class="badge bg-danger-light text-danger border border-danger-subtle px-2.5 py-1 rounded-pill small">@w</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="mt-2 pt-2 border-top">
+                                <strong class="small text-secondary d-block mb-2">💡 Khuyến nghị hành động từ Tech Lead:</strong>
+                                <ul class="list-unstyled mb-0 small text-secondary d-flex flex-column gap-2">
+                                    @foreach (var rec in Model.ResultSummary.Recommendations)
+                                    {
+                                        <li class="d-flex align-items-start gap-2">
+                                            <i class="fas fa-check text-primary mt-1"></i>
+                                            <span>@rec</span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        }
     }
 
-    <div class="row g-4 justify-content-center">
-        <div class="col-lg-10">
-            <div class="card border-0 shadow-lg rounded-4 p-4 bg-white">
+    <!-- GIAI ĐOẠN 3: Bố cục 2 Cột (Master-Detail Split View) -->
+    <div class="row g-4">
+        <!-- Cột Trái: Danh sách Câu hỏi (Question List) -->
+        <div class="col-lg-8 col-xl-9">
+            <div class="card border-0 shadow-lg rounded-4 p-4 bg-white" id="questionsContainer">
                 <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3 flex-wrap gap-2">
                     <h4 class="fw-bold text-dark mb-0">
                         <i class="fas fa-file-signature text-primary me-2"></i> Đề thi trắc nghiệm (@Model.Questions.Count Câu hỏi)
@@ -66,10 +260,10 @@
 
                     @foreach (var q in Model.Questions)
                     {
-                        <div class="mb-5 p-4 rounded-4 bg-light border border-light question-block">
+                        <div class="mb-5 p-4 rounded-4 bg-light border border-light question-block" id="question-block-@q.QuestionIndex" data-qindex="@q.QuestionIndex">
                             <!-- Tiêu đề câu hỏi & Badge chủ đề -->
                             <div class="d-flex align-items-start gap-2 mb-3">
-                                <span class="badge bg-primary rounded-circle px-3 py-2 fw-bold text-white fs-6">
+                                <span class="badge bg-primary rounded-circle px-3 py-2 fw-bold text-white fs-6 question-index-badge">
                                     @q.QuestionIndex
                                 </span>
                                 <div class="flex-grow-1">
@@ -115,7 +309,7 @@
                                         }
                                         else
                                         {
-                                            // Bài thi quá hạn không công nhận kết quả: Chỉ hiển thị lựa chọn của ứng viên, không để lộ đáp án đúng
+                                            // Bài thi quá hạn: Không hiển thị đúng/sai, chỉ hiện lựa chọn của thí sinh
                                             if (optLetter == q.CandidateAnswer)
                                             {
                                                 boxClass += " border-secondary bg-light text-dark fw-bold";
@@ -130,8 +324,15 @@
 
                                     <div class="col-md-6">
                                         <label class="w-100 m-0">
-                                            <input type="radio" name="answers[@q.MessageID]" value="@optLetter" class="quiz-option-input" 
-                                                   required @(isCompleted ? "disabled" : "") @(isCompleted && q.CandidateAnswer == optLetter ? "checked" : "") />
+                                            <input type="radio" 
+                                                   name="answers[@q.MessageID]" 
+                                                   value="@optLetter" 
+                                                   class="quiz-option-input" 
+                                                   data-qindex="@q.QuestionIndex"
+                                                   data-msgid="@q.MessageID"
+                                                   required 
+                                                   @(isCompleted ? "disabled" : "") 
+                                                   @(isCompleted && q.CandidateAnswer == optLetter ? "checked" : "") />
                                             <div class="@boxClass d-flex align-items-center">
                                                 <span class="option-indicator me-2 fw-bold bg-light rounded-circle text-center">@optLetter</span>
                                                 <span class="small">@(opt.Contains('.') ? opt.Substring(opt.IndexOf('.') + 1).Trim() : opt)</span>
@@ -142,7 +343,7 @@
                                 }
                             </div>
 
-                            <!-- Nhận xét đúng/sai & Lời giải thích chuyên sâu sau khi nộp bài -->
+                            <!-- Nhận xét đúng/sai & Lời giải thích sau khi nộp bài -->
                             @if (isCompleted)
                             {
                                 @if (q.IsCorrect.HasValue)
@@ -194,12 +395,177 @@
                     @if (!isCompleted)
                     {
                         <div class="text-center mt-5">
-                            <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold btn-submit-quiz">
+                            <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm fw-bold btn-trigger-submit">
                                 <i class="fas fa-paper-plane me-2"></i> Nộp bài làm trắc nghiệm
                             </button>
                         </div>
                     }
                 </form>
+            </div>
+        </div>
+
+        <!-- Cột Phải: Bảng màu Điều hướng Câu hỏi (Question Palette & Progress Sidebar) -->
+        <div class="col-lg-4 col-xl-3">
+            <div class="position-sticky" style="top: 24px; z-index: 10;">
+                <div class="card border-0 shadow-lg rounded-4 p-4 bg-white" id="paletteCard">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold text-dark mb-0">
+                            <i class="fas fa-th me-2 text-primary"></i> Bảng câu hỏi
+                        </h6>
+                        <span class="badge bg-light text-dark border px-2 py-1 rounded-pill small" id="paletteAnsweredCount">
+                            0/@Model.Questions.Count câu
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress mb-3" style="height: 8px; border-radius: 6px; background-color: #f1f5f9;">
+                        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" id="quizProgressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+
+                    <!-- Grid Palette Buttons -->
+                    <div class="d-grid gap-2 mb-3" style="grid-template-columns: repeat(5, 1fr); display: grid;">
+                        @foreach (var q in Model.Questions)
+                        {
+                            string btnClass = "btn-outline-secondary";
+                            string statusIcon = "";
+                            if (isCompleted)
+                            {
+                                if (q.IsCorrect == true)
+                                {
+                                    btnClass = "btn-success text-white";
+                                    statusIcon = "<i class=\"fas fa-check position-absolute\" style=\"font-size: 0.6rem; top: 3px; right: 3px;\"></i>";
+                                }
+                                else if (q.IsCorrect == false)
+                                {
+                                    btnClass = "btn-danger text-white";
+                                    statusIcon = "<i class=\"fas fa-times position-absolute\" style=\"font-size: 0.6rem; top: 3px; right: 3px;\"></i>";
+                                }
+                                else
+                                {
+                                    btnClass = "btn-secondary text-white";
+                                }
+                            }
+                            <button type="button" 
+                                    class="palette-btn btn btn-sm @btnClass rounded-3 py-2 fw-bold position-relative" 
+                                    id="palette-btn-@q.QuestionIndex" 
+                                    data-qindex="@q.QuestionIndex"
+                                    title="Chuyển đến câu @q.QuestionIndex">
+                                @q.QuestionIndex
+                                @Html.Raw(statusIcon)
+                            </button>
+                        }
+                    </div>
+
+                    <!-- Legend Chú thích Phân Biệt Theo Phiên Thi -->
+                    @if (isCompleted)
+                    {
+                        <div class="d-flex justify-content-between align-items-center small text-secondary pt-2 border-top flex-wrap gap-1">
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-success" style="width: 10px; height: 10px;"></span> Đúng
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-danger" style="width: 10px; height: 10px;"></span> Sai
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-secondary" style="width: 10px; height: 10px;"></span> Bỏ trống
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-warning" style="width: 10px; height: 10px; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.45);"></span> Đang xem
+                            </span>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-between align-items-center small text-secondary pt-2 border-top">
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-success" style="width: 10px; height: 10px;"></span> Đã làm
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-secondary-subtle border" style="width: 10px; height: 10px;"></span> Chưa làm
+                            </span>
+                            <span class="d-flex align-items-center gap-1">
+                                <span class="d-inline-block rounded-circle bg-warning" style="width: 10px; height: 10px; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.45);"></span> Đang xem
+                            </span>
+                        </div>
+                    }
+
+                    @if (!isCompleted)
+                    {
+                        <hr class="my-3 opacity-20">
+                        <button type="button" class="btn btn-primary w-100 rounded-pill py-2.5 fw-bold shadow-sm btn-trigger-submit">
+                            <i class="fas fa-paper-plane me-1"></i> Nộp bài thi
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xác Nhận Nộp Bài (Chỉ mở khi đã làm đủ 100% câu hỏi) -->
+<div class="modal fade" id="submitConfirmModal" tabindex="-1" aria-labelledby="submitConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4">
+            <div class="modal-header border-0 pb-0 justify-content-center">
+                <button type="button" class="btn-close position-absolute end-0 top-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-2 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: 3.8rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-2 text-dark">Bạn đã hoàn thành đủ @Model.Questions.Count/@Model.Questions.Count câu hỏi!</h4>
+                <p class="text-secondary mb-4">
+                    Bạn có chắc chắn muốn nộp bài thi ngay bây giờ để hệ thống tiến hành chấm điểm và phân tích kết quả?
+                </p>
+            </div>
+            <div class="modal-footer border-0 pt-0 justify-content-center gap-2">
+                <button type="button" class="btn btn-outline-secondary px-4 rounded-pill" data-bs-dismiss="modal">
+                    Kiểm tra lại
+                </button>
+                <button type="button" class="btn btn-primary px-4 rounded-pill fw-bold shadow-sm" id="modalBtnConfirmSubmit">
+                    <i class="fas fa-paper-plane me-1"></i> Đồng ý nộp bài
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cảnh Báo Chưa Hoàn Thành Đủ Câu Hỏi (Không cho nộp bài khi còn câu bỏ trống) -->
+<div class="modal fade" id="unansweredWarningModal" tabindex="-1" aria-labelledby="unansweredWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4">
+            <div class="mb-3">
+                <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3.8rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2" id="unansweredWarningModalLabel">Chưa hoàn thành toàn bộ bài thi!</h4>
+            <p class="text-secondary mb-3">
+                Theo quy định, bạn bắt buộc phải chọn đáp án cho <strong>toàn bộ câu hỏi</strong> mới có thể nộp bài.<br>
+                Bạn hiện còn <strong id="warningUnansweredCount" class="text-danger fs-5"></strong> câu chưa làm: <span id="warningUnansweredList" class="fw-bold text-danger"></span>.
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" data-bs-dismiss="modal" id="btnContinueDoingQuiz">
+                    <i class="fas fa-arrow-right me-1"></i> Làm tiếp ngay
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thông Báo Hết Giờ (Time-Up Modal) -->
+<div class="modal fade" id="timeUpModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="timeUpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg text-center p-4">
+            <div class="mb-3">
+                <i class="fas fa-hourglass-end text-danger" style="font-size: 3.8rem;"></i>
+            </div>
+            <h4 class="fw-bold text-dark mb-2" id="timeUpModalLabel">Đã hết thời gian làm bài!</h4>
+            <p class="text-secondary mb-3">
+                Thời gian làm bài thi trắc nghiệm đã kết thúc.<br>
+                Hệ thống đang tự động lưu kết quả những câu bạn đã làm (các câu chưa làm được tính 0 điểm) và chuyển sang bảng điểm...
+            </p>
+            <div class="d-flex justify-content-center align-items-center gap-2 text-primary fw-bold">
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span>Đang nộp bài, vui lòng chờ trong giây lát...</span>
             </div>
         </div>
     </div>
@@ -257,6 +623,13 @@
 
     .question-block {
         box-shadow: 0 4px 6px rgba(15, 23, 42, 0.015);
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    /* Viền vàng riêng biệt cho câu đang xem trên màn hình làm bài */
+    .question-block.active-focus {
+        border-color: #f59e0b !important;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.2) !important;
     }
 
     .explanation-box {
@@ -264,19 +637,62 @@
         border-left: 3px solid #0d6efd;
     }
 
-    /* Hỗ trợ Dark Mode cho các tùy chọn trắc nghiệm */
-    [data-bs-theme="dark"] .quiz-option-box {
-        border-color: #334155 !important;
-        color: #cbd5e1 !important;
+    /* Question Palette Button Styling */
+    .palette-btn {
+        min-height: 38px;
+        transition: all 0.2s ease;
+    }
+    .palette-btn:hover {
+        transform: scale(1.06);
+    }
+    /* Viền vàng hổ phách nổi bật cho câu hỏi đang xem trong Question Palette */
+    .palette-btn.current-focus {
+        border: 2.5px solid #f59e0b !important;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.45) !important;
+        transform: scale(1.08);
+        font-weight: 800 !important;
+    }
+
+    /* ========================================================
+       HỖ TRỢ DARK MODE TOÀN DIỆN & SIÊU SẮC NÉT (DARK MODE FIX)
+       ======================================================== */
+    [data-bs-theme="dark"] .progress {
+        background-color: #334155 !important;
+    }
+    [data-bs-theme="dark"] .card {
         background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+    }
+    [data-bs-theme="dark"] .card.bg-white,
+    [data-bs-theme="dark"] #paletteCard,
+    [data-bs-theme="dark"] #questionsContainer {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+    }
+    [data-bs-theme="dark"] .question-block {
+        background-color: #0f172a !important;
+        border: 1px solid #334155 !important;
+    }
+    [data-bs-theme="dark"] .question-block.active-focus {
+        border-color: #f59e0b !important;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.35) !important;
+    }
+    [data-bs-theme="dark"] .quiz-option-box {
+        border: 1.5px solid #475569 !important;
+        color: #f8fafc !important;
+        background-color: #1e293b !important;
+    }
+    [data-bs-theme="dark"] .quiz-option-box:hover:not(.opacity-60) {
+        border-color: #38bdf8 !important;
+        background-color: #334155 !important;
     }
     [data-bs-theme="dark"] .option-indicator {
         background-color: #334155 !important;
-        color: #cbd5e1 !important;
+        color: #f8fafc !important;
     }
     [data-bs-theme="dark"] .quiz-option-input:checked + .quiz-option-box {
         border-color: #38bdf8 !important;
-        background-color: rgba(56, 189, 248, 0.1) !important;
+        background-color: rgba(56, 189, 248, 0.15) !important;
         color: #38bdf8 !important;
     }
     [data-bs-theme="dark"] .quiz-option-input:checked + .quiz-option-box .option-indicator {
@@ -284,12 +700,14 @@
         color: #0f172a !important;
     }
     [data-bs-theme="dark"] .bg-success-light {
-        background-color: rgba(34, 197, 94, 0.15) !important;
+        background-color: rgba(34, 197, 94, 0.18) !important;
         color: #4ade80 !important;
+        border-color: rgba(34, 197, 94, 0.4) !important;
     }
     [data-bs-theme="dark"] .bg-danger-light {
-        background-color: rgba(239, 68, 68, 0.15) !important;
+        background-color: rgba(239, 68, 68, 0.18) !important;
         color: #f87171 !important;
+        border-color: rgba(239, 68, 68, 0.4) !important;
     }
     [data-bs-theme="dark"] .text-success {
         color: #4ade80 !important;
@@ -297,41 +715,209 @@
     [data-bs-theme="dark"] .text-danger {
         color: #f87171 !important;
     }
-    [data-bs-theme="dark"] .question-block {
-        background-color: #0f172a !important;
-        border-color: #334155 !important;
+    [data-bs-theme="dark"] .text-primary {
+        color: #38bdf8 !important;
+    }
+    [data-bs-theme="dark"] .text-secondary {
+        color: #94a3b8 !important;
+    }
+    [data-bs-theme="dark"] .text-dark {
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .opacity-60 {
+        opacity: 0.85 !important;
     }
     [data-bs-theme="dark"] .explanation-box {
-        background-color: #1e293b !important;
-        border-left-color: #38bdf8;
+        background-color: #0f172a !important;
+        border: 1px solid #334155 !important;
+        border-left: 4px solid #38bdf8 !important;
     }
     [data-bs-theme="dark"] .explanation-box .text-secondary {
         color: #cbd5e1 !important;
     }
-    [data-bs-theme="dark"] .card.bg-white {
-        background-color: #0f172a !important;
+    [data-bs-theme="dark"] .explanation-box .text-primary {
+        color: #38bdf8 !important;
     }
-    [data-bs-theme="dark"] .text-dark {
+    [data-bs-theme="dark"] .badge.bg-light {
+        background-color: #334155 !important;
+        color: #f8fafc !important;
+        border: 1px solid #475569 !important;
+    }
+    [data-bs-theme="dark"] #quizTimerBadge {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .palette-btn.btn-outline-secondary {
+        color: #cbd5e1 !important;
+        border-color: #475569 !important;
+        background-color: #1e293b !important;
+    }
+    [data-bs-theme="dark"] .palette-btn.btn-outline-secondary:hover {
+        background-color: #334155 !important;
+        color: #ffffff !important;
+    }
+    [data-bs-theme="dark"] .diagnostic-card {
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.12) 0%, rgba(20, 184, 166, 0.15) 100%) !important;
+        border: 1px solid #334155 !important;
+        border-left: 4px solid #38bdf8 !important;
+    }
+    [data-bs-theme="dark"] .modal-content {
+        background-color: #1e293b !important;
+        border: 1px solid #334155 !important;
         color: #f8fafc !important;
     }
 </style>
 
 @section Scripts {
     <script>
-        $(document).ready(function () {
+        // Hàm khởi tạo toàn diện giao diện làm bài thi trắc nghiệm (Chạy an toàn sau khi toàn bộ script deferred như jQuery & Bootstrap đã nạp xong)
+        function initQuizPage() {
+            var $ = window.jQuery || window.$;
+            if (!$) {
+                console.warn("[SmartCV Quiz] Đang chờ jQuery nạp...");
+                setTimeout(initQuizPage, 100);
+                return;
+            }
+
             var isCompleted = @(isCompleted ? "true" : "false");
+            var sessionId = @Model.SessionID;
+            var totalQuestions = @Model.Questions.Count;
+            var storageKey = "smartcv_quiz_answers_" + sessionId;
 
-            if (!isCompleted) {
-                // Khởi tạo thời gian đếm ngược từ Server Deadline hoặc TotalTimeSeconds
-                var deadlineRaw = "@(Model.Deadline.HasValue ? Model.Deadline.Value.ToString("o") : "")";
-                var totalSeconds = @Model.TotalTimeSeconds;
-                var targetEndTime = null;
+            // Xóa triệt để draft lưu trong localStorage và sessionStorage nếu phiên thi đã hoàn thành
+            if (isCompleted) {
+                try {
+                    localStorage.removeItem(storageKey);
+                    sessionStorage.removeItem(storageKey);
+                } catch (e) { }
+            }
 
-                if (deadlineRaw) {
-                    targetEndTime = new Date(deadlineRaw).getTime();
-                } else {
-                    targetEndTime = Date.now() + (totalSeconds * 1000);
+            // Thiết lập trạng thái focus mặc định cho câu hỏi số 1
+            if (totalQuestions > 0) {
+                $('#question-block-1').addClass('active-focus');
+                $('#palette-btn-1').addClass('current-focus');
+            }
+
+            // 1. Quản lý Question Palette và Tiến độ làm bài
+            function updatePaletteState() {
+                var answeredCount = 0;
+                var currentAnswers = {};
+
+                for (var i = 1; i <= totalQuestions; i++) {
+                    var inputs = $('input[data-qindex="' + i + '"]');
+                    var checkedInput = inputs.filter(':checked');
+                    var btn = $('#palette-btn-' + i);
+
+                    if (checkedInput.length > 0) {
+                        answeredCount++;
+                        btn.removeClass('btn-outline-secondary').addClass('btn-success text-white');
+                        var msgId = checkedInput.data('msgid');
+                        currentAnswers[msgId] = checkedInput.val();
+                    } else {
+                        btn.removeClass('btn-success text-white').addClass('btn-outline-secondary');
+                    }
                 }
+
+                // Cập nhật text số câu đã làm
+                $('#paletteAnsweredCount').text(answeredCount + '/' + totalQuestions + ' câu');
+
+                // Cập nhật thanh tiến độ
+                var percent = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+                $('#quizProgressBar').css('width', percent + '%').attr('aria-valuenow', percent);
+
+                // Lưu tạm vào localStorage và sessionStorage để chống mất dữ liệu khi F5 hoặc thoát ra ngoài
+                if (!isCompleted) {
+                    try {
+                        var jsonStr = JSON.stringify(currentAnswers);
+                        localStorage.setItem(storageKey, jsonStr);
+                        sessionStorage.setItem(storageKey, jsonStr);
+                    } catch (e) { }
+                }
+
+                return {
+                    answeredCount: answeredCount,
+                    unansweredCount: totalQuestions - answeredCount
+                };
+            }
+
+            // 2. Tự động khôi phục câu trả lời từ localStorage / sessionStorage khi F5 hoặc quay lại trang
+            if (!isCompleted) {
+                try {
+                    var savedAnswersRaw = localStorage.getItem(storageKey) || sessionStorage.getItem(storageKey);
+                    if (savedAnswersRaw) {
+                        var savedAnswers = JSON.parse(savedAnswersRaw);
+                        if (savedAnswers && typeof savedAnswers === 'object') {
+                            Object.keys(savedAnswers).forEach(function (msgId) {
+                                var val = savedAnswers[msgId];
+                                var targetInput = $('input[name="answers[' + msgId + ']"][value="' + val + '"]');
+                                if (targetInput.length > 0 && !targetInput.is(':checked')) {
+                                    targetInput.prop('checked', true);
+                                }
+                            });
+                        }
+                    }
+                } catch (e) { }
+            }
+
+            // Cập nhật trạng thái Palette lần đầu
+            if (!isCompleted) {
+                updatePaletteState();
+            } else {
+                $('#quizProgressBar').css('width', '100%').attr('aria-valuenow', 100).removeClass('progress-bar-animated');
+                $('#paletteAnsweredCount').text(totalQuestions + '/' + totalQuestions + ' câu');
+            }
+
+            // Cập nhật câu hỏi đang xem khi người dùng chọn đáp án hoặc click vào khối câu hỏi
+            function setFocusQuestion(qIdx) {
+                if (!qIdx) return;
+                $('.question-block').removeClass('active-focus');
+                $('.palette-btn').removeClass('current-focus');
+                $('#question-block-' + qIdx).addClass('active-focus');
+                $('#palette-btn-' + qIdx).addClass('current-focus');
+            }
+
+            // Bắt sự kiện chọn đáp án (cả change trên radio và click trên option box)
+            $(document).on('change', '.quiz-option-input', function () {
+                var qIdx = $(this).data('qindex');
+                setFocusQuestion(qIdx);
+                updatePaletteState();
+            });
+
+            $(document).on('click', '.quiz-option-box', function () {
+                var radio = $(this).closest('label').find('.quiz-option-input');
+                if (radio.length > 0 && !radio.prop('disabled')) {
+                    var qIdx = radio.data('qindex');
+                    setFocusQuestion(qIdx);
+                    setTimeout(updatePaletteState, 30);
+                }
+            });
+
+            $(document).on('click', '.question-block', function () {
+                var idAttr = $(this).attr('id') || '';
+                var qIdx = idAttr.replace('question-block-', '');
+                if (qIdx) setFocusQuestion(qIdx);
+            });
+
+            // Cuộn mượt đến câu hỏi khi nhấp vào nút số trong Palette
+            $(document).on('click', '.palette-btn', function () {
+                var qIdx = $(this).data('qindex');
+                var targetBlock = $('#question-block-' + qIdx);
+                if (targetBlock.length > 0) {
+                    setFocusQuestion(qIdx);
+                    $('html, body').animate({
+                        scrollTop: targetBlock.offset().top - 100
+                    }, 350);
+                }
+            });
+
+            // 3. Quản lý Đếm ngược Thời gian thi (1 phút/câu, đếm chính xác theo Deadline từ Server)
+            if (!isCompleted) {
+                var initialRemainingSeconds = @Model.RemainingSeconds;
+                if (initialRemainingSeconds <= 0) {
+                    initialRemainingSeconds = @Model.TotalTimeSeconds;
+                }
+                var targetEndTime = Date.now() + (initialRemainingSeconds * 1000);
 
                 function updateCountdown() {
                     var now = Date.now();
@@ -354,33 +940,131 @@
                         clearInterval(timerInterval);
                         displayEl.text("00:00");
                         
-                        // Tự động nộp bài khi hết thời gian quy định
-                        var btn = $('.btn-submit-quiz');
+                        // Hết giờ: Xóa draft
+                        try {
+                            localStorage.removeItem(storageKey);
+                            sessionStorage.removeItem(storageKey);
+                        } catch (e) { }
+
+                        var btn = $('.btn-trigger-submit');
                         btn.prop('disabled', true);
                         btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Hết giờ! Đang tự động nộp bài...');
-                        
-                        // Hủy event confirmation và trực tiếp submit form
-                        $('#quizForm').off('submit');
-                        $('#quizForm')[0].submit();
+                        $('.quiz-option-input').prop('disabled', true);
+
+                        // Mở Modal Thông Báo Hết Giờ để người dùng nắm rõ lý do nộp bài
+                        var timeUpModalEl = document.getElementById('timeUpModal');
+                        if (timeUpModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                            var timeUpModal = bootstrap.Modal.getInstance(timeUpModalEl) || new bootstrap.Modal(timeUpModalEl);
+                            timeUpModal.show();
+                        }
+
+                        // Tự động nộp form sau 1.2 giây
+                        setTimeout(function () {
+                            $('#quizForm')[0].submit();
+                        }, 1200);
                     }
                 }
 
-                // Cập nhật ngay lập tức và đặt interval 1 giây
                 updateCountdown();
                 var timerInterval = setInterval(updateCountdown, 1000);
             }
 
-            // Xác nhận khi nộp bài thủ công
-            $('#quizForm').on('submit', function (e) {
-                if (!confirm("Bạn có chắc chắn muốn nộp bài thi trắc nghiệm này?")) {
-                    e.preventDefault();
+            // 4. QUY ĐỊNH BẮT BUỘC: Chỉ được nộp bài khi đã chọn đủ toàn bộ câu hỏi
+            $(document).on('click', '.btn-trigger-submit', function (e) {
+                e.preventDefault();
+
+                var state = updatePaletteState();
+                var unansweredList = [];
+                var firstUnansweredIdx = null;
+
+                for (var i = 1; i <= totalQuestions; i++) {
+                    var checked = $('input[data-qindex="' + i + '"]:checked');
+                    if (checked.length === 0) {
+                        unansweredList.push("Câu " + i);
+                        if (firstUnansweredIdx === null) {
+                            firstUnansweredIdx = i;
+                        }
+                    }
+                }
+
+                // Nếu còn câu chưa làm: Chặn hoàn toàn việc nộp bài và cảnh báo người dùng
+                if (state.unansweredCount > 0) {
+                    $('#warningUnansweredCount').text(state.unansweredCount);
+                    $('#warningUnansweredList').text(unansweredList.join(", "));
+
+                    var warningModalEl = document.getElementById('unansweredWarningModal');
+                    if (warningModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                        var warningModal = bootstrap.Modal.getInstance(warningModalEl) || new bootstrap.Modal(warningModalEl);
+                        warningModal.show();
+                    } else {
+                        alert("Bạn chưa hoàn thành bài thi! Vui lòng chọn đáp án cho " + state.unansweredCount + " câu còn lại: " + unansweredList.join(", ") + " trước khi nộp bài.");
+                    }
+
+                    // Tự động cuộn đến câu chưa làm đầu tiên
+                    if (firstUnansweredIdx !== null) {
+                        setFocusQuestion(firstUnansweredIdx);
+                        $('html, body').animate({
+                            scrollTop: $('#question-block-' + firstUnansweredIdx).offset().top - 100
+                        }, 350);
+                    }
                     return false;
                 }
-                
-                var btn = $('.btn-submit-quiz');
-                btn.prop('disabled', true);
-                btn.html('<span class="spinner-border spinner-border-sm me-2"></span> Đang nộp bài & chấm điểm...');
+
+                // Đã hoàn thành 100%: Mở modal xác nhận nộp bài
+                var submitModalEl = document.getElementById('submitConfirmModal');
+                if (submitModalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var submitModal = bootstrap.Modal.getInstance(submitModalEl) || new bootstrap.Modal(submitModalEl);
+                    submitModal.show();
+                } else {
+                    if (confirm("Bạn đã hoàn thành đủ " + totalQuestions + "/" + totalQuestions + " câu hỏi. Bạn có chắc chắn muốn nộp bài thi ngay bây giờ?")) {
+                        try {
+                            localStorage.removeItem(storageKey);
+                            sessionStorage.removeItem(storageKey);
+                        } catch (e) { }
+                        $('#quizForm')[0].submit();
+                    }
+                }
             });
-        });
+
+            // Khi click "Làm tiếp ngay" từ modal cảnh báo: cuộn đến câu chưa làm
+            $(document).on('click', '#btnContinueDoingQuiz', function () {
+                for (var i = 1; i <= totalQuestions; i++) {
+                    var checked = $('input[data-qindex="' + i + '"]:checked');
+                    if (checked.length === 0) {
+                        setFocusQuestion(i);
+                        $('html, body').animate({
+                            scrollTop: $('#question-block-' + i).offset().top - 100
+                        }, 350);
+                        break;
+                    }
+                }
+            });
+
+            // Nhấp "Đồng ý nộp bài" trong Modal xác nhận
+            $(document).on('click', '#modalBtnConfirmSubmit', function () {
+                $(this).prop('disabled', true);
+                $(this).html('<span class="spinner-border spinner-border-sm me-2"></span> Đang nộp bài...');
+                try {
+                    localStorage.removeItem(storageKey);
+                    sessionStorage.removeItem(storageKey);
+                } catch (e) { }
+                $('#quizForm')[0].submit();
+            });
+
+            // Sự kiện submit form
+            $('#quizForm').on('submit', function () {
+                try {
+                    localStorage.removeItem(storageKey);
+                    sessionStorage.removeItem(storageKey);
+                } catch (e) { }
+            });
+        }
+
+        // Đảm bảo script chỉ chạy khi DOM đã sẵn sàng và các script defer đã được tải xong
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initQuizPage);
+        } else {
+            initQuizPage();
+        }
     </script>
 }
